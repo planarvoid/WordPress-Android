@@ -23,6 +23,8 @@ public class PlaybackStream implements Parcelable {
     private PlaybackFilter mFilter;
     private boolean mOptimize;
 
+    private float[] mTrimWindow = new float[2];
+
     public PlaybackStream(@NotNull AudioReader audioReader) {
         mPlaybackFile = audioReader;
         mConfig = audioReader.getConfig();
@@ -39,6 +41,8 @@ public class PlaybackStream implements Parcelable {
     public void resetBounds() {
         mStartPos = 0;
         mEndPos   = getTotalDuration();
+        mTrimWindow[0] = 0.0f;
+        mTrimWindow[1] = 1.0f;
     }
 
     public long getDuration(){
@@ -53,16 +57,20 @@ public class PlaybackStream implements Parcelable {
         return mConfig;
     }
 
-    public TrimPreview setStartPositionByPercent(double newPos, long moveTime) {
+    public TrimPreview setStartPositionByPercent(float newPos, long moveTime) {
         if (newPos < 0d || newPos > 1d) throw new IllegalArgumentException("Illegal start percent " + newPos);
+
+        mTrimWindow[0] = newPos;
 
         final long old = mStartPos;
         mStartPos = (long) (newPos * getTotalDuration());
         return new TrimPreview(this,old,mStartPos, moveTime);
     }
 
-    public TrimPreview setEndPositionByPercent(double newPos, long moveTime) {
+    public TrimPreview setEndPositionByPercent(float newPos, long moveTime) {
         if (newPos < 0d || newPos > 1d) throw new IllegalArgumentException("Illegal end percent " + newPos);
+
+        mTrimWindow[1] = newPos;
 
         final long old = mEndPos;
         mEndPos = (long) (newPos * getTotalDuration());
@@ -159,6 +167,7 @@ public class PlaybackStream implements Parcelable {
     public void setTrim(long start, long end) {
         mStartPos = start;
         mEndPos = end == -1 ? getTotalDuration() : end;
+        refreshTrimWindow();
     }
 
     public long getTrimRight() {
@@ -205,6 +214,11 @@ public class PlaybackStream implements Parcelable {
         return BufferUtils.allocateAudioBuffer(1024);
     }
 
+    public void refreshTrimWindow() {
+        mTrimWindow[0] = ((float) mStartPos) / getTotalDuration();
+        mTrimWindow[1] = ((float) mEndPos) / getTotalDuration();
+    }
+
     public static final Parcelable.Creator<PlaybackStream> CREATOR = new Parcelable.Creator<PlaybackStream>() {
         public PlaybackStream createFromParcel(Parcel in) {
             File file = new File(in.readString());
@@ -215,6 +229,7 @@ public class PlaybackStream implements Parcelable {
                 ps.mEndPos   = in.readLong();
                 ps.mOptimize = in.readInt() == 1;
                 ps.mFilter   = in.readParcelable(getClass().getClassLoader());
+                ps.refreshTrimWindow();
                 return ps;
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -226,4 +241,7 @@ public class PlaybackStream implements Parcelable {
         }
     };
 
+    public float[] getTrimWindow() {
+        return mTrimWindow;
+    }
 }

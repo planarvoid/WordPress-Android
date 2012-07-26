@@ -37,7 +37,7 @@ public class CreateWaveView extends View {
     private int mMaxWaveHeight;
 
     private float mCurrentProgress = -1f;
-    private float mTrimLeft, mTrimRight;
+
 
     private int mMode;
     private boolean mIsEditing;
@@ -69,7 +69,6 @@ public class CreateWaveView extends View {
     public void setMode(int mode, boolean animate) {
         if (mMode != mode){
             mMode = mode;
-            refreshTrim();
             if (mZoomBitmap != null){
                 mZoomBitmap.recycle();
                 mZoomBitmap = null;
@@ -91,7 +90,6 @@ public class CreateWaveView extends View {
         mAnimationStartTime = -1l;
         mMode = CreateWaveDisplay.MODE_REC;
         mIsEditing = false;
-        refreshTrim();
 
         if (mZoomBitmap != null) {
             mZoomBitmap.recycle();
@@ -103,25 +101,23 @@ public class CreateWaveView extends View {
 
     public void setIsEditing(boolean isEditing) {
         mIsEditing = isEditing;
-        refreshTrim();
+        invalidate();
     }
 
-    private void refreshTrim() {
-        mTrimLeft = SoundRecorder.getInstance(getContext()).getTrimPercentLeft();
-        mTrimRight = SoundRecorder.getInstance(getContext()).getTrimPercentRight();
-    }
 
     @Override
     protected void onDraw(Canvas canvas) {
 
         final SoundRecorder recorder = SoundRecorder.getInstance(getContext());
+        final float[] trimWindow = recorder.getTrimWindow();
+
         if (recorder.isGeneratingWaveform()) return;
 
         float normalizedTime = Math.min(1.0f, (((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
         float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
         boolean animating = (normalizedTime < 1.0f);
 
-        final MergedAmplitudeData amplitudeData = new MergedAmplitudeData(recorder.getRecordStream(), mTrimRight, mTrimLeft);
+        final MergedAmplitudeData amplitudeData = new MergedAmplitudeData(recorder.getRecordStream(), trimWindow);
         final DrawData drawData = new DrawData(amplitudeData, interpolatedTime, mMode == CreateWaveDisplay.MODE_REC, mIsEditing, getWidth());
 
         if (drawData.size > 0) {
@@ -145,7 +141,7 @@ public class CreateWaveView extends View {
                 if (mMode == CreateWaveDisplay.MODE_REC){
                     drawZoomView(canvas,drawData);
                 } else {
-                    drawFullView(canvas,points);
+                    drawFullView(canvas,points, trimWindow);
                 }
 
             }
@@ -161,9 +157,9 @@ public class CreateWaveView extends View {
      * @param canvas given by the view
      * @param points subset of amplitude data to be drawn
      */
-    private void drawFullView(Canvas canvas, float[] points) {
-
+    private void drawFullView(Canvas canvas, float[] points, float[] trimWindow) {
         final int width = getWidth();
+
         if (!mIsEditing) {
             final int currentProgressIndex = (int) (mCurrentProgress * width);
             // just draw progress (full orange if no current progress)
@@ -175,8 +171,8 @@ public class CreateWaveView extends View {
             }
 
         } else {
-            final int trimIndexLeft = (int) (mTrimLeft * width);
-            final int trimIndexRight = (int) (mTrimRight * width);
+            final int trimIndexLeft = (int) (trimWindow[0] * width);
+            final int trimIndexRight = (int) (trimWindow[1] * width);
             int currentProgressIndex = mCurrentProgress == -1 ? -1 :
                     (int) (trimIndexLeft + ((trimIndexRight - trimIndexLeft) * mCurrentProgress));
 
@@ -275,18 +271,8 @@ public class CreateWaveView extends View {
         invalidate();
     }
 
-    public void setCurrentProgress(float currentProgress) {
+    public void  setCurrentProgress(float currentProgress) {
         mCurrentProgress = currentProgress;
-        invalidate();
-    }
-
-    public void setTrimLeft(float trimLeft) {
-        mTrimLeft = trimLeft;
-        invalidate();
-    }
-
-    public void setTrimRight(float trimRight) {
-        mTrimRight = trimRight;
         invalidate();
     }
 
@@ -326,14 +312,6 @@ public class CreateWaveView extends View {
                 xIndex, this.getHeight() / 2 + amplitude * mMaxWaveHeight / 2, p);
     }
 
-    public float getTrimPercentLeft() {
-        return mTrimLeft;
-    }
-
-    public float getTrimPercentRight() {
-        return mTrimRight;
-    }
-
     /**
      * Merge the amplitudes available from the record stream and set some useful properties
      */
@@ -349,7 +327,7 @@ public class CreateWaveView extends View {
             public final int recordStartIndexWithTrim;
             public final int recordEndIndexWithTrim;
 
-            MergedAmplitudeData(RecordStream recordStream, float trimRight, float trimLeft){
+            MergedAmplitudeData(RecordStream recordStream, float[] trimWindow){
 
                 mPreRecData = recordStream.getPreRecordAmplitudeData();
                 mRecData = recordStream.getAmplitudeData();
@@ -358,8 +336,8 @@ public class CreateWaveView extends View {
                 writtenSize = mRecData == null ? 0 : mRecData.size();
                 totalSize = preRecSize + writtenSize;
 
-                recordStartIndexWithTrim = (int) (preRecSize + trimLeft * writtenSize);
-                recordEndIndexWithTrim = (int) (totalSize - writtenSize * (1d - trimRight));
+                recordStartIndexWithTrim = (int) (preRecSize + trimWindow[0] * writtenSize);
+                recordEndIndexWithTrim = (int) (totalSize - writtenSize * (1d - trimWindow[1]));
             }
 
         public float get(int i) {

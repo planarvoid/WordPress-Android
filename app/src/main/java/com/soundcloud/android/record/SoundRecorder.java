@@ -87,6 +87,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         public boolean isRecording() { return this == RECORDING; }
         public boolean isGeneratingWaveform() { return this == GENERATING_WAVEFORM; }
     }
+
+    private static float[] EMPTY_TRIM_WINDOW = new float[]{0f,0f};
+
     private final Context mContext;
 
     private volatile @NotNull State mState;
@@ -394,7 +397,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         if (mPlaybackStream != null) {
             long position = (long) (getPlaybackDuration() * pct);
             if ((isPlaying() || mState.isTrimming()) && position >= 0) {
-                mSeekToPos = position;
+                mSeekToPos = position + mPlaybackStream.getStartPos();
                 mState = State.SEEKING;
             } else {
                 mPlaybackStream.setCurrentPosition(position);
@@ -403,13 +406,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
 
-    public void onNewStartPosition(double newPos, long moveTime) {
+    public void onNewStartPosition(float newPos, long moveTime) {
         if (mPlaybackStream != null) {
             previewTrim(mPlaybackStream.setStartPositionByPercent(newPos, moveTime));
         }
     }
 
-    public void onNewEndPosition(double newPos, long moveTime) {
+    public void onNewEndPosition(float newPos, long moveTime) {
         if (mPlaybackStream != null) {
             previewTrim(mPlaybackStream.setEndPositionByPercent(newPos, moveTime));
         }
@@ -443,13 +446,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         return mRemainingTimeCalculator.timeRemaining();
     }
 
-    public float getTrimPercentLeft() {
-        return mPlaybackStream == null ? 0.0f : ((float) mPlaybackStream.getStartPos()) / mPlaybackStream.getTotalDuration();
-    }
+    public float[] getTrimWindow(){
+        if (mPlaybackStream == null){
+            return EMPTY_TRIM_WINDOW;
+        } else {
+            return mPlaybackStream.getTrimWindow();
+        }
 
-    public float getTrimPercentRight() {
-        return mPlaybackStream == null || mPlaybackStream.getEndPos() == -1 ? 1.0f :
-                ((float) mPlaybackStream.getEndPos()) / mPlaybackStream.getTotalDuration();
     }
 
     public @Nullable Recording saveState() {
