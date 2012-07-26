@@ -494,7 +494,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public boolean needsMigration() {
-        if (audio_path != null && external_upload != true) {
+        if (audio_path != null && !external_upload) {
             final DeprecatedProfile profile = DeprecatedProfile.getProfile(audio_path);
             return (profile != DeprecatedProfile.UNKNOWN);
         }
@@ -817,7 +817,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         }
 
         if (migrate.size() > 0) {
-            new Thread(new Runnable() {
+            new Thread() {
                 @Override
                 public void run() {
                     Log.i(SoundCloudApplication.TAG,"Deprecated recordings found, trying to migrate " + migrate.size() + " recordings");
@@ -830,7 +830,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
                     int updated = resolver.bulkInsert(Content.RECORDINGS.uri, cv);
                     Log.i(SoundCloudApplication.TAG,"Finished migrating " + updated + " recordings");
                 }
-            }).start();
+            }.start();
             return true;
         } else {
             return false;
@@ -840,13 +840,13 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     static enum DeprecatedProfile {
 
-        UNKNOWN(-1,null),
-        ENCODED_LOW(0,"ogg"),
-        ENCODED_HIGH(1,"ogg"),
-        RAW(2,"wav");
+        UNKNOWN(-1, null),
+        ENCODED_LOW(0, "ogg"),
+        ENCODED_HIGH(1, "ogg"),
+        RAW(2, "wav");
 
-        int id;
-        String updatedExtension;
+        final int id;
+        final String updatedExtension;
 
         DeprecatedProfile(int id, String updatedExtension){
             this.id = id;
@@ -860,7 +860,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
                     for (DeprecatedProfile p : DeprecatedProfile.values()) {
                         if (p.id == profile) return p;
                     }
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException ignore) {
                 }
             }
             return UNKNOWN;

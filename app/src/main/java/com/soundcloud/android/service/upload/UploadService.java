@@ -112,11 +112,10 @@ public class UploadService extends Service {
         }
 
         public boolean needsProcessing() {
-            return needsEncoding() ||
-                   (recording.getPlaybackStream() != null && recording.getPlaybackStream().isModified() &&
-                           (!recording.getProcessedFile().exists() || recording.getProcessedFile().length() == 0));
+            return  recording.getPlaybackStream() != null &&
+                    recording.getPlaybackStream().isModified() &&
+                  (!recording.getProcessedFile().exists() || recording.getProcessedFile().length() == 0);
         }
-
 
         @Override
         public String toString() {
