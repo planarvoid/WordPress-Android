@@ -15,6 +15,7 @@ import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.playback.AudioManagerFactory;
 import com.soundcloud.android.service.playback.IAudioManager;
 import com.soundcloud.android.service.record.SoundRecorderService;
+import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +32,6 @@ import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.EnumSet;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -158,8 +158,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         mBroadcastManager = LocalBroadcastManager.getInstance(context);
         mRemainingTimeCalculator = config.createCalculator();
 
-        buffer = ByteBuffer.allocateDirect(bufferSize);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        buffer = BufferUtils.allocateAudioBuffer(bufferSize);
 
         valuesPerSecond = (int) (PIXELS_PER_SECOND * context.getResources().getDisplayMetrics().density);
         bufferReadSize = (int) config.validBytePosition((long) (mConfig.bytesPerSecond / valuesPerSecond));
@@ -530,8 +529,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
         private void play(PlaybackStream playbackStream) throws IOException {
             final int bufferSize = 1024; //arbitrary small buffer. makes for more accurate progress reporting
-            ByteBuffer buffer = ByteBuffer.allocateDirect(bufferSize);
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            ByteBuffer buffer = BufferUtils.allocateAudioBuffer(bufferSize);
 
             mAudioTrack.setPlaybackRate(mConfig.sampleRate);
 
@@ -549,8 +547,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
         private void previewTrim(PlaybackStream playbackStream) throws IOException {
             final int bufferSize = 1024;
-            ByteBuffer buffer = ByteBuffer.allocateDirect(bufferSize);
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            ByteBuffer buffer = BufferUtils.allocateAudioBuffer(bufferSize);
 
             while (!previewQueue.isEmpty()) {
                 final TrimPreview preview = previewQueue.poll();

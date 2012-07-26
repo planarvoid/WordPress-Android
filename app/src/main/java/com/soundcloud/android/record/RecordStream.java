@@ -9,6 +9,7 @@ import com.soundcloud.android.audio.writer.EmptyWriter;
 import com.soundcloud.android.audio.writer.MultiAudioWriter;
 import com.soundcloud.android.audio.writer.VorbisWriter;
 import com.soundcloud.android.audio.writer.WavWriter;
+import com.soundcloud.android.utils.BufferUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -81,8 +83,7 @@ public class RecordStream implements AudioWriter {
                     final long start = System.currentTimeMillis();
                     mAmplitudeData = new AmplitudeData();
                     final int bufferSize = mConfig.getvalidBufferSizeForValueRate((int) (SoundRecorder.PIXELS_PER_SECOND * SoundCloudApplication.instance.getResources().getDisplayMetrics().density));
-                    ByteBuffer buffer = ByteBuffer.allocateDirect(bufferSize);
-                    buffer.order(ByteOrder.LITTLE_ENDIAN);
+                    ByteBuffer buffer = BufferUtils.allocateAudioBuffer(bufferSize);
 
                     final PlaybackStream playbackStream = new PlaybackStream(getAudioFile());
                     playbackStream.initializePlayback();

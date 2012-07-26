@@ -6,13 +6,11 @@ import static junit.framework.Assert.fail;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import android.os.Environment;
 
 import java.io.File;
 import java.io.FileInputStream;

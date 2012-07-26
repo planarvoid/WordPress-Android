@@ -1,6 +1,7 @@
 package com.soundcloud.android.audio;
 
 import com.soundcloud.android.audio.filter.FadeFilter;
+import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,7 +11,6 @@ import android.os.Parcelable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 public class PlaybackStream implements Parcelable {
     private long mCurrentPos;
@@ -202,9 +202,7 @@ public class PlaybackStream implements Parcelable {
     }
 
     public ByteBuffer buffer() {
-        ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        return buffer;
+        return BufferUtils.allocateAudioBuffer(1024);
     }
 
     public static final Parcelable.Creator<PlaybackStream> CREATOR = new Parcelable.Creator<PlaybackStream>() {
