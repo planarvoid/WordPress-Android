@@ -25,6 +25,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -428,6 +429,21 @@ public final class IOUtils {
         String name = file.getName();
         final int lastPeriodPos = name.lastIndexOf('.');
         return lastPeriodPos <= 0 ? file : new File(file.getParent(), name.substring(0, lastPeriodPos));
+    }
+
+    public static void skipFully(InputStream in, long n) throws IOException {
+        while (n > 0) {
+            long amt = in.skip(n);
+            if (amt == 0) {
+                // Force a blocking read to avoid infinite loop
+                if (in.read() == -1) {
+                    throw new EOFException();
+                }
+                n--;
+            } else {
+                n -= amt;
+            }
+        }
     }
 
     /**

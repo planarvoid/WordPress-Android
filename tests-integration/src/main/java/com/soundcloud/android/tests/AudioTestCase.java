@@ -43,6 +43,17 @@ public abstract class AudioTestCase extends ScAndroidTestCase {
     public static final String SHORT_WAV = "audio/short_test.wav";
 
     /*
+     * File Size: 882k      Bit Rate: 706k
+     * Encoding: Signed PCM
+     * Channels: 1 @ 16-bit
+     * Samplerate: 44100Hz
+     * Replaygain: off
+     * Duration: 00:00:10.00
+     */
+    public static final String SINE_WAV = "audio/sine.wav";
+
+
+    /*
      * File Size: 3.34M     Bit Rate: 1.41M
      * Encoding: Signed PCM
      * Channels: 2 @ 16-bit

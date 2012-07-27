@@ -1,11 +1,14 @@
 package com.soundcloud.android.jni;
 
 import com.soundcloud.android.audio.AudioConfig;
+import com.soundcloud.android.audio.PlaybackFilter;
 import com.soundcloud.android.audio.WavHeader;
+import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.tests.AudioTestCase;
 import junit.framework.AssertionFailedError;
 
 import android.os.Environment;
+import android.os.Parcel;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.Suppress;
 
@@ -18,19 +21,50 @@ import java.nio.ByteBuffer;
 public class VorbisEncoderTest extends AudioTestCase {
 
     public void testEncodeShortHighQuality() throws Exception {
-        encodeWav(SHORT_WAV, 5548, 1.0f);
+        encodeWav(SHORT_WAV, 5548, EncoderOptions.HI_Q);
     }
 
     public void testEncodeShortLowQuality() throws Exception {
-        encodeWav(SHORT_WAV, 5052, 0.1f);
+        encodeWav(SHORT_WAV, 5052, EncoderOptions.LO_Q);
     }
 
     public void testEncodeMedHighQuality() throws Exception {
-        encodeWav(MED_WAV, 18865, 1.0f);
+        encodeWav(MED_WAV, 18865, EncoderOptions.HI_Q);
     }
 
     public void testEncodeMedLowQuality() throws Exception {
-        encodeWav(MED_WAV, 18705, 0.4f);
+        encodeWav(MED_WAV, 18705, EncoderOptions.MED_Q);
+    }
+
+    public void testPartialEncoding() throws Exception {
+        EncoderOptions opts = new EncoderOptions(1f, 2000, 5500, null, null);
+        encodeWav(MED_WAV, 3500, opts);
+    }
+
+    public void testEncodingWithFadeFilter() throws Exception {
+        FadeFilter filter = new FadeFilter(AudioConfig.PCM16_44100_1);
+        EncoderOptions opts = new EncoderOptions(1f, 0, -1, null, filter);
+        encodeWav(SINE_WAV, 10000, opts);
+    }
+
+    public void testEncodingWithNullFilter() throws Exception {
+        PlaybackFilter filter = new PlaybackFilter() {
+            @Override
+            public ByteBuffer apply(ByteBuffer buffer, long position, long length) {
+                for (int i = 0; i< buffer.capacity(); i++) {
+                    buffer.put(i, (byte) 0);
+                }
+                return buffer;
+            }
+            @Override public int describeContents() {
+                return 0;
+            }
+            @Override public void writeToParcel(Parcel dest, int flags) {
+            }
+        };
+
+        EncoderOptions opts = new EncoderOptions(1f, 0, -1, null, filter);
+        encodeWav(SHORT_WAV, 5052, opts);
     }
 
     public void testRelease() throws Exception {
@@ -123,7 +157,7 @@ public class VorbisEncoderTest extends AudioTestCase {
         assertTrue(VorbisEncoder.validate(prepareAsset(CHAINED_OGG)));
     }
 
-    private void encodeWav(String file, int expectedDuration, float quality) throws Exception {
+    private void encodeWav(String file, int expectedDuration, EncoderOptions options) throws Exception {
         assertEquals("need writable external storage",
                 Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED);
 
@@ -135,9 +169,9 @@ public class VorbisEncoderTest extends AudioTestCase {
         File out = externalPath(ogg);
 
         final long start = System.currentTimeMillis();
-        VorbisEncoder.encodeWav(in, out, -1, quality, null);
+        VorbisEncoder.encodeWav(in, out, options);
         final long duration = System.currentTimeMillis() - start;
-        log("encoded '%s' in quality %f in %d ms, factor %.2f", file, quality, duration,
+        log("encoded '%s' in quality %f in %d ms, factor %.2f", file, options.quality, duration,
                 (double) duration / (double) wavHeader.getDuration());
 
         assertTrue(

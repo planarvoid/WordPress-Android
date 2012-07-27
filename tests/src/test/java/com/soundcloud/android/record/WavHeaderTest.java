@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.WavHeader;
+import com.soundcloud.android.utils.IOUtils;
 import org.junit.Test;
 
 import java.io.File;
@@ -100,5 +101,18 @@ public class WavHeaderTest {
         expect(header.offset(1000)).toEqual(88244l);
         expect(header.offset(-1000)).toEqual(44l);
         expect(header.offset(Integer.MAX_VALUE)).toEqual(497708l);
+    }
+
+    @Test
+    public void shouldGetAudioData() throws Exception {
+        InputStream wav = getClass().getResourceAsStream(MONO_TEST_WAV);
+        expect(wav).not.toBeNull();
+        WavHeader header = new WavHeader(wav);
+
+        WavHeader.AudioData data = header.getAudioData(1000, 3200);
+        expect(data.length).toEqual(194040l);
+        File out = File.createTempFile("partial_data", "wav");
+        IOUtils.copy(data.stream, out);
+        expect(out.length()).toEqual(194040l);
     }
 }

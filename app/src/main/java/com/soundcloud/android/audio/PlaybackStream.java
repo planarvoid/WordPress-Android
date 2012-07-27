@@ -174,11 +174,9 @@ public class PlaybackStream implements Parcelable {
         return getTotalDuration() - mEndPos;
     }
 
-    public boolean isModified() {
-        // TODO, this should include the filter in final version
-        return mStartPos > 0 ||
-                (mEndPos > 0 && mEndPos < getTotalDuration()) /*|| mFilter != null || mOptimize*/;
-    }
+    public boolean isFiltered() { return mFilter != null || mOptimize; }
+    public boolean isTrimmed()  { return mStartPos > 0 || (mEndPos > 0 && mEndPos < getTotalDuration()); }
+    public boolean isModified() { return isTrimmed() || isFiltered(); }
 
     public long getTotalDuration() {
         return mPlaybackFile.getDuration();
@@ -217,6 +215,10 @@ public class PlaybackStream implements Parcelable {
     public void refreshTrimWindow() {
         mTrimWindow[0] = ((float) mStartPos) / getTotalDuration();
         mTrimWindow[1] = ((float) mEndPos) / getTotalDuration();
+    }
+
+    public PlaybackFilter getPlaybackFilter() {
+        return  mFilter;
     }
 
     public static final Parcelable.Creator<PlaybackStream> CREATOR = new Parcelable.Creator<PlaybackStream>() {

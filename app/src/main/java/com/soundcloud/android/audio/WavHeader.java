@@ -16,6 +16,9 @@
 
 package com.soundcloud.android.audio;
 
+import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.LimitInputStream;
+
 import java.io.DataOutput;
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,6 +58,8 @@ public class WavHeader {
     private short mBitsPerSample;
     private int mNumBytes;
 
+    private InputStream is;
+
     /**
      * Initialises the WaveHeader data from an InputStream.
      * The stream will be positioned at the first byte of the actual data.
@@ -80,6 +85,7 @@ public class WavHeader {
         }
         read(is);
         if (rewind) is.reset();
+        this.is = is;
     }
 
 
@@ -211,7 +217,7 @@ public class WavHeader {
      * @return number of bytes consumed.
      * @throws IOException
      */
-    public int read(InputStream in) throws IOException {
+    private int read(InputStream in) throws IOException {
         /* RIFF header */
         readId(in, "RIFF");
         @SuppressWarnings("UnusedDeclaration")
@@ -350,6 +356,34 @@ public class WavHeader {
         throw new IllegalArgumentException("unknown audioformat: "+toString());
     }
 
+    /**
+     * Gets the audio data for this wav stream, respecting offsets.
+     * <em>This method can only be called once.</em>
+     *
+     * @param start start position in msec
+     * @param end end pos in msec, -1 for end of file
+     * @return an inputstream with partial audio data
+     * @throws IOException
+     */
+    public AudioData getAudioData(long start, long end) throws IOException {
+        InputStream stream = is;
+        long length = mNumBytes;
+
+        AudioConfig config = getAudioConfig();
+        if (start > 0) {
+            final long offset = Math.min(mNumBytes, config.validBytePosition(config.msToByte(start)));
+            IOUtils.skipFully(is, offset);
+            length -= offset;
+        }
+
+        if (end > 0) {
+            final long endPos = Math.min(mNumBytes, config.validBytePosition(config.msToByte(end)));
+            stream = new LimitInputStream(is, endPos - (mNumBytes - length));
+            length -= (mNumBytes - endPos);
+        }
+        return new AudioData(stream, length);
+    }
+
     public static WavHeader fromFile(File f) throws IOException {
         FileInputStream fis = new FileInputStream(f);
         WavHeader h = new WavHeader(fis);
@@ -362,5 +396,15 @@ public class WavHeader {
         OutputStream os = new FileOutputStream(f);
         h.write(os);
         os.close();
+    }
+
+    public static class AudioData {
+        public final InputStream stream;
+        public final long length;
+
+        AudioData(InputStream is, long length) {
+            this.stream = is;
+            this.length = length;
+        }
     }
 }

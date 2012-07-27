@@ -88,7 +88,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         public boolean isGeneratingWaveform() { return this == GENERATING_WAVEFORM; }
     }
 
-    private static float[] EMPTY_TRIM_WINDOW = new float[]{0f,0f};
+    private static float[] EMPTY_TRIM_WINDOW = new float[]{0f,1f};
 
     private final Context mContext;
 
@@ -200,7 +200,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
     public void setRecording(Recording recording) {
-        if (recording != mRecording) {
+        if (mRecording == null || recording.id != mRecording.id) {
             mRecording = recording;
             mRecordStream = new RecordStream(mConfig, recording.getFile(),
                     shouldEncode() ? recording.getEncodedFile() : null,
