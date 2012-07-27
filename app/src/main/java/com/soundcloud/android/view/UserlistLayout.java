@@ -6,9 +6,11 @@ import com.soundcloud.android.R;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -120,6 +122,10 @@ public class UserlistLayout extends RelativeLayout {
         TabLabel label = findLabel(tag);
         if (label != null) {
             mWorkspaceView.setCurrentScreenNow(label.index, true);
+            final View currentScreen = mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen());
+            if (currentScreen instanceof ScTabView){
+                ((ScTabView) currentScreen).setToTop();
+            }
         }
     }
 
