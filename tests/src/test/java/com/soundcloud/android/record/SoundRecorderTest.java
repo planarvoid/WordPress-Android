@@ -80,8 +80,8 @@ public class SoundRecorderTest {
         // change settings
         recorder.toggleFade();
         recorder.toggleOptimize();
-        recorder.onNewStartPosition(0.1d, 100);
-        recorder.onNewEndPosition(0.9d, 100);
+        recorder.onNewStartPosition(.1f, 100);
+        recorder.onNewEndPosition(.9f, 100);
 
         // and persist
         Recording saved = recorder.saveState();
