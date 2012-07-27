@@ -64,7 +64,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     public static final String EXTRA_STATE       = "state";
     public static final String EXTRA_AMPLITUDE   = "amplitude";
     public static final String EXTRA_ELAPSEDTIME = "elapsedTime";
-    public static final String EXTRA_DURATION    = "duration";
+    public static final String EXTRA_DURATION    = "durtion";
     public static final String EXTRA_RECORDING   = Recording.EXTRA;
     public static final String EXTRA_TIME_REMAINING = "time_remaining";
 
@@ -88,7 +88,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         public boolean isGeneratingWaveform() { return this == GENERATING_WAVEFORM; }
     }
 
-    private static float[] EMPTY_TRIM_WINDOW = new float[]{0f,0f};
+    private static float[] EMPTY_TRIM_WINDOW = new float[]{0f,1f};
 
     private final Context mContext;
 
