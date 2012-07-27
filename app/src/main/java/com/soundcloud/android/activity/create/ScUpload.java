@@ -61,6 +61,7 @@ public class ScUpload extends ScActivity {
                 // findViewById(R.id.btn_cancel).setVisibility(View.GONE);
                 ((ViewGroup) findViewById(R.id.share_user_layout)).addView(
                         new ShareUserHeader(this, getApp().getLoggedInUser()));
+                findViewById(R.id.txt_title).setVisibility(View.GONE);
             }
 
             if (mRecording.exists()) {
@@ -101,7 +102,7 @@ public class ScUpload extends ScActivity {
                     errorOut(R.string.recording_not_found);
                 }
             }
-        }), mRecording.isPrivateMessage() ? R.string.private_message_btn_send : R.string.upload_and_share);
+        }), mRecording.isPrivateMessage() ? R.string.private_message_btn_send : R.string.post);
 
         if (mRecording.isPrivateMessage()) {
             ((TextView) findViewById(R.id.txt_private_message_upload_message))

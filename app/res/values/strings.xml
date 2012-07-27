@@ -23,6 +23,9 @@
 
     <string name="dialog_revert_recording_message">You will lose all of your edits. Proceed?</string>
 
+    <string name="post">Post</string>
+    <string name="share">Share</string>
+
     <string name="btn_publish">Publish</string>
     <string name="btn_apply">Apply</string>
 
