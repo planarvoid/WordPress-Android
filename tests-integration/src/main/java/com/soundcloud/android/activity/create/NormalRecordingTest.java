@@ -84,7 +84,7 @@ public class NormalRecordingTest extends RecordingTestCase {
 
         solo.enterText(0, "A test upload");
         solo.clickOnButtonResId(R.string.sc_upload_private);
-        solo.clickOnText(R.string.upload_and_share);
+        solo.clickOnText(R.string.post);
 
         assertIntentAction(UploadService.UPLOAD_SUCCESS, 10000);
         solo.assertActivityFinished();
@@ -109,7 +109,7 @@ public class NormalRecordingTest extends RecordingTestCase {
         solo.assertActivity(ScUpload.class);
 
         solo.clickOnButtonResId(R.string.sc_upload_private);
-        solo.clickOnText(R.string.upload_and_share);
+        solo.clickOnText(R.string.post);
 
         assertIntentAction(UploadService.UPLOAD_SUCCESS, 10000);
         solo.assertActivityFinished();
@@ -128,7 +128,7 @@ public class NormalRecordingTest extends RecordingTestCase {
 
             solo.enterText(0, "A test upload");
             solo.clickOnButtonResId(R.string.sc_upload_private);
-            solo.clickOnText(R.string.upload_and_share);
+            solo.clickOnText(R.string.post);
 
             assertIntentAction(UploadService.PROCESSING_STARTED,  2000);
             assertIntentAction(UploadService.PROCESSING_PROGRESS, 5000);

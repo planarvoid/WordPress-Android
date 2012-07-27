@@ -422,6 +422,14 @@ public final class IOUtils {
         }
     }
 
+    public static File removeExtension(File file) {
+        if (file.isDirectory()) return file;
+
+        String name = file.getName();
+        final int lastPeriodPos = name.lastIndexOf('.');
+        return lastPeriodPos <= 0 ? file : new File(file.getParent(), name.substring(0, lastPeriodPos));
+    }
+
     /**
      * some phones have really low transfer rates when the screen is turned off, so request a full
      * performance lock on newer devices

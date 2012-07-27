@@ -110,7 +110,6 @@ public class CreateWaveView extends View {
 
         final SoundRecorder recorder = SoundRecorder.getInstance(getContext());
         final float[] trimWindow = recorder.getTrimWindow();
-
         if (recorder.isGeneratingWaveform()) return;
 
         float normalizedTime = Math.min(1.0f, (((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));

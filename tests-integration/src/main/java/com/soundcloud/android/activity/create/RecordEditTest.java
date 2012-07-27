@@ -51,7 +51,7 @@ public class RecordEditTest extends RecordingTestCase {
 
         solo.enterText(0, "An edit test upload");
         solo.clickOnButtonResId(R.string.sc_upload_private);
-        solo.clickOnText(R.string.upload_and_share);
+        solo.clickOnText(R.string.post);
 
         assertIntentAction(UploadService.UPLOAD_SUCCESS, 10000);
         if (env == Env.LIVE) {

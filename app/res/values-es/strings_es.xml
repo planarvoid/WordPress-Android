@@ -433,7 +433,6 @@
   <string name="tracklist_item_shared_with_1_person">1 persona</string>
   <string name="tracklist_item_shared_with_x_people">%d personas</string>
   <string name="tracklist_item_shared_with_you">Usted</string>
-  <string name="upload_and_share">Subir y compartir</string>
   <string name="use_existing_image">Usar la imagen actual</string>
   <string name="use_existing_image_error">No se pudo usar la imagen actual</string>
   <string name="user">persona</string>

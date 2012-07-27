@@ -51,8 +51,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class Recording extends ScModel implements Comparable<Recording> {
@@ -512,9 +514,12 @@ public class Recording extends ScModel implements Comparable<Recording> {
             if (audio_path.renameTo(newPath)){
                 newPath.setLastModified(lastMod);
                 audio_path = newPath;
+                external_upload = true;
+
+                // return content values for bulk migration
                 ContentValues cv = new ContentValues();
                 cv.put(Recordings._ID, id);
-                cv.put(Recordings.EXTERNAL_UPLOAD, true);
+                cv.put(Recordings.EXTERNAL_UPLOAD, external_upload);
                 cv.put(Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
                 return cv;
             }
@@ -542,8 +547,14 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public static List<Recording> getUnsavedRecordings(ContentResolver resolver, File directory, Recording ignore, long userId) {
         MediaPlayer mp = null;
         List<Recording> unsaved = new ArrayList<Recording>();
+
+        Map<String,File> toCheck = new HashMap<String,File>();
         for (File f : IOUtils.nullSafeListFiles(directory, new RecordingFilter(ignore))) {
-            if (getUserIdFromFile(f) != -1) continue; // ignore current file
+            if (getUserIdFromFile(f) != -1) continue; //TODO, what to do about private messages
+            // this should put wav files in when possible (because of alphabetical ordering)
+            toCheck.put(IOUtils.removeExtension(f).getAbsolutePath(),f);
+        }
+        for (File f : toCheck.values()) {
             Recording r = SoundCloudDB.getRecordingByPath(resolver, f);
             if (r == null) {
                 r = new Recording(f);
@@ -796,6 +807,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
             if (c != null) {
                 long startPos = c.getLong(c.getColumnIndex(Recordings.TRIM_LEFT));
                 long endPos   = c.getLong(c.getColumnIndex(Recordings.TRIM_RIGHT));
+
+                // validate, can happen after migration
+                if (endPos <= startPos) endPos = duration;
+
                 boolean optimize  = c.getInt(c.getColumnIndex(Recordings.OPTIMIZE)) == 1;
                 boolean fade  = c.getInt(c.getColumnIndex(Recordings.FADING)) == 1;
 
