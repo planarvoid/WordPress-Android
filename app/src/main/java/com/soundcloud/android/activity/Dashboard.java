@@ -89,22 +89,25 @@ public class Dashboard extends ScListActivity {
                                 }
                             });
                 } else {
+                    EmptyCollection.ActionListener record = new EmptyCollection.ActionListener() {
+                        @Override
+                        public void onAction() {
+                            startActivity(new Intent(Actions.RECORD)
+                                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                        }
+
+                        @Override
+                        public void onSecondaryAction() {
+                            goTo101s();
+                        }
+                    };
+
                     ec.setMessageText(R.string.list_empty_activity_nosounds_message)
                             .setImage(R.drawable.empty_rec)
                             .setActionText(R.string.list_empty_activity_nosounds_action)
                             .setSecondaryText(R.string.list_empty_activity_nosounds_secondary)
-                            .setButtonActionListener(new EmptyCollection.ActionListener() {
-                                @Override
-                                public void onAction() {
-                                    startActivity(new Intent(Actions.RECORD)
-                                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
-                                }
-
-                                @Override
-                                public void onSecondaryAction() {
-                                    goTo101s();
-                                }
-                            });
+                            .setButtonActionListener(record)
+                            .setImageActionListener(record);
                 }
                 trackListView = createList(Content.ME_ACTIVITIES,
                         Activity.class,

@@ -18,6 +18,8 @@ public class EmptyCollection extends FrameLayout {
     private Button mBtnAction;
     private ActionListener mButtonActionListener;
 
+    private ActionListener mImageActionListener;
+
     public EmptyCollection(Context context) {
         super(context);
         init();
@@ -31,6 +33,15 @@ public class EmptyCollection extends FrameLayout {
         mTxtLink = (TextView) findViewById(R.id.txt_link);
         mBtnAction = (Button) findViewById(R.id.btn_action);
         mImage = (ImageView) findViewById(R.id.img_1);
+
+        mImage.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mImageActionListener!= null) {
+                    mImageActionListener.onAction();
+                }
+            }
+        });
 
         mTxtMessage.setVisibility(View.GONE);
         mTxtLink.setVisibility(View.GONE);
@@ -87,6 +98,11 @@ public class EmptyCollection extends FrameLayout {
 
     public EmptyCollection setButtonActionListener(ActionListener listener){
         mButtonActionListener = listener;
+        return this;
+    }
+
+    public EmptyCollection setImageActionListener(ActionListener listener){
+        mImageActionListener = listener;
         return this;
     }
 
