@@ -76,6 +76,17 @@ public final class IOUtils {
         }
     }
 
+    public static long getTotalSpace(File dir) {
+        try {
+            StatFs fs = new StatFs(dir.getAbsolutePath());
+            return (long) fs.getBlockSize() * (long) fs.getBlockCount();
+        } catch (IllegalArgumentException e) {
+            // gets thrown when call to statfs fails
+            Log.e(TAG, "getTotalSpace("+dir+")", e);
+            return 0;
+        }
+    }
+
     public static File getFromMediaUri(ContentResolver resolver, Uri uri) {
         if (uri == null) return null;
 

@@ -1,4 +1,4 @@
-package com.soundcloud.android.streaming;
+package com.soundcloud.android.utils;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -8,17 +8,18 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 
 public class BufferUtils {
     private BufferUtils() {
     }
 
-    static ByteBuffer readToByteBuffer(File f) throws IOException {
+    public static ByteBuffer readToByteBuffer(File f) throws IOException {
         return readToByteBuffer(f, (int) f.length());
     }
 
-    static ByteBuffer readToByteBuffer(File f, int toRead) throws IOException {
+    public static ByteBuffer readToByteBuffer(File f, int toRead) throws IOException {
         ByteBuffer b = ByteBuffer.allocate(toRead);
         FileChannel fc = new FileInputStream(f).getChannel();
         fc.read(b);
@@ -63,5 +64,11 @@ public class BufferUtils {
         } finally {
             is.close();
         }
+    }
+
+    public static ByteBuffer allocateAudioBuffer(int size) {
+        ByteBuffer bb = ByteBuffer.allocateDirect(size);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        return bb;
     }
 }

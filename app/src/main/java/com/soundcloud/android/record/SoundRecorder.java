@@ -5,16 +5,17 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.audio.AudioConfig;
-import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.audio.ScAudioTrack;
 import com.soundcloud.android.audio.TrimPreview;
+import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.playback.AudioManagerFactory;
 import com.soundcloud.android.service.playback.IAudioManager;
 import com.soundcloud.android.service.record.SoundRecorderService;
+import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +32,6 @@ import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.EnumSet;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -66,6 +66,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     public static final String EXTRA_ELAPSEDTIME = "elapsedTime";
     public static final String EXTRA_DURATION    = "duration";
     public static final String EXTRA_RECORDING   = Recording.EXTRA;
+    public static final String EXTRA_TIME_REMAINING = "time_remaining";
 
     public static final String[] ALL_ACTIONS = {
       NOTIFICATION_STATE, RECORD_STARTED, RECORD_ERROR, RECORD_SAMPLE, RECORD_PROGRESS, RECORD_FINISHED,
@@ -86,6 +87,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         public boolean isRecording() { return this == RECORDING; }
         public boolean isGeneratingWaveform() { return this == GENERATING_WAVEFORM; }
     }
+
+    private static float[] EMPTY_TRIM_WINDOW = new float[]{0f,0f};
+
     private final Context mContext;
 
     private volatile @NotNull State mState;
@@ -110,6 +114,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     private boolean mShouldUseNotifications = true;
 
     private long mSeekToPos = -1;
+    private long mRemainingTime = -1;
 
     private final LocalBroadcastManager mBroadcastManager;
 
@@ -131,9 +136,11 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             @Override public void onMarkerReached(AudioRecord audioRecord) { }
             @Override public void onPeriodicNotification(AudioRecord audioRecord) {
                 if (mState == State.RECORDING) {
+                    mRemainingTime = mRemainingTimeCalculator.timeRemaining();
                     mBroadcastManager.sendBroadcast(new Intent(RECORD_PROGRESS)
                             .putExtra(EXTRA_ELAPSEDTIME, getRecordingElapsedTime())
-                            .putExtra(EXTRA_DURATION, getPlaybackDuration()));
+                            .putExtra(EXTRA_DURATION, getPlaybackDuration())
+                            .putExtra(EXTRA_TIME_REMAINING, mRemainingTime));
                 }
             }
         });
@@ -154,8 +161,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         mBroadcastManager = LocalBroadcastManager.getInstance(context);
         mRemainingTimeCalculator = config.createCalculator();
 
-        buffer = ByteBuffer.allocateDirect(bufferSize);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        buffer = BufferUtils.allocateAudioBuffer(bufferSize);
 
         valuesPerSecond = (int) (PIXELS_PER_SECOND * context.getResources().getDisplayMetrics().density);
         bufferReadSize = (int) config.validBytePosition((long) (mConfig.bytesPerSecond / valuesPerSecond));
@@ -251,7 +257,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
 
         mRemainingTimeCalculator.reset();
-
         if (mState != State.RECORDING) {
             if (mRecording == null) {
                 mRecording = Recording.create(user);
@@ -259,12 +264,16 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 mRecordStream.setWriters(mRecording.getFile(),
                         shouldEncode() ? mRecording.getEncodedFile() : null);
 
+
+                if (shouldEncode()) mRemainingTimeCalculator.setEncodedFile(mRecording.getEncodedFile());
+                mRemainingTime = mRemainingTimeCalculator.timeRemaining();
             } else {
                 // truncate if we are appending
                 if (mPlaybackStream != null) {
                     try {
                         if (mPlaybackStream.getTrimRight() > 0) {
                             mRecordStream.truncate(mPlaybackStream.getEndPos(), valuesPerSecond);
+                            mPlaybackStream.setTrim(mPlaybackStream.getStartPos(),mPlaybackStream.getTotalDuration());
                             mPlaybackStream.reopen();
                         }
                     } catch (IOException e) {
@@ -388,7 +397,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         if (mPlaybackStream != null) {
             long position = (long) (getPlaybackDuration() * pct);
             if ((isPlaying() || mState.isTrimming()) && position >= 0) {
-                mSeekToPos = position;
+                mSeekToPos = position + mPlaybackStream.getStartPos();
                 mState = State.SEEKING;
             } else {
                 mPlaybackStream.setCurrentPosition(position);
@@ -397,13 +406,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
 
-    public void onNewStartPosition(double newPos, long moveTime) {
+    public void onNewStartPosition(float newPos, long moveTime) {
         if (mPlaybackStream != null) {
             previewTrim(mPlaybackStream.setStartPositionByPercent(newPos, moveTime));
         }
     }
 
-    public void onNewEndPosition(double newPos, long moveTime) {
+    public void onNewEndPosition(float newPos, long moveTime) {
         if (mPlaybackStream != null) {
             previewTrim(mPlaybackStream.setEndPositionByPercent(newPos, moveTime));
         }
@@ -430,21 +439,20 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         mPlaybackThread.start();
     }
 
+    /***
+     * @return the remaining recording time, in seconds
+     */
     public long timeRemaining() {
-        return mRemainingTimeCalculator.timeRemaining() + 2; // adding 2 seconds to make up for lag
+        return mRemainingTimeCalculator.timeRemaining();
     }
 
-    public int currentLowerLimit() {
-        return mRemainingTimeCalculator.currentLowerLimit();
-    }
+    public float[] getTrimWindow(){
+        if (mPlaybackStream == null){
+            return EMPTY_TRIM_WINDOW;
+        } else {
+            return mPlaybackStream.getTrimWindow();
+        }
 
-    public float getTrimPercentLeft() {
-        return mPlaybackStream == null ? 0.0f : ((float) mPlaybackStream.getStartPos()) / mPlaybackStream.getTotalDuration();
-    }
-
-    public float getTrimPercentRight() {
-        return mPlaybackStream == null || mPlaybackStream.getEndPos() == -1 ? 1.0f :
-                ((float) mPlaybackStream.getEndPos()) / mPlaybackStream.getTotalDuration();
     }
 
     public @Nullable Recording saveState() {
@@ -503,6 +511,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 .putExtra(EXTRA_POSITION, getCurrentPlaybackPosition())
                 .putExtra(EXTRA_DURATION, getPlaybackDuration())
                 .putExtra(EXTRA_STATE, mState.name())
+                .putExtra(EXTRA_TIME_REMAINING, mRemainingTime)
                 .putExtra(EXTRA_RECORDING, mRecording);
 
         mBroadcastManager.sendBroadcast(intent);
@@ -524,8 +533,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
         private void play(PlaybackStream playbackStream) throws IOException {
             final int bufferSize = 1024; //arbitrary small buffer. makes for more accurate progress reporting
-            ByteBuffer buffer = ByteBuffer.allocateDirect(bufferSize);
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            ByteBuffer buffer = BufferUtils.allocateAudioBuffer(bufferSize);
 
             mAudioTrack.setPlaybackRate(mConfig.sampleRate);
 
@@ -543,8 +551,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
         private void previewTrim(PlaybackStream playbackStream) throws IOException {
             final int bufferSize = 1024;
-            ByteBuffer buffer = ByteBuffer.allocateDirect(bufferSize);
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            ByteBuffer buffer = BufferUtils.allocateAudioBuffer(bufferSize);
 
             while (!previewQueue.isEmpty()) {
                 final TrimPreview preview = previewQueue.poll();
@@ -685,17 +692,21 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                         mState = SoundRecorder.State.ERROR;
                     } else if (read == 0) {
                         Log.w(TAG, "AudioRecord.read() returned no data");
+                    } else if (mState == SoundRecorder.State.RECORDING &&
+                               mRemainingTime <= 0) {
+                        Log.w(TAG, "No more recording time, stopping");
+                        mState = SoundRecorder.State.STOPPING;
                     } else {
-                            try {
-                                final int written = mRecordStream.write(buffer, read);
-                                if (written >= 0 && written < read) {
-                                    Log.w(TAG, "partial write "+written);
-                                }
-                            } catch (IOException e) {
-                                Log.e(TAG, "Error occured in updateListener, recording is aborted : ", e);
-                                mState = SoundRecorder.State.ERROR;
-                                break;
+                        try {
+                            final int written = mRecordStream.write(buffer, read);
+                            if (written >= 0 && written < read) {
+                                Log.w(TAG, "partial write "+written);
                             }
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error occured in updateListener, recording is aborted : ", e);
+                            mState = SoundRecorder.State.ERROR;
+                            break;
+                        }
 
                         Intent intent = new Intent(RECORD_SAMPLE)
                                 .putExtra(EXTRA_AMPLITUDE, mRecordStream.getLastAmplitude())
@@ -746,7 +757,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
     private boolean shouldEncode() {
-        return "compressed".equals(PreferenceManager.getDefaultSharedPreferences(mContext)
-                .getString(DevSettings.DEV_RECORDING_TYPE, "compressed"));
+        return !DevSettings.DEV_RECORDING_TYPE_RAW.equals(PreferenceManager.getDefaultSharedPreferences(mContext)
+                .getString(DevSettings.DEV_RECORDING_TYPE, null));
     }
 }

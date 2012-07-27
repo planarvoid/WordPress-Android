@@ -301,7 +301,6 @@ static int write_to_stream(encoder_state *state, int length) {
         return ret;
     }
 
-    LOG_D("write_to_stream (%d)", length);
     while (vorbis_analysis_blockout(&state->vd, &state->vb) == 1) {
         /* analysis, assume we want to use bitrate management */
         vorbis_analysis(&state->vb, NULL);

@@ -181,7 +181,7 @@ public class VorbisEncoder {
      * @param wav the wav file
      * @param out path of encoded ogg file
      * @param quality encoding quality (0 - 1.0f)
-     * @return
+     * @return always 0
      * @throws IOException
      */
     public static int encodeWav(InputStream wav, File out, long length, float quality, @Nullable ProgressListener listener) throws IOException {
@@ -202,6 +202,14 @@ public class VorbisEncoder {
         return 0;
     }
 
+    /**
+     * @param in  input file
+     * @param out output file
+     * @param quality desired quality (0 - 1.0f)
+     * @param listener progress listener
+     * @return always 0
+     * @throws IOException
+     */
     public static int encodeWav(File in, File out, float quality, ProgressListener listener) throws IOException {
         FileInputStream inS = new FileInputStream(in);
         try {

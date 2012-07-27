@@ -19,6 +19,20 @@
                 android:title="@string/pref_revoke_access"
                 android:summary="@string/pref_revoke_desc"
                 android:key="logout"/>
+
+        <CheckBoxPreference
+                android:key="acra.enable"
+                android:title="@string/pref_analytics"
+                android:summary="@string/pref_analytics_desc"
+                android:defaultValue="true"
+                />
+
+        <CheckBoxPreference
+                android:key="crashlogs"
+                android:title="@string/pref_crashlogs"
+                android:summary="@string/pref_crashlogs_desc"
+                android:defaultValue="true"
+                />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -33,6 +47,15 @@
                 android:key="clearCache"
                 android:title="@string/pref_clear_cache"
                 android:summary="@string/pref_clear_cache_desc"
+                />
+
+        <com.soundcloud.android.activity.preference.SeekBarPreference
+                android:key="streamCacheSize"
+                android:title="@string/pref_stream_cache_size"
+                android:summary="@string/pref_stream_cache_size_desc"
+                android:inputType="number"
+                android:defaultValue="10"
+                android:text="%"
                 />
 
         <Preference

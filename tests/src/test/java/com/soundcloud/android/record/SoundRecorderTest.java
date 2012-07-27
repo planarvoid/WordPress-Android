@@ -1,6 +1,7 @@
 package com.soundcloud.android.record;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.record.RemainingTimeCalculator.KEEP_BLOCKS;
 
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.PlaybackStream;
@@ -45,7 +46,7 @@ public class SoundRecorderTest {
     @Test
     public void shouldStartRecording() throws Exception {
         TestHelper.enableSDCard();
-        ShadowStatFs.registerStats(Environment.getExternalStorageDirectory(), 100, 10, 10);
+        ShadowStatFs.registerStats(Environment.getExternalStorageDirectory(), 200, KEEP_BLOCKS+1, KEEP_BLOCKS+1);
         Recording r = recorder.startRecording(null);
         expect(r).not.toBeNull();
         recorder.mReaderThread.join(); // wait for failure
@@ -55,7 +56,7 @@ public class SoundRecorderTest {
     @Test
     public void shouldSaveState() throws Exception {
         TestHelper.enableSDCard();
-        ShadowStatFs.registerStats(Environment.getExternalStorageDirectory(), 100, 10, 10);
+        ShadowStatFs.registerStats(Environment.getExternalStorageDirectory(), 200, KEEP_BLOCKS+1, KEEP_BLOCKS+1);
         Recording r = recorder.startRecording(null);
         expect(r).not.toBeNull();
 
@@ -67,7 +68,7 @@ public class SoundRecorderTest {
     @Test
     public void shouldSaveCurrentPlaybackSettings() throws Exception {
         TestHelper.enableSDCard();
-        ShadowStatFs.registerStats(Environment.getExternalStorageDirectory(), 100, 10, 10);
+        ShadowStatFs.registerStats(Environment.getExternalStorageDirectory(), 200, KEEP_BLOCKS+1, KEEP_BLOCKS+1);
         Recording r = recorder.startRecording(null);
         expect(r).not.toBeNull();
 
@@ -79,8 +80,8 @@ public class SoundRecorderTest {
         // change settings
         recorder.toggleFade();
         recorder.toggleOptimize();
-        recorder.onNewStartPosition(0.1d, 100);
-        recorder.onNewEndPosition(0.9d, 100);
+        recorder.onNewStartPosition(.1f, 100);
+        recorder.onNewEndPosition(.9f, 100);
 
         // and persist
         Recording saved = recorder.saveState();

@@ -38,6 +38,7 @@ object AndroidBuild extends Build {
   )
 
   val testDependencies = Seq(
+    "com.google.android" % "android" % "4.0.1.2" % "test",
     "com.pivotallabs" % "robolectric" % "1.2-SNAPSHOT" % "test",
     "junit" % "junit-dep" % "4.9" % "test",
     "org.mockito" % "mockito-core" % "1.9.5-rc1" % "test",

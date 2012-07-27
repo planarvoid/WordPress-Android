@@ -3,12 +3,15 @@ package com.soundcloud.android.activity.create;
 
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_PLAYBACK;
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_RECORD;
+import static com.soundcloud.android.activity.create.ScCreate.CreateState.RECORD;
 
 import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Main;
+import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.service.upload.UploadService;
+import com.soundcloud.api.Env;
 
 import android.content.Intent;
 import android.os.Build;
@@ -65,16 +68,6 @@ public class NormalRecordingTest extends RecordingTestCase {
         solo.assertActivityFinished();
     }
 
-    @Suppress // autosave is now in place
-    public void testRecordAndDiscard() throws Exception {
-        record(RECORDING_TIME);
-
-        solo.clickOnText(R.string.reset); // "Discard"
-        solo.assertText(R.string.dialog_reset_recording_message); // "Reset? Recording will be deleted."
-        solo.clickOnOK();
-        assertState(IDLE_RECORD);
-    }
-
     public void testRecordAndDelete() throws Exception {
         record(RECORDING_TIME);
         solo.clickOnText(R.string.delete); // "Discard"
@@ -93,7 +86,7 @@ public class NormalRecordingTest extends RecordingTestCase {
         solo.clickOnButtonResId(R.string.sc_upload_private);
         solo.clickOnText(R.string.upload_and_share);
 
-        assertTrue("did not get upload notification", waitForIntent(UploadService.UPLOAD_SUCCESS, 10000));
+        assertIntentAction(UploadService.UPLOAD_SUCCESS, 10000);
         solo.assertActivityFinished();
     }
 
@@ -118,8 +111,38 @@ public class NormalRecordingTest extends RecordingTestCase {
         solo.clickOnButtonResId(R.string.sc_upload_private);
         solo.clickOnText(R.string.upload_and_share);
 
-        assertTrue("did not get upload notification", waitForIntent(UploadService.UPLOAD_SUCCESS, 10000));
+        assertIntentAction(UploadService.UPLOAD_SUCCESS, 10000);
         solo.assertActivityFinished();
+    }
+
+    public void testRecordAndUploadRaw() throws Exception {
+        setRecordingType(DevSettings.DEV_RECORDING_TYPE_RAW);
+        try {
+            record(RECORDING_TIME);
+
+            assertTrue("raw file does not exist", getActivity().getRecorder().getRecording().getFile().exists());
+            assertFalse("encoded file exists", getActivity().getRecorder().getRecording().getEncodedFile().exists());
+
+            solo.clickOnPublish();
+            solo.assertActivity(ScUpload.class);
+
+            solo.enterText(0, "A test upload");
+            solo.clickOnButtonResId(R.string.sc_upload_private);
+            solo.clickOnText(R.string.upload_and_share);
+
+            assertIntentAction(UploadService.PROCESSING_STARTED,  2000);
+            assertIntentAction(UploadService.PROCESSING_PROGRESS, 5000);
+            assertIntentAction(UploadService.PROCESSING_SUCCESS, 20000);
+
+            assertIntentAction(UploadService.UPLOAD_SUCCESS, 30000);
+
+            if (env == Env.LIVE) {
+                assertIntentAction(UploadService.TRANSCODING_SUCCESS, 30000);
+            }
+            solo.assertActivityFinished();
+        } finally {
+            setRecordingType(null);
+        }
     }
 
     public void testRecordAndSharePrivatelyToEmailAddress() throws Exception {
@@ -216,6 +239,35 @@ public class NormalRecordingTest extends RecordingTestCase {
 
         solo.assertActivity(ScCreate.class);
         assertState(IDLE_PLAYBACK); // should be old recording
+    }
+
+
+    public void testRecordAndRunningOutOfStorageSpace() throws Exception {
+        File filler = fillUpSpace(1024*1024);
+        try {
+            assertState(IDLE_RECORD, IDLE_PLAYBACK);
+            long remaining = getActivity().getRecorder().timeRemaining();
+            // countdown starts for last 5 minutes of recording time
+            assertTrue("remaining time over 5 mins: "+remaining, remaining < 300);
+
+            solo.clickOnView(R.id.btn_action);
+            solo.sleep(1000);
+
+            while (getActivity().getRecorder().timeRemaining() > 10) {
+                assertState(RECORD);
+                solo.sleep(100);
+                solo.assertVisibleText("(?:\\d+|One) (?:minute|second)s? available", 100);
+            }
+
+            solo.assertText(R.string.record_storage_is_full);
+            assertEquals(0, getActivity().getRecorder().timeRemaining());
+            // out of space, assert player paused
+            assertState(IDLE_PLAYBACK);
+        } finally {
+            if (filler != null) {
+                filler.delete();
+            }
+        }
     }
 
     @Suppress
