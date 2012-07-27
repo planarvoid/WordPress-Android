@@ -208,7 +208,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
             if (!mRecordStream.hasValidAmplitudeData()) {
                 mState = State.GENERATING_WAVEFORM;
-                mRecordStream.regenerateAmplitudeData(mRecording.getAmplitudeFile(), this);
+                mRecordStream.regenerateAmplitudeDataAsync(mRecording.getAmplitudeFile(), this);
             }
 
             mPlaybackStream = recording.getPlaybackStream();
