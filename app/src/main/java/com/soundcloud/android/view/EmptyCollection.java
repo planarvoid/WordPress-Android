@@ -16,7 +16,7 @@ public class EmptyCollection extends FrameLayout {
     private TextView mTxtLink;
     private ImageView mImage;
     private Button mBtnAction;
-    private ActionListener mActionListener;
+    private ActionListener mButtonActionListener;
 
     public EmptyCollection(Context context) {
         super(context);
@@ -38,8 +38,8 @@ public class EmptyCollection extends FrameLayout {
         mBtnAction.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mActionListener != null) {
-                    mActionListener.onAction();
+                if (mButtonActionListener != null) {
+                    mButtonActionListener.onAction();
                 }
             }
         });
@@ -67,8 +67,8 @@ public class EmptyCollection extends FrameLayout {
         ScTextUtils.clickify(mTxtLink, mTxtLink.getText().toString(), new ScTextUtils.ClickSpan.OnClickListener() {
             @Override
             public void onClick() {
-                if (mActionListener != null) {
-                    mActionListener.onSecondaryAction();
+                if (mButtonActionListener != null) {
+                    mButtonActionListener.onSecondaryAction();
                 }
             }
         }, true);
@@ -85,8 +85,8 @@ public class EmptyCollection extends FrameLayout {
         return this;
     }
 
-    public EmptyCollection setActionListener(ActionListener listener){
-        mActionListener = listener;
+    public EmptyCollection setButtonActionListener(ActionListener listener){
+        mButtonActionListener = listener;
         return this;
     }
 
