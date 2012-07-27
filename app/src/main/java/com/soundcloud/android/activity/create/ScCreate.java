@@ -434,7 +434,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(Actions.MY_PROFILE)
-                        .putExtra(UserBrowser.Tab.EXTRA,UserBrowser.Tab.tracks));
+                        .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks));
             }
         });
         return button;
@@ -506,19 +506,16 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 takeAction = true;
             }
         }
-        //TODO: re-enable later
-        //noinspection ConstantIfStatement
-        if (false) {
-            if (mCurrentState != CreateState.RECORD && mRecipient == null) {
-                mUnsavedRecordings = Recording.getUnsavedRecordings(
+
+        if (newState == CreateState.IDLE_RECORD && mRecipient == null) {
+            mUnsavedRecordings = Recording.getUnsavedRecordings(
                     getContentResolver(),
                     SoundRecorder.RECORD_DIR,
                     mRecorder.getRecording(),
                     getCurrentUserId());
 
-                if (!mUnsavedRecordings.isEmpty()) {
-                    showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
-                }
+            if (!mUnsavedRecordings.isEmpty()) {
+                showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
             }
         }
         updateUi(newState, takeAction);
@@ -644,7 +641,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
             case PLAYBACK:
                 mTxtTitle.setText(R.string.rec_title_playing);
-                showView(mActionButton,false);
+                showView(mActionButton, false);
                 showView(mPlayButton,false);
                 showView(mEditButton,false);
                 showView(mButtonBar,false);
@@ -961,6 +958,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     for (int i = 0; i < recordings.size(); i++) {
                                         if (checked[i]) {
+                                            recordings.get(i).migrate(); // migrate deprecated format, otherwise this is harmless
                                             SoundCloudDB.insertRecording(getContentResolver(), recordings.get(i));
                                         } else {
                                             recordings.get(i).delete(null);
