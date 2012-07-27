@@ -3,6 +3,7 @@ package com.soundcloud.android.service.upload;
 
 import static com.soundcloud.android.service.upload.UploadService.TAG;
 
+import com.soundcloud.android.jni.EncoderOptions;
 import com.soundcloud.android.jni.ProgressListener;
 import com.soundcloud.android.jni.VorbisEncoder;
 import com.soundcloud.android.model.Recording;
@@ -34,12 +35,21 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
         Log.d(TAG, "Encoder.run("+mRecording+")");
 
         try {
-            final File in = mRecording.getFile();
-            final File out = mRecording.getEncodedFile();
+            final File in  = mRecording.getFile();
+            final File out = mRecording.getPlaybackStream().isFiltered() ?
+                    mRecording.getProcessedFile() : mRecording.getEncodedFile();
 
             long now = System.currentTimeMillis();
             broadcast(UploadService.PROCESSING_STARTED);
-            VorbisEncoder.encodeWav(in, out, AudioConfig.DEFAULT.quality, this);
+
+            EncoderOptions options = new EncoderOptions(AudioConfig.DEFAULT.quality,
+                    mRecording.getPlaybackStream().getStartPos(),
+                    mRecording.getPlaybackStream().getEndPos(),
+                    this,
+                    mRecording.getPlaybackStream().getPlaybackFilter());
+
+            VorbisEncoder.encodeWav(in, out, options);
+
             // double check
             if (out.exists() && out.length() > 0) {
                 Log.d(TAG, "encoding finished in " + (System.currentTimeMillis()-now)+ " msecs");
