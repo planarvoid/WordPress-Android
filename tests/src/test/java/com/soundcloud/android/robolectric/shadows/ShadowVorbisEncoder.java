@@ -1,5 +1,6 @@
 package com.soundcloud.android.robolectric.shadows;
 
+import com.soundcloud.android.jni.EncoderOptions;
 import com.soundcloud.android.jni.ProgressListener;
 import com.soundcloud.android.jni.VorbisEncoder;
 import com.xtremelabs.robolectric.internal.Implementation;
@@ -15,13 +16,13 @@ public class ShadowVorbisEncoder {
     public static IOException throwException;
 
     @Implementation
-    public static int encodeWav(File in, File out, float quality, ProgressListener l) throws IOException {
+    public static int encodeWav(File in, File out, EncoderOptions options) throws IOException {
         if (throwException != null) throw throwException;
-        if (simulateProgress && l != null) {
+        if (simulateProgress && options.listener != null) {
             // simulate some progress
-            l.onProgress(0, 100);
-            l.onProgress(50, 100);
-            l.onProgress(100, 100);
+            options.listener.onProgress(0, 100);
+            options.listener.onProgress(50, 100);
+            options.listener.onProgress(100, 100);
         }
         return 0;
     }

@@ -194,7 +194,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public File generateImageFile(File imageDir) {
-        return IOUtils.changeExtension(audio_path, "bmp");
+        return new File(imageDir, IOUtils.changeExtension(audio_path, "bmp").getName());
     }
 
     public long lastModified() {
