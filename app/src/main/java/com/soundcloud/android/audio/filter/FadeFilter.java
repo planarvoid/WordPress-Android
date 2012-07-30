@@ -1,17 +1,12 @@
 package com.soundcloud.android.audio.filter;
 
 import com.soundcloud.android.audio.AudioConfig;
-import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.PlaybackFilter;
-import com.soundcloud.android.audio.PlaybackStream;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 public class FadeFilter implements PlaybackFilter {
 
@@ -19,7 +14,7 @@ public class FadeFilter implements PlaybackFilter {
     public static final int FADE_TYPE_BEGINNING = 1;
     public static final int FADE_TYPE_END = 2;
 
-    private static final int FADE_LENGTH_MS = 3000;
+    private static final int FADE_LENGTH_MS = 1000;
     private static final int FADE_EXP_CURVE = 2;
 
     private final long mFadeSize;
@@ -31,11 +26,11 @@ public class FadeFilter implements PlaybackFilter {
     }
 
     public FadeFilter(AudioConfig config, int fadeType) {
-        this(fadeType,config.bytesToMs(FADE_LENGTH_MS));
+        this(fadeType, config.msToByte(FADE_LENGTH_MS));
     }
 
     public FadeFilter(int fadeType, long fadeSizeInBytes) {
-        this(fadeType,fadeSizeInBytes,FADE_EXP_CURVE);
+        this(fadeType, fadeSizeInBytes, FADE_EXP_CURVE);
     }
 
     public FadeFilter(int fadeType, long fadeSizeInBytes, int fadeExpCurve) {
@@ -44,14 +39,6 @@ public class FadeFilter implements PlaybackFilter {
         mFadeExpCurve = fadeExpCurve;
     }
 
-
-    /**
-     *
-     * @param buffer the audio data
-     * @param position where (byte offset) in relation to the total piece of audio does this buffer belong
-     * @param length what is the total length (bytes) of the audio that this buffer belongs to
-     * @return
-     */
     @Override
     public ByteBuffer apply(ByteBuffer buffer, long position, long length) {
         final int remaining = (int) Math.min(length - position, buffer.remaining());
@@ -100,7 +87,6 @@ public class FadeFilter implements PlaybackFilter {
         dest.writeInt(mFadeType);
         dest.writeLong(mFadeSize);
         dest.writeInt(mFadeExpCurve);
-
     }
 
     public static final Parcelable.Creator<FadeFilter> CREATOR = new Parcelable.Creator<FadeFilter>() {
@@ -112,4 +98,13 @@ public class FadeFilter implements PlaybackFilter {
             return new FadeFilter[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "FadeFilter{" +
+                "mFadeSize=" + mFadeSize +
+                ", mFadeType=" + mFadeType +
+                ", mFadeExpCurve=" + mFadeExpCurve +
+                '}';
+    }
 }

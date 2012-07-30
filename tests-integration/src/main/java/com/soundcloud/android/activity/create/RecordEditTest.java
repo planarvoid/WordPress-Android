@@ -7,6 +7,7 @@ import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.view.create.TrimHandle;
+import com.soundcloud.api.Env;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -50,10 +51,12 @@ public class RecordEditTest extends RecordingTestCase {
 
         solo.enterText(0, "An edit test upload");
         solo.clickOnButtonResId(R.string.sc_upload_private);
-        solo.clickOnText(R.string.upload_and_share);
+        solo.clickOnText(R.string.post);
 
-        assertTrue("did not get upload notification", waitForIntent(UploadService.UPLOAD_SUCCESS, 10000));
-//        assertTrue("did not get transcoding notification", waitForIntent(UploadService.TRANSCODING_SUCCESS, 30000));
+        assertIntentAction(UploadService.UPLOAD_SUCCESS, 10000);
+        if (env == Env.LIVE) {
+            assertIntentAction(UploadService.TRANSCODING_SUCCESS, 30000);
+        }
         solo.sleep(1000);
     }
 

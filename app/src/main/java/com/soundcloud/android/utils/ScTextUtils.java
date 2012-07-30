@@ -38,7 +38,7 @@ public class ScTextUtils {
      * @return spanned text
      */
     public static Spanned fromHtml(String source) {
-        if (source == null || source.isEmpty()) return new SpannedString("");
+        if (source == null || TextUtils.isEmpty(source)) return new SpannedString("");
 
         source = source.replace(System.getProperty("line.separator"), "<br/>");
 

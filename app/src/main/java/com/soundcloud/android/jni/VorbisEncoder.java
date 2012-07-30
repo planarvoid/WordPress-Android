@@ -1,8 +1,9 @@
 package com.soundcloud.android.jni;
 
+import com.soundcloud.android.audio.PlaybackFilter;
 import com.soundcloud.android.audio.WavHeader;
+import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
-import org.jetbrains.annotations.Nullable;
 
 import android.util.Log;
 
@@ -53,7 +54,7 @@ public class VorbisEncoder {
      * @throws IOException
      */
     public void encodeStream(InputStream is) throws IOException {
-        encodeStream(is, -1, null);
+        encodeStream(is, -1, EncoderOptions.DEFAULT);
     }
 
     /**
@@ -63,18 +64,31 @@ public class VorbisEncoder {
      * @param listener a progress listener
      * @throws IOException
      */
-    public void encodeStream(InputStream is, long length, @Nullable ProgressListener listener) throws IOException {
-        ByteBuffer bbuffer = ByteBuffer.allocateDirect((int) (8192*channels*2));
+    public void encodeStream(InputStream is, long length, EncoderOptions options) throws IOException {
+        Log.d(TAG, "encodeStream(length="+length+", "+options+")");
+
+        PlaybackFilter filter = options.filter;
+        ProgressListener listener = options.listener;
+        ByteBuffer bbuffer = BufferUtils.allocateAudioBuffer((int) (8192 * channels * 2));
         byte[] buffer = new byte[bbuffer.capacity()];
         int n;
         long total = 0;
         while ((n = is.read(buffer)) != -1) {
             bbuffer.rewind();
             bbuffer.put(buffer, 0, n);
+            bbuffer.flip();
+
+            if (filter != null) {
+                filter.apply(bbuffer, total, length);
+            }
+
             int ret = write(bbuffer, n);
+
             if (ret < 0) throw new EncoderException("addSamples returned error", ret);
             total += n;
-            if (listener != null) listener.onProgress(total, length);
+            if (listener != null) {
+                listener.onProgress(total, length);
+            }
         }
     }
 
@@ -177,37 +191,37 @@ public class VorbisEncoder {
     native private static int validate(String in);
 
     /**
-     * Encodes a WAV file to ogg
-     * @param wav the wav file
-     * @param out path of encoded ogg file
-     * @param quality encoding quality (0 - 1.0f)
-     * @return
+     * @param in  input file
+     * @param out output file
+     * @param quality desired quality (0 - 1.0f)
+     * @param listener progress listener
+     * @return always 0
      * @throws IOException
      */
-    public static int encodeWav(InputStream wav, File out, long length, float quality, @Nullable ProgressListener listener) throws IOException {
-        wav = new BufferedInputStream(wav);
-
-        WavHeader header = new WavHeader(wav);
-        VorbisEncoder encoder = new VorbisEncoder(out,
-                "w",
-                header.getNumChannels(),
-                header.getSampleRate(),
-                quality);
-
-        try {
-            encoder.encodeStream(wav, length, listener);
-        } finally {
-            encoder.release();
-        }
-        return 0;
+    public static int encodeWav(File in, File out, EncoderOptions options) throws IOException {
+        return encodeWav(new BufferedInputStream(new FileInputStream(in)), out, options);
     }
 
-    public static int encodeWav(File in, File out, float quality, ProgressListener listener) throws IOException {
-        FileInputStream inS = new FileInputStream(in);
+    public static int encodeWav(InputStream in, File out, EncoderOptions options) throws IOException {
         try {
-            return encodeWav(inS, out, in.length(), quality, listener);
+            WavHeader header = new WavHeader(in);
+
+            VorbisEncoder encoder = new VorbisEncoder(out,
+                    "w",
+                    header.getNumChannels(),
+                    header.getSampleRate(),
+                    options.quality);
+
+            WavHeader.AudioData data = header.getAudioData(options.start, options.end);
+
+            try {
+                encoder.encodeStream(data.stream, data.length, options);
+            } finally {
+                encoder.release();
+            }
+            return 0;
         } finally {
-            IOUtils.close(inS);
+            IOUtils.close(in);
         }
     }
 

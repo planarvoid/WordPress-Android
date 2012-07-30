@@ -25,6 +25,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -72,6 +73,17 @@ public final class IOUtils {
         } catch (IllegalArgumentException e) {
             // gets thrown when call to statfs fails
             Log.e(TAG, "getSpaceLeft("+dir+")", e);
+            return 0;
+        }
+    }
+
+    public static long getTotalSpace(File dir) {
+        try {
+            StatFs fs = new StatFs(dir.getAbsolutePath());
+            return (long) fs.getBlockSize() * (long) fs.getBlockCount();
+        } catch (IllegalArgumentException e) {
+            // gets thrown when call to statfs fails
+            Log.e(TAG, "getTotalSpace("+dir+")", e);
             return 0;
         }
     }
@@ -408,6 +420,29 @@ public final class IOUtils {
             return new File(file.getParentFile(), name.substring(0, lastDot)+"."+ext);
         } else {
             return new File(file.getParentFile(), file.getName()+"."+ext);
+        }
+    }
+
+    public static File removeExtension(File file) {
+        if (file.isDirectory()) return file;
+
+        String name = file.getName();
+        final int lastPeriodPos = name.lastIndexOf('.');
+        return lastPeriodPos <= 0 ? file : new File(file.getParent(), name.substring(0, lastPeriodPos));
+    }
+
+    public static void skipFully(InputStream in, long n) throws IOException {
+        while (n > 0) {
+            long amt = in.skip(n);
+            if (amt == 0) {
+                // Force a blocking read to avoid infinite loop
+                if (in.read() == -1) {
+                    throw new EOFException();
+                }
+                n--;
+            } else {
+                n -= amt;
+            }
         }
     }
 

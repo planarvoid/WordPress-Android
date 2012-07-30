@@ -1,7 +1,9 @@
 package com.soundcloud.android.service.upload;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import static com.soundcloud.android.service.upload.UploadService.TAG;
+
+import com.soundcloud.android.jni.EncoderOptions;
 import com.soundcloud.android.jni.ProgressListener;
 import com.soundcloud.android.jni.VorbisEncoder;
 import com.soundcloud.android.model.Recording;
@@ -30,16 +32,30 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
 
     @Override
     public void run() {
-        Log.d(UploadService.TAG, "Encoder.run("+mRecording+")");
+        Log.d(TAG, "Encoder.run("+mRecording+")");
 
         try {
-            final File in = mRecording.getFile();
+            final File in  = mRecording.getFile();
+            final File out = mRecording.getPlaybackStream().isFiltered() ?
+                    mRecording.getProcessedFile() : mRecording.getEncodedFile();
+
+            long now = System.currentTimeMillis();
             broadcast(UploadService.PROCESSING_STARTED);
-            VorbisEncoder.encodeWav(in, mRecording.getEncodedFile(), AudioConfig.DEFAULT.quality, this);
+
+            EncoderOptions options = new EncoderOptions(AudioConfig.DEFAULT.quality,
+                    mRecording.getPlaybackStream().getStartPos(),
+                    mRecording.getPlaybackStream().getEndPos(),
+                    this,
+                    mRecording.getPlaybackStream().getPlaybackFilter());
+
+            VorbisEncoder.encodeWav(in, out, options);
+
             // double check
-            if (mRecording.getEncodedFile().exists()) {
+            if (out.exists() && out.length() > 0) {
+                Log.d(TAG, "encoding finished in " + (System.currentTimeMillis()-now)+ " msecs");
                 broadcast(UploadService.PROCESSING_SUCCESS);
             } else {
+                Log.w(TAG, "encoded file does not exist or is empty");
                 broadcast(UploadService.PROCESSING_ERROR);
             }
         } catch (UserCanceledException e) {
@@ -47,7 +63,6 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
         } catch (IOException e) {
             broadcast(UploadService.PROCESSING_ERROR);
         }
-
     }
 
     @Override
@@ -70,7 +85,10 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
 
     @Override
     public void onProgress(long current, long max) throws UserCanceledException {
-        mBroadcastManager.sendBroadcast(new Intent(UploadService.EXTRA_PROGRESS)
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Encoder#onProgress("+current+", "+max+")");
+        }
+        mBroadcastManager.sendBroadcast(new Intent(UploadService.PROCESSING_PROGRESS)
                 .putExtra(UploadService.EXTRA_RECORDING, mRecording)
                 .putExtra(UploadService.EXTRA_PROGRESS, (int) Math.min(100, Math.round(100 * current) / (float)max)));
 

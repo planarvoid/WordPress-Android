@@ -11,12 +11,20 @@
 
     <string name="menu_private_message">Private Message</string>
 
+    <string name="pref_stream_cache_size">Stream Cache Size</string>
+    <string name="pref_stream_cache_size_desc">The size of the stream cache in percent</string>
+    <string name="cache_trimming">Trimming cache</string>
+    <string name="cache_trimming_message">Trimming the cache</string>
+
     <string name="cloud_recorder_notification_ticker">Recording</string>
 
     <string name="create_autosave_message">Your recordings will automatically be saved as you create them. You can find them in your list of sounds.</string>
     <string name="create_regenerating_waveform_message">Regenerating waveform, please wait.</string>
 
     <string name="dialog_revert_recording_message">You will lose all of your edits. Proceed?</string>
+
+    <string name="post">Post</string>
+    <string name="share">Share</string>
 
     <string name="btn_publish">Publish</string>
     <string name="btn_apply">Apply</string>
@@ -26,6 +34,10 @@
 
     <string name="rec_your_sound_is_saved_locally_at">Your sound is saved locally</string>
 
+    <string name="pref_analytics">Analytics</string>
+    <string name="pref_analytics_desc">Enabling analytics allows us to collect data about your use of this app which helps us improve the app. See our Privacy Policy for more details.</string>
+    <string name="pref_crashlogs">Crashlogs</string>
+    <string name="pref_crashlogs_desc">Enabling Crashlogs helps us improve the app significantly. We don\'t collect any personal data. See our Privacy Policy for more details.</string>
 
     <string name="crop_save_text">Save</string>
     <string name="crop_discard_text">Discard</string>

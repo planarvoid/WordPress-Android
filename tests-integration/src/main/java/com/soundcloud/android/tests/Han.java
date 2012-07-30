@@ -66,12 +66,16 @@ public class Han extends Solo {
         assertTrue(waitForText(Pattern.quote(getString(resId, args))));
     }
 
-    public void assertVisibleText(int resId, Object... args) {
+    public void assertVisibleTextId(int resId, Object... args) {
         assertTrue(waitForText(Pattern.quote(getString(resId, args)), 0, DEFAULT_TIMEOUT, false, true));
     }
 
+    public void assertVisibleText(String text, long timeout ) {
+        assertTrue(waitForText(text, 0, timeout, false, true));
+    }
+
     public void assertText(String text) {
-        assertTrue(waitForText(text));
+        assertTrue("text "+text+" not found", waitForText(text));
     }
 
     public void assertNoText(int resId, Object... args) {

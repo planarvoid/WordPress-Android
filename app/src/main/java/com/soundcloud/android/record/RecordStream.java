@@ -9,6 +9,7 @@ import com.soundcloud.android.audio.writer.EmptyWriter;
 import com.soundcloud.android.audio.writer.MultiAudioWriter;
 import com.soundcloud.android.audio.writer.VorbisWriter;
 import com.soundcloud.android.audio.writer.WavWriter;
+import com.soundcloud.android.utils.BufferUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.util.Log;
@@ -17,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 public class RecordStream implements AudioWriter {
     private @NotNull final AudioConfig mConfig;
@@ -71,39 +71,47 @@ public class RecordStream implements AudioWriter {
         return mAmplitudeData.size() >= (int) requiredSize / 1000;
     }
 
-    public void regenerateAmplitudeData(final File outFile, onAmplitudeGenerationListener onAmplitudeListener) {
-        Log.i(SoundRecorder.TAG,"Regenerating amplitude file to " + (outFile == null ? "<null>" : outFile.getPath()));
-        final WeakReference<onAmplitudeGenerationListener> listenerWeakReference = new WeakReference<onAmplitudeGenerationListener>(onAmplitudeListener);
+
+    public void regenerateAmplitudeDataAsync(final File outFile, final onAmplitudeGenerationListener onAmplitudeListener) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    final long start = System.currentTimeMillis();
-                    mAmplitudeData = new AmplitudeData();
-                    final int bufferSize = mConfig.getvalidBufferSizeForValueRate((int) (SoundRecorder.PIXELS_PER_SECOND * SoundCloudApplication.instance.getResources().getDisplayMetrics().density));
-                    ByteBuffer buffer = ByteBuffer.allocateDirect(bufferSize);
-                    buffer.order(ByteOrder.LITTLE_ENDIAN);
-
-                    final PlaybackStream playbackStream = new PlaybackStream(getAudioFile());
-                    playbackStream.initializePlayback();
-                    int n;
-                    while ((n = playbackStream.readForPlayback(buffer, bufferSize)) > -1) {
-                        updateAmplitude(buffer, n);
-                        mAmplitudeData.add(mLastAmplitude);
-                        buffer.clear();
-                    }
-                    playbackStream.close();
-                    if (outFile != null) mAmplitudeData.store(outFile);
-                    Log.d(SoundRecorder.TAG, "Amplitude file regenerated in " + (System.currentTimeMillis() - start) + " milliseconds");
-                    onAmplitudeGenerationListener listener2 = listenerWeakReference.get();
-                    if (listener2 != null) listener2.onGenerationFinished(true);
-
-                } catch (IOException e) {
-                    mAmplitudeData = new AmplitudeData();
-                    Log.w(SoundRecorder.TAG, "error regenerating amplitude data", e);
-                }
+                regenerateAmplitudeData(outFile, onAmplitudeListener);
             }
         }).start();
+    }
+
+    /*package*/ void regenerateAmplitudeData(File outFile, onAmplitudeGenerationListener onAmplitudeListener) {
+
+        Log.d(SoundRecorder.TAG,"Regenerating amplitude file to " + (outFile == null ? "<null>" : outFile.getPath()));
+        final WeakReference<onAmplitudeGenerationListener> listenerWeakReference = new WeakReference<onAmplitudeGenerationListener>(onAmplitudeListener);
+
+        try {
+            final long start = System.currentTimeMillis();
+            mAmplitudeData = new AmplitudeData();
+            final int bufferSize = mConfig.getvalidBufferSizeForValueRate((int) (SoundRecorder.PIXELS_PER_SECOND * SoundCloudApplication.instance.getResources().getDisplayMetrics().density));
+            ByteBuffer buffer = BufferUtils.allocateAudioBuffer(bufferSize);
+
+            final PlaybackStream playbackStream = new PlaybackStream(getAudioFile());
+            playbackStream.initializePlayback();
+            int n;
+            while ((n = playbackStream.readForPlayback(buffer, bufferSize)) > -1) {
+                updateAmplitude(buffer, n);
+                mAmplitudeData.add(mLastAmplitude);
+                buffer.clear();
+            }
+            playbackStream.close();
+
+            if (outFile != null) mAmplitudeData.store(outFile);
+            Log.d(SoundRecorder.TAG, "Amplitude file regenerated in " + (System.currentTimeMillis() - start) + " milliseconds");
+
+            onAmplitudeGenerationListener listener2 = listenerWeakReference.get();
+            if (listener2 != null) listener2.onGenerationFinished(true);
+
+        } catch (IOException e) {
+            mAmplitudeData = new AmplitudeData();
+            Log.w(SoundRecorder.TAG, "error regenerating amplitude data", e);
+        }
     }
 
     public void setWriter(@NotNull AudioWriter writer) {

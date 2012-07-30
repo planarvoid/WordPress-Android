@@ -51,8 +51,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class Recording extends ScModel implements Comparable<Recording> {
@@ -192,11 +194,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public File generateImageFile(File imageDir) {
-        if (audio_path.getName().contains(".")) {
-            return new File(imageDir, audio_path.getName().substring(0, audio_path.getName().lastIndexOf(".")) + ".bmp");
-        } else {
-            return new File(imageDir, audio_path.getName()+".bmp");
-        }
+        return new File(imageDir, IOUtils.changeExtension(audio_path, "bmp").getName());
     }
 
     public long lastModified() {
@@ -494,7 +492,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public boolean needsMigration() {
-        if (audio_path != null && external_upload != true) {
+        if (audio_path != null && !external_upload) {
             final DeprecatedProfile profile = DeprecatedProfile.getProfile(audio_path);
             return (profile != DeprecatedProfile.UNKNOWN);
         }
@@ -512,9 +510,12 @@ public class Recording extends ScModel implements Comparable<Recording> {
             if (audio_path.renameTo(newPath)){
                 newPath.setLastModified(lastMod);
                 audio_path = newPath;
+                external_upload = true;
+
+                // return content values for bulk migration
                 ContentValues cv = new ContentValues();
                 cv.put(Recordings._ID, id);
-                cv.put(Recordings.EXTERNAL_UPLOAD, true);
+                cv.put(Recordings.EXTERNAL_UPLOAD, external_upload);
                 cv.put(Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
                 return cv;
             }
@@ -542,8 +543,14 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public static List<Recording> getUnsavedRecordings(ContentResolver resolver, File directory, Recording ignore, long userId) {
         MediaPlayer mp = null;
         List<Recording> unsaved = new ArrayList<Recording>();
+
+        Map<String,File> toCheck = new HashMap<String,File>();
         for (File f : IOUtils.nullSafeListFiles(directory, new RecordingFilter(ignore))) {
-            if (getUserIdFromFile(f) != -1) continue; // ignore current file
+            if (getUserIdFromFile(f) != -1) continue; //TODO, what to do about private messages
+            // this should put wav files in when possible (because of alphabetical ordering)
+            toCheck.put(IOUtils.removeExtension(f).getAbsolutePath(),f);
+        }
+        for (File f : toCheck.values()) {
             Recording r = SoundCloudDB.getRecordingByPath(resolver, f);
             if (r == null) {
                 r = new Recording(f);
@@ -796,6 +803,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
             if (c != null) {
                 long startPos = c.getLong(c.getColumnIndex(Recordings.TRIM_LEFT));
                 long endPos   = c.getLong(c.getColumnIndex(Recordings.TRIM_RIGHT));
+
+                // validate, can happen after migration
+                if (endPos <= startPos) endPos = duration;
+
                 boolean optimize  = c.getInt(c.getColumnIndex(Recordings.OPTIMIZE)) == 1;
                 boolean fade  = c.getInt(c.getColumnIndex(Recordings.FADING)) == 1;
 
@@ -817,7 +828,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         }
 
         if (migrate.size() > 0) {
-            new Thread(new Runnable() {
+            new Thread() {
                 @Override
                 public void run() {
                     Log.i(SoundCloudApplication.TAG,"Deprecated recordings found, trying to migrate " + migrate.size() + " recordings");
@@ -830,7 +841,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
                     int updated = resolver.bulkInsert(Content.RECORDINGS.uri, cv);
                     Log.i(SoundCloudApplication.TAG,"Finished migrating " + updated + " recordings");
                 }
-            }).start();
+            }.start();
             return true;
         } else {
             return false;
@@ -840,13 +851,13 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     static enum DeprecatedProfile {
 
-        UNKNOWN(-1,null),
-        ENCODED_LOW(0,"ogg"),
-        ENCODED_HIGH(1,"ogg"),
-        RAW(2,"wav");
+        UNKNOWN(-1, null),
+        ENCODED_LOW(0, "ogg"),
+        ENCODED_HIGH(1, "ogg"),
+        RAW(2, "wav");
 
-        int id;
-        String updatedExtension;
+        final int id;
+        final String updatedExtension;
 
         DeprecatedProfile(int id, String updatedExtension){
             this.id = id;
@@ -860,7 +871,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
                     for (DeprecatedProfile p : DeprecatedProfile.values()) {
                         if (p.id == profile) return p;
                     }
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException ignore) {
                 }
             }
             return UNKNOWN;

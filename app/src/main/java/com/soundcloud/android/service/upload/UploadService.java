@@ -100,8 +100,10 @@ public class UploadService extends Service {
             recording = r;
         }
 
+        /** Need to re-encode if fading/optimize is enabled, or no encoding happend during recording */
         public boolean needsEncoding() {
-            return !recording.getEncodedFile().exists();
+            return !recording.getEncodedFile().exists() ||
+                   (recording.getPlaybackStream().isFiltered() && !recording.getProcessedFile().exists());
         }
 
         public boolean needsResizing() {
@@ -112,11 +114,11 @@ public class UploadService extends Service {
         }
 
         public boolean needsProcessing() {
-            return needsEncoding() ||
-                   (recording.getPlaybackStream() != null && recording.getPlaybackStream().isModified() &&
-                           (!recording.getProcessedFile().exists() || recording.getProcessedFile().length() == 0));
+            return !needsEncoding() &&
+                    recording.getPlaybackStream() != null &&
+                    recording.getPlaybackStream().isTrimmed() &&
+                  (!recording.getProcessedFile().exists() || recording.getProcessedFile().length() == 0);
         }
-
 
         @Override
         public String toString() {

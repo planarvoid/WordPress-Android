@@ -1,6 +1,7 @@
 package com.soundcloud.android.audio;
 
 import com.soundcloud.android.audio.filter.FadeFilter;
+import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,7 +11,6 @@ import android.os.Parcelable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 public class PlaybackStream implements Parcelable {
     private long mCurrentPos;
@@ -22,6 +22,8 @@ public class PlaybackStream implements Parcelable {
 
     private PlaybackFilter mFilter;
     private boolean mOptimize;
+
+    private float[] mTrimWindow = new float[2];
 
     public PlaybackStream(@NotNull AudioReader audioReader) {
         mPlaybackFile = audioReader;
@@ -39,6 +41,8 @@ public class PlaybackStream implements Parcelable {
     public void resetBounds() {
         mStartPos = 0;
         mEndPos   = getTotalDuration();
+        mTrimWindow[0] = 0.0f;
+        mTrimWindow[1] = 1.0f;
     }
 
     public long getDuration(){
@@ -53,16 +57,20 @@ public class PlaybackStream implements Parcelable {
         return mConfig;
     }
 
-    public TrimPreview setStartPositionByPercent(double newPos, long moveTime) {
+    public TrimPreview setStartPositionByPercent(float newPos, long moveTime) {
         if (newPos < 0d || newPos > 1d) throw new IllegalArgumentException("Illegal start percent " + newPos);
+
+        mTrimWindow[0] = newPos;
 
         final long old = mStartPos;
         mStartPos = (long) (newPos * getTotalDuration());
         return new TrimPreview(this,old,mStartPos, moveTime);
     }
 
-    public TrimPreview setEndPositionByPercent(double newPos, long moveTime) {
+    public TrimPreview setEndPositionByPercent(float newPos, long moveTime) {
         if (newPos < 0d || newPos > 1d) throw new IllegalArgumentException("Illegal end percent " + newPos);
+
+        mTrimWindow[1] = newPos;
 
         final long old = mEndPos;
         mEndPos = (long) (newPos * getTotalDuration());
@@ -159,17 +167,16 @@ public class PlaybackStream implements Parcelable {
     public void setTrim(long start, long end) {
         mStartPos = start;
         mEndPos = end == -1 ? getTotalDuration() : end;
+        refreshTrimWindow();
     }
 
     public long getTrimRight() {
         return getTotalDuration() - mEndPos;
     }
 
-    public boolean isModified() {
-        // TODO, this should include the filter in final version
-        return mStartPos > 0 ||
-                (mEndPos > 0 && mEndPos < getTotalDuration()) /*|| mFilter != null || mOptimize*/;
-    }
+    public boolean isFiltered() { return mFilter != null || mOptimize; }
+    public boolean isTrimmed()  { return mStartPos > 0 || (mEndPos > 0 && mEndPos < getTotalDuration()); }
+    public boolean isModified() { return isTrimmed() || isFiltered(); }
 
     public long getTotalDuration() {
         return mPlaybackFile.getDuration();
@@ -202,9 +209,16 @@ public class PlaybackStream implements Parcelable {
     }
 
     public ByteBuffer buffer() {
-        ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        return buffer;
+        return BufferUtils.allocateAudioBuffer(1024);
+    }
+
+    public void refreshTrimWindow() {
+        mTrimWindow[0] = ((float) mStartPos) / getTotalDuration();
+        mTrimWindow[1] = ((float) mEndPos) / getTotalDuration();
+    }
+
+    public PlaybackFilter getPlaybackFilter() {
+        return  mFilter;
     }
 
     public static final Parcelable.Creator<PlaybackStream> CREATOR = new Parcelable.Creator<PlaybackStream>() {
@@ -217,6 +231,7 @@ public class PlaybackStream implements Parcelable {
                 ps.mEndPos   = in.readLong();
                 ps.mOptimize = in.readInt() == 1;
                 ps.mFilter   = in.readParcelable(getClass().getClassLoader());
+                ps.refreshTrimWindow();
                 return ps;
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -228,4 +243,7 @@ public class PlaybackStream implements Parcelable {
         }
     };
 
+    public float[] getTrimWindow() {
+        return mTrimWindow;
+    }
 }
