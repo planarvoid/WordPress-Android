@@ -20,6 +20,7 @@ import android.os.Environment;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.widget.ToggleButton;
 
 import java.io.File;
 import java.io.IOException;
@@ -93,6 +94,13 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
         solo.clickOnView(getActivity().findViewById(R.id.btn_edit));
         solo.assertText(R.string.btn_revert_to_original);
         assertState(EDIT);
+    }
+
+    protected boolean toggleFade() {
+        assertState(EDIT);
+        ToggleButton tb = (ToggleButton) solo.getView(R.id.toggle_fade);
+        solo.clickOnView(tb);
+        return tb.isChecked();
     }
 
     protected void playback() {

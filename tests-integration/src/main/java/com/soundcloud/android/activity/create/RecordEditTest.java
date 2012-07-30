@@ -2,6 +2,7 @@ package com.soundcloud.android.activity.create;
 
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.EDIT;
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_PLAYBACK;
+import static com.soundcloud.android.activity.create.ScCreate.CreateState.RECORD;
 
 import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
@@ -13,9 +14,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.test.suitebuilder.annotation.Suppress;
 
+
+/**
+ * Testing edit functions of the recording: trimming, appending, fading etc.
+ */
 public class RecordEditTest extends RecordingTestCase {
 
 
+    /**
+     * Record something, move trim handles, playback trimmed version.
+     */
     public void testEditAndTrim() {
         record(RECORDING_TIME);
         gotoEditMode();
@@ -29,6 +37,9 @@ public class RecordEditTest extends RecordingTestCase {
         solo.sleep(1000);
     }
 
+    /**
+     * Trim and append. Make sure the trimmed version of the uploaded file gets transcoded properly.
+     */
     public void testEditAndTrimAndAppend() {
 
         record(RECORDING_TIME);
@@ -49,6 +60,32 @@ public class RecordEditTest extends RecordingTestCase {
         solo.assertActivity(ScUpload.class);
 
         solo.enterText(0, "An edit test upload");
+        solo.clickOnButtonResId(R.string.sc_upload_private);
+        solo.clickOnText(R.string.post);
+
+        assertIntentAction(UploadService.UPLOAD_SUCCESS, 10000);
+        if (env == Env.LIVE) {
+            assertIntentAction(UploadService.TRANSCODING_SUCCESS, 30000);
+        }
+        solo.sleep(1000);
+    }
+
+
+    /*
+     * Record something, enable fading and upload. Make sure transcoding works.
+     */
+    public void testFading() throws Exception {
+        record(RECORDING_TIME);
+        gotoEditMode();
+        assertTrue(toggleFade());
+
+        solo.clickOnText(R.string.btn_apply);
+
+        solo.clickOnPublish();
+
+        solo.assertActivity(ScUpload.class);
+
+        solo.enterText(0, "A faded test upload");
         solo.clickOnButtonResId(R.string.sc_upload_private);
         solo.clickOnText(R.string.post);
 
