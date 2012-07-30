@@ -103,12 +103,14 @@ public class Recording extends ScModel implements Comparable<Recording> {
     private PlaybackStream mPlaybackStream;
     private Exception mUploadException;
 
+    private static final Pattern AMPLITUDE_PATTERN = Pattern.compile("^.*\\.(amp)$");
     private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm|wav)$");
     private static final Pattern ENCODED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
 
     public static final String TAG_SOURCE_ANDROID_RECORD          = "soundcloud:source=android-record";
     public static final String TAG_RECORDING_TYPE_DEDICATED       = "soundcloud:recording-type=dedicated";
     public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
+    private static String PROCESSED_APPEND = "_processed";;
 
     public static interface Status {
         int NOT_YET_UPLOADED    = 0; // not yet uploaded, or canceled by user
@@ -167,7 +169,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public File getProcessedFile() {
-        return IOUtils.appendToFilename(getEncodedFile(), "_processed");
+        return IOUtils.appendToFilename(getEncodedFile(), PROCESSED_APPEND);
     }
 
     public File getAmplitudeFile() {
@@ -266,6 +268,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
             cv.put(DBHelper.Recordings.FADING,     mPlaybackStream.isFading() ? 1 : 0);
         }
         return cv;
+    }
+
+    public static boolean isAmplitudeFile(String filename) {
+        return AMPLITUDE_PATTERN.matcher(filename).matches();
     }
 
     public static boolean isRawFilename(String filename) {
@@ -555,22 +561,30 @@ public class Recording extends ScModel implements Comparable<Recording> {
             toCheck.put(IOUtils.removeExtension(f).getAbsolutePath(), f);
         }
         for (File f : toCheck.values()) {
-            Recording r = SoundCloudDB.getRecordingByPath(resolver, f);
-            if (r == null) {
-                r = new Recording(f);
-                r.user_id = userId;
-                try {
-                    if (mp == null) {
-                        mp = new MediaPlayer();
+            if (Recording.isAmplitudeFile(f.getName())) {
+                Log.d(TAG, "Deleting isolated amplitude file : " + f.getName() + " : " + f.delete());
+            } else {
+                Recording r = SoundCloudDB.getRecordingByPath(resolver, f);
+                if (r == null) {
+                    r = new Recording(f);
+                    r.user_id = userId;
+                    try {
+                        if (mp == null) {
+                            mp = new MediaPlayer();
+                        }
+                        mp.reset();
+                        mp.setDataSource(f.getAbsolutePath());
+                        mp.prepare();
+                        r.duration = mp.getDuration();
+                    } catch (IOException e) {
+                        Log.e(TAG, "error", e);
                     }
-                    mp.reset();
-                    mp.setDataSource(f.getAbsolutePath());
-                    mp.prepare();
-                    r.duration = mp.getDuration();
-                } catch (IOException e) {
-                    Log.e(TAG, "error", e);
+                    if (r.duration <= 0 || f.getName().contains(PROCESSED_APPEND)) {
+                        Log.d(TAG, "Deleting unusable file : " + f.getName() + " : " + r.delete(resolver));
+                    } else {
+                        unsaved.add(r);
+                    }
                 }
-                unsaved.add(r);
             }
         }
         Collections.sort(unsaved, null);
@@ -586,7 +600,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
         @Override
         public boolean accept(File file, String name) {
-            return Recording.isRawFilename(name) || Recording.isEncodedFilename(name) &&
+            return Recording.isRawFilename(name) || Recording.isEncodedFilename(name) || Recording.isAmplitudeFile(name) &&
                     (toIgnore == null || !toIgnore.audio_path.equals(file));
         }
     }
