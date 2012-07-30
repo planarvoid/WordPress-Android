@@ -12,6 +12,7 @@ import android.widget.EditText;
 
 import java.util.UUID;
 
+@Suppress
 public class SignupTest extends ActivityTestCase<Main> {
 
 
