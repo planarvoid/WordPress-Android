@@ -49,7 +49,7 @@ public class Dashboard extends ScListActivity {
                         .setImage(R.drawable.empty_follow)
                         .setActionText(R.string.list_empty_stream_action)
                         .setSecondaryText(R.string.list_empty_stream_secondary)
-                        .setActionListener(new EmptyCollection.ActionListener() {
+                        .setButtonActionListener(new EmptyCollection.ActionListener() {
                             @Override
                             public void onAction() {
                                 goToFriendFinder();
@@ -75,27 +75,12 @@ public class Dashboard extends ScListActivity {
                             .setImage(R.drawable.empty_share)
                             .setActionText(R.string.list_empty_activity_action)
                             .setSecondaryText(R.string.list_empty_activity_secondary)
-                            .setActionListener(new EmptyCollection.ActionListener() {
-                                @Override public void onAction() {
+                            .setButtonActionListener(new EmptyCollection.ActionListener() {
+                                @Override
+                                public void onAction() {
                                     startActivity(new Intent(Actions.MY_PROFILE)
                                             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
                                             .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks.name()));
-                                }
-
-                                @Override public void onSecondaryAction() {
-                                    goTo101s();
-                                }
-                            });
-                } else {
-                    ec.setMessageText(R.string.list_empty_activity_nosounds_message)
-                            .setImage(R.drawable.empty_rec)
-                            .setActionText(R.string.list_empty_activity_nosounds_action)
-                            .setSecondaryText(R.string.list_empty_activity_nosounds_secondary)
-                            .setActionListener(new EmptyCollection.ActionListener() {
-                                @Override
-                                public void onAction() {
-                                    startActivity(new Intent(Actions.RECORD)
-                                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
                                 }
 
                                 @Override
@@ -103,6 +88,26 @@ public class Dashboard extends ScListActivity {
                                     goTo101s();
                                 }
                             });
+                } else {
+                    EmptyCollection.ActionListener record = new EmptyCollection.ActionListener() {
+                        @Override
+                        public void onAction() {
+                            startActivity(new Intent(Actions.RECORD)
+                                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                        }
+
+                        @Override
+                        public void onSecondaryAction() {
+                            goTo101s();
+                        }
+                    };
+
+                    ec.setMessageText(R.string.list_empty_activity_nosounds_message)
+                            .setImage(R.drawable.empty_rec)
+                            .setActionText(R.string.list_empty_activity_nosounds_action)
+                            .setSecondaryText(R.string.list_empty_activity_nosounds_secondary)
+                            .setButtonActionListener(record)
+                            .setImageActionListener(record);
                 }
                 trackListView = createList(Content.ME_ACTIVITIES,
                         Activity.class,

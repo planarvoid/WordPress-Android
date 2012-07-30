@@ -5,12 +5,16 @@
               android:id="@+id/sizer"
               android:padding="5dp"
               android:orientation="vertical">
-    <ImageView android:src="@drawable/empty_collection"
-               android:layout_height="0dp"
-               android:layout_width="fill_parent"
-               android:layout_weight="1"
-               android:id="@+id/img_1"
-               android:scaleType="centerInside"/>
+    <FrameLayout android:layout_height="100dp"
+                 android:layout_width="fill_parent"
+                 android:layout_weight="1">
+        <ImageView android:src="@drawable/empty_collection"
+                   android:layout_height="wrap_content"
+                   android:layout_width="wrap_content"
+                   android:layout_gravity="center"
+                   android:id="@+id/img_1"
+                   />
+    </FrameLayout>
     <LinearLayout android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
                   android:orientation="vertical"
