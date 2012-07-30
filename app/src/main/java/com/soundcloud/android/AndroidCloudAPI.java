@@ -89,12 +89,13 @@ public interface AndroidCloudAPI extends CloudAPI {
         private String userAgent;
 
         public static Wrapper create(Context context, @Nullable Token initialToken) {
-            final Env env = AndroidUtils.isRunOnBuilder(context) ? Env.SANDBOX : Env.LIVE;
+            final Env env = Env.LIVE;  // AndroidUtils.isRunOnBuilder(context) ? Env.SANDBOX : Env.LIVE;
             String clientId = context.getString(env == Env.LIVE ? R.string.client_id : R.string.sandbox_client_id);
             return new Wrapper(context, clientId, getClientSecret(env == Env.LIVE), REDIRECT_URI, initialToken, env);
         }
 
         /* package */ static String getClientSecret(boolean production) {
+            @SuppressWarnings({"UnusedDeclaration", "MismatchedReadAndWriteOfArray"})
             final long[] prod =
                     new long[]{0x42D31224F5C2C264L, 0x5986B01A2300AFA4L, 0xEDA169985C1BA18DL,
                             0xA2A0313C7077F81BL, 0xF42A7E5EEB220859L, 0xE593789593AFFA3L,
