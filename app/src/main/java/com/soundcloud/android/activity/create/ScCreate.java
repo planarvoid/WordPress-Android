@@ -515,7 +515,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     getCurrentUserId());
 
             if (!mUnsavedRecordings.isEmpty()) {
-                showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
+                // TODO: re-enable when this has been tested + works
+//                showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
             }
         }
         updateUi(newState, takeAction);

@@ -548,7 +548,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         for (File f : IOUtils.nullSafeListFiles(directory, new RecordingFilter(ignore))) {
             if (getUserIdFromFile(f) != -1) continue; //TODO, what to do about private messages
             // this should put wav files in when possible (because of alphabetical ordering)
-            toCheck.put(IOUtils.removeExtension(f).getAbsolutePath(),f);
+            toCheck.put(IOUtils.removeExtension(f).getAbsolutePath(), f);
         }
         for (File f : toCheck.values()) {
             Recording r = SoundCloudDB.getRecordingByPath(resolver, f);

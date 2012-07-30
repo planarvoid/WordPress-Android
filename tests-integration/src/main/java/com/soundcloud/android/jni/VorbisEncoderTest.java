@@ -51,7 +51,7 @@ public class VorbisEncoderTest extends AudioTestCase {
         PlaybackFilter filter = new PlaybackFilter() {
             @Override
             public ByteBuffer apply(ByteBuffer buffer, long position, long length) {
-                for (int i = 0; i< buffer.capacity(); i++) {
+                for (int i = 0; i< buffer.remaining(); i++) {
                     buffer.put(i, (byte) 0);
                 }
                 return buffer;

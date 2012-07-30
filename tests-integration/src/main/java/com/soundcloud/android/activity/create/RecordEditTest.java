@@ -12,7 +12,6 @@ import com.soundcloud.api.Env;
 import android.content.Intent;
 import android.net.Uri;
 import android.test.suitebuilder.annotation.Suppress;
-import android.widget.ImageButton;
 
 public class RecordEditTest extends RecordingTestCase {
 
@@ -62,11 +61,8 @@ public class RecordEditTest extends RecordingTestCase {
 
     private void trim(double left, double right) {
         assertState(EDIT);
-        ImageButton leftTrim  = solo.getImageButton(1);
-        ImageButton rightTrim = solo.getImageButton(2);
-        assertTrue(leftTrim instanceof TrimHandle);
-        assertTrue(rightTrim instanceof TrimHandle);
-
+        TrimHandle leftTrim = (TrimHandle) solo.getView(TrimHandle.class, 0);
+        TrimHandle rightTrim = (TrimHandle) solo.getView(TrimHandle.class, 1);
         int width = solo.getScreenWidth();
         if (left > 0)  solo.dragViewHorizontally(leftTrim ,  (int) (width * left), 5);
         if (right > 0) solo.dragViewHorizontally(rightTrim, -(int) (width * right), 5);
