@@ -2,14 +2,18 @@ package com.soundcloud.android.activity.create;
 
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.*;
 
+import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.settings.DevSettings;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 import com.soundcloud.android.tests.Runner;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Env;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
@@ -30,7 +34,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
+public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreate> {
     // longer recordings on emulator
     protected static final int RECORDING_TIME = EMULATOR ? 6000 : 2000;
 
@@ -46,7 +50,7 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
         }
     };
 
-    public RecordingTestCase() {
+    public AbstractRecordingTestCase() {
         super(ScCreate.class);
     }
 
@@ -115,6 +119,38 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
         assertState(EDIT_PLAYBACK);
     }
 
+    protected void uploadSound(@Nullable String title, @Nullable String location, boolean isPrivate) {
+        assertState(IDLE_PLAYBACK);
+
+        solo.clickOnPublish();
+        solo.assertActivity(ScUpload.class);
+
+        if (title != null) {
+            solo.enterTextId(R.id.what, title);
+        }
+
+        if (location != null) {
+            solo.clickOnView(R.id.where);
+            solo.assertActivity(LocationPicker.class);
+
+            solo.clickOnView(R.id.where);
+            solo.enterTextId(R.id.where, location);
+            solo.sendKey(Solo.ENTER);
+
+            solo.assertActivity(ScUpload.class);
+        }
+
+        if (isPrivate) {
+            solo.clickOnButtonResId(R.string.sc_upload_private);
+        }
+
+        solo.clickOnText(R.string.post);
+    }
+
+    protected void applyEdits() {
+        solo.clickOnText(R.string.btn_apply);
+    }
+
     protected void assertState(ScCreate.CreateState... state) {
         ScCreate.CreateState reached = null;
         for (ScCreate.CreateState s : state) {
@@ -141,22 +177,43 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
         return false;
     }
 
-    protected boolean waitForIntent(String action, long timeout) {
+    protected @Nullable Intent waitForIntent(String action, long timeout) {
         final long startTime = SystemClock.uptimeMillis();
         final long endTime = startTime + timeout;
         while (SystemClock.uptimeMillis() < endTime) {
             solo.sleep(100);
             for (Intent intent : new ArrayList<Intent>(intents)) {
                 if (action.equals(intent.getAction())) {
-                    return true;
+                    return intent;
                 }
             }
         }
-        return false;
+        return null;
     }
 
-    protected void assertIntentAction(String action, long timeout) {
-        assertTrue("did not get intent action "+action, waitForIntent(action, timeout));
+    protected @NotNull Intent assertIntentAction(String action, long timeout) {
+        Intent intent = waitForIntent(action, timeout);
+        assertNotNull("did not get intent action " + action, intent);
+        return intent;
+    }
+
+    protected @NotNull Recording assertSoundUploaded(long timeout) {
+        Intent intent = assertIntentAction(UploadService.UPLOAD_SUCCESS, timeout);
+        Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
+        assertNotNull("recording is null", recording);
+        return recording;
+    }
+
+    protected @Nullable Track assertSoundTranscoded(long timeout) {
+        // sandbox fails sometimes, only check live system
+        if (env == Env.LIVE) {
+            Intent intent = assertIntentAction(UploadService.TRANSCODING_SUCCESS, timeout);
+            Track track = intent.getParcelableExtra(UploadService.EXTRA_TRACK);
+            assertNotNull("track is null", track);
+            return track;
+        } else {
+            return null;
+        }
     }
 
     protected @Nullable File fillUpSpace(long whatsLeft) throws IOException {
