@@ -285,19 +285,19 @@ public class ScContentProvider extends ContentProvider {
         final Content content = Content.match(uri);
         switch (content) {
             case COLLECTIONS:
-                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_REPLACE);
+                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case COLLECTION_PAGES:
-                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_REPLACE);
+                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case TRACKS:
-                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
@@ -331,13 +331,13 @@ public class ScContentProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
             case USERS:
-                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_REPLACE);
+                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case RECORDINGS:
-                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_REPLACE);
+                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
                 if (id >= 0) {
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null, false);
@@ -347,13 +347,13 @@ public class ScContentProvider extends ContentProvider {
                 }
 
             case ME_FAVORITES:
-                id = dbInsertWithOnConflict(db, Table.TRACKS, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = Table.TRACKS.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, userId);
                     cv.put(DBHelper.CollectionItems.ITEM_ID, (Long) values.get(DBHelper.Tracks._ID));
                     cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, FAVORITE);
-                    id = dbInsertWithOnConflict(db, Table.COLLECTION_ITEMS, cv, SQLiteDatabase.CONFLICT_ABORT);
+                    id = Table.COLLECTION_ITEMS.insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_ABORT);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null, false);
                     return result;
@@ -364,7 +364,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_SOUND_STREAM:
             case ME_ACTIVITIES:
             case ME_EXCLUSIVE_STREAM:
-                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 return result;
 
@@ -793,18 +793,6 @@ public class ScContentProvider extends ContentProvider {
                     + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.Users.USER_FOLLOWER
     };
 
-
-    @SuppressLint("NewApi")
-    private static long dbInsertWithOnConflict(SQLiteDatabase db, Table table,
-                                              ContentValues values,
-                                              int conflictAlgorithm) {
-        if (Build.VERSION.SDK_INT > 7) {
-            return db.insertWithOnConflict(table.name, null, values, conflictAlgorithm);
-        }  else {
-            // TODO: do something sensible here
-            return db.insert(table.name, null, values);
-        }
-    }
 
     public interface CollectionItemTypes {
         int TRACK          = 0;
