@@ -213,8 +213,8 @@ public class PlaybackStream implements Parcelable {
     }
 
     public void refreshTrimWindow() {
-        mTrimWindow[0] = ((float) mStartPos) / getTotalDuration();
-        mTrimWindow[1] = ((float) mEndPos) / getTotalDuration();
+        mTrimWindow[0] = Math.max(0.0f, (float) mStartPos / getTotalDuration());
+        mTrimWindow[1] = Math.min(1.0f, (float) mEndPos / getTotalDuration());
     }
 
     public PlaybackFilter getPlaybackFilter() {

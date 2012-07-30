@@ -5,13 +5,12 @@ import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_P
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_RECORD;
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.RECORD;
 
-import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.upload.UploadService;
-import com.soundcloud.api.Env;
 
 import android.content.Intent;
 import android.os.Build;
@@ -20,7 +19,7 @@ import android.widget.EditText;
 
 import java.io.File;
 
-public class NormalRecordingTest extends RecordingTestCase {
+public class NormalRecordingTest extends AbstractRecordingTestCase {
 
     public void testRecordAndPlayback() throws Exception {
         record(RECORDING_TIME);
@@ -57,8 +56,7 @@ public class NormalRecordingTest extends RecordingTestCase {
     public void testRecordAndEditApplyAndDelete() throws Exception {
         record(RECORDING_TIME);
         gotoEditMode();
-
-        solo.clickOnText(R.string.btn_apply);
+        applyEdits();
         assertState(IDLE_PLAYBACK);
 
         solo.clickOnText(R.string.delete);
@@ -79,39 +77,31 @@ public class NormalRecordingTest extends RecordingTestCase {
     public void testRecordAndUpload() throws Exception {
         record(RECORDING_TIME);
 
-        solo.clickOnPublish();
-        solo.assertActivity(ScUpload.class);
+        uploadSound("A test upload", null, true);
 
-        solo.enterText(0, "A test upload");
-        solo.clickOnButtonResId(R.string.sc_upload_private);
-        solo.clickOnText(R.string.post);
+        assertSoundUploaded(10000);
+        Track track = assertSoundTranscoded(30000);
 
-        assertIntentAction(UploadService.UPLOAD_SUCCESS, 10000);
+        if (track != null) {
+            assertEquals("A test upload", track.title);
+            assertFalse("track is public", track.isPublic());
+            assertEquals("track duration is off", RECORDING_TIME, track.duration, 2000);
+        }
+
         solo.assertActivityFinished();
     }
-
 
     public void testRecordAndUploadWithLocation() throws Exception {
         record(RECORDING_TIME);
 
-        solo.clickOnPublish();
-        solo.assertActivity(ScUpload.class);
+        final String location = "Model "+Build.MODEL;
+        uploadSound("A test upload", location, true);
 
-        solo.enterTextId(R.id.what, "A test upload");
-
-        solo.clickOnView(R.id.where);
-        solo.assertActivity(LocationPicker.class);
-
-        solo.clickOnView(R.id.where);
-        solo.enterTextId(R.id.where, "Model "+Build.MODEL);
-        solo.sendKey(Solo.ENTER);
-
-        solo.assertActivity(ScUpload.class);
-
-        solo.clickOnButtonResId(R.string.sc_upload_private);
-        solo.clickOnText(R.string.post);
-
-        assertIntentAction(UploadService.UPLOAD_SUCCESS, 10000);
+        assertSoundUploaded(10000);
+        Track track = assertSoundTranscoded(30000);
+        if (track != null) {
+            assertEquals("A test upload at "+location, track.title);
+        }
         solo.assertActivityFinished();
     }
 
@@ -134,11 +124,8 @@ public class NormalRecordingTest extends RecordingTestCase {
             assertIntentAction(UploadService.PROCESSING_PROGRESS, 5000);
             assertIntentAction(UploadService.PROCESSING_SUCCESS, 20000);
 
-            assertIntentAction(UploadService.UPLOAD_SUCCESS, 30000);
-
-            if (env == Env.LIVE) {
-                assertIntentAction(UploadService.TRANSCODING_SUCCESS, 30000);
-            }
+            assertSoundUploaded(30000);
+            assertSoundTranscoded(30000);
             solo.assertActivityFinished();
         } finally {
             setRecordingType(null);

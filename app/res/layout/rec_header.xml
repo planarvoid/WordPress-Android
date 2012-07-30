@@ -14,11 +14,14 @@
                       style="@style/txt_record_saved_message"
                       android:text="@string/rec_your_sound_is_saved_locally_at"/>
             <ImageView android:layout_height="wrap_content"
-                       android:layout_width="wrap_content"
+                       android:layout_width="@dimen/rec_header_you_button_width"
                        android:layout_alignParentRight="true"
+                       android:scaleType="centerInside"
+                       android:paddingLeft="5dp"
+                       android:paddingRight="5dp"
                        android:layout_centerVertical="true"
-                       android:layout_marginRight="24dp"
-                       android:src="@android:drawable/arrow_up_float" />
+                       android:layout_marginRight="10dp"
+                       android:src="@drawable/arrow_up" />
         </RelativeLayout>
 
         <View android:layout_width="fill_parent"
@@ -33,13 +36,14 @@
                   android:layout_centerVertical="true"
                   style="@style/txt_record_title"/>
         <ImageButton android:id="@+id/btn_you"
-                     android:layout_width="wrap_content"
-                     android:layout_height="wrap_content"
+                     android:layout_width="@dimen/rec_header_you_button_width"
+                     android:layout_height="@dimen/rec_header_you_button_height"
                      android:layout_alignParentRight="true"
                      android:layout_centerVertical="true"
+                     android:scaleType="centerInside"
                      android:padding="5dp"
                      android:layout_margin="10dp"
-                     android:src="@drawable/ic_tab_you"
+                     android:src="@drawable/ic_rec_you"
                      android:background="@drawable/btn_transparent_rect_bg_states"/>
     </RelativeLayout>
     <View android:layout_width="fill_parent"

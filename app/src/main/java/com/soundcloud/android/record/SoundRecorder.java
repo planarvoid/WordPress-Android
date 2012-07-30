@@ -23,8 +23,10 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.LightingColorFilter;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -181,17 +183,15 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         if (isPlaying())   stopPlayback();
         mState = mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED ? State.ERROR : State.IDLE;
 
-        if (mRecording != null) {
-            if (deleteRecording) mRecording.delete(mContext.getContentResolver());
-            mRecording = null;
-        }
-
-
         mRecordStream.reset();
-
         if (mPlaybackStream != null) {
             mPlaybackStream.close();
             mPlaybackStream = null;
+        }
+
+        if (mRecording != null) {
+            if (deleteRecording) mRecording.delete(mContext.getContentResolver());
+            mRecording = null;
         }
     }
 
@@ -202,7 +202,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     public void setRecording(Recording recording) {
         if (mRecording == null || recording.id != mRecording.id) {
             mRecording = recording;
-            mRecordStream = new RecordStream(mConfig, recording.getFile(),
+            mRecordStream = new RecordStream(mConfig, recording.getRawFile(),
                     shouldEncode() ? recording.getEncodedFile() : null,
                     mRecording.getAmplitudeFile());
 
@@ -263,10 +263,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
                 mRecordStream.setWriters(mRecording.getFile(),
                         shouldEncode() ? mRecording.getEncodedFile() : null);
-
-
-                if (shouldEncode()) mRemainingTimeCalculator.setEncodedFile(mRecording.getEncodedFile());
-                mRemainingTime = mRemainingTimeCalculator.timeRemaining();
             } else {
                 // truncate if we are appending
                 if (mPlaybackStream != null) {
@@ -281,6 +277,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                     }
                 }
             }
+
+            if (shouldEncode()) mRemainingTimeCalculator.setEncodedFile(mRecording.getEncodedFile());
+            mRemainingTime = mRemainingTimeCalculator.timeRemaining();
 
             // the service will ensure the recording lifecycle and notifications
             mContext.startService(new Intent(mContext, SoundRecorderService.class).setAction(RECORD_STARTED));

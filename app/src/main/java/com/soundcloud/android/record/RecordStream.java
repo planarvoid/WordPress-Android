@@ -54,6 +54,7 @@ public class RecordStream implements AudioWriter {
      */
     public RecordStream(AudioConfig cfg, File raw, File encoded, File amplitudeFile) {
         this(cfg);
+
         setWriters(raw, encoded);
         try {
             if (amplitudeFile != null && amplitudeFile.exists()){
@@ -66,8 +67,17 @@ public class RecordStream implements AudioWriter {
         }
     }
 
-    public boolean hasValidAmplitudeData(){
-        final long requiredSize = (int) (SoundRecorder.PIXELS_PER_SECOND * SoundCloudApplication.instance.getResources().getDisplayMetrics().density) * getDuration();
+    public boolean hasValidAmplitudeData() {
+        // we may have never used the encoder in which case getDuration() is 0,
+        // so make sure to use the audioreader duration
+        long playDuration = 0;
+        try {
+            playDuration = writer.getAudioFile().getDuration();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        final long requiredSize = (int) (SoundRecorder.PIXELS_PER_SECOND * SoundCloudApplication.instance.getResources().getDisplayMetrics().density)
+                * playDuration;
         return mAmplitudeData.size() >= (int) requiredSize / 1000;
     }
 
@@ -111,6 +121,8 @@ public class RecordStream implements AudioWriter {
         } catch (IOException e) {
             mAmplitudeData = new AmplitudeData();
             Log.w(SoundRecorder.TAG, "error regenerating amplitude data", e);
+            onAmplitudeGenerationListener listener2 = listenerWeakReference.get();
+            if (listener2 != null) listener2.onGenerationFinished(false);
         }
     }
 

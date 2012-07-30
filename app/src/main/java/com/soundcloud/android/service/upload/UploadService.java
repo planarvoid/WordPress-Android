@@ -94,23 +94,21 @@ public class UploadService extends Service {
     };
 
     private static class Upload {
-        Recording recording;
+        final Recording recording;
         Notification notification;
+
         public Upload(Recording r){
             recording = r;
         }
 
-        /** Need to re-encode if fading/optimize is enabled, or no encoding happend during recording */
+        /** Need to re-encode if fading/optimize is enabled, or no encoding happened during recording */
         public boolean needsEncoding() {
             return !recording.getEncodedFile().exists() ||
                    (recording.getPlaybackStream().isFiltered() && !recording.getProcessedFile().exists());
         }
 
         public boolean needsResizing() {
-            //noinspection ConstantConditions
-            return recording.hasArtwork() &&
-                    (recording.resized_artwork_path == null ||
-                    !recording.resized_artwork_path.exists());
+            return recording.hasArtwork() && !recording.hasResizedArtwork();
         }
 
         public boolean needsProcessing() {
