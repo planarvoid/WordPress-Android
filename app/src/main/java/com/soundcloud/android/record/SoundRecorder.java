@@ -263,10 +263,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
                 mRecordStream.setWriters(mRecording.getFile(),
                         shouldEncode() ? mRecording.getEncodedFile() : null);
-
-
-                if (shouldEncode()) mRemainingTimeCalculator.setEncodedFile(mRecording.getEncodedFile());
-                mRemainingTime = mRemainingTimeCalculator.timeRemaining();
             } else {
                 // truncate if we are appending
                 if (mPlaybackStream != null) {
@@ -281,6 +277,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                     }
                 }
             }
+
+            if (shouldEncode()) mRemainingTimeCalculator.setEncodedFile(mRecording.getEncodedFile());
+            mRemainingTime = mRemainingTimeCalculator.timeRemaining();
 
             // the service will ensure the recording lifecycle and notifications
             mContext.startService(new Intent(mContext, SoundRecorderService.class).setAction(RECORD_STARTED));

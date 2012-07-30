@@ -537,7 +537,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 hideView(mYouButton, false, View.GONE);
 
                 mActionButton.setClickable(false);
-                mActionButton.setImageResource(R.drawable.btn_rec_deactivated);
+                mActionButton.setImageResource(R.drawable.btn_recording_rec_deactivated);
 
                 showView(mTxtRecordMessage, takeAction && mLastState != CreateState.IDLE_RECORD);
                 mTxtRecordMessage.setMessage(R.string.create_regenerating_waveform_message);
@@ -558,7 +558,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
                     // state list drawables won't work with the image button
                     mActionButton.setClickable(false);
-                    mActionButton.setImageResource(R.drawable.btn_rec_deactivated);
+                    mActionButton.setImageResource(R.drawable.btn_recording_rec_deactivated);
                     mTxtRecordMessage.setMessage(R.string.record_insert_sd_card);
                 } else {
                     mActionButton.setClickable(true);
@@ -634,7 +634,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 hideEditControls();
 
                 setPlayButtonDrawable(false);
-                mActionButton.setImageResource(R.drawable.btn_rec_states);
+                mActionButton.setImageResource(R.drawable.btn_rec_resume_states);
 
                 configurePlaybackInfo();
                 break;

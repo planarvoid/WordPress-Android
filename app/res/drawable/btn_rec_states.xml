@@ -1,4 +1,5 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="true" android:drawable="@drawable/btn_rec_pressed" />
-    <item android:drawable="@drawable/btn_rec" />
+    <item android:state_pressed="true" android:drawable="@drawable/btn_recording_rec_pressed" />
+    <item android:drawable="@drawable/btn_recording_rec" />
 </selector>
+

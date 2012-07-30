@@ -58,6 +58,11 @@
     <dimen name="tour_top_bar_height">60dp</dimen>
     <dimen name="tour_bottom_bar_height">60dp</dimen>
 
+    <dimen name="rec_header_you_button_height">40dp</dimen>
+    <dimen name="rec_header_you_button_width">40dp</dimen>
+
+
+
     <dimen name="create_wave_view_bottom_margin">37dp</dimen>
     <dimen name="trim_handle_left_margin_offset">-3dip</dimen>
     <dimen name="trim_handle_right_margin_offset">-2dip</dimen>
