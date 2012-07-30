@@ -80,12 +80,15 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         uploadSound("A test upload", null, true);
 
         assertSoundUploaded(10000);
-        Track track = assertSoundTranscoded(30000);
+        Track track = assertSoundTranscoded();
 
         if (track != null) {
             assertEquals("A test upload", track.title);
             assertFalse("track is public", track.isPublic());
-            assertEquals("track duration is off", RECORDING_TIME, track.duration, 2000);
+
+            if (!EMULATOR) {
+                assertEquals("track duration is off", RECORDING_TIME, track.duration, 2000);
+            }
         }
 
         solo.assertActivityFinished();
@@ -98,7 +101,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         uploadSound("A test upload", location, true);
 
         assertSoundUploaded(10000);
-        Track track = assertSoundTranscoded(30000);
+        Track track = assertSoundTranscoded();
         if (track != null) {
             assertEquals("A test upload at "+location, track.title);
         }
@@ -125,7 +128,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
             assertIntentAction(UploadService.PROCESSING_SUCCESS, 20000);
 
             assertSoundUploaded(30000);
-            assertSoundTranscoded(30000);
+            assertSoundTranscoded();
             solo.assertActivityFinished();
         } finally {
             setRecordingType(null);

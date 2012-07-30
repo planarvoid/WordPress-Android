@@ -55,7 +55,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
         uploadSound("An edit test upload", null, true);
 
         assertSoundUploaded(10000);
-        assertSoundTranscoded(30000);
+        assertSoundTranscoded();
     }
 
 
@@ -72,7 +72,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
         uploadSound("A faded test upload", null, true);
 
         assertSoundUploaded(10000);
-        assertSoundTranscoded(30000);
+        assertSoundTranscoded();
     }
 
 
@@ -87,7 +87,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
         uploadSound("A trimmed test upload", null, true);
 
         assertSoundUploaded(10000);
-        Track track = assertSoundTranscoded(30000);
+        Track track = assertSoundTranscoded();
         if (track != null) {
             assertTrue("track duration is 0", track.duration > 0);
             if (!EMULATOR) {
@@ -108,7 +108,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
         uploadSound("A faded + trimmed test upload", null, true);
 
         assertSoundUploaded(10000);
-        Track track = assertSoundTranscoded(30000);
+        Track track = assertSoundTranscoded();
         if (track != null) {
             assertTrue("track duration is 0", track.duration > 0);
             if (!EMULATOR) {

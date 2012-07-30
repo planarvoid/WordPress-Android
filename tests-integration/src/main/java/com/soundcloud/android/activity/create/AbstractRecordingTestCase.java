@@ -204,10 +204,10 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
         return recording;
     }
 
-    protected @Nullable Track assertSoundTranscoded(long timeout) {
+    protected @Nullable Track assertSoundTranscoded() {
         // sandbox fails sometimes, only check live system
         if (env == Env.LIVE) {
-            Intent intent = assertIntentAction(UploadService.TRANSCODING_SUCCESS, timeout);
+            Intent intent = assertIntentAction(UploadService.TRANSCODING_SUCCESS, 40000);
             Track track = intent.getParcelableExtra(UploadService.EXTRA_TRACK);
             assertNotNull("track is null", track);
             return track;
