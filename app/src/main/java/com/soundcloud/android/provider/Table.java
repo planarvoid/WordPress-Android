@@ -229,7 +229,7 @@ public enum Table {
 
     @SuppressLint("NewApi")
     public long insertWithOnConflict(SQLiteDatabase db, ContentValues cv, int conflict) {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
+        if (Build.VERSION.SDK_INT == 0 /* robolectric */ || Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
             return db.insertWithOnConflict(name, null, cv, conflict);
         } else {
             // 2.1 compatible code
