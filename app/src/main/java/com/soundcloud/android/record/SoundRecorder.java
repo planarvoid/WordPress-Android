@@ -23,7 +23,6 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.LightingColorFilter;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.os.Build;
@@ -202,8 +201,10 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     public void setRecording(Recording recording) {
         if (mRecording == null || recording.id != mRecording.id) {
             mRecording = recording;
-            mRecordStream = new RecordStream(mConfig, recording.getRawFile(),
-                    shouldEncode() ? recording.getEncodedFile() : null,
+
+            mRecordStream = new RecordStream(mConfig,
+                    recording.getRawFile(),
+                    shouldEncodeWhileRecording() ? recording.getEncodedFile() : null,
                     mRecording.getAmplitudeFile());
 
             if (!mRecordStream.hasValidAmplitudeData()) {
@@ -262,7 +263,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 mRecording = Recording.create(user);
 
                 mRecordStream.setWriters(mRecording.getFile(),
-                        shouldEncode() ? mRecording.getEncodedFile() : null);
+                        shouldEncodeWhileRecording() ? mRecording.getEncodedFile() : null);
             } else {
                 // truncate if we are appending
                 if (mPlaybackStream != null) {
@@ -278,7 +279,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 }
             }
 
-            if (shouldEncode()) mRemainingTimeCalculator.setEncodedFile(mRecording.getEncodedFile());
+            if (shouldEncodeWhileRecording()) mRemainingTimeCalculator.setEncodedFile(mRecording.getEncodedFile());
             mRemainingTime = mRemainingTimeCalculator.timeRemaining();
 
             // the service will ensure the recording lifecycle and notifications
@@ -755,8 +756,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         return filter;
     }
 
-    private boolean shouldEncode() {
-        return !DevSettings.DEV_RECORDING_TYPE_RAW.equals(PreferenceManager.getDefaultSharedPreferences(mContext)
+    private boolean shouldEncodeWhileRecording() {
+        return hasFPUSupport() &&
+                !DevSettings.DEV_RECORDING_TYPE_RAW.equals(PreferenceManager.getDefaultSharedPreferences(mContext)
                 .getString(DevSettings.DEV_RECORDING_TYPE, null));
+    }
+
+    private static boolean hasFPUSupport() {
+        return !"armeabi".equals(Build.CPU_ABI);
     }
 }
