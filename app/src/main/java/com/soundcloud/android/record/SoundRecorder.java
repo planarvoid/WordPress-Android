@@ -202,7 +202,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     public void setRecording(Recording recording) {
         if (mRecording == null || recording.id != mRecording.id) {
             mRecording = recording;
-            mRecordStream = new RecordStream(mConfig, recording.getFile(),
+            mRecordStream = new RecordStream(mConfig, recording.getRawFile(),
                     shouldEncode() ? recording.getEncodedFile() : null,
                     mRecording.getAmplitudeFile());
 

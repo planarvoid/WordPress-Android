@@ -164,6 +164,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return audio_path;
     }
 
+    public File getRawFile() {
+        return isRawFilename(audio_path.getName()) ? audio_path : null;
+    }
+
     public File getEncodedFile() {
         return IOUtils.changeExtension(audio_path, VorbisReader.EXTENSION);
     }
