@@ -51,9 +51,9 @@ public class VorbisWriter implements AudioWriter {
 
     @Override
     public boolean isClosed() {
-        return encoder != null &&
+        return encoder == null || (encoder != null &&
               (encoder.getState() == VorbisEncoder.STATE_PAUSED ||
-               encoder.getState() == VorbisEncoder.STATE_CLOSED);
+               encoder.getState() == VorbisEncoder.STATE_CLOSED));
     }
 
     @Override
@@ -68,8 +68,10 @@ public class VorbisWriter implements AudioWriter {
 
     @Override
     public void close() throws IOException {
-        initializeEncoder();
-        encoder.release();
+        if (encoder != null){
+            encoder.release();
+            encoder = null;
+        }
     }
 
     private void initializeEncoder() throws EncoderException {

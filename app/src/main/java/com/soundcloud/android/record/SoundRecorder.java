@@ -183,17 +183,15 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         if (isPlaying())   stopPlayback();
         mState = mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED ? State.ERROR : State.IDLE;
 
-        if (mRecording != null) {
-            if (deleteRecording) mRecording.delete(mContext.getContentResolver());
-            mRecording = null;
-        }
-
-
         mRecordStream.reset();
-
         if (mPlaybackStream != null) {
             mPlaybackStream.close();
             mPlaybackStream = null;
+        }
+
+        if (mRecording != null) {
+            if (deleteRecording) mRecording.delete(mContext.getContentResolver());
+            mRecording = null;
         }
     }
 
