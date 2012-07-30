@@ -10,6 +10,8 @@ import android.test.suitebuilder.annotation.Suppress;
 import android.webkit.WebView;
 import android.widget.EditText;
 
+import java.util.UUID;
+
 public class LoginTest extends ActivityTestCase<Main> {
     public LoginTest() {
         super(Main.class);
@@ -76,7 +78,7 @@ public class LoginTest extends ActivityTestCase<Main> {
         solo.clickOnText(R.string.authentication_I_forgot_my_password);
         solo.assertActivity(Recover.class);
 
-        solo.enterText(0, "some-email@example.com");
+        solo.enterText(0, "some-email-"+UUID.randomUUID().toString()+"@example.com");
         solo.clickOnOK();
 
         solo.assertDialogClosed();

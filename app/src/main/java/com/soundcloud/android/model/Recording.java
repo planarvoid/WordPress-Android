@@ -483,6 +483,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return artwork_path != null && artwork_path.exists();
     }
 
+    public boolean hasResizedArtwork() {
+        return resized_artwork_path != null && resized_artwork_path.exists();
+    }
+
     public File getArtwork() {
         return resized_artwork_path != null && resized_artwork_path.exists() ? resized_artwork_path : artwork_path;
     }
@@ -492,7 +496,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public boolean needsMigration() {
-        if (audio_path != null && !external_upload) {
+        if (!external_upload) {
             final DeprecatedProfile profile = DeprecatedProfile.getProfile(audio_path);
             return (profile != DeprecatedProfile.UNKNOWN);
         }

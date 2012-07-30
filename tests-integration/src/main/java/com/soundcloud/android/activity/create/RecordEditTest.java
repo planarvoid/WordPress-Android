@@ -89,7 +89,10 @@ public class RecordEditTest extends AbstractRecordingTestCase {
         assertSoundUploaded(10000);
         Track track = assertSoundTranscoded(30000);
         if (track != null) {
-            assertEquals("track duration is off", 5000, track.duration, 2000);
+            assertTrue("track duration is 0", track.duration > 0);
+            if (!EMULATOR) {
+                assertEquals("track duration is off", 5000, track.duration, 2000);
+            }
         }
     }
 
@@ -107,7 +110,10 @@ public class RecordEditTest extends AbstractRecordingTestCase {
         assertSoundUploaded(10000);
         Track track = assertSoundTranscoded(30000);
         if (track != null) {
-            assertEquals("track duration is off", 5000, track.duration, 2000);
+            assertTrue("track duration is 0", track.duration > 0);
+            if (!EMULATOR) {
+                assertEquals("track duration is off", 5000, track.duration, 2000);
+            }
         }
     }
 
