@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream.onAmplitudeGenerationListener {
     /* package */ static final String TAG = SoundRecorder.class.getSimpleName();
 
-    public static final int PIXELS_PER_SECOND = 30;
+    public static final int PIXELS_PER_SECOND = hasFPUSupport() ? 30 : 15;
 
     public static final File RECORD_DIR = IOUtils.ensureUpdatedDirectory(
                 new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings"),
