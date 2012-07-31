@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -64,7 +65,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     public static final String EXTRA_STATE       = "state";
     public static final String EXTRA_AMPLITUDE   = "amplitude";
     public static final String EXTRA_ELAPSEDTIME = "elapsedTime";
-    public static final String EXTRA_DURATION    = "durtion";
+    public static final String EXTRA_DURATION    = "duration";
     public static final String EXTRA_RECORDING   = Recording.EXTRA;
     public static final String EXTRA_TIME_REMAINING = "time_remaining";
 
@@ -181,17 +182,15 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         if (isPlaying())   stopPlayback();
         mState = mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED ? State.ERROR : State.IDLE;
 
-        if (mRecording != null) {
-            if (deleteRecording) mRecording.delete(mContext.getContentResolver());
-            mRecording = null;
-        }
-
-
         mRecordStream.reset();
-
         if (mPlaybackStream != null) {
             mPlaybackStream.close();
             mPlaybackStream = null;
+        }
+
+        if (mRecording != null) {
+            if (deleteRecording) mRecording.delete(mContext.getContentResolver());
+            mRecording = null;
         }
     }
 
@@ -202,8 +201,10 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     public void setRecording(Recording recording) {
         if (mRecording == null || recording.id != mRecording.id) {
             mRecording = recording;
-            mRecordStream = new RecordStream(mConfig, recording.getFile(),
-                    shouldEncode() ? recording.getEncodedFile() : null,
+
+            mRecordStream = new RecordStream(mConfig,
+                    recording.getRawFile(),
+                    shouldEncodeWhileRecording() ? recording.getEncodedFile() : null,
                     mRecording.getAmplitudeFile());
 
             if (!mRecordStream.hasValidAmplitudeData()) {
@@ -262,11 +263,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 mRecording = Recording.create(user);
 
                 mRecordStream.setWriters(mRecording.getFile(),
-                        shouldEncode() ? mRecording.getEncodedFile() : null);
-
-
-                if (shouldEncode()) mRemainingTimeCalculator.setEncodedFile(mRecording.getEncodedFile());
-                mRemainingTime = mRemainingTimeCalculator.timeRemaining();
+                        shouldEncodeWhileRecording() ? mRecording.getEncodedFile() : null);
             } else {
                 // truncate if we are appending
                 if (mPlaybackStream != null) {
@@ -281,6 +278,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                     }
                 }
             }
+
+            if (shouldEncodeWhileRecording()) mRemainingTimeCalculator.setEncodedFile(mRecording.getEncodedFile());
+            mRemainingTime = mRemainingTimeCalculator.timeRemaining();
 
             // the service will ensure the recording lifecycle and notifications
             mContext.startService(new Intent(mContext, SoundRecorderService.class).setAction(RECORD_STARTED));
@@ -756,8 +756,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         return filter;
     }
 
-    private boolean shouldEncode() {
-        return !DevSettings.DEV_RECORDING_TYPE_RAW.equals(PreferenceManager.getDefaultSharedPreferences(mContext)
+    private boolean shouldEncodeWhileRecording() {
+        return hasFPUSupport() &&
+                !DevSettings.DEV_RECORDING_TYPE_RAW.equals(PreferenceManager.getDefaultSharedPreferences(mContext)
                 .getString(DevSettings.DEV_RECORDING_TYPE, null));
+    }
+
+    private static boolean hasFPUSupport() {
+        return !"armeabi".equals(Build.CPU_ABI);
     }
 }

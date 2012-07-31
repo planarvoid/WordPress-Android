@@ -18,7 +18,8 @@
                         android:layout_height="120dp"/>
 
         <LinearLayout android:layout_width="match_parent"
-                      android:layout_margin="5dp"
+                      android:layout_marginLeft="5dp"
+                      android:layout_marginRight="5dp"
                       android:layout_height="0dp"
                       android:layout_alignParentTop="true"
                       android:layout_above="@+id/gauge_holder"

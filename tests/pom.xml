@@ -42,6 +42,9 @@
                         <fileset>
                             <directory>lib</directory>
                         </fileset>
+                        <fileset>
+                          <directory>tmp</directory>
+                        </fileset>
                     </filesets>
                 </configuration>
             </plugin>

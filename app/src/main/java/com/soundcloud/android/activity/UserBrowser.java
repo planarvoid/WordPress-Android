@@ -376,7 +376,7 @@ public class UserBrowser extends ScListActivity implements
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_sounds_message)
                     .setActionText(R.string.list_empty_user_sounds_action)
                     .setImage(R.drawable.empty_rec)
-                    .setActionListener(new EmptyCollection.ActionListener() {
+                    .setButtonActionListener(new EmptyCollection.ActionListener() {
                         @Override
                         public void onAction() {
                             startActivity(new Intent(Actions.RECORD)
@@ -409,7 +409,7 @@ public class UserBrowser extends ScListActivity implements
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_likes_message)
                     .setActionText(R.string.list_empty_user_likes_action)
                     .setImage(R.drawable.empty_like)
-                    .setActionListener(new EmptyCollection.ActionListener() {
+                    .setButtonActionListener(new EmptyCollection.ActionListener() {
                         @Override
                         public void onAction() {
                             mUserlistBrowser.setCurrentScreenByTag(Tab.friend_finder.tag);
@@ -443,7 +443,7 @@ public class UserBrowser extends ScListActivity implements
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_following_message)
                     .setActionText(R.string.list_empty_user_following_action)
                     .setImage(R.drawable.empty_follow_3row)
-                    .setActionListener(new EmptyCollection.ActionListener() {
+                    .setButtonActionListener(new EmptyCollection.ActionListener() {
                         @Override
                         public void onAction() {
                             mUserlistBrowser.setCurrentScreenByTag(Tab.friend_finder.tag);
@@ -475,7 +475,7 @@ public class UserBrowser extends ScListActivity implements
                 adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_message)
                     .setActionText(R.string.list_empty_user_followers_action)
                     .setImage(R.drawable.empty_rec)
-                    .setActionListener(new EmptyCollection.ActionListener() {
+                    .setButtonActionListener(new EmptyCollection.ActionListener() {
                         @Override
                         public void onAction() {
                             mUserlistBrowser.setCurrentScreenByTag(Tab.tracks.tag);
@@ -489,7 +489,7 @@ public class UserBrowser extends ScListActivity implements
                 adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_nosounds_message)
                     .setActionText(R.string.list_empty_user_followers_nosounds_action)
                     .setImage(R.drawable.empty_share)
-                    .setActionListener(new EmptyCollection.ActionListener() {
+                    .setButtonActionListener(new EmptyCollection.ActionListener() {
                         @Override
                         public void onAction() {
                             startActivity(new Intent(Actions.RECORD).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
@@ -733,11 +733,15 @@ public class UserBrowser extends ScListActivity implements
                 } else {
                     mEmptyInfoView.setMessageText(R.string.info_empty_you_message);
                     mEmptyInfoView.setActionText(R.string.info_empty_you_action);
-                    mEmptyInfoView.setActionListener(new EmptyCollection.ActionListener() {
-                        @Override public void onAction() {
+                    mEmptyInfoView.setButtonActionListener(new EmptyCollection.ActionListener() {
+                        @Override
+                        public void onAction() {
                             startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings")));
                         }
-                        @Override public void onSecondaryAction() {}
+
+                        @Override
+                        public void onSecondaryAction() {
+                        }
                     });
                 }
             }

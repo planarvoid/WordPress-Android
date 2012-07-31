@@ -3,10 +3,12 @@ package com.soundcloud.android.provider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
@@ -222,7 +224,34 @@ public enum Table {
     }
 
     public long insertOrReplace(SQLiteDatabase db, ContentValues cv) {
-        return db.insertWithOnConflict(name, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        return insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    @SuppressLint("NewApi")
+    public long insertWithOnConflict(SQLiteDatabase db, ContentValues cv, int conflict) {
+        if (Build.VERSION.SDK_INT == 0 /* robolectric */ || Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
+            return db.insertWithOnConflict(name, null, cv, conflict);
+        } else {
+            // 2.1 compatible code
+            switch (conflict) {
+                case SQLiteDatabase.CONFLICT_REPLACE: {
+                    final long id = db.insert(name, null, cv);
+                    if (id == -1) {
+                        Long lid = cv.getAsLong(BaseColumns._ID);
+                        if (lid != null) {
+                            if (db.update(name, cv, "_id = ?", new String[]{String.valueOf(lid)}) == 1) {
+                                return lid;
+                            } else {
+                                return -1;
+                            }
+                        } else return -1;
+                    } else return id;
+                }
+
+                default:
+                    return -1;
+            }
+        }
     }
 
     public long insertOrReplaceArgs(SQLiteDatabase db, Object... args) {

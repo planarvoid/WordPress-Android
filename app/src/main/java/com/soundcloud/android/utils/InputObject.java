@@ -1,7 +1,8 @@
 
 package com.soundcloud.android.utils;
 
-import android.util.Log;
+import android.annotation.SuppressLint;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -59,7 +60,7 @@ public class InputObject {
                 action = 0;
         }
 
-        actionIndex = event.getActionIndex();
+        actionIndex = getActionIndex(event);
         time = event.getEventTime();
         x = (int) event.getX();
         y = (int) event.getY();
@@ -69,6 +70,15 @@ public class InputObject {
             pointerY = (int) event.getY(1);
         }
 
+    }
+
+    @SuppressLint("NewApi")
+    private static int getActionIndex(MotionEvent event) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
+           return event.getActionIndex();
+        } else {
+            return (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+        }
     }
 
 /** Show an event in the LogCat view, for debugging */

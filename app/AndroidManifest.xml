@@ -139,11 +139,11 @@
                        android:resource="@xml/searchable" />
         </activity>
 
-        <activity android:name=".activity.auth.Start" android:label="@string/app_name" android:exported="true" android:theme="@style/Theme.ScDark" />
-        <activity android:name=".activity.auth.Login" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScDark"  />
-        <activity android:name=".activity.auth.SignUp" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScDark"  />
-        <activity android:name=".activity.auth.SignupDetails" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScDark" />
-        <activity android:name=".activity.auth.Recover" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScDark"  />
+        <activity android:name=".activity.auth.Start" android:label="@string/app_name" android:exported="true" android:theme="@style/Theme.ScAuth" />
+        <activity android:name=".activity.auth.Login" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScAuth"  />
+        <activity android:name=".activity.auth.SignUp" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScAuth"  />
+        <activity android:name=".activity.auth.SignupDetails" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScAuth" />
+        <activity android:name=".activity.auth.Recover" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScAuth"  />
         <activity android:name=".activity.auth.Facebook"/>
         <activity android:name=".activity.auth.FacebookWebFlow" android:label="@string/app_name" android:configChanges="orientation"/>
         <activity android:name=".activity.auth.FacebookSSO"/>

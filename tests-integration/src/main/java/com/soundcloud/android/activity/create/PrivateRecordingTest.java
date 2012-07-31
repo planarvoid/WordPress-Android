@@ -4,11 +4,10 @@ import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_P
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.service.upload.UploadService;
 
 import android.content.Intent;
 
-public class PrivateRecordingTest extends RecordingTestCase {
+public class PrivateRecordingTest extends AbstractRecordingTestCase {
     private User recipient;
 
     @Override
@@ -42,6 +41,6 @@ public class PrivateRecordingTest extends RecordingTestCase {
         solo.enterText(0, "Hallo Hans");
 
         solo.clickOnText(R.string.private_message_btn_send);
-        assertIntentAction(UploadService.UPLOAD_SUCCESS, 10000);
+        assertSoundUploaded(10000);
     }
 }
