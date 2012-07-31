@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="rec_header_you_button_height">60dp</dimen>
+    <dimen name="rec_header_you_button_width">60dp</dimen>
+
+    <dimen name="tab_text_size">16sp</dimen>
+
+    <dimen name="list_icon_width">100px</dimen>
+    <dimen name="list_icon_height">100px</dimen>
+    <dimen name="list_txt_pull_size">18sp</dimen>
+    <dimen name="list_txt_main_size">16sp</dimen>
+    <dimen name="list_txt_sub_size">14sp</dimen>
+
+    <dimen name="list_text_margin_left">5dip</dimen>
+    <dimen name="user_browser_info_username_margin_bottom">3dip</dimen>
+
+    <dimen name="play_track_info_button_width">80dip</dimen>
+    <dimen name="play_track_info_button_height">80dip</dimen>
+
+    <dimen name="create_wave_view_bottom_margin">50dp</dimen>
+    <dimen name="trim_handle_left_margin_offset">-5dip</dimen>
+    <dimen name="trim_handle_right_margin_offset">-4dip</dimen>
+    <dimen name="rec_chronometer_text_size">48sp</dimen>
+</resources>
