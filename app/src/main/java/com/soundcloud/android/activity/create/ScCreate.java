@@ -77,7 +77,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private ViewGroup mEditControls, mGaugeHolder, mSavedMessageLayout;
     private ImageButton mActionButton, mYouButton;
     private CreateWaveDisplay mWaveDisplay;
-    private View mPlayButton, mEditButton, mPlayEditButton;
+    private ImageButton mPlayButton, mEditButton, mPlayEditButton;
     private ToggleButton mToggleOptimize, mToggleFade;
     private String mRecordErrorMessage;
 
@@ -383,8 +383,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return button;
     }
 
-    private View setupPlaybutton(int id) {
-        final View button = findViewById(id);
+    private ImageButton setupPlaybutton(int id) {
+        final ImageButton button = (ImageButton) findViewById(id);
         if (button != null){
             button.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
@@ -416,8 +416,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return button;
     }
 
-    private View setupEditButton() {
-        View button = findViewById(R.id.btn_edit);
+    private ImageButton setupEditButton() {
+        ImageButton button = (ImageButton) findViewById(R.id.btn_edit);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -735,11 +735,11 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private void setPlayButtonDrawable(boolean playing){
         if (playing){
-            mPlayButton.setBackgroundResource(R.drawable.btn_rec_play_pause_states);
-            mPlayEditButton.setBackgroundResource(R.drawable.btn_rec_play_pause_states);
+            mPlayButton.setImageResource(R.drawable.btn_rec_play_pause_states);
+            mPlayEditButton.setImageResource(R.drawable.btn_rec_play_pause_states);
         } else {
-            mPlayButton.setBackgroundResource(R.drawable.btn_rec_play_states);
-            mPlayEditButton.setBackgroundResource(R.drawable.btn_rec_play_states);
+            mPlayButton.setImageResource(R.drawable.btn_rec_play_states);
+            mPlayEditButton.setImageResource(R.drawable.btn_rec_play_states);
         }
     }
 

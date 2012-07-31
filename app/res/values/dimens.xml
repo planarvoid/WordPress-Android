@@ -61,14 +61,12 @@
     <dimen name="rec_header_you_button_height">40dp</dimen>
     <dimen name="rec_header_you_button_width">40dp</dimen>
 
-
-
     <dimen name="create_wave_view_bottom_margin">37dp</dimen>
     <dimen name="trim_handle_left_margin_offset">-3dip</dimen>
     <dimen name="trim_handle_right_margin_offset">-2dip</dimen>
 
     <dimen name="round_progress_bar_corner_radius">10dp</dimen>
+    <dimen name="rec_chronometer_text_size">32sp</dimen>
 
     <dimen name="button_bar_height">60dp</dimen>
-
 </resources>

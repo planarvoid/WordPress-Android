@@ -60,14 +60,15 @@
                 <RelativeLayout android:layout_width="0dp"
                                 android:layout_weight="1"
                                 android:layout_height="fill_parent">
-                    <Button android:id="@+id/btn_play"
-                            android:background="@drawable/btn_rec_play_states"
+                    <ImageButton android:id="@+id/btn_play"
+                            android:src="@drawable/btn_rec_play_states"
+                            android:background="@null"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"/>
                 </RelativeLayout>
                 <ImageButton android:id="@+id/btn_action"
-                             android:background="@color/transparent"
+                             android:background="@null"
                              android:src="@drawable/btn_rec_states"
                              android:scaleType="centerInside"
                              android:layout_width="wrap_content"
@@ -75,8 +76,9 @@
                 <RelativeLayout android:layout_width="0dp"
                                 android:layout_weight="1"
                                 android:layout_height="fill_parent">
-                    <Button android:id="@+id/btn_edit"
-                            android:background="@drawable/btn_rec_edit_states"
+                    <ImageButton android:id="@+id/btn_edit"
+                            android:src="@drawable/btn_rec_edit_states"
+                            android:background="@null"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"/>
@@ -86,8 +88,9 @@
                             android:layout_centerInParent="true"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content">
-                <Button android:id="@+id/btn_play_edit"
-                        android:background="@drawable/btn_rec_play_states"
+                <ImageButton android:id="@+id/btn_play_edit"
+                        android:src="@drawable/btn_rec_play_states"
+                        android:background="@null"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerHorizontal="true"/>
