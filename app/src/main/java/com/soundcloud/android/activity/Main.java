@@ -286,6 +286,7 @@ public class Main extends TabActivity implements
             }
             widget.setLeftStripDrawable(R.drawable.tab_bottom_left);
             widget.setRightStripDrawable(R.drawable.tab_bottom_right);
+            widget.setStripEnabled(true);
         }
 
         // set record tab to just image & handle clicks
