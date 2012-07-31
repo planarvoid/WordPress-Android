@@ -103,7 +103,7 @@ public final class MotionEventUtils {
     // Show an event in the LogCat view, for debugging
     @SuppressWarnings("UnusedDeclaration")
     public static void dumpMotionEvent(MotionEvent event) {
-        String names[] = {
+        String[] names = {
                 "DOWN", "UP", "MOVE", "CANCEL", "OUTSIDE", "POINTER_DOWN", "POINTER_UP", "7?",
                 "8?", "9?"
         };

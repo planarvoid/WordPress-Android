@@ -72,7 +72,7 @@ public class InputObject {
 
     }
 
-    @SuppressLint("NewApi")
+//    @SuppressLint("NewApi")
     private static int getActionIndex(MotionEvent event) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
            return event.getActionIndex();
