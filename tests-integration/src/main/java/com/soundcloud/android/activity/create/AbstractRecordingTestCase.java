@@ -246,12 +246,15 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
         }
     }
 
-    protected void assertTrackDuration(Track track, long time) {
+    protected void assertTrackDuration(Track track, long durationInMs) {
         if (track != null) {
             assertTrue(track.state.isFinished());
             assertTrue(track.duration > 0);
-            // emulator uploaded tracks are longer
-            assertEquals("track duration", time * (EMULATOR ? 2 : 1), track.duration, 2000);
+
+            // emulator uploaded tracks are longer (samplerate mismatch)
+            if (!EMULATOR) {
+                assertEquals("track duration", durationInMs, track.duration, 2000);
+            }
         }
     }
 }
