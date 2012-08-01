@@ -73,6 +73,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
 
         Runner.checkFreeSpace();
         env = getActivity().getApp().getEnv();
+        setRecordingType(null);
         super.setUp();
     }
 
@@ -242,6 +243,18 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
             prefs.edit().remove(DevSettings.DEV_RECORDING_TYPE).commit();
         } else {
             prefs.edit().putString(DevSettings.DEV_RECORDING_TYPE, type).commit();
+        }
+    }
+
+    protected void assertTrackDuration(Track track, long durationInMs) {
+        if (track != null) {
+            assertTrue(track.state.isFinished());
+            assertTrue(track.duration > 0);
+
+            // emulator uploaded tracks are longer (samplerate mismatch)
+            if (!EMULATOR) {
+                assertEquals("track duration", durationInMs, track.duration, 2000);
+            }
         }
     }
 }
