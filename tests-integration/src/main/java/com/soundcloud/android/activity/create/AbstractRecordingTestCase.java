@@ -50,6 +50,9 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
         }
     };
 
+    private static final long TRANSCODING_WAIT_TIME = 60 * 1000;
+    private static final long UPLOAD_WAIT_TIME = 20 * 1000;
+
     public AbstractRecordingTestCase() {
         super(ScCreate.class);
     }
@@ -197,8 +200,8 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
         return intent;
     }
 
-    protected @NotNull Recording assertSoundUploaded(long timeout) {
-        Intent intent = assertIntentAction(UploadService.UPLOAD_SUCCESS, timeout);
+    protected @NotNull Recording assertSoundUploaded() {
+        Intent intent = assertIntentAction(UploadService.UPLOAD_SUCCESS, UPLOAD_WAIT_TIME);
         Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
         assertNotNull("recording is null", recording);
         return recording;
@@ -207,7 +210,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
     protected @Nullable Track assertSoundTranscoded() {
         // sandbox fails sometimes, only check live system
         if (env == Env.LIVE) {
-            Intent intent = assertIntentAction(UploadService.TRANSCODING_SUCCESS, 40000);
+            Intent intent = assertIntentAction(UploadService.TRANSCODING_SUCCESS, TRANSCODING_WAIT_TIME);
             Track track = intent.getParcelableExtra(UploadService.EXTRA_TRACK);
             assertNotNull("track is null", track);
             return track;

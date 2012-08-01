@@ -79,7 +79,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         uploadSound("A test upload", null, true);
 
-        assertSoundUploaded(10000);
+        assertSoundUploaded();
         Track track = assertSoundTranscoded();
 
         if (track != null) {
@@ -100,7 +100,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         final String location = "Model "+Build.MODEL;
         uploadSound("A test upload", location, true);
 
-        assertSoundUploaded(10000);
+        assertSoundUploaded();
         Track track = assertSoundTranscoded();
         if (track != null) {
             assertEquals("A test upload at "+location, track.title);
@@ -127,7 +127,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
             assertIntentAction(UploadService.PROCESSING_PROGRESS, 5000);
             assertIntentAction(UploadService.PROCESSING_SUCCESS, 20000);
 
-            assertSoundUploaded(30000);
+            assertSoundUploaded();
             assertSoundTranscoded();
             solo.assertActivityFinished();
         } finally {
