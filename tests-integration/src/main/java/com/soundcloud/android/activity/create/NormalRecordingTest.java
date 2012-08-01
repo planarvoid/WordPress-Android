@@ -194,16 +194,16 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         setRecordingType(DevSettings.DEV_RECORDING_TYPE_RAW);
 
         record(RECORDING_TIME);
-
         solo.sleep(1000);
-
+        record(RECORDING_TIME);
+        solo.sleep(1000);
         record(RECORDING_TIME);
 
         uploadSound("An appended raw sound", null, true);
 
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
-        assertTrackDuration(track, 2 * RECORDING_TIME);
+        assertTrackDuration(track, 3 * RECORDING_TIME);
     }
 
     @Suppress
