@@ -81,7 +81,7 @@ public class LoginTest extends ActivityTestCase<Main> {
         solo.clickOnText(R.string.authentication_I_forgot_my_password);
         solo.assertActivity(Recover.class);
 
-        solo.enterText(0, "some-email-"+UUID.randomUUID().toString()+"@example.com");
+        solo.enterText(0, "some-email-"+System.currentTimeMillis()+"@baz"+System.currentTimeMillis()+".com");
         solo.clickOnOK();
 
         solo.assertDialogClosed();
