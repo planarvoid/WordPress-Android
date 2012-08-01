@@ -8,7 +8,9 @@ import com.soundcloud.android.utils.IOUtils;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 
 public class WavHeaderTest {
     /** 44100 16bit signed, 1 channel, 00:00:05.64, 497708 bytes  */
@@ -115,4 +117,21 @@ public class WavHeaderTest {
         IOUtils.copy(data.stream, out);
         expect(out.length()).toEqual(194040l);
     }
+
+    @Test
+    public void shouldFixWavHeader() throws Exception {
+        File tmp = File.createTempFile("tmp", "wav");
+        WavHeader.writeHeader(tmp, 1000);
+
+        // append some bytes
+        FileOutputStream fos = new FileOutputStream(tmp, true);
+        fos.write(new byte[8192]);
+        fos.close();
+
+        WavHeader.fixLength(new RandomAccessFile(tmp, "rw"));
+
+        WavHeader header = WavHeader.fromFile(tmp);
+        expect(header.getNumBytes()).toEqual(8192);
+    }
+
 }

@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 
 /**
  * This class represents the header of a WAVE format audio file, which usually
@@ -382,6 +383,31 @@ public class WavHeader {
             length -= (mNumBytes - endPos);
         }
         return new AudioData(stream, length);
+    }
+
+    /**
+     * Changes the WAV header to reflect the new file length. Needed after appending
+     * to an existing file.
+     *
+     * @param file the wav file
+     * @return true for success
+     * @throws IOException
+     */
+    public static boolean fixLength(RandomAccessFile file) throws IOException {
+        final long fileLength = file.length();
+        if (fileLength == 0) {
+            return false;
+        } else if (fileLength > LENGTH) {
+            // remaining bytes
+            file.seek(4);
+            file.writeInt(Integer.reverseBytes((int) (fileLength - 8)));
+            // total bytes
+            file.seek(LENGTH - 4);
+            file.writeInt(Integer.reverseBytes((int) (fileLength - LENGTH)));
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public static WavHeader fromFile(File f) throws IOException {

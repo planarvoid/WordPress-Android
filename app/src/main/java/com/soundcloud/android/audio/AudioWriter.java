@@ -25,7 +25,6 @@ public interface AudioWriter extends Closeable {
     int write(ByteBuffer samples, int length) throws IOException;
 
     /**
-     * @return recorded duration in milliseconds
      * @throws IOException
      */
     void finalizeStream() throws IOException;
