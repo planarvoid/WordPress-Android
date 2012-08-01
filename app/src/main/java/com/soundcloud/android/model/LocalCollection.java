@@ -46,9 +46,9 @@ public class LocalCollection {
     }
 
     public interface SyncState {
-        int PENDING = 0;
-        int SYNCING = 1;
-        int IDLE    = 2;
+        int IDLE    = 0;
+        int PENDING = 1;
+        int SYNCING = 2;
     }
 
     public int syncMisses() {
