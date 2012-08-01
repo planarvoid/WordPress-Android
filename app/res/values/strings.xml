@@ -13,10 +13,6 @@
 
     <string name="pref_stream_cache_size">Stream Cache Size</string>
     <string name="pref_stream_cache_size_desc">The size of the stream cache in percent</string>
-    <string name="cache_trimming">Trimming cache</string>
-    <string name="cache_trimming_message">Trimming the cache</string>
-
-    <string name="cloud_recorder_notification_ticker">Recording</string>
 
     <string name="create_autosave_message">Your recordings will automatically be saved as you create them. You can find them in your list of sounds.</string>
     <string name="create_regenerating_waveform_message">Regenerating waveform, please wait.</string>
@@ -60,9 +56,7 @@
     <string name="uploader_event_cancelling">Cancelling</string>
 
     <string name="uploader_event_processing_failed">Processing failed</string>
-    <string name="uploader_event_uploading_failed">Uploading failed</string>
     <string name="uploader_event_processing_finished">Processing finished</string>
-    <string name="uploader_event_uploading_finished">Uploading finished</string>
 
     <string name="cancel">Cancel</string>
     <string name="retry">Retry</string>
@@ -72,7 +66,6 @@
     <string name="rec_title_recording">Recording</string>
     <string name="rec_title_idle_play">Pause</string>
     <string name="rec_title_playing">Pause</string>
-    <string name="rec_title_idle_edit">Edit</string>
     <string name="rec_title_editing">Edit</string>
 
     <string name="rectip_default">Why don\'t you record the sounds of your street?.</string>
