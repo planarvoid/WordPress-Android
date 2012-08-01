@@ -15,7 +15,6 @@ import com.soundcloud.android.service.upload.UploadService;
 import android.content.Intent;
 import android.os.Build;
 import android.test.suitebuilder.annotation.Suppress;
-import android.widget.EditText;
 
 import java.io.File;
 
@@ -39,7 +38,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         assertTrue(encoded.exists());
 
         assertTrue(raw.length() > 0);
-        assertTrue("encoded length "+encoded.length(), encoded.length() > 0);
+        assertTrue("encoded length " + encoded.length(), encoded.length() > 0);
     }
 
     public void testRecordAndEditRevert() throws Exception {
@@ -86,9 +85,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
             assertEquals("A test upload", track.title);
             assertFalse("track is public", track.isPublic());
 
-            if (!EMULATOR) {
-                assertEquals("track duration is off", RECORDING_TIME, track.duration, 2000);
-            }
+            assertTrackDuration(track, RECORDING_TIME);
         }
 
         solo.assertActivityFinished();
@@ -110,29 +107,20 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
     public void testRecordAndUploadRaw() throws Exception {
         setRecordingType(DevSettings.DEV_RECORDING_TYPE_RAW);
-        try {
-            record(RECORDING_TIME);
+        record(RECORDING_TIME);
 
-            assertTrue("raw file does not exist", getActivity().getRecorder().getRecording().getFile().exists());
-            assertFalse("encoded file exists", getActivity().getRecorder().getRecording().getEncodedFile().exists());
+        assertTrue("raw file does not exist", getActivity().getRecorder().getRecording().getFile().exists());
+        assertFalse("encoded file exists", getActivity().getRecorder().getRecording().getEncodedFile().exists());
 
-            solo.clickOnPublish();
-            solo.assertActivity(ScUpload.class);
+        uploadSound("A raw test upload", null, true);
 
-            solo.enterText(0, "A test upload");
-            solo.clickOnButtonResId(R.string.sc_upload_private);
-            solo.clickOnText(R.string.post);
+        assertIntentAction(UploadService.PROCESSING_STARTED,  2000);
+        assertIntentAction(UploadService.PROCESSING_PROGRESS, 5000);
+        assertIntentAction(UploadService.PROCESSING_SUCCESS, 20000);
 
-            assertIntentAction(UploadService.PROCESSING_STARTED,  2000);
-            assertIntentAction(UploadService.PROCESSING_PROGRESS, 5000);
-            assertIntentAction(UploadService.PROCESSING_SUCCESS, 20000);
-
-            assertSoundUploaded();
-            assertSoundTranscoded();
-            solo.assertActivityFinished();
-        } finally {
-            setRecordingType(null);
-        }
+        assertSoundUploaded();
+        assertSoundTranscoded();
+        solo.assertActivityFinished();
     }
 
     public void testRecordAndUploadThenRecordAnotherSound() throws Exception {
@@ -158,7 +146,6 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.assertActivity(ScCreate.class);
         assertState(IDLE_PLAYBACK); // should be old recording
     }
-
 
     public void testRecordAndRunningOutOfStorageSpace() throws Exception {
         File filler = fillUpSpace(1024*1024);
@@ -186,6 +173,37 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
                 filler.delete();
             }
         }
+    }
+
+
+    public void testRecordAndAppendAndUpload() throws Exception {
+        record(RECORDING_TIME);
+
+        solo.sleep(1000);
+
+        record(RECORDING_TIME);
+
+        uploadSound("An appended sound", null, true);
+
+        assertSoundUploaded();
+        Track track = assertSoundTranscoded();
+        assertTrackDuration(track, 2 * RECORDING_TIME);
+    }
+
+    public void testRecordRawAndAppendAndUpload() throws Exception {
+        setRecordingType(DevSettings.DEV_RECORDING_TYPE_RAW);
+
+        record(RECORDING_TIME);
+
+        solo.sleep(1000);
+
+        record(RECORDING_TIME);
+
+        uploadSound("An appended raw sound", null, true);
+
+        assertSoundUploaded();
+        Track track = assertSoundTranscoded();
+        assertTrackDuration(track, 2 * RECORDING_TIME);
     }
 
     @Suppress
