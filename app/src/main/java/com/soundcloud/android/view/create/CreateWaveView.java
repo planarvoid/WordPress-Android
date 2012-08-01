@@ -42,8 +42,10 @@ public class CreateWaveView extends View {
     private boolean mIsEditing;
 
     private long mAnimationStartTime;
-
     private float[] mAmplitudePoints;
+
+    private MergedAmplitudeData mAmplitudeData = new MergedAmplitudeData();
+    private DrawData mDrawData = new DrawData();
 
     static {
         BITMAP_PAINT = new Paint();
@@ -115,30 +117,31 @@ public class CreateWaveView extends View {
         final float normalizedTime = Math.min(1.0f, (((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
         final float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
         final boolean animating = (normalizedTime < 1.0f);
-        final MergedAmplitudeData amplitudeData = new MergedAmplitudeData(recorder.getRecordStream(), trimWindow);
-        final DrawData drawData = new DrawData(amplitudeData,
+
+        mAmplitudeData.configure(recorder.getRecordStream(), trimWindow);
+        mDrawData.configure(mAmplitudeData,
                 interpolatedTime,
                 mMode == CreateWaveDisplay.MODE_REC,
                 mIsEditing,
                 getHeight(),
                 getWidth());
 
-        if (drawData.size > 0) {
+        if (mDrawData.size > 0) {
             if (mAmplitudePoints == null) {
                 // make sure we only allocate this array once - maximum points we're going to write
                 mAmplitudePoints = new float[canvas.getWidth() * 4];
             }
 
-            final int length = drawData.getAmplitudePoints(mAmplitudePoints, mMaxWaveHeight);
+            final int length = mDrawData.getAmplitudePoints(mAmplitudePoints, mMaxWaveHeight);
 
             if (animating) {
-                if (drawData.recIndex == 0) {
+                if (mDrawData.recIndex == 0) {
                     // no prerecord data on screen so just draw it all in recording paint
                     canvas.drawLines(mAmplitudePoints, 0, length, PLAYED_PAINT);
                 } else {
                     // mixed recording / prerecord data
-                    final int recordStartIndex = (amplitudeData.writtenSize >= getWidth()) ? drawData.recIndex * 4
-                            : Math.round(drawData.recIndex * ((float) drawData.lastDrawX) / drawData.size) * 4; // incorporate the scaling
+                    final int recordStartIndex = (mAmplitudeData.writtenSize >= getWidth()) ? mDrawData.recIndex * 4
+                            : Math.round(mDrawData.recIndex * ((float) mDrawData.lastDrawX) / mDrawData.size) * 4; // incorporate the scaling
 
                     canvas.drawLines(mAmplitudePoints, 0, recordStartIndex, DARK_PAINT);
                     canvas.drawLines(mAmplitudePoints, recordStartIndex, length - recordStartIndex, PLAYED_PAINT);
@@ -146,7 +149,7 @@ public class CreateWaveView extends View {
 
             } else {
                 if (mMode == CreateWaveDisplay.MODE_REC) {
-                    drawZoomView(canvas, drawData);
+                    drawZoomView(canvas, mDrawData);
                 } else {
                     drawFullView(canvas, mAmplitudePoints, length, trimWindow);
                 }
@@ -295,28 +298,32 @@ public class CreateWaveView extends View {
      */
     static class MergedAmplitudeData {
 
-            private final AmplitudeData mPreRecData;
-            private final AmplitudeData mRecData;
+        private AmplitudeData mPreRecData;
+        private AmplitudeData mRecData;
 
-            public final int preRecSize;
-            public final int writtenSize;
-            public final int totalSize;
+        public int preRecSize;
+        public int writtenSize;
+        public int totalSize;
 
-            public final int recordStartIndexWithTrim;
-            public final int recordEndIndexWithTrim;
+        public int recordStartIndexWithTrim;
+        public int recordEndIndexWithTrim;
 
-            MergedAmplitudeData(RecordStream recordStream, float[] trimWindow){
+        MergedAmplitudeData() {
 
-                mPreRecData = recordStream.getPreRecordAmplitudeData();
-                mRecData = recordStream.getAmplitudeData();
+        }
 
-                preRecSize = mPreRecData == null ? 0 : mPreRecData.size();
-                writtenSize = mRecData == null ? 0 : mRecData.size();
-                totalSize = preRecSize + writtenSize;
+        public void configure(RecordStream recordStream, float[] trimWindow) {
 
-                recordStartIndexWithTrim = (int) (preRecSize + trimWindow[0] * writtenSize);
-                recordEndIndexWithTrim = (int) (totalSize - writtenSize * (1d - trimWindow[1]));
-            }
+            mPreRecData = recordStream.getPreRecordAmplitudeData();
+            mRecData = recordStream.getAmplitudeData();
+
+            preRecSize = mPreRecData == null ? 0 : mPreRecData.size();
+            writtenSize = mRecData == null ? 0 : mRecData.size();
+            totalSize = preRecSize + writtenSize;
+
+            recordStartIndexWithTrim = (int) (preRecSize + trimWindow[0] * writtenSize);
+            recordEndIndexWithTrim = (int) (totalSize - writtenSize * (1d - trimWindow[1]));
+        }
 
         public float get(int i) {
             if (i < mPreRecData.size()) {
@@ -332,17 +339,19 @@ public class CreateWaveView extends View {
      */
     static class DrawData {
 
-        private final MergedAmplitudeData mAmpData;
+        private MergedAmplitudeData mAmpData;
 
-        private final int startIndex;
-        private final int endIndex;
+        private int startIndex;
+        private int endIndex;
 
-        public final int size;
-        public final int recIndex;
-        public final int lastDrawX;
-        public final int height;
+        public int size;
+        public int recIndex;
+        public int lastDrawX;
+        public int height;
 
-        public DrawData(MergedAmplitudeData mergedAmplitudeData, float interpolatedTime,
+        public DrawData(){}
+
+        public void configure(MergedAmplitudeData mergedAmplitudeData, float interpolatedTime,
                         boolean isZooming,
                         boolean isEditing, int height, int width) {
 
