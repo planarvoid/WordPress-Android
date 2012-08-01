@@ -61,7 +61,7 @@ public class RecordStreamTest {
 
     @Test
     public void shouldCreateAmplitudeFile() throws Exception {
-        File wavFile = new File(SoundRecorderTest.class.getResource(WavHeaderTest.PCM16_8000_1_WAV).getFile());
+        File wavFile = TestFiles.PCM16_8000_1_WAV.asFile();
         final RecordStream rs = new RecordStream(AudioConfig.DEFAULT, wavFile, null, null);
         rs.regenerateAmplitudeData(null, null);
         expect(rs.getAmplitudeData().isEmpty()).toBeFalse();

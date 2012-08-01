@@ -1,4 +1,4 @@
-package com.soundcloud.android.audio;
+package com.soundcloud.android.audio.reader;
 
 import static com.soundcloud.android.tests.AudioTestCase.MED_TEST_OGG;
 

@@ -3,8 +3,7 @@ package com.soundcloud.android.audio;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.audio.reader.WavReader;
-import com.soundcloud.android.record.SoundRecorderTest;
-import com.soundcloud.android.record.WavHeaderTest;
+import com.soundcloud.android.record.TestFiles;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -20,7 +19,7 @@ import java.nio.ShortBuffer;
 @RunWith(DefaultTestRunner.class)
 public class PlaybackStreamTest {
     PlaybackStream stream;
-    private File wavFile = new File(SoundRecorderTest.class.getResource(WavHeaderTest.PCM16_8000_1_WAV).getFile());
+    private File wavFile = TestFiles.PCM16_8000_1_WAV.asFile();
 
     @Before
     public void before() throws IOException {
