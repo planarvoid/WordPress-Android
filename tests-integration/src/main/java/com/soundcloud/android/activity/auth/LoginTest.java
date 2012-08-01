@@ -6,6 +6,7 @@ import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
+import android.test.FlakyTest;
 import android.test.suitebuilder.annotation.Suppress;
 import android.webkit.WebView;
 import android.widget.EditText;
@@ -68,12 +69,14 @@ public class LoginTest extends ActivityTestCase<Main> {
         solo.clickOnOK();
     }
 
+    @FlakyTest
     public void testLoginAndLogout() throws Exception {
         testLogin();
         solo.logoutViaSettings();
         solo.assertActivity(Start.class);
     }
 
+    @FlakyTest
     public void testRecoverPassword() throws Exception {
         solo.clickOnText(R.string.authentication_I_forgot_my_password);
         solo.assertActivity(Recover.class);
