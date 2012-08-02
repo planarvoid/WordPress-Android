@@ -24,28 +24,28 @@ public class VorbisEncoderTest extends AudioTestCase {
     private static final boolean PROFILE = false;
 
     public void testEncodeShortHighQuality() throws Exception {
-        encodeWav(SHORT_WAV, 5548, EncoderOptions.HI_Q);
+        encodeWav(SHORT_MONO_WAV, 5548, EncoderOptions.HI_Q);
     }
 
-    public void testEncodeShortLowQuality() throws Exception {
-        encodeWav(SHORT_WAV, 5052, EncoderOptions.LO_Q);
+    public void testEncodeShortDefaultQuality() throws Exception {
+        encodeWav(SHORT_MONO_WAV, 5052, EncoderOptions.DEFAULT);
     }
 
     public void testEncodeMedHighQuality() throws Exception {
-        encodeWav(MED_WAV, 18865, EncoderOptions.HI_Q);
+        encodeWav(MED_STEREO_WAV, 18865, EncoderOptions.HI_Q);
     }
 
     public void testEncodeMedDefaultQuality() throws Exception {
-        encodeWav(MED_WAV, 18865, EncoderOptions.DEFAULT);
+        encodeWav(MED_STEREO_WAV, 18865, EncoderOptions.DEFAULT);
     }
 
     public void testEncodeMedLowQuality() throws Exception {
-        encodeWav(MED_WAV, 18705, EncoderOptions.MED_Q);
+        encodeWav(MED_STEREO_WAV, 18705, EncoderOptions.LO_Q);
     }
 
     public void testPartialEncoding() throws Exception {
         EncoderOptions opts = new EncoderOptions(1f, 2000, 5500, null, null);
-        encodeWav(MED_WAV, 3500, opts);
+        encodeWav(MED_STEREO_WAV, 3500, opts);
     }
 
     public void testEncodingWithFadeFilter() throws Exception {
@@ -71,7 +71,7 @@ public class VorbisEncoderTest extends AudioTestCase {
         };
 
         EncoderOptions opts = new EncoderOptions(1f, 0, -1, null, filter);
-        encodeWav(SHORT_WAV, 5052, opts);
+        encodeWav(SHORT_MONO_WAV, 5052, opts);
     }
 
     public void testRelease() throws Exception {
@@ -82,7 +82,7 @@ public class VorbisEncoderTest extends AudioTestCase {
     }
 
     public void testEncodeAndStartNewStream() throws Exception {
-        File wav = prepareAsset(SHORT_WAV);
+        File wav = prepareAsset(SHORT_MONO_WAV);
         InputStream is = new FileInputStream(wav);
         WavHeader h = new WavHeader(is);
 
@@ -157,7 +157,7 @@ public class VorbisEncoderTest extends AudioTestCase {
 
     public void testValidate() throws Exception {
         assertFalse(VorbisEncoder.validate(new File("/does/not/exist")));
-        assertFalse(VorbisEncoder.validate(prepareAsset(SHORT_WAV)));
+        assertFalse(VorbisEncoder.validate(prepareAsset(SHORT_MONO_WAV)));
         assertTrue(VorbisEncoder.validate(prepareAsset(MED_TEST_OGG)));
         assertTrue(VorbisEncoder.validate(prepareAsset(SHORT_TEST_OGG)));
         assertFalse(VorbisEncoder.validate(prepareAsset(SHORT_TEST_NO_EOS_OGG)));
@@ -165,6 +165,7 @@ public class VorbisEncoderTest extends AudioTestCase {
     }
 
     private void encodeWav(String file, int expectedDuration, EncoderOptions options) throws Exception {
+
         assertEquals("need writable external storage",
                 Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED);
 
@@ -175,7 +176,6 @@ public class VorbisEncoderTest extends AudioTestCase {
         final String ogg = file.replace(".wav", ".ogg");
         File out = externalPath(ogg);
 
-        final long start = System.currentTimeMillis();
 
         if (PROFILE)  {
             Debug.startMethodTracing();
@@ -183,6 +183,7 @@ public class VorbisEncoderTest extends AudioTestCase {
         }
 
         // encode it
+        final long start = System.currentTimeMillis();
         VorbisEncoder.encodeWav(in, out, options);
 
         if (PROFILE) {

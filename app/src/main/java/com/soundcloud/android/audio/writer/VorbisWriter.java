@@ -5,6 +5,7 @@ import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.AudioWriter;
 import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.jni.EncoderException;
+import com.soundcloud.android.jni.EncoderOptions;
 import com.soundcloud.android.jni.VorbisEncoder;
 
 import java.io.File;
@@ -76,7 +77,7 @@ public class VorbisWriter implements AudioWriter {
 
     private void initializeEncoder() throws EncoderException {
         if (encoder == null) {
-            encoder = new VorbisEncoder(file, "w+", config.channels, config.sampleRate, config.quality);
+            encoder = new VorbisEncoder(file, "w+", config.channels, config.sampleRate, EncoderOptions.DEFAULT.quality);
         }
     }
 }

@@ -763,7 +763,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 .getString(DevSettings.DEV_RECORDING_TYPE, null));
     }
 
-    private static boolean hasFPUSupport() {
+    public static boolean hasFPUSupport() {
         return !"armeabi".equals(Build.CPU_ABI);
     }
 }
