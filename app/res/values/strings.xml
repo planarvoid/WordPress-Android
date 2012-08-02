@@ -123,7 +123,7 @@
     <string name="cloud_uploader_notification_transcoding_error_ticker">Transcoding Error</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Transcoding Error</string>
 
-    <string name="following_spam_warning">Could not change following status because of spam concerns. Try again later</string>
+    <string name="following_spam_warning">You have reached the limit for following users and this options is temporarily disabled for your account.</string>
 
     <!-- error to show when signup scope was revoked on server side -->
     <string name="signup_scope_revoked">Oops! We couldn\'t sign you up\nPlease try updating the app or sign up at SoundCloud.com.</string>
