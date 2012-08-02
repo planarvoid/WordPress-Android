@@ -7,6 +7,7 @@ import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.tests.AudioTestCase;
 import junit.framework.AssertionFailedError;
 
+import android.os.Debug;
 import android.os.Environment;
 import android.os.Parcel;
 import android.test.suitebuilder.annotation.LargeTest;
@@ -20,6 +21,8 @@ import java.nio.ByteBuffer;
 @LargeTest
 public class VorbisEncoderTest extends AudioTestCase {
 
+    private static final boolean PROFILE = false;
+
     public void testEncodeShortHighQuality() throws Exception {
         encodeWav(SHORT_WAV, 5548, EncoderOptions.HI_Q);
     }
@@ -30,6 +33,10 @@ public class VorbisEncoderTest extends AudioTestCase {
 
     public void testEncodeMedHighQuality() throws Exception {
         encodeWav(MED_WAV, 18865, EncoderOptions.HI_Q);
+    }
+
+    public void testEncodeMedDefaultQuality() throws Exception {
+        encodeWav(MED_WAV, 18865, EncoderOptions.DEFAULT);
     }
 
     public void testEncodeMedLowQuality() throws Exception {
@@ -169,7 +176,20 @@ public class VorbisEncoderTest extends AudioTestCase {
         File out = externalPath(ogg);
 
         final long start = System.currentTimeMillis();
+
+        if (PROFILE)  {
+            Debug.startMethodTracing();
+            Debug.startNativeTracing();
+        }
+
+        // encode it
         VorbisEncoder.encodeWav(in, out, options);
+
+        if (PROFILE) {
+            Debug.stopMethodTracing();
+            Debug.stopNativeTracing();
+        }
+
         final long duration = System.currentTimeMillis() - start;
         log("encoded '%s' in quality %f in %d ms, factor %.2f", file, options.quality, duration,
                 (double) duration / (double) wavHeader.getDuration());

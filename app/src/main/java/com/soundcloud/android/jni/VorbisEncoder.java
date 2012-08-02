@@ -1,5 +1,6 @@
 package com.soundcloud.android.jni;
 
+import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.PlaybackFilter;
 import com.soundcloud.android.audio.WavHeader;
 import com.soundcloud.android.utils.BufferUtils;
@@ -69,8 +70,8 @@ public class VorbisEncoder {
 
         PlaybackFilter filter = options.filter;
         ProgressListener listener = options.listener;
-        ByteBuffer bbuffer = BufferUtils.allocateAudioBuffer((int) (8192 * channels * 2));
-        byte[] buffer = new byte[bbuffer.capacity()];
+        ByteBuffer bbuffer = BufferUtils.allocateAudioBuffer((int) AudioConfig.DEFAULT.bytesPerSecond * 2);
+        final byte[] buffer = new byte[bbuffer.capacity()];
         int n;
         long total = 0;
         while ((n = is.read(buffer)) != -1) {
