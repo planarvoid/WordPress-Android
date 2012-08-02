@@ -46,6 +46,9 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
       sh adb_path, *args.unshift(flag)
     end
   end
+
+  test_runner = lambda { "android.test.InstrumentationTestRunner" }
+
   namespace t do
     namespace :beta do
       beta_path = "/mnt/sdcard/Android/data/com.soundcloud.android/files/beta"
@@ -103,13 +106,13 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
 
     desc "run integration tests"
     task :test do
-      adb['shell', 'am', 'instrument', '-r', '-w', package.to_s+'.tests/com.soundcloud.android.tests.Runner']
+      adb['shell', 'am', 'instrument', '-r', '-w', package.to_s+'.tests/'+test_runner.call]
     end
 
     desc "runs a single integration test [CLASS=com.soundcloud...]"
     task :test_single do
       adb['shell', 'am', 'instrument', '-r', '-w', '-e', 'class', ENV['CLASS'],
-          package.to_s+'.tests/android.test.InstrumentationTestRunner']
+          package.to_s+'.tests/'+test_runner.call]
     end
 
     task :anr do
@@ -127,6 +130,10 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
       adb["shell setprop log.redirect-stdio false"]
     end
 
+    task :remove_camera do
+      adb["remount"]
+      adb["shell rm -r /system/app/Gallery*apk /system/app/Camera.apk"]
+    end
   end
 end
 

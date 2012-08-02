@@ -26,6 +26,7 @@ public final class DevSettings {
     public static final String DEV_CRASH                = "dev.crash";
     public static final String DEV_HTTP_PROXY           = "dev.http.proxy";
     public static final String DEV_RECORDING_TYPE       = "dev.defaultRecordingType";
+    public static final String DEV_RECORDING_TYPE_RAW   = "raw";
 
     private DevSettings() {
     }

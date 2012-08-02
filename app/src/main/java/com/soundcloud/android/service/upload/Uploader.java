@@ -30,6 +30,8 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     private volatile boolean mCanceled;
     private LocalBroadcastManager mBroadcastManager;
 
+    private static final int MAX_TRIES = 1;
+
     public Uploader(AndroidCloudAPI api, Recording recording) {
         this.api = api;
         mUpload = recording;
@@ -50,7 +52,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         Log.d(UploadService.TAG, "Uploader.run("+ mUpload+")");
 
         try {
-            upload();
+            upload(0);
         } catch (IllegalArgumentException e) {
             onUploadFailed(e);
         } finally {
@@ -62,7 +64,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     /**
      * @throws IllegalArgumentException
      */
-    private void upload() {
+    private boolean upload(int tries) {
         final File toUpload = mUpload.getUploadFile();
         if (toUpload == null || !toUpload.exists()) throw new IllegalArgumentException("File to be uploaded does not exist");
         if (toUpload.length() == 0) throw new IllegalArgumentException("File to be uploaded is empty");
@@ -96,22 +98,32 @@ public class Uploader extends BroadcastReceiver implements Runnable {
                     }
                 }
             }));
-
             StatusLine status = response.getStatusLine();
-            if (status.getStatusCode() == HttpStatus.SC_CREATED) {
-                onUploadSuccess(response);
-            } else {
-                final String message = String.format("Upload failed: %d (%s)",
-                        status.getStatusCode(),
-                        status.getReasonPhrase());
+            switch (status.getStatusCode()) {
+                case HttpStatus.SC_CREATED:
+                    onUploadSuccess(response);
+                    return true;
+                case HttpStatus.SC_INTERNAL_SERVER_ERROR:
+                    // can happen on sandbox - retry once in this case
+                    if (tries < MAX_TRIES) return upload(tries + 1);
 
-                Log.w(TAG, message);
-                onUploadFailed(new IOException(message));
+                    //noinspection fallthrough
+                default:
+                    final String message = String.format("Upload failed: %d (%s), try=%d",
+                            status.getStatusCode(),
+                            status.getReasonPhrase(),
+                            tries);
+
+                    Log.w(TAG, message);
+                    onUploadFailed(new IOException(message));
+                    return false;
             }
         } catch (UserCanceledException e) {
             onUploadCancelled(e);
+            return false;
         } catch (IOException e) {
             onUploadFailed(e);
+            return false;
         }
     }
 

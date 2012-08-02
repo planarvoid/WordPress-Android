@@ -3,8 +3,8 @@
     <item android:state_pressed="true">
         <shape>
             <gradient
-                    android:startColor="@color/btnTransparentPressedStart"
-                    android:endColor="@color/btnTransparentPressedEnd"
+                    android:startColor="@color/btnOrangePressedStart"
+                    android:endColor="@color/btnOrangePressedEnd"
                     android:angle="270"/>
         </shape>
     </item>

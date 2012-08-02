@@ -13,17 +13,16 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 public class WavReader extends AudioReader {
-    private RandomAccessFile file;
     private final File backing;
-    private final WavHeader header;
+
+    private RandomAccessFile file;
+    private WavHeader header;
 
     public static final String EXTENSION = "wav";
 
     public WavReader(File backing) throws IOException {
         this.backing = backing;
-        file = new RandomAccessFile(backing, "r");
-        file.seek(WavHeader.LENGTH);
-        header = new WavHeader(new FileInputStream(backing));
+        doReopen();
     }
 
     @Override
@@ -62,8 +61,7 @@ public class WavReader extends AudioReader {
     @Override
     public void reopen() {
         try {
-            if (file != null) file.close();
-            file = new RandomAccessFile(backing, "r");
+            doReopen();
         } catch (IOException e) {
             Log.w(WavReader.class.getSimpleName(), e);
         }
@@ -72,5 +70,11 @@ public class WavReader extends AudioReader {
     @Override
     public void close() throws IOException {
         file.close();
+    }
+
+    private void doReopen() throws IOException {
+        if (file != null) file.close();
+        file = new RandomAccessFile(backing, "r");
+        header = new WavHeader(new FileInputStream(backing));
     }
 }

@@ -1,7 +1,5 @@
 package com.soundcloud.android.activity.create;
 
-import android.annotation.SuppressLint;
-import android.content.IntentFilter;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -10,10 +8,10 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.record.RemainingTimeCalculator;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -26,22 +24,29 @@ import com.soundcloud.android.view.create.Chronometer;
 import com.soundcloud.android.view.create.CreateWaveDisplay;
 import com.soundcloud.android.view.create.RecordMessageView;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -57,30 +62,34 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     public static final int REQUEST_PROCESS_SOUND = 2;
     public static final int REQUEST_UPLOAD_SOUND  = 3;
 
+    private static final int MSG_ANIMATE_OUT_SAVE_MESSAGE = 0;
+    private static final long SAVE_MSG_DISPLAY_TIME = 3000; //ms
+
     public static final String EXTRA_PRIVATE_MESSAGE_RECIPIENT = "privateMessageRecipient";
 
     private User mRecipient;
-
     private SoundRecorder mRecorder;
+
     private CreateState mLastState, mCurrentState;
+    private TextView mTxtInstructions, mTxtTitle;
+    private RecordMessageView mTxtRecordMessage;
 
-    private TextView txtInstructions;
-    private RecordMessageView txtRecordMessage;
     private Chronometer mChrono;
-
-    private ViewGroup mEditControls;
-    private ImageButton mActionButton;
+    private ViewGroup mEditControls, mGaugeHolder, mSavedMessageLayout;
+    private ImageButton mActionButton, mYouButton;
     private CreateWaveDisplay mWaveDisplay;
-    private View mPlayButton, mEditButton, mPlayEditButton;
+    private ImageButton mPlayButton, mEditButton, mPlayEditButton;
     private ToggleButton mToggleOptimize, mToggleFade;
     private String mRecordErrorMessage;
-    private ButtonBar mButtonBar;
 
+    private ButtonBar mButtonBar;
     private boolean mActive, mHasEditControlGroup;
     private List<Recording> mUnsavedRecordings;
 
+    private ProgressBar mGeneratingWaveformProgressBar;
 
     public enum CreateState {
+        GENERATING_WAVEFORM,
         IDLE_RECORD,
         RECORD,
         IDLE_PLAYBACK,
@@ -103,11 +112,12 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         setContentView(R.layout.sc_create);
 
         mRecorder = SoundRecorder.getInstance(this);
-        txtInstructions = (TextView) findViewById(R.id.txt_instructions);
+        mTxtTitle = (TextView) findViewById(R.id.txt_title);
+        mTxtInstructions = (TextView) findViewById(R.id.txt_instructions);
         Recording recording = null;
         mRecipient = getIntent().getParcelableExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT);
         if (mRecipient != null) {
-            txtInstructions.setText(getString(R.string.private_message_title, mRecipient.username));
+            mTxtInstructions.setText(getString(R.string.private_message_title, mRecipient.username));
             recording = Recording.checkForUnusedPrivateRecording(SoundRecorder.RECORD_DIR, mRecipient);
         }
         if (recording == null ) {
@@ -116,7 +126,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         if (recording != null) {
             mRecorder.setRecording(recording);
         }
-        txtRecordMessage = (RecordMessageView) findViewById(R.id.txt_record_message);
+        mTxtRecordMessage = (RecordMessageView) findViewById(R.id.txt_record_message);
 
         mChrono = (Chronometer) findViewById(R.id.chronometer);
         mChrono.setVisibility(View.INVISIBLE);
@@ -132,11 +142,15 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mPlayEditButton = setupPlaybutton(R.id.btn_play_edit);
         mToggleFade = setupToggleFade();
         mToggleOptimize = setupToggleOptimize();
+        mYouButton = setupYouButton();
 
         mWaveDisplay = new CreateWaveDisplay(this);
         mWaveDisplay.setTrimListener(this);
-        ((ViewGroup) findViewById(R.id.gauge_holder)).addView(mWaveDisplay);
 
+        mGaugeHolder = ((ViewGroup) findViewById(R.id.gauge_holder));
+        mGaugeHolder.addView(mWaveDisplay);
+
+        mSavedMessageLayout = (ViewGroup) findViewById(R.id.saved_message_layout);
         updateUi(CreateState.IDLE_RECORD, false);
         handleIntent();
     }
@@ -338,7 +352,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
                 }
             }
-        }), R.string.btn_next);
+        }), R.string.btn_publish);
         return buttonBar;
     }
 
@@ -358,7 +372,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     case RECORD:
                         track(Click.Record_rec_stop);
                         mRecorder.stopRecording();
-                        if (getApp().getAccountDataBoolean(User.DataKeys.SEEN_CREATE_AUTOSAVE)){
+                        // XXX use prefs
+                        if (getApp().getAccountDataBoolean(User.DataKeys.SEEN_CREATE_AUTOSAVE)) {
                             showToast(R.string.create_autosave_message);
                             getApp().setAccountData(User.DataKeys.SEEN_CREATE_AUTOSAVE, true);
                         }
@@ -369,8 +384,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return button;
     }
 
-    private View setupPlaybutton(int id) {
-        final View button = findViewById(id);
+    private ImageButton setupPlaybutton(int id) {
+        final ImageButton button = (ImageButton) findViewById(id);
         if (button != null){
             button.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
@@ -402,8 +417,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return button;
     }
 
-    private View setupEditButton() {
-        View button = findViewById(R.id.btn_edit);
+    private ImageButton setupEditButton() {
+        ImageButton button = (ImageButton) findViewById(R.id.btn_edit);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -414,17 +429,29 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return button;
     }
 
-    private ToggleButton setupToggleFade() {
-        final ToggleButton tb = (ToggleButton) findViewById(R.id.toggle_fade);
-        tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+    private ImageButton setupYouButton() {
+        ImageButton button = (ImageButton) findViewById(R.id.btn_you);
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                mRecorder.toggleFade();
+            public void onClick(View v) {
+                startActivity(new Intent(Actions.MY_PROFILE)
+                        .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks));
             }
         });
-        tb.setChecked(mRecorder.isFading());
-        return tb;
+        return button;
     }
+
+    private ToggleButton setupToggleFade() {
+            final ToggleButton tb = (ToggleButton) findViewById(R.id.toggle_fade);
+            tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    mRecorder.toggleFade();
+                }
+            });
+            tb.setChecked(mRecorder.isFading());
+            return tb;
+        }
 
     private ToggleButton setupToggleOptimize() {
         final ToggleButton tb = (ToggleButton) findViewById(R.id.toggle_optimize);
@@ -447,7 +474,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         updateUi(CreateState.IDLE_RECORD, true);
     }
 
-    public  SoundRecorder getRecorder() {
+    public SoundRecorder getRecorder() {
         return mRecorder;
     }
 
@@ -457,36 +484,42 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         boolean takeAction = false;
         CreateState newState = null;
 
+
         if (mRecorder.isRecording()) {
             newState = CreateState.RECORD;
+
         } else if (mRecorder.isPlaying()) {
             if (mCurrentState != CreateState.EDIT_PLAYBACK) newState = CreateState.PLAYBACK;
             configurePlaybackInfo();
             mWaveDisplay.gotoPlaybackMode();
             takeAction = true;
+
         } else {
-            if (mRecorder.getRecording() != null) {
-                if (mCurrentState != CreateState.EDIT) newState = CreateState.IDLE_PLAYBACK;
-                configurePlaybackInfo();
-                mWaveDisplay.gotoPlaybackMode();
-            } else {
+            final Recording recording = mRecorder.getRecording();
+            if (recording == null || (mRecipient != null && recording.getRecipient() != mRecipient)){
+                if (recording != null) mRecorder.reset();
                 newState = CreateState.IDLE_RECORD;
                 takeAction = true;
+            } else {
+                if (mRecorder.isGeneratingWaveform()) {
+                    newState = CreateState.GENERATING_WAVEFORM;
+                } else {
+                    if (mCurrentState != CreateState.EDIT) newState = CreateState.IDLE_PLAYBACK;
+                    configurePlaybackInfo();
+                    mWaveDisplay.gotoPlaybackMode();
+                }
             }
         }
-        //TODO: re-enable later
-        //noinspection ConstantIfStatement
-        if (false) {
-            if (mCurrentState != CreateState.RECORD && mRecipient == null) {
-                mUnsavedRecordings = Recording.getUnsavedRecordings(
+
+        if (newState == CreateState.IDLE_RECORD && mRecipient == null) {
+            mUnsavedRecordings = Recording.getUnsavedRecordings(
                     getContentResolver(),
                     SoundRecorder.RECORD_DIR,
                     mRecorder.getRecording(),
                     getCurrentUserId());
 
-                if (!mUnsavedRecordings.isEmpty()) {
-                    showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
-                }
+            if (!mUnsavedRecordings.isEmpty()) {
+                showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
             }
         }
         updateUi(newState, takeAction);
@@ -495,33 +528,63 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private void updateUi(CreateState newState, boolean takeAction) {
         if (newState != null) mCurrentState = newState;
         switch (mCurrentState) {
-            case IDLE_RECORD:
+            case GENERATING_WAVEFORM:
+                mTxtTitle.setText(R.string.rec_title_generating_waveform);
+                hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
+                hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
+                hideView(mButtonBar, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
+                hideEditControls();
+                hideView(mTxtInstructions, false, View.GONE);
+                hideView(mChrono, false, View.GONE);
+                hideView(mActionButton, false, View.GONE);
+                hideSavedMessage();
+                hideView(mYouButton, false, View.GONE);
 
+                mActionButton.setClickable(false);
+                mActionButton.setImageResource(R.drawable.btn_recording_rec_deactivated);
+
+                showView(mTxtRecordMessage, takeAction && mLastState != CreateState.IDLE_RECORD);
+                mTxtRecordMessage.setMessage(R.string.create_regenerating_waveform_message);
+
+                if (mGeneratingWaveformProgressBar == null){
+                    mGeneratingWaveformProgressBar = new ProgressBar(this, null, android.R.attr.progressBarStyle);
+                    mGeneratingWaveformProgressBar.setIndeterminate(true);
+                    RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    lp.addRule(RelativeLayout.CENTER_IN_PARENT, 1);
+                    mGaugeHolder.addView(mGeneratingWaveformProgressBar, lp);
+                }
+                break;
+
+            case IDLE_RECORD:
+                mTxtTitle.setText(R.string.rec_title_idle_rec);
                 setPlayButtonDrawable(false);
                 if (!IOUtils.isSDCardAvailable()){
 
                     // state list drawables won't work with the image button
                     mActionButton.setClickable(false);
-                    mActionButton.setImageResource(R.drawable.btn_rec_deactivated);
-                    txtRecordMessage.setMessage(R.string.record_insert_sd_card);
+                    mActionButton.setImageResource(R.drawable.btn_recording_rec_deactivated);
+                    mTxtRecordMessage.setMessage(R.string.record_insert_sd_card);
                 } else {
                     mActionButton.setClickable(true);
                     mActionButton.setImageResource(R.drawable.btn_rec_states);
                     if (!TextUtils.isEmpty(mRecordErrorMessage)) {
-                        txtRecordMessage.setMessage(mRecordErrorMessage);
+                        mTxtRecordMessage.setMessage(mRecordErrorMessage);
                     } else {
-                        txtRecordMessage.loadSuggestion(mRecipient == null ? null : mRecipient.getDisplayName());
+                        mTxtRecordMessage.loadSuggestion(mRecipient == null ? null : mRecipient.getDisplayName());
                     }
                 }
                 hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mButtonBar, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
+                hideSavedMessage();
                 hideView(mChrono, false, View.INVISIBLE);
                 hideEditControls();
 
+                showView(mYouButton,false);
+                mYouButton.setImageResource(R.drawable.ic_rec_you_dark);
                 showView(mActionButton, false);
-                showView(txtInstructions, takeAction && mLastState != CreateState.IDLE_RECORD);
-                showView(txtRecordMessage, takeAction && mLastState != CreateState.IDLE_RECORD);
+                showView(mTxtInstructions, takeAction && mLastState != CreateState.IDLE_RECORD);
+                showView(mTxtRecordMessage, takeAction && mLastState != CreateState.IDLE_RECORD);
 
                 if (mActive && mRecorder.getRecording() == null) {
                     mRecorder.startReading();
@@ -529,22 +592,27 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 break;
 
             case RECORD:
+                mTxtTitle.setText(R.string.rec_title_recording);
                 hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mButtonBar, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
+                hideSavedMessage();
                 hideEditControls();
-                hideView(txtInstructions, false, View.GONE);
-                hideView(txtRecordMessage, false, View.INVISIBLE);
+                hideView(mTxtInstructions, false, View.GONE);
+                hideView(mTxtRecordMessage, false, View.INVISIBLE);
 
                 showView(mChrono, takeAction && mLastState == CreateState.IDLE_RECORD);
                 showView(mActionButton, false);
+                showView(mYouButton, false);
+                mYouButton.setImageResource(R.drawable.ic_rec_you_dark);
 
                 mActionButton.setImageResource(R.drawable.btn_rec_pause_states);
-                txtRecordMessage.setMessage("");
+                mTxtRecordMessage.setMessage("");
                 mChrono.setDurationOnly(mRecorder.getRecordingElapsedTime());
                 break;
 
             case IDLE_PLAYBACK:
+                mTxtTitle.setText(R.string.rec_title_idle_play);
                 if (takeAction) {
                     switch (mLastState) {
                         case PLAYBACK:
@@ -563,28 +631,35 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 showView(mEditButton, takeAction && (mLastState == CreateState.RECORD || mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
                 showView(mActionButton, takeAction && (mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
                 showView(mButtonBar, takeAction && (mLastState == CreateState.RECORD));
+                if (mLastState == CreateState.RECORD) showSavedMessage(takeAction && mLastState == CreateState.RECORD);
                 showView(mChrono, false);
+                showView(mYouButton, (mLastState == CreateState.EDIT || mLastState != CreateState.EDIT_PLAYBACK));
+                mYouButton.setImageResource(R.drawable.ic_rec_you);
 
-                hideView(txtInstructions, false, View.GONE);
-                hideView(txtRecordMessage, false, View.INVISIBLE);
+                hideView(mTxtInstructions, false, View.GONE);
+                hideView(mTxtRecordMessage, false, View.INVISIBLE);
                 hideEditControls();
 
                 setPlayButtonDrawable(false);
-                mActionButton.setImageResource(R.drawable.btn_rec_states);
+                mActionButton.setImageResource(R.drawable.btn_rec_resume_states);
 
                 configurePlaybackInfo();
                 break;
 
             case PLAYBACK:
-                showView(mActionButton,false);
+                mTxtTitle.setText(R.string.rec_title_playing);
+                showView(mActionButton, false);
                 showView(mPlayButton,false);
                 showView(mEditButton,false);
-                showView(mButtonBar,false);
-                showView(mChrono,false);
+                showView(mButtonBar, false);
+                showView(mChrono, false);
+                showView(mYouButton, (mLastState == CreateState.EDIT || mLastState != CreateState.EDIT_PLAYBACK));
+                mYouButton.setImageResource(R.drawable.ic_rec_you);
+                hideSavedMessage();
 
-                hideView(txtInstructions,false,View.GONE);
+                hideView(mTxtInstructions, false, View.GONE);
                 hideEditControls();
-                hideView(txtRecordMessage,false,View.INVISIBLE);
+                hideView(mTxtRecordMessage,false,View.INVISIBLE);
 
                 setPlayButtonDrawable(true);
                 mActionButton.setImageResource(R.drawable.btn_rec_states);
@@ -594,7 +669,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
             case EDIT:
             case EDIT_PLAYBACK:
+                mTxtTitle.setText(R.string.rec_title_editing);
                 showView(mButtonBar, false);
+                hideSavedMessage();
 
                 if (mHasEditControlGroup) {
                     // portrait
@@ -608,8 +685,11 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 hideView(mActionButton, false, View.GONE);
                 hideView(mEditButton, false, View.GONE);
 
-                hideView(txtInstructions, false, View.GONE);
-                hideView(txtRecordMessage, false, View.INVISIBLE);
+                hideView(mTxtInstructions, false, View.GONE);
+                hideView(mTxtRecordMessage, false, View.INVISIBLE);
+                hideView(mYouButton, (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK), View.INVISIBLE);
+                mYouButton.setImageResource(R.drawable.ic_rec_you);
+
 
                 final boolean isPlaying = mCurrentState == CreateState.EDIT_PLAYBACK;
                 setPlayButtonDrawable(isPlaying);
@@ -637,11 +717,16 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
         mLastState = mCurrentState;
         mActionButton.setEnabled(true);
+
+        if (mCurrentState != CreateState.GENERATING_WAVEFORM && mGeneratingWaveformProgressBar != null) {
+            if (mGeneratingWaveformProgressBar.getParent() == mGaugeHolder) mGaugeHolder.removeView(mGeneratingWaveformProgressBar);
+            mGeneratingWaveformProgressBar = null;
+        }
     }
 
     private void configureButtonBar(boolean isEditing) {
         mButtonBar.setTextById(MenuItems.RESET, isEditing ? R.string.btn_revert_to_original : R.string.reset);
-        mButtonBar.setTextById(MenuItems.SAVE, isEditing ? R.string.btn_save : R.string.btn_next);
+        mButtonBar.setTextById(MenuItems.SAVE, isEditing ? R.string.btn_apply : R.string.btn_publish);
 
         final boolean showDelete = !isEditing && mRecorder.isSaved();
         mButtonBar.toggleVisibility(MenuItems.RESET, !showDelete, false);
@@ -651,11 +736,11 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private void setPlayButtonDrawable(boolean playing){
         if (playing){
-            mPlayButton.setBackgroundResource(R.drawable.btn_rec_play_pause_states);
-            mPlayEditButton.setBackgroundResource(R.drawable.btn_rec_play_pause_states);
+            mPlayButton.setImageResource(R.drawable.btn_rec_play_pause_states);
+            mPlayEditButton.setImageResource(R.drawable.btn_rec_play_pause_states);
         } else {
-            mPlayButton.setBackgroundResource(R.drawable.btn_rec_play_states);
-            mPlayEditButton.setBackgroundResource(R.drawable.btn_rec_play_states);
+            mPlayButton.setImageResource(R.drawable.btn_rec_play_states);
+            mPlayEditButton.setImageResource(R.drawable.btn_rec_play_states);
         }
     }
 
@@ -672,7 +757,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private void startRecording() {
         mRecordErrorMessage = null;
-        mWaveDisplay.gotoRecordMode();
 
         try {
             mRecorder.startRecording(mRecipient);
@@ -680,39 +764,24 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             onRecordingError(e.getMessage());
             updateUi(CreateState.IDLE_RECORD, true);
         }
+        mWaveDisplay.gotoRecordMode();
     }
 
-    private long updateTimeRemaining() {
-        final long t = mRecorder.timeRemaining();
-        if (t <= 1) {
-            // no more space, error out
-            switch (mRecorder.currentLowerLimit()) {
-                case RemainingTimeCalculator.DISK_SPACE_LIMIT:
-                    mRecordErrorMessage = getString(R.string.record_storage_is_full);
-                    break;
-                case RemainingTimeCalculator.FILE_SIZE_LIMIT:
-                    mRecordErrorMessage = getString(R.string.record_max_length_reached);
-                    break;
-                default:
-                    mRecordErrorMessage = null;
-                    break;
-            }
-            updateUi(mCurrentState == CreateState.EDIT_PLAYBACK ? CreateState.EDIT : CreateState.IDLE_PLAYBACK, true);
-            return t;
-        } else if (t < 300) {
+    private long updateTimeRemaining(long t) {
+        if (t < 300) {
             // 5 minutes, display countdown
             String msg;
             if (t < 60) {
                 msg = getResources().getQuantityString(R.plurals.seconds_available, (int) t, t);
             } else {
-                final int minutes = (int) (t / 60 + 1);
+                final int minutes = (int) Math.floor(t / 60d);
                 msg = getResources().getQuantityString(R.plurals.minutes_available, minutes, minutes);
             }
-            txtRecordMessage.setMessage(msg);
-            txtRecordMessage.setVisibility(View.VISIBLE);
+            mTxtRecordMessage.setMessage(msg);
+            mTxtRecordMessage.setVisibility(View.VISIBLE);
             return t;
         } else {
-            txtRecordMessage.setVisibility(View.INVISIBLE);
+            mTxtRecordMessage.setVisibility(View.INVISIBLE);
             return t;
         }
     }
@@ -768,8 +837,51 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             } else {
                 v.setVisibility(visibilityOnComplete);
             }
+
         }
     }
+
+    private void showSavedMessage(boolean animate) {
+        if (mSavedMessageLayout.getVisibility() != View.VISIBLE) {
+            mSavedMessageLayout.setVisibility(View.VISIBLE);
+            if (animate) {
+                mSavedMessageLayout.startAnimation(AnimationUtils.loadAnimation(this, R.anim.slide_in_from_top));
+            }
+            if (!mAnimateHandler.hasMessages(MSG_ANIMATE_OUT_SAVE_MESSAGE)){
+                mAnimateHandler.sendMessageDelayed(mAnimateHandler.obtainMessage(MSG_ANIMATE_OUT_SAVE_MESSAGE),
+                        SAVE_MSG_DISPLAY_TIME);
+            }
+        }
+    }
+
+    private void hideSavedMessage(){
+        mAnimateHandler.removeMessages(MSG_ANIMATE_OUT_SAVE_MESSAGE);
+        if (mSavedMessageLayout.getVisibility() == View.VISIBLE){
+            final Animation slideOutAnim = AnimationUtils.loadAnimation(this, R.anim.slide_out_to_top);
+            slideOutAnim.setAnimationListener(new Animation.AnimationListener() {
+                @Override public void onAnimationStart(Animation animation) {}
+
+                @Override public void onAnimationRepeat(Animation animation) {}
+
+                @Override public void onAnimationEnd(Animation animation) {
+                    mSavedMessageLayout.setVisibility(View.INVISIBLE);
+                }
+            });
+            mSavedMessageLayout.startAnimation(slideOutAnim);
+            }
+        }
+
+    private Handler mAnimateHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_ANIMATE_OUT_SAVE_MESSAGE:
+                    hideSavedMessage();
+                    break;
+            }
+        }
+
+    };
 
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override
@@ -785,10 +897,15 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 }
             } else if (SoundRecorder.RECORD_PROGRESS.equals(action)) {
                 mChrono.setDurationOnly(intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l));
-                updateTimeRemaining();
+                updateTimeRemaining(intent.getLongExtra(SoundRecorder.EXTRA_TIME_REMAINING, 0l));
             } else if (SoundRecorder.RECORD_ERROR.equals(action)) {
                 onRecordingError(getString(R.string.error_recording_message));
             } else if (SoundRecorder.RECORD_FINISHED.equals(action)) {
+                // has the time run out?
+                if (intent.getLongExtra(SoundRecorder.EXTRA_TIME_REMAINING, -1) == 0) {
+                    AndroidUtils.showToast(ScCreate.this, R.string.record_storage_is_full);
+                }
+
                 updateUi(CreateState.IDLE_PLAYBACK, true);
 
             } else if (SoundRecorder.PLAYBACK_STARTED.equals(action)) {
@@ -796,16 +913,33 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 setProgressInternal(intent.getLongExtra(SoundRecorder.EXTRA_POSITION, 0),
                         intent.getLongExtra(SoundRecorder.EXTRA_DURATION, 0));
 
-            } else if (SoundRecorder.PLAYBACK_COMPLETE.equals(action) || SoundRecorder.PLAYBACK_STOPPED.equals(action) || SoundRecorder.PLAYBACK_ERROR.equals(action)) {
-                if (mCurrentState == CreateState.PLAYBACK || mCurrentState == CreateState.EDIT_PLAYBACK) {
+            } else if (SoundRecorder.PLAYBACK_COMPLETE.equals(action) ||
+                       SoundRecorder.PLAYBACK_STOPPED.equals(action) ||
+                       SoundRecorder.PLAYBACK_ERROR.equals(action)) {
+
+                if (mCurrentState == CreateState.PLAYBACK ||
+                    mCurrentState == CreateState.EDIT_PLAYBACK) {
                     updateUi(mCurrentState == CreateState.EDIT_PLAYBACK ? CreateState.EDIT : CreateState.IDLE_PLAYBACK, true);
                 }
             } else if (Intent.ACTION_MEDIA_MOUNTED.equals(action) || Intent.ACTION_MEDIA_REMOVED.equals(action)){
                 // for messaging and action button activation
                 if (mCurrentState == CreateState.IDLE_RECORD) updateUi(CreateState.IDLE_RECORD,false);
+
+            } else if (SoundRecorder.WAVEFORM_GENERATED.equals(action)) {
+                // we are now free to play back
+                if (mCurrentState == CreateState.GENERATING_WAVEFORM) updateUi(CreateState.IDLE_PLAYBACK, true);
             }
         }
     };
+
+    @Override
+    public void onBackPressed() {
+        if (mCurrentState.isEdit()){
+            updateUi(CreateState.IDLE_PLAYBACK, true);
+        } else {
+            super.onBackPressed();
+        }
+    }
 
     @Override public Dialog onCreateDialog(int which) {
         switch (which) {
@@ -833,6 +967,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     for (int i = 0; i < recordings.size(); i++) {
                                         if (checked[i]) {
+                                            recordings.get(i).migrate(); // migrate deprecated format, otherwise this is harmless
                                             SoundCloudDB.insertRecording(getContentResolver(), recordings.get(i));
                                         } else {
                                             recordings.get(i).delete(null);

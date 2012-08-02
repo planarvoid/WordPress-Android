@@ -79,7 +79,7 @@ public class Dashboard extends ScListActivity {
                         .setImage(R.drawable.empty_follow)
                         .setActionText(R.string.list_empty_stream_action)
                         .setSecondaryText(R.string.list_empty_stream_secondary)
-                        .setActionListener(new EmptyCollection.ActionListener() {
+                        .setButtonActionListener(new EmptyCollection.ActionListener() {
                             @Override
                             public void onAction() {
                                 goToFriendFinder();
@@ -99,14 +99,10 @@ public class Dashboard extends ScListActivity {
                 mTrackingPage = Page.Stream_main;
                 break;
 
+
         }*/
 
-
-        mTrackingPage = Page.Stream_main;
-
         setContentView(null);
-
-
     }
 
     private void goToFriendFinder() {

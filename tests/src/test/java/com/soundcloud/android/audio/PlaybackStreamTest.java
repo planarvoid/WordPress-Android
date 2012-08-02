@@ -3,8 +3,7 @@ package com.soundcloud.android.audio;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.audio.reader.WavReader;
-import com.soundcloud.android.record.SoundRecorderTest;
-import com.soundcloud.android.record.WavHeaderTest;
+import com.soundcloud.android.record.TestFiles;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -20,7 +19,7 @@ import java.nio.ShortBuffer;
 @RunWith(DefaultTestRunner.class)
 public class PlaybackStreamTest {
     PlaybackStream stream;
-    private File wavFile = new File(SoundRecorderTest.class.getResource(WavHeaderTest.PCM16_8000_1_WAV).getFile());
+    private File wavFile = TestFiles.PCM16_8000_1_WAV.asFile();
 
     @Before
     public void before() throws IOException {
@@ -36,17 +35,17 @@ public class PlaybackStreamTest {
     @Test
     public void testSetEndPosition() throws Exception {
         stream.setEndPositionByPercent(.9f, 1);
-        expect(stream.getEndPos()).toEqual(4994l);
+        expect(stream.getEndPos()).toEqual(4995l);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSetInvalidStartPosition() throws Exception {
-        stream.setStartPositionByPercent(-1d, 1);
+        stream.setStartPositionByPercent(-1f, 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSetInvalidEndPosition() throws Exception {
-        stream.setEndPositionByPercent(2d, 1);
+        stream.setEndPositionByPercent(2f, 1);
     }
 
     @Test
@@ -67,6 +66,7 @@ public class PlaybackStreamTest {
     @Test
     public void testIsModified() throws Exception {
         expect(stream.isModified()).toBeFalse();
+
         stream.setOptimize(true);
         expect(stream.isModified()).toBeTrue();
 

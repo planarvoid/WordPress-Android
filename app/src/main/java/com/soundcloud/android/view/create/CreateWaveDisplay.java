@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.create;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.TouchLayout;
 
@@ -167,7 +168,7 @@ public class CreateWaveDisplay extends TouchLayout {
     }
 
     private void seekTouch(int x) {
-        if ((lastSeekX == -1 || Math.abs(x - lastSeekX) > touchSlop)) {
+        if (x != lastSeekX) {
             lastSeekX = x;
             queueUnique(UI_UPDATE_SEEK);
         }
@@ -178,7 +179,7 @@ public class CreateWaveDisplay extends TouchLayout {
     }
 
     protected void queueTrim(int what) {
-        if (mLastTrimAction != 0) {
+        if (mLastTrimAction == 0) {
             queueUnique(what);
         } else {
             final long delay = Math.max(0, TRIM_REPORT_INTERVAL - System.currentTimeMillis() - mLastTrimAction);
@@ -239,7 +240,13 @@ public class CreateWaveDisplay extends TouchLayout {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case UI_UPDATE_SEEK:
-                    final float seekPercent = ((float) lastSeekX) / waveformWidth;
+                    final float[] trimWindow = SoundRecorder.getInstance(getContext()).getTrimWindow();
+                    final int minX = (int) (trimWindow[0] * waveformWidth);
+                    final int maxX = (int) (trimWindow[1] * waveformWidth);
+
+                    final float adjustedSeekPosition = Math.min(Math.max(minX, lastSeekX),maxX) - minX;
+                    final float seekPercent = adjustedSeekPosition / (maxX - minX);
+
                     if (mWaveformView != null) mWaveformView.setCurrentProgress(seekPercent);
                     if (mListener != null) {
                         mListener.onSeek(seekPercent);
@@ -251,25 +258,21 @@ public class CreateWaveDisplay extends TouchLayout {
 
                     if (newTrimActionLeft != null && newTrimActionLeft.hasMovedFrom(lastTrimActionLeft)) {
                         leftHandle.update(newTrimActionLeft.position);
-
-                        final float trimPercentLeft = Math.max(0, ((float) newTrimActionLeft.position / waveformWidth));
-                        mWaveformView.setTrimLeft(trimPercentLeft);
-
                         if (mListener != null) {
-                            mListener.onAdjustTrimLeft(trimPercentLeft, newTrimActionLeft.timestamp - lastTrimActionLeft.timestamp);
+                            mListener.onAdjustTrimLeft(Math.max(0, ((float) newTrimActionLeft.position / waveformWidth)),
+                                    newTrimActionLeft.timestamp - lastTrimActionLeft.timestamp);
                         }
+                        mWaveformView.invalidate();
                     }
                     lastTrimActionLeft = newTrimActionLeft;
 
                     if (newTrimActionRight != null && newTrimActionRight.hasMovedFrom(lastTrimActionRight)) {
                         rightHandle.update(waveformWidth - newTrimActionRight.position);
-
-                        final float trimPercentRight = Math.min(1, ((float) newTrimActionRight.position / waveformWidth));
-                        mWaveformView.setTrimRight(trimPercentRight);
-
                         if (mListener != null) {
-                            mListener.onAdjustTrimRight(trimPercentRight, newTrimActionRight.timestamp - lastTrimActionRight.timestamp);
+                            mListener.onAdjustTrimRight(Math.min(1, ((float) newTrimActionRight.position / waveformWidth)),
+                                    newTrimActionRight.timestamp - lastTrimActionRight.timestamp);
                         }
+                        mWaveformView.invalidate();
                     }
                     lastTrimActionRight = newTrimActionRight;
                     break;
@@ -287,13 +290,14 @@ public class CreateWaveDisplay extends TouchLayout {
     };
 
     private void setTrimHandles() {
+        float[] trimWindow = SoundRecorder.getInstance(getContext()).getTrimWindow();
         if (mIsEditing) {
-            leftHandle.update((int) (waveformWidth * mWaveformView.getTrimPercentLeft()));
+            leftHandle.update((int) (waveformWidth * trimWindow[0]));
             if (leftHandle.getParent() != this) {
                 addView(leftHandle);
             }
 
-            rightHandle.update((int) ((1.0f - mWaveformView.getTrimPercentRight()) * waveformWidth));
+            rightHandle.update((int) ((1.0d - trimWindow[1]) * waveformWidth));
             if (rightHandle.getParent() != this) {
                 addView(rightHandle);
             }
@@ -346,16 +350,11 @@ public class CreateWaveDisplay extends TouchLayout {
         final String prepend = this.getClass().getSimpleName();
         state.putInt(prepend + "_mode", mMode);
         state.putBoolean(prepend + "_inEditMode", mIsEditing);
-        state.putFloat(prepend+"_trimPercentLeft",mWaveformView.getTrimPercentLeft());
-        state.putFloat(prepend + "_trimPercentRight", mWaveformView.getTrimPercentRight());
     }
 
     public void onRestoreInstanceState(Bundle state) {
-
         final String prepend = this.getClass().getSimpleName();
         mMode = state.getInt(prepend + "_mode", mMode);
-        mWaveformView.setTrimLeft(state.getFloat(prepend + "_trimPercentLeft", 0.0f));
-        mWaveformView.setTrimRight(state.getFloat(prepend + "_trimPercentRight", 1.0f));
         setIsEditing(state.getBoolean(prepend + "_inEditMode", mIsEditing));
         mWaveformView.setMode(mMode, false);
     }

@@ -33,6 +33,13 @@ public class ActivitiesTest {
     }
 
     @Test
+    public void testIsEmptyParsed() throws Exception {
+        Activities a = Activities.fromJSON(getClass().getResourceAsStream("activities_empty.json"));
+        expect(a.isEmpty()).toBeTrue();
+    }
+
+
+    @Test
     public void testFull() throws Exception {
         Activities activities = new Activities(new Activity(), new Activity());
         expect(activities.isEmpty()).toEqual(false);
@@ -140,7 +147,7 @@ public class ActivitiesTest {
 
         expect(merged.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=new_href");
         expect(merged.next_href).toEqual("https://api.soundcloud.com/me/activities/tracks?cursor=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
-        expect(merged.get(0).created_at.after(merged.get(merged.size()-1).created_at)).toBeTrue();
+        expect(merged.get(0).created_at.after(merged.get(merged.size() - 1).created_at)).toBeTrue();
     }
 
     @Test
@@ -164,6 +171,18 @@ public class ActivitiesTest {
         Activities a1 = Activities.fromJSON(getClass().getResourceAsStream("activities_1.json"));
         expect(a1.hasMore()).toBeTrue();
         expect(a1.getNextRequest().toUrl()).toEqual("/me/activities/tracks?cursor=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
+    }
+
+    @Test
+    public void shouldFetchEmptyFromApi() throws Exception {
+        TestHelper.addCannedResponses(getClass(),
+                "activities_empty.json");
+
+        Activities a = Activities.fetchRecent(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), 100);
+        expect(a.size()).toEqual(0);
+        expect(a.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
+        expect(a.isEmpty()).toBeTrue();
+        expect(a.hasMore()).toBeFalse();
     }
 
     @Test

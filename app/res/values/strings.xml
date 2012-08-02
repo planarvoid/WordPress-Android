@@ -3,10 +3,11 @@
 
     <string name="btn_revert_to_original">Revert to original</string>
 
+
     <string name="waiting_for_sync">Waiting for sync...</string>
 
-    <string name="fade_toggle_on">Fades on</string>
-    <string name="fade_toggle_off">No Fading</string>
+    <string name="fade_toggle_on">Fade in/out</string>
+    <string name="fade_toggle_off">No Fade in/out</string>
 
     <string name="optimize_toggle_on">Optimized</string>
     <string name="optimize_toggle_off">Not Optimized</string>
@@ -26,12 +27,29 @@
 
     <string name="cloud_recorder_notification_ticker">Recording</string>
 
+    <string name="pref_stream_cache_size">Stream Cache Size</string>
+    <string name="pref_stream_cache_size_desc">The size of the stream cache in percent</string>
+
     <string name="create_autosave_message">Your recordings will automatically be saved as you create them. You can find them in your list of sounds.</string>
+    <string name="create_regenerating_waveform_message">Regenerating waveform, please wait.</string>
 
     <string name="dialog_revert_recording_message">You will lose all of your edits. Proceed?</string>
 
+    <string name="post">Post</string>
+    <string name="share">Share</string>
+
+    <string name="btn_publish">Publish</string>
+    <string name="btn_apply">Apply</string>
+
     <string name="process">Process</string>
     <string name="dialog_install_processor">Audio processor not installed. Install it?</string>
+
+    <string name="rec_your_sound_is_saved_locally_at">Your sound is saved locally</string>
+
+    <string name="pref_analytics">Analytics</string>
+    <string name="pref_analytics_desc">Enabling analytics allows us to collect data about your use of this app which helps us improve the app. See our Privacy Policy for more details.</string>
+    <string name="pref_crashlogs">Crashlogs</string>
+    <string name="pref_crashlogs_desc">Enabling Crashlogs helps us improve the app significantly. We don\'t collect any personal data. See our Privacy Policy for more details.</string>
 
     <string name="crop_save_text">Save</string>
     <string name="crop_discard_text">Discard</string>
@@ -54,12 +72,17 @@
     <string name="uploader_event_cancelling">Cancelling</string>
 
     <string name="uploader_event_processing_failed">Processing failed</string>
-    <string name="uploader_event_uploading_failed">Uploading failed</string>
     <string name="uploader_event_processing_finished">Processing finished</string>
-    <string name="uploader_event_uploading_finished">Uploading finished</string>
 
     <string name="cancel">Cancel</string>
     <string name="retry">Retry</string>
+
+    <string name="rec_title_generating_waveform">Please Wait...</string>
+    <string name="rec_title_idle_rec">Record</string>
+    <string name="rec_title_recording">Recording</string>
+    <string name="rec_title_idle_play">Pause</string>
+    <string name="rec_title_playing">Pause</string>
+    <string name="rec_title_editing">Edit</string>
 
     <string name="rectip_default">Why don\'t you record the sounds of your street?.</string>
 
@@ -112,9 +135,10 @@
     <string name="resolve_progress">Loading</string>
     <string name="error_loading_url">There was a problem loading that url</string>
 
-
     <string name="cloud_uploader_notification_transcoding_error_message">There was an error transcoding %s</string>
     <string name="cloud_uploader_notification_transcoding_error_ticker">Transcoding Error</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Transcoding Error</string>
 
+    <!-- error to show when signup scope was revoked on server side -->
+    <string name="signup_scope_revoked">Oops! We couldn\'t sign you up\nPlease try updating the app or sign up at SoundCloud.com.</string>
 </resources>

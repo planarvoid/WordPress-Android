@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <merge
-         android:id="@+id/main"
-         android:layout_width="fill_parent"
-         android:layout_height="fill_parent"
-         xmlns:android="http://schemas.android.com/apk/res/android">
+        android:id="@+id/main"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        xmlns:android="http://schemas.android.com/apk/res/android">
 
-   <include layout="@layout/simple_tabs" />
+    <include layout="@layout/simple_tabs"/>
 
     <FrameLayout
-        android:id="@+id/splash"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+            android:id="@+id/splash"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
 
         <ImageView android:src="@drawable/orange_gradient"
                    android:layout_width="fill_parent"

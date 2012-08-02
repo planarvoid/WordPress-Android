@@ -61,4 +61,11 @@ public class IOUtilsTest {
         expect(IOUtils.changeExtension(new File("test.ogg.baz"), "wav").getName()).toEqual("test.ogg.wav");
         expect(IOUtils.changeExtension(new File("test"), "wav").getName()).toEqual("test.wav");
     }
+
+    @Test
+    public void shouldRemoveExtension() throws Exception {
+        expect(IOUtils.removeExtension(new File("foo.ogg")).getName()).toEqual("foo");
+        expect(IOUtils.removeExtension(new File("foo.ogg.ogg")).getName()).toEqual("foo.ogg");
+        expect(IOUtils.removeExtension(new File("foo")).getName()).toEqual("foo");
+    }
 }

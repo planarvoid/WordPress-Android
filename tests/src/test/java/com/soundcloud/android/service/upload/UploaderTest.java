@@ -77,7 +77,7 @@ public class UploaderTest {
         expect(recording.getUploadException()).not.toBeNull();
         expect(recording.isCanceled()).toBeFalse();
         expect(recording.isUploaded()).toBeFalse();
-        expect(recording.getUploadException().getMessage()).toEqual("Upload failed: 503 (HTTP status 503)");
+        expect(recording.getUploadException().getMessage()).toEqual("Upload failed: 503 (HTTP status 503), try=0");
     }
 
     @Test
@@ -93,7 +93,8 @@ public class UploaderTest {
 
     @Test
     public void shouldNotSetSuccessIfTaskCanceled() throws Exception {
-        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201, "Created"));
+        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201,
+                readInputStream(getClass().getResourceAsStream("upload_response.json"))));
         final Recording recording = TestApplication.getValidRecording();
         final Uploader uploader = uploader(recording);
         uploader.cancel();
@@ -101,5 +102,24 @@ public class UploaderTest {
         expect(recording.getUploadException() instanceof UserCanceledException).toBeTrue();
         expect(recording.isCanceled()).toBeTrue();
         expect(recording.isUploaded()).toBeFalse();
+    }
+
+    @Test
+    public void shouldRetryOnceIfServerErrorIsReturned() throws Exception {
+        Robolectric.addPendingHttpResponse(new TestHttpResponse(500, "Failz"));
+        Robolectric.addPendingHttpResponse(new TestHttpResponse(201,
+                readInputStream(getClass().getResourceAsStream("upload_response.json"))));
+
+        Robolectric.addHttpResponseRule("GET", "/tracks/47204307", new TestHttpResponse(HttpStatus.SC_OK,
+                readInputStream(getClass().getResourceAsStream("track_finished.json"))));
+
+        final Recording recording = TestApplication.getValidRecording();
+        uploader(recording).run();
+        expect(actions).toContainExactly(
+                UploadService.TRANSFER_STARTED,
+                UploadService.TRANSFER_STARTED,
+                UploadService.TRANSFER_SUCCESS);
+
+        expect(recording.isUploaded()).toBeTrue();
     }
 }

@@ -3,17 +3,12 @@ package com.soundcloud.android.activity;
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.EmailConfirm;
 import com.soundcloud.android.activity.auth.FacebookSSO;
-import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.settings.AccountSettings;
-import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
@@ -264,7 +259,7 @@ public class Main extends ScListActivity implements
     }
 
     protected boolean handleViewUrl(Intent intent) {
-        if (!Intent.ACTION_VIEW.equals(intent.getAction()) && !FacebookSSO.isFacebookView(this, intent))
+        if (!Intent.ACTION_VIEW.equals(intent.getAction()) && !FacebookSSO.handleFacebookView(this, intent))
             return false;
         Uri data = intent.getData();
         if (data == null) return false;

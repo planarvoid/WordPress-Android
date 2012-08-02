@@ -1,11 +1,8 @@
 package com.soundcloud.android.activity.auth;
 
 import static com.soundcloud.android.Expect.expect;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,19 +15,15 @@ public class SignUpTest {
 
     @Test
     public void shouldCheckpasswordLength() throws Exception {
-        assertTrue(SignUp.checkPassword("1234"));
-        assertFalse(SignUp.checkPassword("123"));
-        assertFalse(SignUp.checkPassword(null));
+        expect(SignUp.checkPassword("1234")).toBeTrue();
+        expect(SignUp.checkPassword("123")).toBeFalse();
+        expect(SignUp.checkPassword(null)).toBeFalse();
     }
 
     @Test
     public void shouldWriteSignupLog() throws Exception {
-        TestHelper.enableSDCard();
-        Robolectric.application.onCreate();
-
         long[] toWrite = new long[]{1L, 2L};
-        long now = System.currentTimeMillis();
-        SignUp.writeLog(toWrite);
+        expect(SignUp.writeLog(toWrite)).toBeTrue();
 
         final long[] signups = SignUp.readLog();
         expect(Arrays.equals(toWrite, signups)).toBeTrue();
@@ -38,11 +31,8 @@ public class SignUpTest {
 
     @Test
     public void shouldWriteNewSignupToLog() throws Exception {
-        TestHelper.enableSDCard();
-        Robolectric.application.onCreate();
-
         long now = System.currentTimeMillis();
-        SignUp.writeNewSignupToLog(now);
+        expect(SignUp.writeNewSignupToLog(now)).toBeTrue();
 
         final long[] signups = SignUp.readLog();
         expect(Arrays.equals(new long[]{now}, signups)).toBeTrue();
@@ -50,29 +40,23 @@ public class SignUpTest {
 
     @Test
     public void shouldNotThrottle() throws Exception {
-        TestHelper.enableSDCard();
-        Robolectric.application.onCreate();
-
         long now = System.currentTimeMillis();
-        SignUp.writeNewSignupToLog(now - SignUp.THROTTLE_WINDOW);
-        expect(SignUp.shouldThrottle()).toBeFalse();
+        expect(SignUp.writeNewSignupToLog(now - SignUp.THROTTLE_WINDOW)).toBeTrue();
+        expect(SignUp.shouldThrottle(Robolectric.application)).toBeFalse();
 
-        SignUp.writeNewSignupToLog(now);
-        expect(SignUp.shouldThrottle()).toBeFalse();
+        expect(SignUp.writeNewSignupToLog(now)).toBeTrue();
+        expect(SignUp.shouldThrottle(Robolectric.application)).toBeFalse();
 
-        SignUp.writeNewSignupToLog(now);
-        expect(SignUp.shouldThrottle()).toBeFalse();
+        expect(SignUp.writeNewSignupToLog(now)).toBeTrue();
+        expect(SignUp.shouldThrottle(Robolectric.application)).toBeFalse();
     }
 
     @Test
     public void shouldThrottle() throws Exception {
-        TestHelper.enableSDCard();
-        Robolectric.application.onCreate();
-
         long now = System.currentTimeMillis();
-        SignUp.writeNewSignupToLog(now);
-        SignUp.writeNewSignupToLog(now);
-        SignUp.writeNewSignupToLog(now);
-        expect(SignUp.shouldThrottle()).toBeTrue();
+        expect(SignUp.writeNewSignupToLog(now)).toBeTrue();
+        expect(SignUp.writeNewSignupToLog(now)).toBeTrue();
+        expect(SignUp.writeNewSignupToLog(now)).toBeTrue();
+        expect(SignUp.shouldThrottle(Robolectric.application)).toBeTrue();
     }
 }

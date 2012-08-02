@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <dimen name="rec_header_you_button_height">60dp</dimen>
+    <dimen name="rec_header_you_button_width">60dp</dimen>
+
     <dimen name="tab_text_size">18sp</dimen>
 
     <dimen name="list_icon_width">100sp</dimen>

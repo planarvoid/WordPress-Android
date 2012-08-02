@@ -6,9 +6,12 @@ import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
+import android.test.FlakyTest;
 import android.test.suitebuilder.annotation.Suppress;
 import android.webkit.WebView;
 import android.widget.EditText;
+
+import java.util.UUID;
 
 public class LoginTest extends ActivityTestCase<Main> {
     public LoginTest() {
@@ -66,17 +69,19 @@ public class LoginTest extends ActivityTestCase<Main> {
         solo.clickOnOK();
     }
 
+    @FlakyTest
     public void testLoginAndLogout() throws Exception {
         testLogin();
         solo.logoutViaSettings();
-        assertTrue(solo.getCurrentActivity() instanceof Start);
+        solo.assertActivity(Start.class);
     }
 
+    @FlakyTest
     public void testRecoverPassword() throws Exception {
         solo.clickOnText(R.string.authentication_I_forgot_my_password);
         solo.assertActivity(Recover.class);
 
-        solo.enterText(0, "some-email@example.com");
+        solo.enterText(0, "some-email-"+System.currentTimeMillis()+"@baz"+System.currentTimeMillis()+".com");
         solo.clickOnOK();
 
         solo.assertDialogClosed();

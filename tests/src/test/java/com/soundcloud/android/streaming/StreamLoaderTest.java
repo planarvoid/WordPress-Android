@@ -2,11 +2,12 @@ package com.soundcloud.android.streaming;
 
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.streaming.BufferUtils.readToByteBuffer;
+import static com.soundcloud.android.utils.BufferUtils.readToByteBuffer;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Stream;
 import com.xtremelabs.robolectric.Robolectric;
@@ -15,6 +16,7 @@ import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHeader;
+import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -256,6 +258,7 @@ public class StreamLoaderTest {
             super(null, basedir, chunkSize, 0);
         }
 
+        @NotNull
         @Override
         public StreamItem getMetadata(String url) {
             if (!_metadata.containsKey(url)) {

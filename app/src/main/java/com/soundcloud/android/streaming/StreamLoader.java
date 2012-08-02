@@ -335,7 +335,7 @@ public class StreamLoader {
         } else {
             final DataTask task = DataTask.create(item, chunkRange, byteRange, mContext);
             Message msg = mDataHandler.obtainMessage(prio, task);
-            if (SoundCloudApplication.DALVIK /* XXX robolectric */ && prio == HI_PRIO) {
+            if (prio == HI_PRIO) {
                 mDataHandler.sendMessageAtFrontOfQueue(msg);
             } else {
                 mDataHandler.sendMessage(msg);

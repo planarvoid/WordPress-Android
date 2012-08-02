@@ -3,19 +3,22 @@ package com.soundcloud.android.activity.create;
 
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_PLAYBACK;
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_RECORD;
+import static com.soundcloud.android.activity.create.ScCreate.CreateState.RECORD;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Main;
+import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.upload.UploadService;
 
 import android.content.Intent;
+import android.os.Build;
 import android.test.suitebuilder.annotation.Suppress;
-import android.widget.EditText;
 
 import java.io.File;
 
-public class NormalRecordingTest extends RecordingTestCase {
+public class NormalRecordingTest extends AbstractRecordingTestCase {
 
     public void testRecordAndPlayback() throws Exception {
         record(RECORDING_TIME);
@@ -34,8 +37,8 @@ public class NormalRecordingTest extends RecordingTestCase {
         assertTrue(raw.exists());
         assertTrue(encoded.exists());
 
-        assertTrue(raw.length() > 100000);
-        assertTrue(encoded.length() > 20000);
+        assertTrue(raw.length() > 0);
+        assertTrue("encoded length " + encoded.length(), encoded.length() > 0);
     }
 
     public void testRecordAndEditRevert() throws Exception {
@@ -49,28 +52,17 @@ public class NormalRecordingTest extends RecordingTestCase {
         assertState(IDLE_PLAYBACK);
     }
 
-    public void testRecordAndEditSaveAndDelete() throws Exception {
+    public void testRecordAndEditApplyAndDelete() throws Exception {
         record(RECORDING_TIME);
         gotoEditMode();
-
-        solo.clickOnText(R.string.btn_save);
+        applyEdits();
         assertState(IDLE_PLAYBACK);
 
         solo.clickOnText(R.string.delete);
         solo.assertText(R.string.dialog_confirm_delete_recording_message);
         solo.clickOnOK();
-        solo.sleep(500);
+        solo.sleep(1000);
         solo.assertActivityFinished();
-    }
-
-    @Suppress // autosave is now in place
-    public void testRecordAndDiscard() throws Exception {
-        record(RECORDING_TIME);
-
-        solo.clickOnText(R.string.reset); // "Discard"
-        solo.assertText(R.string.dialog_reset_recording_message); // "Reset? Recording will be deleted."
-        solo.clickOnOK();
-        assertState(IDLE_RECORD);
     }
 
     public void testRecordAndDelete() throws Exception {
@@ -84,93 +76,57 @@ public class NormalRecordingTest extends RecordingTestCase {
     public void testRecordAndUpload() throws Exception {
         record(RECORDING_TIME);
 
-        solo.clickOnNext();
-        solo.assertActivity(ScUpload.class);
+        uploadSound("A test upload", null, true);
 
-        solo.enterText(0, "A test upload");
-        solo.clickOnButtonResId(R.string.sc_upload_private);
-        solo.clickOnText(R.string.upload_and_share);
+        assertSoundUploaded();
+        Track track = assertSoundTranscoded();
 
-        assertTrue("did not get upload notification", waitForIntent(UploadService.UPLOAD_SUCCESS, 10000));
+        if (track != null) {
+            assertEquals("A test upload", track.title);
+            assertFalse("track is public", track.isPublic());
+
+            assertTrackDuration(track, RECORDING_TIME);
+        }
+
         solo.assertActivityFinished();
     }
 
-    public void testRecordAndSharePrivatelyToEmailAddress() throws Exception {
+    public void testRecordAndUploadWithLocation() throws Exception {
         record(RECORDING_TIME);
 
-        solo.clickOnNext();
-        solo.assertActivity(ScUpload.class);
+        final String location = "Model "+Build.MODEL;
+        uploadSound("A test upload", location, true);
 
-        solo.enterText(0, "A test upload");
-        solo.clickOnButtonResId(R.string.sc_upload_private);
-
-        solo.clickOnText(R.string.sc_upload_only_you);
-
-        solo.assertActivity(EmailPicker.class);
-
-        solo.enterText(0, "recipient@example.com");
-        solo.clickOnOK();
-
-        solo.assertActivity(ScUpload.class);
-
-        solo.assertNoText(R.string.sc_upload_only_you);
-        solo.assertText("recipient@example.com");
-        solo.clickOnText("recipient@example.com");
-
-        solo.assertActivity(EmailPicker.class);
-        solo.assertText("recipient@example.com");
-
-        solo.clickOnButtonResId(R.string.email_picker_clear);
-        solo.clickOnOK();
-
-        solo.assertActivity(ScUpload.class);
-        solo.assertText(R.string.sc_upload_only_you);
+        assertSoundUploaded();
+        Track track = assertSoundTranscoded();
+        if (track != null) {
+            assertEquals("A test upload at "+location, track.title);
+        }
+        solo.assertActivityFinished();
     }
 
-    public void testRecordAndSharePrivatelyToMultipleEmailAddresses() throws Exception {
+    public void testRecordAndUploadRaw() throws Exception {
+        setRecordingType(DevSettings.DEV_RECORDING_TYPE_RAW);
         record(RECORDING_TIME);
 
-        solo.clickOnNext();
-        solo.assertActivity(ScUpload.class);
+        assertTrue("raw file does not exist", getActivity().getRecorder().getRecording().getFile().exists());
+        assertFalse("encoded file exists", getActivity().getRecorder().getRecording().getEncodedFile().exists());
 
-        solo.enterText(0, "A test upload");
-        solo.clickOnButtonResId(R.string.sc_upload_private);
+        uploadSound("A raw test upload", null, true);
 
-        solo.clickOnText(R.string.sc_upload_only_you);
+        assertIntentAction(UploadService.PROCESSING_STARTED,  2000);
+        assertIntentAction(UploadService.PROCESSING_PROGRESS, 5000);
+        assertIntentAction(UploadService.PROCESSING_SUCCESS, 20000);
 
-        solo.assertActivity(EmailPicker.class);
-
-        solo.enterText(0, "recipient@example.com, another@example.com, foo@example.com");
-        solo.clickOnOK();
-
-        solo.assertActivity(ScUpload.class);
-
-        solo.assertNoText(R.string.sc_upload_only_you);
-        solo.assertText("recipient@example.com");
-        solo.assertText("another@example.com");
-        solo.assertText("foo@example.com");
-
-        solo.clickOnText("another@example.com");
-
-        solo.assertActivity(EmailPicker.class);
-        solo.assertText("recipient@example.com");
-        solo.assertText("another@example.com");
-        solo.assertText("foo@example.com");
-
-        EditText email = (EditText) solo.getView(R.id.email);
-        assertEquals("cursor is not positioned correctly",
-                "recipient@example.com".length() +
-                "another@example.com".length() + 2,
-
-                email.getSelectionStart() );
-        solo.clickOnOK();
-        solo.assertActivity(ScUpload.class);
+        assertSoundUploaded();
+        assertSoundTranscoded();
+        solo.assertActivityFinished();
     }
 
     public void testRecordAndUploadThenRecordAnotherSound() throws Exception {
         record(RECORDING_TIME);
 
-        solo.clickOnNext();
+        solo.clickOnPublish();
         solo.assertActivity(ScUpload.class);
 
         solo.clickOnText(R.string.record_another_sound);
@@ -182,7 +138,7 @@ public class NormalRecordingTest extends RecordingTestCase {
     public void testRecordAndUploadThenGoBack() throws Exception {
         record(RECORDING_TIME);
 
-        solo.clickOnNext();
+        solo.clickOnPublish();
         solo.assertActivity(ScUpload.class);
 
         solo.goBack();
@@ -191,10 +147,70 @@ public class NormalRecordingTest extends RecordingTestCase {
         assertState(IDLE_PLAYBACK); // should be old recording
     }
 
+    public void testRecordAndRunningOutOfStorageSpace() throws Exception {
+        File filler = fillUpSpace(1024*1024);
+        try {
+            assertState(IDLE_RECORD, IDLE_PLAYBACK);
+            long remaining = getActivity().getRecorder().timeRemaining();
+            // countdown starts for last 5 minutes of recording time
+            assertTrue("remaining time over 5 mins: "+remaining, remaining < 300);
+
+            solo.clickOnView(R.id.btn_action);
+            solo.sleep(1000);
+
+            while (getActivity().getRecorder().timeRemaining() > 10) {
+                assertState(RECORD);
+                solo.sleep(100);
+                solo.assertVisibleText("(?:\\d+|One) (?:minute|second)s? available", 100);
+            }
+
+            solo.assertText(R.string.record_storage_is_full);
+            assertEquals(0, getActivity().getRecorder().timeRemaining());
+            // out of space, assert player paused
+            assertState(IDLE_PLAYBACK);
+        } finally {
+            if (filler != null) {
+                filler.delete();
+            }
+        }
+    }
+
+
+    public void testRecordAndAppendAndUpload() throws Exception {
+        record(RECORDING_TIME);
+
+        solo.sleep(1000);
+
+        record(RECORDING_TIME);
+
+        uploadSound("An appended sound", null, true);
+
+        assertSoundUploaded();
+        Track track = assertSoundTranscoded();
+        assertTrackDuration(track, 2 * RECORDING_TIME);
+    }
+
+    public void testRecordRawAndAppendAndUpload() throws Exception {
+        setRecordingType(DevSettings.DEV_RECORDING_TYPE_RAW);
+
+        record(RECORDING_TIME);
+        solo.sleep(1000);
+        record(RECORDING_TIME);
+        solo.sleep(1000);
+        record(RECORDING_TIME);
+
+        uploadSound("An appended raw sound", null, true);
+
+        assertSoundUploaded();
+        Track track = assertSoundTranscoded();
+        assertTrackDuration(track, 3 * RECORDING_TIME);
+    }
+
+    @Suppress
     public void testRecordAndLoadAndAppend() throws Exception {
         record(RECORDING_TIME);
 
-        solo.clickOnNext();
+        solo.clickOnPublish();
 
         long id = System.currentTimeMillis();
         final String name = "A test upload " + id;
@@ -210,9 +226,9 @@ public class NormalRecordingTest extends RecordingTestCase {
 
         solo.clickOnText(name);
 
-        solo.sleep(300);
+        solo.sleep(500);
 
-        solo.assertActivity(ScCreate.class);
+//        solo.assertActivity(ScCreate.class);
 
         record(RECORDING_TIME);
 

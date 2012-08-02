@@ -205,7 +205,6 @@ public class Activities extends CollectionHolder<Activity> {
                                          int requestNumber) throws IOException {
         if (max <= 0) return EMPTY;
         Request remote = new Request(request).set("limit", max);
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Making request " + remote.toUrl());
         HttpResponse response = api.get(remote);
         final int status = response.getStatusLine().getStatusCode();
         switch (status) {

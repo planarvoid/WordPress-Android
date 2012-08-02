@@ -89,6 +89,10 @@ public enum AudioConfig {
        return offset - (offset % ((bitsPerSample / 8) * channels));
     }
 
+    public int getvalidBufferSizeForValueRate(int valuesPerSecond){
+        return (int) validBytePosition((long) (bytesPerSecond / valuesPerSecond));
+    }
+
     public static AudioConfig findMatching(int sampleRate, int channels) {
         for (AudioConfig cfg : values()) {
             if (cfg.sampleRate == sampleRate && channels == cfg.channels) {

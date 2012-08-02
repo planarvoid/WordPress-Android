@@ -238,11 +238,10 @@ public class SoundCloudDB {
 
     public static @Nullable Recording getRecordingByPath(ContentResolver resolver, File file) {
         // TODO, removefileextension is probably not the best way to account for encoded / raw handling
-        String str = file.getAbsolutePath();
         Cursor cursor = resolver.query(Content.RECORDINGS.uri,
                 null,
                 DBHelper.Recordings.AUDIO_PATH + "= ?",
-                new String[]{str.contains(".") ? str.substring(0, str.lastIndexOf(".")) : str},
+                new String[]{file.getAbsolutePath()},
                 null);
 
         Recording recording = null;

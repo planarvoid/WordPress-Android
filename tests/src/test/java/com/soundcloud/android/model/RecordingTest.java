@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -199,14 +200,7 @@ public class RecordingTest {
     }
 
     private Recording createRecording() throws IOException {
-        File tmp = File.createTempFile("recording-test", "wav");
-        tmp.createNewFile();
-        expect(tmp.exists()).toBeTrue();
-
-        Calendar c = Calendar.getInstance();
-        //noinspection MagicConstant
-        c.set(2001, 1, 15, 14, 31, 1);  // 14:31:01, 15/02/2011
-        tmp.setLastModified(c.getTimeInMillis());
+        File tmp = createRecordingFile("wav");
 
         Recording r = new Recording(tmp);
         r.latitude = 32.3;
@@ -229,6 +223,18 @@ public class RecordingTest {
         return r;
     }
 
+    private File createRecordingFile(String extension) throws IOException {
+        File tmp = File.createTempFile("recording-test", extension);
+        tmp.createNewFile();
+        expect(tmp.exists()).toBeTrue();
+
+        Calendar c = Calendar.getInstance();
+        //noinspection MagicConstant
+        c.set(2001, 1, 15, 14, 31, 1);  // 14:31:01, 15/02/2011
+        tmp.setLastModified(c.getTimeInMillis());
+        return tmp;
+    }
+
     @Test
     public void shouldGetRecordingFromIntent() throws Exception {
         Intent i = new Intent(Actions.SHARE)
@@ -238,7 +244,7 @@ public class RecordingTest {
                 .putExtra(Actions.EXTRA_PUBLIC, false)
                 .putExtra(Actions.EXTRA_TITLE, "title")
                 .putExtra(Actions.EXTRA_WHERE, "where")
-                .putExtra(Actions.EXTRA_TAGS, new String[] { "tags" })
+                .putExtra(Actions.EXTRA_TAGS, new String[]{"tags"})
                 ;
 
         Recording r = Recording.fromIntent(i, Robolectric.application.getContentResolver(), -1);
@@ -348,6 +354,38 @@ public class RecordingTest {
         expect(r.external_upload).toEqual(r2.external_upload);
     }
 
+    @Test
+    public void shouldMigrateRecordings() throws Exception {
+        int i = 1;
+        for (Recording.DeprecatedProfile profile : Recording.DeprecatedProfile.values()){
+            if (profile != Recording.DeprecatedProfile.UNKNOWN) {
+                final File recordingFile = createRecordingFile(profile.getExtension());
+                Recording r = new Recording(recordingFile);
+                r.id = i;
+                shouldMigrateRecording(r);
+                i++;
+            }
+        }
+    }
+
+    private void shouldMigrateRecording(Recording r) throws Exception {
+        final File recordingFile = r.getFile();
+        expect(r.needsMigration()).toBeTrue();
+
+        ContentResolver resolver = Robolectric.application.getContentResolver();
+        Uri u = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
+        expect(u).not.toBeNull();
+
+        final ContentValues migrationValues = r.migrate();
+        expect(migrationValues).not.toBeNull();
+        expect(resolver.update(r.toUri(),migrationValues,null,null)).toEqual(1);
+
+        final Cursor c = resolver.query(u, null, null, null, null);
+        expect(c.moveToNext()).toBeTrue();
+        Recording r2 = new Recording(c);
+        expect(r2.migrate()).toBeNull();
+        expect(r2.getFile()).not.toEqual(recordingFile);
+    }
 
     @Test
     public void shouldGetUploadFile() throws Exception {
@@ -380,6 +418,7 @@ public class RecordingTest {
     @Test
     public void shouldHavetoUri() throws Exception {
         Recording r = createRecording();
+
         expect(r.toUri()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/recordings");
         r.id = 10;
         expect(r.toUri()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/recordings/10");

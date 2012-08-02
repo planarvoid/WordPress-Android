@@ -31,6 +31,7 @@ import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -99,6 +100,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     @Override
     public void onCreate() {
         super.onCreate();
+
         DEV_MODE = isDevMode();
         BETA_MODE = isBetaMode();
 
@@ -345,6 +347,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
+    private String getClientId(boolean production) {
+        return getResources().getString(production ?
+                R.string.client_id :
+                R.string.sandbox_client_id);
+    }
 
     private Token getToken(Account account) {
         return new Token(getAccessToken(account), getRefreshToken(account), getAccountData(Token.SCOPE));

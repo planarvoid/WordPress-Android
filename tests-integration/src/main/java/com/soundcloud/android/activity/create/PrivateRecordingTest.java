@@ -4,11 +4,10 @@ import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_P
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.service.upload.UploadService;
 
 import android.content.Intent;
 
-public class PrivateRecordingTest extends RecordingTestCase {
+public class PrivateRecordingTest extends AbstractRecordingTestCase {
     private User recipient;
 
     @Override
@@ -30,7 +29,8 @@ public class PrivateRecordingTest extends RecordingTestCase {
 
     public void testUploadPrivateMessage() {
         record(RECORDING_TIME, solo.getString(R.string.private_message_title, recipient.username));
-        solo.clickOnButtonResId(R.string.btn_next);
+
+        solo.clickOnPublish();
         solo.assertActivity(ScUpload.class);
 
         solo.assertText(R.string.private_message_upload_title); // "Your sound message got saved."
@@ -41,6 +41,6 @@ public class PrivateRecordingTest extends RecordingTestCase {
         solo.enterText(0, "Hallo Hans");
 
         solo.clickOnText(R.string.private_message_btn_send);
-        assertTrue(waitForIntent(UploadService.UPLOAD_SUCCESS, 10000));
+        assertSoundUploaded();
     }
 }

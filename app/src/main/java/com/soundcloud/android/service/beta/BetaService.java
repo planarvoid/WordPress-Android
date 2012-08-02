@@ -10,6 +10,7 @@ import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
 import org.apache.http.client.HttpClient;
+import org.jetbrains.annotations.Nullable;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -171,7 +172,7 @@ public class BetaService extends Service {
         }
     }
 
-    private void skip(Beta beta, String reason, Intent intent) {
+    private void skip(@Nullable Beta beta, String reason, Intent intent) {
         String message;
         if (beta == null) {
             message = "skipping betaservice run: " + reason;
@@ -410,7 +411,7 @@ public class BetaService extends Service {
 
     static List<Beta> getBetas() {
         if (IOUtils.isSDCardAvailable()) {
-            File[] md = APK_PATH.listFiles(new FilenameFilter() {
+            File[] md = IOUtils.nullSafeListFiles(APK_PATH, new FilenameFilter() {
                 @Override
                 public boolean accept(File file, String s) {
                     return s.endsWith(Beta.META_DATA_EXT);

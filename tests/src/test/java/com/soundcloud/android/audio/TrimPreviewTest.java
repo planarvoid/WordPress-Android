@@ -3,7 +3,7 @@ package com.soundcloud.android.audio;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.audio.reader.WavReader;
-import com.soundcloud.android.record.WavHeaderTest;
+import com.soundcloud.android.record.TestFiles;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
 public class TrimPreviewTest {
-    private File wavFile = new File(getClass().getResource(WavHeaderTest.MONO_TEST_WAV).getFile());
+    private File wavFile = TestFiles.MONO_TEST_WAV.asFile();
     private static int MAX_PLAYBACK_RATE = 48000;
 
     @Test
@@ -76,7 +76,6 @@ public class TrimPreviewTest {
 
     @Test
     public void shouldTruncateSlowPreview() throws Exception {
-        final int playbackRate = 1000;
         final long duration = TrimPreview.MAX_PREVIEW_DURATION + 100;
         final double seconds = duration / 1000d;
 

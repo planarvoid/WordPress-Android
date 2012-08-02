@@ -46,6 +46,7 @@ public class Processor implements Runnable {
             }
         } else {
             Log.d(TAG, "no processing to be done");
+            broadcast(UploadService.PROCESSING_SUCCESS);
         }
     }
 

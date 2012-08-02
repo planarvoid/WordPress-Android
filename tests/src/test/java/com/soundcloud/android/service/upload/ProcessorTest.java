@@ -45,7 +45,7 @@ public class ProcessorTest {
         Recording r = TestApplication.getValidRecording();
         Processor processor = new Processor(Robolectric.application, r);
         processor.run();
-        expect(intents).toBeEmpty();
+        expect(actions).toContainExactly(UploadService.PROCESSING_SUCCESS);
     }
 
     @Test

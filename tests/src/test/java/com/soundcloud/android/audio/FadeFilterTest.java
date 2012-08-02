@@ -4,7 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.streaming.BufferUtils;
+import com.soundcloud.android.utils.BufferUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

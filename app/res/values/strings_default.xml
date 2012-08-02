@@ -491,7 +491,6 @@
   <string name="tracklist_item_shared_with_x_people">%d People</string>
   <string name="tracklist_item_shared_with_you">You</string>
   <!--<string name="upload">Upload</string>-->
-  <string name="upload_and_share">Upload &amp; Share</string>
   <string name="use_existing_image">Use existing image</string>
   <string name="use_existing_image_error">Could not use existing image</string>
   <string name="user">person</string>
