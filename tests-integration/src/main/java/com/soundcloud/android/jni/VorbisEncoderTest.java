@@ -214,6 +214,6 @@ public class VorbisEncoderTest extends AudioTestCase {
     }
 
     private VorbisEncoder createEncoder(File path, AudioConfig config) throws EncoderException {
-        return new VorbisEncoder(path, "w", config.channels, config.sampleRate, config.quality);
+        return new VorbisEncoder(path, "w", config.channels, config.sampleRate, EncoderOptions.DEFAULT.quality);
     }
 }
