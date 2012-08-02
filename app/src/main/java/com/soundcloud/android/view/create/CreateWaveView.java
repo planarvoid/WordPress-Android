@@ -19,7 +19,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 
 public class CreateWaveView extends View {
-    private static long ANIMATION_ZOOM_TIME = 400;
+    private static final long ANIMATION_ZOOM_TIME = 400;
     private static final Interpolator SHOW_FULL_INTERPOLATOR = new AccelerateDecelerateInterpolator();
 
     private final static Paint TRIM_LINE_PAINT;
@@ -33,16 +33,19 @@ public class CreateWaveView extends View {
 
     private Bitmap mZoomBitmap;
     private int nextBufferX;
-    private int mGlowHeight;
+    private final int mGlowHeight;
     private int mMaxWaveHeight;
 
     private float mCurrentProgress = -1f;
-
 
     private int mMode;
     private boolean mIsEditing;
 
     private long mAnimationStartTime;
+    private float[] mAmplitudePoints;
+
+    private MergedAmplitudeData mAmplitudeData = new MergedAmplitudeData();
+    private DrawData mDrawData = new DrawData();
 
     static {
         BITMAP_PAINT = new Paint();
@@ -107,44 +110,50 @@ public class CreateWaveView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-
         final SoundRecorder recorder = SoundRecorder.getInstance(getContext());
-        final float[] trimWindow = recorder.getTrimWindow();
         if (recorder.isGeneratingWaveform()) return;
 
-        float normalizedTime = Math.min(1.0f, (((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
-        float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
-        boolean animating = (normalizedTime < 1.0f);
+        final float[] trimWindow = recorder.getTrimWindow();
+        final float normalizedTime = Math.min(1.0f, (((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
+        final float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
+        final boolean animating = (normalizedTime < 1.0f);
 
-        final MergedAmplitudeData amplitudeData = new MergedAmplitudeData(recorder.getRecordStream(), trimWindow);
-        final DrawData drawData = new DrawData(amplitudeData, interpolatedTime, mMode == CreateWaveDisplay.MODE_REC, mIsEditing, getWidth());
+        mAmplitudeData.configure(recorder.getRecordStream(), trimWindow);
+        mDrawData.configure(mAmplitudeData,
+                interpolatedTime,
+                mMode == CreateWaveDisplay.MODE_REC,
+                mIsEditing,
+                getHeight(),
+                getWidth());
 
-        if (drawData.size > 0) {
+        if (mDrawData.size > 0) {
+            if (mAmplitudePoints == null) {
+                // make sure we only allocate this array once - maximum points we're going to write
+                mAmplitudePoints = new float[canvas.getWidth() * 4];
+            }
 
-            float[] points = getAmplitudePoints(drawData);
+            final int length = mDrawData.getAmplitudePoints(mAmplitudePoints, mMaxWaveHeight);
+
             if (animating) {
-                if (drawData.recIndex == 0) {
+                if (mDrawData.recIndex == 0) {
                     // no prerecord data on screen so just draw it all in recording paint
-                    canvas.drawLines(points, PLAYED_PAINT);
+                    canvas.drawLines(mAmplitudePoints, 0, length, PLAYED_PAINT);
                 } else {
                     // mixed recording / prerecord data
-                    final int recordStartIndex = (amplitudeData.writtenSize >= getWidth()) ? drawData.recIndex * 4
-                            : Math.round(drawData.recIndex * ((float) drawData.lastDrawX) / drawData.size) * 4; // incorporate the scaling
+                    final int recordStartIndex = (mAmplitudeData.writtenSize >= getWidth()) ? mDrawData.recIndex * 4
+                            : Math.round(mDrawData.recIndex * ((float) mDrawData.lastDrawX) / mDrawData.size) * 4; // incorporate the scaling
 
-                    canvas.drawLines(points, 0, recordStartIndex, DARK_PAINT);
-                    canvas.drawLines(points, recordStartIndex, points.length - recordStartIndex, PLAYED_PAINT);
+                    canvas.drawLines(mAmplitudePoints, 0, recordStartIndex, DARK_PAINT);
+                    canvas.drawLines(mAmplitudePoints, recordStartIndex, length - recordStartIndex, PLAYED_PAINT);
                 }
 
             } else {
-
-                if (mMode == CreateWaveDisplay.MODE_REC){
-                    drawZoomView(canvas,drawData);
+                if (mMode == CreateWaveDisplay.MODE_REC) {
+                    drawZoomView(canvas, mDrawData);
                 } else {
-                    drawFullView(canvas,points, trimWindow);
+                    drawFullView(canvas, mAmplitudePoints, length, trimWindow);
                 }
-
             }
-
         }
 
         if (animating) invalidate();
@@ -156,17 +165,17 @@ public class CreateWaveView extends View {
      * @param canvas given by the view
      * @param points subset of amplitude data to be drawn
      */
-    private void drawFullView(Canvas canvas, float[] points, float[] trimWindow) {
+    private void drawFullView(Canvas canvas, float[] points, int length, float[] trimWindow) {
         final int width = getWidth();
 
         if (!mIsEditing) {
             final int currentProgressIndex = (int) (mCurrentProgress * width);
             // just draw progress (full orange if no current progress)
             if (currentProgressIndex < 0) {
-                drawPointsOnCanvas(canvas, points, PLAYED_PAINT);
+                drawPointsOnCanvas(canvas, points, length, PLAYED_PAINT, 0, -1);
             } else {
-                drawPointsOnCanvas(canvas, points, PLAYED_PAINT, 0, currentProgressIndex);
-                drawPointsOnCanvas(canvas, points, UNPLAYED_PAINT, currentProgressIndex, -1);
+                drawPointsOnCanvas(canvas, points, length, PLAYED_PAINT, 0, currentProgressIndex);
+                drawPointsOnCanvas(canvas, points, length, UNPLAYED_PAINT, currentProgressIndex, -1);
             }
 
         } else {
@@ -176,23 +185,23 @@ public class CreateWaveView extends View {
                     (int) (trimIndexLeft + ((trimIndexRight - trimIndexLeft) * mCurrentProgress));
 
             // left handle
-            drawPointsOnCanvas(canvas, points, DARK_PAINT, 0, Math.max(trimIndexLeft - 1, 0));
-            drawPointsOnCanvas(canvas, points, TRIM_LINE_PAINT, Math.max(trimIndexLeft - 1, 0), Math.max(trimIndexLeft, 1));
+            drawPointsOnCanvas(canvas, points, length, DARK_PAINT, 0, Math.max(trimIndexLeft - 1, 0));
+            drawPointsOnCanvas(canvas, points, length, TRIM_LINE_PAINT, Math.max(trimIndexLeft - 1, 0), Math.max(trimIndexLeft, 1));
 
             // progress inside handles
             if (currentProgressIndex < 0) {
-                drawPointsOnCanvas(canvas, points, PLAYED_PAINT, Math.max(trimIndexLeft, 1), trimIndexRight - 1);
+                drawPointsOnCanvas(canvas, points, length, PLAYED_PAINT, Math.max(trimIndexLeft, 1), trimIndexRight - 1);
             } else {
 
                 final int playMin = Math.max(trimIndexLeft + 1, currentProgressIndex);
 
-                drawPointsOnCanvas(canvas, points, PLAYED_PAINT, trimIndexLeft + 1, playMin);
-                drawPointsOnCanvas(canvas, points, UNPLAYED_PAINT, Math.min(trimIndexRight - 1, Math.max(playMin, currentProgressIndex)), trimIndexRight - 1);
+                drawPointsOnCanvas(canvas, points, length, PLAYED_PAINT, trimIndexLeft + 1, playMin);
+                drawPointsOnCanvas(canvas, points, length, UNPLAYED_PAINT, Math.min(trimIndexRight - 1, Math.max(playMin, currentProgressIndex)), trimIndexRight - 1);
             }
 
             // right handle
-            drawPointsOnCanvas(canvas, points, TRIM_LINE_PAINT, trimIndexRight - 1, Math.min(width - 1, trimIndexRight));
-            drawPointsOnCanvas(canvas, points, DARK_PAINT, Math.min(width - 1, trimIndexRight), -1);
+            drawPointsOnCanvas(canvas, points, length, TRIM_LINE_PAINT, trimIndexRight - 1, Math.min(width - 1, trimIndexRight));
+            drawPointsOnCanvas(canvas, points, length, DARK_PAINT, Math.min(width - 1, trimIndexRight), -1);
         }
     }
 
@@ -243,9 +252,6 @@ public class CreateWaveView extends View {
 
     public void updateAmplitude(float maxAmplitude, boolean isRecording) {
          if (mMaxWaveHeight == 0) return;
-
-        final RecordStream recordStream = SoundRecorder.getInstance(getContext()).getRecordStream();
-
         if (mZoomBitmap != null) {
             // if the new line would go over the edge, copy the last half of the old bitmap
             // into the first half of the new bitmap
@@ -275,36 +281,12 @@ public class CreateWaveView extends View {
         invalidate();
     }
 
-    private void drawPointsOnCanvas(Canvas c, float[] points, Paint paint){
-        drawPointsOnCanvas(c, points, paint, 0, -1);
-    }
-
-    private void drawPointsOnCanvas(Canvas c, float[] points, Paint paint, int offsetLineIndex, int lastLineIndex){
+    private static void drawPointsOnCanvas(Canvas c, float[] points, int length, Paint paint, int offsetLineIndex, int lastLineIndex) {
         final int pointOffset = offsetLineIndex * 4;
-        final int pointCount = (lastLineIndex == -1 ? points.length-1 : lastLineIndex * 4) - pointOffset;
+        final int pointCount = (lastLineIndex == -1 ? length : lastLineIndex * 4) - pointOffset;
+
         c.drawLines(points, pointOffset, pointCount, paint);
     }
-
-    private float[] getAmplitudePoints(DrawData data) {
-
-        final int amplitudesSize = data.size;
-        final int height = getHeight();
-
-        final float[] pts = new float[(data.lastDrawX + 1) * 4];
-        final boolean directSelect = amplitudesSize == data.lastDrawX;
-
-        int ptIndex = 0;
-        for (int x = 0; x < data.lastDrawX; x++) {
-            final float a = directSelect ? data.get(x) : data.getInterpolatedValue(x, data.lastDrawX);
-            pts[ptIndex] = x;
-            pts[ptIndex + 1] = height / 2 - a * mMaxWaveHeight / 2;
-            pts[ptIndex + 2] = x;
-            pts[ptIndex + 3] = height / 2 + a * mMaxWaveHeight / 2;
-            ptIndex += 4;
-        }
-        return pts;
-    }
-
 
     private void drawAmplitude(Canvas c, int xIndex, float amplitude, Paint p) {
         c.drawLine(xIndex, this.getHeight() / 2 - amplitude * mMaxWaveHeight / 2,
@@ -316,28 +298,32 @@ public class CreateWaveView extends View {
      */
     static class MergedAmplitudeData {
 
-            private final AmplitudeData mPreRecData;
-            private final AmplitudeData mRecData;
+        private AmplitudeData mPreRecData;
+        private AmplitudeData mRecData;
 
-            public final int preRecSize;
-            public final int writtenSize;
-            public final int totalSize;
+        public int preRecSize;
+        public int writtenSize;
+        public int totalSize;
 
-            public final int recordStartIndexWithTrim;
-            public final int recordEndIndexWithTrim;
+        public int recordStartIndexWithTrim;
+        public int recordEndIndexWithTrim;
 
-            MergedAmplitudeData(RecordStream recordStream, float[] trimWindow){
+        MergedAmplitudeData() {
 
-                mPreRecData = recordStream.getPreRecordAmplitudeData();
-                mRecData = recordStream.getAmplitudeData();
+        }
 
-                preRecSize = mPreRecData == null ? 0 : mPreRecData.size();
-                writtenSize = mRecData == null ? 0 : mRecData.size();
-                totalSize = preRecSize + writtenSize;
+        public void configure(RecordStream recordStream, float[] trimWindow) {
 
-                recordStartIndexWithTrim = (int) (preRecSize + trimWindow[0] * writtenSize);
-                recordEndIndexWithTrim = (int) (totalSize - writtenSize * (1d - trimWindow[1]));
-            }
+            mPreRecData = recordStream.getPreRecordAmplitudeData();
+            mRecData = recordStream.getAmplitudeData();
+
+            preRecSize = mPreRecData == null ? 0 : mPreRecData.size();
+            writtenSize = mRecData == null ? 0 : mRecData.size();
+            totalSize = preRecSize + writtenSize;
+
+            recordStartIndexWithTrim = (int) (preRecSize + trimWindow[0] * writtenSize);
+            recordEndIndexWithTrim = (int) (totalSize - writtenSize * (1d - trimWindow[1]));
+        }
 
         public float get(int i) {
             if (i < mPreRecData.size()) {
@@ -353,18 +339,24 @@ public class CreateWaveView extends View {
      */
     static class DrawData {
 
-        private final MergedAmplitudeData mAmpData;
+        private MergedAmplitudeData mAmpData;
 
-        private final int startIndex;
-        private final int endIndex;
+        private int startIndex;
+        private int endIndex;
 
-        public final int size;
-        public final int recIndex;
-        public final int lastDrawX;
+        public int size;
+        public int recIndex;
+        public int lastDrawX;
+        public int height;
 
-        public DrawData(MergedAmplitudeData mergedAmplitudeData, float interpolatedTime, boolean isZooming, boolean isEditing, int width) {
+        public DrawData(){}
+
+        public void configure(MergedAmplitudeData mergedAmplitudeData, float interpolatedTime,
+                        boolean isZooming,
+                        boolean isEditing, int height, int width) {
 
             mAmpData = mergedAmplitudeData;
+            this.height = height;
 
             // only show trim in recording
             final int absRecIndex = isEditing ? mAmpData.preRecSize : mergedAmplitudeData.recordStartIndexWithTrim;
@@ -416,6 +408,22 @@ public class CreateWaveView extends View {
                 final float v2 = get((int) FloatMath.ceil(fIndex));
                 return v1 + (v2 - v1) * (fIndex - ((int) fIndex));
             }
+        }
+
+        /**
+         * @return number of data points
+         */
+        private int getAmplitudePoints(float[] points, int maxWaveHeight) {
+            int ptIndex = 0;
+            for (int x = 0; x < lastDrawX; x++) {
+                final float a = size == lastDrawX ? get(x) : getInterpolatedValue(x, lastDrawX);
+                points[ptIndex] = x;
+                points[ptIndex + 1] = height / 2 - a * maxWaveHeight / 2;
+                points[ptIndex + 2] = x;
+                points[ptIndex + 3] = height / 2 + a * maxWaveHeight / 2;
+                ptIndex += 4;
+            }
+            return lastDrawX * 4;
         }
     }
 }

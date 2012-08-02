@@ -24,31 +24,35 @@ import android.os.Environment;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.widget.ToggleButton;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreate> {
     // longer recordings on emulator
     protected static final int RECORDING_TIME = EMULATOR ? 6000 : 2000;
 
     protected LocalBroadcastManager lbm;
-    protected List<Intent> intents;
+    protected Map<String, Intent> intents;
     protected Env env;
 
 
     final private  BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            intents.add(intent);
+            intents.put(intent.getAction(), intent);
         }
     };
+
+    private static final long TRANSCODING_WAIT_TIME = 90 * 1000;
+    private static final long UPLOAD_WAIT_TIME = 20 * 1000;
 
     public AbstractRecordingTestCase() {
         super(ScCreate.class);
@@ -58,7 +62,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
     public void setUp() throws Exception {
         IntegrationTestHelper.loginAsDefault(getInstrumentation());
 
-        intents = Collections.synchronizedList(new ArrayList<Intent>());
+        intents = Collections.synchronizedMap(new LinkedHashMap<String, Intent>());
         lbm = LocalBroadcastManager.getInstance(getActivity());
         lbm.registerReceiver(receiver, UploadService.getIntentFilter());
         getInstrumentation().runOnMainSync(new Runnable() {
@@ -70,6 +74,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
 
         Runner.checkFreeSpace();
         env = getActivity().getApp().getEnv();
+        setRecordingType(null);
         super.setUp();
     }
 
@@ -182,10 +187,8 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
         final long endTime = startTime + timeout;
         while (SystemClock.uptimeMillis() < endTime) {
             solo.sleep(100);
-            for (Intent intent : new ArrayList<Intent>(intents)) {
-                if (action.equals(intent.getAction())) {
-                    return intent;
-                }
+            if (intents.containsKey(action)) {
+                return intents.get(action);
             }
         }
         return null;
@@ -197,20 +200,30 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
         return intent;
     }
 
-    protected @NotNull Recording assertSoundUploaded(long timeout) {
-        Intent intent = assertIntentAction(UploadService.UPLOAD_SUCCESS, timeout);
+    protected @NotNull Recording assertSoundUploaded() {
+        Intent intent = assertIntentAction(UploadService.UPLOAD_SUCCESS, UPLOAD_WAIT_TIME);
         Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
         assertNotNull("recording is null", recording);
         return recording;
     }
 
-    protected @Nullable Track assertSoundTranscoded(long timeout) {
+    protected @Nullable Track assertSoundTranscoded() {
         // sandbox fails sometimes, only check live system
         if (env == Env.LIVE) {
-            Intent intent = assertIntentAction(UploadService.TRANSCODING_SUCCESS, timeout);
-            Track track = intent.getParcelableExtra(UploadService.EXTRA_TRACK);
-            assertNotNull("track is null", track);
-            return track;
+            Intent intent = waitForIntent(UploadService.TRANSCODING_SUCCESS, TRANSCODING_WAIT_TIME);
+
+            if (intent == null) {
+                if (intents.containsKey(UploadService.TRANSCODING_FAILED)) {
+                    fail("transcoding failed");
+                } else {
+                    fail("transcoding timeout");
+                }
+                return null;
+            }  else {
+                Track track = intent.getParcelableExtra(UploadService.EXTRA_TRACK);
+                assertNotNull("track is null", track);
+                return track;
+            }
         } else {
             return null;
         }
@@ -239,6 +252,19 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
             prefs.edit().remove(DevSettings.DEV_RECORDING_TYPE).commit();
         } else {
             prefs.edit().putString(DevSettings.DEV_RECORDING_TYPE, type).commit();
+        }
+    }
+
+    protected void assertTrackDuration(Track track, long durationInMs) {
+        Log.d(getClass().getSimpleName(), "assertTrack("+track+")");
+        if (track != null) {
+            assertTrue(track.state.isFinished());
+            assertTrue(track.duration > 0);
+
+            // emulator uploaded tracks are longer (samplerate mismatch)
+            if (!EMULATOR) {
+                assertEquals("track duration", durationInMs, track.duration, 2000);
+            }
         }
     }
 }

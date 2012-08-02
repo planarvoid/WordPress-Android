@@ -1,6 +1,7 @@
 package com.soundcloud.android.provider;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.LocalCollection;
 
 import android.content.Context;
 import android.database.SQLException;
@@ -15,7 +16,7 @@ import java.util.List;
 public class DBHelper extends SQLiteOpenHelper {
     static final String TAG = "DBHelper";
 
-    public static final int DATABASE_VERSION = 13;
+    public static final int DATABASE_VERSION = 14;
     private static final String DATABASE_NAME = "SoundCloud";
 
     DBHelper(Context context) {
@@ -72,6 +73,9 @@ public class DBHelper extends SQLiteOpenHelper {
                             break;
                         case 13:
                             success = upgradeTo13(db, oldVersion);
+                            break;
+                        case 14:
+                            success = upgradeTo14(db, oldVersion);
                             break;
                         default:
                             break;
@@ -770,6 +774,17 @@ public class DBHelper extends SQLiteOpenHelper {
             return false;
         }
 
+    private static boolean upgradeTo14(SQLiteDatabase db, int oldVersion) {
+        try {
+            resetSyncState(db);
+            return true;
+        } catch (SQLException e) {
+            SoundCloudApplication.handleSilentException("error during upgrade13 " +
+                    "(from " + oldVersion + ")", e);
+        }
+        return false;
+    }
+
     public static String getWhereIds(String column, List<Long> idSet){
         StringBuilder sb = new StringBuilder(column + " in (?");
         for (int i = 1; i < idSet.size(); i++) {
@@ -782,5 +797,9 @@ public class DBHelper extends SQLiteOpenHelper {
     private static void cleanActivities(SQLiteDatabase db){
         Table.ACTIVITIES.recreate(db);
         db.execSQL("UPDATE " + Table.COLLECTIONS + " SET " + Collections.EXTRA + " = NULL");
+    }
+
+    private static void resetSyncState(SQLiteDatabase db) {
+        db.execSQL("UPDATE " + Table.COLLECTIONS + " SET " + Collections.SYNC_STATE + " =" + LocalCollection.SyncState.IDLE);
     }
 }

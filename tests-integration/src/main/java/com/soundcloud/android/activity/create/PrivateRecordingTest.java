@@ -41,6 +41,6 @@ public class PrivateRecordingTest extends AbstractRecordingTestCase {
         solo.enterText(0, "Hallo Hans");
 
         solo.clickOnText(R.string.private_message_btn_send);
-        assertSoundUploaded(10000);
+        assertSoundUploaded();
     }
 }

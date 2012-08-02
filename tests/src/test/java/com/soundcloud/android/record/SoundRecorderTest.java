@@ -24,7 +24,7 @@ import java.io.IOException;
 @RunWith(DefaultTestRunner.class)
 public class SoundRecorderTest {
     SoundRecorder recorder;
-    private File wavFile = new File(getClass().getResource(WavHeaderTest.MONO_TEST_WAV).getFile());
+    private File wavFile = TestFiles.MONO_TEST_WAV.asFile();
 
     @Before
     public void before() {

@@ -73,14 +73,12 @@ public class RecordStream implements AudioWriter {
         long playDuration = 0;
         try {
             playDuration = writer.getAudioFile().getDuration();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
         }
-        final long requiredSize = (int) (SoundRecorder.PIXELS_PER_SECOND * SoundCloudApplication.instance.getResources().getDisplayMetrics().density)
-                * playDuration;
+        final long requiredSize = (int) (SoundRecorder.PIXELS_PER_SECOND *
+                SoundCloudApplication.instance.getResources().getDisplayMetrics().density) * playDuration;
         return mAmplitudeData.size() >= (int) requiredSize / 1000;
     }
-
 
     public void regenerateAmplitudeDataAsync(final File outFile, final onAmplitudeGenerationListener onAmplitudeListener) {
         new Thread(new Runnable() {

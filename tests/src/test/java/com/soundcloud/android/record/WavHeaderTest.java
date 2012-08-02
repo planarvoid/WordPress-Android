@@ -8,20 +8,16 @@ import com.soundcloud.android.utils.IOUtils;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 
 public class WavHeaderTest {
-    /** 44100 16bit signed, 1 channel, 00:00:05.64, 497708 bytes  */
-    public static final String MONO_TEST_WAV = "/com/soundcloud/android/record/mono_16bit_44khz.wav";
-    /** 44100 16bit signed, 2 channels, 00:00:00.27, 47148 bytes  */
-    public static final String STEREO_TEST_WAV = "/com/soundcloud/android/record/stereo_16bit_44khz.wav";
-    /** 8000 16bit signed, 1 channel, 00:00:05.55, 88844 bytes  */
-    public static final String PCM16_8000_1_WAV = "/com/soundcloud/android/record/mono_16bit_8khz.wav";
 
     @Test
     public void shouldReadWaveHeaderFromInputStream() throws Exception {
-        File file = new File(getClass().getResource(MONO_TEST_WAV).toURI());
-        InputStream wav = getClass().getResourceAsStream(MONO_TEST_WAV);
+        File file = TestFiles.MONO_TEST_WAV.asFile();
+        InputStream wav = TestFiles.MONO_TEST_WAV.asStream();
         expect(wav).not.toBeNull();
 
         WavHeader header = new WavHeader(wav);
@@ -35,57 +31,43 @@ public class WavHeaderTest {
 
     @Test
     public void shouldCalculateDurationStereo() throws Exception {
-        InputStream wav = getClass().getResourceAsStream(STEREO_TEST_WAV);
-        expect(wav).not.toBeNull();
-        WavHeader header = new WavHeader(wav);
+        WavHeader header = new WavHeader(TestFiles.STEREO_TEST_WAV.asStream());
         expect(header.getDuration()).toEqual(267l);
     }
 
     @Test
     public void shouldCalculateDurationMono() throws Exception {
-        InputStream wav = getClass().getResourceAsStream(MONO_TEST_WAV);
-        expect(wav).not.toBeNull();
-        WavHeader header = new WavHeader(wav);
+        WavHeader header = new WavHeader(TestFiles.MONO_TEST_WAV.asStream());
         expect(header.getDuration()).toEqual(5642l);
     }
 
     @Test
     public void shouldCalculateDuration8Khz() throws Exception {
-        InputStream wav = getClass().getResourceAsStream(PCM16_8000_1_WAV);
-        expect(wav).not.toBeNull();
-        WavHeader header = new WavHeader(wav);
+        WavHeader header = new WavHeader(TestFiles.PCM16_8000_1_WAV.asStream());
         expect(header.getDuration()).toEqual(5550l);
     }
 
     @Test
     public void shouldReturnMatchingAudioConfig_mono() throws Exception {
-        InputStream wav = getClass().getResourceAsStream(MONO_TEST_WAV);
-        expect(wav).not.toBeNull();
-        WavHeader header = new WavHeader(wav);
+        WavHeader header = new WavHeader(TestFiles.MONO_TEST_WAV.asStream());
         expect(header.getAudioConfig()).toBe(AudioConfig.PCM16_44100_1);
     }
 
     @Test
     public void shouldReturnMatchingAudioConfig_stereo() throws Exception {
-        InputStream wav = getClass().getResourceAsStream(STEREO_TEST_WAV);
-        expect(wav).not.toBeNull();
-        WavHeader header = new WavHeader(wav);
+        WavHeader header = new WavHeader(TestFiles.STEREO_TEST_WAV.asStream());
         expect(header.getAudioConfig()).toBe(AudioConfig.PCM16_44100_2);
     }
 
     @Test
     public void shouldReturnMatchingAudio_8000() throws Exception {
-        InputStream wav = getClass().getResourceAsStream(PCM16_8000_1_WAV);
-        expect(wav).not.toBeNull();
-        WavHeader header = new WavHeader(wav);
+        WavHeader header = new WavHeader(TestFiles.PCM16_8000_1_WAV.asStream());
         expect(header.getAudioConfig()).toBe(AudioConfig.PCM16_8000_1);
     }
 
     @Test
     public void shouldCalculateOffsetStereo() throws Exception {
-        InputStream wav = getClass().getResourceAsStream(STEREO_TEST_WAV);
-        expect(wav).not.toBeNull();
-        WavHeader header = new WavHeader(wav);
+        WavHeader header = new WavHeader(TestFiles.STEREO_TEST_WAV.asStream());
 
         expect(header.offset(100)).toEqual(17684l);
         expect(header.offset(-1000)).toEqual(44l);
@@ -94,9 +76,7 @@ public class WavHeaderTest {
 
     @Test
     public void shouldCalculateOffsetShort() throws Exception {
-        InputStream wav = getClass().getResourceAsStream(MONO_TEST_WAV);
-        expect(wav).not.toBeNull();
-        WavHeader header = new WavHeader(wav);
+        WavHeader header = new WavHeader(TestFiles.MONO_TEST_WAV.asStream());
 
         expect(header.offset(1000)).toEqual(88244l);
         expect(header.offset(-1000)).toEqual(44l);
@@ -105,14 +85,28 @@ public class WavHeaderTest {
 
     @Test
     public void shouldGetAudioData() throws Exception {
-        InputStream wav = getClass().getResourceAsStream(MONO_TEST_WAV);
-        expect(wav).not.toBeNull();
-        WavHeader header = new WavHeader(wav);
+        WavHeader header = new WavHeader(TestFiles.MONO_TEST_WAV.asStream());
 
         WavHeader.AudioData data = header.getAudioData(1000, 3200);
         expect(data.length).toEqual(194040l);
         File out = File.createTempFile("partial_data", "wav");
         IOUtils.copy(data.stream, out);
         expect(out.length()).toEqual(194040l);
+    }
+
+    @Test
+    public void shouldFixWavHeader() throws Exception {
+        File tmp = File.createTempFile("tmp", "wav");
+        WavHeader.writeHeader(tmp, 1000);
+
+        // append some bytes
+        FileOutputStream fos = new FileOutputStream(tmp, true);
+        fos.write(new byte[8192]);
+        fos.close();
+
+        WavHeader.fixLength(new RandomAccessFile(tmp, "rw"));
+
+        WavHeader header = WavHeader.fromFile(tmp);
+        expect(header.getNumBytes()).toEqual(8192);
     }
 }

@@ -388,7 +388,6 @@ public class ApiSyncServiceTest {
     public void shouldClearSyncStatuses() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
-        expect(LocalCollection.fromContentUri(Content.ME_TRACKS.uri, resolver, true).sync_state).toBe(LocalCollection.SyncState.PENDING);
         svc.onDestroy();
         expect(LocalCollection.fromContentUri(Content.ME_TRACKS.uri, resolver, true).sync_state).toBe(LocalCollection.SyncState.IDLE);
     }

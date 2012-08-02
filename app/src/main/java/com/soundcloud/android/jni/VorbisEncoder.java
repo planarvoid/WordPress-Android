@@ -61,7 +61,7 @@ public class VorbisEncoder {
      * Convenience method to add samples from an inputstream
      * @param is inputstream containing samples
      * @param length total length of data
-     * @param listener a progress listener
+     * @param options encoding options
      * @throws IOException
      */
     public void encodeStream(InputStream is, long length, EncoderOptions options) throws IOException {
@@ -193,8 +193,7 @@ public class VorbisEncoder {
     /**
      * @param in  input file
      * @param out output file
-     * @param quality desired quality (0 - 1.0f)
-     * @param listener progress listener
+     * @param options encoding options
      * @return always 0
      * @throws IOException
      */

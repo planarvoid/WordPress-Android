@@ -23,7 +23,6 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.LightingColorFilter;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.os.Build;
@@ -41,7 +40,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream.onAmplitudeGenerationListener {
     /* package */ static final String TAG = SoundRecorder.class.getSimpleName();
 
-    public static final int PIXELS_PER_SECOND = 30;
+    public static final int PIXELS_PER_SECOND = hasFPUSupport() ? 30 : 15;
 
     public static final File RECORD_DIR = IOUtils.ensureUpdatedDirectory(
                 new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings"),
@@ -202,8 +201,10 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     public void setRecording(Recording recording) {
         if (mRecording == null || recording.id != mRecording.id) {
             mRecording = recording;
-            mRecordStream = new RecordStream(mConfig, recording.getRawFile(),
-                    shouldEncode() ? recording.getEncodedFile() : null,
+
+            mRecordStream = new RecordStream(mConfig,
+                    recording.getRawFile(),
+                    shouldEncodeWhileRecording() ? recording.getEncodedFile() : null,
                     mRecording.getAmplitudeFile());
 
             if (!mRecordStream.hasValidAmplitudeData()) {
@@ -262,14 +263,14 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 mRecording = Recording.create(user);
 
                 mRecordStream.setWriters(mRecording.getFile(),
-                        shouldEncode() ? mRecording.getEncodedFile() : null);
+                        shouldEncodeWhileRecording() ? mRecording.getEncodedFile() : null);
             } else {
                 // truncate if we are appending
                 if (mPlaybackStream != null) {
                     try {
                         if (mPlaybackStream.getTrimRight() > 0) {
                             mRecordStream.truncate(mPlaybackStream.getEndPos(), valuesPerSecond);
-                            mPlaybackStream.setTrim(mPlaybackStream.getStartPos(),mPlaybackStream.getTotalDuration());
+                            mPlaybackStream.setTrim(mPlaybackStream.getStartPos(), mPlaybackStream.getTotalDuration());
                             mPlaybackStream.reopen();
                         }
                     } catch (IOException e) {
@@ -278,7 +279,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 }
             }
 
-            if (shouldEncode()) mRemainingTimeCalculator.setEncodedFile(mRecording.getEncodedFile());
+            if (shouldEncodeWhileRecording()) mRemainingTimeCalculator.setEncodedFile(mRecording.getEncodedFile());
             mRemainingTime = mRemainingTimeCalculator.timeRemaining();
 
             // the service will ensure the recording lifecycle and notifications
@@ -394,12 +395,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     public void seekTo(float pct) {
         if (mPlaybackStream != null) {
-            long position = (long) (getPlaybackDuration() * pct);
+            final long position = (long) (getPlaybackDuration() * pct);
+            final long absPosition = position + mPlaybackStream.getStartPos();
             if ((isPlaying() || mState.isTrimming()) && position >= 0) {
-                mSeekToPos = position + mPlaybackStream.getStartPos();
+                mSeekToPos = absPosition;
                 mState = State.SEEKING;
             } else {
-                mPlaybackStream.setCurrentPosition(position);
+                mPlaybackStream.setCurrentPosition(absPosition);
             }
         }
     }
@@ -755,8 +757,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         return filter;
     }
 
-    private boolean shouldEncode() {
-        return !DevSettings.DEV_RECORDING_TYPE_RAW.equals(PreferenceManager.getDefaultSharedPreferences(mContext)
+    private boolean shouldEncodeWhileRecording() {
+        return hasFPUSupport() &&
+                !DevSettings.DEV_RECORDING_TYPE_RAW.equals(PreferenceManager.getDefaultSharedPreferences(mContext)
                 .getString(DevSettings.DEV_RECORDING_TYPE, null));
+    }
+
+    private static boolean hasFPUSupport() {
+        return !"armeabi".equals(Build.CPU_ABI);
     }
 }

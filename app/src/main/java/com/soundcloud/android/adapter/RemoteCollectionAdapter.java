@@ -66,9 +66,8 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter implements Local
 
             if ((mContent != null) && mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
                 refresh(false);
-                // TODO : Causes loop with stale collection and server error
                 // this is to show the user something at the initial load
-                if (mLocalCollection.hasSyncedBefore()) mListView.setRefreshing();
+                if (!mLocalCollection.hasSyncedBefore()) mListView.setRefreshing();
             }
         }
     }

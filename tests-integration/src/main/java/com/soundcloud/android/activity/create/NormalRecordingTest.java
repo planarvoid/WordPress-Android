@@ -15,7 +15,6 @@ import com.soundcloud.android.service.upload.UploadService;
 import android.content.Intent;
 import android.os.Build;
 import android.test.suitebuilder.annotation.Suppress;
-import android.widget.EditText;
 
 import java.io.File;
 
@@ -39,7 +38,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         assertTrue(encoded.exists());
 
         assertTrue(raw.length() > 0);
-        assertTrue("encoded length "+encoded.length(), encoded.length() > 0);
+        assertTrue("encoded length " + encoded.length(), encoded.length() > 0);
     }
 
     public void testRecordAndEditRevert() throws Exception {
@@ -79,13 +78,14 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         uploadSound("A test upload", null, true);
 
-        assertSoundUploaded(10000);
-        Track track = assertSoundTranscoded(30000);
+        assertSoundUploaded();
+        Track track = assertSoundTranscoded();
 
         if (track != null) {
             assertEquals("A test upload", track.title);
             assertFalse("track is public", track.isPublic());
-            assertEquals("track duration is off", RECORDING_TIME, track.duration, 2000);
+
+            assertTrackDuration(track, RECORDING_TIME);
         }
 
         solo.assertActivityFinished();
@@ -97,8 +97,8 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         final String location = "Model "+Build.MODEL;
         uploadSound("A test upload", location, true);
 
-        assertSoundUploaded(10000);
-        Track track = assertSoundTranscoded(30000);
+        assertSoundUploaded();
+        Track track = assertSoundTranscoded();
         if (track != null) {
             assertEquals("A test upload at "+location, track.title);
         }
@@ -107,101 +107,20 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
     public void testRecordAndUploadRaw() throws Exception {
         setRecordingType(DevSettings.DEV_RECORDING_TYPE_RAW);
-        try {
-            record(RECORDING_TIME);
-
-            assertTrue("raw file does not exist", getActivity().getRecorder().getRecording().getFile().exists());
-            assertFalse("encoded file exists", getActivity().getRecorder().getRecording().getEncodedFile().exists());
-
-            solo.clickOnPublish();
-            solo.assertActivity(ScUpload.class);
-
-            solo.enterText(0, "A test upload");
-            solo.clickOnButtonResId(R.string.sc_upload_private);
-            solo.clickOnText(R.string.post);
-
-            assertIntentAction(UploadService.PROCESSING_STARTED,  2000);
-            assertIntentAction(UploadService.PROCESSING_PROGRESS, 5000);
-            assertIntentAction(UploadService.PROCESSING_SUCCESS, 20000);
-
-            assertSoundUploaded(30000);
-            assertSoundTranscoded(30000);
-            solo.assertActivityFinished();
-        } finally {
-            setRecordingType(null);
-        }
-    }
-
-    public void testRecordAndSharePrivatelyToEmailAddress() throws Exception {
         record(RECORDING_TIME);
 
-        solo.clickOnPublish();
-        solo.assertActivity(ScUpload.class);
+        assertTrue("raw file does not exist", getActivity().getRecorder().getRecording().getFile().exists());
+        assertFalse("encoded file exists", getActivity().getRecorder().getRecording().getEncodedFile().exists());
 
-        solo.enterText(0, "A test upload");
-        solo.clickOnButtonResId(R.string.sc_upload_private);
+        uploadSound("A raw test upload", null, true);
 
-        solo.clickOnText(R.string.sc_upload_only_you);
+        assertIntentAction(UploadService.PROCESSING_STARTED,  2000);
+        assertIntentAction(UploadService.PROCESSING_PROGRESS, 5000);
+        assertIntentAction(UploadService.PROCESSING_SUCCESS, 20000);
 
-        solo.assertActivity(EmailPicker.class);
-
-        solo.enterText(0, "recipient@example.com");
-        solo.clickOnOK();
-
-        solo.assertActivity(ScUpload.class);
-
-        solo.assertNoText(R.string.sc_upload_only_you);
-        solo.assertText("recipient@example.com");
-        solo.clickOnText("recipient@example.com");
-
-        solo.assertActivity(EmailPicker.class);
-        solo.assertText("recipient@example.com");
-
-        solo.clickOnButtonResId(R.string.email_picker_clear);
-        solo.clickOnOK();
-
-        solo.assertActivity(ScUpload.class);
-        solo.assertText(R.string.sc_upload_only_you);
-    }
-
-    public void testRecordAndSharePrivatelyToMultipleEmailAddresses() throws Exception {
-        record(RECORDING_TIME);
-
-        solo.clickOnPublish();
-        solo.assertActivity(ScUpload.class);
-
-        solo.enterText(0, "A test upload");
-        solo.clickOnButtonResId(R.string.sc_upload_private);
-
-        solo.clickOnText(R.string.sc_upload_only_you);
-
-        solo.assertActivity(EmailPicker.class);
-
-        solo.enterText(0, "recipient@example.com, another@example.com, foo@example.com");
-        solo.clickOnOK();
-
-        solo.assertActivity(ScUpload.class);
-
-        solo.assertNoText(R.string.sc_upload_only_you);
-        solo.assertText("recipient@example.com");
-        solo.assertText("another@example.com");
-        solo.assertText("foo@example.com");
-
-        solo.clickOnText("another@example.com");
-
-        solo.assertActivity(EmailPicker.class);
-        solo.assertText("recipient@example.com");
-        solo.assertText("another@example.com");
-        solo.assertText("foo@example.com");
-
-        EditText email = (EditText) solo.getView(R.id.email);
-        assertEquals("cursor is not positioned correctly",
-                "recipient@example.com".length() +
-                "another@example.com".length() + 2,
-
-                email.getSelectionStart() );
-        solo.clickOnOK();
-        solo.assertActivity(ScUpload.class);
+        assertSoundUploaded();
+        assertSoundTranscoded();
+        solo.assertActivityFinished();
     }
 
     public void testRecordAndUploadThenRecordAnotherSound() throws Exception {
@@ -227,7 +146,6 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.assertActivity(ScCreate.class);
         assertState(IDLE_PLAYBACK); // should be old recording
     }
-
 
     public void testRecordAndRunningOutOfStorageSpace() throws Exception {
         File filler = fillUpSpace(1024*1024);
@@ -255,6 +173,37 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
                 filler.delete();
             }
         }
+    }
+
+
+    public void testRecordAndAppendAndUpload() throws Exception {
+        record(RECORDING_TIME);
+
+        solo.sleep(1000);
+
+        record(RECORDING_TIME);
+
+        uploadSound("An appended sound", null, true);
+
+        assertSoundUploaded();
+        Track track = assertSoundTranscoded();
+        assertTrackDuration(track, 2 * RECORDING_TIME);
+    }
+
+    public void testRecordRawAndAppendAndUpload() throws Exception {
+        setRecordingType(DevSettings.DEV_RECORDING_TYPE_RAW);
+
+        record(RECORDING_TIME);
+        solo.sleep(1000);
+        record(RECORDING_TIME);
+        solo.sleep(1000);
+        record(RECORDING_TIME);
+
+        uploadSound("An appended raw sound", null, true);
+
+        assertSoundUploaded();
+        Track track = assertSoundTranscoded();
+        assertTrackDuration(track, 3 * RECORDING_TIME);
     }
 
     @Suppress
