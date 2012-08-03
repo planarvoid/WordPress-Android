@@ -23,6 +23,7 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
     private final Recording mRecording;
     private LocalBroadcastManager mBroadcastManager;
     private volatile boolean mCancelled;
+    private long mLastProgressSent;
 
     public Encoder(Context context, Recording recording) {
         mRecording = recording;
@@ -42,7 +43,7 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
             long now = System.currentTimeMillis();
             broadcast(UploadService.PROCESSING_STARTED);
 
-            EncoderOptions options = new EncoderOptions(AudioConfig.DEFAULT.quality,
+            EncoderOptions options = new EncoderOptions(EncoderOptions.DEFAULT.quality,
                     mRecording.getPlaybackStream().getStartPos(),
                     mRecording.getPlaybackStream().getEndPos(),
                     this,
@@ -88,10 +89,14 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Encoder#onProgress("+current+", "+max+")");
         }
-        mBroadcastManager.sendBroadcast(new Intent(UploadService.PROCESSING_PROGRESS)
-                .putExtra(UploadService.EXTRA_RECORDING, mRecording)
-                .putExtra(UploadService.EXTRA_PROGRESS, (int) Math.min(100, Math.round(100 * current) / (float)max)));
+        if (mCancelled) throw new UserCanceledException();
 
-       if (mCancelled) throw new UserCanceledException();
+        if (mLastProgressSent == 0 || System.currentTimeMillis() - mLastProgressSent > 1000) {
+            mBroadcastManager.sendBroadcast(new Intent(UploadService.PROCESSING_PROGRESS)
+                    .putExtra(UploadService.EXTRA_RECORDING, mRecording)
+                    .putExtra(UploadService.EXTRA_PROGRESS, (int) Math.min(100, Math.round(100 * current) / (float)max)));
+
+            mLastProgressSent = System.currentTimeMillis();
+        }
     }
 }

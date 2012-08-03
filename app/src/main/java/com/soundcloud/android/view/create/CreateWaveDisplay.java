@@ -241,8 +241,8 @@ public class CreateWaveDisplay extends TouchLayout {
             switch (msg.what) {
                 case UI_UPDATE_SEEK:
                     final float[] trimWindow = SoundRecorder.getInstance(getContext()).getTrimWindow();
-                    final int minX = (int) (trimWindow[0] * waveformWidth);
-                    final int maxX = (int) (trimWindow[1] * waveformWidth);
+                    final int minX = mIsEditing == true ? (int) (trimWindow[0] * waveformWidth) : 0;
+                    final int maxX = mIsEditing == true ? (int) (trimWindow[1] * waveformWidth) : waveformWidth;
 
                     final float adjustedSeekPosition = Math.min(Math.max(minX, lastSeekX),maxX) - minX;
                     final float seekPercent = adjustedSeekPosition / (maxX - minX);

@@ -105,6 +105,7 @@ public class PlaybackStream implements Parcelable {
     }
 
     public void initializePlayback() throws IOException {
+
         mCurrentPos = getValidPosition(mCurrentPos);
         initializePlayback(mCurrentPos);
     }
@@ -114,7 +115,8 @@ public class PlaybackStream implements Parcelable {
     }
 
     private long getValidPosition(long currentPosition) {
-        return (currentPosition < mStartPos || currentPosition >= mEndPos) ? mStartPos : currentPosition;
+        return (currentPosition < mStartPos) ? mStartPos :
+                (currentPosition > mEndPos) ? mEndPos : currentPosition;
     }
 
     public void close() {

@@ -41,6 +41,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     /* package */ static final String TAG = SoundRecorder.class.getSimpleName();
 
     public static final int PIXELS_PER_SECOND = hasFPUSupport() ? 30 : 15;
+    public static final int MAX_PLAYBACK_READ_SIZE = 1024;
 
     public static final File RECORD_DIR = IOUtils.ensureUpdatedDirectory(
                 new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings"),
@@ -75,6 +76,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     };
     public static final int MAX_PLAYBACK_RATE = AudioTrack.getNativeOutputSampleRate(AudioTrack.MODE_STREAM);
 
+
     public enum State {
         IDLE, READING, RECORDING, ERROR, STOPPING, PLAYING, SEEKING, TRIMMING, GENERATING_WAVEFORM;
 
@@ -108,9 +110,12 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     /*package*/ @Nullable ReaderThread mReaderThread;
     final private AudioConfig mConfig;
 
-    final private ByteBuffer buffer;
-    final private int bufferReadSize;
+    final private ByteBuffer mRecBuffer;
+    final private int mRecBufferReadSize;
     private final IAudioManager mAudioManager;
+
+    final private ByteBuffer mPlayBuffer;
+    final private int mPlayBufferReadSize;
 
     private boolean mShouldUseNotifications = true;
 
@@ -128,11 +133,12 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
     SoundRecorder(Context context, AudioConfig config) {
-        final int bufferSize = config.getMinBufferSize();
+
         mContext = context;
         mConfig = config;
         mState = State.IDLE;
-        mAudioRecord = config.createAudioRecord(bufferSize * 4);
+        final int recBufferSize = config.getRecordBufferSize();
+        mAudioRecord = config.createAudioRecord(recBufferSize);
         mAudioRecord.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
             @Override public void onMarkerReached(AudioRecord audioRecord) { }
             @Override public void onPeriodicNotification(AudioRecord audioRecord) {
@@ -146,7 +152,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             }
         });
 
-        mAudioTrack = config.createAudioTrack(bufferSize);
+        final int playbackBufferSize = config.getPlaybackBufferSize();
+        mAudioTrack = config.createAudioTrack(playbackBufferSize);
         mAudioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
             @Override public void onMarkerReached(AudioTrack track) {
             }
@@ -158,15 +165,18 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 }
             }
         });
+
         mAudioTrack.setPositionNotificationPeriod(mConfig.sampleRate / 60);
         mBroadcastManager = LocalBroadcastManager.getInstance(context);
         mRemainingTimeCalculator = config.createCalculator();
 
-        buffer = BufferUtils.allocateAudioBuffer(bufferSize);
-
+        mRecBuffer = BufferUtils.allocateAudioBuffer(recBufferSize);
         valuesPerSecond = (int) (PIXELS_PER_SECOND * context.getResources().getDisplayMetrics().density);
-        bufferReadSize = (int) config.validBytePosition((long) (mConfig.bytesPerSecond / valuesPerSecond));
+        mRecBufferReadSize = (int) config.validBytePosition((long) (mConfig.bytesPerSecond / valuesPerSecond));
 
+        // small reads for performance, but no larger than our audiotrack buffer size
+        mPlayBufferReadSize = playbackBufferSize < MAX_PLAYBACK_READ_SIZE ? playbackBufferSize : MAX_PLAYBACK_READ_SIZE;
+        mPlayBuffer = BufferUtils.allocateAudioBuffer(mPlayBufferReadSize);
 
         mAudioManager = AudioManagerFactory.createAudioManager(context);
         mRecordStream = new RecordStream(mConfig);
@@ -533,26 +543,21 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
 
         private void play(PlaybackStream playbackStream) throws IOException {
-            final int bufferSize = 1024; //arbitrary small buffer. makes for more accurate progress reporting
-            ByteBuffer buffer = BufferUtils.allocateAudioBuffer(bufferSize);
 
             mAudioTrack.setPlaybackRate(mConfig.sampleRate);
-
             playbackStream.initializePlayback();
             mState = SoundRecorder.State.PLAYING;
             broadcast(PLAYBACK_STARTED);
 
             int n;
-            while (mState == SoundRecorder.State.PLAYING && (n = playbackStream.readForPlayback(buffer, bufferSize)) > -1) {
-                int written = mAudioTrack.write(buffer, n);
+            while (mState == SoundRecorder.State.PLAYING && (n = playbackStream.readForPlayback(mPlayBuffer, mPlayBufferReadSize)) > -1) {
+                int written = mAudioTrack.write(mPlayBuffer, n);
                 if (written < 0) onWriteError(written);
-                buffer.clear();
+                mPlayBuffer.clear();
             }
         }
 
         private void previewTrim(PlaybackStream playbackStream) throws IOException {
-            final int bufferSize = 1024;
-            ByteBuffer buffer = BufferUtils.allocateAudioBuffer(bufferSize);
 
             while (!previewQueue.isEmpty()) {
                 final TrimPreview preview = previewQueue.poll();
@@ -564,12 +569,12 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 int lastRead;
                 byte[] readBuff = new byte[byteRange];
                 // read in the whole preview
-                while (read < byteRange && (lastRead = playbackStream.read(buffer, Math.min(bufferSize,byteRange - read))) > 0) {
+                while (read < byteRange && (lastRead = playbackStream.read(mPlayBuffer, Math.min(mPlayBufferReadSize,byteRange - read))) > 0) {
                     final int size = Math.min(lastRead, byteRange - read);
-                    fadeFilter.apply(buffer, read, byteRange); // fade out to avoid distortion when chaining samples
-                    buffer.get(readBuff, read, size);
+                    fadeFilter.apply(mPlayBuffer, read, byteRange); // fade out to avoid distortion when chaining samples
+                    mPlayBuffer.get(readBuff, read, size);
                     read += lastRead;
-                    buffer.clear();
+                    mPlayBuffer.clear();
                 }
 
                 // try to get the speed close to the actual speed of the swipe movement
@@ -585,7 +590,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                         if (written < 0) onWriteError(written);
                     }
                 }
-                buffer.clear();
+                mPlayBuffer.clear();
             }
         }
 
@@ -642,7 +647,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                         } else if (mState == SoundRecorder.State.STOPPING) {
                             broadcast(PLAYBACK_STOPPED);
                         }
-                        mState = SoundRecorder.State.IDLE;
+
+                        if (mState != SoundRecorder.State.RECORDING) mState = SoundRecorder.State.IDLE;
                     }
                 } else {
                     Log.d(TAG, "player loop exit: no stream available");
@@ -686,8 +692,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 mAudioRecord.startRecording();
                 mAudioRecord.setPositionNotificationPeriod(mConfig.sampleRate);
                 while (mState == SoundRecorder.State.READING || mState == SoundRecorder.State.RECORDING) {
-                    buffer.rewind();
-                    final int read = mAudioRecord.read(buffer, bufferReadSize);
+                    mRecBuffer.rewind();
+                    final int read = mAudioRecord.read(mRecBuffer, mRecBufferReadSize);
                     if (read < 0) {
                         Log.w(TAG, "AudioRecord.read() returned error: " + read);
                         mState = SoundRecorder.State.ERROR;
@@ -699,7 +705,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                         mState = SoundRecorder.State.STOPPING;
                     } else {
                         try {
-                            final int written = mRecordStream.write(buffer, read);
+                            final int written = mRecordStream.write(mRecBuffer, read);
                             if (written >= 0 && written < read) {
                                 Log.w(TAG, "partial write "+written);
                             }
@@ -763,7 +769,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 .getString(DevSettings.DEV_RECORDING_TYPE, null));
     }
 
-    private static boolean hasFPUSupport() {
+    public static boolean hasFPUSupport() {
         return !"armeabi".equals(Build.CPU_ABI);
     }
 }

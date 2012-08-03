@@ -23,7 +23,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     public void testRecordAndPlayback() throws Exception {
         record(RECORDING_TIME);
         playback();
-        solo.sleep(RECORDING_TIME + 500);
+        solo.sleep(RECORDING_TIME + 1000);
         assertState(IDLE_PLAYBACK);
     }
 

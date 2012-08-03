@@ -9,11 +9,11 @@ import android.media.AudioTrack;
 import android.media.MediaRecorder;
 
 public enum AudioConfig {
-    PCM16_44100_2 (16, 44100, 2, .5f),
-    PCM16_44100_1 (16, 44100, 1, .5f),
-    PCM16_8000_1  (16, 8000,  1, .5f),
-    PCM16_22050_1 (16, 22050, 1, .5f),
-    PCM16_16000_1 (16, 16000, 1, .5f),
+    PCM16_44100_2 (16, 44100, 2),
+    PCM16_44100_1 (16, 44100, 1),
+    PCM16_8000_1  (16, 8000,  1),
+    PCM16_22050_1 (16, 22050, 1),
+    PCM16_16000_1 (16, 16000, 1),
     ;
 
     public final int sampleRate;
@@ -21,21 +21,19 @@ public enum AudioConfig {
     public final int bitsPerSample;
     public final int sampleSize;
     public final int bytesPerSecond;
-    public final float quality;
     public final int source = MediaRecorder.AudioSource.MIC;
 
     public static final AudioConfig DEFAULT = SoundCloudApplication.EMULATOR ?
             AudioConfig.PCM16_8000_1 : // also needs hw.audioInput=yes in avd
             AudioConfig.PCM16_44100_1;
 
-    private AudioConfig(int bitsPerSample, int sampleRate, int channels, float quality) {
+    private AudioConfig(int bitsPerSample, int sampleRate, int channels) {
         if (bitsPerSample != 8 && bitsPerSample != 16) throw new IllegalArgumentException("invalid bitsPerSample:"+bitsPerSample);
         if (channels < 1 || channels > 2) throw new IllegalArgumentException("invalid channels:"+channels);
 
         this.bitsPerSample = bitsPerSample;
         this.sampleRate = sampleRate;
         this.channels = channels;
-        this.quality = quality;
         sampleSize = (bitsPerSample / 8) * channels;
         bytesPerSecond = sampleRate * sampleSize;
     }
@@ -57,12 +55,20 @@ public enum AudioConfig {
         return bitsPerSample == 16 ? AudioFormat.ENCODING_PCM_16BIT : AudioFormat.ENCODING_PCM_8BIT;
     }
 
-    public int getMinBufferSize() {
+    public int getPlaybackBufferSize() {
         return AudioTrack.getMinBufferSize(sampleRate, getChannelConfig(false), getFormat());
+    }
+
+    public int getRecordBufferSize() {
+        return AudioRecord.getMinBufferSize(sampleRate, getChannelConfig(true), getFormat());
     }
 
     public ScAudioTrack createAudioTrack(int bufferSize) {
         return new ScAudioTrack(this, bufferSize);
+    }
+
+    public AudioRecord createAudioRecord() {
+        return createAudioRecord(getRecordBufferSize());
     }
 
     public AudioRecord createAudioRecord(int bufferSize) {

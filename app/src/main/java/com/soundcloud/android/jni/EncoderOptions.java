@@ -1,7 +1,7 @@
 package com.soundcloud.android.jni;
 
-import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.PlaybackFilter;
+import com.soundcloud.android.record.SoundRecorder;
 import org.jetbrains.annotations.Nullable;
 
 public class EncoderOptions {
@@ -20,10 +20,11 @@ public class EncoderOptions {
     /** for reporting encoding progress */
     public final @Nullable ProgressListener listener;
 
-    public static final EncoderOptions DEFAULT = new EncoderOptions(AudioConfig.DEFAULT.quality, 0, -1, null, null);
     public static final EncoderOptions HI_Q = new EncoderOptions(1f, 0, -1, null, null);
     public static final EncoderOptions LO_Q = new EncoderOptions(.1f, 0, -1, null, null);
     public static final EncoderOptions MED_Q = new EncoderOptions(.5f, 0, -1, null, null);
+
+    public static final EncoderOptions DEFAULT = SoundRecorder.hasFPUSupport() ? MED_Q : LO_Q;
 
     public EncoderOptions(float quality, long start, long end,
                           @Nullable ProgressListener listener,

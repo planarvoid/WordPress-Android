@@ -44,8 +44,6 @@ public class EncoderTest {
         encoder.run();
         expect(actions).toContainExactly(UploadService.PROCESSING_STARTED,
                 UploadService.PROCESSING_PROGRESS,
-                UploadService.PROCESSING_PROGRESS,
-                UploadService.PROCESSING_PROGRESS,
                 UploadService.PROCESSING_SUCCESS);
     }
 
