@@ -56,7 +56,7 @@ public enum AudioConfig {
     }
 
     public int getPlaybackBufferSize() {
-        return AudioTrack.getMinBufferSize(sampleRate, getChannelConfig(false), getFormat()) * 4;
+        return AudioTrack.getMinBufferSize(sampleRate, getChannelConfig(false), getFormat());
     }
 
     public int getRecordBufferSize() {
