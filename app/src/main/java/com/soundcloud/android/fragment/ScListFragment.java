@@ -46,6 +46,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListAdapter;
 
@@ -136,6 +137,10 @@ public class ScListFragment extends SherlockListFragment
         mEmptyCollection = EmptyCollection.fromContent(context, mContent);
         mEmptyCollection.setHasSyncedBefore(mLocalCollection.hasSyncedBefore());
         mListView.setEmptyView(mEmptyCollection);
+
+        if (isRefreshing()){
+            mListView.setRefreshing(false);
+        }
 
         root.addView(mListView, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -334,7 +339,7 @@ public class ScListFragment extends SherlockListFragment
             if ((mContent != null) && mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
                 refresh(false);
                 // this is to show the user something at the initial load
-                if (!mLocalCollection.hasSyncedBefore()) mListView.setRefreshing();
+                if (!mLocalCollection.hasSyncedBefore() && mListView != null) mListView.setRefreshing();
             }
         }
     }
@@ -358,11 +363,14 @@ public class ScListFragment extends SherlockListFragment
     }
 
     public void reset() {
-        getBaseAdapter().clearData();
-        setListAdapter(getBaseAdapter());
+        final ScBaseAdapter adp = getBaseAdapter();
+        if (adp != null){
+            adp.clearData();
+            setListAdapter(adp);
+            adp.notifyDataSetChanged();
+        }
         clearRefreshTask();
         clearUpdateTask();
-        getBaseAdapter().notifyDataSetChanged();
     }
 
     protected void clearRefreshTask() {
@@ -510,6 +518,9 @@ public class ScListFragment extends SherlockListFragment
             onPostTaskExecute(lastReturn);
         }
     }
+
+    private
+
     /*
     private ScListView.LazyListListener mLazyListListener = new ScListView.LazyListListener() {
             @Override
