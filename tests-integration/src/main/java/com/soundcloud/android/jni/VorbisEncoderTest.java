@@ -164,7 +164,7 @@ public class VorbisEncoderTest extends AudioTestCase {
         assertTrue(VorbisEncoder.validate(prepareAsset(CHAINED_OGG)));
     }
 
-    private void encodeWav(String file, int expectedDuration, EncoderOptions options) throws Exception {
+    private double encodeWav(String file, int expectedDuration, EncoderOptions options) throws Exception {
 
         assertEquals("need writable external storage",
                 Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED);
@@ -182,6 +182,7 @@ public class VorbisEncoderTest extends AudioTestCase {
             Debug.startNativeTracing();
         }
 
+        Thread.sleep(4000);
         // encode it
         final long start = System.currentTimeMillis();
         VorbisEncoder.encodeWav(in, out, options);
@@ -192,15 +193,21 @@ public class VorbisEncoderTest extends AudioTestCase {
         }
 
         final long duration = System.currentTimeMillis() - start;
+        final double factor = (double) duration / (double) wavHeader.getDuration();
+        final boolean mono = wavHeader.getNumChannels() == 1;
         log("encoded '%s' in quality %f in %d ms, factor %.2f (%s)", file, options.quality, duration,
-                (double) duration / (double) wavHeader.getDuration(),
-                wavHeader.getNumChannels() == 1 ? "mono" : "stereo");
+                factor,
+                mono ? "mono" : "stereo");
 
         assertTrue(
             String.format("Encoder did not produce valid ogg file (check %s with oggz-validate)", out.getAbsolutePath())
             , VorbisEncoder.validate(out));
 
         checkAudioFile(out, expectedDuration);
+
+        assertTrue(String.format("encoding took more than 5x (%.2f)", factor), factor < 5 * wavHeader.getNumChannels());
+
+        return factor;
     }
 
 
