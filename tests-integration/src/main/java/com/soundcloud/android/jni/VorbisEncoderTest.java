@@ -192,8 +192,9 @@ public class VorbisEncoderTest extends AudioTestCase {
         }
 
         final long duration = System.currentTimeMillis() - start;
-        log("encoded '%s' in quality %f in %d ms, factor %.2f", file, options.quality, duration,
-                (double) duration / (double) wavHeader.getDuration());
+        log("encoded '%s' in quality %f in %d ms, factor %.2f (%s)", file, options.quality, duration,
+                (double) duration / (double) wavHeader.getDuration(),
+                wavHeader.getNumChannels() == 1 ? "mono" : "stereo");
 
         assertTrue(
             String.format("Encoder did not produce valid ogg file (check %s with oggz-validate)", out.getAbsolutePath())
