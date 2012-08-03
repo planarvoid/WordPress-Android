@@ -74,6 +74,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
       PLAYBACK_STARTED, PLAYBACK_STOPPED, PLAYBACK_COMPLETE, PLAYBACK_PROGRESS, PLAYBACK_PROGRESS, WAVEFORM_GENERATED
     };
     public static final int MAX_PLAYBACK_RATE = AudioTrack.getNativeOutputSampleRate(AudioTrack.MODE_STREAM);
+    private int mPlayBufferSize;
 
     public enum State {
         IDLE, READING, RECORDING, ERROR, STOPPING, PLAYING, SEEKING, TRIMMING, GENERATING_WAVEFORM;
@@ -128,11 +129,11 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
     SoundRecorder(Context context, AudioConfig config) {
-        final int bufferSize = config.getMinBufferSize();
+        mPlayBufferSize = config.getPlaybackBufferSize();
         mContext = context;
         mConfig = config;
         mState = State.IDLE;
-        mAudioRecord = config.createAudioRecord(bufferSize * 4);
+        mAudioRecord = config.createAudioRecord();
         mAudioRecord.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
             @Override public void onMarkerReached(AudioRecord audioRecord) { }
             @Override public void onPeriodicNotification(AudioRecord audioRecord) {
@@ -146,7 +147,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             }
         });
 
-        mAudioTrack = config.createAudioTrack(bufferSize);
+        mAudioTrack = config.createAudioTrack(mPlayBufferSize);
         mAudioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
             @Override public void onMarkerReached(AudioTrack track) {
             }
@@ -162,7 +163,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         mBroadcastManager = LocalBroadcastManager.getInstance(context);
         mRemainingTimeCalculator = config.createCalculator();
 
-        buffer = BufferUtils.allocateAudioBuffer(bufferSize);
+        buffer = BufferUtils.allocateAudioBuffer(mPlayBufferSize);
 
         valuesPerSecond = (int) (PIXELS_PER_SECOND * context.getResources().getDisplayMetrics().density);
         bufferReadSize = (int) config.validBytePosition((long) (mConfig.bytesPerSecond / valuesPerSecond));
@@ -533,8 +534,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
 
         private void play(PlaybackStream playbackStream) throws IOException {
-            final int bufferSize = 1024; //arbitrary small buffer. makes for more accurate progress reporting
-            ByteBuffer buffer = BufferUtils.allocateAudioBuffer(bufferSize);
+            ByteBuffer buffer = BufferUtils.allocateAudioBuffer(mPlayBufferSize);
 
             mAudioTrack.setPlaybackRate(mConfig.sampleRate);
 
@@ -543,7 +543,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             broadcast(PLAYBACK_STARTED);
 
             int n;
-            while (mState == SoundRecorder.State.PLAYING && (n = playbackStream.readForPlayback(buffer, bufferSize)) > -1) {
+            while (mState == SoundRecorder.State.PLAYING && (n = playbackStream.readForPlayback(buffer, mPlayBufferSize)) > -1) {
                 int written = mAudioTrack.write(buffer, n);
                 if (written < 0) onWriteError(written);
                 buffer.clear();
@@ -551,8 +551,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
 
         private void previewTrim(PlaybackStream playbackStream) throws IOException {
-            final int bufferSize = 1024;
-            ByteBuffer buffer = BufferUtils.allocateAudioBuffer(bufferSize);
+            ByteBuffer buffer = BufferUtils.allocateAudioBuffer(mPlayBufferSize);
 
             while (!previewQueue.isEmpty()) {
                 final TrimPreview preview = previewQueue.poll();
@@ -564,7 +563,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 int lastRead;
                 byte[] readBuff = new byte[byteRange];
                 // read in the whole preview
-                while (read < byteRange && (lastRead = playbackStream.read(buffer, Math.min(bufferSize,byteRange - read))) > 0) {
+                while (read < byteRange && (lastRead = playbackStream.read(buffer, Math.min(mPlayBufferSize,byteRange - read))) > 0) {
                     final int size = Math.min(lastRead, byteRange - read);
                     fadeFilter.apply(buffer, read, byteRange); // fade out to avoid distortion when chaining samples
                     buffer.get(readBuff, read, size);

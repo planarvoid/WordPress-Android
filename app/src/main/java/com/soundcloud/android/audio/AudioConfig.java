@@ -55,12 +55,20 @@ public enum AudioConfig {
         return bitsPerSample == 16 ? AudioFormat.ENCODING_PCM_16BIT : AudioFormat.ENCODING_PCM_8BIT;
     }
 
-    public int getMinBufferSize() {
-        return AudioTrack.getMinBufferSize(sampleRate, getChannelConfig(false), getFormat());
+    public int getPlaybackBufferSize() {
+        return AudioTrack.getMinBufferSize(sampleRate, getChannelConfig(false), getFormat()) * 4;
+    }
+
+    public int getRecordBufferSize() {
+        return AudioRecord.getMinBufferSize(sampleRate, getChannelConfig(true), getFormat());
     }
 
     public ScAudioTrack createAudioTrack(int bufferSize) {
         return new ScAudioTrack(this, bufferSize);
+    }
+
+    public AudioRecord createAudioRecord() {
+        return createAudioRecord(getRecordBufferSize());
     }
 
     public AudioRecord createAudioRecord(int bufferSize) {
