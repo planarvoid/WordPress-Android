@@ -642,7 +642,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                         } else if (mState == SoundRecorder.State.STOPPING) {
                             broadcast(PLAYBACK_STOPPED);
                         }
-                        mState = SoundRecorder.State.IDLE;
+
+                        if (mState != SoundRecorder.State.RECORDING) mState = SoundRecorder.State.IDLE;
                     }
                 } else {
                     Log.d(TAG, "player loop exit: no stream available");
