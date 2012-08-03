@@ -3,10 +3,12 @@ package com.soundcloud.android.activity.create;
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.*;
 
 import com.jayway.android.robotium.solo.Solo;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
@@ -65,6 +67,10 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
         intents = Collections.synchronizedMap(new LinkedHashMap<String, Intent>());
         lbm = LocalBroadcastManager.getInstance(getActivity());
         lbm.registerReceiver(receiver, UploadService.getIntentFilter());
+
+        IOUtils.deleteDir(SoundRecorder.RECORD_DIR);
+        IOUtils.mkdirs(SoundRecorder.RECORD_DIR);
+
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -75,6 +81,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
         Runner.checkFreeSpace();
         env = getActivity().getApp().getEnv();
         setRecordingType(null);
+
         super.setUp();
     }
 
