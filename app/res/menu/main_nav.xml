@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/nav_stream" android:text="@string/tab_stream" android:icon="@drawable/ic_tab_incoming" ></item>
+    <item android:id="@+id/nav_activity" android:text="@string/tab_activity" android:icon="@drawable/ic_tab_news"></item>
+    <item android:id="@+id/nav_you" android:text="@string/tab_you" android:icon="@drawable/ic_tab_you"></item>
+</menu>

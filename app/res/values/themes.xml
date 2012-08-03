@@ -1,23 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.ScBase" parent="Theme.Sherlock"/>
+    <style name="Theme.ScBase" parent="Theme.Sherlock.Light"/>
     <style name="Theme.ScBaseLight" parent="Theme.Sherlock.Light.DarkActionBar"/>
     <style name="Theme.ScDialog" parent="android:Theme.Dialog"/>
 
 
-    <style name="Theme.ScLight" parent="Theme.Sherlock">
+    <style name="Theme.ScLight" parent="Theme.ScBaseLight">
         <item name="android:buttonStyle">@style/btn_default</item>
-        <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
         <item name="ptrLoadingProgressStyle">@style/ScProgressBarHolo</item>
+        <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
 	</style>
 
     <style name="Theme.ScDark" parent="Theme.ScBase">
-        <item name="android:buttonStyle">@style/btn_default</item>
-    </style>
-
-
-    <style name="Theme.ScLight" parent="Theme.ScBaseLight">
         <item name="android:buttonStyle">@style/btn_default</item>
     </style>
 
@@ -34,13 +29,13 @@
         <item name="android:windowBackground">@null</item>
     </style>
 
-
     <style name="Widget.ScTabPageIndicator" parent="Widget.TabPageIndicator">
+        <item name="android:background">@drawable/vpi__tab_indicator</item>
         <item name="android:textAppearance">@style/TextAppearance.ScTabPageIndicator</item>
     </style>
 
     <style name="TextAppearance.ScTabPageIndicator" parent="TextAppearance.TabPageIndicator">
-        <item name="android:textColor">@color/vpi__dark_theme</item>
+        <item name="android:textColor">@color/vpi__light_theme</item>
     </style>
 
     <style name="Dialog" parent="android:Theme.Dialog">

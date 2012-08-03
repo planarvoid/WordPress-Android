@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>  
 <resources> 
-    <style name="Theme.ScBase" parent="android:Theme.Holo" />
-    <style name="Theme.ScBaseLight" parent="android:Theme.Holo.Light"/>
+    <style name="Theme.ScBase" parent="android:Theme.Holo.Light" />
+    <style name="Theme.ScBaseLight" parent="android:Theme.Holo.Light.DarkActionBar"/>
     <style name="Theme.ScDialog" parent="android:Theme.Holo.Dialog" />
 </resources>

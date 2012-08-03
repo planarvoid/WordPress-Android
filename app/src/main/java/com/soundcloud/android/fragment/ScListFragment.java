@@ -56,36 +56,29 @@ import java.util.Map;
 public class ScListFragment extends SherlockListFragment
         implements PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener, RemoteCollectionTask.Callback {
 
-    private CollectionLoader mItemLoader;
+    protected static final int CONNECTIVITY_MSG = 0;
 
     private ScListView mListView;
     private ScEndlessAdapter mEndlessAdapter;
     private ScBaseAdapter mBaseAdapter;
     private EmptyCollection mEmptyCollection;
-    private EmptyCollection mDefaultEmptyCollection;
-    private String mEmptyCollectionText;
 
+    private String mEmptyCollectionText;
     private DetachableResultReceiver mDetachableReceiver;
     private Content mContent;
     private Uri mContentUri;
     private boolean mIsConnected;
+
     private NetworkConnectivityListener connectivityListener;
-
     private RemoteCollectionTask mRefreshTask;
-    private UpdateCollectionTask mUpdateCollectionTask;
 
+    private UpdateCollectionTask mUpdateCollectionTask;
     private Boolean mIsSyncable;
     protected LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
+
     private boolean mContentInvalid, mObservingContent;
-
     protected String mNextHref;
-
-
-    protected static final int CONNECTIVITY_MSG = 0;
-    ;
-    protected boolean mAppenwdable = true;
-    private int mPageIndex = 0;
 
 
     public static ScListFragment newInstance(Content content) {
@@ -104,7 +97,7 @@ public class ScListFragment extends SherlockListFragment
         setRetainInstance(true);
 
         mContentUri = (Uri) getArguments().get("contentUri");
-        mContent = Content.byUri(mContentUri);
+        mContent = Content.match(mContentUri);
 
         final ContentResolver contentResolver = getActivity().getContentResolver();
         if (mContentUri != null) {
@@ -116,6 +109,8 @@ public class ScListFragment extends SherlockListFragment
             mObservingContent = true;
             contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);
         }
+
+        refreshSyncData();
     }
 
     @Override
@@ -155,7 +150,7 @@ public class ScListFragment extends SherlockListFragment
 
     @Override
     public void onAttach(android.app.Activity activity) {
-        super.onAttach(activity);    //To change body of overridden methods use File | Settings | File Templates.
+        super.onAttach(activity);
     }
 
     public ScActivity getScActivity() {
@@ -196,10 +191,11 @@ public class ScListFragment extends SherlockListFragment
 
 
     protected void onDataConnectionUpdated(boolean isConnected) {
+        boolean update = isConnected && !isConnected;
         mIsConnected = isConnected;
-        if (isConnected && !isConnected) {
+        if (update) {
             if (getBaseAdapter().needsItems() && getScActivity().getApp().getAccount() != null) {
-
+                refresh(false);
             }
         }
     }
@@ -337,9 +333,8 @@ public class ScListFragment extends SherlockListFragment
 
             if ((mContent != null) && mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
                 refresh(false);
-                // TODO : Causes loop with stale collection and server error
                 // this is to show the user something at the initial load
-                if (mLocalCollection.hasSyncedBefore()) mListView.setRefreshing();
+                if (!mLocalCollection.hasSyncedBefore()) mListView.setRefreshing();
             }
         }
     }
@@ -363,13 +358,12 @@ public class ScListFragment extends SherlockListFragment
     }
 
     public void reset() {
-        mPageIndex = 0;
         getBaseAdapter().clearData();
         setListAdapter(getBaseAdapter());
         clearRefreshTask();
         clearUpdateTask();
         getBaseAdapter().notifyDataSetChanged();
-        }
+    }
 
     protected void clearRefreshTask() {
         if (mRefreshTask != null && !AndroidUtils.isTaskFinished(mRefreshTask)) mRefreshTask.cancel(true);
@@ -445,7 +439,6 @@ public class ScListFragment extends SherlockListFragment
 
             mNextHref = data.nextHref;
             addNewItems(data.newItems);
-            mPageIndex++;
         } else {
             handleResponseCode(data.responseCode);
         }

@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -70,7 +71,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             }
         });
 
-
         getActionBar().setHomeButtonEnabled(true);
         if (savedInstanceState == null) {
             handleIntent(getIntent());
@@ -79,13 +79,14 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void setContentView(int id) {
-        mRootView.setContent(View.inflate(this,id,new FrameLayout(this)));
+        setContentView(View.inflate(this, id, new FrameLayout(this)));
 
     }
 
     @Override
     public void setContentView(View layout) {
-        layout.setBackgroundColor(Color.WHITE);
+        layout.setBackgroundDrawable(getWindow().getDecorView().getBackground());
+        layout.setDrawingCacheBackgroundColor(Color.WHITE);
         mRootView.setContent(layout);
     }
 
