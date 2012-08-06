@@ -272,7 +272,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             if (mRecording == null) {
                 mRecording = Recording.create(user);
 
-                mRecordStream.setWriters(mRecording.getFile(),
+                mRecordStream.setWriters(mRecording.getRawFile(),
                         shouldEncodeWhileRecording() ? mRecording.getEncodedFile() : null);
             } else {
                 // truncate if we are appending
@@ -735,7 +735,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                         try {
                             mRecordStream.finalizeStream(mRecording.getAmplitudeFile());
                             if (mPlaybackStream == null) {
-                                mPlaybackStream = new PlaybackStream(mRecordStream.getAudioFile());
+                                mPlaybackStream = new PlaybackStream(mRecordStream.getAudioReader());
                             } else {
                                 mPlaybackStream.reopen();
                                 mPlaybackStream.resetBounds();

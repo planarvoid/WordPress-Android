@@ -7,6 +7,7 @@ import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.jni.EncoderException;
 import com.soundcloud.android.jni.EncoderOptions;
 import com.soundcloud.android.jni.VorbisEncoder;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,9 +16,9 @@ import java.nio.ByteBuffer;
 public class VorbisWriter implements AudioWriter {
     private VorbisEncoder encoder;
     private final AudioConfig config;
-    private final File file;
+    private final @NotNull File file;
 
-    public VorbisWriter(File out, AudioConfig config) {
+    public VorbisWriter(@NotNull File out, AudioConfig config) {
         this.file = out;
         this.config = config;
     }
@@ -63,7 +64,7 @@ public class VorbisWriter implements AudioWriter {
     }
 
     @Override
-    public AudioReader getAudioFile() throws IOException {
+    public AudioReader getAudioReader() throws IOException {
         return new VorbisReader(file);
     }
 
