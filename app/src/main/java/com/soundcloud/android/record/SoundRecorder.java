@@ -127,7 +127,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     public static synchronized SoundRecorder getInstance(Context context) {
         if (instance == null) {
             // this must be tied to the application context so it can be kept alive by the service
-            instance = new SoundRecorder(context.getApplicationContext(), AudioConfig.DEFAULT);
+            instance = new SoundRecorder(context.getApplicationContext(), AudioConfig.detect());
         }
         return instance;
     }

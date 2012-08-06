@@ -25,7 +25,9 @@ public enum AudioConfig {
     public final int bytesPerSecond;
     public final int source = MediaRecorder.AudioSource.MIC;
 
-    public static final AudioConfig DEFAULT = detect();
+    public static final AudioConfig DEFAULT = PCM16_44100_1;
+
+    private static AudioConfig sDetected;
 
     private AudioConfig(int bitsPerSample, int sampleRate, int channels) {
         if (bitsPerSample != 8 && bitsPerSample != 16) throw new IllegalArgumentException("invalid bitsPerSample:"+bitsPerSample);
@@ -136,12 +138,20 @@ public enum AudioConfig {
      * Tries to detect a working audio configuration.
      * @return
      */
-    public static AudioConfig detect() {
-        for (AudioConfig cfg : EnumSet.of(PCM16_44100_1, PCM16_22050_1, PCM16_16000_1, PCM16_8000_1)) {
-            if (cfg.isValid()) return cfg;
+    public static synchronized AudioConfig detect() {
+        if (sDetected == null) {
+            for (AudioConfig cfg : EnumSet.of(PCM16_44100_1, PCM16_22050_1, PCM16_16000_1, PCM16_8000_1)) {
+                if (cfg.isValid()) {
+                    sDetected = cfg;
+                    break;
+                }
+            }
+            if (sDetected == null) {
+                // this will likely fail later
+                Log.w("AudioConfig", "unable to detect valid audio config for this device");
+                sDetected = DEFAULT;
+            }
         }
-        // this will likely fail later
-        Log.w("AudioConfig", "unable to detect valid audio config for this device");
-        return PCM16_44100_1;
+        return sDetected;
     }
 }
