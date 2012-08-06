@@ -119,7 +119,6 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         uploadSound("A raw test upload", null, true);
 
-        assertSoundEncoded(RECORDING_TIME * 5);
         assertSoundUploaded();
         assertSoundTranscoded();
         solo.assertActivityFinished();

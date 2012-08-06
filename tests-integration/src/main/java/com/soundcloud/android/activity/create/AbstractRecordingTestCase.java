@@ -212,6 +212,10 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
     }
 
     protected @NotNull Recording assertSoundUploaded() {
+        if (!getActivity().getRecorder().shouldEncodeWhileRecording()) {
+            assertSoundEncoded(UPLOAD_WAIT_TIME * 4);
+        }
+
         Intent intent = waitForIntent(UploadService.UPLOAD_SUCCESS, UPLOAD_WAIT_TIME);
         if (intent == null) {
             if (intents.containsKey(UploadService.TRANSFER_ERROR)) {

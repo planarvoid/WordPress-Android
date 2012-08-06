@@ -5,7 +5,6 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.TestApplication;
-import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -83,6 +82,23 @@ public class UploadServiceTest {
         expect(r1.upload_status).toEqual(Recording.Status.ERROR);
         expect(r2.upload_status).toEqual(Recording.Status.ERROR);
     }
+
+    @Test
+    public void shouldStopServiceAfterLastUploadCompletesSuccess() throws Exception {
+        mockSuccessfullTrackCreation();
+        getUploadScheduler().pause();
+        final Recording r1 = TestApplication.getValidRecording();
+        svc.upload(r1);
+
+        getUploadScheduler().runOneTask();
+        expect(shadowOf(svc).isStoppedBySelf()).toBeFalse();
+        getUploadScheduler().runOneTask();
+
+        expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
+
+        expect(r1.upload_status).toEqual(Recording.Status.UPLOADED);
+    }
+
 
     @Test
     public void shouldNotifyAboutUploadSuccess() throws Exception {

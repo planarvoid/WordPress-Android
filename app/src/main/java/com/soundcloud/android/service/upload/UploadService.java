@@ -16,6 +16,7 @@ import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -37,6 +38,7 @@ import android.widget.RemoteViews;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class UploadService extends Service {
@@ -95,6 +97,7 @@ public class UploadService extends Service {
 
     private static class Upload {
         final Recording recording;
+        Track track;
         Notification notification;
 
         public Upload(Recording r){
@@ -103,8 +106,11 @@ public class UploadService extends Service {
 
         /** Need to re-encode if fading/optimize is enabled, or no encoding happened during recording */
         public boolean needsEncoding() {
-            return !recording.getEncodedFile().exists() ||
-                   (recording.getPlaybackStream().isFiltered() && !recording.getProcessedFile().exists());
+            if (recording.getPlaybackStream().isFiltered()) {
+                return !recording.getProcessedFile().exists();
+            } else {
+                return !recording.getEncodedFile().exists();
+            }
         }
 
         public boolean needsResizing() {
@@ -233,7 +239,6 @@ public class UploadService extends Service {
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             final Recording recording = intent.getParcelableExtra(EXTRA_RECORDING);
-
             if (RESIZE_STARTED.equals(action)) {
                 acquireWakelock();
                 // XXX notify
@@ -261,7 +266,7 @@ public class UploadService extends Service {
                 queueUpload(recording);
 
             } else if (PROCESSING_ERROR.equals(action)) {
-                uploadDone(recording);
+                onTransferDone(recording);
 
             } else if (TRANSFER_STARTED.equals(action)) {
                 showUploadingNotification(recording, TRANSFER_STARTED);
@@ -276,25 +281,27 @@ public class UploadService extends Service {
                         )
                 );
 
-            } else if (TRANSFER_SUCCESS.equals(action) ||
-                    TRANSFER_ERROR.equals(action) ||
-                    TRANSFER_CANCELLED.equals(action)) {
+            } else if (TRANSFER_SUCCESS.equals(action)) {
+                Upload upload = mUploads.get(recording.id);
+                if (upload == null) return;
+                upload.track = intent.getParcelableExtra(EXTRA_TRACK);
 
-                if (TRANSFER_SUCCESS.equals(action)) {
-                        new Poller(createLooper("poller_" + recording.track_id, Process.THREAD_PRIORITY_BACKGROUND),
-                                (AndroidCloudAPI) getApplication(),
-                                recording.track_id,
-                                Content.ME_TRACKS.uri).start();
+                new Poller(createLooper("poller_" + upload.track.id, Process.THREAD_PRIORITY_BACKGROUND),
+                            (AndroidCloudAPI) getApplication(),
+                            upload.track.id,
+                            Content.ME_TRACKS.uri).start();
 
-                    mBroadcastManager.sendBroadcast(new Intent(UPLOAD_SUCCESS)
-                            .putExtra(UploadService.EXTRA_RECORDING, recording));
-                }
+                mBroadcastManager.sendBroadcast(new Intent(UPLOAD_SUCCESS)
+                        .putExtra(UploadService.EXTRA_RECORDING, recording));
 
-                // XXX retry on temp. error?
-                uploadDone(recording);
-            } else if (TRANSCODING_FAILED.equals(action)) {
-                Track track = intent.getParcelableExtra(EXTRA_TRACK);
-                sendNotification(track, transcodingFailedNotification(track));
+                onTransferDone(recording);
+            } else if  (TRANSFER_ERROR.equals(action) || TRANSFER_CANCELLED.equals(action)) {
+                releaseLocks();
+                mUploads.remove(recording.id);
+                // TODO: retry on temp error?
+                onTransferDone(recording);
+            } else if (TRANSCODING_SUCCESS.equals(action) || TRANSCODING_FAILED.equals(action)) {
+                onTranscodingDone(intent.<Track>getParcelableExtra(EXTRA_TRACK));
             }
         }
     };
@@ -313,10 +320,7 @@ public class UploadService extends Service {
         return notification;
     }
 
-    private void uploadDone(Recording recording) {
-        mUploads.remove(recording.id);
-        releaseLocks();
-
+    private void onTransferDone(Recording recording) {
         // leave a note
         Notification n = notifyUploadCurrentUploadFinished(recording);
         if (n != null) {
@@ -324,6 +328,24 @@ public class UploadService extends Service {
         }
 
         if (!isUploading()) { // last one switch off the lights
+            stopSelf();
+        }
+    }
+
+    private void onTranscodingDone(Track track) {
+        releaseLocks();
+
+        if (!track.state.isFinished()) {
+            sendNotification(track, transcodingFailedNotification(track));
+        }
+
+        Iterator<Upload> it = mUploads.values().iterator();
+        while (it.hasNext()) {
+            Upload u = it.next();
+            if (track.equals(u.track)) it.remove();
+        }
+
+        if (!isUploading()) {
             stopSelf();
         }
     }
@@ -423,7 +445,7 @@ public class UploadService extends Service {
         sendNotification(recording, n);
     }
 
-    private Notification notifyUploadCurrentUploadFinished(Recording recording) {
+    private @Nullable Notification notifyUploadCurrentUploadFinished(Recording recording) {
         final CharSequence title;
         final CharSequence message;
         final CharSequence tickerText;
