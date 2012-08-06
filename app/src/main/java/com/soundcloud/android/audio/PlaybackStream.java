@@ -1,6 +1,7 @@
 package com.soundcloud.android.audio;
 
 import com.soundcloud.android.audio.filter.FadeFilter;
+import com.soundcloud.android.audio.reader.EmptyReader;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +19,7 @@ public class PlaybackStream implements Parcelable {
     private long mEndPos;
 
     private AudioConfig mConfig;
-    private AudioReader mPlaybackFile;
+    private @NotNull AudioReader mPlaybackFile;
 
     private PlaybackFilter mFilter;
     private boolean mOptimize;
@@ -105,7 +106,6 @@ public class PlaybackStream implements Parcelable {
     }
 
     public void initializePlayback() throws IOException {
-
         mCurrentPos = getValidPosition(mCurrentPos);
         initializePlayback(mCurrentPos);
     }
@@ -121,7 +121,7 @@ public class PlaybackStream implements Parcelable {
 
     public void close() {
         IOUtils.close(mPlaybackFile);
-        mPlaybackFile = null;
+        mPlaybackFile = new EmptyReader();
     }
 
     public void setCurrentPosition(long pos) {

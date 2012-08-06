@@ -3,7 +3,6 @@ package com.soundcloud.android.activity.create;
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.*;
 
 import com.jayway.android.robotium.solo.Solo;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
@@ -209,15 +208,23 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
 
     protected void assertSoundEncoded(long timeout) {
         assertIntentAction(UploadService.PROCESSING_STARTED,  2000);
-        assertIntentAction(UploadService.PROCESSING_PROGRESS, 5000);
         assertIntentAction(UploadService.PROCESSING_SUCCESS, timeout);
     }
 
     protected @NotNull Recording assertSoundUploaded() {
-        Intent intent = assertIntentAction(UploadService.UPLOAD_SUCCESS, UPLOAD_WAIT_TIME);
-        Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
-        assertNotNull("recording is null", recording);
-        return recording;
+        Intent intent = waitForIntent(UploadService.UPLOAD_SUCCESS, UPLOAD_WAIT_TIME);
+        if (intent == null) {
+            if (intents.containsKey(UploadService.TRANSFER_ERROR)) {
+                fail("transfer error");
+            } else {
+                fail("upload timeout");
+            }
+            return null;
+        } else {
+            Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
+            assertNotNull("recording is null", recording);
+            return recording;
+        }
     }
 
     protected @Nullable Track assertSoundTranscoded() {
@@ -271,8 +278,8 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
     protected void assertTrackDuration(Track track, long durationInMs) {
         Log.d(getClass().getSimpleName(), "assertTrack("+track+")");
         if (track != null) {
-            assertTrue(track.state.isFinished());
-            assertTrue(track.duration > 0);
+            assertTrue("track is not finished", track.state.isFinished());
+            assertTrue("track has length 0", track.duration > 0);
 
             // emulator uploaded tracks are longer (samplerate mismatch)
             if (!EMULATOR) {
