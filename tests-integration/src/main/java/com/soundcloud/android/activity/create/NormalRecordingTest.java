@@ -10,6 +10,7 @@ import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.upload.UploadService;
 
 import android.content.Intent;
@@ -29,16 +30,20 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
     public void testRecordMakeSureFilesGetWritten() throws Exception {
         record(RECORDING_TIME);
-        Recording r = getActivity().getRecorder().getRecording();
+
+        SoundRecorder recorder = getActivity().getRecorder();
+
+        Recording r = recorder.getRecording();
 
         File raw = r.getFile();
-        File encoded = r.getEncodedFile();
-
         assertTrue(raw.exists());
-        assertTrue(encoded.exists());
-
         assertTrue(raw.length() > 0);
-        assertTrue("encoded length " + encoded.length(), encoded.length() > 0);
+
+        if (recorder.shouldEncodeWhileRecording())  {
+            File encoded = r.getEncodedFile();
+            assertTrue(encoded.exists());
+            assertTrue("encoded length " + encoded.length(), encoded.length() > 0);
+        }
     }
 
     public void testRecordAndEditRevert() throws Exception {
