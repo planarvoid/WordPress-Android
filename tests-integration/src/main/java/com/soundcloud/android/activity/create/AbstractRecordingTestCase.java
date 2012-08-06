@@ -207,6 +207,12 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
         return intent;
     }
 
+    protected void assertSoundEncoded(long timeout) {
+        assertIntentAction(UploadService.PROCESSING_STARTED,  2000);
+        assertIntentAction(UploadService.PROCESSING_PROGRESS, 5000);
+        assertIntentAction(UploadService.PROCESSING_SUCCESS, timeout);
+    }
+
     protected @NotNull Recording assertSoundUploaded() {
         Intent intent = assertIntentAction(UploadService.UPLOAD_SUCCESS, UPLOAD_WAIT_TIME);
         Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);

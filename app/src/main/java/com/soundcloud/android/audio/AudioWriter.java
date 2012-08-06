@@ -44,8 +44,8 @@ public interface AudioWriter extends Closeable {
     long getDuration();
 
     /**
-     * @return audiofile which can be used to read this stream
+     * @return audioreader which can be used to read this stream
      * @throws IOException
      */
-    AudioReader getAudioFile() throws IOException;
+    AudioReader getAudioReader() throws IOException;
 }

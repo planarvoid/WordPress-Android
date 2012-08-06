@@ -10,6 +10,7 @@ import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.upload.UploadService;
 
 import android.content.Intent;
@@ -23,22 +24,26 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     public void testRecordAndPlayback() throws Exception {
         record(RECORDING_TIME);
         playback();
-        solo.sleep(RECORDING_TIME + 1000);
+        solo.sleep(RECORDING_TIME + 5000);
         assertState(IDLE_PLAYBACK);
     }
 
     public void testRecordMakeSureFilesGetWritten() throws Exception {
         record(RECORDING_TIME);
-        Recording r = getActivity().getRecorder().getRecording();
+
+        SoundRecorder recorder = getActivity().getRecorder();
+
+        Recording r = recorder.getRecording();
 
         File raw = r.getFile();
-        File encoded = r.getEncodedFile();
-
         assertTrue(raw.exists());
-        assertTrue(encoded.exists());
-
         assertTrue(raw.length() > 0);
-        assertTrue("encoded length " + encoded.length(), encoded.length() > 0);
+
+        if (recorder.shouldEncodeWhileRecording())  {
+            File encoded = r.getEncodedFile();
+            assertTrue(encoded.exists());
+            assertTrue("encoded length " + encoded.length(), encoded.length() > 0);
+        }
     }
 
     public void testRecordAndEditRevert() throws Exception {
@@ -114,10 +119,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         uploadSound("A raw test upload", null, true);
 
-        assertIntentAction(UploadService.PROCESSING_STARTED,  2000);
-        assertIntentAction(UploadService.PROCESSING_PROGRESS, 5000);
-        assertIntentAction(UploadService.PROCESSING_SUCCESS, 20000);
-
+        assertSoundEncoded(RECORDING_TIME * 5);
         assertSoundUploaded();
         assertSoundTranscoded();
         solo.assertActivityFinished();
@@ -201,6 +203,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         uploadSound("An appended raw sound", null, true);
 
+        assertSoundEncoded(RECORDING_TIME * 3 * 4);
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
         assertTrackDuration(track, 3 * RECORDING_TIME);

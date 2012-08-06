@@ -23,7 +23,7 @@ public class PrivateRecordingTest extends AbstractRecordingTestCase {
     public void testRecordAndPlayback() throws Exception {
         record(RECORDING_TIME, solo.getString(R.string.private_message_title, recipient.username)); // "Record a sound for Super Hans"
         playback();
-        solo.sleep(RECORDING_TIME + 1000);
+        solo.sleep(RECORDING_TIME + 5000);
         assertState(IDLE_PLAYBACK);
     }
 

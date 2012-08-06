@@ -1,6 +1,8 @@
 package com.soundcloud.android.jni;
 
 
+import org.jetbrains.annotations.NotNull;
+
 import android.util.Log;
 
 import java.io.File;
@@ -16,7 +18,7 @@ public class VorbisDecoder {
     @SuppressWarnings("UnusedDeclaration") // used in JNI code
     private int decoder_state;
 
-    public VorbisDecoder(File file) throws DecoderException {
+    public VorbisDecoder(@NotNull File file) throws DecoderException {
         this.file = file;
         int ret = init(file.getAbsolutePath());
         if (ret != 0) {
