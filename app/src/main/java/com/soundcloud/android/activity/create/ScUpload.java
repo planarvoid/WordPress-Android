@@ -45,6 +45,7 @@ public class ScUpload extends ScActivity {
     private AccessList mAccessList;
     private Recording mRecording;
     private RecordingMetaData mRecordingMetadata;
+    private boolean mUploading;
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -97,6 +98,7 @@ public class ScUpload extends ScActivity {
                     saveRecording(mRecording);
                     mRecording.upload(ScUpload.this);
                     setResult(RESULT_OK, new Intent().setData(mRecording.toUri()).putExtra(Actions.UPLOAD_EXTRA_UPLOADING,true));
+                    mUploading = true;
                     finish();
                 } else {
                     errorOut(R.string.recording_not_found);
@@ -171,7 +173,7 @@ public class ScUpload extends ScActivity {
     protected void onStop() {
         super.onStop();
 
-        if (mRecording != null) {
+        if (mRecording != null && !mUploading) {
             // recording exists and hasn't been uploaded
             mapToRecording(mRecording);
             saveRecording(mRecording);
