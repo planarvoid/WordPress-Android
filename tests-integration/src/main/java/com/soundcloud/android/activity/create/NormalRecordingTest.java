@@ -24,7 +24,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     public void testRecordAndPlayback() throws Exception {
         record(RECORDING_TIME);
         playback();
-        solo.sleep(RECORDING_TIME + 1000);
+        solo.sleep(RECORDING_TIME + 5000);
         assertState(IDLE_PLAYBACK);
     }
 
@@ -119,10 +119,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         uploadSound("A raw test upload", null, true);
 
-        assertIntentAction(UploadService.PROCESSING_STARTED,  2000);
-        assertIntentAction(UploadService.PROCESSING_PROGRESS, 5000);
-        assertIntentAction(UploadService.PROCESSING_SUCCESS, 20000);
-
+        assertSoundEncoded(RECORDING_TIME * 5);
         assertSoundUploaded();
         assertSoundTranscoded();
         solo.assertActivityFinished();
@@ -206,6 +203,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         uploadSound("An appended raw sound", null, true);
 
+        assertSoundEncoded(RECORDING_TIME * 3 * 4);
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
         assertTrackDuration(track, 3 * RECORDING_TIME);
