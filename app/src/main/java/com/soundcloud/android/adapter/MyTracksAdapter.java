@@ -9,7 +9,6 @@ import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.MyTracklistRow;
 import com.soundcloud.android.view.TrackInfoBar;
 
-import android.content.ContentValues;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Handler;
@@ -22,6 +21,7 @@ public class MyTracksAdapter extends TracklistAdapter {
     private Cursor mCursor;
     private boolean mDataValid;
     private List<Recording> mRecordingData;
+    private ScListActivity mActivity;
 
     private static final int TYPE_PENDING_RECORDING = 0;
     private static final int TYPE_TRACK = 1;
@@ -30,6 +30,7 @@ public class MyTracksAdapter extends TracklistAdapter {
     public MyTracksAdapter(ScListActivity activity, ArrayList<Parcelable> data,
             Class<?> model) {
         super(activity, data, model);
+        mActivity = activity;
         refreshCursor();
 
         mChangeObserver = new ChangeObserver();
@@ -145,9 +146,16 @@ public class MyTracksAdapter extends TracklistAdapter {
      * @see ContentObserver#onChange(boolean)
      */
     protected void onContentChanged() {
-        if (mCursor == null) {
+        mDataValid = false;
+        if (mActivity.isForeground() && mCursor == null) {
             refreshCursor();
             notifyDataSetChanged();
+        }
+    }
+
+    public void onResume() {
+        if (!mDataValid) {
+            onContentChanged();
         }
     }
 
