@@ -13,7 +13,7 @@ public class PrivateRecordingTest extends AbstractRecordingTestCase {
     @Override
     public void setUp() throws Exception {
         recipient = new User();
-        recipient.id       = 133201;
+        recipient.id       = 3090821; // jberkel_testing
         recipient.username = "Super Hans";
 
         setActivityIntent(new Intent().putExtra(ScCreate.EXTRA_PRIVATE_MESSAGE_RECIPIENT, recipient));
