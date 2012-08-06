@@ -82,7 +82,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private String mRecordErrorMessage;
 
     private ButtonBar mButtonBar;
-    private boolean mActive, mHasEditControlGroup;
+    private boolean mActive, mHasEditControlGroup, mSeenSavedMessage;
     private List<Recording> mUnsavedRecordings;
 
     private ProgressBar mGeneratingWaveformProgressBar;
@@ -124,6 +124,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
         if (recording != null) {
             mRecorder.setRecording(recording);
+            mSeenSavedMessage = true;
         }
         mTxtRecordMessage = (RecordMessageView) findViewById(R.id.txt_record_message);
 
@@ -221,6 +222,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     @Override
     public void onSaveInstanceState(Bundle state) {
+        state.putBoolean("createSeenSavedMessage", mSeenSavedMessage);
         state.putString("createCurrentCreateState", mCurrentState.toString());
         mWaveDisplay.onSaveInstanceState(state);
     }
@@ -228,6 +230,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     @Override
     public void onRestoreInstanceState(Bundle state) {
         if (!state.isEmpty()) {
+            mSeenSavedMessage = state.getBoolean("createSeenSavedMessage");
             if (!TextUtils.isEmpty(state.getString("createCurrentCreateState"))) {
                 updateUi(CreateState.valueOf(state.getString("createCurrentCreateState")), false);
             }
@@ -448,6 +451,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         reset(false);
     }
     /* package */ void reset(boolean deleteRecording) {
+        mSeenSavedMessage = false;
         mRecorder.reset(deleteRecording);
         mWaveDisplay.reset();
         updateUi(CreateState.IDLE_RECORD, true);
@@ -586,7 +590,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 showView(mEditButton, takeAction && (mLastState == CreateState.RECORD || mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
                 showView(mActionButton, takeAction && (mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
                 showView(mButtonBar, takeAction && (mLastState == CreateState.RECORD));
-                if (mLastState == CreateState.RECORD) showSavedMessage(takeAction && mLastState == CreateState.RECORD);
+                if (mLastState == CreateState.RECORD && !mSeenSavedMessage) {
+                    showSavedMessage(takeAction);
+                }
                 showView(mChrono, false);
                 showView(mYouButton, (mLastState == CreateState.EDIT || mLastState != CreateState.EDIT_PLAYBACK));
                 mYouButton.setImageResource(R.drawable.ic_rec_you);
@@ -797,6 +803,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
     private void showSavedMessage(boolean animate) {
+        mSeenSavedMessage = true;
         if (mSavedMessageLayout.getVisibility() != View.VISIBLE) {
             mSavedMessageLayout.setVisibility(View.VISIBLE);
             if (animate) {
