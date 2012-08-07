@@ -6,6 +6,7 @@ public final class Actions {
     // public intent API (do not change)
     public static final String RECORD       = "com.soundcloud.android.action.RECORD";
     public static final String RECORD_START = "com.soundcloud.android.action.RECORD_START";
+    public static final String RECORD_STOP  = "com.soundcloud.android.action.RECORD_STOP";
     public static final String MESSAGE      = "com.soundcloud.android.action.MESSAGE";
     public static final String STREAM       = "com.soundcloud.android.action.STREAM";
     public static final String ACTIVITY     = "com.soundcloud.android.action.ACTIVITY";

@@ -14,6 +14,8 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.playback.AudioManagerFactory;
 import com.soundcloud.android.service.playback.IAudioManager;
+import com.soundcloud.android.service.playback.PlayerAppWidgetProvider;
+import com.soundcloud.android.service.record.RecordAppWidgetProvider;
 import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -94,6 +96,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     private static float[] EMPTY_TRIM_WINDOW = new float[]{0f,1f};
 
     private final Context mContext;
+    private RecordAppWidgetProvider mAppWidgetProvider = RecordAppWidgetProvider.getInstance();
 
     private volatile @NotNull State mState;
     private final AudioRecord mAudioRecord;
@@ -298,6 +301,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             startReadingInternal(State.RECORDING);
 
             broadcast(RECORD_STARTED);
+
+
+
             assert mRecording != null;
             return mRecording;
         } else throw new IllegalStateException("cannot record to file, in state " + mState);
@@ -526,6 +532,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 .putExtra(EXTRA_RECORDING, mRecording);
 
         mBroadcastManager.sendBroadcast(intent);
+        mAppWidgetProvider.notifyChange(mContext, intent);
     }
 
     private class PlayerThread extends Thread {

@@ -164,19 +164,23 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private void handleIntent() {
         final Intent intent = getIntent();
-        if (Actions.RECORD_START.equals(intent.getAction())){
-            if (!mRecorder.isRecording()){
+        if (Actions.RECORD_START.equals(intent.getAction())) {
+            if (!mRecorder.isRecording()) {
                 reset();
                 startRecording();
             }
             // don't want to receive the RECORD_START action on config changes, so set it as a normal record intent
             intent.setAction(Actions.RECORD);
+        } else if (Actions.RECORD_STOP.equals(intent.getAction())) {
+            if (mRecorder.isRecording()) {
+                mRecorder.stopRecording();
+            }
+            intent.setAction(Actions.RECORD);
         } else {
-            if (intent.getBooleanExtra("reset", false) && !mRecorder.isActive()){
+            if (intent.getBooleanExtra("reset", false) && !mRecorder.isActive()) {
                 intent.removeExtra("reset");
                 reset();
             }
-
         }
     }
 

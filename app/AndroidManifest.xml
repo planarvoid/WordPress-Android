@@ -195,6 +195,10 @@
                 <action android:name="com.soundcloud.android.action.RECORD_START"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.RECORD_STOP"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
         <activity android:name=".cropimage.CropImage" />
         <activity android:name=".activity.create.UploadMonitor"

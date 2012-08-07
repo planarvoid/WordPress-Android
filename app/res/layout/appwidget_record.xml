@@ -5,7 +5,6 @@
     <ImageButton android:id="@+id/btn_action"
                  android:scaleType="centerInside"
                  android:background="@null"
-                 android:src="@drawable/btn_rec_states"
                  android:layout_centerInParent="true"
                  android:adjustViewBounds="true"
                  android:layout_width="wrap_content"
