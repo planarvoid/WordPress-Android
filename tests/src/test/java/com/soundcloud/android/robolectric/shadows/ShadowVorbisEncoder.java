@@ -18,7 +18,7 @@ public class ShadowVorbisEncoder {
     public static IOException throwException;
 
     @Implementation
-    public static int encodeWav(File in, File out, EncoderOptions options) throws IOException {
+    public static int encodeWav(File in, File out, EncoderOptions options) throws IOException, InterruptedException {
         if (throwException != null) throw throwException;
 
         if (simulateProgress && options.listener != null) {

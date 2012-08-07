@@ -98,9 +98,10 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
         if (mCancelled) throw new UserCanceledException();
 
         if (mLastProgressSent == 0 || System.currentTimeMillis() - mLastProgressSent > 1000) {
+            final int percent = (int) Math.min(100, Math.round(100 * (current / (double) max)));
             mBroadcastManager.sendBroadcast(new Intent(UploadService.PROCESSING_PROGRESS)
                     .putExtra(UploadService.EXTRA_RECORDING, mRecording)
-                    .putExtra(UploadService.EXTRA_PROGRESS, (int) Math.min(100, Math.round(100 * current) / (float) max)));
+                    .putExtra(UploadService.EXTRA_PROGRESS, percent));
 
             mLastProgressSent = System.currentTimeMillis();
         }
