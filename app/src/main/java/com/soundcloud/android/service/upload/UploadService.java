@@ -32,6 +32,7 @@ import android.os.*;
 import android.os.Process;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -529,8 +530,8 @@ public class UploadService extends Service {
 
     private static CharSequence getFormattedNotificationTimestamp(Context context, long when) {
         final Date date = new Date(when);
-        return DateUtils.isToday(when) ? android.text.format.DateFormat.getTimeFormat(context).format(date)
-                : android.text.format.DateFormat.getDateFormat(context).format(date);
+        return DateUtils.isToday(when) ? DateFormat.getTimeFormat(context).format(date)
+                : DateFormat.getDateFormat(context).format(date);
     }
 
     private final class IntentHandler extends Handler {
