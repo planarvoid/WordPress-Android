@@ -7,7 +7,7 @@ import com.soundcloud.android.jni.EncoderOptions;
 import com.soundcloud.android.jni.ProgressListener;
 import com.soundcloud.android.jni.VorbisEncoder;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.audio.AudioConfig;
+import com.soundcloud.android.utils.IOUtils;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -33,28 +33,32 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
 
     @Override
     public void run() {
-        Log.d(TAG, "Encoder.run("+mRecording+")");
+        Log.d(TAG, "Encoder.run(" + mRecording + ")");
 
+        final File in  = mRecording.getFile();
+        final File out = mRecording.getPlaybackStream().isFiltered() ?
+                mRecording.getProcessedFile() : mRecording.getEncodedFile();
+
+        EncoderOptions options = new EncoderOptions(EncoderOptions.DEFAULT.quality,
+                mRecording.getPlaybackStream().getStartPos(),
+                mRecording.getPlaybackStream().getEndPos(),
+                this,
+                mRecording.getPlaybackStream().getPlaybackFilter());
+
+        File tmp = null;
         try {
-            final File in  = mRecording.getFile();
-            final File out = mRecording.getPlaybackStream().isFiltered() ?
-                    mRecording.getProcessedFile() : mRecording.getEncodedFile();
-
-            long now = System.currentTimeMillis();
+            tmp = File.createTempFile("encoder-"+mRecording.id, "ogg", out.getParentFile());
             broadcast(UploadService.PROCESSING_STARTED);
-
-            EncoderOptions options = new EncoderOptions(EncoderOptions.DEFAULT.quality,
-                    mRecording.getPlaybackStream().getStartPos(),
-                    mRecording.getPlaybackStream().getEndPos(),
-                    this,
-                    mRecording.getPlaybackStream().getPlaybackFilter());
-
-            VorbisEncoder.encodeWav(in, out, options);
-
-            // double check
-            if (out.exists() && out.length() > 0) {
-                Log.d(TAG, "encoding finished in " + (System.currentTimeMillis()-now)+ " msecs");
-                broadcast(UploadService.PROCESSING_SUCCESS);
+            long now = System.currentTimeMillis();
+            VorbisEncoder.encodeWav(in, tmp, options);
+            // double check file output
+            if (tmp.exists() && tmp.length() > 0) {
+                Log.d(TAG, "encoding finished in " + (System.currentTimeMillis() - now) + " msecs");
+                if (tmp.renameTo(out)) {
+                    broadcast(UploadService.PROCESSING_SUCCESS);
+                } else {
+                    broadcast(UploadService.PROCESSING_ERROR);
+                }
             } else {
                 Log.w(TAG, "encoded file does not exist or is empty");
                 broadcast(UploadService.PROCESSING_ERROR);
@@ -63,6 +67,8 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
             broadcast(UploadService.PROCESSING_CANCELED);
         } catch (IOException e) {
             broadcast(UploadService.PROCESSING_ERROR);
+        } finally {
+            IOUtils.deleteFile(tmp);
         }
     }
 
@@ -87,14 +93,14 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
     @Override
     public void onProgress(long current, long max) throws UserCanceledException {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Encoder#onProgress("+current+", "+max+")");
+            Log.d(TAG, "Encoder#onProgress(" + current + ", " + max + ")");
         }
         if (mCancelled) throw new UserCanceledException();
 
         if (mLastProgressSent == 0 || System.currentTimeMillis() - mLastProgressSent > 1000) {
             mBroadcastManager.sendBroadcast(new Intent(UploadService.PROCESSING_PROGRESS)
                     .putExtra(UploadService.EXTRA_RECORDING, mRecording)
-                    .putExtra(UploadService.EXTRA_PROGRESS, (int) Math.min(100, Math.round(100 * current) / (float)max)));
+                    .putExtra(UploadService.EXTRA_PROGRESS, (int) Math.min(100, Math.round(100 * current) / (float) max)));
 
             mLastProgressSent = System.currentTimeMillis();
         }

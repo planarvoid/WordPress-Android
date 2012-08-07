@@ -84,6 +84,7 @@ public class UploadService extends Service {
         TRANSFER_SUCCESS,
 
         PROCESSING_STARTED,
+        PROCESSING_CANCELED,
         PROCESSING_SUCCESS,
         PROCESSING_ERROR,
         PROCESSING_PROGRESS,
