@@ -364,6 +364,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     case IDLE_RECORD:
                     case IDLE_PLAYBACK:
                     case PLAYBACK:
+                        track(Click.NEW_Record_start, mTxtRecordMessage.getCurrentSuggestionKey());
                         track(Click.Record_rec);
                         startRecording();
                         break;
