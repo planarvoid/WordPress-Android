@@ -53,7 +53,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
         }
     };
 
-    private static final long TRANSCODING_WAIT_TIME = 60 * 1000 * 2; // 2 minutes
+    private static final long TRANSCODING_WAIT_TIME = 60 * 1000 * 3; // 3 minutes
     private static final long UPLOAD_WAIT_TIME      = 20 * 1000;
 
     public AbstractRecordingTestCase() {
