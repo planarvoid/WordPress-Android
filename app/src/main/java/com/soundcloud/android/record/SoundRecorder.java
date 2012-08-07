@@ -3,6 +3,7 @@ package com.soundcloud.android.record;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.PlaybackStream;
@@ -15,6 +16,8 @@ import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.playback.AudioManagerFactory;
 import com.soundcloud.android.service.playback.IAudioManager;
 import com.soundcloud.android.service.record.SoundRecorderService;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
@@ -469,6 +472,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
     @Override public void focusLost(boolean isTransient, boolean canDuck) {
+        if (mRecording != null) {
+            if (mRecording.getRecipient() == null) {
+                track(Click.NEW_Record_recording_was_interrupted);
+            } else {
+                track(Click.NEW_Record_dedicated_recording_was_interrupted);
+            }
+        }
     }
 
     // Used by the service to determine whether to show notifications or not
@@ -765,5 +775,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     public static boolean hasFPUSupport() {
         return !"armeabi".equals(Build.CPU_ABI);
+    }
+
+    public void track(Event event, Object... args) {
+        SoundCloudApplication.fromContext(mContext).track(event, args);
+    }
+
+    public void track(Class<?> klazz, Object... args) {
+        SoundCloudApplication.fromContext(mContext).track(klazz, args);
     }
 }

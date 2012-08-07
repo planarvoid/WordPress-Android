@@ -35,7 +35,9 @@ public enum Click implements Event {
     NEW_Record_reset                    ("Record", "Record_reset",                          Type.navigation, Level2.Record),
     NEW_Record_save                     ("Record", "Record_save",                           Type.navigation, Level2.Record),
     NEW_Record_start_recording_did_fail ("Record", "Start_Recording_Did_Fail",              Type.action,     Level2.Record),
+
     NEW_Record_recording_was_interrupted("Record", "Recording_Was_Interrupted",             Type.action,     Level2.Record),
+    NEW_Record_dedicated_recording_was_interrupted("Dedicated_Record", "Dedicated_Recording_Was_Interrupted", Type.action, Level2.Record),
 
     NEW_Record_record_pause             ("Record", "Record_pause::%d",                      Type.action,     Level2.Record),
     NEW_Record_rec_more                 ("Record", "Rec_more",                              Type.action,     Level2.Record),
