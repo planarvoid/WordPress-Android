@@ -17,6 +17,8 @@ public class RemainingTimeCalculatorTest {
 
     @Test
     public void remainingTimeShouldBeZeroIfNoExternalStorage() throws Exception {
+        TestHelper.disableSDCard();
+
         RemainingTimeCalculator c = new RemainingTimeCalculator(44100*2);
         ShadowStatFs.registerStats(Environment.getExternalStorageDirectory(), 1024, 1024, 1024);
         expect(c.timeRemaining()).toEqual(0L);
