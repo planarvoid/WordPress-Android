@@ -64,7 +64,7 @@
   <string name="cache_clearing_message">Deleting cached files ...</string>
   <string name="changelog_full_title">Change Log</string>
   <string name="changelog_title">New Updates</string>
-  <string name="cloud_recorder_event_message">Recording for %d seconds</string>
+  <string name="cloud_recorder_event_message">Recording for %s</string>
   <string name="cloud_recorder_event_title">Recording in progress</string>
   <string name="cloud_recorder_playback_event_title">Playback in progress</string>
   <string name="cloud_recorder_playback_notification_ticker">Playing %s</string>

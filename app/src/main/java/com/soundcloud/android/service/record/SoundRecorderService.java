@@ -9,6 +9,7 @@ import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.LocalBinder;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -44,6 +45,8 @@ public class SoundRecorderService extends Service  {
 
     private LocalBroadcastManager mBroadcastManager;
     private static final int IDLE_DELAY = 30*1000;  // interval after which we stop the service when idle
+
+    private long mLastNotifiedTime;
 
     private WakeLock mWakeLock;
     private final IBinder mBinder = new LocalBinder<SoundRecorderService>() {
@@ -142,8 +145,9 @@ public class SoundRecorderService extends Service  {
                 }
 
             } else if (SoundRecorder.RECORD_PROGRESS.equals(action)) {
-                final long time = intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l);
-                if (mRecordNotification != null) {
+                final long time = intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l) / 1000;
+                if (!ScTextUtils.usesSameTimeElapsedString(mLastNotifiedTime,time) && mRecordNotification != null){
+                    mLastNotifiedTime = time;
                     updateRecordTicker(mRecordNotification, time);
                 }
 
@@ -161,6 +165,7 @@ public class SoundRecorderService extends Service  {
                         sendPlayingNotification(mRecorder.getRecording());
                     }
                 } else {
+                    mLastNotifiedTime = -1;
                     killNotification(PLAYBACK_NOTIFY_ID);
                     killNotification(RECORD_NOTIFY_ID);
                 }
@@ -226,10 +231,10 @@ public class SoundRecorderService extends Service  {
         return notification;
     }
 
-    /* package */ void updateRecordTicker(Notification notification, long recordTimeMs) {
+    /* package */ void updateRecordTicker(Notification notification, long recordTime) {
         notification.setLatestEventInfo(this,
                 getString(R.string.cloud_recorder_event_title),
-                getString(R.string.cloud_recorder_event_message, recordTimeMs / 1000),
+                getString(R.string.cloud_recorder_event_message, ScTextUtils.getTimeString(getResources(),recordTime, false)),
                 mRecordPendingIntent);
         nm.notify(RECORD_NOTIFY_ID, notification);
     }
