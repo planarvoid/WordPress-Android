@@ -16,7 +16,9 @@
     <issue id="NewApi" severity="error"/>
 
     <!-- change before release -->
+    <!--
     <issue id="MissingTranslation" severity="ignore"/>
+    -->
 
     <!-- should probably re-enable later once more important things are fixed -->
     <issue id="ContentDescription" severity="ignore"/>
