@@ -23,33 +23,28 @@ import android.util.Log;
 import java.io.IOException;
 
 public class Poller extends Handler {
-    private static final long DEFAULT_MAX_EXECUTION_TIME = 60 * 1000 * 5; // 5 minutes
     private static final long DEFAULT_MIN_TIME_BETWEEN_REQUESTS = 5000;
-    private static final long DEFAULT_MAX_TRIES = 10;
+    private static final long DEFAULT_MAX_TRIES = 12; // timeout of ~10 minutes with exp. back-off
 
     private AndroidCloudAPI mApp;
     private Request mRequest;
     private Uri mNotifyUri;
-    private long mFirstAttempt;
 
     private long mMinDelayBetweenRequests;
-    private long mMaxExecutionTime;
 
     public Poller(Looper looper, AndroidCloudAPI app, long trackId, Uri notifyUri) {
-        this(looper, app, trackId, notifyUri, DEFAULT_MIN_TIME_BETWEEN_REQUESTS, DEFAULT_MAX_EXECUTION_TIME);
+        this(looper, app, trackId, notifyUri, DEFAULT_MIN_TIME_BETWEEN_REQUESTS);
     }
 
     public Poller(Looper looper, AndroidCloudAPI app,
                   long trackId,
                   Uri notifyUri,
-                  long delayBetweenRequests,
-                  long maxExecutionTime) {
+                  long delayBetweenRequests) {
         super(looper);
         mApp = app;
         mRequest = Request.to(Endpoints.TRACK_DETAILS, trackId);
         mNotifyUri = notifyUri;
         mMinDelayBetweenRequests = delayBetweenRequests;
-        mMaxExecutionTime = maxExecutionTime;
     }
 
     public void start() {
@@ -58,10 +53,6 @@ public class Poller extends Handler {
 
     @Override
     public void handleMessage(Message msg) {
-        if (msg.what == 0) {
-            mFirstAttempt = msg.getWhen();
-        }
-
         Track track = null;
         final int attempt = msg.what;
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "poll attempt "+(attempt+1));
@@ -77,8 +68,7 @@ public class Poller extends Handler {
         }
 
         if ((track == null || track.state.isProcessing()) &&
-                attempt < DEFAULT_MAX_TRIES-1 &&
-                (msg.getWhen() - mFirstAttempt) < mMaxExecutionTime) {
+                attempt < DEFAULT_MAX_TRIES-1) {
 
             final long backoff = attempt * attempt * 1000;
             sendEmptyMessageDelayed(attempt + 1, Math.max(backoff, mMinDelayBetweenRequests));
