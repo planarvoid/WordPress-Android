@@ -37,7 +37,7 @@ public class AmplitudeAnalyzer {
             mCurrentAdjustedMaxAmplitude = max;
         } else {
             /*  decay of output when signal is low. */
-            mCurrentAdjustedMaxAmplitude *= 0.8;
+            mCurrentAdjustedMaxAmplitude *= 0.6;
         }
 
         return Math.max(.1f,
