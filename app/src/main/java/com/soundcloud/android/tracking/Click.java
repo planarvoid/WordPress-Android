@@ -28,7 +28,7 @@ public enum Click implements Event {
     Stream_box_stream_cancel        ("Stream_box",  "stream_cancel",         Type.action, Level2.Stream),
 
     // New recording keys
-    NEW_Record_start                    ("Record", "Record_start::%s",                     Type.action,     Level2.Record),
+    NEW_Record_start                    ("Record", "Record_start::%s",                      Type.action,     Level2.Record),
     NEW_Record_stop                     ("Record", "Record_stop",                           Type.action,     Level2.Record),
     NEW_Record_play                     ("Record", "Record_play",                           Type.action,     Level2.Record),
     NEW_Record_play_pause               ("Record", "Record_play_pause",                     Type.action,     Level2.Record),
