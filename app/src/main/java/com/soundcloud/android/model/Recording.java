@@ -98,7 +98,6 @@ public class Recording extends ScModel implements Comparable<Recording> {
     // status
     public boolean external_upload;
     public int upload_status;
-    public long track_id = NOT_SET;
 
     private PlaybackStream mPlaybackStream;
     private Exception mUploadException;
@@ -849,7 +848,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
             if (r.needsMigration()) migrate.add(r);
         }
 
-        if (migrate.size() > 0) {
+        if (!migrate.isEmpty()) {
             new Thread() {
                 @Override
                 public void run() {
