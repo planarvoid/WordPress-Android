@@ -39,6 +39,7 @@ import java.util.Map;
 public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreate> {
     // longer recordings on emulator
     protected static final int RECORDING_TIME = EMULATOR ? 6000 : 2000;
+    protected static final int ROBO_SLEEP = 500;
 
     protected LocalBroadcastManager lbm;
     protected Map<String, Intent> intents;

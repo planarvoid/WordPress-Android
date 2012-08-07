@@ -90,7 +90,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
             assertEquals("A test upload", track.title);
             assertFalse("track is public", track.isPublic());
 
-            assertTrackDuration(track, RECORDING_TIME);
+            assertTrackDuration(track, RECORDING_TIME + ROBO_SLEEP);
         }
 
         solo.assertActivityFinished();
@@ -144,11 +144,17 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         solo.goBack();
 
+        // softkeyboard gets shown on some versions of android
+        if (solo.getCurrentActivity() instanceof  ScUpload) solo.goBack();
+
         solo.assertActivity(ScCreate.class);
+
         assertState(IDLE_PLAYBACK); // should be old recording
     }
 
     public void testRecordAndRunningOutOfStorageSpace() throws Exception {
+        if (!EMULATOR) return;
+
         File filler = fillUpSpace(1024*1024);
         try {
             assertState(IDLE_RECORD, IDLE_PLAYBACK);
@@ -188,7 +194,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
-        assertTrackDuration(track, 2 * RECORDING_TIME);
+        assertTrackDuration(track, 2 * (RECORDING_TIME + ROBO_SLEEP));
     }
 
     public void testRecordRawAndAppendAndUpload() throws Exception {
@@ -205,7 +211,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         assertSoundEncoded(RECORDING_TIME * 3 * 4);
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
-        assertTrackDuration(track, 3 * RECORDING_TIME);
+        assertTrackDuration(track, 3 * (RECORDING_TIME + ROBO_SLEEP));
     }
 
     @Suppress

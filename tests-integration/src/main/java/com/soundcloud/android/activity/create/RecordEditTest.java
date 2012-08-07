@@ -89,7 +89,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
 
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
-        assertTrackDuration(track, 5000);
+        assertTrackDuration(track, 5000 + ROBO_SLEEP);
     }
 
     public void testTrimAndFadeAndUpload() throws Exception {
@@ -106,7 +106,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
         assertSoundEncoded(RECORDING_TIME * 4);
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
-        assertTrackDuration(track, 5000);
+        assertTrackDuration(track, 5000 + ROBO_SLEEP);
     }
 
     private void trim(double left, double right) {
