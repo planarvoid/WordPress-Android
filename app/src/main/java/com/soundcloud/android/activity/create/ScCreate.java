@@ -376,6 +376,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
                     case RECORD:
                         track(Click.Record_rec_stop);
+                        track(Click.NEW_Record_record_pause);
                         mRecorder.stopRecording();
                         // XXX use prefs
                         if (getApp().getAccountDataBoolean(User.DataKeys.SEEN_CREATE_AUTOSAVE)) {

@@ -39,7 +39,7 @@ public enum Click implements Event {
     NEW_Record_recording_was_interrupted("Record", "Recording_Was_Interrupted",             Type.action,     Level2.Record),
     NEW_Record_dedicated_recording_was_interrupted("Dedicated_Record", "Dedicated_Recording_Was_Interrupted", Type.action, Level2.Record),
 
-    NEW_Record_record_pause             ("Record", "Record_pause::%d",                      Type.action,     Level2.Record),
+    NEW_Record_record_pause             ("Record", "Record_pause",                          Type.action,     Level2.Record),
     NEW_Record_rec_more                 ("Record", "Rec_more",                              Type.action,     Level2.Record),
     NEW_Record_close_main               ("Record", "close::main::%s",                       Type.action,     Level2.Record),
     NEW_Record_paused_play              ("Record", "paused::play::%d",                      Type.action,     Level2.Record),
