@@ -85,6 +85,13 @@ public class ScUpload extends ScActivity {
             @Override
             public void onClick(View v) {
                 track(Click.Record_details_record_another);
+
+                if (mRecording.getRecipient() != null) {
+                    track(Click.NEW_Record_details_record_another_sound);
+                } else {
+                    track(Click.NEW_Record_dedicated_details_record_another_sound);
+                }
+
                 setResult(RESULT_OK, new Intent().setData(mRecording.toUri()));
                 finish();
             }

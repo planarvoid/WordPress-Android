@@ -55,7 +55,10 @@ public enum Click implements Event {
     NEW_Record_old_rec_import           ("Record", "old_rec_import::%i",                    Type.action,     Level2.Record),
 
     NEW_Record_details_record_upload_share   ("Record_details", "Record_upload_share::%s::%s", Type.action,     Level2.Record),
+
     NEW_Record_details_record_another_sound  ("Record_details", "Record_another_sound",        Type.action,     Level2.Record),
+    NEW_Record_dedicated_details_record_another_sound("Dedicated_Record_details", "Dedicated_Record_another_sound", Type.action, Level2.Record),
+
     NEW_Record_details_close                 ("Record_details", "Close",                       Type.action,     Level2.Record),
     NEW_Record_details_record_edit_delete    ("Record_details", "Record_edit_delete",          Type.action,     Level2.Record),
 
