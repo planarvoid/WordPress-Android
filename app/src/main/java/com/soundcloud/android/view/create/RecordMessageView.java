@@ -47,7 +47,7 @@ public class RecordMessageView extends TextView {
         mRecordSuggestionKeysPrivate = getResources().getStringArray(R.array.record_suggestion_keys_private);
     }
 
-    private String getCurrentSuggestionKey(){
+    public String getCurrentSuggestionKey(){
         return mCurrentSuggestionKey;
     }
 
