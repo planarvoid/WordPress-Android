@@ -99,6 +99,12 @@ public class ScUpload extends ScActivity {
             @Override
             public void onClick(View v) {
                 track(Click.Record_details_Upload_and_share);
+
+                if (mRecording.getRecipient() != null) {
+                    track(Click.NEW_Record_dedicated_details_record_upload_share);
+                } else {
+                    track(Click.NEW_Record_details_record_upload_share);
+                }
                 if (mRecording != null) {
                     mapToRecording(mRecording);
                     saveRecording(mRecording);

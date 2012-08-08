@@ -342,6 +342,10 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         updateUi(CreateState.IDLE_PLAYBACK, true);
                     } else {
                         track(Click.Record_next);
+                        track(Click.NEW_Record_details_record_upload_share_detailed,
+                              mTxtRecordMessage.getCurrentSuggestionKey(),
+                              rec.getPlaybackStream().isTrimmed() ? "trimmed" : "not_trimmed");
+
                         startActivityForResult(new Intent(ScCreate.this, ScUpload.class)
                                 .putExtra(SoundRecorder.EXTRA_RECORDING, rec), REQUEST_UPLOAD_SOUND);
                     }
