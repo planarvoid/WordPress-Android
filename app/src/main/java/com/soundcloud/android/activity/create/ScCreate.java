@@ -1037,6 +1037,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         .setPositiveButton(android.R.string.yes,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
+                                        track(Click.NEW_Record_paused_discard);
                                         mRecorder.reset(true);
                                         finish();
                                     }
