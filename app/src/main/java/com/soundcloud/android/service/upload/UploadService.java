@@ -278,7 +278,7 @@ public class UploadService extends Service {
                 sendNotification(recording,
                         updateUploadingProgress(
                                 getOngoingNotification(recording),
-                                R.string.uploader_event_uploading,
+                                R.string.uploader_event_uploading_percent,
                                 intent.getIntExtra(EXTRA_PROGRESS, 0)
                         )
                 );

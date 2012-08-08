@@ -126,6 +126,7 @@ public class UploadMonitor extends Activity {
                 onProcessing();
 
             } else if (UploadService.PROCESSING_PROGRESS.equals(action)) {
+                mProgressBarProcessing.setIndeterminate(false);
                 mProgressBarProcessing.setProgress(progress);
                 mProgressBarUploading.setProgress(0);
 
@@ -144,6 +145,7 @@ public class UploadMonitor extends Activity {
 
             } else if (UploadService.TRANSFER_STARTED.equals(action)) {
                 mProgressBarProcessing.setProgress(100);
+                mProgressBarUploading.setIndeterminate(false);
                 mProgressBarUploading.setProgress(0);
 
                 mProgressProcessingText.setText(R.string.uploader_event_processing_failed);

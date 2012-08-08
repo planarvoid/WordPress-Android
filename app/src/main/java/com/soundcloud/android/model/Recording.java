@@ -16,6 +16,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.AmplitudeData;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.service.upload.UserCanceledException;
@@ -176,7 +177,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public File getAmplitudeFile() {
-        return IOUtils.changeExtension(audio_path, "amp");
+        return IOUtils.changeExtension(audio_path, AmplitudeData.EXTENSION);
     }
 
     /**

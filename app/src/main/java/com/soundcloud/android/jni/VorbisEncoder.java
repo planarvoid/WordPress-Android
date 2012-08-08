@@ -216,6 +216,7 @@ public class VorbisEncoder {
 
             try {
                 encoder.encodeStream(data.stream, data.length, options);
+                encoder.closeStream();
             } finally {
                 encoder.release();
             }

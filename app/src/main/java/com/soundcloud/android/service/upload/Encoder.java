@@ -47,7 +47,7 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
 
         File tmp = null;
         try {
-            tmp = File.createTempFile("encoder-"+mRecording.id, "ogg", out.getParentFile());
+            tmp = File.createTempFile("encoder-"+mRecording.id, ".ogg", out.getParentFile());
             broadcast(UploadService.PROCESSING_STARTED);
             long now = System.currentTimeMillis();
             VorbisEncoder.encodeWav(in, tmp, options);
@@ -57,10 +57,11 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
                 if (tmp.renameTo(out)) {
                     broadcast(UploadService.PROCESSING_SUCCESS);
                 } else {
+                    Log.w(TAG, "could not rename "+tmp+" to "+out);
                     broadcast(UploadService.PROCESSING_ERROR);
                 }
             } else {
-                Log.w(TAG, "encoded file does not exist or is empty");
+                Log.w(TAG, "encoded file "+tmp+" does not exist or is empty");
                 broadcast(UploadService.PROCESSING_ERROR);
             }
         } catch (UserCanceledException e) {
