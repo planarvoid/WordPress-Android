@@ -171,9 +171,6 @@ public class UploadService extends Service {
     public void onDestroy() {
         Log.d(TAG, "onDestroy()");
 
-        // ensure notification is gone
-        nm.cancel(UPLOADING_NOTIFY_ID);
-
         mIntentHandler.getLooper().quit();
         mUploadHandler.getLooper().quit();
         mProcessingHandler.getLooper().quit();
@@ -242,28 +239,16 @@ public class UploadService extends Service {
             final String action = intent.getAction();
             final Recording recording = intent.getParcelableExtra(EXTRA_RECORDING);
 
-            if (RESIZE_ERROR.equals(action)
-                    || PROCESSING_CANCELED.equals(action)
-                    || PROCESSING_ERROR.equals(action)
-                    || TRANSFER_CANCELLED.equals(action)
-                    || TRANSFER_ERROR.equals(action)) {
-                recording.updateStatus(getContentResolver()); // for list state
-            }
-
-
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Service received action " + action);
             if (RESIZE_STARTED.equals(action)) {
                 acquireWakelock();
-                // XXX notify
 
             } else if (RESIZE_SUCCESS.equals(action)) {
                 releaseWakelock();
                 queueUpload(recording);
 
-            } else if (RESIZE_ERROR.equals(action)) {
-                releaseWakelock();
-
             } else if (PROCESSING_STARTED.equals(action)) {
+                acquireWakelock();
                 showUploadingNotification(recording, PROCESSING_STARTED);
 
             } else if (PROCESSING_PROGRESS.equals(action)) {
@@ -276,10 +261,8 @@ public class UploadService extends Service {
                 );
 
             } else if (PROCESSING_SUCCESS.equals(action)) {
+                releaseWakelock();
                 queueUpload(recording);
-
-            } else if (PROCESSING_ERROR.equals(action)) {
-                onTransferDone(recording);
 
             } else if (TRANSFER_STARTED.equals(action)) {
                 showUploadingNotification(recording, TRANSFER_STARTED);
@@ -307,14 +290,27 @@ public class UploadService extends Service {
                 mBroadcastManager.sendBroadcast(new Intent(UPLOAD_SUCCESS)
                         .putExtra(UploadService.EXTRA_RECORDING, recording));
 
-                onTransferDone(recording);
-            } else if  (TRANSFER_ERROR.equals(action) || TRANSFER_CANCELLED.equals(action)) {
+                releaseWifilock();
+                onUploadDone(recording);
+
+            } else if (TRANSCODING_SUCCESS.equals(action) || TRANSCODING_FAILED.equals(action)) {
+                releaseWakelock();
+                onTranscodingDone(intent.<Track>getParcelableExtra(EXTRA_TRACK));
+            }
+
+            // error handling
+            if (RESIZE_ERROR.equals(action)
+                    || PROCESSING_CANCELED.equals(action)
+                    || PROCESSING_ERROR.equals(action)
+                    || TRANSFER_CANCELLED.equals(action)
+                    || TRANSFER_ERROR.equals(action)) {
+
+                recording.setUploadFailed(PROCESSING_CANCELED.equals(action) || TRANSFER_CANCELLED.equals(action))
+                        .updateStatus(getContentResolver()); // for list state
+
                 releaseLocks();
                 mUploads.remove(recording.id);
-                // TODO: retry on temp error?
-                onTransferDone(recording);
-            } else if (TRANSCODING_SUCCESS.equals(action) || TRANSCODING_FAILED.equals(action)) {
-                onTranscodingDone(intent.<Track>getParcelableExtra(EXTRA_TRACK));
+                onUploadDone(recording);
             }
         }
     };
@@ -333,15 +329,18 @@ public class UploadService extends Service {
         return notification;
     }
 
-    private void onTransferDone(Recording recording) {
+    private void onUploadDone(Recording recording) {
         // leave a note
         Notification n = notifyUploadCurrentUploadFinished(recording);
         if (n != null) {
-            sendNotification(recording,n);
+            sendNotification(recording, n);
+        } else {
+            cancelNotification(recording);
         }
 
         if (!isUploading()) { // last one switch off the lights
             stopSelf();
+            nm.cancel(UPLOADING_NOTIFY_ID);
         }
     }
 
@@ -365,7 +364,15 @@ public class UploadService extends Service {
 
     private void sendNotification(ScModel r, Notification n) {
         // ugly way to help uniqueness
-        nm.notify((int) (9990000 + r.id), n);
+        nm.notify(getNotificationId(r), n);
+    }
+
+    private void cancelNotification(ScModel r) {
+        nm.cancel(getNotificationId(r));
+    }
+
+    private int getNotificationId(ScModel r){
+        return (int) (9990000 + r.id);
     }
 
     private Notification updateProcessingProgress(Notification n, int stringId, int progress) {
@@ -472,7 +479,7 @@ public class UploadService extends Service {
                     new Intent(Actions.MY_PROFILE).putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks),
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
-        } else if (!recording.isCanceled()) {
+        } else if (recording.isError()) {
             title = getString(R.string.cloud_uploader_notification_error_title);
             message = getString(R.string.cloud_uploader_notification_error_message, recording.title);
             tickerText = getString(R.string.cloud_uploader_notification_error_ticker);

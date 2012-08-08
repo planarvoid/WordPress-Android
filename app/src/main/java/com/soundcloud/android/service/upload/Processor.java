@@ -2,7 +2,6 @@ package com.soundcloud.android.service.upload;
 
 import static com.soundcloud.android.service.upload.UploadService.TAG;
 
-import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.jni.EncoderException;
 import com.soundcloud.android.jni.VorbisEncoder;
 import com.soundcloud.android.model.Recording;
@@ -42,7 +41,6 @@ public class Processor implements Runnable {
                 broadcast(UploadService.PROCESSING_SUCCESS);
             } catch (EncoderException e) {
                 Log.w(TAG, "error processing "+encoded, e);
-                mRecording.setUploadException(e);
                 broadcast(UploadService.PROCESSING_ERROR);
             }
         } else {

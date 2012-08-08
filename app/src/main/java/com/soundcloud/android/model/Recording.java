@@ -101,7 +101,6 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public int upload_status;
 
     private PlaybackStream mPlaybackStream;
-    private Exception mUploadException;
 
     private static final Pattern AMPLITUDE_PATTERN = Pattern.compile("^.*\\.(amp)$");
     private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm|wav)$");
@@ -470,23 +469,14 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return upload_status == Status.UPLOADING;
     }
 
-    public boolean isCanceled() {
-        return mUploadException instanceof UserCanceledException;
-    }
-
-    public Recording setUploadException(Exception e) {
-        mUploadException = e;
-        upload_status = e instanceof UserCanceledException ? Status.NOT_YET_UPLOADED : Status.ERROR;
+    public Recording setUploadFailed(boolean cancelled) {
+        upload_status = cancelled ? Status.NOT_YET_UPLOADED : Status.ERROR;
         return this;
     }
 
     public void setPlaybackStream(PlaybackStream stream) {
         duration = stream == null ? 0 : stream.getDuration();
         mPlaybackStream = stream;
-    }
-
-    public Exception getUploadException() {
-        return mUploadException;
     }
 
     public boolean hasArtwork() {

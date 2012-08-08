@@ -143,6 +143,9 @@ public class UploadMonitor extends Activity {
             } else if (UploadService.PROCESSING_ERROR.equals(action)) {
                 onUploadFinished(false);
 
+            } else if (UploadService.PROCESSING_CANCELED.equals(action)) {
+                finish();
+
             } else if (UploadService.TRANSFER_STARTED.equals(action)) {
                 mProgressBarProcessing.setProgress(100);
                 mProgressBarUploading.setIndeterminate(false);

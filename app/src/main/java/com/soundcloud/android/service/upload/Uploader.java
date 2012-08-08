@@ -119,7 +119,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
                     return false;
             }
         } catch (UserCanceledException e) {
-            onUploadCancelled(e);
+            onUploadCancelled();
             return false;
         } catch (IOException e) {
             onUploadFailed(e);
@@ -127,14 +127,12 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         }
     }
 
-    private void onUploadCancelled(UserCanceledException e) {
-        mUpload.setUploadException(e);
+    private void onUploadCancelled() {
         broadcast(UploadService.TRANSFER_CANCELLED);
     }
 
     private void onUploadFailed(Exception e) {
         Log.e(TAG, "Error uploading", e);
-        mUpload.setUploadException(e);
         broadcast(UploadService.TRANSFER_ERROR);
     }
 
