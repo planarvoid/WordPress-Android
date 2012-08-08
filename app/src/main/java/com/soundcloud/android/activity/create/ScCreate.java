@@ -409,6 +409,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                             break;
                         case PLAYBACK:
                             track(Click.Record_play_stop);
+                            track(Click.NEW_Record_paused_play);
                             newState = CreateState.IDLE_PLAYBACK;
                             break;
                         case EDIT:
