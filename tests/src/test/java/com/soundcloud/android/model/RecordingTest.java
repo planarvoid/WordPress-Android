@@ -357,8 +357,8 @@ public class RecordingTest {
     @Test
     public void shouldMigrateRecordings() throws Exception {
         int i = 1;
-        for (Recording.DeprecatedProfile profile : Recording.DeprecatedProfile.values()){
-            if (profile != Recording.DeprecatedProfile.UNKNOWN) {
+        for (DeprecatedProfile profile : DeprecatedProfile.values()){
+            if (profile != DeprecatedProfile.UNKNOWN) {
                 final File recordingFile = createRecordingFile(profile.getExtension());
                 Recording r = new Recording(recordingFile);
                 r.id = i;
@@ -370,7 +370,7 @@ public class RecordingTest {
 
     private void shouldMigrateRecording(Recording r) throws Exception {
         final File recordingFile = r.getFile();
-        expect(r.needsMigration()).toBeTrue();
+        expect(DeprecatedProfile.needsMigration(r)).toBeTrue();
 
         ContentResolver resolver = Robolectric.application.getContentResolver();
         Uri u = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());

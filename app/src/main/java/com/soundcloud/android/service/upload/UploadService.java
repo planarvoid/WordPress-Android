@@ -106,26 +106,6 @@ public class UploadService extends Service {
             recording = r;
         }
 
-        /** Need to re-encode if fading/optimize is enabled, or no encoding happened during recording */
-        public boolean needsEncoding() {
-            if (recording.getPlaybackStream().isFiltered()) {
-                return !recording.getProcessedFile().exists();
-            } else {
-                return !recording.getEncodedFile().exists();
-            }
-        }
-
-        public boolean needsResizing() {
-            return recording.hasArtwork() && !recording.hasResizedArtwork();
-        }
-
-        public boolean needsProcessing() {
-            return !needsEncoding() &&
-                    recording.getPlaybackStream() != null &&
-                    recording.getPlaybackStream().isTrimmed() &&
-                  (!recording.getProcessedFile().exists() || recording.getProcessedFile().length() == 0);
-        }
-
         @Override
         public String toString() {
             return "Upload{" +
@@ -214,11 +194,11 @@ public class UploadService extends Service {
 
             Log.d(TAG, "handleMessage("+upload+")");
 
-            if (upload.needsResizing()) {
+            if (upload.recording.needsResizing()) {
                 post(new ImageResizer(UploadService.this, upload.recording));
-            } else if (upload.needsProcessing()) {
+            } else if (upload.recording.needsProcessing()) {
                 mProcessingHandler.post(new Processor(UploadService.this, upload.recording));
-            } else if (upload.needsEncoding()) {
+            } else if (upload.recording.needsEncoding()) {
                 mProcessingHandler.post(new Encoder(UploadService.this, upload.recording));
             } else {
                 // perform the actual upload
