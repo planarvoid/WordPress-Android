@@ -435,6 +435,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             @Override
             public void onClick(View v) {
                 track(Click.Record_edit);
+                track(Click.NEW_Record_paused_edit);
                 updateUi(CreateState.EDIT, true);
             }
         });
@@ -1037,6 +1038,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         .setPositiveButton(android.R.string.yes,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
+
                                         track(Click.NEW_Record_paused_discard);
                                         mRecorder.reset(true);
                                         finish();
