@@ -342,6 +342,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 if (rec != null) {
                     if (mCurrentState.isEdit()) {
                         track(Click.Record_save);
+                        track(Click.NEW_Record_edit_save, rec.getPlaybackStream().isTrimmed() ? "trimmed" : "not_trimmed");
                         updateUi(CreateState.IDLE_PLAYBACK, true);
                     } else {
                         track(Click.Record_next);

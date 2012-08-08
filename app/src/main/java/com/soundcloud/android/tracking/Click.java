@@ -49,8 +49,7 @@ public enum Click implements Event {
 
     NEW_Record_edit_revert_to_original  ("Record", "edit::revert_to_original",              Type.action,     Level2.Record),
     NEW_Record_edit_interaction         ("Record", "edit::interaction",                     Type.action,     Level2.Record),
-    NEW_Record_edit_save_trimmed        ("Record", "edit::save::trimmed",                   Type.action,     Level2.Record),
-    NEW_Record_edit_save_not_trimmed    ("Record", "edit::save::not_trimmed",               Type.action,     Level2.Record),
+    NEW_Record_edit_save                ("Record", "edit::save::%s",                        Type.action,     Level2.Record),
     NEW_Record_old_rec_import_error     ("Record", "old_rec_import_error",                  Type.action,     Level2.Record),
     NEW_Record_old_rec_import           ("Record", "old_rec_import::%i",                    Type.action,     Level2.Record),
 
