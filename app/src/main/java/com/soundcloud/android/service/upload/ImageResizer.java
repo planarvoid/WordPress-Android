@@ -56,6 +56,7 @@ public class ImageResizer implements Runnable {
             }
         } catch (IOException e) {
             Log.e(TAG, "error resizing", e);
+            mRecording.setUploadException(e);
             broadcast(UploadService.RESIZE_ERROR);
         }
     }

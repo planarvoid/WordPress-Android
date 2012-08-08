@@ -241,6 +241,17 @@ public class UploadService extends Service {
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             final Recording recording = intent.getParcelableExtra(EXTRA_RECORDING);
+
+            if (RESIZE_ERROR.equals(action)
+                    || PROCESSING_CANCELED.equals(action)
+                    || PROCESSING_ERROR.equals(action)
+                    || TRANSFER_CANCELLED.equals(action)
+                    || TRANSFER_ERROR.equals(action)) {
+                recording.updateStatus(getContentResolver()); // for list state
+            }
+
+
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Service received action " + action);
             if (RESIZE_STARTED.equals(action)) {
                 acquireWakelock();
                 // XXX notify

@@ -42,6 +42,7 @@ public class Processor implements Runnable {
                 broadcast(UploadService.PROCESSING_SUCCESS);
             } catch (EncoderException e) {
                 Log.w(TAG, "error processing "+encoded, e);
+                mRecording.setUploadException(e);
                 broadcast(UploadService.PROCESSING_ERROR);
             }
         } else {

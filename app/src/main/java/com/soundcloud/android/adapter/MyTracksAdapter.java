@@ -68,7 +68,7 @@ public class MyTracksAdapter extends TracklistAdapter {
 
     private void refreshCursor() {
         mCursor = mContext.getContentResolver().query(Content.RECORDINGS.uri, null,
-                Recordings.UPLOAD_STATUS + " < 2",
+                Recordings.UPLOAD_STATUS + " < 2 OR " + Recordings.UPLOAD_STATUS + " = 4",
                 null,
                 Recordings.TIMESTAMP + " DESC");
 
