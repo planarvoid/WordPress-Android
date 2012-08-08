@@ -127,9 +127,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mEditButton = setupEditButton();
         mPlayButton = setupPlaybutton(R.id.btn_play);
         mPlayEditButton = setupPlaybutton(R.id.btn_play_edit);
-        mToggleFade = setupToggleFade();
-        mToggleOptimize = setupToggleOptimize();
         mYouButton = setupYouButton();
+        mToggleFade = (ToggleButton) findViewById(R.id.toggle_fade);
+        mToggleOptimize = (ToggleButton) findViewById(R.id.toggle_optimize);
 
         mWaveDisplay = new CreateWaveDisplay(this);
         mWaveDisplay.setTrimListener(this);
@@ -414,28 +414,24 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return button;
     }
 
-    private ToggleButton setupToggleFade() {
-            final ToggleButton tb = (ToggleButton) findViewById(R.id.toggle_fade);
-            tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    mRecorder.toggleFade();
-                }
-            });
-            tb.setChecked(mRecorder.isFading());
-            return tb;
-        }
+    private void setupToggleFade(boolean isFading) {
+        mToggleFade.setChecked(isFading);
+        mToggleFade.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                mRecorder.toggleFade();
+            }
+        });
+    }
 
-    private ToggleButton setupToggleOptimize() {
-        final ToggleButton tb = (ToggleButton) findViewById(R.id.toggle_optimize);
-        tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+    private void setupToggleOptimize(boolean isOptimized) {
+        mToggleOptimize.setChecked(isOptimized);
+        mToggleOptimize.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 mRecorder.toggleOptimize();
             }
         });
-        tb.setChecked(mRecorder.isOptimized());
-        return tb;
     }
 
     /* package */ void reset() {
@@ -514,6 +510,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
             }
         }
+        setupToggleFade(mRecorder.isFading());
+        setupToggleOptimize(mRecorder.isOptimized());
         updateUi(newState);
     }
 
