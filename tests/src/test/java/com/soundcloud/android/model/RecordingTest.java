@@ -376,14 +376,14 @@ public class RecordingTest {
         Uri u = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
         expect(u).not.toBeNull();
 
-        final ContentValues migrationValues = r.migrate();
+        final ContentValues migrationValues = DeprecatedRecordingProfile.migrate(r);
         expect(migrationValues).not.toBeNull();
         expect(resolver.update(r.toUri(),migrationValues,null,null)).toEqual(1);
 
         final Cursor c = resolver.query(u, null, null, null, null);
         expect(c.moveToNext()).toBeTrue();
         Recording r2 = new Recording(c);
-        expect(r2.migrate()).toBeNull();
+        expect(DeprecatedRecordingProfile.migrate(r2)).toBeNull();
         expect(r2.getFile()).not.toEqual(recordingFile);
     }
 
