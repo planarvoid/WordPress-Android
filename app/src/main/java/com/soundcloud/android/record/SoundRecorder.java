@@ -135,7 +135,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         return instance;
     }
 
-    SoundRecorder(Context context, AudioConfig config) {
+    public SoundRecorder(Context context, AudioConfig config) {
 
         mContext = context;
         mConfig = config;
@@ -213,8 +213,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     public void setRecording(Recording recording) {
         if (mRecording == null || recording.id != mRecording.id) {
-            mRecording = recording;
 
+            if (isActive()) reset();
+            mRecording = recording;
             mRecordStream = new RecordStream(mConfig,
                     recording.getRawFile(),
                     shouldEncodeWhileRecording() ? recording.getEncodedFile() : null,
@@ -307,6 +308,10 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             assert mRecording != null;
             return mRecording;
         } else throw new IllegalStateException("cannot record to file, in state " + mState);
+    }
+
+    public boolean hasRecording() {
+        return mRecording != null;
     }
 
     public Recording getRecording() {

@@ -532,18 +532,6 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return Long.valueOf(lastModified()).compareTo(recording.lastModified());
     }
 
-    public static Recording checkForUnusedPrivateRecording(File directory, User user) {
-        if (user == null) return null;
-        for (File f : IOUtils.nullSafeListFiles(directory, new RecordingFilter(null))) {
-            if (Recording.getUserIdFromFile(f) == user.id) {
-                Recording r = new Recording(f);
-                r.recipient = user;
-                return r;
-            }
-        }
-        return null;
-    }
-
     public static List<Recording> getUnsavedRecordings(ContentResolver resolver, File directory, Recording ignore, long userId) {
         MediaPlayer mp = null;
         List<Recording> unsaved = new ArrayList<Recording>();
@@ -656,6 +644,12 @@ public class Recording extends ScModel implements Comparable<Recording> {
         } else {
             return null;
         }
+    }
+
+    public static void clearRecordingFromIntent(Intent intent) {
+        intent.removeExtra(EXTRA);
+        intent.removeExtra(Intent.EXTRA_STREAM);
+        intent.setData(null);
     }
 
     public static Recording fromUri(Uri uri, ContentResolver resolver) {
