@@ -13,7 +13,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum DeprecatedProfile {
+public enum DeprecatedRecordingProfile {
     UNKNOWN(-1, null),
     ENCODED_LOW(0, "ogg"),
     ENCODED_HIGH(1, "ogg"),
@@ -22,16 +22,16 @@ public enum DeprecatedProfile {
     final int id;
     final String updatedExtension;
 
-    DeprecatedProfile(int id, String updatedExtension){
+    DeprecatedRecordingProfile(int id, String updatedExtension){
         this.id = id;
         this.updatedExtension = updatedExtension;
     }
 
-    public static DeprecatedProfile getProfile(File f) {
+    public static DeprecatedRecordingProfile getProfile(File f) {
         if (f != null) {
             try {
                 final int profile = Integer.parseInt(IOUtils.extension(f));
-                for (DeprecatedProfile p : DeprecatedProfile.values()) {
+                for (DeprecatedRecordingProfile p : DeprecatedRecordingProfile.values()) {
                     if (p.id == profile) return p;
                 }
             } catch (NumberFormatException ignore) {
@@ -76,8 +76,8 @@ public enum DeprecatedProfile {
      * Rename files, return CV for a bulk insert
      */
     public static ContentValues migrate(Recording r) {
-        final DeprecatedProfile profile = DeprecatedProfile.getProfile(r.audio_path);
-        if (profile != DeprecatedProfile.UNKNOWN) {
+        final DeprecatedRecordingProfile profile = DeprecatedRecordingProfile.getProfile(r.audio_path);
+        if (profile != DeprecatedRecordingProfile.UNKNOWN) {
             final File newPath = IOUtils.changeExtension(r.audio_path, profile.updatedExtension);
             final long lastMod = r.audio_path.lastModified();
             if (r.audio_path.renameTo(newPath)){
@@ -98,8 +98,8 @@ public enum DeprecatedProfile {
 
     public static boolean needsMigration(Recording r) {
         if (!r.external_upload) {
-            final DeprecatedProfile profile = getProfile(r.audio_path);
-            return (profile != DeprecatedProfile.UNKNOWN);
+            final DeprecatedRecordingProfile profile = getProfile(r.audio_path);
+            return (profile != DeprecatedRecordingProfile.UNKNOWN);
         }
         return false;
     }

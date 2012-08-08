@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -451,10 +452,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private void configureInitialState() {
         if (mRecorder == null || !mActive) return;
 
-        boolean takeAction = false;
         CreateState newState = null;
-
-
         if (mRecorder.isRecording()) {
             newState = CreateState.RECORD;
             setRecipient(mRecorder.getRecording().getRecipient());
@@ -477,7 +475,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 if (mCurrentState != CreateState.EDIT_PLAYBACK) newState = CreateState.PLAYBACK;
                 configurePlaybackInfo();
                 mWaveDisplay.gotoPlaybackMode();
-                takeAction = true;
 
             } else {
                 // we have an inactive recorder, see what is loaded in it
@@ -491,7 +488,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     }
                 } else {
                     newState = CreateState.IDLE_RECORD;
-                    takeAction = true;
 
                 }
             }
@@ -949,7 +945,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     for (int i = 0; i < recordings.size(); i++) {
                                         if (checked[i]) {
-                                            recordings.get(i).migrate(); // migrate deprecated format, otherwise this is harmless
+                                            DeprecatedRecordingProfile.migrate(recordings.get(i)); // migrate deprecated format, otherwise this is harmless
                                             SoundCloudDB.insertRecording(getContentResolver(), recordings.get(i));
                                         } else {
                                             recordings.get(i).delete(null);
