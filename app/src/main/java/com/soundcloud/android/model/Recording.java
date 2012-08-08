@@ -559,9 +559,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
         List<Recording> unsaved = new ArrayList<Recording>();
 
         Map<String,File> toCheck = new HashMap<String,File>();
-        for (File f : IOUtils.nullSafeListFiles(directory, new RecordingFilter(ignore))) {
+        final File[] list = IOUtils.nullSafeListFiles(directory, new RecordingFilter(ignore));
+        Arrays.sort(list); // we want .wav files taking precedence, so make sure they appear last (alpha order)
+        for (File f : list) {
             if (getUserIdFromFile(f) != -1) continue; //TODO, what to do about private messages
-            // this should put wav files in when possible (because of alphabetical ordering)
             toCheck.put(IOUtils.removeExtension(f).getAbsolutePath(), f);
         }
         for (File f : toCheck.values()) {
