@@ -14,23 +14,23 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
+import android.view.ViewStub;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class UploadMonitor extends Activity {
-    private Recording mUpload;
+    private static final int MAX = 100;
+    private Recording mRecording;
 
-    private ProgressBar mProgressBarProcessing;
-    private ProgressBar mProgressBarUploading;
-    private RelativeLayout mUploadingLayout;
-    private RelativeLayout mFinishedLayout;
+    private ProgressBar mProcessingProgress, mTransferProgress;
+    private RelativeLayout mUploadingLayout, mFinishedLayout;
     private ButtonBar mButtonBar;
 
-    private TextView mProgressProcessingText;
-    private TextView mProgressUploadingText;
+    private TextView mProcessingProgressText, mUploadingProgressText;
     private TextView mTrackTitle;
+
     private final Handler mHandler = new Handler();
 
     public void onCreate(Bundle savedInstanceState) {
@@ -39,27 +39,27 @@ public class UploadMonitor extends Activity {
 
         mUploadingLayout = (RelativeLayout) findViewById(R.id.uploading_layout);
         mFinishedLayout = (RelativeLayout) findViewById(R.id.finished_layout);
-        mButtonBar = (ButtonBar) findViewById(R.id.bottom_bar);
+        showUploading();
 
-        mFinishedLayout.setVisibility(View.GONE);
+        mButtonBar = (ButtonBar) findViewById(R.id.bottom_bar);
         mButtonBar.setVisibility(View.GONE);
 
-        mProgressBarProcessing = (ProgressBar) findViewById(R.id.progress_bar_processing);
-        mProgressBarProcessing.setMax(100);
+        mProcessingProgress = (ProgressBar) findViewById(R.id.progress_bar_processing);
+        mProcessingProgress.setMax(MAX);
 
-        mProgressBarUploading = (ProgressBar) findViewById(R.id.progress_bar_uploading);
-        mProgressBarUploading.setMax(100);
+        mTransferProgress = (ProgressBar) findViewById(R.id.progress_bar_uploading);
+        mTransferProgress.setMax(MAX);
 
-        mProgressProcessingText = (TextView) findViewById(R.id.txt_progress_processing);
-        mProgressUploadingText = (TextView) findViewById(R.id.txt_progress_uploading);
+        mProcessingProgressText = (TextView) findViewById(R.id.txt_progress_processing);
+        mUploadingProgressText = (TextView) findViewById(R.id.txt_progress_uploading);
 
         mTrackTitle = (TextView) findViewById(R.id.track);
 
         findViewById(R.id.close_icon).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mUpload.isUploading()) {
-                    mUpload.cancelUpload(UploadMonitor.this);
+                if (mRecording.isUploading()) {
+                    mRecording.cancelUpload(UploadMonitor.this);
                     onCancelling();
                 }
             }
@@ -75,14 +75,17 @@ public class UploadMonitor extends Activity {
         mButtonBar.addItem(new ButtonBar.MenuItem(0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onProcessing();
-                mUpload.upload(UploadMonitor.this);
+                showUploading();
+                setProcessProgress(-1);
+
+                mRecording.upload(UploadMonitor.this);
             }
         }), R.string.retry);
 
-
-        mUpload = getIntent().getParcelableExtra(UploadService.EXTRA_RECORDING);
-        fillDataFromUpload(mUpload);
+        if (getIntent() != null && getIntent().hasExtra(UploadService.EXTRA_RECORDING)) {
+            Recording recording = getIntent().getParcelableExtra(UploadService.EXTRA_RECORDING);
+            setRecording(recording);
+        }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mUploadStatusListener,
                         UploadService.getIntentFilter());
@@ -94,19 +97,29 @@ public class UploadMonitor extends Activity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mUploadStatusListener);
     }
 
-    private void fillDataFromUpload(final Recording upload) {
-        mTrackTitle.setText(upload.sharingNote(getResources()));
-        if (upload.artwork_path != null) {
-            ImageUtils.setImage(upload.artwork_path, ((ImageView) findViewById(R.id.icon)),
+    protected void setRecording(final Recording recording) {
+        mRecording = recording;
+        mTrackTitle.setText(recording.sharingNote(getResources()));
+
+        if (recording.external_upload) {
+            ViewStub stub = (ViewStub) findViewById(R.id.share_header_stub);
+            stub.inflate();
+        }
+
+        if (recording.hasArtwork()) {
+            ImageUtils.setImage(recording.artwork_path, ((ImageView) findViewById(R.id.icon)),
                     (int) getResources().getDimension(R.dimen.share_progress_icon_width),
                     (int) getResources().getDimension(R.dimen.share_progress_icon_height));
         }
-        if (upload.isUploaded()) {
+
+        if (recording.isUploaded()) {
             onUploadFinished(true);
-        } else if (upload.isError()) {
+        } else if (recording.isError()) {
             onUploadFinished(false);
         } else {
-            onProcessing(); // indeterminate state, wait for broadcasts
+            // unknown state, wait for broadcasts
+            showUploading();
+            setProcessProgress(-1);
         }
     }
 
@@ -114,92 +127,87 @@ public class UploadMonitor extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
-            if (!mUpload.equals(recording)) return;
-
+            if (!mRecording.equals(recording)) return;
             // update with latest broadcasted attributes
-            mUpload = recording;
+            mRecording = recording;
 
-            String action = intent.getAction();
+            final String action = intent.getAction();
             final int progress = intent.getIntExtra(UploadService.EXTRA_PROGRESS, 0);
+            showUploading();
 
             if (UploadService.PROCESSING_STARTED.equals(action)) {
-                onProcessing();
-
+                setProcessProgress(-1);
             } else if (UploadService.PROCESSING_PROGRESS.equals(action)) {
-                mProgressBarProcessing.setIndeterminate(false);
-                mProgressBarProcessing.setProgress(progress);
-                mProgressBarUploading.setProgress(0);
-
-                mProgressProcessingText.setText(getString(R.string.uploader_event_processing_percent, progress));
-                mProgressUploadingText.setText(R.string.uploader_event_not_yet_uploading);
-
+                setProcessProgress(progress);
             } else if (UploadService.PROCESSING_SUCCESS.equals(action)) {
-                mProgressBarProcessing.setProgress(100);
-                mProgressBarUploading.setProgress(0);
-
-                mProgressProcessingText.setText(R.string.uploader_event_processing_finished);
-                mProgressUploadingText.setText(R.string.uploader_event_not_yet_uploading);
-
+                setProcessProgress(MAX);
             } else if (UploadService.PROCESSING_ERROR.equals(action)) {
                 onUploadFinished(false);
-
-            } else if (UploadService.PROCESSING_CANCELED.equals(action)) {
-                finish();
-
             } else if (UploadService.TRANSFER_STARTED.equals(action)) {
-                mProgressBarProcessing.setProgress(100);
-                mProgressBarUploading.setIndeterminate(false);
-                mProgressBarUploading.setProgress(0);
-
-                mProgressProcessingText.setText(R.string.uploader_event_processing_failed);
-                mProgressUploadingText.setText(R.string.uploader_event_not_yet_uploading);
-
+                setProcessProgress(MAX);
+                setTransferProgress(-1);
             } else if (UploadService.TRANSFER_PROGRESS.equals(action)) {
-                mProgressBarProcessing.setProgress(100);
-                mProgressBarUploading.setProgress(progress);
-
-                mProgressProcessingText.setText(R.string.uploader_event_processing_finished);
-                mProgressUploadingText.setText(getString(R.string.uploader_event_uploading_percent, progress));
-
+                setTransferProgress(progress);
             } else if (UploadService.TRANSFER_SUCCESS.equals(action)) {
+                setTransferProgress(MAX);
                 onUploadFinished(true);
-
             } else if (UploadService.TRANSFER_ERROR.equals(action)) {
                 onUploadFinished(false);
-
-            } else if (UploadService.TRANSFER_CANCELLED.equals(action)) {
+            } else if (UploadService.TRANSFER_CANCELLED.equals(action) || UploadService.PROCESSING_CANCELED.equals(action)) {
                 finish();
             }
         }
     };
 
-    private void onProcessing() {
-        mUploadingLayout.setVisibility(View.VISIBLE);
-        mFinishedLayout.setVisibility(View.GONE);
+    private void setProcessProgress(int progress) {
+        if (progress < 0) {
+            mProcessingProgress.setIndeterminate(true);
+            mProcessingProgressText.setText(R.string.uploader_event_processing);
 
-        mProgressBarProcessing.setIndeterminate(true);
-        mProgressBarUploading.setProgress(0);
+            mTransferProgress.setProgress(0);
+            mUploadingProgressText.setText(R.string.uploader_event_not_yet_uploading);
+        } else {
+            mProcessingProgress.setIndeterminate(false);
+            mProcessingProgress.setProgress(progress);
 
-        mProgressProcessingText.setText(R.string.uploader_event_processing);
-        mProgressUploadingText.setText(R.string.uploader_event_not_yet_uploading);
+            if (progress == mProcessingProgress.getMax()) {
+                mProcessingProgressText.setText(R.string.uploader_event_processing_finished);
+            } else {
+                mProcessingProgressText.setText(getString(R.string.uploader_event_processing_percent, progress));
+            }
+            mUploadingProgressText.setText(R.string.uploader_event_not_yet_uploading);
+        }
+    }
+
+    private void setTransferProgress(int progress) {
+        if (progress < 0) {
+            mTransferProgress.setIndeterminate(true);
+            mUploadingProgressText.setText(R.string.uploader_event_not_yet_uploading);
+        } else {
+            mTransferProgress.setIndeterminate(false);
+            mTransferProgress.setProgress(progress);
+            if (progress == mTransferProgress.getMax()) {
+                mUploadingProgressText.setText(R.string.uploader_event_processing_finished);
+            } else {
+                mUploadingProgressText.setText(getString(R.string.uploader_event_uploading_percent, progress));
+            }
+        }
     }
 
     private void onCancelling() {
         if (!isFinishing()) {
-            mUploadingLayout.setVisibility(View.VISIBLE);
-            mFinishedLayout.setVisibility(View.GONE);
+            showUploading();
 
-            mProgressBarProcessing.setIndeterminate(true);
-            mProgressBarUploading.setIndeterminate(true);
+            mProcessingProgress.setIndeterminate(true);
+            mTransferProgress.setIndeterminate(true);
 
-            mProgressProcessingText.setText(R.string.uploader_event_cancelling);
-            mProgressUploadingText.setText("");
+            mProcessingProgressText.setText(R.string.uploader_event_cancelling);
+            mUploadingProgressText.setText(null);
         }
     }
 
     private void onUploadFinished(boolean success) {
-        mUploadingLayout.setVisibility(View.GONE);
-        mFinishedLayout.setVisibility(View.VISIBLE);
+        showFinished();
         if (success) {
             ((ImageView) findViewById(R.id.result_icon)).setImageResource(R.drawable.success);
             ((TextView) findViewById(R.id.result_message)).setText(R.string.share_success_message);
@@ -216,5 +224,15 @@ public class UploadMonitor extends Activity {
             ((TextView) findViewById(R.id.result_message)).setText(R.string.share_fail_message);
             mButtonBar.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void showFinished() {
+        mUploadingLayout.setVisibility(View.GONE);
+        mFinishedLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void showUploading() {
+        mUploadingLayout.setVisibility(View.VISIBLE);
+        mFinishedLayout.setVisibility(View.GONE);
     }
 }

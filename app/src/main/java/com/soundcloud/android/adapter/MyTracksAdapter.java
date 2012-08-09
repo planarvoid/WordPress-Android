@@ -2,6 +2,7 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.activity.ScListActivity;
+import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
@@ -85,9 +86,8 @@ public class MyTracksAdapter extends TracklistAdapter {
         }
 
         // updated recording functionality requires special handling of old recordings
-        Recording.migrateRecordings(mRecordingData,mContext.getContentResolver());
+        DeprecatedRecordingProfile.migrateRecordings(mRecordingData, mContext.getContentResolver());
     }
-
 
 
     private List<Recording> loadRecordings(Cursor cursor) {

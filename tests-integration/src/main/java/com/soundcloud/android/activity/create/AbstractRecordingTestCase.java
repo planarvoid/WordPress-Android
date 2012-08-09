@@ -5,6 +5,7 @@ import static com.soundcloud.android.activity.create.ScCreate.CreateState.*;
 import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.settings.DevSettings;
+import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.record.SoundRecorder;
@@ -285,6 +286,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
         if (track != null) {
             assertTrue("track is not finished", track.state.isFinished());
             assertTrue("track has length 0", track.duration > 0);
+            assertEquals("track is not in ogg format", VorbisReader.EXTENSION, track.original_format);
 
             // emulator uploaded tracks are longer (samplerate mismatch)
             if (!EMULATOR) {
