@@ -180,6 +180,8 @@ public class UploadMonitor extends Activity {
     }
 
     private void setTransferProgress(int progress) {
+        mProcessingProgress.setIndeterminate(false);
+        mProcessingProgress.setProgress(100);
         if (progress < 0) {
             mTransferProgress.setIndeterminate(true);
             mUploadingProgressText.setText(R.string.uploader_event_not_yet_uploading);
