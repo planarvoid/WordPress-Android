@@ -495,9 +495,11 @@
     </style>
     <style name="ScProgressBarRoundLeft" parent="ScProgressBarRound">
         <item name="android:background">@drawable/progress_bar_round_bg_left</item>
+        <item name="android:progressDrawable">@drawable/progress_bar_round_left</item>
     </style>
     <style name="ScProgressBarRoundRight" parent="ScProgressBarRound">
         <item name="android:background">@drawable/progress_bar_round_bg_right</item>
+        <item name="android:progressDrawable">@drawable/progress_bar_round_right</item>
     </style>
 
     <style name="ScSeekBarRound" parent="ScProgressBarRound">
