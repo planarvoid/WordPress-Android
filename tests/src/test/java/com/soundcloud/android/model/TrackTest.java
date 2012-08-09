@@ -2,16 +2,21 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 
-import java.util.*;
+import java.util.Date;
 
 @RunWith(DefaultTestRunner.class)
 public class TrackTest {
@@ -223,6 +228,53 @@ public class TrackTest {
 
         t.user.permalink = "user";
         expect(t.userTrackPermalink()).toEqual("user/foo");
+    }
+
+    @Test
+    public void shouldPersistAndLoadCorrectly() throws Exception {
+
+        DefaultTestRunner.application.setCurrentUserId(100L);
+        final ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
+
+        Track t = AndroidCloudAPI.Mapper.readValue(
+                getClass().getResourceAsStream("track.json"),
+                Track.class);
+
+        Uri uri = SoundCloudDB.insertTrack(resolver,t);
+        expect(uri).not.toBeNull();
+
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        expect(cursor).not.toBeNull();
+        expect(cursor.getCount()).toEqual(1);
+        expect(cursor.moveToFirst()).toBeTrue();
+
+        Track t2 = new Track(cursor);
+
+        expect(t2.id).toEqual(t.id);
+        expect(t2.title).toEqual(t.title);
+        expect(t2.permalink).toEqual(t.permalink);
+        expect(t2.duration).toEqual(t.duration);
+        expect(t2.created_at).toEqual(t.created_at);
+        expect(t2.tag_list).toEqual(t.tag_list);
+        expect(t2.track_type).toEqual(t.track_type);
+        expect(t2.permalink_url).toEqual(t.permalink_url);
+        expect(t2.artwork_url).toEqual(t.artwork_url);
+        expect(t2.waveform_url).toEqual(t.waveform_url);
+        expect(t2.downloadable).toEqual(t.downloadable);
+        expect(t2.download_url).toEqual(t.download_url);
+        expect(t2.streamable).toEqual(t.streamable);
+        expect(t2.stream_url).toEqual(t.stream_url);
+        expect(t2.sharing).toEqual(t.sharing);
+        expect(t2.playback_count).toEqual(t.playback_count);
+        expect(t2.download_count).toEqual(t.download_count);
+        expect(t2.comment_count).toEqual(t.comment_count);
+        expect(t2.favoritings_count).toEqual(t.favoritings_count);
+        expect(t2.shared_to_count).toEqual(t.shared_to_count);
+        expect(t2.user_id).toEqual(t.user_id);
+        expect(t2.commentable).toEqual(t.commentable);
+        expect(t2.state).toEqual(t.state);
+        expect(t2.last_updated).toBeGreaterThan(t.last_updated);
+
     }
 
 }

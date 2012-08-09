@@ -4,7 +4,9 @@ import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.PlaybackFilter;
 import com.soundcloud.android.audio.WavHeader;
 import com.soundcloud.android.audio.filter.FadeFilter;
+import com.soundcloud.android.service.upload.UserCanceledException;
 import com.soundcloud.android.tests.AudioTestCase;
+import com.soundcloud.android.utils.IOUtils;
 import junit.framework.AssertionFailedError;
 
 import android.os.Debug;
@@ -15,7 +17,9 @@ import android.test.suitebuilder.annotation.Suppress;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 @LargeTest
@@ -52,6 +56,27 @@ public class VorbisEncoderTest extends AudioTestCase {
         FadeFilter filter = new FadeFilter(AudioConfig.PCM16_44100_1);
         EncoderOptions opts = new EncoderOptions(1f, 0, -1, null, filter);
         encodeWav(SINE_WAV, 10000, opts);
+    }
+
+    @Suppress
+    public void testEncodeHugeWavFile() throws Exception {
+        long space = IOUtils.getSpaceLeft(Environment.getExternalStorageDirectory());
+        long encodedSpace = space / 10; // assume 1:10 compression ratio
+        long length = space - encodedSpace - (1024 * 1024) /* headroom */;
+
+        // around an hour worth of recording
+        File wav = createWavFile((int) Math.min(length, 1024 * 1024 * 300));
+        File out = externalPath("out.ogg");
+
+        EncoderOptions opts = new EncoderOptions(1f, 0, -1, new ProgressListener() {
+            @Override
+            public void onProgress(long current, long max) throws UserCanceledException {
+                int percent = (int) Math.min(100, Math.round(100 * (current / (double) max)));
+                log("progress: %d / %d (%d%%)", current, max, percent);
+            }
+        }, null);
+        log("encoding file of size "+wav.length());
+        VorbisEncoder.encodeWav(wav, out, opts);
     }
 
     public void testEncodingWithNullFilter() throws Exception {
@@ -223,5 +248,18 @@ public class VorbisEncoderTest extends AudioTestCase {
 
     private VorbisEncoder createEncoder(File path, AudioConfig config) throws EncoderException {
         return new VorbisEncoder(path, "w", config.channels, config.sampleRate, EncoderOptions.DEFAULT.quality);
+    }
+
+    public File createWavFile(int length) throws IOException {
+        File tmp = externalPath("wavefile.wav");
+        WavHeader.writeHeader(tmp, length);
+        if (length > 0) {
+            RandomAccessFile rf = new RandomAccessFile(tmp, "rw");
+            rf.setLength(length);
+            rf.seek(length-1);
+            rf.write(42);
+            rf.close();
+        }
+        return tmp;
     }
 }

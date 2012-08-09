@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 public class AmplitudeData implements Iterable<Float>, Parcelable {
+    public static final String EXTENSION = "amp";
     private static final int AVERAGE_RECORDING_TIME = 3 * 60; // 3 minutes
 
     private float[] data;

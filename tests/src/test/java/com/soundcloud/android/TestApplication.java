@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -93,26 +94,30 @@ public class TestApplication extends SoundCloudApplication {
 
     // object mother
     public static Recording getValidRecording() throws IOException {
-        Recording r = new Recording(getTestFile());
+        Recording r = new Recording(createEmptyWavFile());
         if (!r.getEncodedFile().exists() &&
             !r.getEncodedFile().createNewFile()) throw new RuntimeException("could not create encoded file");
         fill(r.getEncodedFile());
         return r;
     }
 
-    public static File getTestFile() throws IOException {
-        return getTestFile(0);
+    public static File createJpegFile() throws IOException {
+        return File.createTempFile("temp", ".jpg");
     }
 
-    public static File getTestFile(int length) throws IOException {
+    public static File createEmptyWavFile() throws IOException {
+        return createWavFile(0);
+    }
+
+    public static File createWavFile(int length) throws IOException {
         File tmp = File.createTempFile("temp", ".wav");
         WavHeader.writeHeader(tmp, length);
         if (length > 0) {
-            FileOutputStream fos = new FileOutputStream(tmp, true);
-            for (int i = 0; i<length; i++) {
-                fos.write(0);
-            }
-            fos.close();
+            RandomAccessFile rf = new RandomAccessFile(tmp, "rw");
+            rf.setLength(length);
+            rf.seek(length-1);
+            rf.write(42);
+            rf.close();
         }
         return tmp;
     }

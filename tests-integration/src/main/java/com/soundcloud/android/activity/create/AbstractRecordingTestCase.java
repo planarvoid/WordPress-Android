@@ -3,9 +3,9 @@ package com.soundcloud.android.activity.create;
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.*;
 
 import com.jayway.android.robotium.solo.Solo;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.settings.DevSettings;
+import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.record.SoundRecorder;
@@ -40,6 +40,7 @@ import java.util.Map;
 public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreate> {
     // longer recordings on emulator
     protected static final int RECORDING_TIME = EMULATOR ? 6000 : 2000;
+    protected static final int ROBO_SLEEP = 500;
 
     protected LocalBroadcastManager lbm;
     protected Map<String, Intent> intents;
@@ -53,8 +54,8 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
         }
     };
 
-    private static final long TRANSCODING_WAIT_TIME = 90 * 1000;
-    private static final long UPLOAD_WAIT_TIME = 20 * 1000;
+    private static final long TRANSCODING_WAIT_TIME = 60 * 1000 * 3; // 3 minutes
+    private static final long UPLOAD_WAIT_TIME      = 20 * 1000;
 
     public AbstractRecordingTestCase() {
         super(ScCreate.class);
@@ -207,11 +208,29 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
         return intent;
     }
 
+    protected void assertSoundEncoded(long timeout) {
+        assertIntentAction(UploadService.PROCESSING_STARTED,  2000);
+        assertIntentAction(UploadService.PROCESSING_SUCCESS, timeout);
+    }
+
     protected @NotNull Recording assertSoundUploaded() {
-        Intent intent = assertIntentAction(UploadService.UPLOAD_SUCCESS, UPLOAD_WAIT_TIME);
-        Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
-        assertNotNull("recording is null", recording);
-        return recording;
+        if (!getActivity().getRecorder().shouldEncodeWhileRecording()) {
+            assertSoundEncoded(UPLOAD_WAIT_TIME * 4);
+        }
+
+        Intent intent = waitForIntent(UploadService.UPLOAD_SUCCESS, UPLOAD_WAIT_TIME);
+        if (intent == null) {
+            if (intents.containsKey(UploadService.TRANSFER_ERROR)) {
+                fail("transfer error");
+            } else {
+                fail("upload timeout");
+            }
+            return null;
+        } else {
+            Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
+            assertNotNull("recording is null", recording);
+            return recording;
+        }
     }
 
     protected @Nullable Track assertSoundTranscoded() {
@@ -265,8 +284,9 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
     protected void assertTrackDuration(Track track, long durationInMs) {
         Log.d(getClass().getSimpleName(), "assertTrack("+track+")");
         if (track != null) {
-            assertTrue(track.state.isFinished());
-            assertTrue(track.duration > 0);
+            assertTrue("track is not finished", track.state.isFinished());
+            assertTrue("track has length 0", track.duration > 0);
+            assertEquals("track is not in ogg format", VorbisReader.EXTENSION, track.original_format);
 
             // emulator uploaded tracks are longer (samplerate mismatch)
             if (!EMULATOR) {

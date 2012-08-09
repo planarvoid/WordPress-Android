@@ -195,6 +195,10 @@
                 <action android:name="com.soundcloud.android.action.RECORD_START"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.RECORD_STOP"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
         <activity android:name=".cropimage.CropImage" />
         <activity android:name=".activity.create.UploadMonitor"
@@ -207,7 +211,7 @@
         </activity>
 
         <activity android:name=".activity.create.ScUpload"
-                  android:windowSoftInputMode="adjustPan"
+                  android:windowSoftInputMode="adjustResize"
                   android:theme="@style/Theme.ScCreate" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
@@ -223,6 +227,14 @@
         </activity>
 
         <activity android:name=".activity.settings.About"/>
+
+        <!-- for testing purposes -->
+        <activity android:name="com.soundcloud.android.activity.test.ShareSound">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <!-- providers -->
         <provider android:name=".provider.ScContentProvider"

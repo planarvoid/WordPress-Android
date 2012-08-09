@@ -94,16 +94,12 @@ public class PollerTest {
 
     @Test
     public void testPollUploadedProcessTimeoutFailure() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "track_processing.json", "track_processing.json", "track_finished.json");
-        addProcessingTrackAndRunPoll(TRACK_ID, 1l);
+        TestHelper.addCannedResponse(getClass(), "/tracks/12345", "track_processing.json");
+        addProcessingTrackAndRunPoll(TRACK_ID);
         expectLocalTracksNotStreamable(TRACK_ID);
     }
 
     private void addProcessingTrackAndRunPoll(long id) {
-        addProcessingTrackAndRunPoll(id, 5000l);
-    }
-
-    private void addProcessingTrackAndRunPoll(long id, long maxTime) {
         Track t = new Track();
         t.user = new User();
         t.user.id = USER_ID;
@@ -116,7 +112,7 @@ public class PollerTest {
         ht.start();
 
         Scheduler scheduler = Robolectric.shadowOf(ht.getLooper()).getScheduler();
-        new Poller(ht.getLooper(), DefaultTestRunner.application, id, Content.ME_TRACKS.uri, 1, maxTime).start();
+        new Poller(ht.getLooper(), DefaultTestRunner.application, id, Content.ME_TRACKS.uri, 1).start();
 
         // make sure all messages have been consumed
         do {

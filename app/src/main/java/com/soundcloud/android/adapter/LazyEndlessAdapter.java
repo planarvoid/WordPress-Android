@@ -76,6 +76,11 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     }
 
     public void onResume() {
+        final LazyBaseAdapter wrapped = getWrappedAdapter();
+        if (wrapped != null){
+            wrapped.onResume();
+        }
+
         if (mAutoAppend && mState == INITIALIZED) {
             mState = IDLE;
             mKeepGoing = true;

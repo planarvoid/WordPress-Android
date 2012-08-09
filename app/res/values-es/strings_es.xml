@@ -60,7 +60,7 @@
   <string name="cache_clearing_message">Borrando archivos temporales...</string>
   <string name="changelog_full_title">Registro de cambios</string>
   <string name="changelog_title">Nuevas actualizaciones</string>
-  <string name="cloud_recorder_event_message">Grabando durante %d segundos</string>
+  <string name="cloud_recorder_event_message">Grabando durante %s</string>
   <string name="cloud_recorder_event_title">Grabación en curso</string>
   <string name="cloud_recorder_notification_ticker">Comenzó la grabación</string>
   <string name="cloud_recorder_playback_event_title">Reproducción en curso</string>

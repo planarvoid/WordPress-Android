@@ -39,12 +39,17 @@ public class EncoderTest {
     @Test
     public void shouldEncode() throws Exception {
         Recording rec = TestApplication.getValidRecording();
+        rec.getEncodedFile().delete();
+
         ShadowVorbisEncoder.simulateProgress = true;
         Encoder encoder = new Encoder(Robolectric.application, rec);
         encoder.run();
+
         expect(actions).toContainExactly(UploadService.PROCESSING_STARTED,
                 UploadService.PROCESSING_PROGRESS,
                 UploadService.PROCESSING_SUCCESS);
+
+        expect(rec.getEncodedFile().exists()).toBeTrue();
     }
 
     @Test
@@ -54,5 +59,27 @@ public class EncoderTest {
         Encoder encoder = new Encoder(Robolectric.application, rec);
         encoder.run();
         expect(actions).toContainExactly(UploadService.PROCESSING_STARTED, UploadService.PROCESSING_ERROR);
+    }
+
+    @Test
+    public void shouldHandleCancel() throws Exception {
+        Recording rec = TestApplication.getValidRecording();
+        ShadowVorbisEncoder.simulateCancel = true;
+        Encoder encoder = new Encoder(Robolectric.application, rec);
+        encoder.run();
+        expect(actions).toContainExactly(UploadService.PROCESSING_STARTED, UploadService.PROCESSING_CANCELED);
+    }
+
+    @Test
+    public void shouldMakeSureOutputfileGetsCreatedAtomically() throws Exception {
+        Recording rec = TestApplication.getValidRecording();
+        expect(rec.getEncodedFile().delete()).toBeTrue();
+
+        ShadowVorbisEncoder.simulateCancel = true;
+        Encoder encoder = new Encoder(Robolectric.application, rec);
+        encoder.run();
+
+        expect(actions).toContainExactly(UploadService.PROCESSING_STARTED, UploadService.PROCESSING_CANCELED);
+        expect(rec.getEncodedFile().exists()).toBeFalse();
     }
 }

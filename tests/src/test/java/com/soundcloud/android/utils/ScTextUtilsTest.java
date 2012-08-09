@@ -34,6 +34,15 @@ public class ScTextUtilsTest {
     }
 
     @Test
+    public void shouldUseSameTimeElapsedString() throws Exception {
+        expect(ScTextUtils.usesSameTimeElapsedString(10, 10)).toBeTrue();
+        expect(ScTextUtils.usesSameTimeElapsedString(10, 30)).toBeFalse();
+        expect(ScTextUtils.usesSameTimeElapsedString(60, 61)).toBeTrue();
+        expect(ScTextUtils.usesSameTimeElapsedString(124, 150)).toBeTrue();
+        expect(ScTextUtils.usesSameTimeElapsedString(124, 200)).toBeFalse();
+    }
+
+    @Test
     public void shouldGetElapsedTime() throws Exception {
         expect(ScTextUtils.getTimeElapsed(
                 Robolectric.application.getResources(),

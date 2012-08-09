@@ -98,7 +98,7 @@ public class WavWriter implements AudioWriter {
     }
 
     @Override
-    public AudioReader getAudioFile() throws IOException {
+    public AudioReader getAudioReader() throws IOException {
         return new WavReader(file);
     }
 

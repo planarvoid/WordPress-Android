@@ -10,7 +10,7 @@
     "permalink": "recording-on-sunday-night",
     "description": null,
     "streamable": true,
-    "downloadable": false,
+    "downloadable": true,
     "genre": null,
     "release": null,
     "purchase_url": null,
@@ -33,6 +33,7 @@
     "license": "all-rights-reserved",
     "uri": "http:\/\/api.soundcloud.com\/tracks\/10853436",
     "permalink_url": "http:\/\/soundcloud.com\/soundcloud-android-mwc\/recording-on-sunday-night",
+    "download_url": "http:\/\/i1.soundcloud.com\/stream",
     "artwork_url": "http:\/\/i1.soundcloud.com\/avatars-000002679242-0j7zgk-large.jpg?05a778",
     "waveform_url": "http:\/\/waveforms.soundcloud.com\/xny5i5HvKslI_m.png",
     "user": {

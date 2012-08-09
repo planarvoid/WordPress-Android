@@ -16,9 +16,9 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.AmplitudeData;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.upload.UploadService;
-import com.soundcloud.android.service.upload.UserCanceledException;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Endpoints;
@@ -51,10 +51,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 public class Recording extends ScModel implements Comparable<Recording> {
@@ -80,7 +78,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public double latitude;
 
     // assets
-    @NotNull private File audio_path;
+    @NotNull protected File audio_path;
     @Nullable public File artwork_path;
     @Nullable public File resized_artwork_path;
 
@@ -98,10 +96,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
     // status
     public boolean external_upload;
     public int upload_status;
-    public long track_id = NOT_SET;
 
     private PlaybackStream mPlaybackStream;
-    private Exception mUploadException;
 
     private static final Pattern AMPLITUDE_PATTERN = Pattern.compile("^.*\\.(amp)$");
     private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm|wav)$");
@@ -110,7 +106,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public static final String TAG_SOURCE_ANDROID_RECORD          = "soundcloud:source=android-record";
     public static final String TAG_RECORDING_TYPE_DEDICATED       = "soundcloud:recording-type=dedicated";
     public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
-    private static String PROCESSED_APPEND = "_processed";;
+    private static String PROCESSED_APPEND = "_processed";
 
     public static interface Status {
         int NOT_YET_UPLOADED    = 0; // not yet uploaded, or canceled by user
@@ -177,7 +173,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public File getAmplitudeFile() {
-        return IOUtils.changeExtension(audio_path, "amp");
+        return IOUtils.changeExtension(audio_path, AmplitudeData.EXTENSION);
     }
 
     /**
@@ -192,7 +188,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public User getRecipient()           { return recipient; }
     public String getRecipientUsername() { return recipient_username; }
 
-    public PlaybackStream getPlaybackStream() {
+    public @Nullable PlaybackStream getPlaybackStream() {
         if (mPlaybackStream == null && !external_upload) {
             mPlaybackStream = initializePlaybackStream(null);
         }
@@ -452,6 +448,31 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return upload_status == Status.ERROR;
     }
 
+    /** Need to re-encode if fading/optimize is enabled, or no encoding happened during recording */
+    public boolean needsEncoding() {
+        if (external_upload) {
+            return false;
+        }
+        PlaybackStream stream = getPlaybackStream();
+        if (stream != null && stream.isFiltered()) {
+            return !getProcessedFile().exists();
+        } else {
+            return !getEncodedFile().exists();
+        }
+    }
+
+    public boolean needsProcessing() {
+        PlaybackStream stream = getPlaybackStream();
+        return !needsEncoding()
+                && stream != null
+                && stream.isTrimmed()
+                && (!getProcessedFile().exists() || getProcessedFile().length() == 0);
+    }
+
+    public boolean needsResizing() {
+        return hasArtwork() && !hasResizedArtwork();
+    }
+
     /**
      * Gets called after successful upload. Clean any tmp files here.
      */
@@ -470,23 +491,14 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return upload_status == Status.UPLOADING;
     }
 
-    public boolean isCanceled() {
-        return mUploadException instanceof UserCanceledException;
-    }
-
-    public Recording setUploadException(Exception e) {
-        mUploadException = e;
-        upload_status = e instanceof UserCanceledException ? Status.NOT_YET_UPLOADED : Status.ERROR;
+    public Recording setUploadFailed(boolean cancelled) {
+        upload_status = cancelled ? Status.NOT_YET_UPLOADED : Status.ERROR;
         return this;
     }
 
     public void setPlaybackStream(PlaybackStream stream) {
         duration = stream == null ? 0 : stream.getDuration();
         mPlaybackStream = stream;
-    }
-
-    public Exception getUploadException() {
-        return mUploadException;
     }
 
     public boolean hasArtwork() {
@@ -505,53 +517,9 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return recipient_user_id > 0;
     }
 
-    public boolean needsMigration() {
-        if (!external_upload) {
-            final DeprecatedProfile profile = DeprecatedProfile.getProfile(audio_path);
-            return (profile != DeprecatedProfile.UNKNOWN);
-        }
-        return false;
-    }
-
-    /**
-     * Rename files, return CV for a bulk insert
-     */
-    public ContentValues migrate() {
-        final DeprecatedProfile profile = DeprecatedProfile.getProfile(audio_path);
-        if (profile != DeprecatedProfile.UNKNOWN) {
-            final File newPath = IOUtils.changeExtension(audio_path, profile.updatedExtension);
-            final long lastMod = audio_path.lastModified();
-            if (audio_path.renameTo(newPath)){
-                newPath.setLastModified(lastMod);
-                audio_path = newPath;
-                external_upload = true;
-
-                // return content values for bulk migration
-                ContentValues cv = new ContentValues();
-                cv.put(Recordings._ID, id);
-                cv.put(Recordings.EXTERNAL_UPLOAD, external_upload);
-                cv.put(Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
-                return cv;
-            }
-        }
-        return null;
-    }
-
     @Override
     public int compareTo(Recording recording) {
         return Long.valueOf(lastModified()).compareTo(recording.lastModified());
-    }
-
-    public static Recording checkForUnusedPrivateRecording(File directory, User user) {
-        if (user == null) return null;
-        for (File f : IOUtils.nullSafeListFiles(directory, new RecordingFilter(null))) {
-            if (Recording.getUserIdFromFile(f) == user.id) {
-                Recording r = new Recording(f);
-                r.recipient = user;
-                return r;
-            }
-        }
-        return null;
     }
 
     public static List<Recording> getUnsavedRecordings(ContentResolver resolver, File directory, Recording ignore, long userId) {
@@ -559,9 +527,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
         List<Recording> unsaved = new ArrayList<Recording>();
 
         Map<String,File> toCheck = new HashMap<String,File>();
-        for (File f : IOUtils.nullSafeListFiles(directory, new RecordingFilter(ignore))) {
+        final File[] list = IOUtils.nullSafeListFiles(directory, new RecordingFilter(ignore));
+        Arrays.sort(list); // we want .wav files taking precedence, so make sure they appear last (alpha order)
+        for (File f : list) {
             if (getUserIdFromFile(f) != -1) continue; //TODO, what to do about private messages
-            // this should put wav files in when possible (because of alphabetical ordering)
             toCheck.put(IOUtils.removeExtension(f).getAbsolutePath(), f);
         }
         for (File f : toCheck.values()) {
@@ -665,6 +634,12 @@ public class Recording extends ScModel implements Comparable<Recording> {
         } else {
             return null;
         }
+    }
+
+    public static void clearRecordingFromIntent(Intent intent) {
+        intent.removeExtra(EXTRA);
+        intent.removeExtra(Intent.EXTRA_STREAM);
+        intent.setData(null);
     }
 
     public static Recording fromUri(Uri uri, ContentResolver resolver) {
@@ -842,67 +817,4 @@ public class Recording extends ScModel implements Comparable<Recording> {
             return new PlaybackStream(new EmptyReader());
         }
     }
-
-    public static boolean migrateRecordings(List<Recording> recordings, final ContentResolver resolver) {
-        final List<Recording> migrate = new ArrayList<Recording>();
-        for (Recording r : recordings) {
-            if (r.needsMigration()) migrate.add(r);
-        }
-
-        if (migrate.size() > 0) {
-            new Thread() {
-                @Override
-                public void run() {
-                    Log.i(SoundCloudApplication.TAG,"Deprecated recordings found, trying to migrate " + migrate.size() + " recordings");
-                    ContentValues[] cv = new ContentValues[migrate.size()];
-                    int i = 0;
-                    for (Recording r : migrate) {
-                        cv[i] = r.migrate();
-                        i++;
-                    }
-                    int updated = resolver.bulkInsert(Content.RECORDINGS.uri, cv);
-                    Log.i(SoundCloudApplication.TAG,"Finished migrating " + updated + " recordings");
-                }
-            }.start();
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-
-    static enum DeprecatedProfile {
-
-        UNKNOWN(-1, null),
-        ENCODED_LOW(0, "ogg"),
-        ENCODED_HIGH(1, "ogg"),
-        RAW(2, "wav");
-
-        final int id;
-        final String updatedExtension;
-
-        DeprecatedProfile(int id, String updatedExtension){
-            this.id = id;
-            this.updatedExtension = updatedExtension;
-        }
-
-        public static DeprecatedProfile getProfile(File f) {
-            if (f != null) {
-                try {
-                    final int profile = Integer.parseInt(IOUtils.extension(f));
-                    for (DeprecatedProfile p : DeprecatedProfile.values()) {
-                        if (p.id == profile) return p;
-                    }
-                } catch (NumberFormatException ignore) {
-                }
-            }
-            return UNKNOWN;
-        }
-
-        public String getExtension() {
-            return "." + id;
-        }
-    }
-
 }
-

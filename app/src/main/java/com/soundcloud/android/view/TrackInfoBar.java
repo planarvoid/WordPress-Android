@@ -2,6 +2,7 @@ package com.soundcloud.android.view;
 
 import android.database.Cursor;
 import android.os.Parcelable;
+import android.view.ViewStub;
 import android.view.animation.Transformation;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
@@ -198,6 +199,16 @@ public class TrackInfoBar extends LazyRow {
             mTitle.setText(sb);
         } else {
             mTitle.setText(track.title);
+        }
+
+        if (track.state.isProcessing()){
+            if (findViewById(R.id.processing_progress) != null){
+                findViewById(R.id.processing_progress).setVisibility(View.VISIBLE);
+            } else {
+                ((ViewStub) findViewById(R.id.processing_progress_stub)).inflate();
+            }
+        } else if (findViewById(R.id.processing_progress) != null){
+            findViewById(R.id.processing_progress).setVisibility(View.GONE);
         }
 
         if (shouldLoadIcon) loadIcon();

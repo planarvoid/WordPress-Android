@@ -357,8 +357,8 @@ public class RecordingTest {
     @Test
     public void shouldMigrateRecordings() throws Exception {
         int i = 1;
-        for (Recording.DeprecatedProfile profile : Recording.DeprecatedProfile.values()){
-            if (profile != Recording.DeprecatedProfile.UNKNOWN) {
+        for (DeprecatedRecordingProfile profile : DeprecatedRecordingProfile.values()){
+            if (profile != DeprecatedRecordingProfile.UNKNOWN) {
                 final File recordingFile = createRecordingFile(profile.getExtension());
                 Recording r = new Recording(recordingFile);
                 r.id = i;
@@ -370,20 +370,20 @@ public class RecordingTest {
 
     private void shouldMigrateRecording(Recording r) throws Exception {
         final File recordingFile = r.getFile();
-        expect(r.needsMigration()).toBeTrue();
+        expect(DeprecatedRecordingProfile.needsMigration(r)).toBeTrue();
 
         ContentResolver resolver = Robolectric.application.getContentResolver();
         Uri u = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
         expect(u).not.toBeNull();
 
-        final ContentValues migrationValues = r.migrate();
+        final ContentValues migrationValues = DeprecatedRecordingProfile.migrate(r);
         expect(migrationValues).not.toBeNull();
         expect(resolver.update(r.toUri(),migrationValues,null,null)).toEqual(1);
 
         final Cursor c = resolver.query(u, null, null, null, null);
         expect(c.moveToNext()).toBeTrue();
         Recording r2 = new Recording(c);
-        expect(r2.migrate()).toBeNull();
+        expect(DeprecatedRecordingProfile.migrate(r2)).toBeNull();
         expect(r2.getFile()).not.toEqual(recordingFile);
     }
 
