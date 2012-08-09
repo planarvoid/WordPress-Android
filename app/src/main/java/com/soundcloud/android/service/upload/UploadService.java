@@ -461,7 +461,7 @@ public class UploadService extends Service {
 
         } else if (recording.isError()) {
             title = getString(R.string.cloud_uploader_notification_error_title);
-            message = getString(R.string.cloud_uploader_notification_error_message, recording.title);
+            message = getString(R.string.cloud_uploader_notification_error_message, recording.title); // XXX could be null
             tickerText = getString(R.string.cloud_uploader_notification_error_ticker);
             contentIntent = PendingIntent.getActivity(this, 0, recording.getMonitorIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
 

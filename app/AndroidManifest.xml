@@ -228,6 +228,14 @@
 
         <activity android:name=".activity.settings.About"/>
 
+        <!-- for testing purposes -->
+        <activity android:name="com.soundcloud.android.activity.test.ShareSound">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <!-- providers -->
         <provider android:name=".provider.ScContentProvider"
                   android:authorities="com.soundcloud.android.provider.ScContentProvider"/>
