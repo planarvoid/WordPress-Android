@@ -31,6 +31,8 @@ public class UploadMonitor extends Activity {
     private TextView mProcessingProgressText, mUploadingProgressText;
     private TextView mTrackTitle;
 
+    private boolean mTransferState;
+
     private final Handler mHandler = new Handler();
 
     public void onCreate(Bundle savedInstanceState) {
@@ -180,19 +182,24 @@ public class UploadMonitor extends Activity {
     }
 
     private void setTransferProgress(int progress) {
-        mProcessingProgress.setIndeterminate(false);
-        mProcessingProgress.setProgress(100);
+        if (!mTransferState){
+            mTransferState = true;
+
+            mProcessingProgress.setIndeterminate(false);
+            mProcessingProgress.setProgress(100);
+            mProcessingProgressText.setTextColor(getResources().getColor(R.color.upload_monitor_text_inactive));
+            mProcessingProgressText.setText(R.string.uploader_event_processing_finished);
+
+            mUploadingProgressText.setTextColor(getResources().getColor(R.color.upload_monitor_text));
+        }
+
         if (progress < 0) {
             mTransferProgress.setIndeterminate(true);
             mUploadingProgressText.setText(R.string.uploader_event_not_yet_uploading);
         } else {
             mTransferProgress.setIndeterminate(false);
             mTransferProgress.setProgress(progress);
-            if (progress == mTransferProgress.getMax()) {
-                mUploadingProgressText.setText(R.string.uploader_event_processing_finished);
-            } else {
-                mUploadingProgressText.setText(getString(R.string.uploader_event_uploading_percent, progress));
-            }
+            mUploadingProgressText.setText(getString(R.string.uploader_event_uploading_percent, progress));
         }
     }
 

@@ -130,6 +130,14 @@ public abstract class ScListActivity extends ScActivity {
                                 removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_FAILED);
                             }
                         }).create();
+            case Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING:
+                            return new AlertDialog.Builder(this).setTitle(R.string.dialog_transcoding_processing_title)
+                                    .setMessage(R.string.dialog_transcoding_processing_message).setPositiveButton(
+                                            android.R.string.ok, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING);
+                                        }
+                                    }).create();
 
             default:
                 return super.onCreateDialog(which);
@@ -301,8 +309,11 @@ public abstract class ScListActivity extends ScActivity {
         @Override
         public void onTrackClick(LazyEndlessAdapter wrapper, int position) {
             if (wrapper.getItem(position) instanceof Track &&
-                    ((Track) wrapper.getItem(position)).state.isFailed()){
-                showDialog(Consts.Dialogs.DIALOG_TRANSCODING_FAILED);
+                    !((Track) wrapper.getItem(position)).state.isStreamable()){
+
+                showDialog(((Track) wrapper.getItem(position)).state.isFailed() ?
+                        Consts.Dialogs.DIALOG_TRANSCODING_FAILED :
+                        Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING);
             } else {
                 playTrack(wrapper.getPlayInfo(position));
             }

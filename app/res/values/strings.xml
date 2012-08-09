@@ -3,4 +3,7 @@
     <string name="dialog_transcoding_failed_title">Transcoding failed</string>
     <string name="dialog_transcoding_failed_message">Ooops, something went wrong and your sound can\'t be played. You can remove the sound from your list via the website. For more information please contact our support.</string>
     <string name="visit_support">Visit Support</string>
+
+    <string name="dialog_transcoding_processing_title">Sound processing</string>
+    <string name="dialog_transcoding_processing_message">Your sound is being processed and will be playable in few seconds.</string>
 </resources>
