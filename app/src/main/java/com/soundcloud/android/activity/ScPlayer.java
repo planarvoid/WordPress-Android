@@ -65,7 +65,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         mContainer = (RelativeLayout) findViewById(R.id.container);
 
         mTrackWorkspace = (WorkspaceView) findViewById(R.id.track_view);
-        mTrackWorkspace.setVisibility(View.GONE);
+        mTrackWorkspace.setVisibility(View.INVISIBLE);
         mTrackWorkspace.setOnScreenChangeListener(this);
         mTrackWorkspace.setOnScrollListener(this, false);
 
@@ -606,8 +606,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     }
 
     private void setTrackDisplayFromService() {
-        if (mPlaybackService == null)
-            return;
+        if (mPlaybackService == null) return;
 
         setCurrentTrackDataFromService();
 
