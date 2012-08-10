@@ -25,4 +25,5 @@ public class AppTest {
         expect(AndroidCloudAPI.Wrapper.getClientSecret(false))
                 .toEqual("0000000pGDzQNAPHzBH6hBTHphl4Q1e9");
     }
+
 }
