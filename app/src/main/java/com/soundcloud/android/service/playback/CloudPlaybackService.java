@@ -111,7 +111,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private static final int MINIMUM_SEEKABLE_SDK = Build.VERSION_CODES.ECLAIR_MR1; // 7, 2.1
 
     private static final float FADE_CHANGE = 0.02f; // change to fade faster/slower
-    private static final String AUDIO_BECOMING_NOISY = "android.media.AUDIO_BECOMING_NOISY";
 
     private MediaPlayer mMediaPlayer;
     private int mLoadPercent = 0;       // track buffer indicator
@@ -189,7 +188,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         commandFilter.addAction(PLAYLIST_CHANGED);
 
         registerReceiver(mIntentReceiver, commandFilter);
-        registerReceiver(mNoisyReceiver, new IntentFilter(AUDIO_BECOMING_NOISY));
+        registerReceiver(mNoisyReceiver, new IntentFilter(Consts.AUDIO_BECOMING_NOISY));
 
         mFocus = AudioManagerFactory.createAudioManager(this);
         if (!mFocus.isFocusSupported()) {
