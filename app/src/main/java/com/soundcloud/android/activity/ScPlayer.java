@@ -65,7 +65,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         mContainer = (RelativeLayout) findViewById(R.id.container);
 
         mTrackWorkspace = (WorkspaceView) findViewById(R.id.track_view);
-        mTrackWorkspace.setVisibility(View.INVISIBLE);
+        mTrackWorkspace.setVisibility(View.GONE);
         mTrackWorkspace.setOnScreenChangeListener(this);
         mTrackWorkspace.setOnScrollListener(this, false);
 
