@@ -39,7 +39,7 @@ public class JavaAmplitudeAnalyzer implements AmplitudeAnalyzer {
         }
 
         return Math.max(.1f,
-                ((float) Math.sqrt(Math.sqrt(mCurrentAdjustedMaxAmplitude))) / MAX_ADJUSTED_AMPLITUDE);
+                ((float) FloatMath.sqrt(FloatMath.sqrt(mCurrentAdjustedMaxAmplitude))) / MAX_ADJUSTED_AMPLITUDE);
     }
 
     private int getMax(ByteBuffer buffer, int length) {
