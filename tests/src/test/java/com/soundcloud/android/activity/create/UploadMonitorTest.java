@@ -52,7 +52,7 @@ public class UploadMonitorTest {
         um.setRecording(r);
 
         expect(title.getText()).toEqual("Foo");
-        expect(process.isIndeterminate()).toBeFalse();
+        expect(process.isIndeterminate()).toBeTrue();
         expect(upload.isIndeterminate()).toBeFalse();
 
         send(r, PROCESSING_STARTED, PROCESSING_PROGRESS);
