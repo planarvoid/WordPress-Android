@@ -251,7 +251,7 @@ public class CreateWaveView extends View {
 
 
     public void updateAmplitude(float maxAmplitude, boolean isRecording) {
-         if (mMaxWaveHeight == 0) return;
+        if (mMaxWaveHeight == 0) return;
         if (mZoomBitmap != null) {
             // if the new line would go over the edge, copy the last half of the old bitmap
             // into the first half of the new bitmap
@@ -270,7 +270,7 @@ public class CreateWaveView extends View {
                 old.recycle();
             }
 
-            drawAmplitude(new Canvas(mZoomBitmap), nextBufferX,maxAmplitude, isRecording ? PLAYED_PAINT : DARK_PAINT);
+            drawAmplitude(new Canvas(mZoomBitmap), nextBufferX, maxAmplitude, isRecording ? PLAYED_PAINT : DARK_PAINT);
             nextBufferX++;
         }
         invalidate();
