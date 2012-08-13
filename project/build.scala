@@ -75,7 +75,8 @@ object AndroidBuild extends Build {
       jniSourcePath <<= baseDirectory / "jni",
       jniClasses := Seq(
         "com.soundcloud.android.jni.VorbisEncoder",
-        "com.soundcloud.android.jni.VorbisDecoder"
+        "com.soundcloud.android.jni.VorbisDecoder",
+        "com.soundcloud.android.jni.NativeAmplitudeAnalyzer"
       ),
       javahOutputDirectory <<= (baseDirectory) (_ / "jni" / "include" / "soundcloud")
     )) ++ inConfig(Test)(Seq(

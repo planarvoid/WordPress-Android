@@ -721,6 +721,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                         mState = SoundRecorder.State.STOPPING;
                     } else {
                         try {
+                            mRecBuffer.limit(read);
                             final int written = mRecordStream.write(mRecBuffer, read);
                             if (written >= 0 && written < read) {
                                 Log.w(TAG, "partial write "+written);

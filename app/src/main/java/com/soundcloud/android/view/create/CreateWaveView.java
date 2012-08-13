@@ -47,8 +47,8 @@ public class CreateWaveView extends View {
     private long mAnimationStartTime;
     private float[] mAmplitudePoints;
 
-    private MergedAmplitudeData mAmplitudeData = new MergedAmplitudeData();
-    private DrawData mDrawData = new DrawData();
+    private final MergedAmplitudeData mAmplitudeData = new MergedAmplitudeData();
+    private final DrawData mDrawData = new DrawData();
 
     static {
         BITMAP_PAINT = new Paint();
@@ -253,8 +253,7 @@ public class CreateWaveView extends View {
 
 
     public void updateAmplitude(float maxAmplitude, boolean isRecording) {
-         if (mMaxWaveHeight == 0) return;
-
+        if (mMaxWaveHeight == 0) return;
         if (mZoomBitmap != null && nextBufferX != -1) {
             // if the new line would go over the edge, copy the last half to the first half and translate the current x position.
             if (nextBufferX + 1 > mZoomBitmap.getWidth()) {
@@ -273,7 +272,7 @@ public class CreateWaveView extends View {
                 nextBufferX = nextBufferX - width / 2;
             }
 
-            drawAmplitude(new Canvas(mZoomBitmap), nextBufferX,maxAmplitude, isRecording ? PLAYED_PAINT : DARK_PAINT);
+            drawAmplitude(new Canvas(mZoomBitmap), nextBufferX, maxAmplitude, isRecording ? PLAYED_PAINT : DARK_PAINT);
             nextBufferX++;
         }
         invalidate();
@@ -310,10 +309,6 @@ public class CreateWaveView extends View {
 
         public int recordStartIndexWithTrim;
         public int recordEndIndexWithTrim;
-
-        MergedAmplitudeData() {
-
-        }
 
         public void configure(RecordStream recordStream, float[] trimWindow) {
 
