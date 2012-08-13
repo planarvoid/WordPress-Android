@@ -244,7 +244,6 @@ public class CreateWaveView extends View {
 
         PLAYED_PAINT.setShader(lg);
 
-
         final Bitmap old = mZoomBitmap;
         mZoomBitmap = Bitmap.createBitmap(getWidth() * 2, getHeight(), Bitmap.Config.ARGB_8888);
         nextBufferX = -1;
@@ -294,6 +293,13 @@ public class CreateWaveView extends View {
     private void drawAmplitude(Canvas c, int xIndex, float amplitude, Paint p) {
         c.drawLine(xIndex, this.getHeight() / 2 - amplitude * mMaxWaveHeight / 2,
                 xIndex, this.getHeight() / 2 + amplitude * mMaxWaveHeight / 2, p);
+    }
+
+    public void onDestroy() {
+        if (mZoomBitmap != null){
+            if (!mZoomBitmap.isRecycled()) mZoomBitmap.recycle();
+            mZoomBitmap = null;
+        }
     }
 
     /**

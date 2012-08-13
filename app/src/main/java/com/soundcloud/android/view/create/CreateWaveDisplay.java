@@ -359,6 +359,11 @@ public class CreateWaveDisplay extends TouchLayout {
         mWaveformView.setMode(mMode, false);
     }
 
+    public void onDestroy() {
+        super.onDestroy();
+        mWaveformView.onDestroy();
+    }
+
 
     private class TrimAction {
         long timestamp;
