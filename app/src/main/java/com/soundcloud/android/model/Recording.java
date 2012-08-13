@@ -108,6 +108,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
     private static String PROCESSED_APPEND = "_processed";
 
+    public String getTitle(Resources r) {
+        return TextUtils.isEmpty(title) ? sharingNote(r) : title;
+    }
+
     public static interface Status {
         int NOT_YET_UPLOADED    = 0; // not yet uploaded, or canceled by user
         int UPLOADING           = 1; // currently uploading
