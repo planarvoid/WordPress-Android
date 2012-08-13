@@ -29,8 +29,8 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         // remove native calls + replace with shadows
         addClassOrPackageToInstrument("com.soundcloud.android.jni.VorbisEncoder");
         addClassOrPackageToInstrument("com.soundcloud.android.jni.VorbisDecoder");
+        addClassOrPackageToInstrument("com.soundcloud.android.jni.NativeAmplitudeAnalyzer");
     }
-
 
     @Override
     protected TestApplication createApplication() {

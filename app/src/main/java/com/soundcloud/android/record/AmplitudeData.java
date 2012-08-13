@@ -77,6 +77,10 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
         }
     }
 
+    public float last() {
+        return pos > 0 ? data[pos-1] : 0;
+    }
+
     public void clear() {
         data = new float[initialCapacity];
         pos = 0;
