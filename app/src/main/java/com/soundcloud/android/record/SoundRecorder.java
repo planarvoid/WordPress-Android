@@ -122,8 +122,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     private final IAudioManager mAudioFocusManager;
 
-
-
     final private ByteBuffer mPlayBuffer;
     final private int mPlayBufferReadSize;
 
@@ -803,12 +801,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     @Override
     public void focusGained() {
+        Log.d(TAG,"Audio Focus gained ");
     }
 
     @Override
     public void focusLost(boolean isTransient, boolean canDuck) {
-        Log.i("asdf","Focus Lost " + isTransient + " and " + canDuck);
-        if (!isTransient && isActive()){
+        Log.d(TAG,"Focus Lost " + isTransient + " and " + canDuck);
+        if (isActive()){
             if (isRecording()){
                 stopRecording();
             } else if (isPlaying()){
