@@ -1,8 +1,4 @@
-package com.soundcloud.android.service.playback;
-
-import com.soundcloud.android.model.Track;
-
-import android.graphics.Bitmap;
+package com.soundcloud.android.audio.managers;
 
 public class FallbackAudioManager implements IAudioManager {
     @Override
@@ -16,16 +12,7 @@ public class FallbackAudioManager implements IAudioManager {
     }
 
     @Override
-    public void setPlaybackState(State state) {
-    }
-
-    @Override
     public boolean isFocusSupported() {
-        return false;
-    }
-
-    @Override
-    public boolean isTrackChangeSupported() {
         return false;
     }
 
@@ -35,9 +22,5 @@ public class FallbackAudioManager implements IAudioManager {
 
     @Override
     public void onFocusAbandoned() {
-    }
-
-    @Override
-    public void onTrackChanged(Track track, Bitmap artwork) {
     }
 }

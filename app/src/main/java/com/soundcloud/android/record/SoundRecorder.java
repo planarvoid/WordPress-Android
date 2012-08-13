@@ -12,8 +12,8 @@ import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.service.playback.AudioManagerFactory;
-import com.soundcloud.android.service.playback.IAudioManager;
+import com.soundcloud.android.audio.managers.AudioManagerFactory;
+import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.service.record.RecordAppWidgetProvider;
 import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.utils.BufferUtils;
@@ -21,7 +21,6 @@ import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;

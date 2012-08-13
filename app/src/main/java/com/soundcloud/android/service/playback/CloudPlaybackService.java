@@ -7,6 +7,9 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.audio.managers.AudioManagerFactory;
+import com.soundcloud.android.audio.managers.IAudioManager;
+import com.soundcloud.android.audio.managers.IRemoteAudioManager;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
@@ -138,7 +141,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private TrackCache mCache;
 
     // audio focus related
-    private IAudioManager mFocus;
+    private IRemoteAudioManager mFocus;
     private boolean mTransientFocusLoss;
 
     private final IBinder mBinder = new LocalBinder<CloudPlaybackService>() {
@@ -190,7 +193,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         registerReceiver(mIntentReceiver, commandFilter);
         registerReceiver(mNoisyReceiver, new IntentFilter(Consts.AUDIO_BECOMING_NOISY));
 
-        mFocus = AudioManagerFactory.createAudioManager(this);
+        mFocus = AudioManagerFactory.createRemoteAudioManager(this);
         if (!mFocus.isFocusSupported()) {
             // setup call listening if not handled by audiofocus
             TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
