@@ -2,12 +2,16 @@ package com.soundcloud.android.activity.test;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+
+import java.io.File;
 
 public class ShareSound extends Activity {
 
@@ -15,12 +19,22 @@ public class ShareSound extends Activity {
     private Intent mIntent;
     private Result result;
 
+    public static final String SHARE = "Share";
+    public static final String SHARE_IMPLICIT = "Share implicit";
+    public static final String SHARE_TO = "Share to";
+
+
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        ViewGroup view = new FrameLayout(this);
+        LinearLayout view = new LinearLayout(this);
+        view.setOrientation(LinearLayout.HORIZONTAL);
 
         Button share = new Button(this);
-        share.setText("Share");
+        Button shareImplicit = new Button(this);
+
+        share.setText(SHARE);
+        shareImplicit.setText(SHARE_IMPLICIT);
+
         share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -29,10 +43,21 @@ public class ShareSound extends Activity {
                 }
             }
         });
+
+        shareImplicit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                File audio = new File("/path/to/audio.mp3");
+                Intent intent = new Intent(Intent.ACTION_SEND).setType("audio/*");
+                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(audio));
+                startActivityForResult(Intent.createChooser(intent, SHARE_TO), 0);
+            }
+        });
+
         view.addView(share);
+        view.addView(shareImplicit);
         setContentView(view);
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
