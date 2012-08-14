@@ -26,7 +26,7 @@ public class AmplitudeAnalyzerTest extends AudioTestCase {
     public void testEmptyBuffer() {
         clearData(buffer);
         assertEquals(0.1f, na.frameAmplitude(buffer, SIZE));
-        assertEquals(0.1f, na.frameAmplitude(buffer, SIZE));
+        assertEquals(0.1f, ja.frameAmplitude(buffer, SIZE));
     }
 
     public void testRandomData() {
@@ -43,6 +43,13 @@ public class AmplitudeAnalyzerTest extends AudioTestCase {
         assertEquals(new NativeAmplitudeAnalyzer(AudioConfig.PCM16_44100_2).frameAmplitude(buffer, SIZE),
                      new JavaAmplitudeAnalyzer(AudioConfig.PCM16_44100_2).frameAmplitude(buffer, SIZE),
                     .0000001);
+    }
+
+    public void test8BitSamples() {
+        fill(buffer, SIZE);
+        assertEquals(new NativeAmplitudeAnalyzer(AudioConfig.PCM8_8000_1).frameAmplitude(buffer, SIZE),
+                new JavaAmplitudeAnalyzer(AudioConfig.PCM8_8000_1).frameAmplitude(buffer, SIZE),
+                .0000001);
     }
 
 

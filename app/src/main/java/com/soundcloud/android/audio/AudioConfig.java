@@ -16,6 +16,7 @@ public enum AudioConfig {
     PCM16_16000_1 (16, 16000, 1),
     PCM16_22050_1 (16, 22050, 1),
     PCM16_8000_1  (16, 8000,  1),
+    PCM8_8000_1   (8,  8000,  1),
     ;
 
     public final int sampleRate;
