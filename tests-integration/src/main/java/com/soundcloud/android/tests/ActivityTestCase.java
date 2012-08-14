@@ -1,11 +1,12 @@
 package com.soundcloud.android.tests;
 
+import com.soundcloud.android.SoundCloudApplication;
+
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 
@@ -14,8 +15,7 @@ import android.util.Log;
  * screenshots for test failures.
  */
 public abstract class ActivityTestCase<T extends Activity> extends ActivityInstrumentationTestCase2<T> {
-    protected static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
-
+    protected static final boolean EMULATOR = SoundCloudApplication.EMULATOR;
     protected Han solo;
 
     public ActivityTestCase(Class<T> activityClass) {

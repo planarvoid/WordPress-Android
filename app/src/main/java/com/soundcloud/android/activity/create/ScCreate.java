@@ -213,6 +213,12 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mWaveDisplay.onDestroy();
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle state) {
         state.putBoolean("createSeenSavedMessage", mSeenSavedMessage);
         state.putString("createCurrentCreateState", mCurrentState.toString());

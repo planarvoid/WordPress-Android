@@ -62,7 +62,7 @@ public class ThirdPartySharingTest extends ActivityTestCase<ShareSound> {
         intent.putExtra("com.soundcloud.android.extra.where",  "Somewhere");
 
         getActivity().setIntent(intent);
-        solo.clickOnText("Share");
+        solo.clickOnText(ShareSound.SHARE);
         solo.assertActivity(ScUpload.class);
 
         solo.assertText("Testing");
@@ -89,13 +89,28 @@ public class ThirdPartySharingTest extends ActivityTestCase<ShareSound> {
     }
 
     /*
-     * Share a non existant file
+     * Share a non existent file
      */
     public void testSharingWithMissingFile() {
         getActivity().setIntent(getShareIntent(new File("/hallo/no/file"), "Testing"));
-        solo.clickOnText("Share");
+        solo.clickOnText(ShareSound.SHARE);
 
         solo.sleep(3000);
+
+        solo.assertActivity(ShareSound.class);
+        ShareSound.Result result = getActivity().getResult();
+        assertNotNull(result);
+        assertEquals(result.resultCode, Activity.RESULT_OK);
+        assertNull(result.intent);
+    }
+
+    public void testShareImplicit() {
+        solo.clickOnText(ShareSound.SHARE_IMPLICIT);
+
+        // make sure intent chooser pops up
+        solo.assertText(ShareSound.SHARE_TO);
+
+        solo.clickOnText(getInstrumentation().getTargetContext().getString(R.string.app_name));
 
         solo.assertActivity(ShareSound.class);
         ShareSound.Result result = getActivity().getResult();

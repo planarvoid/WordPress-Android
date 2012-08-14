@@ -554,8 +554,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     }
 
     private void setTrackDisplayFromService() {
-        if (mPlaybackService == null)
-            return;
+        if (mPlaybackService == null) return;
 
         setCurrentTrackDataFromService();
 

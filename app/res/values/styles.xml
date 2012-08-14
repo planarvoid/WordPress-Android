@@ -452,7 +452,7 @@
     <style name="rec_button_bar">
         <item name="android:layout_height">@dimen/button_bar_height</item>
         <item name="android:layout_width">match_parent</item>
-        <item name="android:background">@drawable/btn_bar_rec_bg</item>
+        <item name="android:background">@drawable/btn_bar_dark_bg</item>
     </style>
 
     <style name="txt_player_drawer_blue" parent="android:Widget.TextView">

@@ -1,4 +1,6 @@
-package com.soundcloud.android.tests;
+package com.soundcloud.android.tests.activity;
+
+import com.soundcloud.android.tests.activity.FakeCamera;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,7 +13,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * {@link FakeCamera}
+ * {@link com.soundcloud.android.tests.activity.FakeCamera}
  */
 public final class FakeGallery extends Activity {
 

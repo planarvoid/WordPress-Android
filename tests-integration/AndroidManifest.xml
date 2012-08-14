@@ -5,7 +5,7 @@
     <application>
         <uses-library android:name="android.test.runner"/>
 
-        <activity android:name=".FakeCamera"
+        <activity android:name=".activity.FakeCamera"
                   android:label="@string/fakecamera">
 
             <intent-filter>
@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".FakeGallery"
+        <activity android:name=".activity.FakeGallery"
                   android:label="@string/fakegallery">
 
             <intent-filter>
@@ -27,7 +27,20 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <data android:mimeType="image/*"/>
             </intent-filter>
+
+
         </activity>
+
+        <activity android:name=".activity.ShareSoundTarget"
+                  android:label="@string/sharesoundtarget">
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <data android:mimeType="audio/*"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
     </application>
 
     <instrumentation android:label="Tests"

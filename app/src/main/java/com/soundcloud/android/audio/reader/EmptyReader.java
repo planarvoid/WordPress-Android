@@ -35,7 +35,7 @@ public class EmptyReader extends AudioReader {
 
     @Override
     public File getFile() {
-        return null;
+        return new File("/dev/null");
     }
 
     @Override

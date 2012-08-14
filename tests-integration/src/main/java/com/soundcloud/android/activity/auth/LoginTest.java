@@ -11,7 +11,6 @@ import android.test.suitebuilder.annotation.Suppress;
 import android.webkit.WebView;
 import android.widget.EditText;
 
-import java.util.UUID;
 
 public class LoginTest extends ActivityTestCase<Main> {
     public LoginTest() {

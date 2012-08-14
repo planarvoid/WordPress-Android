@@ -1,4 +1,4 @@
-package com.soundcloud.android.tests;
+package com.soundcloud.android.tests.activity;
 
 import android.app.Activity;
 import android.content.Intent;

@@ -37,20 +37,10 @@
                   style="@style/txt_auth_msg"
                 />
     </RelativeLayout>
-    <RelativeLayout android:layout_width="fill_parent"
+    <Button android:id="@+id/btn_ok"
                     android:layout_alignParentBottom="true"
-                    android:id="@+id/control_layout"
-                    android:background="@color/playerControlAlphaBackground"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="5dip">
-        <Button android:id="@+id/btn_ok"
-                android:text="@android:string/ok"
-                android:layout_width="fill_parent"
-                android:layout_marginLeft="10dip"
-                android:layout_marginRight="10dip"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dip"/>
-        <View android:layout_width="fill_parent" android:layout_height="5dip"
-              android:background="@drawable/drop_shadow_down"/>
-    </RelativeLayout>
+                    android:text="@android:string/ok"
+                    android:background="@drawable/btn_auth_bg_states"
+                    android:layout_width="fill_parent"
+                    android:layout_height="@dimen/button_bar_height"/>
 </RelativeLayout>

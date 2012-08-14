@@ -16,6 +16,7 @@ public enum AudioConfig {
     PCM16_16000_1 (16, 16000, 1),
     PCM16_22050_1 (16, 22050, 1),
     PCM16_8000_1  (16, 8000,  1),
+    PCM8_8000_1   (8,  8000,  1),
     ;
 
     public final int sampleRate;
@@ -67,10 +68,6 @@ public enum AudioConfig {
 
     public ScAudioTrack createAudioTrack(int bufferSize) {
         return new ScAudioTrack(this, bufferSize);
-    }
-
-    public AudioRecord createAudioRecord() {
-        return createAudioRecord(getRecordBufferSize());
     }
 
     public AudioRecord createAudioRecord(int bufferSize) {
@@ -136,7 +133,7 @@ public enum AudioConfig {
 
     /**
      * Tries to detect a working audio configuration.
-     * @return
+     * @return a working audio config, or {@link #DEFAULT} if not found
      */
     public static synchronized AudioConfig detect() {
         if (sDetected == null) {

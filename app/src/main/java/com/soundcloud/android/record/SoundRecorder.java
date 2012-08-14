@@ -12,9 +12,8 @@ import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.service.playback.AudioManagerFactory;
-import com.soundcloud.android.service.playback.IAudioManager;
-import com.soundcloud.android.service.playback.PlayerAppWidgetProvider;
+import com.soundcloud.android.audio.managers.AudioManagerFactory;
+import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.service.record.RecordAppWidgetProvider;
 import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.utils.BufferUtils;
@@ -25,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.os.Build;
@@ -77,6 +77,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
       PLAYBACK_STARTED, PLAYBACK_STOPPED, PLAYBACK_COMPLETE, PLAYBACK_PROGRESS, PLAYBACK_PROGRESS, WAVEFORM_GENERATED
     };
     public static final int MAX_PLAYBACK_RATE = AudioTrack.getNativeOutputSampleRate(AudioTrack.MODE_STREAM);
+    private IAudioManager mFocus;
+    private AudioManager mAudioManager;
 
 
     public enum State {
@@ -115,7 +117,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     final private ByteBuffer mRecBuffer;
     final private int mRecBufferReadSize;
-    private final IAudioManager mAudioManager;
+
+    private final IAudioManager mAudioFocusManager;
 
     final private ByteBuffer mPlayBuffer;
     final private int mPlayBufferReadSize;
@@ -169,6 +172,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             }
         });
 
+        mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        mFocus = AudioManagerFactory.createAudioManager(context);
+
         mAudioTrack.setPositionNotificationPeriod(mConfig.sampleRate / 60);
         mBroadcastManager = LocalBroadcastManager.getInstance(context);
         mRemainingTimeCalculator = config.createCalculator();
@@ -181,7 +187,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         mPlayBufferReadSize = playbackBufferSize < MAX_PLAYBACK_READ_SIZE ? playbackBufferSize : MAX_PLAYBACK_READ_SIZE;
         mPlayBuffer = BufferUtils.allocateAudioBuffer(mPlayBufferReadSize);
 
-        mAudioManager = AudioManagerFactory.createAudioManager(context);
+        mAudioFocusManager = AudioManagerFactory.createAudioManager(context);
+
         mRecordStream = new RecordStream(mConfig);
         reset();
     }
@@ -267,7 +274,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
 
         // mute any playback during recording
-        if (!mAudioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
+        if (!mAudioFocusManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
             throw new IOException("Could not obtain music focus");
         }
 
@@ -354,6 +361,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     public void onDestroy() {
         stopPlayback();
         stopRecording();
+        mFocus.abandonMusicFocus(false);
         //release();
     }
 
@@ -486,12 +494,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
     }
 
-    @Override public void focusGained() {
-    }
-
-    @Override public void focusLost(boolean isTransient, boolean canDuck) {
-    }
-
     // Used by the service to determine whether to show notifications or not
     // this is stored here because of the Recorder's lifecycle.
     public void shouldUseNotifications(boolean b) {
@@ -616,7 +618,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
         public void run() {
             synchronized (mAudioRecord) {
-                if (!mAudioManager.requestMusicFocus(SoundRecorder.this, IAudioManager.FOCUS_GAIN)) {
+                if (!mAudioFocusManager.requestMusicFocus(SoundRecorder.this, IAudioManager.FOCUS_GAIN)) {
                     Log.e(TAG, "could not obtain audio focus");
                     broadcast(PLAYBACK_ERROR);
                     return;
@@ -650,7 +652,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 } finally {
                     // TODO, close on destroy, mPlaybackStream.close();
                     mAudioTrack.stop();
-                    mAudioManager.abandonMusicFocus(false);
+                    mAudioFocusManager.abandonMusicFocus(false);
                 }
 
                 //noinspection ObjectEquality
@@ -721,6 +723,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                         mState = SoundRecorder.State.STOPPING;
                     } else {
                         try {
+                            mRecBuffer.limit(read);
                             final int written = mRecordStream.write(mRecBuffer, read);
                             if (written >= 0 && written < read) {
                                 Log.w(TAG, "partial write "+written);
@@ -740,7 +743,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 }
                 Log.d(TAG, "exiting reader loop, stopping recording (mState=" + mState + ")");
                 mAudioRecord.stop();
-                mAudioManager.abandonMusicFocus(false);
+                mAudioFocusManager.abandonMusicFocus(false);
 
                 if (mRecording != null) {
                     if (mState != SoundRecorder.State.ERROR) {
@@ -787,5 +790,22 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     public static boolean hasFPUSupport() {
         return !"armeabi".equals(Build.CPU_ABI);
+    }
+
+    @Override
+    public void focusGained() {
+        Log.d(TAG,"Audio Focus gained ");
+    }
+
+    @Override
+    public void focusLost(boolean isTransient, boolean canDuck) {
+        Log.d(TAG,"Focus Lost " + isTransient + " and " + canDuck);
+        if (!canDuck && isActive()){
+            if (isRecording()){
+                stopRecording();
+            } else if (isPlaying()){
+                stopPlayback();
+            }
+        }
     }
 }

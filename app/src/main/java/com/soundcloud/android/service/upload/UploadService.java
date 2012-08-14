@@ -234,8 +234,8 @@ public class UploadService extends Service {
             } else if (PROCESSING_PROGRESS.equals(action)) {
                 sendNotification(recording,
                         updateProcessingProgress(
-                                getOngoingNotification(recording),
-                                R.string.uploader_event_processing,
+                                recording,
+                                R.string.uploader_event_processing_percent,
                                 intent.getIntExtra(EXTRA_PROGRESS, 0)
                         )
                 );
@@ -251,7 +251,7 @@ public class UploadService extends Service {
             } else if (TRANSFER_PROGRESS.equals(action)) {
                 sendNotification(recording,
                         updateUploadingProgress(
-                                getOngoingNotification(recording),
+                                recording,
                                 R.string.uploader_event_uploading_percent,
                                 intent.getIntExtra(EXTRA_PROGRESS, 0)
                         )
@@ -355,17 +355,31 @@ public class UploadService extends Service {
         return (int) (9990000 + r.id);
     }
 
-    private Notification updateProcessingProgress(Notification n, int stringId, int progress) {
+    private Notification updateProcessingProgress(Recording r, int stringId, int progress) {
+        final Notification n = getOngoingNotification(r);
         final int positiveProgress = Math.max(0, progress);
-        n.contentView.setTextViewText(R.id.txt_processing, getString(stringId, positiveProgress));
-        n.contentView.setProgressBar(R.id.progress_bar_processing, 100, positiveProgress, progress == -1); // just show indeterminate for 0 progress, looks better for quick uploads
+        if (Consts.SdkSwitches.useCustomNotificationLayouts) {
+            n.contentView.setTextViewText(R.id.txt_processing, getString(stringId, positiveProgress));
+            n.contentView.setProgressBar(R.id.progress_bar_processing, 100, positiveProgress, progress == -1); // just show indeterminate for 0 progress, looks better for quick uploads
+        } else {
+            n.setLatestEventInfo(this, r.getTitle(getResources()), getString(stringId, positiveProgress), PendingIntent.getActivity(this, 0,
+                    r.getMonitorIntent(),
+                    PendingIntent.FLAG_UPDATE_CURRENT));
+        }
         return n;
     }
 
-    private Notification updateUploadingProgress(Notification n, int stringId, int progress) {
+    private Notification updateUploadingProgress(Recording r, int stringId, int progress) {
+        final Notification n = getOngoingNotification(r);
         final int positiveProgress = Math.max(0, progress);
-        n.contentView.setTextViewText(R.id.txt_uploading, getString(stringId, positiveProgress));
-        n.contentView.setProgressBar(R.id.progress_bar_uploading, 100, positiveProgress, progress == -1);
+        if (Consts.SdkSwitches.useCustomNotificationLayouts) {
+            n.contentView.setTextViewText(R.id.txt_uploading, getString(stringId, positiveProgress));
+            n.contentView.setProgressBar(R.id.progress_bar_uploading, 100, positiveProgress, progress == -1);
+        } else {
+            n.setLatestEventInfo(this, r.getTitle(getResources()), getString(stringId, positiveProgress), PendingIntent.getActivity(this, 0,
+                    r.getMonitorIntent(),
+                    PendingIntent.FLAG_UPDATE_CURRENT));
+        }
         return n;
     }
 
@@ -423,25 +437,34 @@ public class UploadService extends Service {
 
     private void showUploadingNotification(Recording recording, String action) {
         Notification n = getOngoingNotification(recording);
-        n.contentView.setTextViewText(R.id.time, getFormattedNotificationTimestamp(this, System.currentTimeMillis()));
-        n.contentView.setTextViewText(R.id.message, TextUtils.isEmpty(recording.title) ? recording.sharingNote(getResources()) : recording.title);
 
-        if (PROCESSING_STARTED.equals(action)) {
-            updateProcessingProgress(n, R.string.uploader_event_processing_percent, -1);
-            updateProcessingProgress(n, R.string.uploader_event_not_yet_uploading, 0);
-        } else if (TRANSFER_STARTED.equals(action)) {
-            updateProcessingProgress(n, R.string.uploader_event_processing_finished, 100);
-            updateUploadingProgress(n, R.string.uploader_event_uploading_percent, -1);
-        }
+        if (Consts.SdkSwitches.useCustomNotificationLayouts){
+            n.contentView.setTextViewText(R.id.time, getFormattedNotificationTimestamp(this, System.currentTimeMillis()));
+            n.contentView.setTextViewText(R.id.message, TextUtils.isEmpty(recording.title) ? recording.sharingNote(getResources()) : recording.title);
 
-        if (Consts.SdkSwitches.useRichNotifications && recording.hasArtwork()){
-            Bitmap b = ImageUtils.getConfiguredBitmap(recording.artwork_path,
-                    (int) getResources().getDimension(R.dimen.notification_image_width),
-                    (int) getResources().getDimension(R.dimen.notification_image_height));
-            if (b != null){
-                n.contentView.setImageViewBitmap(R.id.icon,b);
+            if (Consts.SdkSwitches.useRichNotifications && recording.hasArtwork()){
+                Bitmap b = ImageUtils.getConfiguredBitmap(recording.artwork_path,
+                        (int) getResources().getDimension(R.dimen.notification_image_width),
+                        (int) getResources().getDimension(R.dimen.notification_image_height));
+                if (b != null){
+                    n.contentView.setImageViewBitmap(R.id.icon,b);
+                }
+            }
+            if (PROCESSING_STARTED.equals(action)) {
+                updateProcessingProgress(recording, R.string.uploader_event_processing_percent, -1);
+                updateUploadingProgress(recording, R.string.uploader_event_not_yet_uploading, 0);
+            } else if (TRANSFER_STARTED.equals(action)) {
+                updateProcessingProgress(recording, R.string.uploader_event_processing_finished, 100);
+                updateUploadingProgress(recording, R.string.uploader_event_uploading_percent, -1);
+            }
+        } else {
+            if (PROCESSING_STARTED.equals(action)) {
+                updateProcessingProgress(recording, R.string.uploader_event_processing_percent, -1);
+            } else if (TRANSFER_STARTED.equals(action)) {
+                updateUploadingProgress(recording, R.string.uploader_event_uploading_percent, -1);
             }
         }
+
         sendNotification(recording, n);
     }
 
