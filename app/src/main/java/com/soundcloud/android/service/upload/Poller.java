@@ -26,7 +26,7 @@ public class Poller extends Handler {
     private static final long DEFAULT_MIN_TIME_BETWEEN_REQUESTS = 5000;
     private static final long DEFAULT_MAX_TRIES = 12; // timeout of ~10 minutes with exp. back-off
 
-    private AndroidCloudAPI mApp;
+    private AndroidCloudAPI mApi;
     private Request mRequest;
     private Uri mNotifyUri;
 
@@ -36,12 +36,12 @@ public class Poller extends Handler {
         this(looper, app, trackId, notifyUri, DEFAULT_MIN_TIME_BETWEEN_REQUESTS);
     }
 
-    public Poller(Looper looper, AndroidCloudAPI app,
+    public Poller(Looper looper, AndroidCloudAPI api,
                   long trackId,
                   Uri notifyUri,
                   long delayBetweenRequests) {
         super(looper);
-        mApp = app;
+        mApi = api;
         mRequest = Request.to(Endpoints.TRACK_DETAILS, trackId);
         mNotifyUri = notifyUri;
         mMinDelayBetweenRequests = delayBetweenRequests;
@@ -57,9 +57,9 @@ public class Poller extends Handler {
         final int attempt = msg.what;
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "poll attempt "+(attempt+1));
         try {
-            HttpResponse resp = mApp.get(mRequest);
+            HttpResponse resp = mApi.get(mRequest);
             if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                track = mApp.getMapper().readValue(resp.getEntity().getContent(), Track.class);
+                track = mApi.getMapper().readValue(resp.getEntity().getContent(), Track.class);
             } else {
                 Log.w(TAG, "unexpected response " + resp.getStatusLine());
             }
@@ -67,9 +67,7 @@ public class Poller extends Handler {
             Log.e(TAG, "error", e);
         }
 
-        if ((track == null || track.state.isProcessing()) &&
-                attempt < DEFAULT_MAX_TRIES-1) {
-
+        if ((track == null || track.state.isProcessing()) && attempt < DEFAULT_MAX_TRIES-1) {
             final long backoff = attempt * attempt * 1000;
             sendEmptyMessageDelayed(attempt + 1, Math.max(backoff, mMinDelayBetweenRequests));
         } else {
@@ -80,7 +78,7 @@ public class Poller extends Handler {
                 if (track != null && track.state.isFailed()) {
                     // track failed to transcode
                     LocalBroadcastManager
-                            .getInstance(mApp.getContext())
+                            .getInstance(mApi.getContext())
                             .sendBroadcast(new Intent(UploadService.TRANSCODING_FAILED)
                                     .putExtra(UploadService.EXTRA_TRACK, track));
                 }
@@ -93,22 +91,21 @@ public class Poller extends Handler {
     }
 
     private void onTrackProcessed(Track track) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Track successfully prepared by the api: " + track);
+        }
+
         // local storage should reflect full track info
-        ContentResolver resolver = mApp.getContext().getContentResolver();
+        ContentResolver resolver = mApi.getContext().getContentResolver();
 
         track.commitLocally(resolver, SoundCloudApplication.TRACK_CACHE);
 
         // this will tell any observers to update their UIs to the up to date track
         if (mNotifyUri != null) resolver.notifyChange(mNotifyUri, null, false);
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Track successfully prepared by the api: " + track);
-        }
-
         LocalBroadcastManager
-                .getInstance(mApp.getContext())
+                .getInstance(mApi.getContext())
                 .sendBroadcast(new Intent(UploadService.TRANSCODING_SUCCESS)
                         .putExtra(UploadService.EXTRA_TRACK, track));
-
     }
 }
