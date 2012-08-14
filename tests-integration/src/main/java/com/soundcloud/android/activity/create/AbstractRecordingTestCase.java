@@ -285,13 +285,13 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
     protected void assertTrackDuration(Track track, long durationInMs) {
         Log.d(getClass().getSimpleName(), "assertTrack("+track+")");
         if (track != null) {
-            assertTrue("track is not finished", track.state.isFinished());
-            assertTrue("track has length 0", track.duration > 0);
-            assertEquals("track is not in ogg format", VorbisReader.EXTENSION, track.original_format);
+            assertTrue("track is not finished: "+track, track.state.isFinished());
+            assertTrue("track has length 0: "+track, track.duration > 0);
+            assertEquals("track is not in ogg format: "+track, VorbisReader.EXTENSION, track.original_format);
 
             // emulator uploaded tracks are longer (samplerate mismatch)
             if (!EMULATOR) {
-                assertEquals("track duration", durationInMs, track.duration, 2000);
+                assertEquals("track duration: "+track, durationInMs, track.duration, 2000);
             }
         }
     }
