@@ -214,6 +214,27 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         assertTrackDuration(track, 3 * (RECORDING_TIME + ROBO_SLEEP));
     }
 
+    public void testShouldRegenerateWaveFormIfItGetsLost() throws Exception {
+        record(RECORDING_TIME);
+        solo.sleep(1000);
+
+        Recording r = getActivity().getRecorder().getRecording();
+
+        solo.finishOpenedActivities();
+        getActivity().getRecorder().reset();
+
+        File ampFile = r.getAmplitudeFile();
+
+        assertTrue(ampFile.exists());
+        assertTrue(ampFile.delete());
+
+        launchActivityWithIntent("com.soundcloud.android", ScCreate.class, new Intent().putExtra(Recording.EXTRA, r));
+
+        solo.sleep(4000);
+
+        assertTrue(ampFile.exists());
+    }
+
     @Suppress
     public void testRecordAndLoadAndAppend() throws Exception {
         record(RECORDING_TIME);
