@@ -15,6 +15,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Parcel;
 
 import java.util.Date;
 
@@ -249,10 +250,30 @@ public class TrackTest {
         expect(cursor.moveToFirst()).toBeTrue();
 
         Track t2 = new Track(cursor);
+        compareTracks(t, t2);
+        expect(t2.last_updated).toBeGreaterThan(t.last_updated);
+        expect(t2.sharing).toEqual(t.sharing);
+        expect(t2.state).toEqual(t.state);
+    }
 
+    @Test
+    public void shouldParcelAndUnparcelCorrectly() throws Exception {
+        Track t = AndroidCloudAPI.Mapper.readValue(
+                getClass().getResourceAsStream("track.json"),
+                Track.class);
+
+        Parcel p = Parcel.obtain();
+        t.writeToParcel(p, 0);
+
+        Track t2 = new Track(p);
+        compareTracks(t, t2);
+    }
+
+    private void compareTracks(Track t, Track t2) {
         expect(t2.id).toEqual(t.id);
         expect(t2.title).toEqual(t.title);
         expect(t2.permalink).toEqual(t.permalink);
+        expect(t2.duration).toBeGreaterThan(0);
         expect(t2.duration).toEqual(t.duration);
         expect(t2.created_at).toEqual(t.created_at);
         expect(t2.tag_list).toEqual(t.tag_list);
@@ -264,7 +285,6 @@ public class TrackTest {
         expect(t2.download_url).toEqual(t.download_url);
         expect(t2.streamable).toEqual(t.streamable);
         expect(t2.stream_url).toEqual(t.stream_url);
-        expect(t2.sharing).toEqual(t.sharing);
         expect(t2.playback_count).toEqual(t.playback_count);
         expect(t2.download_count).toEqual(t.download_count);
         expect(t2.comment_count).toEqual(t.comment_count);
@@ -272,9 +292,5 @@ public class TrackTest {
         expect(t2.shared_to_count).toEqual(t.shared_to_count);
         expect(t2.user_id).toEqual(t.user_id);
         expect(t2.commentable).toEqual(t.commentable);
-        expect(t2.state).toEqual(t.state);
-        expect(t2.last_updated).toBeGreaterThan(t.last_updated);
-
     }
-
 }
