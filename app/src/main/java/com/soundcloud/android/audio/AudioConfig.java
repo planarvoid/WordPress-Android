@@ -70,10 +70,6 @@ public enum AudioConfig {
         return new ScAudioTrack(this, bufferSize);
     }
 
-    public AudioRecord createAudioRecord() {
-        return createAudioRecord(getRecordBufferSize());
-    }
-
     public AudioRecord createAudioRecord(int bufferSize) {
         return new AudioRecord(source, sampleRate, getChannelConfig(true), getFormat(), bufferSize);
     }
@@ -137,7 +133,7 @@ public enum AudioConfig {
 
     /**
      * Tries to detect a working audio configuration.
-     * @return
+     * @return a working audio config, or {@link #DEFAULT} if not found
      */
     public static synchronized AudioConfig detect() {
         if (sDetected == null) {
