@@ -46,7 +46,7 @@ public class TrackCache extends LruCache<Long, Track> {
     }
 
     public Track fromListItem(Parcelable listItem) {
-        if (listItem instanceof TracklistItem){
+        if (listItem instanceof TracklistItem) {
             final TracklistItem t = (TracklistItem)listItem;
             Track track = get(((TracklistItem) listItem).id);
             if (track == null) {

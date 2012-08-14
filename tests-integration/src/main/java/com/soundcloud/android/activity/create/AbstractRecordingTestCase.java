@@ -58,6 +58,9 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
     private static final long UPLOAD_WAIT_TIME      = 20 * 1000;
     private static final boolean FAIL_ON_TRANSCODE_TIMEOUT = false;
 
+    // somehow the api sometimes reports 0 as length, after successful transcoding */
+    private static final boolean FAIL_ON_ZERO_DURATION = true;
+
     public AbstractRecordingTestCase() {
         super(ScCreate.class);
     }
@@ -286,12 +289,15 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
         Log.d(getClass().getSimpleName(), "assertTrack("+track+")");
         if (track != null) {
             assertTrue("track is not finished: "+track, track.state.isFinished());
-            assertTrue("track has length 0: "+track, track.duration > 0);
             assertEquals("track is not in ogg format: "+track, VorbisReader.EXTENSION, track.original_format);
 
             // emulator uploaded tracks are longer (samplerate mismatch)
             if (!EMULATOR) {
                 assertEquals("track duration: "+track, durationInMs, track.duration, 2000);
+            }
+
+            if (FAIL_ON_ZERO_DURATION) {
+                assertTrue("track has length 0: "+track, track.duration > 0);
             }
         }
     }
