@@ -230,7 +230,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         if (!state.isEmpty()) {
             mSeenSavedMessage = state.getBoolean("createSeenSavedMessage");
             if (!TextUtils.isEmpty(state.getString("createCurrentCreateState"))) {
-                updateUi(CreateState.valueOf(state.getString("createCurrentCreateState")));
+                updateUi(CreateState.valueOf(state.getString("createCurrentCreateState")), false);
             }
             mWaveDisplay.onRestoreInstanceState(state);
         }
@@ -480,8 +480,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             if (mRecorder.isPlaying()) {
                 if (mCurrentState != CreateState.EDIT_PLAYBACK) newState = CreateState.PLAYBACK;
                 configurePlaybackInfo();
-                mWaveDisplay.gotoPlaybackMode();
-
+                mWaveDisplay.gotoPlaybackMode(false);
             } else {
                 // we have an inactive recorder, see what is loaded in it
                 if (mRecorder.hasRecording()) {
@@ -490,7 +489,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     } else {
                         if (mCurrentState != CreateState.EDIT) newState = CreateState.IDLE_PLAYBACK;
                         configurePlaybackInfo();
-                        mWaveDisplay.gotoPlaybackMode();
+                        mWaveDisplay.gotoPlaybackMode(false);
                     }
                 } else {
                     newState = CreateState.IDLE_RECORD;
@@ -623,8 +622,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
                 setPlayButtonDrawable(false);
                 mActionButton.setImageResource(R.drawable.btn_rec_resume_states);
-
-                mWaveDisplay.gotoPlaybackMode();
+                mWaveDisplay.gotoPlaybackMode(animate);
                 configurePlaybackInfo();
                 break;
 

@@ -311,10 +311,10 @@ public class CreateWaveDisplay extends TouchLayout {
         }
     }
 
-    public void gotoPlaybackMode(){
+    public void gotoPlaybackMode(boolean animate){
         if (mMode != MODE_PLAYBACK){
             mMode = MODE_PLAYBACK;
-            mWaveformView.setMode(mMode, true);
+            mWaveformView.setMode(mMode, animate);
         }
     }
 
