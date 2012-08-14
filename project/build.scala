@@ -44,7 +44,7 @@ object AndroidBuild extends Build {
     "org.mockito" % "mockito-core" % "1.9.5-rc1" % "test",
     "com.github.xian" % "great-expectations" % "0.13" % "test",
     "org.scalatest" %% "scalatest" % "1.7.1" % "test",
-    "org.scala-lang" % "scala-compiler" % "2.9.1" % "test",
+    "org.scala-lang" % "scala-compiler" % "2.9.2" % "test",
     junit_interface
   )
 
