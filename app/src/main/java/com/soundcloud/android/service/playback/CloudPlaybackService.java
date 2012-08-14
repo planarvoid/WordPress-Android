@@ -225,7 +225,13 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mPlayerHandler.removeCallbacksAndMessages(null);
         mPlaylistManager.onDestroy();
 
-        mFocus.abandonMusicFocus(false);
+        if (mFocus.isFocusSupported()){
+            mFocus.abandonMusicFocus(false);
+        } else {
+            TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+            tmgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
+        }
+
         unregisterReceiver(mIntentReceiver);
         unregisterReceiver(mNoisyReceiver);
         if (mProxy != null && mProxy.isRunning()) mProxy.stop();
