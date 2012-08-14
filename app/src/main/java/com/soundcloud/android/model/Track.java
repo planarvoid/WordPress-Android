@@ -482,7 +482,8 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     public String toString() {
         return "Track{" +
                 "id="+id+
-                ", title='" + title + '\'' +
+                ", title='" + title + "'" +
+                ", permalink_url='" + permalink_url + "'" +
                 ", duration=" + duration +
                 ", state=" + state +
                 ", user=" + user +
