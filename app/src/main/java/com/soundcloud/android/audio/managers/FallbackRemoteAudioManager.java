@@ -3,17 +3,13 @@ package com.soundcloud.android.audio.managers;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.State;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 
-public class FallbackRemoteAudioManager implements IRemoteAudioManager {
-    @Override
-    public boolean requestMusicFocus(MusicFocusable focusable, int durationHint) {
-        return true;
-    }
+public class FallbackRemoteAudioManager extends FallbackAudioManager implements IRemoteAudioManager {
 
-    @Override
-    public boolean abandonMusicFocus(boolean isTemporary) {
-        return true;
+    public FallbackRemoteAudioManager(Context context) {
+        super(context);
     }
 
     @Override
@@ -21,21 +17,8 @@ public class FallbackRemoteAudioManager implements IRemoteAudioManager {
     }
 
     @Override
-    public boolean isFocusSupported() {
-        return false;
-    }
-
-    @Override
     public boolean isTrackChangeSupported() {
         return false;
-    }
-
-    @Override
-    public void onFocusObtained() {
-    }
-
-    @Override
-    public void onFocusAbandoned() {
     }
 
     @Override

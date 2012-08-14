@@ -47,8 +47,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -194,11 +192,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         registerReceiver(mNoisyReceiver, new IntentFilter(Consts.AUDIO_BECOMING_NOISY));
 
         mFocus = AudioManagerFactory.createRemoteAudioManager(this);
-        if (!mFocus.isFocusSupported()) {
-            // setup call listening if not handled by audiofocus
-            TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-            tmgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
-        }
+
         // If the service was idle, but got killed before it stopped itself, the
         // system will relaunch it. Make sure it gets stopped again in that case.
         scheduleServiceShutdownCheck();
@@ -225,13 +219,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mPlayerHandler.removeCallbacksAndMessages(null);
         mPlaylistManager.onDestroy();
 
-        if (mFocus.isFocusSupported()){
-            mFocus.abandonMusicFocus(false);
-        } else {
-            TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-            tmgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
-        }
-
+        mFocus.abandonMusicFocus(false);
         unregisterReceiver(mIntentReceiver);
         unregisterReceiver(mNoisyReceiver);
         if (mProxy != null && mProxy.isRunning()) mProxy.stop();
@@ -1279,23 +1267,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 }
             }
             return true;
-        }
-    };
-
-    // this is only used in pre 2.2 phones where there is no audio focus support
-    private PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
-        @Override
-        public void onCallStateChanged(int callState, String incomingNumber) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onCallStateChanged(state="+callState+", playerState="+state+")");
-            }
-            if (callState == TelephonyManager.CALL_STATE_OFFHOOK ||
-               (callState == TelephonyManager.CALL_STATE_RINGING &&
-                 mAudioManager.getStreamVolume(AudioManager.STREAM_RING) > 0)) {
-                focusLost(true, false);
-            } else if (callState == TelephonyManager.CALL_STATE_IDLE) {
-                focusGained();
-            }
         }
     };
 

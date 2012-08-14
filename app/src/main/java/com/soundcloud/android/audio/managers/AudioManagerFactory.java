@@ -29,7 +29,7 @@ public class AudioManagerFactory {
         }
         // fallback
         if (manager == null) {
-            manager = new FallbackAudioManager();
+            manager = new FallbackAudioManager(context);
         }
         return manager;
     }
@@ -55,7 +55,7 @@ public class AudioManagerFactory {
             }
             // fallback
             if (manager == null) {
-                manager = new FallbackRemoteAudioManager();
+                manager = new FallbackRemoteAudioManager(context);
             }
             return manager;
         }

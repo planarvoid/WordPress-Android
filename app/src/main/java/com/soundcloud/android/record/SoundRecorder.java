@@ -30,8 +30,6 @@ import android.media.AudioTrack;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.io.File;
@@ -176,12 +174,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         mFocus = AudioManagerFactory.createAudioManager(context);
-
-        if (!mFocus.isFocusSupported()) {
-            // setup call listening if not handled by audiofocus
-            TelephonyManager tmgr = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
-            tmgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
-        }
 
         mAudioTrack.setPositionNotificationPeriod(mConfig.sampleRate / 60);
         mBroadcastManager = LocalBroadcastManager.getInstance(context);
@@ -807,7 +799,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     @Override
     public void focusLost(boolean isTransient, boolean canDuck) {
         Log.d(TAG,"Focus Lost " + isTransient + " and " + canDuck);
-        if (isActive()){
+        if (!canDuck && isActive()){
             if (isRecording()){
                 stopRecording();
             } else if (isPlaying()){
@@ -815,19 +807,4 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             }
         }
     }
-
-    // this is only used in pre 2.2 phones where there is no audio focus support
-    private PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
-        @Override
-        public void onCallStateChanged(int callState, String incomingNumber) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onCallStateChanged(state=" + callState + ", recState=" + mState + ")");
-            }
-            if (callState == TelephonyManager.CALL_STATE_OFFHOOK) {
-                focusLost(false, false);
-            } else if (callState == TelephonyManager.CALL_STATE_IDLE) {
-                focusGained();
-            }
-        }
-    };
 }

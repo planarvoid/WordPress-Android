@@ -1,10 +1,5 @@
 package com.soundcloud.android.audio.managers;
 
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.playback.State;
-import org.jetbrains.annotations.Nullable;
-
-import android.graphics.Bitmap;
 import android.media.AudioManager;
 
 public interface IAudioManager {
@@ -18,7 +13,7 @@ public interface IAudioManager {
         public void focusLost(boolean isTransient, boolean canDuck);
     }
 
-    boolean requestMusicFocus(MusicFocusable focusable, int durationHint);
+    boolean requestMusicFocus(final MusicFocusable focusable, int durationHint);
     boolean abandonMusicFocus(boolean isTemporary);
 
     boolean isFocusSupported();
