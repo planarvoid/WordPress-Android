@@ -36,7 +36,6 @@ public class AudioManagerFactory {
 
     public static IRemoteAudioManager createRemoteAudioManager(Context context) {
             IRemoteAudioManager manager = null;
-        Log.i("asdf", "Createing remote audio managger");
             final int sdkInt = Build.VERSION.SDK_INT;
             if (sdkInt >= Build.VERSION_CODES.FROYO) {
                 try {
@@ -58,7 +57,6 @@ public class AudioManagerFactory {
             if (manager == null) {
                 manager = new FallbackRemoteAudioManager();
             }
-        Log.i("asdf","Returning manager " + manager);
             return manager;
         }
 }
