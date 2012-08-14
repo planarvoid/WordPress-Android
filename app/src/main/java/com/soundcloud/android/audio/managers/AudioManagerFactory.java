@@ -2,7 +2,6 @@ package com.soundcloud.android.audio.managers;
 
 import android.content.Context;
 import android.os.Build;
-import android.util.Log;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -55,7 +54,7 @@ public class AudioManagerFactory {
             }
             // fallback
             if (manager == null) {
-                manager = new FallbackRemoteAudioManager(context);
+                manager = new FallbackAudioManager(context);
             }
             return manager;
         }

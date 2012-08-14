@@ -1,12 +1,17 @@
 package com.soundcloud.android.audio.managers;
 
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.service.playback.State;
+import org.jetbrains.annotations.Nullable;
+
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-public class FallbackAudioManager implements IAudioManager {
+public class FallbackAudioManager implements IRemoteAudioManager {
     private static String TAG = FallbackAudioManager.class.getSimpleName();
 
     private final TelephonyManager mTelephonyManager;
@@ -66,5 +71,18 @@ public class FallbackAudioManager implements IAudioManager {
 
     @Override
     public void onFocusAbandoned() {
+    }
+
+    @Override
+    public void setPlaybackState(State state) {
+    }
+
+    @Override
+    public boolean isTrackChangeSupported() {
+        return false;
+    }
+
+    @Override
+    public void onTrackChanged(Track track, @Nullable Bitmap artwork) {
     }
 }
