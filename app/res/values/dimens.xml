@@ -69,4 +69,7 @@
     <dimen name="rec_chronometer_text_size">32sp</dimen>
 
     <dimen name="button_bar_height">60dp</dimen>
+
+    <dimen name="rec_toggle_fade_margin_top">15dp</dimen>
+
 </resources>
