@@ -452,7 +452,7 @@
     <style name="rec_button_bar">
         <item name="android:layout_height">@dimen/button_bar_height</item>
         <item name="android:layout_width">match_parent</item>
-        <item name="android:background">@drawable/btn_bar_rec_bg</item>
+        <item name="android:background">@drawable/btn_bar_dark_bg</item>
     </style>
 
     <style name="txt_player_drawer_blue" parent="android:Widget.TextView">
@@ -510,9 +510,11 @@
         <item name="android:indeterminateDrawable">@drawable/progress_indeterminate_horizontal</item>
     </style>
     <style name="ScProgressBarRoundLeft" parent="ScProgressBarRound">
+        <item name="android:progressDrawable">@drawable/progress_bar_round_left</item>
         <item name="android:background">@drawable/progress_bar_round_bg_left</item>
     </style>
     <style name="ScProgressBarRoundRight" parent="ScProgressBarRound">
+        <item name="android:progressDrawable">@drawable/progress_bar_round_right</item>
         <item name="android:background">@drawable/progress_bar_round_bg_right</item>
     </style>
 

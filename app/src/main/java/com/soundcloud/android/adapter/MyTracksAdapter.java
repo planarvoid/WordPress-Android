@@ -2,6 +2,7 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.activity.ScListActivity;
+import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
@@ -9,7 +10,6 @@ import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.MyTracklistRow;
 import com.soundcloud.android.view.TrackInfoBar;
 
-import android.content.ContentValues;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Handler;
@@ -22,6 +22,7 @@ public class MyTracksAdapter extends ScBaseAdapter {
     private Cursor mCursor;
     private boolean mDataValid;
     private List<Recording> mRecordingData;
+    private ScListActivity mActivity;
 
     private static final int TYPE_PENDING_RECORDING = 0;
     private static final int TYPE_TRACK = 1;
@@ -29,6 +30,7 @@ public class MyTracksAdapter extends ScBaseAdapter {
 
     public MyTracksAdapter(ScListActivity activity, Content content) {
         super(activity, content);
+        mActivity = activity;
         refreshCursor();
 
         mChangeObserver = new ChangeObserver();
@@ -66,7 +68,7 @@ public class MyTracksAdapter extends ScBaseAdapter {
 
     private void refreshCursor() {
         mCursor = mContext.getContentResolver().query(Content.RECORDINGS.uri, null,
-                Recordings.UPLOAD_STATUS + " < 2",
+                Recordings.UPLOAD_STATUS + " < " + Recording.Status.UPLOADED + " OR " + Recordings.UPLOAD_STATUS + " = " + Recording.Status.ERROR,
                 null,
                 Recordings.TIMESTAMP + " DESC");
 
@@ -83,9 +85,8 @@ public class MyTracksAdapter extends ScBaseAdapter {
         }
 
         // updated recording functionality requires special handling of old recordings
-        Recording.migrateRecordings(mRecordingData,mContext.getContentResolver());
+        DeprecatedRecordingProfile.migrateRecordings(mRecordingData, mContext.getContentResolver());
     }
-
 
 
     private List<Recording> loadRecordings(Cursor cursor) {
@@ -144,9 +145,16 @@ public class MyTracksAdapter extends ScBaseAdapter {
      * @see ContentObserver#onChange(boolean)
      */
     protected void onContentChanged() {
-        if (mCursor == null) {
+        mDataValid = false;
+        if (mActivity.isForeground() && mCursor == null) {
             refreshCursor();
             notifyDataSetChanged();
+        }
+    }
+
+    public void onResume() {
+        if (!mDataValid) {
+            onContentChanged();
         }
     }
 

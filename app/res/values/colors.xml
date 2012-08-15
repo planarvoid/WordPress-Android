@@ -74,4 +74,9 @@
     <color name="blue_gradient_1">#ffffff</color>
     <color name="blue_gradient_2">#cae1fa</color>
 
+    <color name="upload_monitor_text">#ff000000</color>
+    <color name="upload_monitor_text_inactive">#ff9e9e9e</color>
+
+    <color name="authButtonSeparator">#ff000000</color>
+
 </resources>

@@ -561,11 +561,10 @@ public final class ImageUtils {
         Intent intent = new Intent(activity, CropImage.class)
                 .setData(inputUri)
                 .putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
-                .putExtra("crop", "true")
                 .putExtra("aspectX", 1)
                 .putExtra("aspectY", 1)
-                .putExtra("outputX", width)
-                .putExtra("outputY", width)
+                .putExtra("maxX", width)
+                .putExtra("maxY", height)
                 .putExtra("exifRotation", ImageUtils.getExifRotation(IOUtils.getFromMediaUri(activity.getContentResolver(), inputUri)))
                 .putExtra("noFaceDetection", true);
 

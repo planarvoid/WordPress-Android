@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewStub;
 import android.view.animation.Transformation;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -201,6 +202,16 @@ public class TrackInfoBar extends LazyRow {
             mTitle.setText(sb);
         } else {
             mTitle.setText(track.title);
+        }
+
+        if (track.state.isProcessing()){
+            if (findViewById(R.id.processing_progress) != null){
+                findViewById(R.id.processing_progress).setVisibility(View.VISIBLE);
+            } else {
+                ((ViewStub) findViewById(R.id.processing_progress_stub)).inflate();
+            }
+        } else if (findViewById(R.id.processing_progress) != null){
+            findViewById(R.id.processing_progress).setVisibility(View.GONE);
         }
 
         if (shouldLoadIcon) loadIcon();

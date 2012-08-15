@@ -122,6 +122,21 @@ public class ScTextUtils {
         return getTimeString(r, elapsed, longerText);
     }
 
+    public static boolean usesSameTimeElapsedString(double elapsedSeconds1, double elapsedSeconds2) {
+        if (elapsedSeconds1 < 60)
+            return (int) elapsedSeconds1 == (int) elapsedSeconds2;
+        else if (elapsedSeconds1 < 3600)
+            return (int) (elapsedSeconds1 / 60) == (int) (elapsedSeconds2 / 60);
+        else if (elapsedSeconds1 < 86400)
+            return (int) (elapsedSeconds1 / 3600) == (int) (elapsedSeconds2 / 3600);
+        else if (elapsedSeconds1 < 2592000)
+            return (int) (elapsedSeconds1 / 86400) == (int) (elapsedSeconds2 / 86400);
+        else if (elapsedSeconds1 < 31536000)
+            return (int) (elapsedSeconds1 / 2592000) == (int) (elapsedSeconds2 / 2592000);
+        else
+            return (int) (elapsedSeconds1 / 31536000) == (int) (elapsedSeconds2 / 31536000);
+    }
+
     public static String getTimeString(Resources r, double elapsedSeconds, boolean longerText) {
         if (elapsedSeconds < 60)
             return r.getQuantityString(longerText ? R.plurals.elapsed_seconds_ago : R.plurals.elapsed_seconds, (int) elapsedSeconds, (int) elapsedSeconds);

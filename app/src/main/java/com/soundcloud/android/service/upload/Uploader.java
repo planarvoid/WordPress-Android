@@ -119,7 +119,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
                     return false;
             }
         } catch (UserCanceledException e) {
-            onUploadCancelled(e);
+            onUploadCancelled();
             return false;
         } catch (IOException e) {
             onUploadFailed(e);
@@ -127,21 +127,18 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         }
     }
 
-    private void onUploadCancelled(UserCanceledException e) {
-        mUpload.setUploadException(e);
+    private void onUploadCancelled() {
         broadcast(UploadService.TRANSFER_CANCELLED);
     }
 
     private void onUploadFailed(Exception e) {
         Log.e(TAG, "Error uploading", e);
-        mUpload.setUploadException(e);
         broadcast(UploadService.TRANSFER_ERROR);
     }
 
     private void onUploadSuccess(HttpResponse response) {
         try {
             Track track = api.getMapper().readValue(response.getEntity().getContent(), Track.class);
-            mUpload.track_id = track.id;
             SoundCloudDB.insertTrack(api.getContext().getContentResolver(), track);
 
             //request to update my collection
@@ -149,15 +146,18 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + track);
 
             mUpload.onUploaded();
-            broadcast(UploadService.TRANSFER_SUCCESS);
+            broadcast(UploadService.TRANSFER_SUCCESS, track);
         } catch (IOException e) {
             onUploadFailed(e);
         }
     }
 
-    private void broadcast(String action) {
-        mBroadcastManager.sendBroadcast(new Intent(action)
-                .putExtra(UploadService.EXTRA_RECORDING, mUpload));
+    private void broadcast(String action, Track... track) {
+        final Intent intent = new Intent(action).putExtra(UploadService.EXTRA_RECORDING, mUpload);
+        if (track.length > 0) {
+            intent.putExtra(UploadService.EXTRA_TRACK, track[0]);
+        }
+        mBroadcastManager.sendBroadcast(intent);
     }
 
     @Override

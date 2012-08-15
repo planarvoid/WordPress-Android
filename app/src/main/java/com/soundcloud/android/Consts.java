@@ -36,6 +36,7 @@ public final class Consts {
     public static final int ROW_APPEND_BUFFER = 6;
     public static final int ITEM_TYPE_LOADING = -1;
     public static final String SECRET_CODE_ACTION = "android.provider.Telephony.SECRET_CODE";
+    public static final String AUDIO_BECOMING_NOISY = "android.media.AUDIO_BECOMING_NOISY";
 
 
     public static interface RequestCodes {
@@ -48,6 +49,7 @@ public final class Consts {
     }
 
     public static interface SdkSwitches {
+        boolean useCustomNotificationLayouts = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
         boolean useRichNotifications = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
         boolean canDetermineActivityBackground = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
     }
@@ -65,6 +67,8 @@ public final class Consts {
         int DIALOG_LOGOUT = 9;
         int DIALOG_INSTALL_PROCESSOR = 10;
         int DIALOG_REVERT_RECORDING = 11;
+        int DIALOG_TRANSCODING_FAILED = 12;
+        int DIALOG_TRANSCODING_PROCESSING = 13;
     }
 
     public interface OptionsMenu {

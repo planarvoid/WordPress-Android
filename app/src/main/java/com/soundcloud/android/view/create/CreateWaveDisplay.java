@@ -241,8 +241,8 @@ public class CreateWaveDisplay extends TouchLayout {
             switch (msg.what) {
                 case UI_UPDATE_SEEK:
                     final float[] trimWindow = SoundRecorder.getInstance(getContext()).getTrimWindow();
-                    final int minX = (int) (trimWindow[0] * waveformWidth);
-                    final int maxX = (int) (trimWindow[1] * waveformWidth);
+                    final int minX = mIsEditing == true ? (int) (trimWindow[0] * waveformWidth) : 0;
+                    final int maxX = mIsEditing == true ? (int) (trimWindow[1] * waveformWidth) : waveformWidth;
 
                     final float adjustedSeekPosition = Math.min(Math.max(minX, lastSeekX),maxX) - minX;
                     final float seekPercent = adjustedSeekPosition / (maxX - minX);
@@ -311,10 +311,10 @@ public class CreateWaveDisplay extends TouchLayout {
         }
     }
 
-    public void gotoPlaybackMode(){
+    public void gotoPlaybackMode(boolean animate){
         if (mMode != MODE_PLAYBACK){
             mMode = MODE_PLAYBACK;
-            mWaveformView.setMode(mMode, true);
+            mWaveformView.setMode(mMode, animate);
         }
     }
 
@@ -357,6 +357,11 @@ public class CreateWaveDisplay extends TouchLayout {
         mMode = state.getInt(prepend + "_mode", mMode);
         setIsEditing(state.getBoolean(prepend + "_inEditMode", mIsEditing));
         mWaveformView.setMode(mMode, false);
+    }
+
+    public void onDestroy() {
+        super.onDestroy();
+        mWaveformView.onDestroy();
     }
 
 

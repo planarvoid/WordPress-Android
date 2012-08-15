@@ -10,6 +10,7 @@ import com.soundcloud.android.view.create.TrimHandle;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.test.FlakyTest;
 import android.test.suitebuilder.annotation.Suppress;
 
 
@@ -22,6 +23,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
     /**
      * Record something, move trim handles, playback trimmed version.
      */
+    @FlakyTest
     public void testEditAndTrim() {
         record(RECORDING_TIME);
         gotoEditMode();
@@ -29,6 +31,9 @@ public class RecordEditTest extends AbstractRecordingTestCase {
         trim(0.25, 0.25);
 
         applyEdits();
+
+        solo.sleep(2000);
+
         playback();
         waitForState(IDLE_PLAYBACK, RECORDING_TIME);
 
@@ -71,6 +76,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
 
         uploadSound("A faded test upload", null, true);
 
+        assertSoundEncoded(RECORDING_TIME * 4);
         assertSoundUploaded();
         assertSoundTranscoded();
     }
@@ -88,7 +94,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
 
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
-        assertTrackDuration(track, 5000);
+        assertTrackDuration(track, 5000 + ROBO_SLEEP);
     }
 
     public void testTrimAndFadeAndUpload() throws Exception {
@@ -102,9 +108,10 @@ public class RecordEditTest extends AbstractRecordingTestCase {
 
         uploadSound("A faded + trimmed test upload", null, true);
 
+        assertSoundEncoded(RECORDING_TIME * 4);
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
-        assertTrackDuration(track, 5000);
+        assertTrackDuration(track, 5000 + ROBO_SLEEP);
     }
 
     private void trim(double left, double right) {

@@ -30,6 +30,15 @@ public class AmplitudeDataTest {
     }
 
     @Test
+    public void testLast() throws Exception {
+        expect(data.last()).toEqual(0f);
+        data.add(1);
+        expect(data.last()).toEqual(1f);
+        data.add(2);
+        expect(data.last()).toEqual(2f);
+    }
+
+    @Test
     public void testAddArray() throws Exception {
         data.add(1, 2, 3);
         expect(data.size()).toEqual(3);

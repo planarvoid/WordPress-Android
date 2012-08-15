@@ -190,6 +190,10 @@ public class ScBaseAdapter extends BaseAdapter implements IScAdapter {
         mLoadingIcons.clear();
     }
 
+    public void onResume() {
+
+    }
+
     class NotifyHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {

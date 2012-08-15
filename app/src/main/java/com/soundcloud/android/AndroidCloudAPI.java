@@ -143,6 +143,7 @@ public interface AndroidCloudAPI extends CloudAPI {
             }
         }
 
+
         @Override
         public void setProxy(URI proxy) {
             super.setProxy(proxy);

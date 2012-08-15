@@ -192,6 +192,13 @@ public class ScListFragment extends SherlockListFragment
         super.onStart();
         connectivityListener = new NetworkConnectivityListener();
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
+
+        /*
+        final LazyBaseAdapter wrapped = getWrappedAdapter();
+                if (wrapped != null){
+                    wrapped.onResume();
+                }
+        */
     }
 
 
@@ -519,27 +526,33 @@ public class ScListFragment extends SherlockListFragment
         }
     }
 
-    private
-
     /*
     private ScListView.LazyListListener mLazyListListener = new ScListView.LazyListListener() {
             @Override
-            public void onEventClick(EventsAdapterWrapper wrapper, int position) {
-                final Activity e = (Activity) wrapper.getItem(position);
-                if (e.type == Activity.Type.FAVORITING) {
-                    SoundCloudApplication.TRACK_CACHE.put(e.getTrack(), false);
-                    startActivity(new Intent(ScListActivity.this, TrackFavoriters.class)
-                        .putExtra("track_id", e.getTrack().id));
-                } else {
-                    playTrack(wrapper.getPlayInfo(position));
-                }
-            }
+                    public void onEventClick(EventsAdapterWrapper wrapper, int position) {
+                        final Activity e = (Activity) wrapper.getItem(position);
+                        if (e.type == Activity.Type.FAVORITING) {
+                            SoundCloudApplication.TRACK_CACHE.put(e.getTrack(), false);
+                            startActivity(new Intent(ScListActivity.this, TrackFavoriters.class)
+                                .putExtra("track_id", e.getTrack().id));
+                        } else {
+                            playTrack(wrapper.getPlayInfo(position));
+                        }
+                    }
 
-            @Override
-            public void onTrackClick(LazyEndlessAdapter wrapper, int position) {
-                playTrack(wrapper.getPlayInfo(position));
-            }
+                    @Override
+                    public void onTrackClick(LazyEndlessAdapter wrapper, int position) {
+                        if (wrapper.getItem(position) instanceof Track &&
+                                !((Track) wrapper.getItem(position)).state.isStreamable()){
 
+                            showDialog(((Track) wrapper.getItem(position)).state.isFailed() ?
+                                    Consts.Dialogs.DIALOG_TRANSCODING_FAILED :
+                                    Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING);
+                        } else {
+                            playTrack(wrapper.getPlayInfo(position));
+                        }
+
+                    }
             @Override
             public void onUserClick(User user) {
                 Intent i = new Intent(ScListActivity.this, UserBrowser.class);

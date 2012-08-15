@@ -3,9 +3,17 @@ package com.soundcloud.android;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.api.Env;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import java.io.File;
 
 
 @RunWith(DefaultTestRunner.class)
@@ -24,5 +32,25 @@ public class AppTest {
         // sandbox
         expect(AndroidCloudAPI.Wrapper.getClientSecret(false))
                 .toEqual("0000000pGDzQNAPHzBH6hBTHphl4Q1e9");
+    }
+
+    @Test
+    public void shouldOnlyHaveOneLauncherActivity() throws Exception {
+        DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
+        f.setNamespaceAware(true);
+        Document doc = f.newDocumentBuilder().parse(new File("../app/AndroidManifest.xml"));
+        NodeList nl = (NodeList) XPathFactory.newInstance().newXPath().compile("//activity/intent-filter/category").evaluate(doc, XPathConstants.NODESET);
+        int launchers = 0;
+        for (int i = 0; i < nl.getLength(); i++) {
+            Node n = nl.item(i);
+            NamedNodeMap attributes = n.getAttributes();
+            if (attributes != null) {
+                Node name = attributes.getNamedItem("android:name");
+                if (name != null && "android.intent.category.LAUNCHER".equals(name.getTextContent())) {
+                    launchers++;
+                }
+            }
+        }
+        expect(launchers).toEqual(1);
     }
 }
