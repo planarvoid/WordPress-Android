@@ -419,4 +419,13 @@ public class ScContentProviderTest {
         expect(syncs.isEmpty()).toBeTrue();
         expect(ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY)).toBeFalse();
     }
+
+    @Test
+    public void shouldDeleteRecordings() throws Exception {
+        Recording r = Recording.create();
+        expect(SoundCloudDB.insertRecording(resolver, r)).not.toBeNull();
+        resolver.delete(Content.RECORDINGS.uri, null, null);
+        Cursor cursor = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
+        expect(cursor.getCount()).toEqual(0);
+    }
 }
