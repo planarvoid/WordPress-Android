@@ -6,11 +6,14 @@ import static com.soundcloud.android.service.sync.ApiSyncer.getAdditionsFromIds;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.EmptyCollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.LocalCollectionPage;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackHolder;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.UserHolder;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.api.Request;
@@ -35,7 +38,7 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
     protected CollectionParams mParams;
     protected WeakReference<Callback> mCallback;
     public boolean keepGoing;
-    /* package */ List<Parcelable> mNewItems = new ArrayList<Parcelable>();
+    /* package */ CollectionHolder<? extends ScModel> mNewItems = new EmptyCollectionHolder();
 
     protected String mNextHref;
     protected int mResponseCode = HttpStatus.SC_OK;
@@ -48,6 +51,7 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
         public boolean refreshPageItems;
         public int startIndex;
         public int maxToLoad;
+        public long timestamp;
 
         @Override
         public String toString() {
@@ -56,20 +60,23 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
                     ", contentUri=" + contentUri +
                     ", isRefresh=" + isRefresh +
                     ", request=" + request +
+                    ", refreshPageItems=" + refreshPageItems +
+                    ", startIndex=" + startIndex +
                     ", maxToLoad=" + maxToLoad +
+                    ", timestamp=" + timestamp +
                     '}';
         }
     }
 
     public static class ReturnData {
-        public List<Parcelable> newItems;
+        public CollectionHolder newItems;
         public String nextHref;
         public int responseCode;
         public boolean keepGoing;
         public boolean wasRefresh;
         public boolean success;
 
-        public ReturnData(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing, boolean refresh, boolean success) {
+        public ReturnData(CollectionHolder newItems, String nextHref, int responseCode, boolean keepGoing, boolean refresh, boolean success) {
             this.newItems = newItems;
             this.nextHref = nextHref;
             this.responseCode = responseCode;
@@ -95,8 +102,12 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
         void onPostTaskExecute(ReturnData data);
     }
 
-    public RemoteCollectionTask(SoundCloudApplication app, Callback callback) {
+    public RemoteCollectionTask(SoundCloudApplication app) {
         mApp = app;
+    }
+
+    public RemoteCollectionTask(SoundCloudApplication app, Callback callback) {
+        this(app);
         mCallback = new WeakReference<Callback>(callback);
     }
 
@@ -110,7 +121,7 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
     }
 
     protected void respond(ReturnData returnData){
-        Callback callback = mCallback.get();
+        Callback callback = mCallback == null ? null : mCallback.get();
         if (callback != null) {
             callback.onPostTaskExecute(returnData);
         }
@@ -134,9 +145,9 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
                 Log.e(TAG, "error", e);
             }
 
-            mNewItems = (List<Parcelable>) loadLocalContent();
-            for (Parcelable p : mNewItems) {
-                ((ScModel) p).resolve(mApp);
+            mNewItems = loadLocalContent();
+            for (ScModel m : mNewItems) {
+                m.resolve(mApp);
             }
             return buildReturnData(true);
 
@@ -147,7 +158,7 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
         }
     }
 
-    private ReturnData buildReturnData(boolean success){
+    protected ReturnData buildReturnData(boolean success){
         return new ReturnData(mNewItems, mNextHref, mResponseCode, keepGoing, mParams.isRefresh, success);
     }
 
@@ -161,12 +172,11 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
 
             // process new items and publish them
             CollectionHolder holder = ScModel.getCollectionFromStream(resp.getEntity().getContent(), mApp.getMapper(),
-                    mParams.loadModel, mNewItems);
+                    mParams.loadModel);
             mNextHref = holder == null || TextUtils.isEmpty(holder.next_href) ? null : holder.next_href;
             keepGoing = !TextUtils.isEmpty(mNextHref);
-            for (Parcelable p : mNewItems) {
-                ((ScModel) p).resolve(mApp);
-            }
+            holder.resolve(mApp);
+
             return buildReturnData(true);
 
         } catch (IOException e) {
@@ -209,22 +219,17 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
         }
     }
 
-    protected List<? extends Parcelable> loadLocalContent(){
+    protected CollectionHolder<? extends ScModel> loadLocalContent(){
         Cursor itemsCursor = mApp.getContentResolver().query(
                 SoundCloudDB.addPagingParams(mParams.contentUri, mParams.startIndex, mParams.maxToLoad)
                 , null, null, null, null);
-            List<Parcelable> items = new ArrayList<Parcelable>();
-            if (itemsCursor != null && itemsCursor.moveToFirst()) {
-                do {
-                    if (Track.class.equals(mParams.loadModel)) {
-                        final Parcelable t = TRACK_CACHE.fromCursor(itemsCursor);
-                        items.add(t);
-                    } else if (User.class.equals(mParams.loadModel)) {
-                        items.add(USER_CACHE.fromCursor(itemsCursor));
-                    }
-                } while (itemsCursor.moveToNext());
-            }
-        if (itemsCursor != null) itemsCursor.close();
-        return items;
+
+        if (Track.class.equals(mParams.loadModel)) {
+            return TrackHolder.fromCursor(itemsCursor);
+        } else if (User.class.equals(mParams.loadModel)) {
+            return UserHolder.fromCursor(itemsCursor);
+        } else {
+            throw new IllegalArgumentException("NOT HANDLED YET " + mParams.loadModel);
+        }
     }
 }

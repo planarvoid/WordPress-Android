@@ -249,8 +249,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         solo.finishOpenedActivities();
 
-        Main main = launchActivityWithIntent("com.soundcloud.android",
-            Main.class, new Intent().putExtra(Main.TAB_TAG, Main.Tab.PROFILE.tag));
+        Main main = launchActivityWithIntent("com.soundcloud.android", Main.class, new Intent());
 
 
         solo.clickOnText(name);

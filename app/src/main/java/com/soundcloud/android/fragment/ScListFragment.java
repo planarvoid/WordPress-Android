@@ -9,15 +9,16 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.task.CollectionLoader;
+import com.soundcloud.android.task.RemoteActivitiesTask;
 import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.task.UpdateCollectionTask;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -46,7 +47,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListAdapter;
 
@@ -397,36 +397,47 @@ public class ScListFragment extends SherlockListFragment
         mEmptyCollection.setHasSyncedBefore(mLocalCollection.hasSyncedBefore());
     }
 
-    protected void addNewItems(List<Parcelable> newItems) {
-        if (newItems == null || newItems.size() == 0) return;
+    protected void addNewItems(Iterable<ScModel> newItems) {
+
+        if (newItems == null || !newItems.iterator().hasNext()) return;
         for (Parcelable newItem : newItems) {
             getBaseAdapter().addItem(newItem);
         }
         checkForStaleItems(newItems);
     }
 
-    protected void checkForStaleItems(List<? extends Parcelable> newItems) {
-        if (!(IOUtils.isWifiConnected(getActivity())) || newItems == null || newItems.size() == 0 || !(newItems.get(0) instanceof Refreshable))
+    protected void checkForStaleItems(Iterable<ScModel> newItems) {
+        if (!(IOUtils.isWifiConnected(getActivity())) || newItems == null || !newItems.iterator().hasNext())
             return;
 
-        Map<Long, ScModel> toUpdate = new HashMap<Long, ScModel>();
+        Map<Long, Track> trackUpdates = new HashMap<Long, Track>();
+        Map<Long, User> userUpdates = new HashMap<Long, User>();
         for (Parcelable newItem : newItems) {
             if (newItem instanceof Refreshable) {
                 ScModel resource = ((Refreshable) newItem).getRefreshableResource();
                 if (resource != null) {
                     if (((Refreshable) newItem).isStale()) {
-                        toUpdate.put(resource.id, resource);
+                        if (resource instanceof Track){
+                            trackUpdates.put(resource.id, (Track) resource);
+                        } else if (resource instanceof User){
+                            userUpdates.put(resource.id, (User) resource);
+                        }
                     }
                 }
             }
         }
 
-        if (toUpdate.size() > 0) {
-            mUpdateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(getActivity()), mContent.resourceType);
-            mUpdateCollectionTask.setAdapter(getBaseAdapter());
-            mUpdateCollectionTask.execute(toUpdate);
+        if (trackUpdates.size() > 0) {
+            UpdateCollectionTask updateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(getActivity()), Track.class);
+            updateCollectionTask.setAdapter(getBaseAdapter());
+            updateCollectionTask.execute(trackUpdates);
         }
 
+        if (userUpdates.size() > 0) {
+            UpdateCollectionTask updateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(getActivity()), User.class);
+            updateCollectionTask.setAdapter(getBaseAdapter());
+            updateCollectionTask.execute(userUpdates);
+        }
     }
 
     protected boolean handleResponseCode(int responseCode) {
@@ -442,27 +453,6 @@ public class ScListFragment extends SherlockListFragment
                 Log.w(TAG, "unexpected responseCode " + responseCode);
                 return false;
         }
-    }
-
-    @Override
-    public void onPostTaskExecute(RemoteCollectionTask.ReturnData data) {
-        if (data.success){
-            if (data.wasRefresh){
-                reset();
-                if (mListView != null && mContentUri != null) setListLastUpdated();
-            }
-
-            mNextHref = data.nextHref;
-            addNewItems(data.newItems);
-        } else {
-            handleResponseCode(data.responseCode);
-        }
-
-        // reset refresh header
-        if (data.wasRefresh && (getBaseAdapter().getData().size() > 0 || !isRefreshing())) {
-            doneRefreshing();
-        }
-        getBaseAdapter().notifyDataSetChanged();
     }
 
     @Override
@@ -485,6 +475,26 @@ public class ScListFragment extends SherlockListFragment
                 }
             }
         };
+
+    @Override
+    public void onPostTaskExecute(RemoteCollectionTask.ReturnData data) {
+        if (data.success) {
+            if (data.wasRefresh) {
+                reset();
+                if (mListView != null && mContentUri != null) setListLastUpdated();
+            }
+
+            mNextHref = data.nextHref;
+            addNewItems(data.newItems);
+        } else {
+            handleResponseCode(data.responseCode);
+        }
+
+        // reset refresh header
+        if (data.wasRefresh && (getBaseAdapter().getData().size() > 0 || !isRefreshing())) {
+            doneRefreshing();
+        }
+    }
 
 
     private class ChangeObserver extends ContentObserver {
@@ -515,7 +525,17 @@ public class ScListFragment extends SherlockListFragment
         @Override
         protected boolean cacheInBackground() throws Exception {
             if (this != mEndlessAdapter) return false;
-            lastReturn = new RemoteCollectionTask(SoundCloudApplication.fromContext(getContext()),null).execute(getTaskParams(false)).get();
+
+            switch (mContent){
+                case ME_SOUND_STREAM:
+                    lastReturn = new RemoteActivitiesTask(SoundCloudApplication.fromContext(getContext())).execute(getTaskParams(false)).get();
+                    break;
+                default:
+                    lastReturn = new RemoteCollectionTask(SoundCloudApplication.fromContext(getContext())).execute(getTaskParams(false)).get();
+                    break;
+
+            }
+
             return lastReturn.keepGoing;
         }
 
@@ -523,6 +543,7 @@ public class ScListFragment extends SherlockListFragment
         protected void appendCachedData() {
             if (this != mEndlessAdapter) return;
             onPostTaskExecute(lastReturn);
+            getBaseAdapter().notifyDataSetChanged();
         }
     }
 

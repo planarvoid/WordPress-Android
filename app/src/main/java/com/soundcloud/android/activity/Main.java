@@ -123,7 +123,7 @@ public class Main extends ScListActivity implements
     }
 
     class MainFragmentAdapter extends FragmentPagerAdapter {
-        protected final Content[] contents = new Content[]{Content.ME_TRACKS, Content.ME_FAVORITES};
+        protected final Content[] contents = new Content[]{Content.ME_SOUND_STREAM, Content.ME_FAVORITES};
         protected final int[] titleIds = new int[]{R.string.tab_title_my_sounds,R.string.tab_title_my_likes};
 
         public MainFragmentAdapter(FragmentManager fm) {

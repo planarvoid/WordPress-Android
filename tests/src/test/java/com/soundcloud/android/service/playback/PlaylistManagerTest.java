@@ -5,6 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
+import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
@@ -275,9 +276,9 @@ public class PlaylistManagerTest {
 
     private void insertTracksAsUri(Uri uri) throws IOException {
         List<Parcelable> items = new ArrayList<Parcelable>();
-        ScModel.getCollectionFromStream(getClass().getResourceAsStream("tracks.json"), AndroidCloudAPI.Mapper, Track.class, items);
-        for (Parcelable p: items){
-            SoundCloudApplication.TRACK_CACHE.put((Track) p);
+        CollectionHolder<Track> holder = ScModel.getCollectionFromStream(getClass().getResourceAsStream("tracks.json"), AndroidCloudAPI.Mapper, Track.class);
+        for (Track t: holder){
+            SoundCloudApplication.TRACK_CACHE.put(t);
         }
 
         expect(SoundCloudDB.bulkInsertParcelables(resolver, items, uri, USER_ID)).toEqual(4);

@@ -7,13 +7,13 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackHolder;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,10 +26,8 @@ import android.content.Intent;
 import android.content.PeriodicSync;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.BaseColumns;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,9 +57,9 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldInsertQueryAndDeleteFavorites() throws Exception {
-        Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
+        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
                 getClass().getResourceAsStream("user_favorites.json"),
-                Track.TrackHolder.class);
+                TrackHolder.class);
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
             expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
@@ -79,9 +77,9 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldCleanup() throws Exception {
-        Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
+        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
                 getClass().getResourceAsStream("user_favorites.json"),
-                Track.TrackHolder.class);
+                TrackHolder.class);
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
@@ -93,7 +91,7 @@ public class ScContentProviderTest {
 
         tracks  = AndroidCloudAPI.Mapper.readValue(
                 getClass().getResourceAsStream("tracks.json"),
-                Track.TrackHolder.class);
+                TrackHolder.class);
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
@@ -152,9 +150,9 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldSupportAndroidGlobalSearch() throws Exception {
-        Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
+        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
                 getClass().getResourceAsStream("user_favorites.json"),
-                Track.TrackHolder.class);
+                TrackHolder.class);
 
         for (Track t : tracks) {
             resolver.insert(Content.TRACKS.uri, t.buildContentValues());
@@ -188,9 +186,9 @@ public class ScContentProviderTest {
     @Test
     public void shouldSuggestSoundsSortedByCreatedAt() throws Exception {
 
-        Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
+        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
                 getClass().getResourceAsStream("user_favorites.json"),
-                Track.TrackHolder.class);
+                TrackHolder.class);
 
         for (Track t : tracks) {
             resolver.insert(Content.TRACKS.uri, t.buildContentValues());
@@ -246,9 +244,9 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveATracksEndpointWithRandom() throws Exception {
-        Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
+        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
                 getClass().getResourceAsStream("user_favorites.json"),
-                Track.TrackHolder.class);
+                TrackHolder.class);
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
@@ -271,9 +269,9 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveATracksEndpointWhichReturnsOnlyCachedItems() throws Exception {
-        Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
+        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
                 getClass().getResourceAsStream("user_favorites.json"),
-                Track.TrackHolder.class);
+                TrackHolder.class);
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
@@ -295,9 +293,9 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveFavoriteEndpointWhichOnlyReturnsCachedItems() throws Exception {
-        Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
+        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
                 getClass().getResourceAsStream("user_favorites.json"),
-                Track.TrackHolder.class);
+                TrackHolder.class);
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
@@ -319,9 +317,9 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveFavoriteEndpointWhichReturnsRandomItems() throws Exception {
-        Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
+        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
                 getClass().getResourceAsStream("user_favorites.json"),
-                Track.TrackHolder.class);
+                TrackHolder.class);
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();

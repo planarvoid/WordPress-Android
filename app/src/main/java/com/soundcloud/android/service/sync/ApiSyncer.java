@@ -1,11 +1,15 @@
 package com.soundcloud.android.service.sync;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.EmptyCollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
@@ -18,6 +22,8 @@ import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
@@ -32,8 +38,11 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -169,15 +178,16 @@ public class ApiSyncer {
                         .getEntity().getContent();
 
                 // parse and add first items
-                List<Parcelable> firstUsers = new ArrayList<Parcelable>();
-                ScModel.getCollectionFromStream(is, mApi.getMapper(), User.class, firstUsers);
-                added = SoundCloudDB.bulkInsertParcelables(mResolver, firstUsers, content.uri, userId);
+                CollectionHolder<ScModel> holder = ScModel.getCollectionFromStream(is, mApi.getMapper(), User.class);
+
+                added = SoundCloudDB.bulkInsertParcelables(mResolver, holder.collection, content.uri, userId);
+
 
                 // remove items from master remote list and adjust start index
-                for (Parcelable u : firstUsers) {
-                    remote.remove(((User) u).id);
+                for (ScModel m : holder) {
+                    remote.remove(((User) m).id);
                 }
-                startPosition = firstUsers.size();
+                startPosition = holder.size();
                 break;
             case ME_TRACKS:
                 // ensure the first couple of pages of items for quick loading
@@ -267,13 +277,13 @@ public class ApiSyncer {
         return result;
     }
 
-    public static List<Parcelable> getAdditionsFromIds(AndroidCloudAPI app,
+    public static List<ScModel> getAdditionsFromIds(AndroidCloudAPI app,
                                                        ContentResolver resolver,
                                                        List<Long> additions,
                                                        Content content,
                                                        boolean ignoreStored) throws IOException {
-
-        if (additions == null || additions.isEmpty()) return new ArrayList<Parcelable>();
+        List<ScModel> toAdd = new ArrayList<ScModel>();
+        if (additions == null || additions.isEmpty()) return toAdd;
 
         // copy so we don't modify the original
         additions = new ArrayList<Long>(additions);
@@ -293,7 +303,6 @@ public class ApiSyncer {
         }
 
         // add new items from batch lookups
-        List<Parcelable> items = new ArrayList<Parcelable>();
         int i = 0;
         while (i < additions.size()) {
 
@@ -305,14 +314,13 @@ public class ApiSyncer {
                     .add("limit", API_LOOKUP_BATCH_SIZE)
                     .add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
 
-            ScModel.getCollectionFromStream(is,
+            toAdd.addAll(ScModel.getCollectionFromStream(is,
                     app.getMapper(),
-                    content.resourceType,
-                    items
-            );
+                    content.resourceType
+            ).collection);
             i += API_LOOKUP_BATCH_SIZE;
         }
-        return items;
+        return toAdd;
     }
 
     private static List<Long> getCollectionIds(AndroidCloudAPI app, String endpoint) throws IOException {
@@ -342,7 +350,16 @@ public class ApiSyncer {
     }
 
 
-    public static class IdHolder extends CollectionHolder<Long> {}
+
+    public abstract class IdHolder {
+        @JsonProperty
+        @JsonView(Views.Mini.class)
+        public List<Long> collection;
+
+        @JsonProperty @JsonView(Views.Mini.class)
+        public String next_href;
+    }
+
 
     public static class Result {
         public static final int UNCHANGED = 0;

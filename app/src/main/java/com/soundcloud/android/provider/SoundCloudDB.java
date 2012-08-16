@@ -1,5 +1,6 @@
 package com.soundcloud.android.provider;
 
+import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Origin;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
@@ -134,11 +135,12 @@ public class SoundCloudDB {
         return user;
     }
 
-
-    public static int bulkInsertParcelables(ContentResolver resolver, List<Parcelable> items) {
-        return bulkInsertParcelables(resolver, items, null, -1);
+    public static int bulkInsertParcelables(ContentResolver resolver, CollectionHolder holder) {
+        return bulkInsertParcelables(resolver, holder.collection, null, -1);
     }
-
+    public static int bulkInsertParcelables(ContentResolver resolver, List<? extends Parcelable> items) {
+            return bulkInsertParcelables(resolver, items, null, -1);
+        }
     public static int bulkInsertParcelables(ContentResolver resolver,
                                             List<? extends Parcelable> items,
                                             Uri uri,

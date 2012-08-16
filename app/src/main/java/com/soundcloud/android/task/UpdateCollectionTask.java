@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class UpdateCollectionTask extends AsyncTask<Map<Long, ScModel>, String, Boolean> {
+public class UpdateCollectionTask extends AsyncTask<Map<Long, ? extends ScModel>, String, Boolean> {
     protected SoundCloudApplication mApp;
     protected Class<?> mLoadModel;
     protected WeakReference<BaseAdapter> mAdapterReference;
@@ -59,8 +59,8 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, ScModel>, String, 
     }
 
     @Override
-    protected Boolean doInBackground(Map<Long, ScModel>... params) {
-        Map<Long,ScModel> itemsToUpdate = params[0];
+    protected Boolean doInBackground(Map<Long, ? extends ScModel>... params) {
+        Map<Long,? extends ScModel> itemsToUpdate = params[0];
         Log.i(TAG,"Updating " + itemsToUpdate.size() + " items");
         try {
             HttpResponse resp = mApp.get(Request.to(Track.class.equals(mLoadModel) ? Endpoints.TRACKS : Endpoints.USERS)

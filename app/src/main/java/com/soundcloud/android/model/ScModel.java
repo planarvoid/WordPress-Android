@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import static com.soundcloud.android.SoundCloudApplication.TRACK_CACHE;
 import static com.soundcloud.android.SoundCloudApplication.USER_CACHE;
 
 public abstract class ScModel implements Parcelable {
+
     public static final int NOT_SET = -1;
 
     @JsonView(Views.Mini.class) public long id = NOT_SET;
@@ -38,9 +40,9 @@ public abstract class ScModel implements Parcelable {
 
     public static CollectionHolder getCollectionFromStream(InputStream is,
                                                            ObjectMapper mapper,
-                                                           Class<?> loadModel,
-                                                           List<? super Parcelable> items) throws IOException {
+                                                           Class<?> loadModel) throws IOException {
         CollectionHolder holder = null;
+        List<ScModel> items = new ArrayList<ScModel>();
         if (Track.class.equals(loadModel)) {
             holder = mapper.readValue(is, TracklistItemHolder.class);
             for (TracklistItem t : (TracklistItemHolder) holder) {
@@ -213,6 +215,7 @@ public abstract class ScModel implements Parcelable {
     public boolean isSaved() {
         return id > NOT_SET;
     }
+
 
     public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}
     public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}

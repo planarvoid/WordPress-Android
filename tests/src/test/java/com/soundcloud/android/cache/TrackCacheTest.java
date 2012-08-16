@@ -3,9 +3,9 @@ package com.soundcloud.android.cache;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TracklistItem;
+import com.soundcloud.android.model.ScModel.TracklistItemHolder;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,7 +49,7 @@ public class TrackCacheTest {
     @Test
     public void testUniqueUserMultipleTracks() throws IOException {
         // XXX what does this test do?
-        ScModel.TracklistItemHolder holder = AndroidCloudAPI.Mapper.readValue(getClass().getResourceAsStream("tracks.json"), ScModel.TracklistItemHolder.class);
+        TracklistItemHolder holder = AndroidCloudAPI.Mapper.readValue(getClass().getResourceAsStream("tracks.json"), TracklistItemHolder.class);
         expect(holder.size()).toBe(3);
 
         TracklistItem t1 = holder.get(0);

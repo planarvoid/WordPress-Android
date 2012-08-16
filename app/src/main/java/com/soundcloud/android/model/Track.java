@@ -1,11 +1,15 @@
 
 package com.soundcloud.android.model;
 
+import static com.soundcloud.android.SoundCloudApplication.TRACK_CACHE;
+import static com.soundcloud.android.SoundCloudApplication.USER_CACHE;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -38,6 +42,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,8 +53,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Track extends ScModel implements Origin, Playable, Refreshable {
     private static final String TAG = "Track";
-
-    public static class TrackHolder extends CollectionHolder<Track> {}
 
     // API fields
     @JsonView(Views.Full.class) public Date created_at;
