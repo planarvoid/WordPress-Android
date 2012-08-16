@@ -235,6 +235,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         assertTrue(ampFile.exists());
     }
 
+    @Suppress
     public void testDeleteWavFileAndPlayback() throws Exception {
         record(RECORDING_TIME);
         solo.sleep(1000);
