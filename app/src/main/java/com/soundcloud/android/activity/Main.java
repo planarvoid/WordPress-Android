@@ -360,12 +360,8 @@ public class Main extends TabActivity implements
     }
 
     protected void onTrackLoaded(Track track, @Nullable String action) {
-        startService(new Intent(Main.this, CloudPlaybackService.class)
-                .setAction(CloudPlaybackService.PLAY_ACTION)
-                .putExtra("track", track));
-
+        startService(track.getPlayIntent());
         startActivity(new Intent(Main.this, ScPlayer.class));
-
     }
 
     protected void onUserLoaded(User u, @Nullable String action) {
