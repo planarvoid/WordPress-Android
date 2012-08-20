@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 
-public class RecordStream implements AudioWriter {
+public class RecordStream  {
     private @NotNull final AudioConfig mConfig;
     private @NotNull AudioWriter writer;
     private @NotNull AmplitudeData mAmplitudeData;
@@ -136,12 +136,6 @@ public class RecordStream implements AudioWriter {
         setWriter(w);
     }
 
-    @Override
-    public AudioConfig getConfig() {
-        return writer.getConfig();
-    }
-
-    @Override
     public int write(ByteBuffer samples, int length) throws IOException {
         samples.limit(length);
         mLastAmplitude = mAmplitudeAnalyzer.frameAmplitude(samples, length);
@@ -154,35 +148,12 @@ public class RecordStream implements AudioWriter {
         }
     }
 
-
-    @Override
-    public void finalizeStream() throws IOException {
-        writer.finalizeStream();
-    }
-
-    @Override
-    public boolean setNewPosition(long pos) throws IOException {
-        return writer.setNewPosition(pos);
-    }
-
-    @Override
-    public boolean isClosed() {
-        return writer.isClosed();
-    }
-
-    @Override
     public long getDuration() {
         return writer.getDuration();
     }
 
-    @Override
     public AudioReader getAudioReader() throws IOException {
         return writer.getAudioReader();
-    }
-
-    @Override
-    public void close() throws IOException {
-        writer.close();
     }
 
     public AmplitudeData getAmplitudeData() {
@@ -195,17 +166,17 @@ public class RecordStream implements AudioWriter {
 
     public boolean truncate(long pos, int valuesPerSecond) throws IOException {
         mAmplitudeData.truncate((int) ((pos / 1000d) * valuesPerSecond));
-        return setNewPosition(pos);
+        return writer.setNewPosition(pos);
     }
 
     public void finalizeStream(File amplitudeFile) throws IOException {
-        finalizeStream();
+        writer.finalizeStream();
         mAmplitudeData.store(amplitudeFile);
     }
 
     public void reset() {
         try {
-            close();
+            writer.close();
         } catch (IOException ignored) {
         }
         writer = new EmptyWriter(mConfig);
