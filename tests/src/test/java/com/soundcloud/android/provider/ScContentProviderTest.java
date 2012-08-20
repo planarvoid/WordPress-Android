@@ -1,7 +1,9 @@
 package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.provider.ScContentProvider.Parameter.*;
+import static com.soundcloud.android.provider.ScContentProvider.Parameter.CACHED;
+import static com.soundcloud.android.provider.ScContentProvider.Parameter.LIMIT;
+import static com.soundcloud.android.provider.ScContentProvider.Parameter.RANDOM;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.Activities;
@@ -13,7 +15,6 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,10 +27,8 @@ import android.content.Intent;
 import android.content.PeriodicSync;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.BaseColumns;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -418,5 +417,14 @@ public class ScContentProviderTest {
         syncs = ContentResolver.getPeriodicSyncs(account, ScContentProvider.AUTHORITY);
         expect(syncs.isEmpty()).toBeTrue();
         expect(ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY)).toBeFalse();
+    }
+
+    @Test
+    public void shouldDeleteRecordings() throws Exception {
+        Recording r = Recording.create();
+        expect(SoundCloudDB.insertRecording(resolver, r)).not.toBeNull();
+        resolver.delete(Content.RECORDINGS.uri, null, null);
+        Cursor cursor = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
+        expect(cursor.getCount()).toEqual(0);
     }
 }

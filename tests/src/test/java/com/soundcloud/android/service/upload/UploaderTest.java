@@ -74,10 +74,7 @@ public class UploaderTest {
         final Recording recording = TestApplication.getValidRecording();
         uploader(recording).run();
         expect(actions).toContainExactly(UploadService.TRANSFER_STARTED, UploadService.TRANSFER_ERROR);
-        expect(recording.getUploadException()).not.toBeNull();
-        expect(recording.isCanceled()).toBeFalse();
         expect(recording.isUploaded()).toBeFalse();
-        expect(recording.getUploadException().getMessage()).toEqual("Upload failed: 503 (HTTP status 503), try=0");
     }
 
     @Test
@@ -85,10 +82,7 @@ public class UploaderTest {
         TestHelper.addPendingIOException("/tracks");
         final Recording recording = TestApplication.getValidRecording();
         uploader(recording).run();
-        expect(recording.getUploadException()).not.toBeNull();
         expect(recording.isUploaded()).toBeFalse();
-        expect(recording.isCanceled()).toBeFalse();
-        expect(recording.getUploadException().getMessage()).toEqual("boom");
     }
 
     @Test
@@ -99,8 +93,6 @@ public class UploaderTest {
         final Uploader uploader = uploader(recording);
         uploader.cancel();
         uploader.run();
-        expect(recording.getUploadException() instanceof UserCanceledException).toBeTrue();
-        expect(recording.isCanceled()).toBeTrue();
         expect(recording.isUploaded()).toBeFalse();
     }
 

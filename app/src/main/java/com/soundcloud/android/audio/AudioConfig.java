@@ -1,19 +1,22 @@
 package com.soundcloud.android.audio;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.record.RemainingTimeCalculator;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
+import android.util.Log;
+
+import java.util.EnumSet;
 
 public enum AudioConfig {
-    PCM16_44100_2 (16, 44100, 2, .5f),
-    PCM16_44100_1 (16, 44100, 1, .5f),
-    PCM16_8000_1  (16, 8000,  1, .5f),
-    PCM16_22050_1 (16, 22050, 1, .5f),
-    PCM16_16000_1 (16, 16000, 1, .5f),
+    PCM16_44100_2 (16, 44100, 2),
+    PCM16_44100_1 (16, 44100, 1),
+    PCM16_16000_1 (16, 16000, 1),
+    PCM16_22050_1 (16, 22050, 1),
+    PCM16_8000_1  (16, 8000,  1),
+    PCM8_8000_1   (8,  8000,  1),
     ;
 
     public final int sampleRate;
@@ -21,21 +24,19 @@ public enum AudioConfig {
     public final int bitsPerSample;
     public final int sampleSize;
     public final int bytesPerSecond;
-    public final float quality;
     public final int source = MediaRecorder.AudioSource.MIC;
 
-    public static final AudioConfig DEFAULT = SoundCloudApplication.EMULATOR ?
-            AudioConfig.PCM16_8000_1 : // also needs hw.audioInput=yes in avd
-            AudioConfig.PCM16_44100_1;
+    public static final AudioConfig DEFAULT = PCM16_44100_1;
 
-    private AudioConfig(int bitsPerSample, int sampleRate, int channels, float quality) {
+    private static AudioConfig sDetected;
+
+    private AudioConfig(int bitsPerSample, int sampleRate, int channels) {
         if (bitsPerSample != 8 && bitsPerSample != 16) throw new IllegalArgumentException("invalid bitsPerSample:"+bitsPerSample);
         if (channels < 1 || channels > 2) throw new IllegalArgumentException("invalid channels:"+channels);
 
         this.bitsPerSample = bitsPerSample;
         this.sampleRate = sampleRate;
         this.channels = channels;
-        this.quality = quality;
         sampleSize = (bitsPerSample / 8) * channels;
         bytesPerSecond = sampleRate * sampleSize;
     }
@@ -57,8 +58,12 @@ public enum AudioConfig {
         return bitsPerSample == 16 ? AudioFormat.ENCODING_PCM_16BIT : AudioFormat.ENCODING_PCM_8BIT;
     }
 
-    public int getMinBufferSize() {
+    public int getPlaybackBufferSize() {
         return AudioTrack.getMinBufferSize(sampleRate, getChannelConfig(false), getFormat());
+    }
+
+    public int getRecordBufferSize() {
+        return AudioRecord.getMinBufferSize(sampleRate, getChannelConfig(true), getFormat());
     }
 
     public ScAudioTrack createAudioTrack(int bufferSize) {
@@ -93,6 +98,25 @@ public enum AudioConfig {
         return (int) validBytePosition((long) (bytesPerSecond / valuesPerSecond));
     }
 
+    /**
+     * @return true if the system can handle this audio configuration.
+     */
+    public boolean isValid() {
+        boolean valid;
+        try {
+            valid = getPlaybackBufferSize() > 0;
+            if (!valid) return false;
+        } catch (Exception e) {
+            return false;
+        }
+        try {
+            valid = getRecordBufferSize() > 0;
+        } catch (Exception e) {
+            return false;
+        }
+        return valid;
+    }
+
     public static AudioConfig findMatching(int sampleRate, int channels) {
         for (AudioConfig cfg : values()) {
             if (cfg.sampleRate == sampleRate && channels == cfg.channels) {
@@ -104,5 +128,27 @@ public enum AudioConfig {
 
     public static long msToByte(long ms, int sampleRate, int sampleSize){
         return (long) (ms * (sampleRate / 1000d) * sampleSize);
+    }
+
+
+    /**
+     * Tries to detect a working audio configuration.
+     * @return a working audio config, or {@link #DEFAULT} if not found
+     */
+    public static synchronized AudioConfig detect() {
+        if (sDetected == null) {
+            for (AudioConfig cfg : EnumSet.of(PCM16_44100_1, PCM16_22050_1, PCM16_16000_1, PCM16_8000_1)) {
+                if (cfg.isValid()) {
+                    sDetected = cfg;
+                    break;
+                }
+            }
+            if (sDetected == null) {
+                // this will likely fail later
+                Log.w("AudioConfig", "unable to detect valid audio config for this device");
+                sDetected = DEFAULT;
+            }
+        }
+        return sDetected;
     }
 }

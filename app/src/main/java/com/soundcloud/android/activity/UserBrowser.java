@@ -23,6 +23,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.EventAware;
@@ -873,7 +874,8 @@ public class UserBrowser extends ScListActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!isMe()) {
+        SoundRecorder soundRecorder = SoundRecorder.getInstance(this);
+        if (!isMe() && (!soundRecorder.isRecording() || soundRecorder.getRecording().getRecipient() == mUser)) {
             menu.add(menu.size(), Consts.OptionsMenu.PRIVATE_MESSAGE,
                 menu.size(), R.string.menu_private_message).setIcon(R.drawable.ic_options_menu_rec);
         }

@@ -2,13 +2,13 @@ package com.soundcloud.android.tests;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.task.LoadFollowingsTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -16,7 +16,6 @@ import com.soundcloud.api.Token;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.util.Log;
@@ -55,6 +54,7 @@ public final class IntegrationTestHelper {
             try {
                 token = wrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
             } catch (IOException e) {
+                Log.w(IntegrationTestHelper.class.getSimpleName(), e);
                 throw new AssertionError("error logging in: "+e.getMessage());
             }
             User user = new FetchUserTask(wrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();

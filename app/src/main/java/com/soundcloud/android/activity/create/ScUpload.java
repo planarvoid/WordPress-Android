@@ -1,6 +1,8 @@
 package com.soundcloud.android.activity.create;
 
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -45,6 +47,10 @@ public class ScUpload extends ScActivity {
     private AccessList mAccessList;
     private Recording mRecording;
     private RecordingMetaData mRecordingMetadata;
+    private boolean mUploading;
+
+
+    private static final int REC_ANOTHER = 0, POST = 1;
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -53,12 +59,11 @@ public class ScUpload extends ScActivity {
         final Intent intent = getIntent();
         if (intent != null && (mRecording = Recording.fromIntent(intent, getContentResolver(), getCurrentUserId())) != null) {
             setContentView(mRecording.isPrivateMessage() ? R.layout.sc_message_upload : R.layout.sc_upload);
-
             mRecordingMetadata.setRecording(mRecording, false);
+
             if (mRecording.external_upload) {
                 // 3rd party upload, disable "record another sound button"
-                // TODO, this needs to be fixed, there is no cancel button on this screen
-                // findViewById(R.id.btn_cancel).setVisibility(View.GONE);
+                ((ButtonBar) findViewById(R.id.bottom_bar)).toggleVisibility(REC_ANOTHER, false, true);
                 ((ViewGroup) findViewById(R.id.share_user_layout)).addView(
                         new ShareUserHeader(this, getApp().getLoggedInUser()));
                 findViewById(R.id.txt_title).setVisibility(View.GONE);
@@ -70,7 +75,8 @@ public class ScUpload extends ScActivity {
                 errorOut(R.string.recording_not_found);
             }
         } else {
-            Log.e(getClass().getSimpleName(), "No recording found in intent, finishing");
+            Log.w(TAG, "No recording found in intent, finishing");
+            setResult(RESULT_OK, null);
             finish();
         }
     }
@@ -81,14 +87,14 @@ public class ScUpload extends ScActivity {
         mRecordingMetadata = (RecordingMetaData) findViewById(R.id.metadata_layout);
         mRecordingMetadata.setActivity(this);
 
-        ((ButtonBar) findViewById(R.id.bottom_bar)).addItem(new ButtonBar.MenuItem(0, new View.OnClickListener() {
+        ((ButtonBar) findViewById(R.id.bottom_bar)).addItem(new ButtonBar.MenuItem(REC_ANOTHER, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 track(Click.Record_details_record_another);
                 setResult(RESULT_OK, new Intent().setData(mRecording.toUri()));
                 finish();
             }
-        }), R.string.record_another_sound).addItem(new ButtonBar.MenuItem(1, new View.OnClickListener() {
+        }), R.string.record_another_sound).addItem(new ButtonBar.MenuItem(POST, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 track(Click.Record_details_Upload_and_share);
@@ -97,6 +103,7 @@ public class ScUpload extends ScActivity {
                     saveRecording(mRecording);
                     mRecording.upload(ScUpload.this);
                     setResult(RESULT_OK, new Intent().setData(mRecording.toUri()).putExtra(Actions.UPLOAD_EXTRA_UPLOADING,true));
+                    mUploading = true;
                     finish();
                 } else {
                     errorOut(R.string.recording_not_found);
@@ -171,7 +178,7 @@ public class ScUpload extends ScActivity {
     protected void onStop() {
         super.onStop();
 
-        if (mRecording != null) {
+        if (mRecording != null && !mUploading) {
             // recording exists and hasn't been uploaded
             mapToRecording(mRecording);
             saveRecording(mRecording);
@@ -187,7 +194,7 @@ public class ScUpload extends ScActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mRecordingMetadata.onDestroy();
+        if (mRecordingMetadata != null) mRecordingMetadata.onDestroy();
     }
 
     private void setPrivateShareEmails(String[] emails) {

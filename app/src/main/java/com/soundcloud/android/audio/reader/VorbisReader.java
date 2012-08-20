@@ -5,6 +5,7 @@ import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.jni.DecoderException;
 import com.soundcloud.android.jni.VorbisInfo;
 import com.soundcloud.android.jni.VorbisDecoder;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +17,7 @@ public class VorbisReader extends AudioReader {
 
     public static final String EXTENSION = "ogg";
 
-    public VorbisReader(File file) throws IOException {
+    public VorbisReader(@NotNull File file) throws IOException {
         decoder = new VorbisDecoder(file);
     }
 

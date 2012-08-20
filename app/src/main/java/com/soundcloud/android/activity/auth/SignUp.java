@@ -39,11 +39,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
 @Tracking(page = Page.Entry_signup__main)
 public class SignUp extends Activity {
     private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
     private static final File SIGNUP_LOG = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".dr");
+
 
     private static final int MIN_PASSWORD_LENGTH = 4;
     public static final int THROTTLE_WINDOW = 60 * 60 * 1000;
@@ -216,6 +216,7 @@ public class SignUp extends Activity {
     }
 
     @Nullable static long[] readLog() {
+
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(SIGNUP_LOG));
             return (long[]) in.readObject();
@@ -232,6 +233,7 @@ public class SignUp extends Activity {
     }
 
     static boolean writeNewSignupToLog(long timestamp) {
+
         long[] toWrite, current = readLog();
         if (current == null) {
             toWrite = new long[1];

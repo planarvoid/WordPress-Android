@@ -114,7 +114,7 @@ public class VorbisDecoderTest extends AudioTestCase {
 
     public void testRaisesExceptionOnInitialisationError() throws Exception {
         try {
-            new VorbisDecoder(prepareAsset(MED_WAV));
+            new VorbisDecoder(prepareAsset(MED_STEREO_WAV));
             fail("decoder did not throw exception with bad data");
         } catch (IOException expected) {
             assertEquals("Error initializing decoder: OV_ENOTVORBIS", expected.getMessage());

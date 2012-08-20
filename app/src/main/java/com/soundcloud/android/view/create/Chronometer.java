@@ -40,7 +40,7 @@ public class Chronometer extends TextView {
     }
 
     public void setDurationOnly(long ms) {
-        if (mode != MODE_DURATION_ONLY || setDuration(ms)) {
+        if (setDuration(ms) || mode != MODE_DURATION_ONLY) {
             mode = MODE_DURATION_ONLY;
             setText(mDurationString);
         }

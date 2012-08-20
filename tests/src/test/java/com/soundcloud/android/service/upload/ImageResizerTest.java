@@ -45,7 +45,7 @@ public class ImageResizerTest {
     public void shouldResizeWithArtwork() throws Exception {
         final Recording recording = TestApplication.getValidRecording();
         ImageResizer resizer = new ImageResizer(DefaultTestRunner.application, recording);
-        recording.artwork_path = TestApplication.getTestFile();
+        recording.artwork_path = TestApplication.createJpegFile();
         resizer.run();
 
         expect(actions).toContainExactly(UploadService.RESIZE_STARTED, UploadService.RESIZE_SUCCESS);

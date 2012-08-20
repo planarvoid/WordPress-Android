@@ -30,9 +30,10 @@ import com.soundcloud.android.utils.NetworkConnectivityListener;
  */
 public abstract class ScActivity extends android.app.Activity implements Tracker {
     protected static final int CONNECTIVITY_MSG = 0;
-    private Boolean mIsConnected;
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
+    private Boolean mIsConnected;
+    private boolean mIsForeground;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,10 +68,17 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     @Override
     protected void onResume() {
         super.onResume();
+        mIsForeground = true;
         if (getApp().getAccount() == null) {
             pausePlayback();
             finish();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mIsForeground = false;
     }
 
     @Override
@@ -86,6 +94,10 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
 
     public SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
+    }
+
+    public boolean isForeground(){
+        return mIsForeground;
     }
 
     public boolean isConnected() {

@@ -40,7 +40,7 @@ public abstract class AudioTestCase extends ScAndroidTestCase {
      * Replaygain: off
      * Duration: 00:00:05.64
      */
-    public static final String SHORT_WAV = "audio/short_test.wav";
+    public static final String SHORT_MONO_WAV = "audio/short_test.wav";
 
     /*
      * File Size: 882k      Bit Rate: 706k
@@ -61,7 +61,7 @@ public abstract class AudioTestCase extends ScAndroidTestCase {
      * Replaygain: off
      * Duration: 00:00:18.95
      */
-    public static final String MED_WAV = "audio/med_test.wav";
+    public static final String MED_STEREO_WAV = "audio/med_test.wav";
 
     /*
      * 3 different ogg bitstreams chained together in one file (= physical
