@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.sync;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.AndroidCloudAPI;
@@ -156,7 +157,6 @@ public class ApiSyncer {
 
     private Result syncContent(Content content, final long userId) throws IOException {
         Result result = new Result(content.uri);
-
         List<Long> local = content.getLocalIds(mResolver, userId);
         List<Long> remote = getCollectionIds(mApi, content.remoteUri);
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
@@ -350,16 +350,40 @@ public class ApiSyncer {
     }
 
 
-
-    public abstract class IdHolder {
+    public static class IdHolder {
         @JsonProperty
-        @JsonView(Views.Mini.class)
         public List<Long> collection;
 
-        @JsonProperty @JsonView(Views.Mini.class)
+        @JsonProperty
         public String next_href;
-    }
 
+        public IdHolder() {
+        }
+
+        public boolean hasMore() {
+            return !TextUtils.isEmpty(next_href);
+        }
+
+        public Request getNextRequest() {
+            if (!hasMore()) {
+                throw new IllegalStateException("next_href is null");
+            } else {
+                return new Request(URI.create(next_href));
+            }
+        }
+
+        public String getCursor() {
+            if (next_href != null) {
+                List<NameValuePair> params = URLEncodedUtils.parse(URI.create(next_href), "UTF-8");
+                for (NameValuePair param : params) {
+                    if (param.getName().equalsIgnoreCase("cursor")) {
+                        return param.getValue();
+                    }
+                }
+            }
+            return null;
+        }
+    }
 
     public static class Result {
         public static final int UNCHANGED = 0;

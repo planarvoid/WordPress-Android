@@ -64,6 +64,7 @@ public abstract class ScModel implements Parcelable {
                 items.add(f);
             }
         }
+        holder.collection = items;
         return holder;
     }
 

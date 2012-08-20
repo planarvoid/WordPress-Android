@@ -525,7 +525,6 @@ public class ScListFragment extends SherlockListFragment
         @Override
         protected boolean cacheInBackground() throws Exception {
             if (this != mEndlessAdapter) return false;
-
             switch (mContent){
                 case ME_SOUND_STREAM:
                     lastReturn = new RemoteActivitiesTask(SoundCloudApplication.fromContext(getContext())).execute(getTaskParams(false)).get();

@@ -142,7 +142,9 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
             try {
                 insertMissingItems(localData.idList);
             } catch (IOException e) {
+                // todo, keepgoing should be false??
                 Log.e(TAG, "error", e);
+                keepGoing = false;
             }
 
             mNewItems = loadLocalContent();
