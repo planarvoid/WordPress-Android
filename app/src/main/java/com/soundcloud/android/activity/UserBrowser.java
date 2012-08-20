@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.android.imageloader.ImageLoader;
@@ -12,9 +13,11 @@ import com.soundcloud.android.activity.create.ScUpload;
 import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.cache.ParcelCache;
+import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.task.fetch.FetchUserTask;
@@ -27,30 +30,40 @@ import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.FullImageDialog;
-import com.soundcloud.android.view.UserlistLayout;
-import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+import com.viewpagerindicator.TabPageIndicator;
+import com.viewpagerindicator.TitlePageIndicator;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -58,7 +71,7 @@ public class UserBrowser extends ScListActivity implements
         ParcelCache.Listener<Connection>,
         FollowStatus.Listener,
         FetchUserTask.FetchUserListener,
-        EventAware {
+        EventAware, ActionBar.OnNavigationListener {
 
     /* package */ User mUser;
 
@@ -73,12 +86,21 @@ public class UserBrowser extends ScListActivity implements
 
     private FrameLayout mInfoView;
     private Button mFollowBtn, mFollowingBtn;
-    private UserlistLayout mUserlistBrowser;
     private FetchUserTask mLoadUserTask;
     private boolean mUpdateInfo;
 
     private List<Connection> mConnections;
     private Object[] mAdapterStates;
+
+    private UserFragmentAdapter mAdapter;
+    private ViewPager mPager;
+    private TitlePageIndicator mIndicator;
+
+
+    @Override
+    public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+        return false;
+    }
 
     public enum Tab {
         tracks(Page.Users_sounds, Page.You_sounds),
@@ -161,6 +183,16 @@ public class UserBrowser extends ScListActivity implements
             }
         });
 
+        mAdapter = new UserFragmentAdapter(getSupportFragmentManager());
+
+                mPager = (ViewPager) findViewById(R.id.pager);
+                mPager.setAdapter(mAdapter);
+                mPager.setBackgroundColor(Color.WHITE);
+
+                mIndicator = (TitlePageIndicator) findViewById(R.id.indicator);
+                mIndicator.setViewPager(mPager);
+
+
         Intent intent = getIntent();
         // XXX in case user is already loaded - should be handled here, not in caller
         mUpdateInfo = intent.getBooleanExtra("updateInfo",true);
@@ -180,6 +212,7 @@ public class UserBrowser extends ScListActivity implements
             build();
             if (!isMe()) FollowStatus.get().requestUserFollowings(getApp(), this, false);
 
+            /*
             if (intent.hasExtra(Tab.EXTRA)) {
                 mUserlistBrowser.initByTag(intent.getStringExtra(Tab.EXTRA));
             } else if (isMe()) {
@@ -192,7 +225,7 @@ public class UserBrowser extends ScListActivity implements
             } else {
                 mUserlistBrowser.initWorkspace(1);//tracks tab
             }
-
+                          */
             if (isMe()) {
                 mConnections = Connections.get().getObjectsOrNull();
                 //mFriendFinderView.onConnections(mConnections, true);
@@ -203,6 +236,34 @@ public class UserBrowser extends ScListActivity implements
         loadDetails();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
+
+
+
+    class UserFragmentAdapter extends FragmentPagerAdapter {
+            protected final Content[] contents = new Content[]{Content.ME_TRACKS, Content.ME_FAVORITES,Content.ME_FOLLOWERS,Content.ME_FOLLOWINGS};
+            protected final int[] titleIds = new int[]{R.string.tab_title_user_sounds,R.string.tab_title_user_likes,R.string.tab_title_user_followers,R.string.tab_title_user_followings};
+
+            public UserFragmentAdapter(FragmentManager fm) {
+                super(fm);
+            }
+
+            @Override
+            public ScListFragment getItem(int position) {
+                return ScListFragment.newInstance(contents[position]);
+            }
+
+            @Override
+            public int getCount() {
+                return contents.length;
+            }
+
+            @Override
+            public CharSequence getPageTitle(int position) {
+                return getResources().getString(titleIds[position]);
+            }
+        }
+
+
 
     private void follow(User user) {
         getApp().track(Click.Follow, user, Level2.Users);
@@ -215,11 +276,12 @@ public class UserBrowser extends ScListActivity implements
     }
 
     public void setTab(String tag) {
-        mUserlistBrowser.setCurrentScreenByTag(tag);
+        //mUserlistBrowser.setCurrentScreenByTag(tag);
     }
 
     public boolean isShowingTab(Tab tab) {
-        return mUserlistBrowser.getCurrentTag().equals(tab.tag);
+        return false;
+        //return mUserlistBrowser.getCurrentTag().equals(tab.tag);
     }
 
 
@@ -298,14 +360,17 @@ public class UserBrowser extends ScListActivity implements
     }
 
     public Page getEvent() {
-        Tab current = Tab.valueOf(mUserlistBrowser.getCurrentTag());
-        return isMe() ? current.you : current.user;
+        //Tab current = Tab.valueOf(mUserlistBrowser.getCurrentTag());
+        //return isMe() ? current.you : current.user;
+        return Page.Users_sounds;
     }
 
     private void build() {
 
-        mUserlistBrowser = (UserlistLayout) findViewById(R.id.userlist_browser);
+        //mUserlistBrowser = (UserlistLayout) findViewById(R.id.userlist_browser);
         final boolean isMe = isMe();
+
+        getSupportActionBar().setTitle(mUser.username);
         /*
         // Tracks View
         ScBaseAdapter adp = isOtherUser() ?
@@ -480,7 +545,7 @@ public class UserBrowser extends ScListActivity implements
         mUserlistBrowser.addView(followingsView, getString(R.string.user_browser_tab_followings), getResources().getDrawable(R.drawable.ic_user_tab_following), Tab.followings.tag);
         mUserlistBrowser.addView(followersView, getString(R.string.user_browser_tab_followers), getResources().getDrawable(R.drawable.ic_user_tab_followers), Tab.followers.tag);
         mUserlistBrowser.addView(infoView, getString(R.string.user_browser_tab_info), getResources().getDrawable(R.drawable.ic_user_tab_info), Tab.details.tag);
-        */
+
 
         mUserlistBrowser.setOnScreenChangedListener(new WorkspaceView.OnScreenChangeListener() {
             @Override public void onScreenChanged(View newScreen, int newScreenIndex) {
@@ -497,6 +562,7 @@ public class UserBrowser extends ScListActivity implements
                 //((ScTabView) newScreen).onVisible();
             }
         });
+        */
     }
 
     private boolean isOtherUser() {
@@ -772,7 +838,7 @@ public class UserBrowser extends ScListActivity implements
         c.loadUserTask = mLoadUserTask;
         c.user = mUser;
         c.connections = mConnections;
-        c.workspaceIndex = mUserlistBrowser.getCurrentWorkspaceIndex();
+        //c.workspaceIndex = mUserlistBrowser.getCurrentWorkspaceIndex();
         c.infoError = mInfoError;
         return c;
     }
@@ -786,7 +852,7 @@ public class UserBrowser extends ScListActivity implements
             mLoadUserTask = c.loadUserTask;
         }
         if (isMe()) mConnections = c.connections;
-        mUserlistBrowser.initWorkspace(c.workspaceIndex);
+        //mUserlistBrowser.initWorkspace(c.workspaceIndex);
     }
 
     private static class Configuration {

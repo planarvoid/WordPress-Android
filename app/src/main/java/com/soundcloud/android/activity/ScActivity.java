@@ -69,6 +69,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     case R.id.nav_activity:
                         break;
                     case R.id.nav_you:
+                        startNavActivity(UserBrowser.class);
                         break;
                     case R.id.nav_record:
                         startNavActivity(ScCreate.class);
@@ -250,14 +251,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         MenuInflater inflater = getSupportMenuInflater();
         inflater.inflate(R.menu.main, menu);
 
-        if (getParent() == null) {
-            menu.add(menu.size(), Consts.OptionsMenu.STREAM,
-                    menu.size(), R.string.menu_incoming).setIcon(R.drawable.ic_menu_incoming);
-        }
-
-        menu.add(menu.size(), Consts.OptionsMenu.FRIEND_FINDER, menu.size(), R.string.menu_friend_finder)
-                .setIcon(R.drawable.ic_menu_friendfinder);
-
         if (this instanceof ScPlayer) {
             menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
                     R.drawable.ic_menu_refresh);
@@ -266,8 +259,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     menu.size(), R.string.menu_view_current_track).setIcon(R.drawable.ic_menu_player);
         }
 
-        menu.add(menu.size(), Consts.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
-                .setIcon(android.R.drawable.ic_menu_preferences);
         return true;
     }
 
@@ -278,26 +269,14 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                 mRootView.animateToggle();
                 return true;
             case R.id.menu_my_info:
-                Intent intent = new Intent(this, UserBrowser.class);
-                startActivity(intent);
+                startNavActivity(UserBrowser.class);
                 return true;
-            case Consts.OptionsMenu.SETTINGS:
-                intent = new Intent(this, Settings.class);
-                startActivity(intent);
+            case R.id.menu_settings:
+                startNavActivity(Settings.class);
                 return true;
             case Consts.OptionsMenu.VIEW_CURRENT_TRACK:
-                startActivity(new Intent(this, ScPlayer.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
-                return true;
-            case Consts.OptionsMenu.STREAM:
-                intent = new Intent(Actions.STREAM);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                return true;
-            case Consts.OptionsMenu.FRIEND_FINDER:
-                intent = new Intent(Actions.MY_PROFILE)
-                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                        .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.friend_finder.name());
-                startActivity(intent);
+                startNavActivity(ScPlayer.class);
+                // TODO .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

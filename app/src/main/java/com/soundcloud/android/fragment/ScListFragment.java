@@ -313,6 +313,7 @@ public class ScListFragment extends SherlockListFragment
 
 
     protected RemoteCollectionTask buildTask() {
+        Log.i("asdf","Building Task from Content " + mContent);
         switch (mContent) {
             case ME_SOUND_STREAM:
                 return new RemoteActivitiesTask(SoundCloudApplication.fromContext(getActivity()), this);
