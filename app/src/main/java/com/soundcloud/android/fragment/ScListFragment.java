@@ -119,9 +119,14 @@ public class ScListFragment extends SherlockListFragment
         super.onActivityCreated(savedInstanceState);
         if (mBaseAdapter == null){
             mBaseAdapter = new ScBaseAdapter(getActivity().getApplicationContext(), mContent);
-            mEndlessAdapter = new ScEndlessAdapter(getActivity(), mBaseAdapter, R.layout.list_loading_item);
-            setListAdapter(mEndlessAdapter);
+            setListAdapter(mBaseAdapter);
         }
+    }
+
+    @Override
+    public void setListAdapter(ListAdapter adapter) {
+        mEndlessAdapter = new ScEndlessAdapter(getActivity(), adapter, R.layout.list_loading_item);
+        super.setListAdapter(mEndlessAdapter);
     }
 
     @Override
@@ -308,7 +313,13 @@ public class ScListFragment extends SherlockListFragment
 
 
     protected RemoteCollectionTask buildTask() {
-        return new RemoteCollectionTask(SoundCloudApplication.fromContext(getActivity()), this);
+        switch (mContent) {
+            case ME_SOUND_STREAM:
+                return new RemoteActivitiesTask(SoundCloudApplication.fromContext(getActivity()), this);
+            default:
+                return new RemoteCollectionTask(SoundCloudApplication.fromContext(getActivity()), this);
+
+        }
     }
 
 
@@ -480,11 +491,13 @@ public class ScListFragment extends SherlockListFragment
     public void onPostTaskExecute(RemoteCollectionTask.ReturnData data) {
         if (data.success) {
             if (data.wasRefresh) {
-                reset();
+                mBaseAdapter.clearData();
+                setListAdapter(mBaseAdapter); // this refreshes the wrapping endless adapter
                 if (mListView != null && mContentUri != null) setListLastUpdated();
             }
 
             mNextHref = data.nextHref;
+
             addNewItems(data.newItems);
         } else {
             handleResponseCode(data.responseCode);
@@ -524,27 +537,18 @@ public class ScListFragment extends SherlockListFragment
 
         @Override
         protected boolean cacheInBackground() throws Exception {
-            if (this != mEndlessAdapter) return false;
-            switch (mContent){
-                case ME_SOUND_STREAM:
-                    lastReturn = new RemoteActivitiesTask(SoundCloudApplication.fromContext(getContext())).execute(getTaskParams(false)).get();
-                    break;
-                default:
-                    lastReturn = new RemoteCollectionTask(SoundCloudApplication.fromContext(getContext())).execute(getTaskParams(false)).get();
-                    break;
-
-            }
-
+            lastReturn = ScListFragment.this.buildTask().execute(getTaskParams(false)).get();
             return lastReturn.keepGoing;
         }
 
         @Override
         protected void appendCachedData() {
-            if (this != mEndlessAdapter) return;
             onPostTaskExecute(lastReturn);
             getBaseAdapter().notifyDataSetChanged();
         }
     }
+
+
 
     /*
     private ScListView.LazyListListener mLazyListListener = new ScListView.LazyListListener() {
