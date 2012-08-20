@@ -21,6 +21,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Tracks;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.utils.ImageUtils;
@@ -528,6 +529,11 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         intent.putExtra(android.content.Intent.EXTRA_TEXT, permalink_url);
 
         return intent;
+    }
+
+    public Intent getPlayIntent() {
+        return new Intent(CloudPlaybackService.PLAY_ACTION)
+                .putExtra("track", this);
     }
 
     public Uri commitLocally(ContentResolver resolver, TrackCache cache) {

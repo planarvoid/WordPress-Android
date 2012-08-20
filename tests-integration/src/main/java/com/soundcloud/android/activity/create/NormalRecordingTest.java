@@ -236,6 +236,27 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     @Suppress
+    public void testDeleteWavFileAndPlayback() throws Exception {
+        record(RECORDING_TIME);
+        solo.sleep(1000);
+
+        Recording r = getActivity().getRecorder().getRecording();
+
+        solo.finishOpenedActivities();
+        getActivity().getRecorder().reset();
+
+        File wavFile = r.getFile();
+
+        assertTrue(wavFile.exists());
+        assertTrue(wavFile.delete());
+
+        launchActivityWithIntent("com.soundcloud.android", ScCreate.class, new Intent().putExtra(Recording.EXTRA, r));
+
+
+        playback();
+    }
+
+    @Suppress
     public void testRecordAndLoadAndAppend() throws Exception {
         record(RECORDING_TIME);
 

@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  * An extension for {@link Solo}, to provider some cleaner assertions / driver logic.
  */
 public class Han extends Solo {
-    private static final long DEFAULT_TIMEOUT = 20 * 1000;
+    private static final int DEFAULT_TIMEOUT = 20 * 1000;
     private static final int SWIPE_SLEEP = 1000;
 
     public Han(Instrumentation instrumentation, Activity activity) {
@@ -84,9 +84,13 @@ public class Han extends Solo {
         assertFalse("Did not expect to find text: "+text, searchText(Pattern.quote(text), true));
     }
 
-    @SuppressWarnings("unchecked")
     public <T extends Activity> T assertActivity(Class<T> a) {
-        final boolean found = waitForActivity(a.getSimpleName(), 5000);
+        return assertActivity(a, DEFAULT_TIMEOUT);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Activity> T assertActivity(Class<T> a, int timeout) {
+        final boolean found = waitForActivity(a.getSimpleName(), timeout);
         Activity activity = getCurrentActivity();
         if (!found && !a.isAssignableFrom(activity.getClass())) {
             fail("Got " + activity.getClass().getSimpleName() + ", expected " + a.getSimpleName());
