@@ -5,6 +5,7 @@ import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.AudioWriter;
 import com.soundcloud.android.audio.PlaybackStream;
+import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.audio.writer.EmptyWriter;
 import com.soundcloud.android.audio.writer.MultiAudioWriter;
 import com.soundcloud.android.audio.writer.VorbisWriter;
@@ -28,6 +29,7 @@ public class RecordStream  {
     private @NotNull final AmplitudeData mPreRecordAmplitudeData;
     private @NotNull final AmplitudeAnalyzer mAmplitudeAnalyzer;
     private float mLastAmplitude;
+    private boolean mWasTruncated, mWasFinalized;
 
     public interface onAmplitudeGenerationListener {
         void onGenerationFinished(boolean success);
@@ -144,6 +146,11 @@ public class RecordStream  {
             return -1;
         } else {
             mAmplitudeData.add(mLastAmplitude);
+            if (mWasFinalized) {
+                // apply short fade at the beginning of new recording session
+                new FadeFilter(FadeFilter.FADE_TYPE_BEGINNING, length).apply(samples, 0, length);
+                mWasFinalized = false;
+            }
             return writer.write(samples, length);
         }
     }
@@ -170,9 +177,29 @@ public class RecordStream  {
     }
 
     public void finalizeStream(File amplitudeFile) throws IOException {
+        writeFadeOut(100);
+        mWasFinalized = true;
         writer.finalizeStream();
-        mAmplitudeData.store(amplitudeFile);
+        if (amplitudeFile != null) {
+            mAmplitudeData.store(amplitudeFile);
+        }
     }
+
+    private void writeFadeOut(long msecs) throws IOException {
+        double last = mAmplitudeAnalyzer.getLastValue();
+        if (last != 0) {
+            int bytesToWrite = (int) mConfig.msToByte(msecs);
+            ByteBuffer buffer = BufferUtils.allocateAudioBuffer(bytesToWrite + 2);
+            final double slope = last / (bytesToWrite / 2);
+            for (int i = 0; i< bytesToWrite; i+= 2) {
+                last -= slope;
+                buffer.putShort((short) last);
+            }
+            buffer.putShort((short) 0);
+            write(buffer, bytesToWrite);
+        }
+    }
+
 
     public void reset() {
         try {

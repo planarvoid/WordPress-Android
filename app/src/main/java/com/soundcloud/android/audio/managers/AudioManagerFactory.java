@@ -13,8 +13,7 @@ public class AudioManagerFactory {
     public static IAudioManager createAudioManager(Context context) {
         IAudioManager manager = null;
 
-        final int sdkInt = Build.VERSION.SDK_INT;
-        if (sdkInt >= Build.VERSION_CODES.FROYO) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             try {
                 Class klass = Class.forName("com.soundcloud.android.audio.managers.FroyoAudioManager");
                 Constructor ctor = klass.getConstructor(Context.class);
@@ -34,28 +33,27 @@ public class AudioManagerFactory {
     }
 
     public static IRemoteAudioManager createRemoteAudioManager(Context context) {
-            IRemoteAudioManager manager = null;
-            final int sdkInt = Build.VERSION.SDK_INT;
-            if (sdkInt >= Build.VERSION_CODES.FROYO) {
-                try {
-                    final String name = sdkInt >= Build.VERSION_CODES.ICE_CREAM_SANDWICH ?
-                            "com.soundcloud.android.audio.managers.ICSRemoteAudioManager" :
-                            "com.soundcloud.android.audio.managers.FroyoRemoteAudioManager";
+        IRemoteAudioManager manager = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+            try {
+                final String name = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH ?
+                        "com.soundcloud.android.audio.managers.ICSRemoteAudioManager" :
+                        "com.soundcloud.android.audio.managers.FroyoRemoteAudioManager";
 
-                    Class klass = Class.forName(name);
-                    Constructor ctor = klass.getConstructor(Context.class);
-                    manager = (IRemoteAudioManager) ctor.newInstance(context);
-                } catch (ClassNotFoundException ignored) {
-                } catch (InstantiationException ignored) {
-                } catch (IllegalAccessException ignored) {
-                } catch (NoSuchMethodException ignored) {
-                } catch (InvocationTargetException ignored) {
-                }
+                Class klass = Class.forName(name);
+                Constructor ctor = klass.getConstructor(Context.class);
+                manager = (IRemoteAudioManager) ctor.newInstance(context);
+            } catch (ClassNotFoundException ignored) {
+            } catch (InstantiationException ignored) {
+            } catch (IllegalAccessException ignored) {
+            } catch (NoSuchMethodException ignored) {
+            } catch (InvocationTargetException ignored) {
             }
-            // fallback
-            if (manager == null) {
-                manager = new FallbackAudioManager(context);
-            }
-            return manager;
         }
+        // fallback
+        if (manager == null) {
+            manager = new FallbackAudioManager(context);
+        }
+        return manager;
+    }
 }

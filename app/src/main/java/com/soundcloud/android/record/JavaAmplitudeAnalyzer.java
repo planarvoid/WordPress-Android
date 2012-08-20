@@ -12,7 +12,9 @@ public class JavaAmplitudeAnalyzer implements AmplitudeAnalyzer {
     private final AudioConfig config;
 
     private int mLastMax;
+    private int mLastValue;
     private int mCurrentAdjustedMaxAmplitude;
+
 
     public JavaAmplitudeAnalyzer(AudioConfig config) {
         this.config = config;
@@ -20,6 +22,8 @@ public class JavaAmplitudeAnalyzer implements AmplitudeAnalyzer {
 
     public float frameAmplitude(ByteBuffer buffer, int length) {
         int max = getMax(buffer, length);
+
+        mLastValue = buffer.getShort(length-2);
 
         // max amplitude returns false 0's sometimes, so just
         // use the last value. It is usually only for a frame
@@ -40,6 +44,10 @@ public class JavaAmplitudeAnalyzer implements AmplitudeAnalyzer {
 
         return Math.max(.1f,
                 ((float) FloatMath.sqrt(FloatMath.sqrt(mCurrentAdjustedMaxAmplitude))) / MAX_ADJUSTED_AMPLITUDE);
+    }
+
+    public int getLastValue() {
+        return mLastValue;
     }
 
     private int getMax(ByteBuffer buffer, int length) {

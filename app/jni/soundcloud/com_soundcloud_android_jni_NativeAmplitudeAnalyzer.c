@@ -4,11 +4,15 @@
 #define DEBUG_TAG "NativeAmplitudeAnalyzer"
 #include <common.h>
 
-static int getMax(jbyte *buf, jint length, const int channels, const int bytesPerSample);
-static jfieldID last_max, current_adjusted_max_amplitude;
+static int getMaxAndLast(jbyte *buf, jint length, const int channels, const int bytesPerSample, int *last_value);
+static jfieldID last_max, last_value, current_adjusted_max_amplitude;
 static jfieldID channels, bytes_per_sample;
 
 static float amp_max;
+
+jint Java_com_soundcloud_android_jni_NativeAmplitudeAnalyzer_getLastValue(JNIEnv *env, jobject obj) {
+    return  (*env)->GetIntField(env, obj, last_value);
+}
 
 jfloat Java_com_soundcloud_android_jni_NativeAmplitudeAnalyzer_frameAmplitude(JNIEnv *env,
 jobject obj, jobject buffer, jint length) {
@@ -20,13 +24,16 @@ jobject obj, jobject buffer, jint length) {
     const int numChannels = (*env)->GetIntField(env, obj, channels);
     const int numBytesPerSample = (*env)->GetIntField(env, obj, bytes_per_sample);
 
-    int max = getMax(buf, length, numChannels, numBytesPerSample);
+    int lvalue;
+    int max = getMaxAndLast(buf, length, numChannels, numBytesPerSample, &lvalue);
 
     if (max == 0) {
         max = lmax;
     } else {
         (*env)->SetIntField(env, obj, last_max, max);
     }
+
+    (*env)->SetIntField(env, obj, last_value, lvalue);
 
     // Simple peak follower, cf. http://www.musicdsp.org/showone.php?id=19
     if (max >= cadjmax) {
@@ -43,7 +50,7 @@ jobject obj, jobject buffer, jint length) {
     return amp < 0.1 ? 0.1 : amp;
 }
 
-static int getMax(jbyte *buf, jint length, const int channels, const int bytesPerSample) {
+static int getMaxAndLast(jbyte *buf, jint length, const int channels, const int bytesPerSample, int *last_value) {
     int i, j;
     int value = 0, max = 0;
     for (i=0; i < length / bytesPerSample; i++) {
@@ -61,6 +68,7 @@ static int getMax(jbyte *buf, jint length, const int channels, const int bytesPe
             }
         }
     }
+    *last_value = value;
     return max;
 }
 
@@ -81,6 +89,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
        }
 
        last_max = (*env)->GetFieldID(env, cls, "last_max", "I");
+       last_value = (*env)->GetFieldID(env, cls, "last_value", "I");
        current_adjusted_max_amplitude = (*env)->GetFieldID(env, cls, "current_adjusted_max_amplitude", "I");
        channels = (*env)->GetFieldID(env, cls, "channels", "I");
        bytes_per_sample = (*env)->GetFieldID(env, cls, "bytes_per_sample", "I");

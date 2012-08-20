@@ -139,11 +139,10 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
     public SoundRecorder(Context context, AudioConfig config) {
-
         mContext = context;
         mConfig = config;
         mState = State.IDLE;
-        final int recBufferSize = config.getRecordBufferSize();
+        final int recBufferSize = config.getRecordMinBufferSize() * 4;
         mAudioRecord = config.createAudioRecord(recBufferSize);
         mAudioRecord.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
             @Override public void onMarkerReached(AudioRecord audioRecord) { }
@@ -158,7 +157,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             }
         });
 
-        final int playbackBufferSize = config.getPlaybackBufferSize();
+        final int playbackBufferSize = config.getPlaybackMinBufferSize();
         mAudioTrack = config.createAudioTrack(playbackBufferSize);
         mAudioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
             @Override public void onMarkerReached(AudioTrack track) {
