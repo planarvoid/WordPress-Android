@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.ScBase" parent="Theme.Sherlock.Light"/>
-    <style name="Theme.ScBaseLight" parent="Theme.Sherlock.Light.DarkActionBar"/>
+    <style name="Theme.ScBase" parent="Theme.Sherlock.ForceOverflow"/>
+    <style name="Theme.ScBaseLight" parent="Theme.Sherlock.Light.DarkActionBar.ForceOverflow"/>
     <style name="Theme.ScDialog" parent="android:Theme.Dialog"/>
-
 
     <style name="Theme.ScLight" parent="Theme.ScBaseLight">
         <item name="android:buttonStyle">@style/btn_default</item>

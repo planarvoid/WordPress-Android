@@ -339,34 +339,6 @@ public class Main extends ScListActivity implements
         }
     }
 
-
-    private static void setTabTextStyle(Context context, TabWidget tabWidget, boolean textOnly) {
-        // a hacky way of setting the font of the indicator texts
-        for (int i = 0; i < tabWidget.getChildCount(); i++) {
-            if (tabWidget.getChildAt(i) instanceof RelativeLayout) {
-                RelativeLayout relativeLayout = (RelativeLayout) tabWidget.getChildAt(i);
-                for (int j = 0; j < relativeLayout.getChildCount(); j++) {
-                    if (relativeLayout.getChildAt(j) instanceof TextView) {
-                        ((TextView) relativeLayout.getChildAt(j)).setTextAppearance(context,
-                                R.style.TabWidgetTextAppearance);
-                        if (textOnly) {
-                            relativeLayout.getChildAt(j).getLayoutParams().width = FILL_PARENT;
-                            relativeLayout.getChildAt(j).getLayoutParams().height = FILL_PARENT;
-                            ((TextView) relativeLayout.getChildAt(j)).setGravity(Gravity.CENTER);
-                        }
-
-                    }
-                }
-                if (textOnly) {
-                    for (int j = 0; j < relativeLayout.getChildCount(); j++) {
-                        if (!(relativeLayout.getChildAt(j) instanceof TextView)) {
-                            relativeLayout.removeViewAt(j);
-                        }
-                    }
-                }
-            }
-        }
-    }
     /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

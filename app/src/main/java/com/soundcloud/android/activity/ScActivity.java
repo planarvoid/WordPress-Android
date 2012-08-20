@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -69,11 +70,15 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         break;
                     case R.id.nav_you:
                         break;
+                    case R.id.nav_record:
+                        startNavActivity(ScCreate.class);
+                        break;
                 }
             }
         });
 
-        getActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
         if (savedInstanceState == null) {
             handleIntent(getIntent());
         }
@@ -272,16 +277,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             case android.R.id.home:
                 mRootView.animateToggle();
                 return true;
-            case R.id.menu_record:
-                Intent intent = new Intent(this, ScCreate.class);
-                startActivity(intent);
-                return true;
-            case R.id.menu_search:
-                intent = new Intent(this, ScSearch.class);
-                startActivity(intent);
-                return true;
             case R.id.menu_my_info:
-                intent = new Intent(this, UserBrowser.class);
+                Intent intent = new Intent(this, UserBrowser.class);
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.SETTINGS:
@@ -345,5 +342,17 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     public void track(Class<?> klazz, Object... args) {
         getApp().track(klazz, args);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // handle back button to go back to previous screen
+        if (keyCode == KeyEvent.KEYCODE_BACK
+                && (mRootView.isExpanded() || mRootView.isMoving())) {
+            mRootView.animateClose();
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
     }
 }

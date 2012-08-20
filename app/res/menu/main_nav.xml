@@ -3,4 +3,5 @@
     <item android:id="@+id/nav_stream" android:text="@string/tab_stream" android:icon="@drawable/ic_tab_incoming" />
     <item android:id="@+id/nav_activity" android:text="@string/tab_activity" android:icon="@drawable/ic_tab_news"/>
     <item android:id="@+id/nav_you" android:text="@string/tab_you" android:icon="@drawable/ic_tab_you"/>
+    <item android:id="@+id/nav_record" android:text="@string/tab_record" android:icon="@drawable/ic_tab_record"/>
 </menu>
