@@ -800,11 +800,15 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     public void focusLost(boolean isTransient, boolean canDuck) {
         Log.d(TAG,"Focus Lost " + isTransient + " and " + canDuck);
         if (!canDuck && isActive()){
-            if (isRecording()){
-                stopRecording();
-            } else if (isPlaying()){
-                stopPlayback();
-            }
+            gotoIdleState();
+        }
+    }
+
+    public void gotoIdleState() {
+        if (isRecording()){
+            stopRecording();
+        } else if (isPlaying()){
+            stopPlayback();
         }
     }
 }

@@ -12,6 +12,7 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.utils.IOUtils;
@@ -385,6 +386,12 @@ public class UploadService extends Service {
 
 
     /* package */ void upload(Recording recording) {
+
+        final SoundRecorder soundRecorder = SoundRecorder.getInstance(getApplicationContext());
+        if (soundRecorder.isActive() && soundRecorder.getRecording().equals(recording)){
+            soundRecorder.gotoIdleState();
+        }
+
         // make sure recording is saved before uploading
         if (!recording.isSaved() &&
             (recording = SoundCloudDB.upsertRecording(getContentResolver(), recording, null)) == null) {
