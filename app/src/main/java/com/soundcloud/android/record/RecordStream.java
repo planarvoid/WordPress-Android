@@ -79,7 +79,10 @@ public class RecordStream  {
         }
         final long requiredSize = (int) (SoundRecorder.PIXELS_PER_SECOND *
                 SoundCloudApplication.instance.getResources().getDisplayMetrics().density) * playDuration;
-        return mAmplitudeData.size() >= (int) requiredSize / 1000;
+
+        int delta = (int) ((requiredSize / 1000d) -  mAmplitudeData.size());
+
+        return Math.abs(delta) <= 5;
     }
 
     public void regenerateAmplitudeDataAsync(final File outFile, final onAmplitudeGenerationListener onAmplitudeListener) {

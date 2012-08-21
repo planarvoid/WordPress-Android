@@ -5,6 +5,7 @@ import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -141,7 +142,7 @@ public class SoundCloudDB {
 
     public static int bulkInsertParcelables(ContentResolver resolver,
                                             List<? extends Parcelable> items,
-                                            Uri uri,
+                                            @Nullable Uri uri,
                                             long ownerId) {
         if (uri != null && ownerId < 0) {
             throw new IllegalArgumentException("need valid ownerId for collection");
@@ -239,11 +240,10 @@ public class SoundCloudDB {
     }
 
     public static @Nullable Recording getRecordingByPath(ContentResolver resolver, File file) {
-        // TODO, removefileextension is probably not the best way to account for encoded / raw handling
         Cursor cursor = resolver.query(Content.RECORDINGS.uri,
                 null,
-                DBHelper.Recordings.AUDIO_PATH + "= ?",
-                new String[]{file.getAbsolutePath()},
+                DBHelper.Recordings.AUDIO_PATH + " LIKE ?",
+                new String[]{ IOUtils.removeExtension(file).getAbsolutePath() + "%" },
                 null);
 
         Recording recording = null;
@@ -251,6 +251,7 @@ public class SoundCloudDB {
             recording = new Recording(cursor);
         }
         if (cursor != null) cursor.close();
+
         return recording;
     }
 

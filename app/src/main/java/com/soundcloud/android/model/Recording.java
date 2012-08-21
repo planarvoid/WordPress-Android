@@ -9,7 +9,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.PlaybackStream;
-import com.soundcloud.android.audio.reader.EmptyReader;
 import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.provider.Content;
@@ -203,8 +202,11 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return new File(imageDir, IOUtils.changeExtension(audio_path, "bmp").getName());
     }
 
+    /**
+     * @return last modified time of recording, or 0 if file does not exist.
+     */
     public long lastModified() {
-        return audio_path.lastModified();
+        return audio_path.exists()? audio_path.lastModified() : getEncodedFile().lastModified();
     }
 
     public String getAbsolutePath() {
@@ -678,6 +680,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
                 System.currentTimeMillis()
                 + (user == null ? "" : "_" + user.id)
                 + "."+WavReader.EXTENSION);
+
         return new Recording(file, user);
     }
 
@@ -809,7 +812,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     private PlaybackStream initializePlaybackStream(@Nullable Cursor c) {
         try {
-            final AudioReader reader = AudioReader.guess(audio_path);
+            final AudioReader reader = AudioReader.guessMultiple(getFile(), getEncodedFile());
+
             PlaybackStream stream = new PlaybackStream(reader);
             if (c != null) {
                 long startPos = c.getLong(c.getColumnIndex(Recordings.TRIM_LEFT));
@@ -828,7 +832,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
             return stream;
         } catch (IOException e) {
             Log.w(TAG, "could not initialize playback stream", e);
-            return new PlaybackStream(new EmptyReader());
+            return new PlaybackStream(AudioReader.EMPTY);
         }
     }
 }

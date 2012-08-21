@@ -6,12 +6,10 @@ import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_R
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.RECORD;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.record.SoundRecorder;
-import com.soundcloud.android.service.upload.UploadService;
 
 import android.content.Intent;
 import android.os.Build;
@@ -235,23 +233,17 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         assertTrue(ampFile.exists());
     }
 
-    @Suppress
     public void testDeleteWavFileAndPlayback() throws Exception {
         record(RECORDING_TIME);
         solo.sleep(1000);
-
         Recording r = getActivity().getRecorder().getRecording();
-
-        solo.finishOpenedActivities();
-        getActivity().getRecorder().reset();
-
         File wavFile = r.getFile();
 
         assertTrue(wavFile.exists());
         assertTrue(wavFile.delete());
 
-        launchActivityWithIntent("com.soundcloud.android", ScCreate.class, new Intent().putExtra(Recording.EXTRA, r));
-
+        ScCreate create = reloadRecording(r);
+        setActivity(create);
 
         playback();
     }
@@ -268,21 +260,10 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         solo.assertActivity(ScUpload.class);
 
-        solo.finishOpenedActivities();
-
-        Main main = launchActivityWithIntent("com.soundcloud.android",
-            Main.class, new Intent().putExtra(Main.TAB_TAG, Main.Tab.PROFILE.tag));
-
-
-        solo.clickOnText(name);
-
-        solo.sleep(500);
-
-//        solo.assertActivity(ScCreate.class);
+        setActivity(reloadRecording(getActivity().getRecorder().getRecording()));
 
         record(RECORDING_TIME);
 
         solo.sleep(5000);
-
     }
 }

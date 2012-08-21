@@ -4,6 +4,7 @@ import com.soundcloud.android.audio.reader.EmptyReader;
 import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.utils.IOUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Closeable;
@@ -15,6 +16,8 @@ import java.nio.ByteBuffer;
  * Abstraction of audio reading, counterpart of {@link AudioWriter}.
  */
 public abstract class AudioReader implements Closeable {
+    public static final AudioReader EMPTY = new EmptyReader();
+
     public static int EOF = -1;
 
     /**
@@ -55,18 +58,28 @@ public abstract class AudioReader implements Closeable {
 
     public abstract void reopen() throws IOException;
 
+
+    public static @NotNull AudioReader guessMultiple(@Nullable File... files) throws IOException {
+        if (files == null) return AudioReader.EMPTY;
+        for (File f : files) {
+            AudioReader reader = guess(f);
+            if (!(reader instanceof EmptyReader)) return reader;
+        }
+        return AudioReader.EMPTY;
+    }
+
     public static AudioReader guess(@Nullable File file) throws IOException {
-        if (file == null) return new EmptyReader();
+        if (file == null || !file.exists()) return AudioReader.EMPTY;
 
         final String ext = IOUtils.extension(file);
         if (ext == null) {
-            return new EmptyReader();
+            return AudioReader.EMPTY;
         } else if (ext.equals(WavReader.EXTENSION)) {
             return new WavReader(file);
         } else if (ext.equals(VorbisReader.EXTENSION)) {
             return new VorbisReader(file);
         } else {
-            return new EmptyReader();
+            return AudioReader.EMPTY;
         }
     }
 }

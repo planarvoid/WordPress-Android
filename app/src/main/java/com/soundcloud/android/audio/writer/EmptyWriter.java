@@ -3,7 +3,6 @@ package com.soundcloud.android.audio.writer;
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.AudioWriter;
-import com.soundcloud.android.audio.reader.EmptyReader;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -46,7 +45,7 @@ public class EmptyWriter implements AudioWriter {
 
     @Override
     public AudioReader getAudioReader() throws IOException {
-        return new EmptyReader();
+        return AudioReader.EMPTY;
     }
 
     @Override

@@ -236,7 +236,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
     }
 
-    public boolean isGeneratingWaveform(){
+    public boolean isGeneratingWaveform() {
         return mState.isGeneratingWaveform();
     }
 

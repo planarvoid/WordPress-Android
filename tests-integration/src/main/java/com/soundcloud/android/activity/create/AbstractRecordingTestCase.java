@@ -301,4 +301,10 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
             }
         }
     }
+
+    protected ScCreate reloadRecording(Recording r) {
+        solo.finishOpenedActivities();
+        getActivity().getRecorder().reset();
+        return launchActivityWithIntent("com.soundcloud.android", ScCreate.class, new Intent().setData(r.toUri()));
+    }
 }

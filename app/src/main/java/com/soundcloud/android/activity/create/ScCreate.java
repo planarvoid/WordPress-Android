@@ -191,7 +191,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     public void onResume() {
         super.onResume();
         mActive = true;
-        configureInitialState();
+        configureInitialState(getIntent());
 
         if (Consts.SdkSwitches.canDetermineActivityBackground) {
             mRecorder.shouldUseNotifications(false);
@@ -455,7 +455,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return mRecorder;
     }
 
-    private void configureInitialState() {
+    private void configureInitialState(Intent intent) {
         if (mRecorder == null || !mActive) return;
 
         CreateState newState = null;
@@ -465,7 +465,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
         } else {
 
-            Recording recording = Recording.fromIntent(getIntent(), getContentResolver(), getCurrentUserId());
+            Recording recording = Recording.fromIntent(intent, getContentResolver(), getCurrentUserId());
             if (recording != null){
                 mRecorder.setRecording(recording);
                 setRecipient(recording.getRecipient());
@@ -746,11 +746,11 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
         try {
             mRecorder.startRecording(mRecipient);
+            mWaveDisplay.gotoRecordMode();
         } catch (IOException e) {
             onRecordingError(e.getMessage());
             updateUi(CreateState.IDLE_RECORD);
         }
-        mWaveDisplay.gotoRecordMode();
     }
 
     private long updateTimeRemaining(long t) {
