@@ -259,7 +259,7 @@ public class RecordingTest {
 
     @Test
     public void shouldGetRecordingFromIntentViaDatabase() throws Exception {
-        Recording r = SoundCloudDB.insertRecording(Robolectric.application.getContentResolver(), createRecording());
+        Recording r = SoundCloudDB.upsertRecording(Robolectric.application.getContentResolver(), createRecording(), null);
 
         assert r != null;
         Intent i = new Intent().setData(r.toUri());

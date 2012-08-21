@@ -357,8 +357,8 @@ public class ScContentProviderTest {
         Uri uri = Content.ME_SOUND_STREAM.withQuery(RANDOM, "1", LIMIT, "5");
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(5);
-        long sorted[] = new long[] {18508668, 18508600, 18508493, 18028217, 18223729};
-        long result[] = new long[sorted.length];
+        long[] sorted = new long[] {18508668, 18508600, 18508493, 18028217, 18223729};
+        long[] result = new long[sorted.length];
         int i=0;
         while (c.moveToNext()) {
             result[i++] = c.getLong(c.getColumnIndex(DBHelper.ActivityView.TRACK_ID));
@@ -422,7 +422,7 @@ public class ScContentProviderTest {
     @Test
     public void shouldDeleteRecordings() throws Exception {
         Recording r = Recording.create();
-        expect(SoundCloudDB.insertRecording(resolver, r)).not.toBeNull();
+        expect(SoundCloudDB.upsertRecording(resolver, r, null)).not.toBeNull();
         resolver.delete(Content.RECORDINGS.uri, null, null);
         Cursor cursor = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
         expect(cursor.getCount()).toEqual(0);
