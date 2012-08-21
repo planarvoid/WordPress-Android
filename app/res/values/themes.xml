@@ -2,6 +2,7 @@
 <resources>
 
     <style name="Theme.ScBase" parent="Theme.Sherlock.ForceOverflow"/>
+    <style name="Theme.ScBaseNoActionBar" parent="Theme.Sherlock.NoActionBar"/>
     <style name="Theme.ScBaseLight" parent="Theme.Sherlock.Light.DarkActionBar.ForceOverflow"/>
     <style name="Theme.ScDialog" parent="android:Theme.Dialog"/>
 
@@ -16,7 +17,8 @@
         <item name="android:buttonStyle">@style/btn_default</item>
     </style>
 
-    <style name="Theme.ScAuth" parent="Theme.ScDark">
+    <style name="Theme.ScAuth" parent="Theme.ScBaseNoActionBar">
+        <item name="android:buttonStyle">@style/btn_default</item>
         <item name="android:windowBackground">@color/darkBg</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
     </style>

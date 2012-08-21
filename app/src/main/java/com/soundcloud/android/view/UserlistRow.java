@@ -53,19 +53,9 @@ public class UserlistRow extends LazyRow {
         mVrStats = findViewById(R.id.vr_stats);
 
         // set proper follow back text and alignment to wider button
-        if (useFollowBack) {
-            mFollowBtn.setText(R.string.btn_follow_back);
-            if (mFollowingBtn.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
-                final RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) mFollowingBtn.getLayoutParams();
-                layoutParams.addRule(RelativeLayout.ALIGN_LEFT, R.id.toggleFollow);
-                layoutParams.addRule(RelativeLayout.ALIGN_RIGHT, R.id.toggleFollow);
-            }
-
-        } else if (mFollowBtn.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
-            final RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) mFollowBtn.getLayoutParams();
-            layoutParams.addRule(RelativeLayout.ALIGN_LEFT, R.id.toggleFollowing);
-            layoutParams.addRule(RelativeLayout.ALIGN_RIGHT, R.id.toggleFollowing);
-        }
+        final RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) mFollowBtn.getLayoutParams();
+        layoutParams.addRule(RelativeLayout.ALIGN_LEFT, R.id.toggleFollowing);
+        layoutParams.addRule(RelativeLayout.ALIGN_RIGHT, R.id.toggleFollowing);
 
         if (mFollowingBtn != null) {
             mFollowingBtn.setFocusable(false);

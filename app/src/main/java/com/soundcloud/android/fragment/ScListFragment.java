@@ -175,9 +175,6 @@ public class ScListFragment extends SherlockListFragment
         //lv.setId(android.R.id.list);
         lv.getRefreshableView().setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.getRefreshableView().setFastScrollEnabled(false);
-        lv.getRefreshableView().setDivider(getResources().getDrawable(R.drawable.list_separator));
-        lv.getRefreshableView().setDividerHeight(1);
-        lv.getRefreshableView().setCacheColorHint(Color.TRANSPARENT);
         return lv;
     }
 
@@ -419,7 +416,8 @@ public class ScListFragment extends SherlockListFragment
     }
 
     protected void checkForStaleItems(Iterable<ScModel> newItems) {
-        if (!(IOUtils.isWifiConnected(getActivity())) || newItems == null || !newItems.iterator().hasNext())
+        final Context c = getActivity();
+        if (c == null || !(IOUtils.isWifiConnected(getActivity())) || newItems == null || !newItems.iterator().hasNext())
             return;
 
         Map<Long, Track> trackUpdates = new HashMap<Long, Track>();
@@ -440,13 +438,13 @@ public class ScListFragment extends SherlockListFragment
         }
 
         if (trackUpdates.size() > 0) {
-            UpdateCollectionTask updateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(getActivity()), Track.class);
+            UpdateCollectionTask updateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(c), Track.class);
             updateCollectionTask.setAdapter(getBaseAdapter());
             updateCollectionTask.execute(trackUpdates);
         }
 
         if (userUpdates.size() > 0) {
-            UpdateCollectionTask updateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(getActivity()), User.class);
+            UpdateCollectionTask updateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(c), User.class);
             updateCollectionTask.setAdapter(getBaseAdapter());
             updateCollectionTask.execute(userUpdates);
         }
