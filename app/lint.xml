@@ -22,7 +22,6 @@
     <issue id="ContentDescription" severity="ignore"/>
 
 
-    <issue id="NewApi">
-      <ignore path="app/bin/classes/com/soundcloud/android/cropimage"/>
-    </issue>
+    <!-- re-enable this later! -->
+    <issue id="NewApi" severity="ignore"/>
 </lint>
