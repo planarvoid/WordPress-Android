@@ -212,17 +212,19 @@ public class SoundCloudDB {
         return usersInserted + tracksInserted;
     }
 
-    public static @Nullable Recording insertRecording(ContentResolver resolver, Recording r) {
+    public static @Nullable Recording upsertRecording(ContentResolver resolver, Recording r, @Nullable ContentValues values) {
         if (r.getRecipient() != null) {
-            SoundCloudDB.upsertUser(resolver, r.getRecipient());
+            upsertUser(resolver, r.getRecipient());
         }
-        Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
-        if (uri != null) {
-            r.id = Long.parseLong(uri.getLastPathSegment());
-            return r;
-        } else {
-            return null;
+        final ContentValues contentValues = values == null ? r.buildContentValues() : values;
+        if (!r.isSaved() || resolver.update(r.toUri(), contentValues, null, null) == 0) {
+            Uri uri = resolver.insert(Content.RECORDINGS.uri, contentValues);
+            if (uri != null) {
+                r.id = Long.parseLong(uri.getLastPathSegment());
+            }
         }
+        return r;
+
     }
 
     public static @Nullable Recording getRecordingByUri(ContentResolver resolver, Uri uri) {

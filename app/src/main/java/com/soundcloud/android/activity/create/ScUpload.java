@@ -8,6 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -99,8 +100,7 @@ public class ScUpload extends ScActivity {
             public void onClick(View v) {
                 track(Click.Record_details_Upload_and_share);
                 if (mRecording != null) {
-                    mapToRecording(mRecording);
-                    saveRecording(mRecording);
+                    saveRecording();
                     mRecording.upload(ScUpload.this);
                     setResult(RESULT_OK, new Intent().setData(mRecording.toUri()).putExtra(Actions.UPLOAD_EXTRA_UPLOADING,true));
                     mUploading = true;
@@ -180,14 +180,14 @@ public class ScUpload extends ScActivity {
 
         if (mRecording != null && !mUploading) {
             // recording exists and hasn't been uploaded
-            mapToRecording(mRecording);
-            saveRecording(mRecording);
+            saveRecording();
         }
     }
 
-    private void saveRecording(Recording r) {
-        if (r != null && !r.external_upload) {
-            getContentResolver().update(r.toUri(), r.buildContentValues(), null, null);
+    private void saveRecording() {
+        mapToRecording(mRecording);
+        if (mRecording != null && !mRecording.external_upload) {
+            SoundCloudDB.upsertRecording(getContentResolver(), mRecording, null);
         }
     }
 

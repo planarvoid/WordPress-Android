@@ -245,34 +245,44 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public ContentValues buildContentValues(){
-        ContentValues cv = super.buildContentValues();
-        cv.put(Recordings.USER_ID, user_id > 0 ? user_id : SoundCloudApplication.getUserId());
-        cv.put(Recordings.TIMESTAMP, lastModified());
+        ContentValues cv = buildBaseContentValues();
         cv.put(Recordings.LONGITUDE, longitude);
         cv.put(Recordings.LATITUDE, latitude);
         cv.put(Recordings.WHAT_TEXT, what_text);
         cv.put(Recordings.WHERE_TEXT, where_text);
-        cv.put(Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
-        cv.put(Recordings.DURATION, duration);
         cv.put(Recordings.DESCRIPTION, description);
-        if (artwork_path != null) cv.put(Recordings.ARTWORK_PATH, artwork_path.getAbsolutePath());
+        cv.put(Recordings.ARTWORK_PATH, artwork_path == null ? "" : artwork_path.getAbsolutePath());
         cv.put(Recordings.FOUR_SQUARE_VENUE_ID, four_square_venue_id);
         cv.put(Recordings.SHARED_EMAILS, shared_emails);
         cv.put(Recordings.SHARED_IDS, shared_ids);
-        cv.put(Recordings.PRIVATE_USER_ID, recipient_user_id);
         cv.put(Recordings.SERVICE_IDS, service_ids);
         cv.put(Recordings.IS_PRIVATE, is_private);
-        cv.put(Recordings.EXTERNAL_UPLOAD, external_upload);
-        cv.put(Recordings.UPLOAD_STATUS, upload_status);
-
-        if (mPlaybackStream != null) {
-            cv.put(DBHelper.Recordings.TRIM_LEFT,  mPlaybackStream.getStartPos());
-            cv.put(DBHelper.Recordings.TRIM_RIGHT, mPlaybackStream.getEndPos());
-            cv.put(DBHelper.Recordings.OPTIMIZE,   mPlaybackStream.isOptimized() ? 1 : 0);
-            cv.put(DBHelper.Recordings.FADING,     mPlaybackStream.isFading() ? 1 : 0);
-        }
         return cv;
     }
+
+    public ContentValues buildBaseContentValues() {
+        ContentValues cv = super.buildContentValues();
+        addBaseContentValues(cv);
+        return cv;
+    }
+
+
+    private void addBaseContentValues(ContentValues cv) {
+        cv.put(Recordings.USER_ID, user_id > 0 ? user_id : SoundCloudApplication.getUserId());
+        cv.put(Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
+        cv.put(Recordings.PRIVATE_USER_ID, recipient_user_id);
+        cv.put(Recordings.TIMESTAMP, lastModified());
+        cv.put(Recordings.DURATION, duration);
+        cv.put(Recordings.EXTERNAL_UPLOAD, external_upload);
+        cv.put(Recordings.UPLOAD_STATUS, upload_status);
+        if (mPlaybackStream != null) {
+            cv.put(Recordings.TRIM_LEFT,  mPlaybackStream.getStartPos());
+            cv.put(Recordings.TRIM_RIGHT, mPlaybackStream.getEndPos());
+            cv.put(Recordings.OPTIMIZE,   mPlaybackStream.isOptimized() ? 1 : 0);
+            cv.put(Recordings.FADING,     mPlaybackStream.isFading() ? 1 : 0);
+        }
+    }
+
 
     public static boolean isAmplitudeFile(String filename) {
         return AMPLITUDE_PATTERN.matcher(filename).matches();

@@ -484,10 +484,10 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     }
 
-    public @Nullable Recording saveState() {
+    public @Nullable Recording  saveState() {
         if (mRecording != null) {
             mRecording.setPlaybackStream(mPlaybackStream);
-            return SoundCloudDB.insertRecording(mContext.getContentResolver(), mRecording);
+            return SoundCloudDB.upsertRecording(mContext.getContentResolver(), mRecording, mRecording.buildBaseContentValues());
         } else {
             return null;
         }

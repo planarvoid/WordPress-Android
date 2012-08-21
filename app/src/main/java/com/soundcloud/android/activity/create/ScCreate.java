@@ -344,7 +344,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     } else {
                         track(Click.Record_next);
                         startActivityForResult(new Intent(ScCreate.this, ScUpload.class)
-                                .putExtra(SoundRecorder.EXTRA_RECORDING, rec), REQUEST_UPLOAD_SOUND);
+                                .setData(rec.toUri()), REQUEST_UPLOAD_SOUND);
                     }
                 } else {
                     onRecordingError("Error saving recording");
@@ -950,7 +950,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                     for (int i = 0; i < recordings.size(); i++) {
                                         if (checked[i]) {
                                             DeprecatedRecordingProfile.migrate(recordings.get(i)); // migrate deprecated format, otherwise this is harmless
-                                            SoundCloudDB.insertRecording(getContentResolver(), recordings.get(i));
+                                            SoundCloudDB.upsertRecording(getContentResolver(), recordings.get(i), null);
                                         } else {
                                             recordings.get(i).delete(null);
                                         }
