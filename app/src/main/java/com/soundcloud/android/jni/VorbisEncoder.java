@@ -226,6 +226,41 @@ public class VorbisEncoder {
         }
     }
 
+    public static int encodeVorbis(File in, File out, EncoderOptions options) throws IOException {
+        VorbisDecoder decoder = new VorbisDecoder(in);
+        VorbisInfo info = decoder.getInfo();
+
+        PlaybackFilter filter = options.filter;
+        ProgressListener listener = options.listener;
+
+        VorbisEncoder encoder = new VorbisEncoder(out,
+                "w",
+                info.channels,
+                info.sampleRate,
+                options.quality);
+
+        ByteBuffer buffer = BufferUtils.allocateAudioBuffer(16384);
+
+        int read, total = 0;
+        while ((read = decoder.decode(buffer, buffer.capacity())) > 0) {
+            if (filter != null) {
+                filter.apply(buffer, total, read);
+            }
+            encoder.write(buffer, read);
+            total += read;
+
+            if (listener != null) {
+                listener.onProgress((long) decoder.timeTell(), (long) info.duration);
+            }
+        }
+        encoder.closeStream();
+        if (read != 0) {
+            throw new EncoderException("Error encoding", read);
+        }
+
+        return 0;
+    }
+
     @Override
     protected void finalize() throws Throwable {
         super.finalize();

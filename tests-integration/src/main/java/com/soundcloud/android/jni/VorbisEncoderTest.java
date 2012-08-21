@@ -58,6 +58,31 @@ public class VorbisEncoderTest extends AudioTestCase {
         encodeWav(SINE_WAV, 10000, opts);
     }
 
+    public void testReencodeVorbisFile() throws Exception {
+        FadeFilter filter = new FadeFilter(AudioConfig.PCM16_44100_1);
+        final long[] m = new long[1];
+        final ProgressListener listener = new ProgressListener() {
+            @Override public void onProgress(long current, long max) throws UserCanceledException {
+                m[0] = max;
+            }
+        };
+        EncoderOptions opts = new EncoderOptions(1f, 0, -1, listener, filter);
+
+        File ogg = prepareAsset(SHORT_TEST_OGG);
+        File ogg_output = externalPath(SHORT_TEST_OGG + "-re-encoded.ogg");
+
+        VorbisEncoder.encodeVorbis(ogg, ogg_output, opts);
+
+        assertTrue(ogg_output.exists());
+        assertTrue(ogg_output.length() > 0);
+        assertTrue(VorbisEncoder.validate(ogg_output));
+        assertEquals(5, m[0]);
+
+        VorbisDecoder dec = new VorbisDecoder(ogg_output);
+        assertEquals(5.642, dec.getInfo().duration);
+        dec.release();
+    }
+
     @Suppress
     public void testEncodeHugeWavFile() throws Exception {
         long space = IOUtils.getSpaceLeft(Environment.getExternalStorageDirectory());
