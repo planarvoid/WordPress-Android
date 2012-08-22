@@ -264,6 +264,7 @@ public class VorbisEncoder {
             encoder.closeStream();
         } finally {
             encoder.release();
+            decoder.release();
         }
         if (read != 0) {
             throw new EncoderException("Error encoding", read);
