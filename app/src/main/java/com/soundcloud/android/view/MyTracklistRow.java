@@ -7,6 +7,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.view.ViewStub;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import com.google.android.imageloader.ImageLoader;
@@ -29,14 +30,12 @@ public class MyTracklistRow extends TrackInfoBar {
     private TextView mPrivateIndicator;
     private Drawable mPrivateBgDrawable;
     private Drawable mVeryPrivateBgDrawable;
-    private ImageView mCloseIcon;
 
     public MyTracklistRow(Context activity, LazyBaseAdapter adapter) {
         super(activity, adapter);
         mTitle = (TextView) findViewById(R.id.track);
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
         mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
-        mCloseIcon = (ImageView) findViewById(R.id.close_icon);
     }
 
     @Override
@@ -95,8 +94,6 @@ public class MyTracklistRow extends TrackInfoBar {
         mCreatedAt.setTextColor(getContext().getResources().getColor(R.color.listTxtRecSecondary));
         mCreatedAt.setText(recording.getStatus(getContext().getResources()));
 
-        mCloseIcon.setVisibility(recording.upload_status == 1 ? View.VISIBLE : View.GONE);
-
         if (recording.artwork_path == null) {
             mImageLoader.unbind(mIcon);
         } else {
@@ -111,6 +108,16 @@ public class MyTracklistRow extends TrackInfoBar {
                 Log.w(TAG, "error", e);
             }
             mImageLoader.bind((BaseAdapter) mAdapter, mIcon, recording.artwork_path.getAbsolutePath(), options);
+        }
+
+        if (recording.isUploading()) {
+            if (findViewById(R.id.processing_progress) != null) {
+                findViewById(R.id.processing_progress).setVisibility(View.VISIBLE);
+            } else {
+                ((ViewStub) findViewById(R.id.processing_progress_stub)).inflate();
+            }
+        } else if (findViewById(R.id.processing_progress) != null) {
+            findViewById(R.id.processing_progress).setVisibility(View.GONE);
         }
     }
 }

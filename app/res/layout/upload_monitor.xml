@@ -51,7 +51,6 @@
                                 android:layout_below="@id/icon"
                                 android:layout_marginTop="10dip"
                                 android:layout_marginBottom="10dip">
-
                     <LinearLayout android:id="@+id/progress_layout"
                                   android:layout_width="fill_parent"
                                   android:layout_height="wrap_content"
@@ -59,7 +58,6 @@
                                   android:layout_marginBottom="10dip"
                                   android:layout_alignParentLeft="true"
                                   android:layout_marginRight="10dp"
-                                  android:layout_toLeftOf="@+id/close_icon"
                                   android:baselineAligned="false">
                         <LinearLayout android:layout_width="0dp"
                                       android:layout_weight="1"
@@ -102,13 +100,6 @@
                                          style="@style/ScProgressBarRoundRight"/>
                         </LinearLayout>
                     </LinearLayout>
-                    <ImageView android:id="@+id/close_icon"
-                               android:layout_alignParentRight="true"
-                               android:layout_alignBottom="@id/progress_layout"
-                               android:src="@drawable/rec_close"
-                               android:scaleType="center"
-                               android:layout_width="wrap_content"
-                               android:layout_height="wrap_content"/>
                 </RelativeLayout>
                 <RelativeLayout android:id="@+id/finished_layout"
                                 android:layout_width="fill_parent"

@@ -16,7 +16,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
@@ -26,6 +25,8 @@ import android.widget.TextView;
 
 public class UploadMonitor extends Activity {
     private static final int MAX = 100;
+    public static final int BUTTON_BAR_CANCEL_ID = 0;
+    public static final int BUTTON_BAR_RETRY_ID = 1;
     private Recording mRecording;
 
     private ProgressBar mProcessingProgress, mTransferProgress;
@@ -45,10 +46,8 @@ public class UploadMonitor extends Activity {
 
         mUploadingLayout = (RelativeLayout) findViewById(R.id.uploading_layout);
         mFinishedLayout = (RelativeLayout) findViewById(R.id.finished_layout);
-        showUploading();
 
         mButtonBar = (ButtonBar) findViewById(R.id.bottom_bar);
-        mButtonBar.setVisibility(View.GONE);
 
         mProcessingProgress = (ProgressBar) findViewById(R.id.progress_bar_processing);
         mProcessingProgress.setMax(MAX);
@@ -60,25 +59,19 @@ public class UploadMonitor extends Activity {
         mUploadingProgressText = (TextView) findViewById(R.id.txt_progress_uploading);
 
         mTrackTitle = (TextView) findViewById(R.id.track);
-
-        findViewById(R.id.close_icon).setOnClickListener(new View.OnClickListener() {
+        mButtonBar.addItem(new ButtonBar.MenuItem(BUTTON_BAR_CANCEL_ID, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mRecording.isUploading()) {
                     mRecording.cancelUpload(UploadMonitor.this);
                     onCancelling();
+                } else {
+                    finish();
                 }
-            }
-        });
-
-        mButtonBar.addItem(new ButtonBar.MenuItem(0, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
             }
         }), R.string.cancel);
 
-        mButtonBar.addItem(new ButtonBar.MenuItem(0, new View.OnClickListener() {
+        mButtonBar.addItem(new ButtonBar.MenuItem(BUTTON_BAR_RETRY_ID, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showUploading();
@@ -87,6 +80,8 @@ public class UploadMonitor extends Activity {
                 mRecording.upload(UploadMonitor.this);
             }
         }), R.string.retry);
+
+        showUploading();
 
         final Intent intent = getIntent();
         Recording intentRecording;
@@ -240,10 +235,12 @@ public class UploadMonitor extends Activity {
                     }
                 }
             }, 2000);
+            mButtonBar.setVisibility(View.GONE);
         } else {
             ((ImageView) findViewById(R.id.result_icon)).setImageResource(R.drawable.fail);
             ((TextView) findViewById(R.id.result_message)).setText(R.string.share_fail_message);
             mButtonBar.setVisibility(View.VISIBLE);
+            mButtonBar.toggleVisibility(BUTTON_BAR_RETRY_ID,true,true);
         }
     }
 
@@ -255,5 +252,7 @@ public class UploadMonitor extends Activity {
     private void showUploading() {
         mUploadingLayout.setVisibility(View.VISIBLE);
         mFinishedLayout.setVisibility(View.GONE);
+        mButtonBar.toggleVisibility(BUTTON_BAR_RETRY_ID,false,true);
+        mButtonBar.setVisibility(View.VISIBLE);
     }
 }
