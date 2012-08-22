@@ -154,7 +154,7 @@ public class UploadServiceTest {
         expect(notification).toHaveTicker("Upload Error");
         expect(notification).toHaveText("There was an error uploading testing 2");
         expect(notification).toHaveTitle("Upload Error");
-        expect(notification).toMatchIntent(new Intent(Actions.UPLOAD_MONITOR));
+        expect(notification).toMatchIntent(new Intent(Actions.UPLOAD_MONITOR).setData(upload2.toUri()));
         expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
     }
 
@@ -174,7 +174,7 @@ public class UploadServiceTest {
         expect(notification).toHaveTicker("Upload Error");
         expect(notification).toHaveText("There was an error uploading testing");
         expect(notification).toHaveTitle("Upload Error");
-        expect(notification).toMatchIntent(new Intent(Actions.UPLOAD_MONITOR));
+        expect(notification).toMatchIntent(new Intent(Actions.UPLOAD_MONITOR).setData(upload.toUri()));
     }
 
     @Test
