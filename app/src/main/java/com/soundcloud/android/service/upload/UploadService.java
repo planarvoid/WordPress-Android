@@ -159,7 +159,7 @@ public class UploadService extends Service {
         if (isUploading()) {
             Log.w(TAG, "Service being destroyed while still uploading.");
             for (Upload u : mUploads.values()) {
-                cancel(u);
+                cancel(u.recording);
             }
         }
         mBroadcastManager.unregisterReceiver(mReceiver);
@@ -405,19 +405,18 @@ public class UploadService extends Service {
     }
 
     /* package */  void cancel(Recording r) {
-        cancel(getUpload(r));
-    }
 
-    /* package */  void cancel(Upload u) {
-        mUploadHandler.removeMessages(0, u);
-
+        Upload u = mUploads.get(r.id);
+        if (u != null) mUploadHandler.removeMessages(0, u);
         if (mUploads.isEmpty()) {
             Log.d(TAG, "onCancel() called without any active uploads");
+            mBroadcastManager.sendBroadcast(new Intent(TRANSFER_CANCELLED).putExtra(EXTRA_RECORDING, r)); // send this in case someone is cancelling a stuck upload
             stopSelf();
-        }  else {
-            mBroadcastManager.sendBroadcast(new Intent(UploadService.UPLOAD_CANCEL).putExtra(EXTRA_RECORDING, u.recording));
+        } else {
+            mBroadcastManager.sendBroadcast(new Intent(UploadService.UPLOAD_CANCEL).putExtra(EXTRA_RECORDING, r));
         }
     }
+
 
     private void queueUpload(Recording recording) {
         Upload upload = getUpload(recording);
@@ -571,7 +570,6 @@ public class UploadService extends Service {
         @Override
         public void handleMessage(Message msg) {
             final Intent intent = (Intent) msg.obj;
-
             Recording r = intent.getParcelableExtra(EXTRA_RECORDING);
             if (r != null) {
                 if (Actions.UPLOAD.equals(intent.getAction())) {

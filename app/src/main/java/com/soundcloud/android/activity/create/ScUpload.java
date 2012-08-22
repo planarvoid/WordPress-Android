@@ -13,8 +13,8 @@ import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.create.AccessList;
 import com.soundcloud.android.view.ButtonBar;
+import com.soundcloud.android.view.create.AccessList;
 import com.soundcloud.android.view.create.ConnectionList;
 import com.soundcloud.android.view.create.EmailPickerItem;
 import com.soundcloud.android.view.create.RecordingMetaData;
@@ -105,7 +105,7 @@ public class ScUpload extends ScActivity {
                 if (mRecording != null) {
                     saveRecording();
                     mRecording.upload(ScUpload.this);
-                    setResult(RESULT_OK, new Intent().setData(mRecording.toUri()).putExtra(Actions.UPLOAD_EXTRA_UPLOADING,true));
+                    setResult(RESULT_OK, new Intent().setData(mRecording.toUri()).putExtra(Actions.UPLOAD_EXTRA_UPLOADING, true));
                     mUploading = true;
                     finish();
                 } else {
@@ -189,7 +189,7 @@ public class ScUpload extends ScActivity {
 
     private void saveRecording() {
         mapToRecording(mRecording);
-        if (mRecording != null && !mRecording.external_upload) {
+        if (mRecording != null) {
             SoundCloudDB.upsertRecording(getContentResolver(), mRecording, null);
         }
     }

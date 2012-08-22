@@ -119,7 +119,7 @@ public class UploadMonitor extends Activity {
             onUploadFinished(true);
         } else if (recording.isError()) {
             onUploadFinished(false);
-        } else if (recording.isUploading()){
+        } else if (recording.isUploading()) {
             showUploading();
             setProcessProgress(-1);
         } else {
@@ -189,7 +189,7 @@ public class UploadMonitor extends Activity {
     }
 
     private void setTransferProgress(int progress) {
-        if (!mTransferState){
+        if (!mTransferState) {
             mTransferState = true;
 
             mProcessingProgress.setIndeterminate(false);
@@ -240,7 +240,7 @@ public class UploadMonitor extends Activity {
             ((ImageView) findViewById(R.id.result_icon)).setImageResource(R.drawable.fail);
             ((TextView) findViewById(R.id.result_message)).setText(R.string.share_fail_message);
             mButtonBar.setVisibility(View.VISIBLE);
-            mButtonBar.toggleVisibility(BUTTON_BAR_RETRY_ID,true,true);
+            mButtonBar.toggleVisibility(BUTTON_BAR_RETRY_ID, true, true);
         }
     }
 
@@ -252,7 +252,7 @@ public class UploadMonitor extends Activity {
     private void showUploading() {
         mUploadingLayout.setVisibility(View.VISIBLE);
         mFinishedLayout.setVisibility(View.GONE);
-        mButtonBar.toggleVisibility(BUTTON_BAR_RETRY_ID,false,true);
+        mButtonBar.toggleVisibility(BUTTON_BAR_RETRY_ID, false, true);
         mButtonBar.setVisibility(View.VISIBLE);
     }
 }
