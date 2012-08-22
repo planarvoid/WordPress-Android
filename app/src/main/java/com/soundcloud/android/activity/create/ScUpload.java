@@ -72,7 +72,7 @@ public class ScUpload extends ScActivity {
             if (mRecording.exists()) {
                 mapFromRecording(mRecording);
             } else {
-                errorOut(R.string.recording_not_found);
+                recordingNotFound();
             }
         } else {
             Log.w(TAG, "No recording found in intent, finishing");
@@ -109,7 +109,7 @@ public class ScUpload extends ScActivity {
                     mUploading = true;
                     finish();
                 } else {
-                    errorOut(R.string.recording_not_found);
+                    recordingNotFound();
                 }
             }
         }), mRecording.isPrivateMessage() ? R.string.private_message_btn_send : R.string.post);
@@ -204,10 +204,6 @@ public class ScUpload extends ScActivity {
         mAccessList.set(Arrays.asList(emails));
     }
 
-    private void errorOut(int error) {
-        showToast(error);
-        finish();
-    }
 
     @Override
     public void onSaveInstanceState(Bundle state) {
@@ -260,6 +256,11 @@ public class ScUpload extends ScActivity {
                 }
             }
         }
+    }
+
+    private void recordingNotFound() {
+        showToast(R.string.recording_not_found);
+        finish();
     }
 
     @Override

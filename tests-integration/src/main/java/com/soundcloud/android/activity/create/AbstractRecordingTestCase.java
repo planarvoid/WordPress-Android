@@ -14,6 +14,7 @@ import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 import com.soundcloud.android.tests.Runner;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.view.create.TrimHandle;
 import com.soundcloud.api.Env;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -224,7 +225,9 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
 
         Intent intent = waitForIntent(UploadService.UPLOAD_SUCCESS, UPLOAD_WAIT_TIME);
         if (intent == null) {
-            if (intents.containsKey(UploadService.TRANSFER_ERROR)) {
+            if (intents.containsKey(UploadService.PROCESSING_ERROR)) {
+                fail("processing error");
+            } else if (intents.containsKey(UploadService.TRANSFER_ERROR)) {
                 fail("transfer error");
             } else {
                 fail("upload timeout");
@@ -306,5 +309,14 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
         solo.finishOpenedActivities();
         getActivity().getRecorder().reset();
         return launchActivityWithIntent("com.soundcloud.android", ScCreate.class, new Intent().setData(r.toUri()));
+    }
+
+    protected void trim(double left, double right) {
+        assertState(EDIT);
+        TrimHandle leftTrim = (TrimHandle) solo.getView(TrimHandle.class, 0);
+        TrimHandle rightTrim = (TrimHandle) solo.getView(TrimHandle.class, 1);
+        int width = solo.getScreenWidth();
+        if (left > 0)  solo.dragViewHorizontally(leftTrim ,  (int) (width * left), 5);
+        if (right > 0) solo.dragViewHorizontally(rightTrim, -(int) (width * right), 5);
     }
 }

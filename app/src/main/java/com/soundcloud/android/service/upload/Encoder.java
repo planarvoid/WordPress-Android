@@ -3,6 +3,7 @@ package com.soundcloud.android.service.upload;
 
 import static com.soundcloud.android.service.upload.UploadService.TAG;
 
+import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.jni.EncoderOptions;
 import com.soundcloud.android.jni.ProgressListener;
 import com.soundcloud.android.jni.VorbisEncoder;
@@ -17,6 +18,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class Encoder extends BroadcastReceiver implements Runnable, ProgressListener {
@@ -35,40 +37,54 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
     public void run() {
         Log.d(TAG, "Encoder.run(" + mRecording + ")");
 
-        final File in  = mRecording.getFile();
-        final File out = mRecording.getPlaybackStream().isFiltered() ?
-                mRecording.getProcessedFile() : mRecording.getEncodedFile();
-
-        EncoderOptions options = new EncoderOptions(EncoderOptions.DEFAULT.quality,
-                mRecording.getPlaybackStream().getStartPos(),
-                mRecording.getPlaybackStream().getEndPos(),
-                this,
-                mRecording.getPlaybackStream().getPlaybackFilter());
+        final File wav  = mRecording.getFile();
+        final File ogg  = mRecording.getEncodedFile();
 
         File tmp = null;
         try {
-            tmp = File.createTempFile("encoder-"+mRecording.id, ".ogg", out.getParentFile());
+            PlaybackStream stream = mRecording.getPlaybackStream();
+            if (stream == null) throw new IOException("No playbackstream available");
+            final File in;
+            if (wav.exists()) {
+                in = wav;
+            } else if (ogg.exists()) {
+                in = ogg;
+            } else {
+                throw new FileNotFoundException("No encoding file found");
+            }
+
+            final File out = stream.isFiltered() ?
+                    mRecording.getProcessedFile() : mRecording.getEncodedFile();
+
+            EncoderOptions options = new EncoderOptions(EncoderOptions.DEFAULT.quality,
+                    stream.getStartPos(),
+                    stream.getEndPos(),
+                    this,
+                    stream.getPlaybackFilter());
+
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "encoding from source " + in.getAbsolutePath());
+            tmp = File.createTempFile("encoder-" + mRecording.id, ".ogg", out.getParentFile());
             broadcast(UploadService.PROCESSING_STARTED);
             long now = System.currentTimeMillis();
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG,"encoding from source " + in.getAbsolutePath());
+            VorbisEncoder.encodeFile(in, tmp, options);
 
-            VorbisEncoder.encodeWav(in, tmp, options);
             // double check file output
             if (tmp.exists() && tmp.length() > 0) {
                 Log.d(TAG, "encoding finished in " + (System.currentTimeMillis() - now) + " msecs");
                 if (tmp.renameTo(out)) {
                     broadcast(UploadService.PROCESSING_SUCCESS);
                 } else {
-                    Log.w(TAG, "could not rename "+tmp+" to "+out);
+                    Log.w(TAG, "could not rename " + tmp + " to " + out);
                     broadcast(UploadService.PROCESSING_ERROR);
                 }
             } else {
-                Log.w(TAG, "encoded file "+tmp+" does not exist or is empty");
+                Log.w(TAG, "encoded file " + tmp + " does not exist or is empty");
                 broadcast(UploadService.PROCESSING_ERROR);
             }
         } catch (UserCanceledException e) {
             broadcast(UploadService.PROCESSING_CANCELED);
         } catch (IOException e) {
+            Log.w(TAG, "error encoding file", e);
             broadcast(UploadService.PROCESSING_ERROR);
         } finally {
             IOUtils.deleteFile(tmp);

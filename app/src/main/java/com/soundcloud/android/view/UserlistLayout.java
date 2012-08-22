@@ -21,7 +21,7 @@ import java.util.List;
 
 public class UserlistLayout extends RelativeLayout {
     private final WorkspaceView mWorkspaceView;
-    private final RelativeLayout mLabelHolder;
+    private final ViewGroup mLabelHolder;
 
     private final List<TabLabel> tabLabels;
 
@@ -44,7 +44,7 @@ public class UserlistLayout extends RelativeLayout {
 
         mSpacer = (int) (context.getResources().getDisplayMetrics().density * 10);
 
-        mLabelHolder = (RelativeLayout) findViewById(R.id.label_holder);
+        mLabelHolder = (ViewGroup) findViewById(R.id.label_holder);
         tabLabels = new ArrayList<TabLabel>();
 
         mLeftArrow = findViewById(R.id.left_arrow);

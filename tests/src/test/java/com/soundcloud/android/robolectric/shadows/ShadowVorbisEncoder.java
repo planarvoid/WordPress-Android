@@ -42,6 +42,11 @@ public class ShadowVorbisEncoder {
         return encodeWav(in, out, options);
     }
 
+    @Implementation
+    public static int encodeFile(File in, File out, EncoderOptions options) throws IOException, InterruptedException {
+        return encodeWav(in, out, options);
+    }
+
     public static void reset() {
         simulateProgress = simulateCancel = false;
         throwException = null;
