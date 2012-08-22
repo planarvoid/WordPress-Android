@@ -385,7 +385,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public Intent getMonitorIntent() {
-        return new Intent(Actions.UPLOAD_MONITOR).putExtra(UploadService.EXTRA_RECORDING, this);
+        return new Intent(Actions.UPLOAD_MONITOR).setData(toUri());
     }
 
     public Intent getProcessIntent() {
@@ -500,11 +500,12 @@ public class Recording extends ScModel implements Comparable<Recording> {
     /**
      * Gets called after successful upload. Clean any tmp files here.
      */
-    public void onUploaded() {
+    public void onUploaded(ContentResolver resolver) {
         upload_status = Status.UPLOADED;
         IOUtils.deleteFile(getEncodedFile());
         IOUtils.deleteFile(getFile());
         IOUtils.deleteFile(resized_artwork_path);
+        updateStatus(resolver);
     }
 
     public boolean isUploaded() {

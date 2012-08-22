@@ -207,6 +207,8 @@
             <intent-filter>
                 <action android:name="com.soundcloud.android.actions.upload.monitor"/>
                 <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="vnd.soundcloud/recording"/>
+
             </intent-filter>
         </activity>
 

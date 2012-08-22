@@ -1,6 +1,9 @@
 package com.soundcloud.android.activity.create;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.utils.ImageUtils;
@@ -13,6 +16,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
@@ -84,13 +88,15 @@ public class UploadMonitor extends Activity {
             }
         }), R.string.retry);
 
-        if (getIntent() != null && getIntent().hasExtra(UploadService.EXTRA_RECORDING)) {
-            Recording recording = getIntent().getParcelableExtra(UploadService.EXTRA_RECORDING);
-            setRecording(recording);
+        final Intent intent = getIntent();
+        Recording intentRecording;
+        if (intent != null && (intentRecording = Recording.fromIntent(intent, getContentResolver(), SoundCloudApplication.getUserId())) != null) {
+            setRecording(intentRecording);
         }
 
+
         LocalBroadcastManager.getInstance(this).registerReceiver(mUploadStatusListener,
-                        UploadService.getIntentFilter());
+                UploadService.getIntentFilter());
     }
 
     @Override
@@ -118,10 +124,16 @@ public class UploadMonitor extends Activity {
             onUploadFinished(true);
         } else if (recording.isError()) {
             onUploadFinished(false);
-        } else {
-            // unknown state, wait for broadcasts
+        } else if (recording.isUploading()){
             showUploading();
             setProcessProgress(-1);
+        } else {
+            // idle state, kick them out to their track list
+            // this should only happen if they try to resume this activity from their recents
+            startActivity(new Intent(Actions.MY_PROFILE)
+                    .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks)
+                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            );
         }
     }
 

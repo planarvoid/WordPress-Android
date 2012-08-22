@@ -279,13 +279,14 @@ public class UploadService extends Service {
                 onTranscodingDone(intent.<Track>getParcelableExtra(EXTRA_TRACK));
             }
 
+
             // error handling
-            if (RESIZE_ERROR.equals(action)
+            final boolean wasError = RESIZE_ERROR.equals(action)
                     || PROCESSING_CANCELED.equals(action)
                     || PROCESSING_ERROR.equals(action)
                     || TRANSFER_CANCELLED.equals(action)
-                    || TRANSFER_ERROR.equals(action)) {
-
+                    || TRANSFER_ERROR.equals(action);
+            if (wasError) {
                 recording.setUploadFailed(PROCESSING_CANCELED.equals(action) || TRANSFER_CANCELLED.equals(action))
                         .updateStatus(getContentResolver()); // for list state
 
