@@ -12,6 +12,7 @@ import junit.framework.AssertionFailedError;
 import android.os.Debug;
 import android.os.Environment;
 import android.os.Parcel;
+import android.os.SystemClock;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.Suppress;
 
@@ -47,14 +48,14 @@ public class VorbisEncoderTest extends AudioTestCase {
         encodeWav(MED_STEREO_WAV, 18705, EncoderOptions.LO_Q);
     }
 
-    public void testPartialEncoding() throws Exception {
+    public void testPartialWavEncoding() throws Exception {
         EncoderOptions opts = new EncoderOptions(1f, 2000, 5500, null, null);
         encodeWav(MED_STEREO_WAV, 3500, opts);
     }
 
     public void testEncodingWithFadeFilter() throws Exception {
         FadeFilter filter = new FadeFilter(AudioConfig.PCM16_44100_1);
-        EncoderOptions opts = new EncoderOptions(1f, 0, -1, null, filter);
+        EncoderOptions opts = new EncoderOptions(.5f, 0, -1, null, filter);
         encodeWav(SINE_WAV, 10000, opts);
     }
 
@@ -66,21 +67,16 @@ public class VorbisEncoderTest extends AudioTestCase {
                 m[0] = max;
             }
         };
-        EncoderOptions opts = new EncoderOptions(1f, 0, -1, listener, filter);
 
-        File ogg = prepareAsset(SHORT_TEST_OGG);
-        File ogg_output = externalPath(SHORT_TEST_OGG + "-re-encoded.ogg");
-
-        VorbisEncoder.encodeVorbis(ogg, ogg_output, opts);
-
-        assertTrue(ogg_output.exists());
-        assertTrue(ogg_output.length() > 0);
-        assertTrue(VorbisEncoder.validate(ogg_output));
+        EncoderOptions opts = new EncoderOptions(.5f, 0, -1, listener, filter);
+        encodeVorbis(SHORT_TEST_OGG, 5.642d, opts);
         assertEquals(5, m[0]);
+    }
 
-        VorbisDecoder dec = new VorbisDecoder(ogg_output);
-        assertEquals(5.642, dec.getInfo().duration);
-        dec.release();
+    @Suppress
+    public void testPartialVorbisEncoding() throws Exception {
+        EncoderOptions opts = new EncoderOptions(.5f, 500, 1500, null, null);
+        encodeVorbis(SHORT_TEST_OGG, 1d, opts);
     }
 
     @Suppress
@@ -214,51 +210,7 @@ public class VorbisEncoderTest extends AudioTestCase {
         assertTrue(VorbisEncoder.validate(prepareAsset(CHAINED_OGG)));
     }
 
-    private double encodeWav(String file, int expectedDuration, EncoderOptions options) throws Exception {
 
-        assertEquals("need writable external storage",
-                Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED);
-
-        InputStream in = testAssets().open(file);
-        assertNotNull(in);
-        WavHeader wavHeader = new WavHeader(in, true);
-
-        final String ogg = file.replace(".wav", ".ogg");
-        File out = externalPath(ogg);
-
-
-        if (PROFILE)  {
-            Debug.startMethodTracing();
-            Debug.startNativeTracing();
-        }
-
-        Thread.sleep(4000);
-        // encode it
-        final long start = System.currentTimeMillis();
-        VorbisEncoder.encodeWav(in, out, options);
-
-        if (PROFILE) {
-            Debug.stopMethodTracing();
-            Debug.stopNativeTracing();
-        }
-
-        final long duration = System.currentTimeMillis() - start;
-        final double factor = (double) duration / (double) wavHeader.getDuration();
-        final boolean mono = wavHeader.getNumChannels() == 1;
-        log("encoded '%s' in quality %f in %d ms, factor %.2f (%s)", file, options.quality, duration,
-                factor,
-                mono ? "mono" : "stereo");
-
-        assertTrue(
-            String.format("Encoder did not produce valid ogg file (check %s with oggz-validate)", out.getAbsolutePath())
-            , VorbisEncoder.validate(out));
-
-        checkAudioFile(out, expectedDuration);
-
-        assertTrue(String.format("encoding took more than 5x (%.2f)", factor), factor < 5 * wavHeader.getNumChannels());
-
-        return factor;
-    }
 
 
     public void testWrite() throws Exception {
@@ -286,5 +238,84 @@ public class VorbisEncoderTest extends AudioTestCase {
             rf.close();
         }
         return tmp;
+    }
+
+    private long profile(Profileable runnable) throws Exception {
+        if (PROFILE)  {
+            Debug.startMethodTracing();
+            Debug.startNativeTracing();
+        }
+
+        Thread.sleep(4000);
+        // encode it
+        final long start = SystemClock.uptimeMillis();
+        runnable.run();
+        final long stop = SystemClock.uptimeMillis();
+
+
+        if (PROFILE) {
+            Debug.stopMethodTracing();
+            Debug.stopNativeTracing();
+        }
+        return stop - start;
+    }
+
+    private double encodeWav(String file, int expectedDuration, final EncoderOptions options) throws Exception {
+        assertEquals("need writable external storage",
+                Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED);
+
+        final InputStream in = testAssets().open(file);
+        assertNotNull(in);
+        WavHeader wavHeader = new WavHeader(in, true);
+
+        final String ogg = file.replace(".wav", ".ogg");
+        final File out = externalPath(ogg);
+
+
+        final long duration = profile(new Profileable() {
+            @Override
+            public void run() throws IOException {
+                VorbisEncoder.encodeWav(in, out, options);
+            }
+        });
+
+        final double factor = (double) duration / (double) wavHeader.getDuration();
+        final boolean mono = wavHeader.getNumChannels() == 1;
+        log("encoded '%s' in quality %f in %d ms, factor %.2f (%s)", file, options.quality, duration,
+                factor,
+                mono ? "mono" : "stereo");
+
+        assertTrue(
+                String.format("Encoder did not produce valid ogg file (check %s with oggz-validate)", out.getAbsolutePath())
+                , VorbisEncoder.validate(out));
+
+        checkAudioFile(out, expectedDuration);
+
+        assertTrue(String.format("encoding took more than 5x (%.2f)", factor), factor < 5 * wavHeader.getNumChannels());
+
+        return factor;
+    }
+
+    private double encodeVorbis(String file, double expectedDuration, final EncoderOptions opts) throws Exception {
+        final File ogg = prepareAsset(file);
+        final File ogg_output = externalPath(file + "-re-encoded.ogg");
+
+        final long encodeTime = profile(new Profileable() {
+            @Override
+            public void run() throws Exception {
+                VorbisEncoder.encodeVorbis(ogg, ogg_output, opts);
+            }
+        });
+        assertTrue(ogg_output.exists());
+        assertTrue(ogg_output.length() > 0);
+        assertTrue(VorbisEncoder.validate(ogg_output));
+        checkVorbisDuration(ogg_output, expectedDuration);
+        final double factor = (double) encodeTime / expectedDuration;
+        log("encoded '%s' in quality %f in %d ms, factor %.2f", file, opts.quality, encodeTime, factor);
+        return factor;
+    }
+
+    private static interface Profileable {
+        void run() throws Exception;
     }
 }

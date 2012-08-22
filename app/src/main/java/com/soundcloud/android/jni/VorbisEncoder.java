@@ -124,39 +124,6 @@ public class VorbisEncoder {
         }
     }
 
-    native private int init(String output, String mode, long channels, long rate, float quality);
-
-    /**
-     * Add some samples to the current file.
-     * @param samples
-     * @param length
-     * @return number of bytes written, < 0 in error case
-     */
-    native public int write(ByteBuffer samples, long length);
-
-
-    /**
-     * Closes the current stream, writing EOS packet.
-     * @return 0 for success
-     */
-    native private int closeStream();
-
-    /**
-     * Pauses the current encoding process (closes the file).
-     */
-    native public int pause();
-
-    /**
-     * Call to free up resources. The encoder cannot be used after this method has been called.
-     * @throws IllegalStateException if the encoder has been released previously
-     */
-    native public void release();
-
-    /**
-     * @return the current state ({@link #STATE_READY} = ready to encode,
-     * {@link #STATE_PAUSED} = paused, < 0 uninitialised)
-     */
-    public native int getState();
 
     /**
      * Extract the part of an Ogg file between given start and/or end times.
@@ -183,13 +150,6 @@ public class VorbisEncoder {
         return validate(in.getAbsolutePath()) == 0;
     }
 
-    /**
-     * {@link #extract(java.io.File, java.io.File, double, double)}
-     * @return 0 for success
-     */
-    native private static int chop(String in, String out, double start, double end);
-
-    native private static int validate(String in);
 
     /**
      * @param in  input file
@@ -246,11 +206,19 @@ public class VorbisEncoder {
                 info.sampleRate,
                 options.quality);
 
+        if (options.start != 0) {
+            final int error = decoder.timeSeek(options.start / 1000d);
+            if (error != 0) {
+                throw new EncoderException("Could not seekd", error);
+            }
+        }
+
         ByteBuffer buffer = BufferUtils.allocateAudioBuffer(16384);
 
         int read, total = 0;
         try {
-            while ((read = decoder.decode(buffer, buffer.capacity())) > 0) {
+            while ((read = decoder.decode(buffer, buffer.capacity())) > 0 &&
+                   (options.end == -1 || (decoder.timeTell() / 1000d) < options.end)) {
                 if (filter != null) {
                     filter.apply(buffer, total, read);
                 }
@@ -280,6 +248,52 @@ public class VorbisEncoder {
             release();
         }
     }
+
+    //
+    // native methods
+    //
+
+    /**
+     * Add some samples to the current file.
+     * @param samples
+     * @param length
+     * @return number of bytes written, < 0 in error case
+     */
+    native public int write(ByteBuffer samples, long length);
+
+
+    /**
+     * Pauses the current encoding process (closes the file).
+     */
+    native public int pause();
+
+    /**
+     * Call to free up resources. The encoder cannot be used after this method has been called.
+     * @throws IllegalStateException if the encoder has been released previously
+     */
+    native public void release();
+
+    /**
+     * @return the current state ({@link #STATE_READY} = ready to encode,
+     * {@link #STATE_PAUSED} = paused, < 0 uninitialised)
+     */
+    public native int getState();
+
+    native private int init(String output, String mode, long channels, long rate, float quality);
+
+    /**
+     * Closes the current stream, writing EOS packet.
+     * @return 0 for success
+     */
+    native private int closeStream();
+
+    /**
+     * {@link #extract(java.io.File, java.io.File, double, double)}
+     * @return 0 for success
+     */
+    native private static int chop(String in, String out, double start, double end);
+
+    native private static int validate(String in);
 
     static {
         try {
