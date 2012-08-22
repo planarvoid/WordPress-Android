@@ -138,7 +138,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         what_text = c.getString(c.getColumnIndex(Recordings.WHAT_TEXT));
         where_text = c.getString(c.getColumnIndex(Recordings.WHERE_TEXT));
         final String artwork = c.getString(c.getColumnIndex(Recordings.ARTWORK_PATH));
-        artwork_path = artwork == null ? null : new File(artwork);
+        artwork_path = TextUtils.isEmpty(artwork) ? null : new File(artwork);
         final String audio = c.getString(c.getColumnIndex(Recordings.AUDIO_PATH));
         if (audio == null) throw new IllegalArgumentException("audio is null");
         audio_path = new File(audio);
