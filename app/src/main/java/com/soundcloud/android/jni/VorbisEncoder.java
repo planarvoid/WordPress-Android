@@ -226,6 +226,13 @@ public class VorbisEncoder {
         }
     }
 
+    /**
+     * @param in  input file (vorbis format)
+     * @param out output file
+     * @param options encoding options
+     * @return always 0
+     * @throws IOException
+     */
     public static int encodeVorbis(File in, File out, EncoderOptions options) throws IOException {
         VorbisDecoder decoder = new VorbisDecoder(in);
         VorbisInfo info = decoder.getInfo();
@@ -242,22 +249,26 @@ public class VorbisEncoder {
         ByteBuffer buffer = BufferUtils.allocateAudioBuffer(16384);
 
         int read, total = 0;
-        while ((read = decoder.decode(buffer, buffer.capacity())) > 0) {
-            if (filter != null) {
-                filter.apply(buffer, total, read);
-            }
-            encoder.write(buffer, read);
-            total += read;
+        try {
+            while ((read = decoder.decode(buffer, buffer.capacity())) > 0) {
+                if (filter != null) {
+                    filter.apply(buffer, total, read);
+                }
+                encoder.write(buffer, read);
+                total += read;
 
-            if (listener != null) {
-                listener.onProgress((long) decoder.timeTell(), (long) info.duration);
+                if (listener != null) {
+                    listener.onProgress((long) decoder.timeTell(), (long) info.duration);
+                }
             }
+            encoder.closeStream();
+        } finally {
+            encoder.release();
+            decoder.release();
         }
-        encoder.closeStream();
         if (read != 0) {
             throw new EncoderException("Error encoding", read);
         }
-
         return 0;
     }
 
