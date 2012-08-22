@@ -218,7 +218,8 @@ public class VorbisEncoder {
         int read, total = 0;
         try {
             while ((read = decoder.decode(buffer, buffer.capacity())) > 0 &&
-                   (options.end == -1 || (decoder.timeTell() / 1000d) < options.end)) {
+                   (options.end == -1 || decoder.timeTell()  < options.end / 1000d)) {
+
                 if (filter != null) {
                     filter.apply(buffer, total, read);
                 }
@@ -234,7 +235,7 @@ public class VorbisEncoder {
             encoder.release();
             decoder.release();
         }
-        if (read != 0) {
+        if (read < 0) {
             throw new EncoderException("Error encoding", read);
         }
         return 0;

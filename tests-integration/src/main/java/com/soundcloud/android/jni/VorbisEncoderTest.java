@@ -48,7 +48,7 @@ public class VorbisEncoderTest extends AudioTestCase {
         encodeWav(MED_STEREO_WAV, 18705, EncoderOptions.LO_Q);
     }
 
-    public void testPartialWavEncoding() throws Exception {
+    public void testEncodePartialWav() throws Exception {
         EncoderOptions opts = new EncoderOptions(1f, 2000, 5500, null, null);
         encodeWav(MED_STEREO_WAV, 3500, opts);
     }
@@ -59,7 +59,7 @@ public class VorbisEncoderTest extends AudioTestCase {
         encodeWav(SINE_WAV, 10000, opts);
     }
 
-    public void testReencodeVorbisFile() throws Exception {
+    public void testEncodeVorbis() throws Exception {
         FadeFilter filter = new FadeFilter(AudioConfig.PCM16_44100_1);
         final long[] m = new long[1];
         final ProgressListener listener = new ProgressListener() {
@@ -73,8 +73,7 @@ public class VorbisEncoderTest extends AudioTestCase {
         assertEquals(5, m[0]);
     }
 
-    @Suppress
-    public void testPartialVorbisEncoding() throws Exception {
+    public void testEncodePartialVorbis() throws Exception {
         EncoderOptions opts = new EncoderOptions(.5f, 500, 1500, null, null);
         encodeVorbis(SHORT_TEST_OGG, 1d, opts);
     }
