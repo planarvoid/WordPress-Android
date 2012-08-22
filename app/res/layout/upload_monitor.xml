@@ -10,7 +10,8 @@
                 android:layout_height="0dp"
                 android:layout_width="fill_parent"
                 android:paddingTop="5dip">
-        <RelativeLayout
+        <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content">
 
@@ -19,15 +20,12 @@
                       android:layout="@layout/share_header"
                       android:layout_width="fill_parent"
                       android:layout_height="wrap_content"/>
-
             <RelativeLayout
                     android:id="@+id/track_info_holder"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="20dip"
                     android:padding="10dip"
-                    android:layout_below="@id/share_header"
-                    android:layout_alignWithParentIfMissing="true"
                     android:background="@color/white">
                 <ImageView android:id="@+id/icon"
                            android:layout_alignParentLeft="true"
@@ -135,7 +133,7 @@
                               android:text="@string/share_success_message"/>
                 </RelativeLayout>
             </RelativeLayout>
-        </RelativeLayout>
+        </LinearLayout>
     </ScrollView>
     <com.soundcloud.android.view.ButtonBar android:id="@+id/bottom_bar"
                                            style="@style/rec_button_bar"
