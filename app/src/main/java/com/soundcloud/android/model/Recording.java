@@ -299,6 +299,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public String sharingNote(Resources res) {
+        if (external_upload && !audio_path.getParentFile().equals(SoundRecorder.RECORD_DIR)) {
+            return audio_path.getName();
+        }
+
         String note;
         if (!TextUtils.isEmpty(what_text)) {
             if (!TextUtils.isEmpty(where_text)) {
@@ -315,6 +319,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     public Uri toUri() {
         return id > 0 ? Content.RECORDING.forId(id) : Content.RECORDINGS.uri;
+    }
+
+    public boolean isLegacyRecording(){
+        return (external_upload && audio_path.getParentFile().equals(SoundRecorder.RECORD_DIR));
     }
 
     public String getStatus(Resources resources) {

@@ -64,7 +64,6 @@ public class ScUpload extends ScActivity {
 
             if (mRecording.external_upload) {
                 // 3rd party upload, disable "record another sound button"
-                ((ButtonBar) findViewById(R.id.bottom_bar)).toggleVisibility(REC_ANOTHER, false, true);
                 ((ViewGroup) findViewById(R.id.share_user_layout)).addView(
                         new ShareUserHeader(this, getApp().getLoggedInUser()));
                 findViewById(R.id.txt_title).setVisibility(View.GONE);
@@ -92,10 +91,14 @@ public class ScUpload extends ScActivity {
             @Override
             public void onClick(View v) {
                 track(Click.Record_details_record_another);
-                setResult(RESULT_OK, new Intent().setData(mRecording.toUri()));
+                if (mRecording.external_upload && !mRecording.isLegacyRecording()){
+                    mRecording.delete(getContentResolver());
+                } else {
+                    setResult(RESULT_OK, new Intent().setData(mRecording.toUri()));
+                }
                 finish();
             }
-        }), R.string.record_another_sound).addItem(new ButtonBar.MenuItem(POST, new View.OnClickListener() {
+        }), mRecording.external_upload ? R.string.cancel : R.string.record_another_sound).addItem(new ButtonBar.MenuItem(POST, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 track(Click.Record_details_Upload_and_share);
