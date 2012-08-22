@@ -472,13 +472,16 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 mSeenSavedMessage = true;
             }
 
-            if (recording == null && getIntent().hasExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT)) {
+            if (recording == null && intent.hasExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT)) {
                 if (mRecorder.hasRecording()) mRecorder.reset();
-                setRecipient((User) getIntent().getParcelableExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT));
+                setRecipient((User) intent.getParcelableExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT));
             }
 
             if (mRecorder.isPlaying()) {
-                if (mCurrentState != CreateState.EDIT_PLAYBACK) newState = CreateState.PLAYBACK;
+                // is this after orientation change during edit playback
+                if (mCurrentState != CreateState.EDIT_PLAYBACK) {
+                    newState = CreateState.PLAYBACK;
+                }
                 configurePlaybackInfo();
                 mWaveDisplay.gotoPlaybackMode(false);
             } else {
@@ -493,12 +496,11 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     }
                 } else {
                     newState = CreateState.IDLE_RECORD;
-
                 }
             }
         }
 
-        Recording.clearRecordingFromIntent(getIntent());
+        Recording.clearRecordingFromIntent(intent);
 
         if (newState == CreateState.IDLE_RECORD && mRecipient == null) {
             mUnsavedRecordings = Recording.getUnsavedRecordings(
@@ -511,6 +513,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
             }
         }
+
         setupToggleFade(mRecorder.isFading());
         setupToggleOptimize(mRecorder.isOptimized());
         updateUi(newState);
