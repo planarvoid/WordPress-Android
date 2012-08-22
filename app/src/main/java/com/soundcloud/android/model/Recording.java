@@ -299,10 +299,6 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public String sharingNote(Resources res) {
-        if (external_upload && !audio_path.getParentFile().equals(SoundRecorder.RECORD_DIR)) {
-            return audio_path.getName();
-        }
-
         String note;
         if (!TextUtils.isEmpty(what_text)) {
             if (!TextUtils.isEmpty(where_text)) {
@@ -310,6 +306,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
             } else {
                 note = what_text;
             }
+        } else if (external_upload && !isLegacyRecording()) {
+            note = audio_path.getName();
         } else {
             note = res.getString(R.string.sounds_from, !TextUtils.isEmpty(where_text) ? where_text :
                     recordingDateString(res));
