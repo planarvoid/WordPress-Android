@@ -181,7 +181,7 @@ public class ScUpload extends ScActivity {
     protected void onStop() {
         super.onStop();
 
-        if (mRecording != null && !mUploading) {
+        if (mRecording != null && !mUploading && (!mRecording.external_upload || mRecording.isLegacyRecording())) {
             // recording exists and hasn't been uploaded
             saveRecording();
         }
