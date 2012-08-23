@@ -215,7 +215,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
             case Consts.OptionsMenu.FRIEND_FINDER:
                 intent = new Intent(Actions.MY_PROFILE)
                     .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.friend_finder.name());
+                    .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.friend_finder);
                 startActivity(intent);
                 return true;
             default:

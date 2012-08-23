@@ -415,7 +415,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(Actions.MY_PROFILE)
-                        .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks));
+                    .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks));
             }
         });
         return button;

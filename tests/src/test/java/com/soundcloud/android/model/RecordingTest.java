@@ -118,6 +118,16 @@ public class RecordingTest {
     }
 
     @Test
+    public void existsShouldCheckForRawAndEncodedFile() throws Exception {
+        Recording r = createRecording();
+        expect(r.getEncodedFile().createNewFile()).toBeTrue();
+        expect(r.getFile().delete()).toBeTrue();
+        expect(r.exists()).toBeTrue();
+        expect(r.getEncodedFile().delete()).toBeTrue();
+        expect(r.exists()).toBeFalse();
+    }
+
+    @Test
     public void shouldDeterminedLastModifiedFromFile() throws Exception {
         Recording r = createRecording();
         expect(r.lastModified()).toEqual(r.getFile().lastModified());

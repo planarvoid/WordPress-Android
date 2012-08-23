@@ -78,6 +78,18 @@ public class VorbisEncoderTest extends AudioTestCase {
         encodeVorbis(SHORT_TEST_OGG, 1d, opts);
     }
 
+    public void testEncodeAndGuessFileType() throws Exception {
+        final File ogg = prepareAsset(SHORT_TEST_OGG);
+        final File renamed = new File(ogg.getParentFile(), String.valueOf(System.currentTimeMillis()));
+        assertTrue(ogg.renameTo(renamed));
+        renamed.deleteOnExit();
+        final File ogg_output = externalPath(renamed + "-re-encoded.ogg");
+
+        VorbisEncoder.encodeFile(renamed, ogg_output, EncoderOptions.DEFAULT);
+
+        assertTrue(ogg_output.exists());
+    }
+
     @Suppress
     public void testEncodeHugeWavFile() throws Exception {
         long space = IOUtils.getSpaceLeft(Environment.getExternalStorageDirectory());

@@ -81,7 +81,8 @@ public class ThirdPartySharingTest extends ActivityTestCase<ShareSound> {
         assertNotNull(result.intent);
         assertNotNull(result.intent.getData());
         assertTrue(result.intent.hasExtra(Actions.UPLOAD_EXTRA_UPLOADING));
-        assertEquals("content://com.soundcloud.android.provider.ScContentProvider/recordings",
+
+        assertMatches("content://com.soundcloud.android.provider.ScContentProvider/recordings/\\d+",
                 result.intent.getData().toString());
 
         // empty file.

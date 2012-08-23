@@ -3,6 +3,8 @@ package com.soundcloud.android.jni;
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.PlaybackFilter;
 import com.soundcloud.android.audio.WavHeader;
+import com.soundcloud.android.audio.reader.VorbisReader;
+import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
 
@@ -150,9 +152,42 @@ public class VorbisEncoder {
         return validate(in.getAbsolutePath()) == 0;
     }
 
+    /**
+     * @param in file to be encoded, either vorbis or wav format
+     * @param out the output file
+     * @param options encoding options
+     * @return always 0
+     * @throws IOException
+     */
+    public static int encodeFile(File in, File out, EncoderOptions options) throws IOException {
+        // guess based on extension first
+        final String extension = IOUtils.extension(in);
+        if (WavReader.EXTENSION.equals(extension)) {
+            return encodeWav(in, out, options);
+        } else if (VorbisReader.EXTENSION.equals(extension)) {
+            return encodeVorbis(in, out, options);
+        } else {
+            // wav file ?
+            try {
+                WavHeader.fromFile(in);
+                return encodeWav(in, out, options);
+            } catch (IOException ignored ) {
+            }
+            // vorbis file ?
+            VorbisDecoder dec = null;
+            try {
+                dec = new VorbisDecoder(in);
+                return encodeVorbis(in, out, options);
+            } catch (DecoderException ignored) {
+            } finally {
+                if (dec != null) dec.release();
+            }
+            throw new IOException("File format of "+in+ " is not supported");
+        }
+    }
 
     /**
-     * @param in  input file
+     * @param in  a wav input file
      * @param out output file
      * @param options encoding options
      * @return always 0
@@ -195,10 +230,10 @@ public class VorbisEncoder {
      */
     public static int encodeVorbis(File in, File out, EncoderOptions options) throws IOException {
         VorbisDecoder decoder = new VorbisDecoder(in);
-        VorbisInfo info = decoder.getInfo();
+        final VorbisInfo info = decoder.getInfo();
 
-        PlaybackFilter filter = options.filter;
-        ProgressListener listener = options.listener;
+        final PlaybackFilter filter = options.filter;
+        final ProgressListener listener = options.listener;
 
         VorbisEncoder encoder = new VorbisEncoder(out,
                 "w",
@@ -209,7 +244,7 @@ public class VorbisEncoder {
         if (options.start != 0) {
             final int error = decoder.timeSeek(options.start / 1000d);
             if (error != 0) {
-                throw new EncoderException("Could not seekd", error);
+                throw new EncoderException("Could not seek", error);
             }
         }
 

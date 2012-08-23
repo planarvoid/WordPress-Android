@@ -163,7 +163,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return audio_path;
     }
 
-    public File getRawFile() {
+    public @Nullable File getRawFile() {
         return isRawFilename(audio_path.getName()) ? audio_path : null;
     }
 
@@ -236,7 +236,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public boolean exists() {
-        return audio_path.exists();
+        return audio_path.exists() || getEncodedFile().exists();
     }
 
     private void setRecipient(User recipient) {
