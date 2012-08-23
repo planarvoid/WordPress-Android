@@ -1,17 +1,22 @@
 package com.soundcloud.android.activity.create;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.service.upload.UploadService;
+import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -63,8 +68,7 @@ public class UploadMonitor extends Activity {
             @Override
             public void onClick(View v) {
                 if (mRecording.isUploading()) {
-                    mRecording.cancelUpload(UploadMonitor.this);
-                    onCancelling();
+                    confirmCancel();
                 } else {
                     finish();
                 }
@@ -255,4 +259,23 @@ public class UploadMonitor extends Activity {
         mButtonBar.toggleVisibility(BUTTON_BAR_RETRY_ID, false, true);
         mButtonBar.setVisibility(View.VISIBLE);
     }
+
+    private void confirmCancel() {
+        new AlertDialog.Builder(this)
+                .setTitle(null)
+                .setMessage(R.string.dialog_cancel_upload_message)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (mRecording.isUploading()) {
+                            mRecording.cancelUpload(UploadMonitor.this);
+                            onCancelling();
+                        }
+                    }
+                })
+                .setNegativeButton(android.R.string.no, null)
+                .create()
+                .show();
+    }
+
 }
