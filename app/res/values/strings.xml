@@ -12,4 +12,7 @@
 
     <!-- error to show when signup scope was revoked on server side -->
     <string name="signup_scope_revoked">Oops! We couldn\'t sign you up\nPlease try updating the app or sign up at SoundCloud.com.</string>
+
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

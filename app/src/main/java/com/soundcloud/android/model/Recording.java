@@ -386,6 +386,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return new Intent(Actions.UPLOAD_MONITOR).setData(toUri());
     }
 
+    public Intent getMonitorIntentWithProgress(int uploadStage, int progress) {
+        return getMonitorIntent().putExtra(UploadService.EXTRA_STAGE,uploadStage).putExtra(UploadService.EXTRA_PROGRESS,progress);
+    }
+
     public Intent getProcessIntent() {
         return new Intent(Actions.RECORDING_PROCESS)
                 .setData(Uri.fromFile(getFile()))

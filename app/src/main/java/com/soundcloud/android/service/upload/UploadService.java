@@ -46,11 +46,15 @@ import java.util.Map;
 public class UploadService extends Service {
     /* package */ static final String TAG = UploadService.class.getSimpleName();
 
+    public static final int UPLOAD_STAGE_PROCESSING     = 1;
+    public static final int UPLOAD_STAGE_TRANSFERRING   = 2;
+
     public static final String EXTRA_RECORDING   = Recording.EXTRA;
     public static final String EXTRA_TRACK       = "track";
     public static final String EXTRA_TRANSFERRED = "transferred";
     public static final String EXTRA_TOTAL       = "total";
     public static final String EXTRA_PROGRESS    = "progress";
+    public static final String EXTRA_STAGE       = "stage";
 
     public static final String UPLOAD_CANCEL     = "com.soundcloud.android.service.upload.cancel";
     public static final String UPLOAD_SUCCESS    = "com.soundcloud.android.service.upload.success";
@@ -360,13 +364,15 @@ public class UploadService extends Service {
     private Notification updateProcessingProgress(Recording r, int stringId, int progress) {
         final Notification n = getOngoingNotification(r);
         final int positiveProgress = Math.max(0, progress);
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                r.getMonitorIntentWithProgress(UPLOAD_STAGE_PROCESSING, positiveProgress), PendingIntent.FLAG_UPDATE_CURRENT);
+
         if (Consts.SdkSwitches.useCustomNotificationLayouts) {
+            n.contentIntent = pendingIntent;
             n.contentView.setTextViewText(R.id.txt_processing, getString(stringId, positiveProgress));
             n.contentView.setProgressBar(R.id.progress_bar_processing, 100, positiveProgress, progress == -1); // just show indeterminate for 0 progress, looks better for quick uploads
         } else {
-            n.setLatestEventInfo(this, r.getTitle(getResources()), getString(stringId, positiveProgress), PendingIntent.getActivity(this, 0,
-                    r.getMonitorIntent(),
-                    PendingIntent.FLAG_UPDATE_CURRENT));
+            n.setLatestEventInfo(this, r.getTitle(getResources()), getString(stringId, positiveProgress), pendingIntent);
         }
         return n;
     }
@@ -374,13 +380,15 @@ public class UploadService extends Service {
     private Notification updateUploadingProgress(Recording r, int stringId, int progress) {
         final Notification n = getOngoingNotification(r);
         final int positiveProgress = Math.max(0, progress);
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                r.getMonitorIntentWithProgress(UPLOAD_STAGE_TRANSFERRING, positiveProgress), PendingIntent.FLAG_UPDATE_CURRENT);
+
         if (Consts.SdkSwitches.useCustomNotificationLayouts) {
+            n.contentIntent = pendingIntent;
             n.contentView.setTextViewText(R.id.txt_uploading, getString(stringId, positiveProgress));
             n.contentView.setProgressBar(R.id.progress_bar_uploading, 100, positiveProgress, progress == -1);
         } else {
-            n.setLatestEventInfo(this, r.getTitle(getResources()), getString(stringId, positiveProgress), PendingIntent.getActivity(this, 0,
-                    r.getMonitorIntent(),
-                    PendingIntent.FLAG_UPDATE_CURRENT));
+            n.setLatestEventInfo(this, r.getTitle(getResources()), getString(stringId, positiveProgress), pendingIntent);
         }
         return n;
     }

@@ -1,19 +1,16 @@
 package com.soundcloud.android.activity.create;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.service.upload.UploadService;
-import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -32,6 +29,8 @@ public class UploadMonitor extends Activity {
     private static final int MAX = 100;
     public static final int BUTTON_BAR_CANCEL_ID = 0;
     public static final int BUTTON_BAR_RETRY_ID = 1;
+    public static final String EXTRA_IN_TRANSFER_STATE = "transferState";
+    public static final String EXTRA_PROGRESS = "progress";
     private Recording mRecording;
 
     private ProgressBar mProcessingProgress, mTransferProgress;
@@ -42,6 +41,7 @@ public class UploadMonitor extends Activity {
     private TextView mTrackTitle;
 
     private boolean mTransferState;
+    private int mProgress;
 
     private final Handler mHandler = new Handler();
 
@@ -89,13 +89,43 @@ public class UploadMonitor extends Activity {
 
         final Intent intent = getIntent();
         Recording intentRecording;
-        if (intent != null && (intentRecording = Recording.fromIntent(intent, getContentResolver(), SoundCloudApplication.getUserId())) != null) {
-            setRecording(intentRecording);
+        if (intent != null) {
+            if ((intentRecording = Recording.fromIntent(intent, getContentResolver(), SoundCloudApplication.getUserId())) != null) {
+                setRecording(intentRecording);
+            }
+
+            // check for initial progress to display
+            if (intent.hasExtra(UploadService.EXTRA_STAGE)){
+                if (intent.getIntExtra(UploadService.EXTRA_STAGE,0) == UploadService.UPLOAD_STAGE_PROCESSING){
+                    setProcessProgress(intent.getIntExtra(UploadService.EXTRA_PROGRESS,-1));
+                } else {
+                    setTransferProgress(intent.getIntExtra(UploadService.EXTRA_PROGRESS, -1));
+                }
+                intent.removeExtra(UploadService.EXTRA_STAGE);
+                intent.removeExtra(UploadService.EXTRA_PROGRESS);
+            }
         }
 
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mUploadStatusListener,
                 UploadService.getIntentFilter());
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+        state.putInt(EXTRA_PROGRESS, mProgress);
+        state.putBoolean(EXTRA_IN_TRANSFER_STATE, mTransferState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle state) {
+        if (!state.isEmpty()) {
+            if (!state.getBoolean(EXTRA_IN_TRANSFER_STATE)){
+                setProcessProgress(state.getInt(EXTRA_PROGRESS));
+            } else {
+                setTransferProgress(state.getInt(EXTRA_PROGRESS));
+            }
+        }
     }
 
     @Override
@@ -173,6 +203,7 @@ public class UploadMonitor extends Activity {
     };
 
     private void setProcessProgress(int progress) {
+        mProgress = progress;
         if (progress < 0) {
             mProcessingProgress.setIndeterminate(true);
             mProcessingProgressText.setText(R.string.uploader_event_processing);
@@ -193,6 +224,7 @@ public class UploadMonitor extends Activity {
     }
 
     private void setTransferProgress(int progress) {
+        mProgress = progress;
         if (!mTransferState) {
             mTransferState = true;
 
@@ -264,7 +296,7 @@ public class UploadMonitor extends Activity {
         new AlertDialog.Builder(this)
                 .setTitle(null)
                 .setMessage(R.string.dialog_cancel_upload_message)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (mRecording.isUploading()) {
@@ -273,7 +305,7 @@ public class UploadMonitor extends Activity {
                         }
                     }
                 })
-                .setNegativeButton(android.R.string.no, null)
+                .setNegativeButton(R.string.no, null)
                 .create()
                 .show();
     }
