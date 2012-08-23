@@ -113,7 +113,7 @@ public abstract class AudioTestCase extends ScAndroidTestCase {
     protected double checkVorbisDuration(File file, double expectedDuration) throws DecoderException {
         VorbisDecoder dec = new VorbisDecoder(file);
         final double duration = dec.getInfo().duration;
-        assertEquals(expectedDuration, duration, .001d);
+        assertEquals(expectedDuration, duration, .01d);
         dec.release();
         return duration;
     }
