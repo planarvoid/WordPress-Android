@@ -94,8 +94,12 @@ public class CreateWaveView extends View {
     public void reset() {
         mCurrentProgress = -1f;
         mAnimationStartTime = -1l;
+        nextBufferX = -1;
         mMode = CreateWaveDisplay.MODE_REC;
         mIsEditing = false;
+        if (mZoomBitmap != null) {
+            new Canvas(mZoomBitmap).drawRect(0, 0, mZoomBitmap.getWidth(), mZoomBitmap.getHeight(), CLEAR_PAINT);
+        }
         invalidate();
     }
 
@@ -317,7 +321,6 @@ public class CreateWaveView extends View {
         public int recordEndIndexWithTrim;
 
         public void configure(RecordStream recordStream, float[] trimWindow) {
-
             mPreRecData = recordStream.getPreRecordAmplitudeData();
             mRecData = recordStream.getAmplitudeData();
 
