@@ -15,7 +15,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
@@ -97,6 +96,7 @@ public class UploadMonitor extends Activity {
 
             // check for initial progress to display
             if (intent.hasExtra(UploadService.EXTRA_STAGE)){
+
                 if (intent.getIntExtra(UploadService.EXTRA_STAGE,0) == UploadService.UPLOAD_STAGE_PROCESSING){
                     setProcessProgress(intent.getIntExtra(UploadService.EXTRA_PROGRESS,-1));
                 } else {
@@ -165,6 +165,7 @@ public class UploadMonitor extends Activity {
                     .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks)
                     .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             );
+            finish();
         }
     }
 
