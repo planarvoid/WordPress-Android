@@ -35,7 +35,7 @@ public class CreateWaveView extends View {
     private static final int WAVEFORM_UNPLAYED  = 0xffcccccc;
 
     private Bitmap mZoomBitmap;
-    private int nextBufferX = -1;
+    private int nextBitmapX = -1;
     private final int mGlowHeight;
     private int mMaxWaveHeight;
 
@@ -81,6 +81,8 @@ public class CreateWaveView extends View {
             mMode = mode;
             mCurrentProgress = -1;
 
+            if (mMode == CreateWaveDisplay.MODE_REC) resetZoomBitmap();
+
             if (animate) mAnimationStartTime = System.currentTimeMillis();
             invalidate();
         }
@@ -94,13 +96,18 @@ public class CreateWaveView extends View {
     public void reset() {
         mCurrentProgress = -1f;
         mAnimationStartTime = -1l;
-        nextBufferX = -1;
         mMode = CreateWaveDisplay.MODE_REC;
         mIsEditing = false;
+
+        resetZoomBitmap();
+        invalidate();
+    }
+
+    private void resetZoomBitmap() {
+        nextBitmapX = -1;
         if (mZoomBitmap != null) {
             new Canvas(mZoomBitmap).drawRect(0, 0, mZoomBitmap.getWidth(), mZoomBitmap.getHeight(), CLEAR_PAINT);
         }
-        invalidate();
     }
 
     public void setIsEditing(boolean isEditing) {
@@ -213,21 +220,21 @@ public class CreateWaveView extends View {
      */
     private void drawZoomView(Canvas c, DrawData drawData) {
         final int width = getWidth();
-        if (nextBufferX == -1) {
+        if (nextBitmapX == -1) {
             // draw current amplitudes
             Canvas bitmapCanvas = new Canvas(mZoomBitmap);
             final int drawCount = Math.min(width, drawData.size);
 
-            for (nextBufferX = 0; nextBufferX < drawCount; nextBufferX++) {
-                final int index = drawData.size - drawCount + nextBufferX;
-                drawAmplitude(bitmapCanvas, nextBufferX, drawData.get(index),
+            for (nextBitmapX = 0; nextBitmapX < drawCount; nextBitmapX++) {
+                final int index = drawData.size - drawCount + nextBitmapX;
+                drawAmplitude(bitmapCanvas, nextBitmapX, drawData.get(index),
                         (drawData.recIndex == -1) || (index < drawData.recIndex) ? DARK_PAINT : PLAYED_PAINT);
             }
         }
         // draw amplitudes cached to canvas
         Matrix m = new Matrix();
-        if (nextBufferX > getWidth()) {
-            m.setTranslate(getWidth() - nextBufferX, 0);
+        if (nextBitmapX > getWidth()) {
+            m.setTranslate(getWidth() - nextBitmapX, 0);
         } else {
             m.setTranslate(0, 0);
         }
@@ -250,16 +257,16 @@ public class CreateWaveView extends View {
 
         final Bitmap old = mZoomBitmap;
         mZoomBitmap = Bitmap.createBitmap(getWidth() * 2, getHeight(), Bitmap.Config.ARGB_8888);
-        nextBufferX = -1;
+        nextBitmapX = -1;
         if (old != null) old.recycle();
     }
 
 
     public void updateAmplitude(float maxAmplitude, boolean isRecording) {
         if (mMaxWaveHeight == 0) return;
-        if (mZoomBitmap != null && nextBufferX != -1) {
+        if (mZoomBitmap != null && nextBitmapX != -1) {
             // if the new line would go over the edge, copy the last half to the first half and translate the current x position.
-            if (nextBufferX + 1 > mZoomBitmap.getWidth()) {
+            if (nextBitmapX + 1 > mZoomBitmap.getWidth()) {
 
                 final Bitmap old = mZoomBitmap;
 
@@ -272,11 +279,11 @@ public class CreateWaveView extends View {
                 c.drawBitmap(mZoomBitmap, mat, new Paint());
                 c.drawRect(width /2, 0, width, old.getHeight(), CLEAR_PAINT);
 
-                nextBufferX = nextBufferX - width / 2;
+                nextBitmapX = nextBitmapX - width / 2;
             }
 
-            drawAmplitude(new Canvas(mZoomBitmap), nextBufferX, maxAmplitude, isRecording ? PLAYED_PAINT : DARK_PAINT);
-            nextBufferX++;
+            drawAmplitude(new Canvas(mZoomBitmap), nextBitmapX, maxAmplitude, isRecording ? PLAYED_PAINT : DARK_PAINT);
+            nextBitmapX++;
         }
         invalidate();
     }
