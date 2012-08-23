@@ -15,6 +15,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
@@ -131,6 +132,7 @@ public class UploadMonitor extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        ImageUtils.recycleImageViewBitmap((ImageView) findViewById(R.id.icon));
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mUploadStatusListener);
     }
 

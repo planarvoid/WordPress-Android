@@ -200,7 +200,7 @@ public class RecordingMetaData extends RelativeLayout {
         mArtworkFile = null;
         mArtwork.setVisibility(View.GONE);
         if (mArtwork.getDrawable() instanceof BitmapDrawable) {
-            ImageUtils.clearBitmap(((BitmapDrawable) mArtwork.getDrawable()).getBitmap());
+            ImageUtils.recycleImageViewBitmap(mArtwork);
         }
     }
 
