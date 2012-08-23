@@ -813,8 +813,10 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     @Override public void onAnimationRepeat(Animation animation) {}
                     @Override
                     public void onAnimationEnd(Animation animation) {
-                        v.setVisibility(visibilityOnComplete);
-                        v.setEnabled(true);
+                        if (v.getAnimation() == animation){
+                            v.setVisibility(visibilityOnComplete);
+                            v.setEnabled(true);
+                        }
                     }
                 });
             } else {
