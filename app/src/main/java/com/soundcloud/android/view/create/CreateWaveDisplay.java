@@ -247,7 +247,6 @@ public class CreateWaveDisplay extends TouchLayout {
                     final float adjustedSeekPosition = Math.min(Math.max(minX, lastSeekX),maxX) - minX;
                     final float seekPercent = adjustedSeekPosition / (maxX - minX);
 
-                    if (mWaveformView != null) mWaveformView.setCurrentProgress(seekPercent);
                     if (mListener != null) {
                         mListener.onSeek(seekPercent);
                     }

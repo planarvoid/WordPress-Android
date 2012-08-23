@@ -164,9 +164,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             }
             @Override public void onPeriodicNotification(AudioTrack track) {
                 if (mState == State.PLAYING) {
-                    mBroadcastManager.sendBroadcast(new Intent(PLAYBACK_PROGRESS)
-                            .putExtra(EXTRA_POSITION, getCurrentPlaybackPosition())
-                            .putExtra(EXTRA_DURATION, getPlaybackDuration()));
+                    sendPlaybackProgress();
                 }
             }
         });
@@ -190,6 +188,12 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
         mRecordStream = new RecordStream(mConfig);
         reset();
+    }
+
+    private void sendPlaybackProgress() {
+        mBroadcastManager.sendBroadcast(new Intent(PLAYBACK_PROGRESS)
+                .putExtra(EXTRA_POSITION, getCurrentPlaybackPosition())
+                .putExtra(EXTRA_DURATION, getPlaybackDuration()));
     }
 
     public void reset(){
@@ -430,6 +434,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 mState = State.SEEKING;
             } else {
                 mPlaybackStream.setCurrentPosition(absPosition);
+                sendPlaybackProgress();
             }
         }
     }
