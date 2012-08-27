@@ -10,22 +10,22 @@
                 android:layout_height="0dp"
                 android:layout_width="fill_parent"
                 android:paddingTop="5dip">
-        <RelativeLayout
+        <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content">
 
             <ViewStub android:id="@+id/share_header_stub"
+                      android:inflatedId="@+id/share_header"
                       android:layout="@layout/share_header"
                       android:layout_width="fill_parent"
                       android:layout_height="wrap_content"/>
-
             <RelativeLayout
                     android:id="@+id/track_info_holder"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="20dip"
                     android:padding="10dip"
-                    android:layout_below="@id/share_header_stub"
                     android:background="@color/white">
                 <ImageView android:id="@+id/icon"
                            android:layout_alignParentLeft="true"
@@ -51,7 +51,6 @@
                                 android:layout_below="@id/icon"
                                 android:layout_marginTop="10dip"
                                 android:layout_marginBottom="10dip">
-
                     <LinearLayout android:id="@+id/progress_layout"
                                   android:layout_width="fill_parent"
                                   android:layout_height="wrap_content"
@@ -59,7 +58,6 @@
                                   android:layout_marginBottom="10dip"
                                   android:layout_alignParentLeft="true"
                                   android:layout_marginRight="10dp"
-                                  android:layout_toLeftOf="@+id/close_icon"
                                   android:baselineAligned="false">
                         <LinearLayout android:layout_width="0dp"
                                       android:layout_weight="1"
@@ -102,13 +100,6 @@
                                          style="@style/ScProgressBarRoundRight"/>
                         </LinearLayout>
                     </LinearLayout>
-                    <ImageView android:id="@+id/close_icon"
-                               android:layout_alignParentRight="true"
-                               android:layout_alignBottom="@id/progress_layout"
-                               android:src="@drawable/rec_close"
-                               android:scaleType="center"
-                               android:layout_width="wrap_content"
-                               android:layout_height="wrap_content"/>
                 </RelativeLayout>
                 <RelativeLayout android:id="@+id/finished_layout"
                                 android:layout_width="fill_parent"
@@ -133,7 +124,7 @@
                               android:text="@string/share_success_message"/>
                 </RelativeLayout>
             </RelativeLayout>
-        </RelativeLayout>
+        </LinearLayout>
     </ScrollView>
     <com.soundcloud.android.view.ButtonBar android:id="@+id/bottom_bar"
                                            style="@style/rec_button_bar"

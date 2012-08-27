@@ -11,7 +11,6 @@ import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.record.SoundRecorder;
-import com.soundcloud.android.service.upload.UploadService;
 
 import android.content.Intent;
 import android.os.Build;
@@ -235,6 +234,80 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         assertTrue(ampFile.exists());
     }
 
+    public void testDeleteWavFileAndPlayback() throws Exception {
+        record(RECORDING_TIME);
+        solo.sleep(1000);
+        Recording r = getActivity().getRecorder().getRecording();
+        File wavFile = r.getFile();
+
+        assertTrue(wavFile.exists());
+        assertTrue(wavFile.delete());
+
+        ScCreate create = reloadRecording(r);
+        setActivity(create);
+
+        playback();
+    }
+
+    public void testDeleteWavFileAndUpload() throws Exception {
+        record(RECORDING_TIME);
+        solo.sleep(1000);
+
+        // create a faded and trimmed recording to test re-encoding of ogg file
+        gotoEditMode();
+        trim(0.1, 0.1);
+        assertTrue(toggleFade());
+        applyEdits();
+
+        Recording r = getActivity().getRecorder().getRecording();
+
+        solo.clickOnPublish();
+        solo.assertActivity(ScUpload.class);
+
+        long tstamp = System.currentTimeMillis();
+
+        final String title ="testDeleteWavFileAndUpload-"+tstamp;
+        // give it a title
+        solo.enterTextId(R.id.what, title);
+        solo.goBack();
+
+        solo.clickOnView(R.id.btn_you);
+
+        // delete wav file
+        File wavFile = r.getFile();
+        assertTrue(wavFile.exists());
+        assertTrue(wavFile.delete());
+
+        solo.clickOnText(title);
+
+        solo.assertActivity(ScCreate.class);
+        uploadSound(null, null, true);
+
+        assertSoundUploaded();
+        Track t = assertSoundTranscoded();
+
+        if (t != null) {
+            assertEquals(title, t.title);
+        }
+    }
+
+    public void testShouldAutoSaveRecordingAndNavigateToYourSounds() throws Exception {
+        record(RECORDING_TIME);
+        solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
+        solo.clickOnView(R.id.btn_you);
+        solo.assertActivity(Main.class);
+    }
+
+    public void testShouldOnlyDisplayedSavedLocallyMessageOnce() throws Exception {
+        record(RECORDING_TIME);
+        solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
+        solo.sleep(500);
+        solo.clickOnView(R.id.btn_action);
+        solo.sleep(1000);
+        solo.clickOnView(R.id.btn_action);
+        solo.assertNoText(R.string.rec_your_sound_is_saved_locally_at);
+    }
+
     @Suppress
     public void testRecordAndLoadAndAppend() throws Exception {
         record(RECORDING_TIME);
@@ -247,21 +320,9 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         solo.assertActivity(ScUpload.class);
 
-        solo.finishOpenedActivities();
-
-        Main main = launchActivityWithIntent("com.soundcloud.android",
-            Main.class, new Intent().putExtra(Main.TAB_TAG, Main.Tab.PROFILE.tag));
-
-
-        solo.clickOnText(name);
-
-        solo.sleep(500);
-
-//        solo.assertActivity(ScCreate.class);
+        setActivity(reloadRecording(getActivity().getRecorder().getRecording()));
 
         record(RECORDING_TIME);
-
-        solo.sleep(5000);
 
     }
 }

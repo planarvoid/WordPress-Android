@@ -570,9 +570,14 @@ public class UserBrowser extends ScListActivity implements
                 mFollowBtn.setEnabled(true);
                 mFollowingBtn.setEnabled(true);
 
-                if (msg.what == 0) {
+                if (msg.what != FollowStatus.FOLLOW_STATUS_SUCCESS) {
                     setFollowingButton();
-                    AndroidUtils.showToast(UserBrowser.this, R.string.error_change_following_status);
+
+                    if (msg.what == FollowStatus.FOLLOW_STATUS_SPAM) {
+                        AndroidUtils.showToast(UserBrowser.this, R.string.following_spam_warning);
+                    } else {
+                        AndroidUtils.showToast(UserBrowser.this, R.string.error_change_following_status);
+                    }
                 }
             }
         });
@@ -779,18 +784,7 @@ public class UserBrowser extends ScListActivity implements
     @Override
     protected void handleRecordingClick(final Recording recording) {
         if (recording.upload_status == Recording.Status.UPLOADING) {
-            new AlertDialog.Builder(this)
-                .setTitle(null)
-                .setMessage(R.string.dialog_cancel_upload_message)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        recording.cancelUpload(UserBrowser.this);
-                    }
-                })
-                .setNegativeButton(android.R.string.no, null)
-                .create()
-                .show();
+            startActivity(recording.getMonitorIntent());
         } else {
             startActivity(new Intent(UserBrowser.this,
                     (recording.external_upload ? ScUpload.class : ScCreate.class)).

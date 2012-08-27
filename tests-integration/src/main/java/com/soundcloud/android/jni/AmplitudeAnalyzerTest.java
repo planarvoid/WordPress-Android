@@ -36,6 +36,7 @@ public class AmplitudeAnalyzerTest extends AudioTestCase {
         assertTrue(fj > 0.1f);
         assertTrue(fn > 0.1f);
         assertEquals(fj, fn, .0000001);
+        assertEquals(ja.getLastValue(), na.getLastValue());
     }
 
     public void testStereoData() {

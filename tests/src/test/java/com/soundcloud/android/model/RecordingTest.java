@@ -118,6 +118,16 @@ public class RecordingTest {
     }
 
     @Test
+    public void existsShouldCheckForRawAndEncodedFile() throws Exception {
+        Recording r = createRecording();
+        expect(r.getEncodedFile().createNewFile()).toBeTrue();
+        expect(r.getFile().delete()).toBeTrue();
+        expect(r.exists()).toBeTrue();
+        expect(r.getEncodedFile().delete()).toBeTrue();
+        expect(r.exists()).toBeFalse();
+    }
+
+    @Test
     public void shouldDeterminedLastModifiedFromFile() throws Exception {
         Recording r = createRecording();
         expect(r.lastModified()).toEqual(r.getFile().lastModified());
@@ -259,7 +269,7 @@ public class RecordingTest {
 
     @Test
     public void shouldGetRecordingFromIntentViaDatabase() throws Exception {
-        Recording r = SoundCloudDB.insertRecording(Robolectric.application.getContentResolver(), createRecording());
+        Recording r = SoundCloudDB.upsertRecording(Robolectric.application.getContentResolver(), createRecording(), null);
 
         assert r != null;
         Intent i = new Intent().setData(r.toUri());

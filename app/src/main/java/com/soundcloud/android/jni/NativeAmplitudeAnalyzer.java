@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 
 @SuppressWarnings("UnusedDeclaration")
 public class NativeAmplitudeAnalyzer implements AmplitudeAnalyzer {
-    private int last_max;
+    private int last_max, last_value;
     private int current_adjusted_max_amplitude;
 
     @SuppressWarnings("FieldCanBeLocal")
@@ -19,6 +19,7 @@ public class NativeAmplitudeAnalyzer implements AmplitudeAnalyzer {
     }
 
     public native float frameAmplitude(ByteBuffer buffer, int length);
+    public native int getLastValue();
 
     static {
         try {

@@ -8,6 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.task.LoadFollowingsTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -53,6 +54,7 @@ public final class IntegrationTestHelper {
             try {
                 token = wrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
             } catch (IOException e) {
+                Log.w(IntegrationTestHelper.class.getSimpleName(), e);
                 throw new AssertionError("error logging in: "+e.getMessage());
             }
             User user = new FetchUserTask(wrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();

@@ -57,7 +57,6 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             onUploadFailed(e);
         } finally {
             mBroadcastManager.unregisterReceiver(this);
-            mUpload.updateStatus(api.getContext().getContentResolver());
         }
     }
 
@@ -145,7 +144,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             LocalCollection.forceToStale(Content.ME_TRACKS.uri, api.getContext().getContentResolver());
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + track);
 
-            mUpload.onUploaded();
+            mUpload.onUploaded(api.getContext().getContentResolver());
             broadcast(UploadService.TRANSFER_SUCCESS, track);
         } catch (IOException e) {
             onUploadFailed(e);

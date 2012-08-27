@@ -12,6 +12,7 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.utils.IOUtils;
@@ -45,11 +46,15 @@ import java.util.Map;
 public class UploadService extends Service {
     /* package */ static final String TAG = UploadService.class.getSimpleName();
 
+    public static final int UPLOAD_STAGE_PROCESSING     = 1;
+    public static final int UPLOAD_STAGE_TRANSFERRING   = 2;
+
     public static final String EXTRA_RECORDING   = Recording.EXTRA;
     public static final String EXTRA_TRACK       = "track";
     public static final String EXTRA_TRANSFERRED = "transferred";
     public static final String EXTRA_TOTAL       = "total";
     public static final String EXTRA_PROGRESS    = "progress";
+    public static final String EXTRA_STAGE       = "stage";
 
     public static final String UPLOAD_CANCEL     = "com.soundcloud.android.service.upload.cancel";
     public static final String UPLOAD_SUCCESS    = "com.soundcloud.android.service.upload.success";
@@ -158,7 +163,7 @@ public class UploadService extends Service {
         if (isUploading()) {
             Log.w(TAG, "Service being destroyed while still uploading.");
             for (Upload u : mUploads.values()) {
-                cancel(u);
+                cancel(u.recording);
             }
         }
         mBroadcastManager.unregisterReceiver(mReceiver);
@@ -278,13 +283,14 @@ public class UploadService extends Service {
                 onTranscodingDone(intent.<Track>getParcelableExtra(EXTRA_TRACK));
             }
 
+
             // error handling
-            if (RESIZE_ERROR.equals(action)
+            final boolean wasError = RESIZE_ERROR.equals(action)
                     || PROCESSING_CANCELED.equals(action)
                     || PROCESSING_ERROR.equals(action)
                     || TRANSFER_CANCELLED.equals(action)
-                    || TRANSFER_ERROR.equals(action)) {
-
+                    || TRANSFER_ERROR.equals(action);
+            if (wasError) {
                 recording.setUploadFailed(PROCESSING_CANCELED.equals(action) || TRANSFER_CANCELLED.equals(action))
                         .updateStatus(getContentResolver()); // for list state
 
@@ -358,13 +364,15 @@ public class UploadService extends Service {
     private Notification updateProcessingProgress(Recording r, int stringId, int progress) {
         final Notification n = getOngoingNotification(r);
         final int positiveProgress = Math.max(0, progress);
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                r.getMonitorIntentWithProgress(UPLOAD_STAGE_PROCESSING, positiveProgress), PendingIntent.FLAG_UPDATE_CURRENT);
+
         if (Consts.SdkSwitches.useCustomNotificationLayouts) {
+            n.contentIntent = pendingIntent;
             n.contentView.setTextViewText(R.id.txt_processing, getString(stringId, positiveProgress));
             n.contentView.setProgressBar(R.id.progress_bar_processing, 100, positiveProgress, progress == -1); // just show indeterminate for 0 progress, looks better for quick uploads
         } else {
-            n.setLatestEventInfo(this, r.getTitle(getResources()), getString(stringId, positiveProgress), PendingIntent.getActivity(this, 0,
-                    r.getMonitorIntent(),
-                    PendingIntent.FLAG_UPDATE_CURRENT));
+            n.setLatestEventInfo(this, r.getTitle(getResources()), getString(stringId, positiveProgress), pendingIntent);
         }
         return n;
     }
@@ -372,22 +380,30 @@ public class UploadService extends Service {
     private Notification updateUploadingProgress(Recording r, int stringId, int progress) {
         final Notification n = getOngoingNotification(r);
         final int positiveProgress = Math.max(0, progress);
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                r.getMonitorIntentWithProgress(UPLOAD_STAGE_TRANSFERRING, positiveProgress), PendingIntent.FLAG_UPDATE_CURRENT);
+
         if (Consts.SdkSwitches.useCustomNotificationLayouts) {
+            n.contentIntent = pendingIntent;
             n.contentView.setTextViewText(R.id.txt_uploading, getString(stringId, positiveProgress));
             n.contentView.setProgressBar(R.id.progress_bar_uploading, 100, positiveProgress, progress == -1);
         } else {
-            n.setLatestEventInfo(this, r.getTitle(getResources()), getString(stringId, positiveProgress), PendingIntent.getActivity(this, 0,
-                    r.getMonitorIntent(),
-                    PendingIntent.FLAG_UPDATE_CURRENT));
+            n.setLatestEventInfo(this, r.getTitle(getResources()), getString(stringId, positiveProgress), pendingIntent);
         }
         return n;
     }
 
 
     /* package */ void upload(Recording recording) {
+
+        final SoundRecorder soundRecorder = SoundRecorder.getInstance(getApplicationContext());
+        if (soundRecorder.isActive() && soundRecorder.getRecording().equals(recording)){
+            soundRecorder.gotoIdleState();
+        }
+
         // make sure recording is saved before uploading
         if (!recording.isSaved() &&
-            (recording = SoundCloudDB.insertRecording(getContentResolver(), recording)) == null) {
+            (recording = SoundCloudDB.upsertRecording(getContentResolver(), recording, null)) == null) {
             Log.w(TAG, "could not insert " + recording);
         } else {
             recording.upload_status = Recording.Status.UPLOADING;
@@ -397,19 +413,18 @@ public class UploadService extends Service {
     }
 
     /* package */  void cancel(Recording r) {
-        cancel(getUpload(r));
-    }
 
-    /* package */  void cancel(Upload u) {
-        mUploadHandler.removeMessages(0, u);
-
+        Upload u = mUploads.get(r.id);
+        if (u != null) mUploadHandler.removeMessages(0, u);
         if (mUploads.isEmpty()) {
             Log.d(TAG, "onCancel() called without any active uploads");
+            mBroadcastManager.sendBroadcast(new Intent(TRANSFER_CANCELLED).putExtra(EXTRA_RECORDING, r)); // send this in case someone is cancelling a stuck upload
             stopSelf();
-        }  else {
-            mBroadcastManager.sendBroadcast(new Intent(UploadService.UPLOAD_CANCEL).putExtra(EXTRA_RECORDING, u.recording));
+        } else {
+            mBroadcastManager.sendBroadcast(new Intent(UploadService.UPLOAD_CANCEL).putExtra(EXTRA_RECORDING, r));
         }
     }
+
 
     private void queueUpload(Recording recording) {
         Upload upload = getUpload(recording);
@@ -563,7 +578,6 @@ public class UploadService extends Service {
         @Override
         public void handleMessage(Message msg) {
             final Intent intent = (Intent) msg.obj;
-
             Recording r = intent.getParcelableExtra(EXTRA_RECORDING);
             if (r != null) {
                 if (Actions.UPLOAD.equals(intent.getAction())) {

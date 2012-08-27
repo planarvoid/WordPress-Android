@@ -3,6 +3,8 @@ package com.soundcloud.android.jni;
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.PlaybackFilter;
 import com.soundcloud.android.audio.WavHeader;
+import com.soundcloud.android.audio.reader.VorbisReader;
+import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
 
@@ -124,39 +126,6 @@ public class VorbisEncoder {
         }
     }
 
-    native private int init(String output, String mode, long channels, long rate, float quality);
-
-    /**
-     * Add some samples to the current file.
-     * @param samples
-     * @param length
-     * @return number of bytes written, < 0 in error case
-     */
-    native public int write(ByteBuffer samples, long length);
-
-
-    /**
-     * Closes the current stream, writing EOS packet.
-     * @return 0 for success
-     */
-    native private int closeStream();
-
-    /**
-     * Pauses the current encoding process (closes the file).
-     */
-    native public int pause();
-
-    /**
-     * Call to free up resources. The encoder cannot be used after this method has been called.
-     * @throws IllegalStateException if the encoder has been released previously
-     */
-    native public void release();
-
-    /**
-     * @return the current state ({@link #STATE_READY} = ready to encode,
-     * {@link #STATE_PAUSED} = paused, < 0 uninitialised)
-     */
-    public native int getState();
 
     /**
      * Extract the part of an Ogg file between given start and/or end times.
@@ -184,15 +153,41 @@ public class VorbisEncoder {
     }
 
     /**
-     * {@link #extract(java.io.File, java.io.File, double, double)}
-     * @return 0 for success
+     * @param in file to be encoded, either vorbis or wav format
+     * @param out the output file
+     * @param options encoding options
+     * @return always 0
+     * @throws IOException
      */
-    native private static int chop(String in, String out, double start, double end);
-
-    native private static int validate(String in);
+    public static int encodeFile(File in, File out, EncoderOptions options) throws IOException {
+        // guess based on extension first
+        final String extension = IOUtils.extension(in);
+        if (WavReader.EXTENSION.equals(extension)) {
+            return encodeWav(in, out, options);
+        } else if (VorbisReader.EXTENSION.equals(extension)) {
+            return encodeVorbis(in, out, options);
+        } else {
+            // wav file ?
+            try {
+                WavHeader.fromFile(in);
+                return encodeWav(in, out, options);
+            } catch (IOException ignored ) {
+            }
+            // vorbis file ?
+            VorbisDecoder dec = null;
+            try {
+                dec = new VorbisDecoder(in);
+                return encodeVorbis(in, out, options);
+            } catch (DecoderException ignored) {
+            } finally {
+                if (dec != null) dec.release();
+            }
+            throw new IOException("File format of "+in+ " is not supported");
+        }
+    }
 
     /**
-     * @param in  input file
+     * @param in  a wav input file
      * @param out output file
      * @param options encoding options
      * @return always 0
@@ -226,6 +221,61 @@ public class VorbisEncoder {
         }
     }
 
+    /**
+     * @param in  input file (vorbis format)
+     * @param out output file
+     * @param options encoding options
+     * @return always 0
+     * @throws IOException
+     */
+    public static int encodeVorbis(File in, File out, EncoderOptions options) throws IOException {
+        VorbisDecoder decoder = new VorbisDecoder(in);
+        final VorbisInfo info = decoder.getInfo();
+
+        final PlaybackFilter filter = options.filter;
+        final ProgressListener listener = options.listener;
+
+        VorbisEncoder encoder = new VorbisEncoder(out,
+                "w",
+                info.channels,
+                info.sampleRate,
+                options.quality);
+
+        if (options.start != 0) {
+            final int error = decoder.timeSeek(options.start / 1000d);
+            if (error != 0) {
+                throw new EncoderException("Could not seek", error);
+            }
+        }
+
+        ByteBuffer buffer = BufferUtils.allocateAudioBuffer(16384);
+
+        int read, total = 0;
+        try {
+            while ((read = decoder.decode(buffer, buffer.capacity())) > 0 &&
+                   (options.end == -1 || decoder.timeTell()  < options.end / 1000d)) {
+
+                if (filter != null) {
+                    filter.apply(buffer, total, read);
+                }
+                encoder.write(buffer, read);
+                total += read;
+
+                if (listener != null) {
+                    listener.onProgress((long) decoder.timeTell(), (long) info.duration);
+                }
+            }
+            encoder.closeStream();
+        } finally {
+            encoder.release();
+            decoder.release();
+        }
+        if (read < 0) {
+            throw new EncoderException("Error encoding", read);
+        }
+        return 0;
+    }
+
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
@@ -234,6 +284,52 @@ public class VorbisEncoder {
             release();
         }
     }
+
+    //
+    // native methods
+    //
+
+    /**
+     * Add some samples to the current file.
+     * @param samples
+     * @param length
+     * @return number of bytes written, < 0 in error case
+     */
+    native public int write(ByteBuffer samples, long length);
+
+
+    /**
+     * Pauses the current encoding process (closes the file).
+     */
+    native public int pause();
+
+    /**
+     * Call to free up resources. The encoder cannot be used after this method has been called.
+     * @throws IllegalStateException if the encoder has been released previously
+     */
+    native public void release();
+
+    /**
+     * @return the current state ({@link #STATE_READY} = ready to encode,
+     * {@link #STATE_PAUSED} = paused, < 0 uninitialised)
+     */
+    public native int getState();
+
+    native private int init(String output, String mode, long channels, long rate, float quality);
+
+    /**
+     * Closes the current stream, writing EOS packet.
+     * @return 0 for success
+     */
+    native private int closeStream();
+
+    /**
+     * {@link #extract(java.io.File, java.io.File, double, double)}
+     * @return 0 for success
+     */
+    native private static int chop(String in, String out, double start, double end);
+
+    native private static int validate(String in);
 
     static {
         try {

@@ -18,6 +18,7 @@ package com.soundcloud.android.audio;
 
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.LimitInputStream;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.DataOutput;
 import java.io.File;
@@ -410,7 +411,7 @@ public class WavHeader {
         }
     }
 
-    public static WavHeader fromFile(File f) throws IOException {
+    public static @NotNull WavHeader fromFile(File f) throws IOException {
         FileInputStream fis = new FileInputStream(f);
         WavHeader h = new WavHeader(fis);
         fis.close();

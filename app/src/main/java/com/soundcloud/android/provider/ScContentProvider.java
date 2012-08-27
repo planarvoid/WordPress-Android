@@ -408,6 +408,8 @@ public class ScContentProvider extends ContentProvider {
             case RECORDING:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 break;
+            case RECORDINGS:
+                break;
             case ME_TRACKS:
             case ME_FAVORITES:
             case ME_FOLLOWINGS:
@@ -669,6 +671,12 @@ public class ScContentProvider extends ContentProvider {
             case ANDROID_SEARCH_SUGGEST:
             case ANDROID_SEARCH_SUGGEST_PATH:
                 return SearchManager.SUGGEST_MIME_TYPE;
+
+            case RECORDING:
+            case RECORDINGS:
+                return "vnd.soundcloud/recording";
+
+
             default:
                 return null;
         }

@@ -1,7 +1,9 @@
 package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.provider.ScContentProvider.Parameter.*;
+import static com.soundcloud.android.provider.ScContentProvider.Parameter.CACHED;
+import static com.soundcloud.android.provider.ScContentProvider.Parameter.LIMIT;
+import static com.soundcloud.android.provider.ScContentProvider.Parameter.RANDOM;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.Activities;
@@ -13,7 +15,6 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,10 +27,8 @@ import android.content.Intent;
 import android.content.PeriodicSync;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.BaseColumns;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -358,8 +357,8 @@ public class ScContentProviderTest {
         Uri uri = Content.ME_SOUND_STREAM.withQuery(RANDOM, "1", LIMIT, "5");
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(5);
-        long sorted[] = new long[] {18508668, 18508600, 18508493, 18028217, 18223729};
-        long result[] = new long[sorted.length];
+        long[] sorted = new long[] {18508668, 18508600, 18508493, 18028217, 18223729};
+        long[] result = new long[sorted.length];
         int i=0;
         while (c.moveToNext()) {
             result[i++] = c.getLong(c.getColumnIndex(DBHelper.ActivityView.TRACK_ID));
@@ -418,5 +417,14 @@ public class ScContentProviderTest {
         syncs = ContentResolver.getPeriodicSyncs(account, ScContentProvider.AUTHORITY);
         expect(syncs.isEmpty()).toBeTrue();
         expect(ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY)).toBeFalse();
+    }
+
+    @Test
+    public void shouldDeleteRecordings() throws Exception {
+        Recording r = Recording.create();
+        expect(SoundCloudDB.upsertRecording(resolver, r, null)).not.toBeNull();
+        resolver.delete(Content.RECORDINGS.uri, null, null);
+        Cursor cursor = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
+        expect(cursor.getCount()).toEqual(0);
     }
 }

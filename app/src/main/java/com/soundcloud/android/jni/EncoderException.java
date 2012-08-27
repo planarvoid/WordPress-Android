@@ -4,6 +4,6 @@ import java.io.IOException;
 
 public class EncoderException extends IOException {
     public EncoderException(String detailMessage, int error) {
-        super(detailMessage + ":" + VorbisConstants.getString(error));
+        super(detailMessage + ": " + VorbisConstants.getString(error));
     }
 }

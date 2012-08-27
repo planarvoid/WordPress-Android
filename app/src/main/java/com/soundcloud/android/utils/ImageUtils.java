@@ -26,6 +26,7 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.ContactsContract;
@@ -569,5 +570,16 @@ public final class ImageUtils {
                 .putExtra("noFaceDetection", true);
 
         activity.startActivityForResult(intent, Consts.RequestCodes.IMAGE_CROP);
+    }
+
+    public static void recycleImageViewBitmap(ImageView imageView){
+        if (imageView.getDrawable() != null) {
+            if (imageView.getDrawable() instanceof BitmapDrawable &&
+                    ((BitmapDrawable) imageView.getDrawable()).getBitmap() != null &&
+                    !((BitmapDrawable) imageView.getDrawable()).getBitmap().isRecycled()) {
+                clearBitmap(((BitmapDrawable) imageView.getDrawable()).getBitmap());
+                imageView.setImageDrawable(null);
+            }
+        }
     }
 }

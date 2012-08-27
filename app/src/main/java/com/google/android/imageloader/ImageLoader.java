@@ -36,11 +36,13 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -838,7 +840,7 @@ public class ImageLoader {
             mUrl = url;
             mImageViewCallback = callback;
             mLoadBitmap = loadBitmap;
-            mOptions = null;
+            mOptions = options;
             mBitmapCallback = null;
         }
 
@@ -917,6 +919,11 @@ public class ImageLoader {
                 mBitmap = getBitmap(mUrl);
                 if (mBitmap != null) {
                     // Keep a hard reference until the view has been notified.
+                    return true;
+                } else if (new File(mUrl).exists()) {
+                    BitmapFactory.Options sampleOptions = new BitmapFactory.Options();
+                    sampleOptions.inSampleSize = mOptions.decodeInSampleSize;
+                    mBitmap = processBitmap(BitmapFactory.decodeFile(mUrl, sampleOptions), mOptions);
                     return true;
                 }
 

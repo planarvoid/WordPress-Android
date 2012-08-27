@@ -10,6 +10,8 @@ import android.content.pm.PackageManager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 
+import java.util.regex.Pattern;
+
 /**
  * Base class for activity tests. Sets up robotium (via {@link Han} and handles
  * screenshots for test failures.
@@ -73,5 +75,9 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
             }
             throw e;
         }
+    }
+
+    protected void assertMatches(String pattern, String string) {
+        assertTrue("String " + string + " doesn't match "+pattern , Pattern.compile(pattern).matcher(string).matches());
     }
 }

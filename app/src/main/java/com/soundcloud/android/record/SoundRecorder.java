@@ -139,11 +139,10 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
     public SoundRecorder(Context context, AudioConfig config) {
-
         mContext = context;
         mConfig = config;
         mState = State.IDLE;
-        final int recBufferSize = config.getRecordBufferSize();
+        final int recBufferSize = config.getRecordMinBufferSize() * 4;
         mAudioRecord = config.createAudioRecord(recBufferSize);
         mAudioRecord.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
             @Override public void onMarkerReached(AudioRecord audioRecord) { }
@@ -158,16 +157,14 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             }
         });
 
-        final int playbackBufferSize = config.getPlaybackBufferSize();
+        final int playbackBufferSize = config.getPlaybackMinBufferSize();
         mAudioTrack = config.createAudioTrack(playbackBufferSize);
         mAudioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
             @Override public void onMarkerReached(AudioTrack track) {
             }
             @Override public void onPeriodicNotification(AudioTrack track) {
                 if (mState == State.PLAYING) {
-                    mBroadcastManager.sendBroadcast(new Intent(PLAYBACK_PROGRESS)
-                            .putExtra(EXTRA_POSITION, getCurrentPlaybackPosition())
-                            .putExtra(EXTRA_DURATION, getPlaybackDuration()));
+                    sendPlaybackProgress();
                 }
             }
         });
@@ -191,6 +188,12 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
         mRecordStream = new RecordStream(mConfig);
         reset();
+    }
+
+    private void sendPlaybackProgress() {
+        mBroadcastManager.sendBroadcast(new Intent(PLAYBACK_PROGRESS)
+                .putExtra(EXTRA_POSITION, getCurrentPlaybackPosition())
+                .putExtra(EXTRA_DURATION, getPlaybackDuration()));
     }
 
     public void reset(){
@@ -237,7 +240,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
     }
 
-    public boolean isGeneratingWaveform(){
+    public boolean isGeneratingWaveform() {
         return mState.isGeneratingWaveform();
     }
 
@@ -431,6 +434,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 mState = State.SEEKING;
             } else {
                 mPlaybackStream.setCurrentPosition(absPosition);
+                sendPlaybackProgress();
             }
         }
     }
@@ -485,10 +489,10 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     }
 
-    public @Nullable Recording saveState() {
+    public @Nullable Recording  saveState() {
         if (mRecording != null) {
             mRecording.setPlaybackStream(mPlaybackStream);
-            return SoundCloudDB.insertRecording(mContext.getContentResolver(), mRecording);
+            return SoundCloudDB.upsertRecording(mContext.getContentResolver(), mRecording, mRecording.buildBaseContentValues());
         } else {
             return null;
         }
@@ -801,11 +805,15 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     public void focusLost(boolean isTransient, boolean canDuck) {
         Log.d(TAG,"Focus Lost " + isTransient + " and " + canDuck);
         if (!canDuck && isActive()){
-            if (isRecording()){
-                stopRecording();
-            } else if (isPlaying()){
-                stopPlayback();
-            }
+            gotoIdleState();
+        }
+    }
+
+    public void gotoIdleState() {
+        if (isRecording()){
+            stopRecording();
+        } else if (isPlaying()){
+            stopPlayback();
         }
     }
 }
