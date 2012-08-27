@@ -236,6 +236,7 @@ public class CreateWaveView extends View {
                 drawAmplitude(bitmapCanvas, nextBitmapX, drawData.get(index),
                         (drawData.recIndex == -1) || (index < drawData.recIndex) ? DARK_PAINT : PLAYED_PAINT);
             }
+            nextBitmapX--;
         }
         // draw amplitudes cached to canvas
         Matrix m = new Matrix();
