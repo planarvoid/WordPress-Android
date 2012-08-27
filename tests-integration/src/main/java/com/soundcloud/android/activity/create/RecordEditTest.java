@@ -1,12 +1,10 @@
 package com.soundcloud.android.activity.create;
 
-import static com.soundcloud.android.activity.create.ScCreate.CreateState.EDIT;
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_PLAYBACK;
 
 import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.view.create.TrimHandle;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -112,15 +110,6 @@ public class RecordEditTest extends AbstractRecordingTestCase {
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
         assertTrackDuration(track, 5000 + ROBO_SLEEP);
-    }
-
-    private void trim(double left, double right) {
-        assertState(EDIT);
-        TrimHandle leftTrim = (TrimHandle) solo.getView(TrimHandle.class, 0);
-        TrimHandle rightTrim = (TrimHandle) solo.getView(TrimHandle.class, 1);
-        int width = solo.getScreenWidth();
-        if (left > 0)  solo.dragViewHorizontally(leftTrim ,  (int) (width * left), 5);
-        if (right > 0) solo.dragViewHorizontally(rightTrim, -(int) (width * right), 5);
     }
 
     @Suppress

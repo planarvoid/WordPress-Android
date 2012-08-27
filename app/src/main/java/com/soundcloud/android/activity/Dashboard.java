@@ -99,6 +99,41 @@ public class Dashboard extends ScListActivity {
                 mTrackingPage = Page.Stream_main;
                 break;
 
+<<<<<<< HEAD
+=======
+            case ACTIVITY:
+                if (getApp().getLoggedInUser() == null || getApp().getLoggedInUser().track_count > 0) {
+                    ec.setMessageText(R.string.list_empty_activity_message)
+                            .setImage(R.drawable.empty_share)
+                            .setActionText(R.string.list_empty_activity_action)
+                            .setSecondaryText(R.string.list_empty_activity_secondary)
+                            .setButtonActionListener(new EmptyCollection.ActionListener() {
+                                @Override
+                                public void onAction() {
+                                    startActivity(new Intent(Actions.MY_PROFILE)
+                                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                            .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks));
+                                }
+
+                                @Override
+                                public void onSecondaryAction() {
+                                    goTo101s();
+                                }
+                            });
+                } else {
+                    EmptyCollection.ActionListener record = new EmptyCollection.ActionListener() {
+                        @Override
+                        public void onAction() {
+                            startActivity(new Intent(Actions.RECORD)
+                                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                        }
+
+                        @Override
+                        public void onSecondaryAction() {
+                            goTo101s();
+                        }
+                    };
+>>>>>>> 5c5f6c1cc98ef2715e970b6f95ce5bb15945d252
 
         }*/
 
@@ -109,7 +144,7 @@ public class Dashboard extends ScListActivity {
         track(Page.You_find_friends, getApp().getLoggedInUser());
         startActivity(new Intent(Actions.MY_PROFILE)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.friend_finder.name()));
+                .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.friend_finder));
     }
 
     private void goTo101s() {

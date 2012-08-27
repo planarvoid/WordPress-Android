@@ -1,5 +1,8 @@
 package com.soundcloud.android.tests;
 
+import com.soundcloud.android.jni.DecoderException;
+import com.soundcloud.android.jni.VorbisDecoder;
+
 import android.media.MediaPlayer;
 
 import java.io.File;
@@ -105,5 +108,13 @@ public abstract class AudioTestCase extends ScAndroidTestCase {
         } finally {
             if (mp != null) mp.release();
         }
+    }
+
+    protected double checkVorbisDuration(File file, double expectedDuration) throws DecoderException {
+        VorbisDecoder dec = new VorbisDecoder(file);
+        final double duration = dec.getInfo().duration;
+        assertEquals(expectedDuration, duration, .01d);
+        dec.release();
+        return duration;
     }
 }

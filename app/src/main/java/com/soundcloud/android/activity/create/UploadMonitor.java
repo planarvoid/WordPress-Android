@@ -1,14 +1,19 @@
 package com.soundcloud.android.activity.create;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,6 +27,10 @@ import android.widget.TextView;
 
 public class UploadMonitor extends Activity {
     private static final int MAX = 100;
+    public static final int BUTTON_BAR_CANCEL_ID = 0;
+    public static final int BUTTON_BAR_RETRY_ID = 1;
+    public static final String EXTRA_IN_TRANSFER_STATE = "transferState";
+    public static final String EXTRA_PROGRESS = "progress";
     private Recording mRecording;
 
     private ProgressBar mProcessingProgress, mTransferProgress;
@@ -32,6 +41,7 @@ public class UploadMonitor extends Activity {
     private TextView mTrackTitle;
 
     private boolean mTransferState;
+    private int mProgress;
 
     private final Handler mHandler = new Handler();
 
@@ -41,10 +51,8 @@ public class UploadMonitor extends Activity {
 
         mUploadingLayout = (RelativeLayout) findViewById(R.id.uploading_layout);
         mFinishedLayout = (RelativeLayout) findViewById(R.id.finished_layout);
-        showUploading();
 
         mButtonBar = (ButtonBar) findViewById(R.id.bottom_bar);
-        mButtonBar.setVisibility(View.GONE);
 
         mProcessingProgress = (ProgressBar) findViewById(R.id.progress_bar_processing);
         mProcessingProgress.setMax(MAX);
@@ -56,25 +64,18 @@ public class UploadMonitor extends Activity {
         mUploadingProgressText = (TextView) findViewById(R.id.txt_progress_uploading);
 
         mTrackTitle = (TextView) findViewById(R.id.track);
-
-        findViewById(R.id.close_icon).setOnClickListener(new View.OnClickListener() {
+        mButtonBar.addItem(new ButtonBar.MenuItem(BUTTON_BAR_CANCEL_ID, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mRecording.isUploading()) {
-                    mRecording.cancelUpload(UploadMonitor.this);
-                    onCancelling();
+                    confirmCancel();
+                } else {
+                    finish();
                 }
-            }
-        });
-
-        mButtonBar.addItem(new ButtonBar.MenuItem(0, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
             }
         }), R.string.cancel);
 
-        mButtonBar.addItem(new ButtonBar.MenuItem(0, new View.OnClickListener() {
+        mButtonBar.addItem(new ButtonBar.MenuItem(BUTTON_BAR_RETRY_ID, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showUploading();
@@ -84,18 +85,54 @@ public class UploadMonitor extends Activity {
             }
         }), R.string.retry);
 
-        if (getIntent() != null && getIntent().hasExtra(UploadService.EXTRA_RECORDING)) {
-            Recording recording = getIntent().getParcelableExtra(UploadService.EXTRA_RECORDING);
-            setRecording(recording);
+        showUploading();
+
+        final Intent intent = getIntent();
+        Recording intentRecording;
+        if (intent != null) {
+            if ((intentRecording = Recording.fromIntent(intent, getContentResolver(), SoundCloudApplication.getUserId())) != null) {
+                setRecording(intentRecording);
+            }
+
+            // check for initial progress to display
+            if (intent.hasExtra(UploadService.EXTRA_STAGE)){
+
+                if (intent.getIntExtra(UploadService.EXTRA_STAGE,0) == UploadService.UPLOAD_STAGE_PROCESSING){
+                    setProcessProgress(intent.getIntExtra(UploadService.EXTRA_PROGRESS,-1));
+                } else {
+                    setTransferProgress(intent.getIntExtra(UploadService.EXTRA_PROGRESS, -1));
+                }
+                intent.removeExtra(UploadService.EXTRA_STAGE);
+                intent.removeExtra(UploadService.EXTRA_PROGRESS);
+            }
         }
 
+
         LocalBroadcastManager.getInstance(this).registerReceiver(mUploadStatusListener,
-                        UploadService.getIntentFilter());
+                UploadService.getIntentFilter());
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+        state.putInt(EXTRA_PROGRESS, mProgress);
+        state.putBoolean(EXTRA_IN_TRANSFER_STATE, mTransferState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle state) {
+        if (!state.isEmpty()) {
+            if (!state.getBoolean(EXTRA_IN_TRANSFER_STATE)){
+                setProcessProgress(state.getInt(EXTRA_PROGRESS));
+            } else {
+                setTransferProgress(state.getInt(EXTRA_PROGRESS));
+            }
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        ImageUtils.recycleImageViewBitmap((ImageView) findViewById(R.id.icon));
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mUploadStatusListener);
     }
 
@@ -118,10 +155,17 @@ public class UploadMonitor extends Activity {
             onUploadFinished(true);
         } else if (recording.isError()) {
             onUploadFinished(false);
-        } else {
-            // unknown state, wait for broadcasts
+        } else if (recording.isUploading()) {
             showUploading();
             setProcessProgress(-1);
+        } else {
+            // idle state, kick them out to their track list
+            // this should only happen if they try to resume this activity from their recents
+            startActivity(new Intent(Actions.MY_PROFILE)
+                    .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks)
+                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            );
+            finish();
         }
     }
 
@@ -162,6 +206,7 @@ public class UploadMonitor extends Activity {
     };
 
     private void setProcessProgress(int progress) {
+        mProgress = progress;
         if (progress < 0) {
             mProcessingProgress.setIndeterminate(true);
             mProcessingProgressText.setText(R.string.uploader_event_processing);
@@ -182,7 +227,8 @@ public class UploadMonitor extends Activity {
     }
 
     private void setTransferProgress(int progress) {
-        if (!mTransferState){
+        mProgress = progress;
+        if (!mTransferState) {
             mTransferState = true;
 
             mProcessingProgress.setIndeterminate(false);
@@ -228,10 +274,12 @@ public class UploadMonitor extends Activity {
                     }
                 }
             }, 2000);
+            mButtonBar.setVisibility(View.GONE);
         } else {
             ((ImageView) findViewById(R.id.result_icon)).setImageResource(R.drawable.fail);
             ((TextView) findViewById(R.id.result_message)).setText(R.string.share_fail_message);
             mButtonBar.setVisibility(View.VISIBLE);
+            mButtonBar.toggleVisibility(BUTTON_BAR_RETRY_ID, true, true);
         }
     }
 
@@ -243,5 +291,26 @@ public class UploadMonitor extends Activity {
     private void showUploading() {
         mUploadingLayout.setVisibility(View.VISIBLE);
         mFinishedLayout.setVisibility(View.GONE);
+        mButtonBar.toggleVisibility(BUTTON_BAR_RETRY_ID, false, true);
+        mButtonBar.setVisibility(View.VISIBLE);
     }
+
+    private void confirmCancel() {
+        new AlertDialog.Builder(this)
+                .setTitle(null)
+                .setMessage(R.string.dialog_cancel_upload_message)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (mRecording.isUploading()) {
+                            mRecording.cancelUpload(UploadMonitor.this);
+                            onCancelling();
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.no, null)
+                .create()
+                .show();
+    }
+
 }

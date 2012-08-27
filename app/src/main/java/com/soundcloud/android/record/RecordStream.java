@@ -5,6 +5,7 @@ import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.AudioWriter;
 import com.soundcloud.android.audio.PlaybackStream;
+import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.audio.writer.EmptyWriter;
 import com.soundcloud.android.audio.writer.MultiAudioWriter;
 import com.soundcloud.android.audio.writer.VorbisWriter;
@@ -21,13 +22,14 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 
-public class RecordStream implements AudioWriter {
+public class RecordStream  {
     private @NotNull final AudioConfig mConfig;
     private @NotNull AudioWriter writer;
     private @NotNull AmplitudeData mAmplitudeData;
     private @NotNull final AmplitudeData mPreRecordAmplitudeData;
     private @NotNull final AmplitudeAnalyzer mAmplitudeAnalyzer;
     private float mLastAmplitude;
+    private boolean mWasTruncated, mWasFinalized;
 
     public interface onAmplitudeGenerationListener {
         void onGenerationFinished(boolean success);
@@ -77,7 +79,10 @@ public class RecordStream implements AudioWriter {
         }
         final long requiredSize = (int) (SoundRecorder.PIXELS_PER_SECOND *
                 SoundCloudApplication.instance.getResources().getDisplayMetrics().density) * playDuration;
-        return mAmplitudeData.size() >= (int) requiredSize / 1000;
+
+        int delta = (int) ((requiredSize / 1000d) -  mAmplitudeData.size());
+
+        return Math.abs(delta) <= 5;
     }
 
     public void regenerateAmplitudeDataAsync(final File outFile, final onAmplitudeGenerationListener onAmplitudeListener) {
@@ -136,12 +141,6 @@ public class RecordStream implements AudioWriter {
         setWriter(w);
     }
 
-    @Override
-    public AudioConfig getConfig() {
-        return writer.getConfig();
-    }
-
-    @Override
     public int write(ByteBuffer samples, int length) throws IOException {
         samples.limit(length);
         mLastAmplitude = mAmplitudeAnalyzer.frameAmplitude(samples, length);
@@ -150,39 +149,21 @@ public class RecordStream implements AudioWriter {
             return -1;
         } else {
             mAmplitudeData.add(mLastAmplitude);
+            if (mWasFinalized) {
+                // apply short fade at the beginning of new recording session
+                new FadeFilter(FadeFilter.FADE_TYPE_BEGINNING, length).apply(samples, 0, length);
+                mWasFinalized = false;
+            }
             return writer.write(samples, length);
         }
     }
 
-
-    @Override
-    public void finalizeStream() throws IOException {
-        writer.finalizeStream();
-    }
-
-    @Override
-    public boolean setNewPosition(long pos) throws IOException {
-        return writer.setNewPosition(pos);
-    }
-
-    @Override
-    public boolean isClosed() {
-        return writer.isClosed();
-    }
-
-    @Override
     public long getDuration() {
         return writer.getDuration();
     }
 
-    @Override
     public AudioReader getAudioReader() throws IOException {
         return writer.getAudioReader();
-    }
-
-    @Override
-    public void close() throws IOException {
-        writer.close();
     }
 
     public AmplitudeData getAmplitudeData() {
@@ -195,17 +176,37 @@ public class RecordStream implements AudioWriter {
 
     public boolean truncate(long pos, int valuesPerSecond) throws IOException {
         mAmplitudeData.truncate((int) ((pos / 1000d) * valuesPerSecond));
-        return setNewPosition(pos);
+        return writer.setNewPosition(pos);
     }
 
     public void finalizeStream(File amplitudeFile) throws IOException {
-        finalizeStream();
-        mAmplitudeData.store(amplitudeFile);
+        writeFadeOut(100);
+        mWasFinalized = true;
+        writer.finalizeStream();
+        if (amplitudeFile != null) {
+            mAmplitudeData.store(amplitudeFile);
+        }
     }
+
+    private void writeFadeOut(long msecs) throws IOException {
+        double last = mAmplitudeAnalyzer.getLastValue();
+        if (last != 0) {
+            int bytesToWrite = (int) mConfig.msToByte(msecs);
+            ByteBuffer buffer = BufferUtils.allocateAudioBuffer(bytesToWrite + 2);
+            final double slope = last / (bytesToWrite / 2);
+            for (int i = 0; i< bytesToWrite; i+= 2) {
+                last -= slope;
+                buffer.putShort((short) last);
+            }
+            buffer.putShort((short) 0);
+            write(buffer, bytesToWrite);
+        }
+    }
+
 
     public void reset() {
         try {
-            close();
+            writer.close();
         } catch (IOException ignored) {
         }
         writer = new EmptyWriter(mConfig);

@@ -52,7 +52,6 @@ public class FadeFilter implements PlaybackFilter {
         if (position + buffer.remaining() > fadeOutIdx && (mFadeType == FADE_TYPE_END || mFadeType == FADE_TYPE_BOTH)) {
             int start = (int) (position >= fadeOutIdx ? 0 : fadeOutIdx - position);
             applyVolumeChangeToBuffer(buffer, position, start, remaining - start, fadeOutIdx, true);
-
         }
         return buffer;
     }

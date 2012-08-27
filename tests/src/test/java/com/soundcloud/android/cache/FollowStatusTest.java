@@ -67,6 +67,14 @@ public class FollowStatusTest  {
     }
 
     @Test
+    public void testToggleFollowingWithSpammedApiCall() throws Exception {
+        FollowStatus status = new FollowStatus();
+        Robolectric.addPendingHttpResponse(429, "TOO MANY REQUESTS");
+        status.toggleFollowing(23, DefaultTestRunner.application, null);
+        expect(status.isFollowing(23)).toBeFalse();
+    }
+
+    @Test
     public void updateFollowing() throws Exception {
         FollowStatus status = new FollowStatus();
         status.updateFollowing(10, true);

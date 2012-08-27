@@ -154,7 +154,7 @@ public class UploadServiceTest {
         expect(notification).toHaveTicker("Upload Error");
         expect(notification).toHaveText("There was an error uploading testing 2");
         expect(notification).toHaveTitle("Upload Error");
-        expect(notification).toMatchIntent(new Intent(Actions.UPLOAD_MONITOR));
+        expect(notification).toMatchIntent(new Intent(Actions.UPLOAD_MONITOR).setData(upload2.toUri()));
         expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
     }
 
@@ -174,7 +174,7 @@ public class UploadServiceTest {
         expect(notification).toHaveTicker("Upload Error");
         expect(notification).toHaveText("There was an error uploading testing");
         expect(notification).toHaveTitle("Upload Error");
-        expect(notification).toMatchIntent(new Intent(Actions.UPLOAD_MONITOR));
+        expect(notification).toMatchIntent(new Intent(Actions.UPLOAD_MONITOR).setData(upload.toUri()));
     }
 
     @Test
@@ -272,7 +272,7 @@ public class UploadServiceTest {
     public void shouldCheckForStuckRecordingsOnStartup() throws Exception {
         Recording stuck = TestApplication.getValidRecording();
         stuck.upload_status = Recording.Status.UPLOADING;
-        SoundCloudDB.insertRecording(svc.getContentResolver(), stuck);
+        SoundCloudDB.upsertRecording(svc.getContentResolver(), stuck, null);
 
         UploadService service = startService();
         Recording r = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), stuck.toUri());

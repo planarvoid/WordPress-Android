@@ -5,6 +5,7 @@ import com.soundcloud.android.record.SoundRecorder;
 import org.jetbrains.annotations.Nullable;
 
 public class EncoderOptions {
+
     /** start of the encoding stream in msecs */
     public final long start;
 
@@ -26,6 +27,13 @@ public class EncoderOptions {
 
     public static final EncoderOptions DEFAULT = SoundRecorder.hasFPUSupport() ? MED_Q : LO_Q;
 
+    /**
+     * @param quality
+     * @param start start in millisecs
+     * @param end   end in millisecs, or -1 for whole file
+     * @param listener optional progress listener
+     * @param filter optional audio filter
+     */
     public EncoderOptions(float quality, long start, long end,
                           @Nullable ProgressListener listener,
                           @Nullable PlaybackFilter filter) {

@@ -671,6 +671,12 @@ public class ScContentProvider extends ContentProvider {
             case ANDROID_SEARCH_SUGGEST:
             case ANDROID_SEARCH_SUGGEST_PATH:
                 return SearchManager.SUGGEST_MIME_TYPE;
+
+            case RECORDING:
+            case RECORDINGS:
+                return "vnd.soundcloud/recording";
+
+
             default:
                 return null;
         }

@@ -58,11 +58,11 @@ public enum AudioConfig {
         return bitsPerSample == 16 ? AudioFormat.ENCODING_PCM_16BIT : AudioFormat.ENCODING_PCM_8BIT;
     }
 
-    public int getPlaybackBufferSize() {
+    public int getPlaybackMinBufferSize() {
         return AudioTrack.getMinBufferSize(sampleRate, getChannelConfig(false), getFormat());
     }
 
-    public int getRecordBufferSize() {
+    public int getRecordMinBufferSize() {
         return AudioRecord.getMinBufferSize(sampleRate, getChannelConfig(true), getFormat());
     }
 
@@ -104,13 +104,13 @@ public enum AudioConfig {
     public boolean isValid() {
         boolean valid;
         try {
-            valid = getPlaybackBufferSize() > 0;
+            valid = getPlaybackMinBufferSize() > 0;
             if (!valid) return false;
         } catch (Exception e) {
             return false;
         }
         try {
-            valid = getRecordBufferSize() > 0;
+            valid = getRecordMinBufferSize() > 0;
         } catch (Exception e) {
             return false;
         }

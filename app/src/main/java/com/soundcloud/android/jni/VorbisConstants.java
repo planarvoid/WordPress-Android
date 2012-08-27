@@ -81,6 +81,6 @@ public enum VorbisConstants {
         for (VorbisConstants c : values()) {
             if (c.code == code) return c.name();
         }
-        return null;
+        return "unknown";
     }
 }

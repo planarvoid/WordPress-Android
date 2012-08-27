@@ -20,4 +20,8 @@
 
     <!-- should probably re-enable later once more important things are fixed -->
     <issue id="ContentDescription" severity="ignore"/>
+
+
+    <!-- re-enable this later! -->
+    <issue id="NewApi" severity="ignore"/>
 </lint>

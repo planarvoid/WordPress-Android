@@ -426,9 +426,8 @@ public final class IOUtils {
         }
     }
 
-    public static File removeExtension(File file) {
+    public static @NotNull File removeExtension(@NotNull File file) {
         if (file.isDirectory()) return file;
-
         String name = file.getName();
         final int lastPeriodPos = name.lastIndexOf('.');
         return lastPeriodPos <= 0 ? file : new File(file.getParent(), name.substring(0, lastPeriodPos));

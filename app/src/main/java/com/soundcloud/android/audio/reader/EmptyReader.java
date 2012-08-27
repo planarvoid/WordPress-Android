@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class EmptyReader extends AudioReader {
-
     @Override
     public AudioConfig getConfig() {
         return AudioConfig.PCM16_44100_1;

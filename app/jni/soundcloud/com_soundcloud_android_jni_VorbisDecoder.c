@@ -16,10 +16,10 @@
 
     #define ov_read(file, buffer, length, bigendianp, word, sgned, bitstream) \
         ov_read(file, buffer, length, bitstream)
-    #define ov_time_tell(vf) ov_time_tell(vf) /  1000.0
-    #define ov_time_total(vf, i) ov_time_total(vf, i) /  1000.0
-    #define ov_time_seek(vf, pos) ov_time_seek(vf, pos * 1000.0)
-    #define ov_time_seek_page(vf, pos) ov_time_seek_page(vf, pos * 1000.0)
+    #define ov_time_tell(vf) ov_time_tell(vf) /  (double) 1000.0
+    #define ov_time_total(vf, i) ov_time_total(vf, i) / (double) 1000.0
+    #define ov_time_seek(vf, pos) ov_time_seek(vf, pos * (double) 1000.0)
+    #define ov_time_seek_page(vf, pos) ov_time_seek_page(vf, pos * (double) 1000.0)
 #endif
 
 #if defined TREMOLO

@@ -8,12 +8,13 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.create.AccessList;
 import com.soundcloud.android.view.ButtonBar;
+import com.soundcloud.android.view.create.AccessList;
 import com.soundcloud.android.view.create.ConnectionList;
 import com.soundcloud.android.view.create.EmailPickerItem;
 import com.soundcloud.android.view.create.RecordingMetaData;
@@ -63,7 +64,6 @@ public class ScUpload extends ScActivity {
 
             if (mRecording.external_upload) {
                 // 3rd party upload, disable "record another sound button"
-                ((ButtonBar) findViewById(R.id.bottom_bar)).toggleVisibility(REC_ANOTHER, false, true);
                 ((ViewGroup) findViewById(R.id.share_user_layout)).addView(
                         new ShareUserHeader(this, getApp().getLoggedInUser()));
                 findViewById(R.id.txt_title).setVisibility(View.GONE);
@@ -72,7 +72,7 @@ public class ScUpload extends ScActivity {
             if (mRecording.exists()) {
                 mapFromRecording(mRecording);
             } else {
-                errorOut(R.string.recording_not_found);
+                recordingNotFound();
             }
         } else {
             Log.w(TAG, "No recording found in intent, finishing");
@@ -91,22 +91,25 @@ public class ScUpload extends ScActivity {
             @Override
             public void onClick(View v) {
                 track(Click.Record_details_record_another);
-                setResult(RESULT_OK, new Intent().setData(mRecording.toUri()));
+                if (mRecording.external_upload && !mRecording.isLegacyRecording()){
+                    mRecording.delete(getContentResolver());
+                } else {
+                    setResult(RESULT_OK, new Intent().setData(mRecording.toUri()));
+                }
                 finish();
             }
-        }), R.string.record_another_sound).addItem(new ButtonBar.MenuItem(POST, new View.OnClickListener() {
+        }), mRecording.external_upload ? R.string.cancel : R.string.record_another_sound).addItem(new ButtonBar.MenuItem(POST, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 track(Click.Record_details_Upload_and_share);
                 if (mRecording != null) {
-                    mapToRecording(mRecording);
-                    saveRecording(mRecording);
+                    saveRecording();
                     mRecording.upload(ScUpload.this);
-                    setResult(RESULT_OK, new Intent().setData(mRecording.toUri()).putExtra(Actions.UPLOAD_EXTRA_UPLOADING,true));
+                    setResult(RESULT_OK, new Intent().setData(mRecording.toUri()).putExtra(Actions.UPLOAD_EXTRA_UPLOADING, true));
                     mUploading = true;
                     finish();
                 } else {
-                    errorOut(R.string.recording_not_found);
+                    recordingNotFound();
                 }
             }
         }), mRecording.isPrivateMessage() ? R.string.private_message_btn_send : R.string.post);
@@ -178,16 +181,16 @@ public class ScUpload extends ScActivity {
     protected void onStop() {
         super.onStop();
 
-        if (mRecording != null && !mUploading) {
+        if (mRecording != null && !mUploading && (!mRecording.external_upload || mRecording.isLegacyRecording())) {
             // recording exists and hasn't been uploaded
-            mapToRecording(mRecording);
-            saveRecording(mRecording);
+            saveRecording();
         }
     }
 
-    private void saveRecording(Recording r) {
-        if (r != null && !r.external_upload) {
-            getContentResolver().update(r.toUri(), r.buildContentValues(), null, null);
+    private void saveRecording() {
+        mapToRecording(mRecording);
+        if (mRecording != null) {
+            SoundCloudDB.upsertRecording(getContentResolver(), mRecording, null);
         }
     }
 
@@ -201,10 +204,6 @@ public class ScUpload extends ScActivity {
         mAccessList.set(Arrays.asList(emails));
     }
 
-    private void errorOut(int error) {
-        showToast(error);
-        finish();
-    }
 
     @Override
     public void onSaveInstanceState(Bundle state) {
@@ -257,6 +256,11 @@ public class ScUpload extends ScActivity {
                 }
             }
         }
+    }
+
+    private void recordingNotFound() {
+        showToast(R.string.recording_not_found);
+        finish();
     }
 
     @Override

@@ -1,27 +1,28 @@
-package com.soundcloud.android.audio.writer;
+package com.soundcloud.android.record;
 
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.AudioWriter;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class EmptyWriter implements AudioWriter {
-    private final AudioConfig config;
-
-    public EmptyWriter(AudioConfig cfg) {
-        this.config =  cfg;
-    }
+public class ByteArrayAudioWriter implements AudioWriter {
+    private ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
     @Override
     public AudioConfig getConfig() {
-        return config;
+        return null;
     }
 
     @Override
     public int write(ByteBuffer samples, int length) throws IOException {
-        return -1;
+        byte[] b = new byte[length];
+        samples.rewind();
+        samples.get(b, 0, length);
+        bos.write(b);
+        return length;
     }
 
     @Override
@@ -40,15 +41,19 @@ public class EmptyWriter implements AudioWriter {
 
     @Override
     public long getDuration() {
-        return -1;
+        return 0;
     }
 
     @Override
     public AudioReader getAudioReader() throws IOException {
-        return AudioReader.EMPTY;
+        return null;
     }
 
     @Override
     public void close() throws IOException {
+    }
+
+    public byte[] getBytes() {
+        return bos.toByteArray();
     }
 }
