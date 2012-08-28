@@ -152,10 +152,11 @@ public enum Click implements Event {
 
     /* package */ String expandClick(Object... args) {
         String result = chapter+"::"+name;
-        for (Object o : args) {
-            result = Page.expandVariables(result, o);
-        }
-        return result;
+
+        if (args.length > 0)
+            return Page.expandVariables(result, args);
+        else
+            return result;
     }
 
     @Override
