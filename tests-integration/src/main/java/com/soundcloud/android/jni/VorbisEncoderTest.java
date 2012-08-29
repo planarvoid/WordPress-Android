@@ -252,11 +252,16 @@ public class VorbisEncoderTest extends AudioTestCase {
     }
 
     private long profile(Profileable runnable) throws Exception {
+        long nativeBefore, nativeAfter;
+        long globalBefore, globalAfter;
+
+        nativeBefore = Debug.getNativeHeapAllocatedSize();
+        globalBefore = Debug.getGlobalAllocCount();
+
         if (PROFILE)  {
             Debug.startMethodTracing();
             Debug.startNativeTracing();
         }
-
         Thread.sleep(4000);
         // encode it
         final long start = SystemClock.uptimeMillis();
@@ -267,7 +272,13 @@ public class VorbisEncoderTest extends AudioTestCase {
         if (PROFILE) {
             Debug.stopMethodTracing();
             Debug.stopNativeTracing();
+
         }
+        nativeAfter = Debug.getNativeHeapAllocatedSize();
+        globalAfter = Debug.getGlobalAllocCount();
+
+        log("native before %d, after %d, delta %d", nativeBefore, nativeAfter, nativeAfter - nativeBefore);
+        log("global before %d, after %d, delta %d", globalBefore, globalAfter, globalAfter - globalBefore);
         return stop - start;
     }
 
