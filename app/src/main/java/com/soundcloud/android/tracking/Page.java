@@ -4,6 +4,8 @@ import com.at.ATParams;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 
+import java.util.ArrayList;
+
 public enum Page implements Event {
     Entry_main("main", Level2.Entry),
     Entry_login__main("login::main", Level2.Entry),
@@ -106,18 +108,22 @@ public enum Page implements Event {
         return result;
     }
 
-    static String expandVariables(String template, Object o) {
-        if (o instanceof Track) {
-            return expandVariables(template, (Track)o);
-        } else if (o instanceof User) {
-            return expandVariables(template, (User)o);
-        } else if (o instanceof Level2) {
-            return expandVariables(template, (Level2)o);
-        } else if (o != null) {
-            return String.format(template, o);
-        } else {
-            return template;
+    static String expandVariables(String template, Object... args) {
+        ArrayList<String> strings = new ArrayList<String>();
+
+        for (Object o : args) {
+            if (o instanceof Track) {
+                template = expandVariables(template, (Track)o);
+            } else if (o instanceof User) {
+                template = expandVariables(template, (User)o);
+            } else if (o instanceof Level2) {
+                template = expandVariables(template, (Level2)o);
+            } else {
+                strings.add(o.toString());
+            }
         }
+
+        return String.format(template, strings.toArray());
     }
 
     private static String expandVariables(String template, Track track) {
