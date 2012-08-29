@@ -54,7 +54,7 @@ public class QuickTrackMenu extends QuickAction {
         addActionItem(mProfileActionItem);
     }
 
-    public void show(View anchor, final Track track, final int itemPosition) {
+    public void show(View anchor, final Track track) {
 
         if (track == null) return;
 
@@ -71,53 +71,48 @@ public class QuickTrackMenu extends QuickAction {
 
         }
 
-        // TODO fix
-
-        /*
-
-        setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
-            @Override
-            public void onItemClick(int pos) {
-                switch (pos) {
-                    case 0:
-                        if (CloudPlaybackService.isTrackPlaying(track.id)) {
-                            mContext.pausePlayback();
-                        } else {
-                            mContext.playTrack(mAdapter.getWrapper().getPlayInfo(itemPosition), false, false);
-                        }
-                        break;
-
-                    case 1:
-                        if (track.user_favorite) {
-                            track.user_favorite = false;
-                            mAdapter.removeFavorite(track);
-                        } else {
-                            track.user_favorite = true;
-                            mAdapter.addFavorite(track);
-                        }
-                        break;
-
-                    case 2:
-                        mContext.playTrack(mAdapter.getWrapper().getPlayInfo(pos), true, true);
-                        break;
-                    case 3:
-                        Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
-                        shareIntent.setType("text/plain");
-                        shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, track.title + " by " + track.user.username + " on #SoundCloud");
-                        shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, track.permalink_url);
-                        mContext.startActivity(Intent.createChooser(shareIntent, "Share: " + track.title));
-                        break;
-                    case 4:
-                        Intent intent = new Intent(mContext, UserBrowser.class);
-                        intent.putExtra("user", track.user);
-                        mContext.startActivity(intent);
-
-                        break;
-                }
-
-            }
-        });
-        */
+//        setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
+//            @Override
+//            public void onItemClick(int pos) {
+//                switch (pos) {
+//                    case 0:
+//                        if (CloudPlaybackService.isTrackPlaying(track.id)) {
+//                            mContext.pausePlayback();
+//                        } else {
+//                            mContext.playTrack(mAdapter.getWrapper().getPlayInfo(itemPosition), false, false);
+//                        }
+//                        break;
+//
+//                    case 1:
+//                        if (track.user_favorite) {
+//                            track.user_favorite = false;
+//                            mAdapter.removeFavorite(track);
+//                        } else {
+//                            track.user_favorite = true;
+//                            mAdapter.addFavorite(track);
+//                        }
+//                        break;
+//
+//                    case 2:
+//                        mContext.playTrack(mAdapter.getWrapper().getPlayInfo(pos), true, true);
+//                        break;
+//                    case 3:
+//                        Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+//                        shareIntent.setType("text/plain");
+//                        shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, track.title + " by " + track.user.username + " on #SoundCloud");
+//                        shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, track.permalink_url);
+//                        mContext.startActivity(Intent.createChooser(shareIntent, "Share: " + track.title));
+//                        break;
+//                    case 4:
+//                        Intent intent = new Intent(mContext, UserBrowser.class);
+//                        intent.putExtra("user", track.user);
+//                        mContext.startActivity(intent);
+//
+//                        break;
+//                }
+//
+//            }
+//        });
         show(anchor);
     }
 

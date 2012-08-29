@@ -124,8 +124,8 @@ public class Main extends ScListActivity implements
     }
 
     class MainFragmentAdapter extends FragmentPagerAdapter {
-        protected final Content[] contents = new Content[]{Content.ME_SOUND_STREAM, Content.ME_FAVORITES};
-        protected final int[] titleIds = new int[]{R.string.tab_title_my_sound_stream,R.string.tab_title_my_likes};
+        protected final Content[] contents = new Content[]{Content.ME_SOUND_STREAM, Content.ME_FAVORITES, Content.ME_ACTIVITIES};
+        protected final int[] titleIds = new int[]{R.string.tab_title_my_sound_stream,R.string.tab_title_my_likes, R.string.tab_activity};
 
         public MainFragmentAdapter(FragmentManager fm) {
             super(fm);

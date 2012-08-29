@@ -6,12 +6,13 @@ import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
-import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.MyTracklistRow;
-import com.soundcloud.android.view.TrackInfoBar;
+import com.soundcloud.android.view.adapter.LazyRow;
+import com.soundcloud.android.view.adapter.TrackInfoBar;
 
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Parcelable;
 
@@ -28,8 +29,8 @@ public class MyTracksAdapter extends ScBaseAdapter {
     private static final int TYPE_TRACK = 1;
     private ChangeObserver mChangeObserver;
 
-    public MyTracksAdapter(ScListActivity activity, Content content) {
-        super(activity, content);
+    public MyTracksAdapter(ScListActivity activity, Uri uri) {
+        super(activity, uri);
         mActivity = activity;
         refreshCursor();
 
@@ -59,11 +60,6 @@ public class MyTracksAdapter extends ScBaseAdapter {
 
     public int getPendingRecordingsCount(){
         return mRecordingData == null ? 0 : mRecordingData.size();
-    }
-
-    @Override
-    public int positionOffset() {
-        return getPendingRecordingsCount();
     }
 
     private void refreshCursor() {
@@ -112,7 +108,7 @@ public class MyTracksAdapter extends ScBaseAdapter {
         }
     }
     @Override
-    public Object getItem(int position) {
+    public Parcelable getItem(int position) {
         if (mDataValid && mRecordingData != null) {
             if (position < mRecordingData.size()) {
                 return mRecordingData.get(position);
@@ -136,6 +132,7 @@ public class MyTracksAdapter extends ScBaseAdapter {
             return super.getItemId(position);
         }
     }
+
 
     /**
      * Called when the {@link ContentObserver} on the cursor receives a change notification.

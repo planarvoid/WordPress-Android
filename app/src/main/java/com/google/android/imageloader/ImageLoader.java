@@ -16,7 +16,6 @@
 
 package com.google.android.imageloader;
 
-import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.utils.ImageUtils;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +35,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
@@ -1120,11 +1118,7 @@ public class ImageLoader {
                 return;
             }
             if (!adapter.isEmpty()) {
-                if (adapter instanceof ScBaseAdapter){
-                    ((ScBaseAdapter) adapter).scheduleNotifyDataSetChanged();
-                } else {
-                    adapter.notifyDataSetChanged();
-                }
+                adapter.notifyDataSetChanged();
             } else {
                 // The adapter is empty or no longer in use.
                 // It is important that BaseAdapter#notifyDataSetChanged()

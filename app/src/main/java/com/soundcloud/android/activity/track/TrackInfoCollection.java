@@ -5,7 +5,7 @@ import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
-import com.soundcloud.android.view.TrackInfoBar;
+import com.soundcloud.android.view.adapter.TrackInfoBar;
 
 import android.os.Bundle;
 import android.view.View;

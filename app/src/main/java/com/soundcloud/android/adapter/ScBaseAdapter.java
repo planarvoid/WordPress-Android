@@ -3,24 +3,20 @@ package com.soundcloud.android.adapter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
-import android.os.Message;
+import android.net.Uri;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import com.soundcloud.android.activity.ScListActivity;
-import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.R;
+import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.view.ActivityRow;
-import com.soundcloud.android.view.LazyRow;
-import com.soundcloud.android.view.TrackInfoBar;
-import com.soundcloud.android.view.UserlistRow;
+import com.soundcloud.android.task.RemoteCollectionTask;
+import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.quickaction.QuickAction;
-import com.soundcloud.android.view.quickaction.QuickTrackMenu;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,97 +25,114 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ScBaseAdapter extends BaseAdapter implements IScAdapter {
-    public static final int NOTIFY_DELAY = 300;
+public abstract class ScBaseAdapter<T extends Parcelable> extends BaseAdapter implements IScAdapter {
     protected Context mContext;
     protected Content mContent;
-    protected List<Parcelable> mData;
+    protected Uri mContentUri;
+    protected List<T> mData;
     protected int mPage = 1;
-    private QuickAction mQuickActionMenu;
-
     protected Map<Long, Drawable> mIconAnimations = new HashMap<Long, Drawable>();
     protected Set<Long> mLoadingIcons = new HashSet<Long>();
-
-    private Handler mNotifyHandler = new NotifyHandler();
+    private boolean mIsLoadingData;
+    private View mProgressView;
 
     @SuppressWarnings("unchecked")
-    public ScBaseAdapter(Context context, Content content) {
+    public ScBaseAdapter(Context context, Uri uri) {
         mContext = context;
-        mContent = content;
-        mData = new ArrayList<Parcelable>();
-
-        if (Track.class.isAssignableFrom(content.resourceType) ){
-            mQuickActionMenu = new QuickTrackMenu(context, this);
-        }
+        mContent = Content.match(uri);
+        mContentUri = uri;
+        mData = new ArrayList<T>();
+        mProgressView = View.inflate(context, R.layout.list_loading_item, null);
     }
 
-    public void setContent(Content content) {
-        mContent = content;
-    }
-
-    public List<Parcelable> getData() {
+    private List<T> getData() {
         return mData;
     }
 
-    public void setData(List<Parcelable> data) {
+    public void setData(List<T> data) {
         mData = data;
         notifyDataSetChanged();
     }
 
-    public int getCount() {
-        return mData == null ? 0 : mData.size();
+    public int getItemCount() {
+        return mData.size();
     }
 
-    public Object getItem(int location) {
+    @Override
+    public boolean isEnabled(int position) {
+        return !isPositionOfProgressElement(position);
+    }
+
+    @Override
+    public boolean areAllItemsEnabled() {
+        return false;
+    }
+
+    @Override
+    public int getCount() {
+        int count = mData == null ? 0 : mData.size();
+        return mIsLoadingData ? count + 1 : count;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return getCount() == 0 && !mIsLoadingData;
+    }
+
+    @Override
+    public T getItem(int location) {
         return mData.get(location);
     }
 
-    // TODO: make MyTracksAdapter#getData() return ALL the data
-    public int positionOffset() {
+    public void setIsLoadingData(boolean isLoadingData) {
+        mIsLoadingData = isLoadingData;
+    }
+
+    public void setIsLoadingData(boolean isLoadingData, boolean redrawList) {
+        mIsLoadingData = isLoadingData;
+        if (redrawList) {
+            notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (isPositionOfProgressElement(position)) {
+            return IGNORE_ITEM_VIEW_TYPE;
+        }
         return 0;
     }
 
-    public long getItemId(int position){
-        if (position < getCount()){
-            Object o = getItem(position);
-            if (o instanceof Activity) {
-                return ((Activity) o).created_at.getTime();
-            }else if (o instanceof ScModel && ((ScModel) o).id != -1) {
-                return ((ScModel) o).id;
-            }
-        }
-            return position;
+    private boolean isPositionOfProgressElement(int position) {
+        return mIsLoadingData && position == mData.size();
     }
 
+    @Override
+    public long getItemId(int position) {
+        Object o = getItem(position);
+        if (o instanceof ScModel && ((ScModel) o).id != -1) {
+            return ((ScModel) o).id;
+        }
+        return position;
+    }
+
+    @Override
     public View getView(int index, View row, ViewGroup parent) {
-        LazyRow rowView = row instanceof LazyRow ? (LazyRow) row : createRow(index);
-        rowView.display(index, (Parcelable) getItem(index));
+        if (isPositionOfProgressElement(index)) {
+            return mProgressView;
+        }
+
+        LazyRow rowView;
+        if (row == null) {
+            rowView = createRow(index);
+        }  else {
+            rowView = (LazyRow) row;
+        }
+        rowView.display(index, getItem(index));
         return rowView;
     }
 
-    protected LazyRow createRow(int position){
-        switch (mContent){
-            case TRACK:
-            case ME_TRACKS:
-            case ME_SOUND_STREAM:
-            case ME_EXCLUSIVE_STREAM:
-            case ME_FAVORITES:
-                return new TrackInfoBar(mContext,this);
-
-            case ME_ACTIVITIES:
-                return new ActivityRow(mContext,this);
-
-            case USER:
-            case ME_FOLLOWINGS:
-                return new UserlistRow(mContext, this);
-
-            case ME_FOLLOWERS:
-                return new UserlistRow(mContext,this, true);
-
-            default:
-                throw new IllegalArgumentException("No row type available for content " + mContent);
-        }
-    }
+    protected abstract LazyRow createRow(int position);
 
     public void clearData() {
         clearIcons();
@@ -127,16 +140,13 @@ public class ScBaseAdapter extends BaseAdapter implements IScAdapter {
         mPage = 1;
     }
 
-    public Class<?> getLoadModel() {
-        return mContent.resourceType;
-    }
-
     public void onDestroy(){}
 
-    public void addItem(int position, Parcelable newItem) {
-        getData().add(position,newItem);
+    public void addItem(int position, T newItem) {
+        getData().add(position, newItem);
     }
-    public void addItem(Parcelable newItem) {
+
+    public void addItem(T newItem) {
         getData().add(newItem);
     }
 
@@ -160,6 +170,7 @@ public class ScBaseAdapter extends BaseAdapter implements IScAdapter {
 
     }
 
+    // needed?
     @Override
     public Content getContent() {
         return mContent;
@@ -167,22 +178,11 @@ public class ScBaseAdapter extends BaseAdapter implements IScAdapter {
 
     @Override
     public QuickAction getQuickActionMenu() {
-        return mQuickActionMenu;
+        return null;
     }
 
     public boolean needsItems() {
         return getCount() == 0;
-    }
-
-    public void notifyDataSetChanged() {
-        mNotifyHandler.removeMessages(1);
-        super.notifyDataSetChanged();
-    }
-
-    public void scheduleNotifyDataSetChanged(){
-        if (!mNotifyHandler.hasMessages(1)){
-            mNotifyHandler.sendMessageDelayed(mNotifyHandler.obtainMessage(1), NOTIFY_DELAY);
-        }
     }
 
     protected void clearIcons(){
@@ -191,13 +191,29 @@ public class ScBaseAdapter extends BaseAdapter implements IScAdapter {
     }
 
     public void onResume() {
-
     }
 
-    class NotifyHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            notifyDataSetChanged();
+    public boolean shouldRequestNextPage(int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+        // if loading, subtract the loading item from total count
+        boolean lastItemReached = ((mIsLoadingData? totalItemCount - 1 : totalItemCount) > 0)
+                && (totalItemCount - visibleItemCount == firstVisibleItem);
+
+        return !mIsLoadingData && lastItemReached;
+    }
+
+    public void addItems(CollectionHolder newItems) {
+        for (Object newItem : newItems) {
+            addItem((T) newItem);
         }
+    }
+
+    public RemoteCollectionTask.CollectionParams getParams(boolean refresh) {
+        RemoteCollectionTask.CollectionParams params = new RemoteCollectionTask.CollectionParams();
+        params.loadModel = mContent.resourceType;
+        params.isRefresh = refresh;
+        params.startIndex = refresh ? 0 : getItemCount();
+        params.contentUri = mContentUri;
+        return params;
     }
 }

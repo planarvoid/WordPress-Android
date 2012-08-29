@@ -1,4 +1,4 @@
-package com.soundcloud.android.view;
+package com.soundcloud.android.view.adapter;
 
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
@@ -8,6 +8,7 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.quickaction.QuickTrackMenu;
 
 import android.content.Context;
@@ -58,6 +59,11 @@ public class TrackInfoBar extends LazyRow {
         init();
     }
 
+    @Override
+    protected View addContent() {
+        return View.inflate(getContext(), R.layout.track_info_bar, this);
+    }
+
     public TrackInfoBar(Context context, AttributeSet attrs) {
         super(context, null);
         init();
@@ -89,7 +95,7 @@ public class TrackInfoBar extends LazyRow {
                     @Override
                     public void onClick(View v) {
                         if (mAdapter != null && mIcon != null && mPlayable != null && mPlayable.getTrack() != null){
-                            quickTrackMenu.show(mIcon, mPlayable.getTrack(), mCurrentPosition);
+                            quickTrackMenu.show(mIcon, mPlayable.getTrack());
                         }
                     }
                 });
@@ -218,12 +224,6 @@ public class TrackInfoBar extends LazyRow {
     }
 
     /** List specific functions **/
-
-    @Override
-    protected int getRowResourceId() {
-        return R.layout.track_info_bar;
-    }
-
     @Override
     public String getIconRemoteUri() {
         return mPlayable.getTrack() == null ? null : mPlayable.getTrack().getListArtworkUrl(getContext());
@@ -249,7 +249,7 @@ public class TrackInfoBar extends LazyRow {
             setStaticTransformationsEnabled(true);
         }
 
-        display(mPlayable, false, CloudPlaybackService.getCurrentTrackId(), false, mCurrentUserId);
+        display(mPlayable, false, CloudPlaybackService.getCurrentTrackId(), false, getCurrentUserId());
     }
 
     @Override

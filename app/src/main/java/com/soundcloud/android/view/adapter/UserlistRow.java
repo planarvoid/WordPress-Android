@@ -1,12 +1,11 @@
 
-package com.soundcloud.android.view;
+package com.soundcloud.android.view.adapter;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.IScAdapter;
-import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.tracking.Click;
@@ -15,6 +14,7 @@ import com.soundcloud.android.tracking.EventAware;
 import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
+import com.soundcloud.android.view.adapter.LazyRow;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -37,11 +37,8 @@ public class UserlistRow extends LazyRow {
     private Button mFollowBtn;
     private Button mFollowingBtn;
 
-    public UserlistRow(Context context, ScBaseAdapter baseAdapter) {
-        this(context, baseAdapter, false);
-    }
 
-    public UserlistRow(Context _activity, IScAdapter _adapter, boolean useFollowBack) {
+    public UserlistRow(Context _activity, IScAdapter _adapter) {
         super(_activity, _adapter);
 
         mUsername = (TextView) findViewById(R.id.username);
@@ -80,8 +77,8 @@ public class UserlistRow extends LazyRow {
     }
 
     @Override
-    protected int getRowResourceId() {
-        return R.layout.user_list_row;
+    protected View addContent() {
+        return View.inflate(getContext(),R.layout.user_list_row, this);
     }
 
     /** update the views with the data corresponding to selection index */
@@ -109,7 +106,7 @@ public class UserlistRow extends LazyRow {
     private void setFollowingStatus(boolean enabled) {
         boolean following = FollowStatus.get().isFollowing(mUser);
 
-        if (mUser.id == mCurrentUserId) {
+        if (mUser.id == getCurrentUserId()) {
             mFollowingBtn.setVisibility(View.INVISIBLE);
             mFollowBtn.setVisibility(View.INVISIBLE);
         } else {

@@ -6,10 +6,12 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.commonsware.cwac.endless.EndlessAdapter;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
+import com.soundcloud.android.adapter.TrackAdapter;
+import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Refreshable;
@@ -34,7 +36,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
-import android.graphics.Color;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -47,21 +48,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ListAdapter;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ScListFragment extends SherlockListFragment
-        implements PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener, RemoteCollectionTask.Callback {
+        implements PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener, RemoteCollectionTask.Callback, AbsListView.OnScrollListener {
 
     protected static final int CONNECTIVITY_MSG = 0;
 
     private ScListView mListView;
-    private ScEndlessAdapter mEndlessAdapter;
-    private ScBaseAdapter mBaseAdapter;
     private EmptyCollection mEmptyCollection;
 
     private String mEmptyCollectionText;
@@ -83,6 +82,7 @@ public class ScListFragment extends SherlockListFragment
 
 
     public static ScListFragment newInstance(Content content) {
+
         ScListFragment fragment = new ScListFragment();
         Bundle args = new Bundle();
         args.putParcelable("contentUri", content.uri);
@@ -117,17 +117,43 @@ public class ScListFragment extends SherlockListFragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (mBaseAdapter == null){
-            mBaseAdapter = new ScBaseAdapter(getActivity().getApplicationContext(), mContent);
-            setListAdapter(mBaseAdapter);
+
+        ScBaseAdapter<?> adapter = null;
+        if (getListAdapter() == null) {
+            switch (mContent) {
+                case ME_SOUND_STREAM:
+                case ME_EXCLUSIVE_STREAM:
+                case ME_ACTIVITIES:
+                    adapter = new ActivityAdapter(getActivity(), mContent.uri);
+                    break;
+                case ME_FOLLOWERS:
+                case ME_FOLLOWINGS:
+                case USER_FOLLOWINGS:
+                case USER_FOLLOWERS:
+                    adapter = new UserAdapter(getActivity(), mContent.uri);
+                    break;
+
+                case ME_FAVORITES:
+                case ME_TRACKS:
+                case USER_FAVORITES:
+                    adapter = new TrackAdapter(getActivity(), mContent.uri);
+                    break;
+
+
+                 default:
+                     adapter = new TrackAdapter(getActivity(), mContent.uri);
+
+            }
+            setListAdapter(adapter);
+            append();
         }
     }
 
-    @Override
-    public void setListAdapter(ListAdapter adapter) {
-        mEndlessAdapter = new ScEndlessAdapter(getActivity(), adapter, R.layout.list_loading_item);
-        super.setListAdapter(mEndlessAdapter);
-    }
+//    @Override
+//    public void setListAdapter(ListAdapter adapter) {
+//        ScEndlessAdapter mEndlessAdapter = new ScEndlessAdapter(getActivity(), adapter, R.layout.list_loading_item);
+//        super.setListAdapter(mEndlessAdapter);
+//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -138,6 +164,7 @@ public class ScListFragment extends SherlockListFragment
 
         mListView = buildList();
         mListView.setOnRefreshListener(this);
+        mListView.setOnScrollListener(this);
 
         mEmptyCollection = EmptyCollection.fromContent(context, mContent);
         mEmptyCollection.setHasSyncedBefore(mLocalCollection.hasSyncedBefore());
@@ -163,6 +190,52 @@ public class ScListFragment extends SherlockListFragment
         super.onAttach(activity);
     }
 
+//    @Override
+//    public void onListItemClick(ListView l, View v, int position, long id) {
+//        super.onListItemClick(l, v, position, id);
+//
+//
+//
+//                                final Activity e = (Activity) wrapper.getItem(position);
+//                                if (e.type == Activity.Type.FAVORITING) {
+//                                    SoundCloudApplication.TRACK_CACHE.put(e.getTrack(), false);
+//                                    startActivity(new Intent(ScListActivity.this, TrackFavoriters.class)
+//                                        .putExtra("track_id", e.getTrack().id));
+//                                } else {
+//                                    playTrack(wrapper.getPlayInfo(position));
+//                                }
+//                            }
+//                                if (wrapper.getItem(position) instanceof Track &&
+//                                        !((Track) wrapper.getItem(position)).state.isStreamable()){
+//
+//                                    showDialog(((Track) wrapper.getItem(position)).state.isFailed() ?
+//                                            Consts.Dialogs.DIALOG_TRANSCODING_FAILED :
+//                                            Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING);
+//                                } else {
+//                                    playTrack(wrapper.getPlayInfo(position));
+//                                }
+//
+//                    public void onUserClick(User user) {
+//                        Intent i = new Intent(ScListActivity.this, UserBrowser.class);
+//                        i.putExtra("user", user);
+//                        startActivity(i);
+//                    }
+//
+//                    @Override
+//                    public void onCommentClick(Comment comment) {
+//                        Intent i = new Intent(ScListActivity.this, UserBrowser.class);
+//                        i.putExtra("user", comment.user);
+//                        startActivity(i);
+//                    }
+//
+//                    @Override
+//                    public void onRecordingClick(final Recording recording) {
+//                        handleRecordingClick(recording);
+//                    }
+//
+//
+//    }
+
     public ScActivity getScActivity() {
         return (ScActivity) getActivity();
     }
@@ -178,8 +251,9 @@ public class ScListFragment extends SherlockListFragment
         return lv;
     }
 
-    public ScBaseAdapter getBaseAdapter() {
-        return mBaseAdapter;
+    @Override
+    public ScBaseAdapter getListAdapter() {
+        return (ScBaseAdapter) super.getListAdapter();
     }
 
     protected DetachableResultReceiver getReceiver() {
@@ -208,7 +282,7 @@ public class ScListFragment extends SherlockListFragment
         boolean update = isConnected && !isConnected;
         mIsConnected = isConnected;
         if (update) {
-            if (getBaseAdapter().needsItems() && getScActivity().getApp().getAccount() != null) {
+            if (getListAdapter().needsItems() && getScActivity().getApp().getAccount() != null) {
                 refresh(false);
             }
         }
@@ -310,7 +384,6 @@ public class ScListFragment extends SherlockListFragment
 
 
     protected RemoteCollectionTask buildTask() {
-        Log.i("asdf","Building Task from Content " + mContent);
         switch (mContent) {
             case ME_SOUND_STREAM:
                 return new RemoteActivitiesTask(SoundCloudApplication.fromContext(getActivity()), this);
@@ -320,17 +393,12 @@ public class ScListFragment extends SherlockListFragment
         }
     }
 
-
     protected RemoteCollectionTask.CollectionParams getTaskParams(final boolean refresh) {
-        return new RemoteCollectionTask.CollectionParams() {{
-            loadModel = mContent.resourceType;
-            contentUri = mContentUri;
-            request = buildRequest(refresh);
-            isRefresh = refresh;
-            refreshPageItems = !isSyncable();
-            startIndex = refresh ? 0 : getBaseAdapter().getData().size();
-            maxToLoad = Consts.COLLECTION_PAGE_SIZE;
-        }};
+        RemoteCollectionTask.CollectionParams params = getListAdapter().getParams(refresh);
+        params.request = buildRequest(refresh);
+        params.refreshPageItems = !isSyncable();
+        params.maxToLoad = Consts.COLLECTION_PAGE_SIZE;
+        return params;
     }
 
     protected Request buildRequest(boolean isRefresh) {
@@ -362,9 +430,9 @@ public class ScListFragment extends SherlockListFragment
 
     public void refresh(final boolean userRefresh) {
         if (userRefresh) {
-            if (getBaseAdapter() instanceof FollowStatus.Listener) {
+            if (getListAdapter() instanceof FollowStatus.Listener) {
                 FollowStatus.get().requestUserFollowings(SoundCloudApplication.fromContext(getActivity()),
-                        (FollowStatus.Listener) getBaseAdapter(), true);
+                        (FollowStatus.Listener) getListAdapter(), true);
             }
         } else {
             reset();
@@ -374,12 +442,12 @@ public class ScListFragment extends SherlockListFragment
             requestSync();
         } else {
             executeRefreshTask();
-            getBaseAdapter().notifyDataSetChanged();
+            getListAdapter().notifyDataSetChanged();
         }
     }
 
     public void reset() {
-        final ScBaseAdapter adp = getBaseAdapter();
+        final ScBaseAdapter adp = getListAdapter();
         if (adp != null){
             adp.clearData();
             setListAdapter(adp);
@@ -406,15 +474,6 @@ public class ScListFragment extends SherlockListFragment
         mEmptyCollection.setHasSyncedBefore(mLocalCollection.hasSyncedBefore());
     }
 
-    protected void addNewItems(Iterable<ScModel> newItems) {
-
-        if (newItems == null || !newItems.iterator().hasNext()) return;
-        for (Parcelable newItem : newItems) {
-            getBaseAdapter().addItem(newItem);
-        }
-        checkForStaleItems(newItems);
-    }
-
     protected void checkForStaleItems(Iterable<ScModel> newItems) {
         final Context c = getActivity();
         if (c == null || !(IOUtils.isWifiConnected(getActivity())) || newItems == null || !newItems.iterator().hasNext())
@@ -439,13 +498,13 @@ public class ScListFragment extends SherlockListFragment
 
         if (trackUpdates.size() > 0) {
             UpdateCollectionTask updateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(c), Track.class);
-            updateCollectionTask.setAdapter(getBaseAdapter());
+            updateCollectionTask.setAdapter(getListAdapter());
             updateCollectionTask.execute(trackUpdates);
         }
 
         if (userUpdates.size() > 0) {
             UpdateCollectionTask updateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(c), User.class);
-            updateCollectionTask.setAdapter(getBaseAdapter());
+            updateCollectionTask.setAdapter(getListAdapter());
             updateCollectionTask.execute(userUpdates);
         }
     }
@@ -490,22 +549,41 @@ public class ScListFragment extends SherlockListFragment
     public void onPostTaskExecute(RemoteCollectionTask.ReturnData data) {
         if (data.success) {
             if (data.wasRefresh) {
-                mBaseAdapter.clearData();
-                setListAdapter(mBaseAdapter); // this refreshes the wrapping endless adapter
+                getListAdapter().clearData();
                 if (mListView != null && mContentUri != null) setListLastUpdated();
             }
-
             mNextHref = data.nextHref;
 
-            addNewItems(data.newItems);
+            getListAdapter().addItems(data.newItems);
+            checkForStaleItems(data.newItems);
+
         } else {
             handleResponseCode(data.responseCode);
         }
 
         // reset refresh header
-        if (data.wasRefresh && (getBaseAdapter().getData().size() > 0 || !isRefreshing())) {
+        if (data.wasRefresh && (!getListAdapter().isEmpty() || !isRefreshing())) {
             doneRefreshing();
         }
+
+        getListAdapter().setIsLoadingData(false,true);
+    }
+
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+    }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        if (getListAdapter().shouldRequestNextPage(firstVisibleItem, visibleItemCount, totalItemCount)) {
+            append();
+        }
+    }
+
+    private void append() {
+        buildTask().execute(getTaskParams(false));
+        getListAdapter().setIsLoadingData(true);
     }
 
 
@@ -525,29 +603,6 @@ public class ScListFragment extends SherlockListFragment
             if (mObservingContent) onContentChanged();
         }
     }
-
-    class ScEndlessAdapter extends EndlessAdapter {
-
-        RemoteCollectionTask.ReturnData lastReturn;
-
-        public ScEndlessAdapter(Context context, ListAdapter wrapped, int pendingResource) {
-            super(context, wrapped, pendingResource);
-        }
-
-        @Override
-        protected boolean cacheInBackground() throws Exception {
-            lastReturn = ScListFragment.this.buildTask().execute(getTaskParams(false)).get();
-            return lastReturn.keepGoing;
-        }
-
-        @Override
-        protected void appendCachedData() {
-            onPostTaskExecute(lastReturn);
-            getBaseAdapter().notifyDataSetChanged();
-        }
-    }
-
-
 
     /*
     private ScListView.LazyListListener mLazyListListener = new ScListView.LazyListListener() {

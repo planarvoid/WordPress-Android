@@ -2,7 +2,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent">
-    <com.soundcloud.android.view.TrackInfoBar
+    <com.soundcloud.android.view.adapter.TrackInfoBar
             android:id="@+id/track_info_bar"
             android:background="@color/playerControlBackground"
             android:layout_width="fill_parent"

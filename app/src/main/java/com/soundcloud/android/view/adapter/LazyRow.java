@@ -1,5 +1,5 @@
 
-package com.soundcloud.android.view;
+package com.soundcloud.android.view.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -8,7 +8,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Parcelable;
-import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -26,8 +26,6 @@ public abstract class LazyRow extends FrameLayout {
     protected IScAdapter mAdapter;
     protected ImageLoader mImageLoader;
     protected ImageView mIcon;
-    protected int mCurrentPosition;
-    protected long mCurrentUserId;
 
     public LazyRow(Context context, IScAdapter adapter) {
         super(context);
@@ -36,15 +34,16 @@ public abstract class LazyRow extends FrameLayout {
         if (mIconOptions == null) mIconOptions = new ImageLoader.Options();
         mImageLoader = ImageLoader.get(context);
 
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(getRowResourceId(), this);
+        addContent();
 
         mIcon = (ImageView) findViewById(R.id.icon);
-        mCurrentUserId = SoundCloudApplication.getUserIdFromContext(getContext());
     }
 
+    public long getCurrentUserId() {
+        return SoundCloudApplication.getUserId();
+    }
 
-    protected abstract int getRowResourceId();
+    protected abstract View addContent();
 
     public abstract void display(Cursor cursor);
 
@@ -52,8 +51,7 @@ public abstract class LazyRow extends FrameLayout {
 
     /** update the views with the data corresponding to selection index */
     public void display(int position) {
-        mCurrentPosition = position;
-        final Long id = mAdapter.getItemId(mCurrentPosition);
+        final Long id = mAdapter.getItemId(position);
         final String iconUri = getIconRemoteUri();
         if (ImageUtils.checkIconShouldLoad(iconUri)) {
             Drawable drawable = mAdapter.getDrawableFromId(id);
