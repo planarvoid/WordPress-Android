@@ -4,8 +4,6 @@ import com.at.ATParams;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 
-import java.util.ArrayList;
-
 public enum Page implements Event {
     Entry_main("main", Level2.Entry),
     Entry_login__main("login::main", Level2.Entry),
@@ -48,12 +46,12 @@ public enum Page implements Event {
     Settings_about        ("about",         Level2.Settings),
 
     // user browser
-    Users_dedicated_rec("%s::dedicated_rec", Level2.Users),
-    Users_sounds       ("%s::sounds",    Level2.Users),
-    Users_likes        ("%s::likes",     Level2.Users),
-    Users_following    ("%s::following", Level2.Users),
-    Users_followers    ("%s::followers", Level2.Users),
-    Users_info         ("%s::info",      Level2.Users),
+    Users_dedicated_rec("user_permalink::dedicated_rec", Level2.Users),
+    Users_sounds       ("user_permalink::sounds",    Level2.Users),
+    Users_likes        ("user_permalink::likes",     Level2.Users),
+    Users_following    ("user_permalink::following", Level2.Users),
+    Users_followers    ("user_permalink::followers", Level2.Users),
+    Users_info         ("user_permalink::info",      Level2.Users),
 
     // user browser (you)
     You_find_friends("find_friends::main", Level2.You),
@@ -64,18 +62,19 @@ public enum Page implements Event {
     You_info        ("info::main",      Level2.You),
 
     // player
-    Sounds_main             ("%s::%s::main", Level2.Sounds),
-    Sounds_add_comment      ("%s::%s::add_comment", Level2.Sounds),
-    Sounds_share            ("%s::%s::share", Level2.Sounds),
-    Sounds_info__main       ("%s::%s::info_main", Level2.Sounds),
-    Sounds_info__people_like("%s::%s::info_people_like", Level2.Sounds),
-    Sounds_info__comment    ("%s::%s::info_comment", Level2.Sounds),
+    Sounds_main             ("user_permalink::track_permalink::main", Level2.Sounds),
+    Sounds_add_comment      ("user_permalink::track_permalink::add_comment", Level2.Sounds),
+    Sounds_share            ("user_permalink::track_permalink::share", Level2.Sounds),
+    Sounds_info__main       ("user_permalink::track_permalink::info_main", Level2.Sounds),
+    Sounds_info__people_like("user_permalink::track_permalink::info_people_like", Level2.Sounds),
+    Sounds_info__comment    ("user_permalink::track_permalink::info_comment", Level2.Sounds),
 
     UNKNOWN(null, null);
 
     public final String name;
     public final Level2 level2;
 
+    static final String user_permalink  = "user_permalink";
     static final String track_permalink = "track_permalink";
     static final String level_2         = "level2";
 
@@ -107,23 +106,41 @@ public enum Page implements Event {
         return result;
     }
 
-    static String expandVariables(String template, Object... args) {
-        ArrayList<String> strings = new ArrayList<String>(args.length);
-
-        for (Object o : args) {
-            if (o instanceof Track) {
-                strings.add(((Track) o).permalink);
-            } else if (o instanceof User) {
-                strings.add(((User) o).permalink);
-            } else if (o instanceof Level2) {
-                strings.add(((Level2) o).name());
-            } else if (o != null) {
-                strings.add(o.toString());
-            } else {
-                return template;
-            }
+    static String expandVariables(String template, Object o) {
+        if (o instanceof Track) {
+            return expandVariables(template, (Track)o);
+        } else if (o instanceof User) {
+            return expandVariables(template, (User)o);
+        } else if (o instanceof Level2) {
+            return expandVariables(template, (Level2)o);
+        } else if (o != null) {
+            return String.format(template, o);
+        } else {
+            return template;
         }
+    }
 
-        return String.format(template, strings.toArray());
+    private static String expandVariables(String template, Track track) {
+        if (template.contains(track_permalink)) {
+            template = template.replace(track_permalink, track.permalink);
+        }
+        if (track.user != null) {
+            template = expandVariables(template, track.user);
+        }
+        return template;
+    }
+
+    private static String expandVariables(String template, User user) {
+        if (template.contains(user_permalink) && user.permalink != null) {
+            template = template.replace(user_permalink, user.permalink);
+        }
+        return template;
+    }
+
+    private static String expandVariables(String template, Level2 level2) {
+        if (template.contains(level_2)) {
+            template = template.replace(level_2, level2.name());
+        }
+        return template;
     }
 }
