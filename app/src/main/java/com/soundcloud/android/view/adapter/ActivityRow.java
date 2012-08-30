@@ -7,6 +7,7 @@ import android.os.Parcelable;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Activity;
@@ -27,7 +28,7 @@ import android.widget.TextView;
 import java.util.Date;
 
 public abstract class ActivityRow extends LazyRow {
-    private Activity mActivity;
+    protected Activity mActivity;
 
     private final TextView mUser;
     private final TextView mTitle;
@@ -36,8 +37,8 @@ public abstract class ActivityRow extends LazyRow {
     private Drawable mDrawable, mPressedDrawable;
     private SpannableStringBuilder mSpanBuilder;
 
-    public ActivityRow(Context activity, ScBaseAdapter adapter) {
-        super(activity, adapter);
+    public ActivityRow(Context context, IScAdapter adapter) {
+        super(context, adapter);
 
         mTitle = (TextView) findViewById(R.id.title);
         mUser = (TextView) findViewById(R.id.user);
@@ -62,12 +63,6 @@ public abstract class ActivityRow extends LazyRow {
     }
 
     // override these for non-dashboard activities to account for different parcelable structures
-
-    protected boolean fillParcelable(Parcelable p) {
-        mActivity = (Activity) p;
-        return mActivity != null;
-    }
-
     protected Track getTrack() {
         return mActivity.getTrack();
     }
@@ -103,7 +98,7 @@ public abstract class ActivityRow extends LazyRow {
 
     @Override
     protected View addContent() {
-        return null;
+        return View.inflate(getContext(), R.layout.activity_list_row, this);
     }
 
     @Override
@@ -111,11 +106,16 @@ public abstract class ActivityRow extends LazyRow {
         display(cursor.getPosition(), new Track(cursor));
     }
 
+    protected abstract  boolean fillParcelable(Parcelable p);
+
     @Override
     public void display(int position, Parcelable p) {
+        mActivity = (Activity) p;
         boolean isNull = !fillParcelable(p);
         super.display(position);
         if (isNull) return;
+
+        mActivity = (Activity) p;
         mSpanBuilder = createSpan();
 
         setImageSpan();

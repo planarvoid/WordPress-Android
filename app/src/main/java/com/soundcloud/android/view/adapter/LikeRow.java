@@ -5,11 +5,17 @@ import com.soundcloud.android.adapter.ScBaseAdapter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Parcelable;
 
 public class LikeRow extends ActivityRow {
 
     public LikeRow(Context activity, ScBaseAdapter adapter) {
         super(activity, adapter);
+    }
+
+    @Override
+    protected boolean fillParcelable(Parcelable p) {
+        return mActivity != null;
     }
 
     @Override

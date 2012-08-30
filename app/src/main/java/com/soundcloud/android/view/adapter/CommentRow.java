@@ -30,12 +30,6 @@ public class CommentRow extends ActivityRow {
     }
 
     @Override
-    protected boolean fillParcelable(Parcelable p) {
-        mComment = (Comment) p;
-        return mComment != null;
-    }
-
-    @Override
     protected Track getTrack() {
         return mComment.track;
     }
@@ -67,6 +61,12 @@ public class CommentRow extends ActivityRow {
     public String getIconRemoteUri() {
         if (mComment == null || mComment.getUser() == null || mComment.getUser().avatar_url == null) return "";
         return Consts.GraphicSize.formatUriForList(getContext(), mComment.getUser().avatar_url);
+    }
+
+    @Override
+    protected boolean fillParcelable(Parcelable p) {
+        mComment = mActivity.getComment();
+        return mComment != null;
     }
 
     @Override

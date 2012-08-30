@@ -5,6 +5,8 @@ import static com.soundcloud.android.model.LocalCollection.insertLocalCollection
 import static com.soundcloud.android.service.sync.ApiSyncer.getAdditionsFromIds;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.EmptyCollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
@@ -230,6 +232,8 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
             return TrackHolder.fromCursor(itemsCursor);
         } else if (User.class.equals(mParams.loadModel)) {
             return UserHolder.fromCursor(itemsCursor);
+        } else if (Activity.class.equals(mParams.loadModel)) {
+            return Activities.fromCursor(itemsCursor);
         } else {
             throw new IllegalArgumentException("NOT HANDLED YET " + mParams.loadModel);
         }

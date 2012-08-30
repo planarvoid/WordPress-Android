@@ -58,7 +58,7 @@ public enum Content {
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
     USER("users/#", null, 302, User.class, -1, Table.USERS),
     USER_TRACKS("users/#/tracks", null, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
-    USER_FAVORITES("users/#/favorites", null, 304, Track.class, FAVORITE, null),
+    USER_FAVORITES("users/#/favorites", Endpoints.USER_FAVORITES, 304, Track.class, FAVORITE, null),
     USER_FOLLOWERS("users/#/followers", null, 305, User.class, FOLLOWER, null),
     USER_FOLLOWINGS("users/#/followings", null, 306, User.class, FOLLOWING, null),
     USER_COMMENTS("users/#/comments", null, 307, Comment.class, -1, null),
