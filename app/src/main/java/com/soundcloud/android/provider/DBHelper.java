@@ -785,8 +785,8 @@ public class DBHelper extends SQLiteOpenHelper {
         return false;
     }
 
-    public static String getWhereIds(String column, List<Long> idSet){
-        StringBuilder sb = new StringBuilder(column + " in (?");
+    public static String getWhereInClause(String column, List<Long> idSet){
+        StringBuilder sb = new StringBuilder(column + " IN (?");
         for (int i = 1; i < idSet.size(); i++) {
             sb.append(",?");
         }

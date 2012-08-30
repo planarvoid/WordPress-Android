@@ -62,7 +62,7 @@ public class TrackCache extends LruCache<Long, Track> {
 
     }
 
-    public Parcelable fromCursor(Cursor cursor) {
+    public Track fromCursor(Cursor cursor) {
         final long id = cursor.getLong(cursor.getColumnIndex(DBHelper.Tracks._ID));
         Track track = get(id);
         if (track == null) {

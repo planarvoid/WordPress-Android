@@ -4,6 +4,7 @@ package com.soundcloud.android.adapter;
 import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.view.MyTracklistRow;
@@ -108,7 +109,7 @@ public class MyTracksAdapter extends ScBaseAdapter {
         }
     }
     @Override
-    public Parcelable getItem(int position) {
+    public ScModel getItem(int position) {
         if (mDataValid && mRecordingData != null) {
             if (position < mRecordingData.size()) {
                 return mRecordingData.get(position);

@@ -103,10 +103,10 @@ public class Activity extends ScModel implements Refreshable, Origin, Playable, 
     }
 
     @Override
-    public void resolve(SoundCloudApplication application) {
-        refreshTimeSinceCreated(application);
-        if (getTrack() != null) getTrack().resolve(application);
-        if (getUser() != null) getUser().resolve(application);
+    public void resolve(Context context) {
+        refreshTimeSinceCreated(context);
+        if (getTrack() != null) getTrack().resolve(context);
+        if (getUser() != null) getUser().resolve(context);
     }
 
     public String getDateString() {

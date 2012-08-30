@@ -5,6 +5,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -243,7 +244,7 @@ public class PlaylistManager {
             protected Void doInBackground(Void... params) {
                 if (mUserId > -1) {
                     mContext.getContentResolver().delete(DEFAULT_PLAYLIST_URI, null, null);
-                    SoundCloudDB.bulkInsertParcelables(mContext.getContentResolver(), playlist, DEFAULT_PLAYLIST_URI, mUserId);
+                    SoundCloudDB.bulkInsertModels(mContext.getContentResolver(), (List<? extends ScModel>) playlist, DEFAULT_PLAYLIST_URI, mUserId);
                 }
                 return null;
             }

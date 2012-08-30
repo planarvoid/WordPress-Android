@@ -1,4 +1,4 @@
-package com.soundcloud.android.task;
+package com.soundcloud.android.task.collection;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
@@ -32,7 +32,7 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, ? extends ScModel>
     protected Class<?> mLoadModel;
     protected WeakReference<BaseAdapter> mAdapterReference;
 
-    public UpdateCollectionTask(SoundCloudApplication app,Class<?> loadModel) {
+    public UpdateCollectionTask(SoundCloudApplication app, Class<?> loadModel) {
         mApp = app;
         mLoadModel = loadModel;
         if (!(Track.class.equals(mLoadModel) || User.class.equals(mLoadModel))) {
@@ -71,7 +71,7 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, ? extends ScModel>
             }
 
             CollectionHolder holder = null;
-            List<Parcelable> objectsToWrite = new ArrayList<Parcelable>();
+            List<ScModel> objectsToWrite = new ArrayList<ScModel>();
             if (Track.class.equals(mLoadModel)) {
                 holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScModel.TracklistItemHolder.class);
                 for (TracklistItem t : (ScModel.TracklistItemHolder) holder) {
@@ -89,7 +89,7 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, ? extends ScModel>
             }
 
             publishProgress();
-            SoundCloudDB.bulkInsertParcelables(mApp.getContentResolver(), objectsToWrite);
+            SoundCloudDB.bulkInsertModels(mApp.getContentResolver(), objectsToWrite);
 
             return true;
 

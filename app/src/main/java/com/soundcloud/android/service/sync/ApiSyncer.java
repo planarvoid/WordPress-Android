@@ -1,16 +1,12 @@
 package com.soundcloud.android.service.sync;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.EmptyCollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
@@ -32,8 +28,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncResult;
 import android.net.Uri;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -43,7 +39,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -178,9 +173,9 @@ public class ApiSyncer {
                         .getEntity().getContent();
 
                 // parse and add first items
-                CollectionHolder<ScModel> holder = ScModel.getCollectionFromStream(is, mApi.getMapper(), User.class);
+                CollectionHolder<User> holder = ScModel.getCollectionFromStream(is, mApi.getMapper(), User.class);
 
-                added = SoundCloudDB.bulkInsertParcelables(mResolver, holder.collection, content.uri, userId);
+                added = SoundCloudDB.bulkInsertModels(mResolver, holder.collection, content.uri, userId);
 
 
                 // remove items from master remote list and adjust start index
@@ -191,7 +186,7 @@ public class ApiSyncer {
                 break;
             case ME_TRACKS:
                 // ensure the first couple of pages of items for quick loading
-                added = SoundCloudDB.bulkInsertParcelables(mResolver, getAdditionsFromIds(
+                added = SoundCloudDB.bulkInsertModels(mResolver, getMissingModelsById(
                         mApi,
                         mResolver,
                         remote,
@@ -201,7 +196,7 @@ public class ApiSyncer {
                 break;
             default:
                 // ensure the first couple of pages of items for quick loading
-                added = SoundCloudDB.bulkInsertParcelables(mResolver, getAdditionsFromIds(
+                added = SoundCloudDB.bulkInsertModels(mResolver, getMissingModelsById(
                         mApi,
                         mResolver,
                         new ArrayList<Long>(remote.subList(0, Math.min(remote.size(), MINIMUM_LOCAL_ITEMS_STORED))),
@@ -260,7 +255,7 @@ public class ApiSyncer {
             int i = 0;
             while (i < itemDeletions.size()) {
                 List<Long> batch = itemDeletions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, itemDeletions.size()));
-                mResolver.delete(content.uri, DBHelper.getWhereIds(DBHelper.CollectionItems.ITEM_ID, batch), longListToStringArr(batch));
+                mResolver.delete(content.uri, DBHelper.getWhereInClause(DBHelper.CollectionItems.ITEM_ID, batch), longListToStringArr(batch));
                 i += RESOLVER_BATCH_SIZE;
             }
         }
@@ -277,50 +272,67 @@ public class ApiSyncer {
         return result;
     }
 
-    public static List<ScModel> getAdditionsFromIds(AndroidCloudAPI app,
-                                                       ContentResolver resolver,
-                                                       List<Long> additions,
-                                                       Content content,
-                                                       boolean ignoreStored) throws IOException {
-        List<ScModel> toAdd = new ArrayList<ScModel>();
-        if (additions == null || additions.isEmpty()) return toAdd;
-
+    /**
+     * @param modelIds a list of model ids
+     * @param ignoreStored if it should ignore stored ids
+     * @return a list of models which are not stored in the database
+     * @throws IOException
+     */
+    public static List<ScModel> getMissingModelsById(AndroidCloudAPI api,
+                                                     ContentResolver resolver,
+                                                     List<Long> modelIds,
+                                                     Content content,
+                                                     boolean ignoreStored) throws IOException {
+        if (modelIds == null || modelIds.isEmpty()) {
+            return ScModel.EMPTY_LIST;
+        }
         // copy so we don't modify the original
-        additions = new ArrayList<Long>(additions);
+        List<Long> ids = new ArrayList<Long>(modelIds);
 
         if (!ignoreStored) {
-            // remove anything that is already in the DB
-            int i = 0;
-            List<Long> storedIds = new ArrayList<Long>();
-            while (i < additions.size()) {
-                List<Long> batch = additions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, additions.size()));
-                storedIds.addAll(SoundCloudDB.idCursorToList(resolver.query(content.uri, new String[]{DBHelper.Tracks._ID},
-                        DBHelper.getWhereIds(DBHelper.Tracks._ID, batch) + " AND " + DBHelper.Tracks.LAST_UPDATED + " > 0"
-                        , longListToStringArr(batch), null)));
-                i += RESOLVER_BATCH_SIZE;
-            }
-            additions.removeAll(storedIds);
+            ids.removeAll(getStoredIds(resolver, modelIds, content));
         }
+        return doBatchLookup(api, ids, content);
+    }
 
-        // add new items from batch lookups
+    private static List<ScModel> doBatchLookup(AndroidCloudAPI api, List<Long> ids, Content content) throws IOException {
+        List<ScModel> models = new ArrayList<ScModel>();
         int i = 0;
-        while (i < additions.size()) {
-
-            List<Long> batch = additions.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, additions.size()));
+        while (i < ids.size()) {
+            List<Long> batch = ids.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, ids.size()));
             InputStream is = validateResponse(
-               app.get(
+               api.get(
                 Request.to(content.remoteUri)
                     .add("linked_partitioning", "1")
                     .add("limit", API_LOOKUP_BATCH_SIZE)
                     .add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
 
-            toAdd.addAll(ScModel.getCollectionFromStream(is,
-                    app.getMapper(),
+            models.addAll(ScModel.getCollectionFromStream(is,
+                    api.getMapper(),
                     content.resourceType
             ).collection);
+
             i += API_LOOKUP_BATCH_SIZE;
         }
-        return toAdd;
+        return models;
+    }
+
+    /**
+     * @return a list of all ids for which objects are store in the database
+     */
+    private static List<Long> getStoredIds(ContentResolver resolver, List<Long> ids, Content content) {
+        int i = 0;
+        List<Long> storedIds = new ArrayList<Long>();
+        while (i < ids.size()) {
+            List<Long> batch = ids.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, ids.size()));
+            storedIds.addAll(SoundCloudDB.idCursorToList(
+                    resolver.query(content.uri, new String[]{BaseColumns._ID},
+                        DBHelper.getWhereInClause(BaseColumns._ID, batch) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0"
+                        , longListToStringArr(batch), null)
+            ));
+            i += RESOLVER_BATCH_SIZE;
+        }
+        return storedIds;
     }
 
     private static List<Long> getCollectionIds(AndroidCloudAPI app, String endpoint) throws IOException {
@@ -393,7 +405,7 @@ public class ApiSyncer {
         public final Uri uri;
         public final SyncResult syncResult = new SyncResult();
 
-        /** One of {@link UNCHANGED}, {@link REORDERED}, {@link CHANGED}. */
+        /** One of {@link #UNCHANGED}, {@link #REORDERED}, {@link #CHANGED}. */
         public int change;
 
         public boolean success;

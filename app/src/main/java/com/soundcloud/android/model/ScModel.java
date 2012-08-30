@@ -1,6 +1,7 @@
 package com.soundcloud.android.model;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -14,6 +15,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.task.create.NewConnectionTask;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +34,7 @@ import static com.soundcloud.android.SoundCloudApplication.USER_CACHE;
 public abstract class ScModel implements Parcelable {
 
     public static final int NOT_SET = -1;
+    public static final List<ScModel> EMPTY_LIST = new ArrayList<ScModel>();
 
     @JsonView(Views.Mini.class) public long id = NOT_SET;
     @JsonIgnore public long last_updated       = NOT_SET;
@@ -38,9 +42,9 @@ public abstract class ScModel implements Parcelable {
     public ScModel() {
     }
 
-    public static CollectionHolder getCollectionFromStream(InputStream is,
+    public static @NotNull <T extends ScModel> CollectionHolder<T> getCollectionFromStream(InputStream is,
                                                            ObjectMapper mapper,
-                                                           Class<?> loadModel) throws IOException {
+                                                           Class<T> loadModel) throws IOException {
         CollectionHolder holder = null;
         List<ScModel> items = new ArrayList<ScModel>();
         if (Track.class.equals(loadModel)) {
@@ -63,6 +67,8 @@ public abstract class ScModel implements Parcelable {
             for (Comment f : (CommentHolder) holder) {
                 items.add(f);
             }
+        } else {
+            throw new RuntimeException("Unknown moodel "+loadModel);
         }
         holder.collection = items;
         return holder;
@@ -187,7 +193,7 @@ public abstract class ScModel implements Parcelable {
         }
     }
 
-    public void resolve(SoundCloudApplication application) {
+    public void resolve(Context context) {
     }
 
     @Override

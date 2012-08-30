@@ -3,7 +3,6 @@ package com.soundcloud.android.fragment;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.commonsware.cwac.endless.EndlessAdapter;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -14,23 +13,21 @@ import com.soundcloud.android.adapter.TrackAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Refreshable;
-import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.task.RemoteActivitiesTask;
-import com.soundcloud.android.task.RemoteCollectionTask;
-import com.soundcloud.android.task.UpdateCollectionTask;
+import com.soundcloud.android.task.collection.CollectionParams;
+import com.soundcloud.android.task.collection.CollectionTask;
+import com.soundcloud.android.task.collection.ReturnData;
+import com.soundcloud.android.task.collection.UpdateCollectionTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -38,11 +35,9 @@ import android.content.Intent;
 import android.database.ContentObserver;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -50,30 +45,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
-import android.widget.ListAdapter;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ScListFragment extends SherlockListFragment
-        implements PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener, RemoteCollectionTask.Callback, AbsListView.OnScrollListener {
+        implements PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener, CollectionTask.Callback, AbsListView.OnScrollListener {
 
     protected static final int CONNECTIVITY_MSG = 0;
 
-    private ScListView mListView;
-    private EmptyCollection mEmptyCollection;
+    private @Nullable ScListView mListView;
+    private @NotNull EmptyCollection mEmptyCollection;
 
-    private String mEmptyCollectionText;
-    private DetachableResultReceiver mDetachableReceiver;
-    private Content mContent;
-    private Uri mContentUri;
-    private boolean mIsConnected;
+    private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
+    private @NotNull Content mContent;
+    private @NotNull Uri mContentUri;
 
     private NetworkConnectivityListener connectivityListener;
-    private RemoteCollectionTask mRefreshTask;
-
-    private UpdateCollectionTask mUpdateCollectionTask;
-    private Boolean mIsSyncable;
+    private @Nullable CollectionTask mRefreshTask;
+    private @Nullable UpdateCollectionTask mUpdateCollectionTask;
     protected LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
 
@@ -85,6 +72,7 @@ public class ScListFragment extends SherlockListFragment
 
         ScListFragment fragment = new ScListFragment();
         Bundle args = new Bundle();
+
         args.putParcelable("contentUri", content.uri);
         fragment.setArguments(args);
         return fragment;
@@ -101,15 +89,13 @@ public class ScListFragment extends SherlockListFragment
         mContent = Content.match(mContentUri);
 
         final ContentResolver contentResolver = getActivity().getContentResolver();
-        if (mContentUri != null) {
-            // TODO :  Move off the UI thread.
-            mLocalCollection = LocalCollection.fromContentUri(mContentUri, contentResolver, true);
-            mLocalCollection.startObservingSelf(contentResolver, this);
+        // TODO :  Move off the UI thread.
+        mLocalCollection = LocalCollection.fromContentUri(mContentUri, contentResolver, true);
+        mLocalCollection.startObservingSelf(contentResolver, this);
 
-            mChangeObserver = new ChangeObserver();
-            mObservingContent = true;
-            contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);
-        }
+        mChangeObserver = new ChangeObserver();
+        mObservingContent = true;
+        contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);
 
         refreshSyncData();
     }
@@ -118,7 +104,7 @@ public class ScListFragment extends SherlockListFragment
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        ScBaseAdapter<?> adapter = null;
+        ScBaseAdapter<?> adapter;
         if (getListAdapter() == null) {
             switch (mContent) {
                 case ME_SOUND_STREAM:
@@ -257,11 +243,9 @@ public class ScListFragment extends SherlockListFragment
     }
 
     protected DetachableResultReceiver getReceiver() {
-        if (mDetachableReceiver == null) mDetachableReceiver = new DetachableResultReceiver(new Handler());
         mDetachableReceiver.setReceiver(this);
         return mDetachableReceiver;
     }
-
 
     @Override
     public void onStart() {
@@ -279,9 +263,7 @@ public class ScListFragment extends SherlockListFragment
 
 
     protected void onDataConnectionUpdated(boolean isConnected) {
-        boolean update = isConnected && !isConnected;
-        mIsConnected = isConnected;
-        if (update) {
+        if (isConnected) {
             if (getListAdapter().needsItems() && getScActivity().getApp().getAccount() != null) {
                 refresh(false);
             }
@@ -311,25 +293,20 @@ public class ScListFragment extends SherlockListFragment
     }
 
     private boolean isRefreshTaskActive() {
-        return (mRefreshTask != null && !AndroidUtils.isTaskFinished((AsyncTask) mRefreshTask));
+        return (mRefreshTask != null && !AndroidUtils.isTaskFinished(mRefreshTask));
     }
 
     protected void doneRefreshing() {
         if (isSyncable()) setListLastUpdated();
-        if (mListView != null) mListView.onRefreshComplete();
+        mListView.onRefreshComplete();
     }
 
     protected boolean isSyncable() {
-        if (mIsSyncable == null) {
-            mIsSyncable = mContent != null && mContent.isSyncable();
-        }
-        return mIsSyncable;
+        return mContent.isSyncable();
     }
 
     public void setListLastUpdated() {
-        if (mListView != null) {
-            if (mLocalCollection.last_sync_success > 0) mListView.setLastUpdated(mLocalCollection.last_sync_success);
-        }
+        if (mLocalCollection.last_sync_success > 0 && mListView != null) mListView.setLastUpdated(mLocalCollection.last_sync_success);
     }
 
     @Override
@@ -337,8 +314,7 @@ public class ScListFragment extends SherlockListFragment
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_SYNC_ERROR: {
-                if (mContentUri != null && resultData != null &&
-                        !resultData.getBoolean(mContentUri.toString()) && !isRefreshing()) {
+                if (resultData != null && !resultData.getBoolean(mContentUri.toString()) && !isRefreshing()) {
                     doneRefreshing(); // nothing changed
                 }
                 break;
@@ -383,18 +359,12 @@ public class ScListFragment extends SherlockListFragment
     }
 
 
-    protected RemoteCollectionTask buildTask() {
-        switch (mContent) {
-            case ME_SOUND_STREAM:
-                return new RemoteActivitiesTask(SoundCloudApplication.fromContext(getActivity()), this);
-            default:
-                return new RemoteCollectionTask(SoundCloudApplication.fromContext(getActivity()), this);
-
-        }
+    protected CollectionTask buildTask() {
+        return new CollectionTask(SoundCloudApplication.fromContext(getActivity()), this);
     }
 
-    protected RemoteCollectionTask.CollectionParams getTaskParams(final boolean refresh) {
-        RemoteCollectionTask.CollectionParams params = getListAdapter().getParams(refresh);
+    protected CollectionParams getTaskParams(final boolean refresh) {
+        CollectionParams params = getListAdapter().getParams(refresh);
         params.request = buildRequest(refresh);
         params.refreshPageItems = !isSyncable();
         params.maxToLoad = Consts.COLLECTION_PAGE_SIZE;
@@ -420,10 +390,10 @@ public class ScListFragment extends SherlockListFragment
         if (isSyncable()) {
             setListLastUpdated();
 
-            if ((mContent != null) && mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
+            if (mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
                 refresh(false);
                 // this is to show the user something at the initial load
-                if (!mLocalCollection.hasSyncedBefore() && mListView != null) mListView.setRefreshing();
+                if (!mLocalCollection.hasSyncedBefore()) mListView.setRefreshing();
             }
         }
     }
@@ -474,41 +444,6 @@ public class ScListFragment extends SherlockListFragment
         mEmptyCollection.setHasSyncedBefore(mLocalCollection.hasSyncedBefore());
     }
 
-    protected void checkForStaleItems(Iterable<ScModel> newItems) {
-        final Context c = getActivity();
-        if (c == null || !(IOUtils.isWifiConnected(getActivity())) || newItems == null || !newItems.iterator().hasNext())
-            return;
-
-        Map<Long, Track> trackUpdates = new HashMap<Long, Track>();
-        Map<Long, User> userUpdates = new HashMap<Long, User>();
-        for (Parcelable newItem : newItems) {
-            if (newItem instanceof Refreshable) {
-                ScModel resource = ((Refreshable) newItem).getRefreshableResource();
-                if (resource != null) {
-                    if (((Refreshable) newItem).isStale()) {
-                        if (resource instanceof Track){
-                            trackUpdates.put(resource.id, (Track) resource);
-                        } else if (resource instanceof User){
-                            userUpdates.put(resource.id, (User) resource);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (trackUpdates.size() > 0) {
-            UpdateCollectionTask updateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(c), Track.class);
-            updateCollectionTask.setAdapter(getListAdapter());
-            updateCollectionTask.execute(trackUpdates);
-        }
-
-        if (userUpdates.size() > 0) {
-            UpdateCollectionTask updateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(c), User.class);
-            updateCollectionTask.setAdapter(getListAdapter());
-            updateCollectionTask.execute(userUpdates);
-        }
-    }
-
     protected boolean handleResponseCode(int responseCode) {
         switch (responseCode) {
             case HttpStatus.SC_OK: // do nothing
@@ -546,27 +481,19 @@ public class ScListFragment extends SherlockListFragment
         };
 
     @Override
-    public void onPostTaskExecute(RemoteCollectionTask.ReturnData data) {
-        if (data.success) {
-            if (data.wasRefresh) {
-                getListAdapter().clearData();
-                if (mListView != null && mContentUri != null) setListLastUpdated();
+    public void onPostTaskExecute(ReturnData data) {
+        getListAdapter().handleTaskReturnData(data);
+
+        if (data.wasRefresh) {
+            if (!isRefreshing()) {
+                doneRefreshing();
             }
-            mNextHref = data.nextHref;
-
-            getListAdapter().addItems(data.newItems);
-            checkForStaleItems(data.newItems);
-
-        } else {
-            handleResponseCode(data.responseCode);
+            if (data.success ) {
+                setListLastUpdated();
+            }
         }
 
-        // reset refresh header
-        if (data.wasRefresh && (!getListAdapter().isEmpty() || !isRefreshing())) {
-            doneRefreshing();
-        }
-
-        getListAdapter().setIsLoadingData(false,true);
+        handleResponseCode(data.responseCode);
     }
 
     @Override

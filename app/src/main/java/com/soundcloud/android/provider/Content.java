@@ -7,6 +7,7 @@ import android.util.SparseArray;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.sync.SyncConfig;
@@ -113,7 +114,7 @@ public enum Content {
     UNKNOWN(null, null, -1, null, -1, null);
 
 
-    Content(String uri, String remoteUri, int id, Class<? extends Parcelable> resourceType,
+    Content(String uri, String remoteUri, int id, Class<? extends ScModel> resourceType,
             int collectionType,
             Table table) {
         this.uriPath = uri;
@@ -129,7 +130,7 @@ public enum Content {
     public final int id;
     public final
     @Nullable
-    Class<? extends Parcelable> resourceType;
+    Class<? extends ScModel> resourceType;
     public final Uri uri;
     public final String uriPath;
     public final String remoteUri;

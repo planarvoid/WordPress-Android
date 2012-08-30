@@ -1,13 +1,11 @@
 package com.soundcloud.android.cache;
 
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserlistItem;
 import com.soundcloud.android.provider.DBHelper;
 
 import android.database.Cursor;
-import android.os.Parcelable;
 
 public class UserCache extends LruCache<Long, User> {
     public UserCache() {
@@ -43,7 +41,7 @@ public class UserCache extends LruCache<Long, User> {
         }
     }
 
-    public ScModel fromCursor(Cursor cursor) {
+    public User fromCursor(Cursor cursor) {
         final long id = cursor.getLong(cursor.getColumnIndex(DBHelper.Users._ID));
         User user = get(id);
         if (user == null) {

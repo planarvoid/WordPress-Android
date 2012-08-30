@@ -21,7 +21,6 @@ import org.junit.runner.RunWith;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Parcelable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -275,13 +274,13 @@ public class PlaylistManagerTest {
     }
 
     private void insertTracksAsUri(Uri uri) throws IOException {
-        List<Parcelable> items = new ArrayList<Parcelable>();
+        List<Track> items = new ArrayList<Track>();
         CollectionHolder<Track> holder = ScModel.getCollectionFromStream(getClass().getResourceAsStream("tracks.json"), AndroidCloudAPI.Mapper, Track.class);
         for (Track t: holder){
             SoundCloudApplication.TRACK_CACHE.put(t);
         }
 
-        expect(SoundCloudDB.bulkInsertParcelables(resolver, items, uri, USER_ID)).toEqual(4);
+        expect(SoundCloudDB.bulkInsertModels(resolver, items, uri, USER_ID)).toEqual(4);
 
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(3);

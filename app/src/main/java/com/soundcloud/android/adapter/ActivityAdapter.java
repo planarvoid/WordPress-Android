@@ -1,7 +1,8 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.task.RemoteCollectionTask;
+import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.view.adapter.CommentRow;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.adapter.LikeRow;
@@ -9,6 +10,8 @@ import com.soundcloud.android.view.adapter.TrackInfoBar;
 
 import android.content.Context;
 import android.net.Uri;
+
+import java.util.Collections;
 
 public class ActivityAdapter extends ScBaseAdapter<Activity> {
 
@@ -57,13 +60,20 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
 
 
     @Override
-    public RemoteCollectionTask.CollectionParams getParams(boolean refresh) {
-        RemoteCollectionTask.CollectionParams params = super.getParams(refresh);
+    public CollectionParams getParams(boolean refresh) {
+        CollectionParams params = super.getParams(refresh);
         if (!isEmpty()) {
             Activity first = getItem(0);
             Activity last  = getItem(getItemCount() -1);
             params.timestamp = refresh ? first.created_at.getTime() : last.created_at.getTime();
         }
         return params;
+    }
+
+
+    @Override
+    public void addItems(CollectionHolder<Activity> newItems) {
+        super.addItems(newItems);
+        Collections.sort(mData);
     }
 }

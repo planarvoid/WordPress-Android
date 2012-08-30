@@ -12,7 +12,7 @@ public class ScBaseAdapterTest {
 
     @Test
     public void shouldCreateAdapter() throws Exception {
-        ScBaseAdapter<User> adapter = new ScBaseAdapter<User>(DefaultTestRunner.application, Content.USER) {
+        ScBaseAdapter<User> adapter = new ScBaseAdapter<User>(DefaultTestRunner.application, Content.USER.uri) {
             @Override
             protected LazyRow createRow(int position) {
                 return null;

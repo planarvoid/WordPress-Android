@@ -4,17 +4,22 @@ package com.soundcloud.android.adapter;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Parcelable;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.task.RemoteCollectionTask;
+import com.soundcloud.android.task.collection.CollectionParams;
+import com.soundcloud.android.task.collection.ReturnData;
+import com.soundcloud.android.task.collection.UpdateCollectionTask;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.quickaction.QuickAction;
 
@@ -25,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class ScBaseAdapter<T extends Parcelable> extends BaseAdapter implements IScAdapter {
+public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter implements IScAdapter {
     protected Context mContext;
     protected Content mContent;
     protected Uri mContentUri;
@@ -35,6 +40,7 @@ public abstract class ScBaseAdapter<T extends Parcelable> extends BaseAdapter im
     protected Set<Long> mLoadingIcons = new HashSet<Long>();
     private boolean mIsLoadingData;
     private View mProgressView;
+    private String mNextHref;
 
     @SuppressWarnings("unchecked")
     public ScBaseAdapter(Context context, Uri uri) {
@@ -49,7 +55,7 @@ public abstract class ScBaseAdapter<T extends Parcelable> extends BaseAdapter im
         return mData;
     }
 
-    public void setData(List<T> data) {
+    private void setData(List<T> data) {
         mData = data;
         notifyDataSetChanged();
     }
@@ -142,13 +148,6 @@ public abstract class ScBaseAdapter<T extends Parcelable> extends BaseAdapter im
 
     public void onDestroy(){}
 
-    public void addItem(int position, T newItem) {
-        getData().add(position, newItem);
-    }
-
-    public void addItem(T newItem) {
-        getData().add(newItem);
-    }
 
     public Drawable getDrawableFromId(Long id){
         return mIconAnimations.get(id);
@@ -202,18 +201,66 @@ public abstract class ScBaseAdapter<T extends Parcelable> extends BaseAdapter im
         return !mIsLoadingData && lastItemReached;
     }
 
-    public void addItems(CollectionHolder newItems) {
-        for (Object newItem : newItems) {
-            addItem((T) newItem);
-        }
+    public void addItems(CollectionHolder<T> newItems) {
+        mData.addAll(newItems.collection);
     }
 
-    public RemoteCollectionTask.CollectionParams getParams(boolean refresh) {
-        RemoteCollectionTask.CollectionParams params = new RemoteCollectionTask.CollectionParams();
+    private void addItem(T newItem) {
+        getData().add(newItem);
+    }
+
+    public CollectionParams getParams(boolean refresh) {
+        CollectionParams params = new CollectionParams();
         params.loadModel = mContent.resourceType;
         params.isRefresh = refresh;
         params.startIndex = refresh ? 0 : getItemCount();
         params.contentUri = mContentUri;
         return params;
+    }
+
+    public void handleTaskReturnData(ReturnData<T> data) {
+        if (data.success) {
+            if (data.wasRefresh) {
+                clearData();
+            }
+            mNextHref = data.nextHref;
+
+            addItems(data.newItems);
+            checkForStaleItems();
+        }
+        setIsLoadingData(false, true);
+    }
+
+    protected void checkForStaleItems() {
+        if (!(IOUtils.isWifiConnected(mContext)) || isEmpty()) return;
+
+        Map<Long, Track> trackUpdates = new HashMap<Long, Track>();
+        Map<Long, User> userUpdates = new HashMap<Long, User>();
+        for (ScModel newItem : mData) {
+
+            if (newItem instanceof Refreshable) {
+                ScModel resource = ((Refreshable) newItem).getRefreshableResource();
+                if (resource != null) {
+                    if (((Refreshable) newItem).isStale()) {
+                        if (resource instanceof Track) {
+                            trackUpdates.put(resource.id, (Track) resource);
+                        } else if (resource instanceof User) {
+                            userUpdates.put(resource.id, (User) resource);
+                        }
+                    }
+                }
+            }
+        }
+        if (trackUpdates.size() > 0) {
+            UpdateCollectionTask updateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(mContext), Track.class);
+            updateCollectionTask.setAdapter(this);
+            updateCollectionTask.execute(trackUpdates);
+        }
+
+        if (userUpdates.size() > 0) {
+            UpdateCollectionTask updateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(mContext), User.class);
+            updateCollectionTask.setAdapter(this);
+            updateCollectionTask.execute(userUpdates);
+        }
     }
 }

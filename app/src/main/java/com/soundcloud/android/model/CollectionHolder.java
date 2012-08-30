@@ -3,13 +3,13 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.SoundCloudApplication;
+
 import com.soundcloud.android.json.Views;
 import com.soundcloud.api.Request;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 
-import android.os.Parcelable;
+import android.content.Context;
 import android.text.TextUtils;
 
 import java.net.URI;
@@ -87,9 +87,8 @@ public abstract class CollectionHolder<T extends ScModel> implements Iterable<T>
         return collection != null ? collection.size() : 0;
     }
 
-    public void resolve(SoundCloudApplication application) {
+    public void resolve(Context context) {
         // do nothing, specific to collection type
     }
-
 }
 
