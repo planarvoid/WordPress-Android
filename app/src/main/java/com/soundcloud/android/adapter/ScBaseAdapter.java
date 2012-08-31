@@ -221,7 +221,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     public void handleTaskReturnData(ReturnData<T> data) {
         if (data.success) {
             if (data.wasRefresh) {
-                clearData();
+                onSuccessfulRefresh();
             }
             mNextHref = data.nextHref;
 
@@ -229,6 +229,10 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
             checkForStaleItems();
         }
         setIsLoadingData(false, true);
+    }
+
+    protected void onSuccessfulRefresh() {
+        clearData();
     }
 
     protected void checkForStaleItems() {

@@ -76,4 +76,9 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
         super.addItems(newItems);
         Collections.sort(mData);
     }
+
+    @Override
+    protected void onSuccessfulRefresh() {
+        // do nothing for now. new items will be merged and sorted with the existing items
+    }
 }
