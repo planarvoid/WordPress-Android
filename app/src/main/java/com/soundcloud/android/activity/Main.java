@@ -92,7 +92,7 @@ public class Main extends ScListActivity implements
 
         final SoundCloudApplication app = getApp();
 
-        mResolveTask = (ResolveFetchTask) getLastNonConfigurationInstance();
+        mResolveTask = (ResolveFetchTask) getLastCustomNonConfigurationInstance();
         if (mResolveTask != null) {
             mResolveTask.setListener(this);
         }
