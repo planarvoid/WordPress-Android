@@ -393,7 +393,9 @@ public class ScListFragment extends SherlockListFragment
             if (mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
                 refresh(false);
                 // this is to show the user something at the initial load
-                if (!mLocalCollection.hasSyncedBefore()) mListView.setRefreshing();
+                if (!mLocalCollection.hasSyncedBefore() && mListView != null) {
+                    mListView.setRefreshing();
+                }
             }
         }
     }
