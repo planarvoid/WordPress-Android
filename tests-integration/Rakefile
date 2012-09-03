@@ -1,0 +1,104 @@
+require 'rest_client'
+require 'json'
+require 'pp'
+
+namespace :testdroid do
+  HOST  = 'https://cloud.testdroid.com/api/v1/'
+  UHOST = 'https://users.testdroid.com/'
+  KEYFILE = File.join(ENV['HOME'], '.testdroid-apikey')
+  EMAIL = 'jan@soundcloud.com'
+  ANUM  = [ 'a'..'z', 'A'..'Z', '0'..'9' ].map(&:to_a).flatten.freeze
+  DIR   = 'testdroid'
+  STYLESHEET = 'scripts/junit-noframes.xsl'
+
+  file KEYFILE => :authorize
+  directory DIR
+
+  def apikey
+    @apikey ||= IO.read(KEYFILE).strip
+  end
+
+  def auth_header(res_name)
+    nonce = ANUM.shuffle[0..5].join
+    digestdata = [ apikey, nonce, res_name ].join(':')
+    {'X-Testdroid-Authentication' => [ EMAIL, nonce, Digest::SHA256.hexdigest(digestdata) ].join(' ') }
+  end
+
+  def get(path, endpoint=path)
+    JSON.parse(RestClient.get HOST+path, auth_header(endpoint))
+  end
+
+  def projects
+    @projects ||= get('projects')
+  end
+
+  def project_id
+    raise "No projects" if projects.empty?
+    projects.first['id']
+  end
+
+  def runs
+    @runs ||= get("projects/#{project_id}/runs", 'runs')
+  end
+
+  def device_runs
+    @device_runs ||= runs.map do |r|
+      get("projects/#{project_id}/runs/#{r['id']}/device-runs", 'deviceRuns')
+    end.flatten
+  end
+
+  def download_xml
+    device_runs.select { |r| r['groupState'] == 'FINISHED' }.map do |run|
+      junit_uri = run['junitURI']
+      filename = File.join(DIR, "#{run['id']}_junit.xml")
+      if !File.exists?(filename) || File.size(filename) == 0
+        output = RestClient.get junit_uri, auth_header('junit XML')
+        File.open(filename, 'w') { |xml| xml << output }
+        sh "xmllint -o #{filename} --format #{filename}"
+      end
+      filename
+    end
+  end
+
+  def format_xml(files)
+    files.each do |f|
+      out = File.join(File.dirname(f), File.basename(f).gsub(File.extname(f), ".html"))
+      sh "xsltproc -o #{out} #{STYLESHEET} #{f}"
+    end
+  end
+
+  task :authorize do
+    raise "Need PASSWORD= parameter" unless ENV['PASSWORD']
+    resp = JSON.parse(RestClient.post UHOST+'rest/authorize', {
+        :email    => EMAIL,
+        :password => ENV['PASSWORD']
+    }, :accept => :json)
+    if resp.is_a?(Hash) && apiKey = resp['secretApiKey']
+      File.open(KEYFILE, 'w') do |f|
+        f << apiKey
+      end
+    else
+      raise "could not get api key"
+    end
+  end
+
+  task :grab_xml => DIR do
+    format_xml(download_xml)
+  end
+
+  task :runs do
+    pp runs
+  end
+
+  task :device_runs do
+    pp device_runs
+  end
+
+  task :projects do
+    pp projects
+  end
+
+  task :clean do
+    rm_rf DIR
+  end
+end
