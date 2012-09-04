@@ -25,7 +25,7 @@ public class ResolveTrackSoundCloudUriNotFoundTest extends ActivityTestCase<Main
         super.setUp();
     }
 
-    public void testResolveUrl() throws Exception {
+    public void testResolveUnknownUrlShouldShowErrorLoadingUrl() throws Exception {
         solo.assertText(R.string.error_loading_url);
     }
 }

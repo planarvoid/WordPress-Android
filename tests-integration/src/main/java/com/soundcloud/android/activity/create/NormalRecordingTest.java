@@ -250,6 +250,9 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     public void testDeleteWavFileAndUpload() throws Exception {
+        // test only makes sense if we have an ogg file + wav file
+        if (!getActivity().getRecorder().shouldEncodeWhileRecording()) return;
+
         record(RECORDING_TIME);
         solo.sleep(1000);
 
