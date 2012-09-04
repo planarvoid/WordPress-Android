@@ -8,12 +8,22 @@
     <name>SoundCloud for Android</name>
     <description>SoundCloud for Android</description>
 
+
     <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                <artifactId>android-maven-plugin</artifactId>
+                <version>3.3.1-SNAPSHOT</version>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.2.0</version>
                 <configuration>
                     <sdk>
                         <platform>14</platform>
@@ -56,6 +66,18 @@
             <name>sonatype releases</name>
             <url>https://oss.sonatype.org/content/repositories/releases/</url>
             <layout>default</layout>
+        </repository>
+
+        <repository>
+            <id>soundcloud.internal.hosted</id>
+            <name>SoundCloud Internal hosted</name>
+            <url>http://maven.int.s-cloud.net/content/groups/hosted</url>
+        </repository>
+
+        <repository>
+            <id>soundcloud.internal.proxy</id>
+            <name>SoundCloud Internal proxy</name>
+            <url>http://maven.int.s-cloud.net/content/groups/proxy</url>
         </repository>
     </repositories>
 </project>

@@ -18,11 +18,12 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                  <artifactId>android-maven-plugin</artifactId>
+                 <version>3.3.1-SNAPSHOT</version>
+
                  <configuration>
-                    <target>soundcloud_vorbis_encoder</target>
-                    <attachNativeArtifacts>true</attachNativeArtifacts>
+                    <target>all</target>
                     <clearNativeArtifacts>false</clearNativeArtifacts>
                     <useHeaderArchives>false</useHeaderArchives>
                  </configuration>
