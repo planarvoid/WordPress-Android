@@ -8,7 +8,6 @@
     <name>SoundCloud for Android</name>
     <description>SoundCloud for Android</description>
 
-
     <build>
         <pluginManagement>
           <plugins>
@@ -80,4 +79,15 @@
             <url>http://maven.int.s-cloud.net/content/groups/proxy</url>
         </repository>
     </repositories>
+
+    <pluginRepositories>
+      <pluginRepository>
+          <id>soundcloud.internal.snapshots</id>
+          <name>SoundCloud Internal hosted</name>
+          <url>http://maven.int.s-cloud.net/content/repositories/snapshots/</url>
+          <snapshots>
+            <updatePolicy>daily</updatePolicy>
+          </snapshots>
+      </pluginRepository>
+    </pluginRepositories>
 </project>
