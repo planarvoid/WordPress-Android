@@ -85,7 +85,7 @@
         <dependency>
             <groupId>org.acra</groupId>
             <artifactId>acra</artifactId>
-            <version>4.3.0-filter-SNAPSHOT</version>
+            <version>4.3.0-filter</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -122,12 +122,6 @@
             <groupId>com.commonsware</groupId>
             <artifactId>CWAC-AdapterWrapper</artifactId>
             <version>0.4</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.xiph</groupId>
-            <artifactId>libvorbis</artifactId>
-            <version>1.0.0-beta</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
