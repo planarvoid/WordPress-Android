@@ -79,7 +79,7 @@
           <url>http://maven.int.s-cloud.net/content/groups/hosted_snapshots/</url>
           <snapshots>
             <enabled>true</enabled>
-            <updatePolicy>daily</updatePolicy>
+            <updatePolicy>always</updatePolicy>
           </snapshots>
       </pluginRepository>
     </pluginRepositories>
