@@ -380,7 +380,7 @@ public class Main extends TabActivity implements
         Log.d("Main", "onError");
 
         dismissSplash();
-        Toast.makeText(Main.this, R.string.error_loading_url, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, R.string.error_loading_url, Toast.LENGTH_LONG).show();
     }
 
     @Override
