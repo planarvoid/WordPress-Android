@@ -23,7 +23,7 @@ object AndroidBuild extends Build {
   val junit_interface = "com.novocode" % "junit-interface" % "0.8" % "test" intransitive()
   val jacksonVersion = "2.0.1"
   val coreDependencies = Seq(
-    "org.acra" % "acra" % "4.3.0-filter-SNAPSHOT",
+    "org.acra" % "acra" % "4.3.0-filter",
     "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
     "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
     "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
@@ -54,7 +54,7 @@ object AndroidBuild extends Build {
   )
 
   val repos = Seq(
-    MavenRepository("sc int repo", "http://files.int.s-cloud.net/maven/"),
+    MavenRepository("soundcloud repo", "http://maven.int.s-cloud.net/content/groups/hosted"),
     MavenRepository("sonatype snapshots", "https://oss.sonatype.org/content/repositories/snapshots"),
     MavenRepository("sonatype releases", "https://oss.sonatype.org/content/repositories/releases"),
     MavenRepository("Local Maven Repository", "file://" + Path.userHome + "/.m2/repository")
