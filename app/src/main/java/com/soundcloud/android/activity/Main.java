@@ -374,6 +374,8 @@ public class Main extends TabActivity implements
 
     @Override
     public void onError(long modelId) {
+        Log.d("Main", "onError");
+
         dismissSplash();
         Toast.makeText(Main.this, R.string.error_loading_url, Toast.LENGTH_LONG).show();
     }

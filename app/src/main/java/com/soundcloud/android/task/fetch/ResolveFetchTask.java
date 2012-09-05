@@ -69,6 +69,8 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScModel> {
 
     @Override
     protected void onPostExecute(ScModel model) {
+        Log.d(TAG, "onPostExecute("+model+")");
+
         FetchModelTask.FetchModelListener<ScModel> listener = getListener();
         if (listener != null) {
             if (model != null) {
