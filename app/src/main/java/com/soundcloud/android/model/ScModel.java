@@ -100,7 +100,7 @@ public abstract class ScModel implements Parcelable {
                     setBundleFromField(data, f.getName(), f.getType(), f.get(this));
                 }
             } catch (IllegalAccessException e) {
-                Log.e(TAG, "error ", e);
+                //Log.e(TAG, "error ", e);
             }
         }
         data.putLong("id", id);
