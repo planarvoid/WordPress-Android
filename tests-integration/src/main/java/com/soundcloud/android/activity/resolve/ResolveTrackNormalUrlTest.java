@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity.resolve;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.tests.ActivityTestCase;
@@ -28,5 +29,8 @@ public class ResolveTrackNormalUrlTest extends ActivityTestCase<Main> {
     public void testResolveUrl() throws Exception {
         solo.assertActivity(ScPlayer.class);
         solo.assertText("CHE FLUTE");
+
+        // make sure track doesn't keep playing in the background
+        solo.clickOnView(R.id.pause);
     }
 }
