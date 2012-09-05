@@ -333,7 +333,7 @@ public class UploadService extends Service {
     private void onTranscodingDone(Track track) {
         releaseLocks();
 
-        if (!track.state.isFinished()) {
+        if (!track.isFinished()) {
             sendNotification(track, transcodingFailedNotification(track));
         }
 

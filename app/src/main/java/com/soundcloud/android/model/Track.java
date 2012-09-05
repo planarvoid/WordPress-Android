@@ -23,6 +23,7 @@ import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.FlowLayout;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -55,7 +56,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     @JsonView(Views.Full.class) public Date created_at;
     @JsonView(Views.Mini.class) public long user_id;
     @JsonView(Views.Full.class) public int duration;
-    @JsonView(Views.Full.class) public State state;
+    @JsonView(Views.Full.class) @Nullable public State state;
     @JsonView(Views.Full.class) public boolean commentable;
     @JsonView(Views.Full.class) public Sharing sharing;  //  public | private
     @JsonView(Views.Full.class) public String tag_list;
@@ -203,6 +204,18 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     @JsonIgnore
     public boolean isStreamable() {
         return !TextUtils.isEmpty(stream_url) && (state == null || state.isStreamable());
+    }
+
+    public boolean isProcessing() {
+        return state != null && state.isProcessing();
+    }
+
+    public boolean isFinished() {
+        return state != null && state.isFinished();
+    }
+
+    public boolean isFailed() {
+        return state != null && state.isFailed();
     }
 
     public boolean isPublic() {

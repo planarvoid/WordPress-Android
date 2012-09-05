@@ -67,15 +67,15 @@ public class Poller extends Handler {
             Log.e(TAG, "error", e);
         }
 
-        if ((track == null || track.state.isProcessing()) && attempt < DEFAULT_MAX_TRIES-1) {
+        if ((track == null || track.isProcessing()) && attempt < DEFAULT_MAX_TRIES-1) {
             final long backoff = attempt * attempt * 1000;
             sendEmptyMessageDelayed(attempt + 1, Math.max(backoff, mMinDelayBetweenRequests));
         } else {
 
-            if (track != null && track.state.isFinished()) {
+            if (track != null && track.isFinished()) {
                 onTrackProcessed(track);
             } else {
-                if (track != null && track.state.isFailed()) {
+                if (track != null && track.isFailed()) {
                     // track failed to transcode
                     LocalBroadcastManager
                             .getInstance(mApi.getContext())
