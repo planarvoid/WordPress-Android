@@ -59,7 +59,9 @@
                     <test>
                         <debug>false</debug>
                         <coverage>false</coverage>
-                        <!--<logonly>true|false</logonly>  avd-->
+                        <excludeAnnotations>
+                          <excludeAnnotation>com.soundcloud.android.tests.SlowTest</excludeAnnotation>
+                        </excludeAnnotations>
                         <!--<testsize>small|medium|large</testsize>-->
                         <createReport>true</createReport>
                     </test>
