@@ -15,7 +15,6 @@ import com.soundcloud.android.model.Search;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.auth.AuthenticatorService;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.task.fetch.ResolveFetchTask;
@@ -83,12 +82,16 @@ public class Main extends TabActivity implements
         buildTabHost(getApp(), getTabHost(), getTabWidget());
         handleIntent(getIntent());
 
-        final boolean resolving = (!AndroidUtils.isTaskFinished(mResolveTask));
+        final boolean resolving = !AndroidUtils.isTaskFinished(mResolveTask);
         final boolean showSplash = resolving || showSplash(state);
         mSplash = findViewById(R.id.splash);
-        mSplash.setVisibility(showSplash ? View.VISIBLE : View.GONE);
-        if (showSplash) findViewById(R.id.progress_resolve_layout).setVisibility(resolving ? View.VISIBLE : View.GONE);
 
+        if (showSplash) {
+            mSplash.setVisibility(View.VISIBLE);
+            findViewById(R.id.progress_resolve_layout).setVisibility(resolving ? View.VISIBLE : View.GONE);
+        } else {
+            mSplash.setVisibility(View.GONE);
+        }
 
         if (IOUtils.isConnected(this) &&
             app.getAccount() != null &&
@@ -96,7 +99,7 @@ public class Main extends TabActivity implements
             !app.getLoggedInUser().isPrimaryEmailConfirmed() &&
             !justAuthenticated(getIntent()))
         {
-                checkEmailConfirmed(app);
+            checkEmailConfirmed(app);
         } else if (showSplash && !resolving) {
             new Handler().postDelayed(new Runnable() {
                 @Override
