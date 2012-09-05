@@ -1,12 +1,12 @@
 package com.soundcloud.android.activity.resolve;
 
+import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
 import android.content.Intent;
-import android.net.Uri;
 
 public class ResolveUserSoundCloudUriTest extends ActivityTestCase<Main> {
 
@@ -17,10 +17,7 @@ public class ResolveUserSoundCloudUriTest extends ActivityTestCase<Main> {
     @Override
     protected void setUp() throws Exception {
         IntegrationTestHelper.loginAsDefault(getInstrumentation());
-
-        Intent intent = new Intent(Intent.ACTION_VIEW)
-                .setData(Uri.parse("soundcloud:users:118312"));
-
+        Intent intent = new Intent(Intent.ACTION_VIEW).setData(TestConsts.STEVE_ANGELLO_SC_URI);
         setActivityIntent(intent);
         super.setUp();
     }

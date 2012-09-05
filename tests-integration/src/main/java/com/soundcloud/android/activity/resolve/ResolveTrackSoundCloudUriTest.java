@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity.resolve;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.tests.ActivityTestCase;
@@ -18,10 +19,7 @@ public class ResolveTrackSoundCloudUriTest extends ActivityTestCase<Main> {
     @Override
     protected void setUp() throws Exception {
         IntegrationTestHelper.loginAsDefault(getInstrumentation());
-
-        Intent intent = new Intent(Intent.ACTION_VIEW)
-                .setData(Uri.parse("soundcloud:tracks:274334")); // che flute
-
+        Intent intent = new Intent(Intent.ACTION_VIEW).setData(TestConsts.CHE_FLUTE_SC_URI);
         setActivityIntent(intent);
         super.setUp();
     }

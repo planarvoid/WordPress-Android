@@ -1,13 +1,13 @@
 package com.soundcloud.android.activity.resolve;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
 import android.content.Intent;
-import android.net.Uri;
 
 public class ResolveTrackNormalUrlTest extends ActivityTestCase<Main> {
 
@@ -19,9 +19,7 @@ public class ResolveTrackNormalUrlTest extends ActivityTestCase<Main> {
     protected void setUp() throws Exception {
         IntegrationTestHelper.loginAsDefault(getInstrumentation());
 
-        Intent intent = new Intent(Intent.ACTION_VIEW)
-                .setData(Uri.parse("http://soundcloud.com/steveangello/steve-angello-che-flute"));
-
+        Intent intent = new Intent(Intent.ACTION_VIEW).setData(TestConsts.CHE_FLUTE_URI);
         setActivityIntent(intent);
         super.setUp();
     }

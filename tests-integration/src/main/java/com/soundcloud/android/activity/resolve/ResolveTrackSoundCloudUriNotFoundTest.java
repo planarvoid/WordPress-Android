@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity.resolve;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
@@ -17,10 +18,7 @@ public class ResolveTrackSoundCloudUriNotFoundTest extends ActivityTestCase<Main
     @Override
     protected void setUp() throws Exception {
         IntegrationTestHelper.loginAsDefault(getInstrumentation());
-
-        Intent intent = new Intent(Intent.ACTION_VIEW)
-                .setData(Uri.parse("soundcloud:tracks:99999999999"));
-
+        Intent intent = new Intent(Intent.ACTION_VIEW).setData(TestConsts.UNRESOLVABLE_SC_TRACK_URI);
         setActivityIntent(intent);
         super.setUp();
     }
