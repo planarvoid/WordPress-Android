@@ -127,7 +127,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private long mLastRefresh;          // time last refresh hit was sent
 
     private int mServiceStartId = -1;
-    private boolean mServiceInUse = false;
+    private boolean mServiceInUse;
     private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
 
     private static final int IDLE_DELAY = 60*1000;  // interval after which we stop the service when idle
@@ -1010,7 +1010,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             );
             openCurrent();
         } else if (intent.getBooleanExtra(PlayExtras.playFromXferCache, false)) {
-            mPlaylistManager.setPlaylist(playlistXfer,intent.getIntExtra(PlayExtras.playPosition, 0));
+            mPlaylistManager.setPlaylist(playlistXfer, intent.getIntExtra(PlayExtras.playPosition, 0));
             playlistXfer = null;
             openCurrent();
         } else {
