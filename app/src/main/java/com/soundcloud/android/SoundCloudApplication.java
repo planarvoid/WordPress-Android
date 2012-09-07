@@ -52,6 +52,7 @@ import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentName;
@@ -554,7 +555,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return app == null ? -1 : app.getCurrentUserId();
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(9)
     private static void setupStrictMode() {
         if (Build.VERSION.SDK_INT > 8) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()

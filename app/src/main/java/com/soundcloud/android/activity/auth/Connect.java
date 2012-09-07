@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.task.create.NewConnectionTask;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -21,7 +22,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-@SuppressLint("NewApi")
 public class Connect extends Activity {
 
     private WebView mWebView;
@@ -66,7 +66,7 @@ public class Connect extends Activity {
                 showConnectionError(description);
             }
 
-            @Override
+            @Override @TargetApi(8)
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                 handler.cancel();
                 showConnectionError(error.toString());
