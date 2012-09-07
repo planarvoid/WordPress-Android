@@ -23,5 +23,5 @@
 
 
     <!-- re-enable this later! -->
-    <issue id="NewApi" severity="ignore"/>
+    <issue id="NewApi" severity="error"/>
 </lint>
