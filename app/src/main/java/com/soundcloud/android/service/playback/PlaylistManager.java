@@ -178,9 +178,9 @@ public class PlaylistManager {
             // no track yet, load async
             mPlaylist = new Track[0];
             mPlayPos = 0;
-            if (uri != null) {
-                loadCursor(uri, position);
-            }
+        }
+        if (uri != null) {
+            loadCursor(uri, position);
         }
     }
 
