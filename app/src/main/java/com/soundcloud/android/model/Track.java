@@ -49,6 +49,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Track extends ScModel implements Origin, Playable, Refreshable {
     private static final String TAG = "Track";
+    public static final String EXTRA = "track";
 
     public static class TrackHolder extends CollectionHolder<Track> {}
 
@@ -541,8 +542,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     }
 
     public Intent getPlayIntent() {
-        return new Intent(CloudPlaybackService.PLAY_ACTION)
-                .putExtra("track", this);
+        return new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(EXTRA, this);
     }
 
     public Uri commitLocally(ContentResolver resolver, TrackCache cache) {
@@ -595,7 +595,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
 
     public static Track fromIntent(Intent intent, ContentResolver resolver) {
         if (intent == null) throw new IllegalArgumentException("intent is null");
-        Track t = intent.getParcelableExtra("track");
+        Track t = intent.getParcelableExtra(EXTRA);
         if (t == null) {
             long id = intent.getLongExtra("track_id", 0);
             // TODO: should be one operation

@@ -999,7 +999,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
         }
 
-        Track track = intent.getParcelableExtra("track");
+        Track track = intent.getParcelableExtra(Track.EXTRA);
         if (track != null) {
             mPlaylistManager.setTrack(track);
             openCurrent();

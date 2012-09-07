@@ -80,7 +80,7 @@ public class Poller extends Handler {
                     LocalBroadcastManager
                             .getInstance(mApi.getContext())
                             .sendBroadcast(new Intent(UploadService.TRANSCODING_FAILED)
-                                    .putExtra(UploadService.EXTRA_TRACK, track));
+                                    .putExtra(Track.EXTRA, track));
                 }
 
                 Log.e(TAG, "Track failed to be prepared " + track +
@@ -106,6 +106,6 @@ public class Poller extends Handler {
         LocalBroadcastManager
                 .getInstance(mApi.getContext())
                 .sendBroadcast(new Intent(UploadService.TRANSCODING_SUCCESS)
-                        .putExtra(UploadService.EXTRA_TRACK, track));
+                        .putExtra(Track.EXTRA, track));
     }
 }

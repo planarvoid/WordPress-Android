@@ -61,7 +61,7 @@ public class Main extends TabActivity implements
     private static final long SPLASH_DELAY = 1200;
     private static final long FADE_DELAY   = 400;
 
-    private ResolveFetchTask mResolveTask;
+    private @Nullable ResolveFetchTask mResolveTask;
     private ChangeLog mChangeLog;
     private boolean mHideSplashOnResume;
 
@@ -359,7 +359,7 @@ public class Main extends TabActivity implements
         return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
     }
 
-   @Override
+    @Override
     public Object onRetainNonConfigurationInstance() {
         return mResolveTask;
     }
@@ -377,14 +377,14 @@ public class Main extends TabActivity implements
 
     @Override
     public void onError(long modelId) {
-        Log.d("Main", "onError");
-
+        mResolveTask = null;
         dismissSplash();
         Toast.makeText(this, R.string.error_loading_url, Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onSuccess(ScModel m, @Nullable String action) {
+        mResolveTask = null;
         mHideSplashOnResume = true;
         if (m instanceof Track) {
             onTrackLoaded((Track) m, null);
