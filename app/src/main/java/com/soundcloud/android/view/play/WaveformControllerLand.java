@@ -1,22 +1,20 @@
 package com.soundcloud.android.view.play;
 
-import android.annotation.SuppressLint;
+import com.soundcloud.android.R;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.utils.InputObject;
+
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.graphics.Matrix;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-
-import android.content.Context;
 import android.util.AttributeSet;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 import android.widget.RelativeLayout;
-
-import com.soundcloud.android.R;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.utils.InputObject;
 
 public class WaveformControllerLand extends WaveformController {
     private CommentPanel mCommentPanel;

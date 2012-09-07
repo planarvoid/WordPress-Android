@@ -9,7 +9,6 @@ import com.soundcloud.android.streaming.StreamItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
@@ -50,6 +49,7 @@ public class DebugUtils {
         }
     }
 
+    @TargetApi(8)
     public static void dumpStack(@NotNull Context context) {
         Map<Thread, StackTraceElement[]> traces = Thread.getAllStackTraces();
         final File debugDir = context.getExternalFilesDir("debug");

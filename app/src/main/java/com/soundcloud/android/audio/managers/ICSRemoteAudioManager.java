@@ -3,7 +3,6 @@ package com.soundcloud.android.audio.managers;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.State;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;

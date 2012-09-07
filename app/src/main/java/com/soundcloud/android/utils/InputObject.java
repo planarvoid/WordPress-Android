@@ -1,7 +1,6 @@
 
 package com.soundcloud.android.utils;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.view.MotionEvent;

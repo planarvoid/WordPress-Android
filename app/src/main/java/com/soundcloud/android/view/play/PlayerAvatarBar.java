@@ -15,6 +15,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.ImageUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -148,7 +149,7 @@ public class PlayerAvatarBar extends View {
         invalidate();
     }
 
-    public void setCurrentComment(Comment c){
+    public void setCurrentComment(@Nullable Comment c){
         mCurrentComment = c;
         if (c != null) loadAvatar(c);
         invalidate();

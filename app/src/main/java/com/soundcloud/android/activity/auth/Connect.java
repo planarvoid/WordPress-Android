@@ -3,7 +3,6 @@ package com.soundcloud.android.activity.auth;
 import com.soundcloud.android.R;
 import com.soundcloud.android.task.create.NewConnectionTask;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;

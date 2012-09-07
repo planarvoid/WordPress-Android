@@ -4,7 +4,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.net.http.AndroidHttpClient;
 import android.os.Build;
