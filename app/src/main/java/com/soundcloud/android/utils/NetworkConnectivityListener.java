@@ -159,6 +159,10 @@ public class NetworkConnectivityListener {
                 || info.getType() == ConnectivityManager.TYPE_WIMAX);
     }
 
+    public State getState() {
+        return mState;
+    }
+
     private class ConnectivityBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
