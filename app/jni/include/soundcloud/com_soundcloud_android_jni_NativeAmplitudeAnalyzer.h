@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT jfloat JNICALL Java_com_soundcloud_android_jni_NativeAmplitudeAnalyzer_frameAmplitude
   (JNIEnv *, jobject, jobject, jint);
 
+/*
+ * Class:     com_soundcloud_android_jni_NativeAmplitudeAnalyzer
+ * Method:    getLastValue
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_NativeAmplitudeAnalyzer_getLastValue
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif
