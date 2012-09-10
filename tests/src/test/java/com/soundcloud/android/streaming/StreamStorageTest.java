@@ -99,17 +99,17 @@ public class StreamStorageTest {
         editor.putInt(Settings.STREAM_CACHE_SIZE, 0);
         editor.commit();
 
-        expect(storage.calculateFileMetrics()).toBe(0L);
+        expect(storage.calculateUsableSpace()).toBe(0L);
 
         editor.putInt(Settings.STREAM_CACHE_SIZE, 33);
         editor.commit();
 
-        expect(storage.calculateFileMetrics()).toEqual(ShadowStatFs.BLOCK_SIZE * 33L);
+        expect(storage.calculateUsableSpace()).toEqual(ShadowStatFs.BLOCK_SIZE * 33L);
 
         editor.putInt(Settings.STREAM_CACHE_SIZE, 100);
         editor.commit();
 
-        expect(storage.calculateFileMetrics()).toEqual(ShadowStatFs.BLOCK_SIZE * 100L);
+        expect(storage.calculateUsableSpace()).toEqual(ShadowStatFs.BLOCK_SIZE * 100L);
     }
 
     @Test
@@ -145,7 +145,7 @@ public class StreamStorageTest {
 
     @Test(expected = FileNotFoundException.class)
     public void shouldThrowFileNotFoundExceptionIfChunkIsNotAvailable() throws Exception {
-       storage.getChunkData(item.url, 0);
+        storage.getChunkData(item.url, 0);
     }
 
 
