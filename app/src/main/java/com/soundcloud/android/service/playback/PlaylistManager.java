@@ -10,6 +10,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -20,6 +21,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.List;
 
@@ -147,7 +149,7 @@ public class PlaylistManager {
 
     public void setTrack(Track toBePlayed) {
         mCache.put(toBePlayed, false);
-        mPlaylist = new Track[]{toBePlayed};
+        mPlaylist = new Track[] { toBePlayed };
         mPlaylistUri = null;
         mPlayPos = 0;
         broadcastPlaylistChanged();
@@ -166,7 +168,7 @@ public class PlaylistManager {
 
     }
 
-    public void setUri(Uri uri, int position, Track track) {
+    public void setUri(Uri uri, int position, @Nullable Track track) {
         if (track != null) {
             mCache.put(track, false);
             mPlaylist = new Track[]{ track };
@@ -177,7 +179,6 @@ public class PlaylistManager {
             mPlaylist = new Track[0];
             mPlayPos = 0;
         }
-
         if (uri != null) {
             loadCursor(uri, position);
         }

@@ -22,7 +22,7 @@ import com.soundcloud.android.view.create.Chronometer;
 import com.soundcloud.android.view.create.CreateWaveDisplay;
 import com.soundcloud.android.view.create.RecordMessageView;
 
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -198,7 +198,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
     }
 
-    @Override @SuppressLint("NewApi")
+    @Override @TargetApi(11)
     public void onPause() {
         super.onPause();
         mActive = false;

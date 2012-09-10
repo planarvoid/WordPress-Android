@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -559,6 +560,9 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         setCurrentTrackDataFromService();
 
         final long queueLength = mPlaybackService.getPlaylistManager().length();
+        if (queueLength == 0) {
+            Log.w(CloudPlaybackService.TAG, "play queue is empty!");
+        }
 
         // setup initial workspace, reusing them if possible
         int workspaceIndex = 0;

@@ -154,7 +154,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     private void broadcast(String action, Track... track) {
         final Intent intent = new Intent(action).putExtra(UploadService.EXTRA_RECORDING, mUpload);
         if (track.length > 0) {
-            intent.putExtra(UploadService.EXTRA_TRACK, track[0]);
+            intent.putExtra(Track.EXTRA, track[0]);
         }
         mBroadcastManager.sendBroadcast(intent);
     }

@@ -3,7 +3,7 @@ package com.soundcloud.android.provider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -227,7 +227,7 @@ public enum Table {
         return insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(8)
     public long insertWithOnConflict(SQLiteDatabase db, ContentValues cv, int conflict) {
         if (Build.VERSION.SDK_INT == 0 /* robolectric */ || Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
             return db.insertWithOnConflict(name, null, cv, conflict);

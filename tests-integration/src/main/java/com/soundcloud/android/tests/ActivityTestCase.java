@@ -36,6 +36,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
             solo.finishOpenedActivities();
         }
         super.tearDown();
+        solo = null;
     }
 
 

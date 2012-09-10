@@ -11,6 +11,7 @@ import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.record.SoundRecorder;
+import com.soundcloud.android.tests.SlowTest;
 
 import android.content.Intent;
 import android.os.Build;
@@ -18,6 +19,7 @@ import android.test.suitebuilder.annotation.Suppress;
 
 import java.io.File;
 
+@SlowTest
 public class NormalRecordingTest extends AbstractRecordingTestCase {
 
     public void testRecordAndPlayback() throws Exception {
@@ -250,6 +252,9 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     public void testDeleteWavFileAndUpload() throws Exception {
+        // test only makes sense if we have an ogg file + wav file
+        if (!getActivity().getRecorder().shouldEncodeWhileRecording()) return;
+
         record(RECORDING_TIME);
         solo.sleep(1000);
 

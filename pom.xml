@@ -9,17 +9,25 @@
     <description>SoundCloud for Android</description>
 
     <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                <artifactId>android-maven-plugin</artifactId>
+                <version>3.3.2</version>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.2.0</version>
                 <configuration>
                     <sdk>
                         <platform>14</platform>
                     </sdk>
                     <undeployBeforeDeploy>true</undeployBeforeDeploy>
-                    <deleteConflictingFiles>false</deleteConflictingFiles>
                     <zipalign>
                         <outputApk>${project.build.directory}/${project.artifactId}-${project.version}-market.apk</outputApk>
                     </zipalign>
@@ -38,10 +46,9 @@
 
     <repositories>
         <repository>
-            <id>scintrepo</id>
-            <name>sc int repo</name>
-            <url>http://files.int.s-cloud.net/maven/</url>
-            <layout>default</layout>
+            <id>soundcloud.internal.hosted</id>
+            <name>SoundCloud Internal hosted</name>
+            <url>http://maven.int.s-cloud.net/content/groups/hosted</url>
         </repository>
 
         <repository>
@@ -57,5 +64,25 @@
             <url>https://oss.sonatype.org/content/repositories/releases/</url>
             <layout>default</layout>
         </repository>
+
+        <repository>
+            <id>soundcloud.internal.proxy</id>
+            <name>SoundCloud Internal proxy</name>
+            <url>http://maven.int.s-cloud.net/content/groups/proxy</url>
+        </repository>
     </repositories>
+
+    <!--
+    <pluginRepositories>
+      <pluginRepository>
+          <id>soundcloud.internal.snapshots</id>
+          <name>SoundCloud Internal hosted</name>
+          <url>http://maven.int.s-cloud.net/content/groups/hosted_snapshots/</url>
+          <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>daily</updatePolicy>
+          </snapshots>
+      </pluginRepository>
+    </pluginRepositories>
+    -->
 </project>

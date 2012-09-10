@@ -64,7 +64,7 @@ public class Han extends Solo {
 
     public void assertText(int resId, Object... args) {
         final String text = getString(resId, args);
-        assertTrue("Text "+text+ " not found", waitForText(Pattern.quote(text)));
+        assertTrue("Text '"+text+"' not found", waitForText(Pattern.quote(text)));
     }
 
     public void assertVisibleTextId(int resId, Object... args) {
@@ -93,7 +93,7 @@ public class Han extends Solo {
         final boolean found = waitForActivity(a.getSimpleName(), timeout);
         Activity activity = getCurrentActivity();
         if (!found && !a.isAssignableFrom(activity.getClass())) {
-            fail("Current activity is " + activity.getClass().getSimpleName() + ", expected " + a.getSimpleName());
+            fail("Current activity is " + activity.getClass().getSimpleName() + ", ex   pected " + a.getSimpleName());
         }
         return (T) activity;
     }
