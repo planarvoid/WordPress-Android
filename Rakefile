@@ -29,6 +29,7 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
                WavWriter
                AndroidCloudAPI
                FacebookSSO
+               NetworkConnectivityListener
               )
 
 [:device, :emu].each do |t|
