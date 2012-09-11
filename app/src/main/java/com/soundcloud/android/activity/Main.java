@@ -15,7 +15,6 @@ import com.soundcloud.android.model.Search;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.auth.AuthenticatorService;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.task.fetch.ResolveFetchTask;
@@ -31,7 +30,7 @@ import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.app.TabActivity;
 import android.content.Context;
@@ -62,7 +61,7 @@ public class Main extends TabActivity implements
     private static final long SPLASH_DELAY = 1200;
     private static final long FADE_DELAY   = 400;
 
-    private ResolveFetchTask mResolveTask;
+    private @Nullable ResolveFetchTask mResolveTask;
     private ChangeLog mChangeLog;
     private boolean mHideSplashOnResume;
 
@@ -83,12 +82,16 @@ public class Main extends TabActivity implements
         buildTabHost(getApp(), getTabHost(), getTabWidget());
         handleIntent(getIntent());
 
-        final boolean resolving = (!AndroidUtils.isTaskFinished(mResolveTask));
+        final boolean resolving = !AndroidUtils.isTaskFinished(mResolveTask);
         final boolean showSplash = resolving || showSplash(state);
         mSplash = findViewById(R.id.splash);
-        mSplash.setVisibility(showSplash ? View.VISIBLE : View.GONE);
-        if (showSplash) findViewById(R.id.progress_resolve_layout).setVisibility(resolving ? View.VISIBLE : View.GONE);
 
+        if (showSplash) {
+            mSplash.setVisibility(View.VISIBLE);
+            findViewById(R.id.progress_resolve_layout).setVisibility(resolving ? View.VISIBLE : View.GONE);
+        } else {
+            mSplash.setVisibility(View.GONE);
+        }
 
         if (IOUtils.isConnected(this) &&
             app.getAccount() != null &&
@@ -96,7 +99,7 @@ public class Main extends TabActivity implements
             !app.getLoggedInUser().isPrimaryEmailConfirmed() &&
             !justAuthenticated(getIntent()))
         {
-                checkEmailConfirmed(app);
+            checkEmailConfirmed(app);
         } else if (showSplash && !resolving) {
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -258,7 +261,7 @@ public class Main extends TabActivity implements
         return true;
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(8)
     private void buildTabHost(final SoundCloudApplication app, final TabHost host, final TabWidget widget) {
         for (Tab tab : Main.Tab.values()) {
             if (tab == Main.Tab.UNKNOWN) continue;
@@ -356,7 +359,7 @@ public class Main extends TabActivity implements
         return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
     }
 
-   @Override
+    @Override
     public Object onRetainNonConfigurationInstance() {
         return mResolveTask;
     }
@@ -374,12 +377,14 @@ public class Main extends TabActivity implements
 
     @Override
     public void onError(long modelId) {
+        mResolveTask = null;
         dismissSplash();
-        Toast.makeText(Main.this, R.string.error_loading_url, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, R.string.error_loading_url, Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onSuccess(ScModel m, @Nullable String action) {
+        mResolveTask = null;
         mHideSplashOnResume = true;
         if (m instanceof Track) {
             onTrackLoaded((Track) m, null);

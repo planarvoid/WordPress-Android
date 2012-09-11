@@ -253,7 +253,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
                 }
                 return null;
             }  else {
-                Track track = intent.getParcelableExtra(UploadService.EXTRA_TRACK);
+                Track track = intent.getParcelableExtra(Track.EXTRA);
                 assertNotNull("track is null", track);
                 return track;
             }
@@ -291,7 +291,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
     protected void assertTrackDuration(Track track, long durationInMs) {
         Log.d(getClass().getSimpleName(), "assertTrack("+track+")");
         if (track != null) {
-            assertTrue("track is not finished: "+track, track.state.isFinished());
+            assertTrue("track is not finished: "+track, track.isFinished());
             assertEquals("track is not in ogg format: "+track, VorbisReader.EXTENSION, track.original_format);
 
             // emulator uploaded tracks are longer (samplerate mismatch)

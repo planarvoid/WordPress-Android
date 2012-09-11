@@ -23,6 +23,10 @@ class HeadTask extends StreamItemTask implements HttpStatus {
     public Bundle execute() throws IOException {
         Bundle b = new Bundle();
         try {
+            if (Log.isLoggable(LOG_TAG, Log.VERBOSE)) {
+                Log.v(LOG_TAG, "resolving " + item.url);
+            }
+
             Stream stream = api.resolveStreamUrl(item.url.toString(), skipLogging);
 //            b.putSerializable("stream", stream);
             item.initializeFromStream(stream);

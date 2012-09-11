@@ -17,6 +17,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.utils.ImageUtils;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class LazyRow extends FrameLayout {
     public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(false);
@@ -29,7 +30,7 @@ public abstract class LazyRow extends FrameLayout {
     protected int mCurrentPosition;
     protected long mCurrentUserId;
 
-    public LazyRow(Context context, IScAdapter adapter) {
+    public LazyRow(Context context, @Nullable IScAdapter adapter) {
         super(context);
         mAdapter = adapter;
 

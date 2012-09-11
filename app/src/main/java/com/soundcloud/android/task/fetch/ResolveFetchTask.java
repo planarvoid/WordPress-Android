@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class ResolveFetchTask extends AsyncTask<Uri, Void, ScModel> {
-    private static final String TAG = "ResolveFetchTask";
+    private static final String TAG = ResolveFetchTask.class.getSimpleName();
     private WeakReference<FetchModelTask.FetchModelListener<ScModel>> mListener;
     private AndroidCloudAPI mApi;
 
@@ -29,10 +29,12 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScModel> {
         final Uri uri = fixUri(params[0]);
         ScModel model = resolveLocally(uri);
         if (model != null) {
+            Log.d(TAG, "resolved uri "+uri+" locally");
             return model;
         }
 
         try {
+            Log.d(TAG, "resolving uri "+uri+" remotely");
             Uri resolvedUri = new ResolveTask(mApi).execute(uri).get();
             if (resolvedUri != null) {
                 List<String> segments = resolvedUri.getPathSegments();
@@ -67,6 +69,8 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScModel> {
 
     @Override
     protected void onPostExecute(ScModel model) {
+        Log.d(TAG, "onPostExecute("+model+")");
+
         FetchModelTask.FetchModelListener<ScModel> listener = getListener();
         if (listener != null) {
             if (model != null) {

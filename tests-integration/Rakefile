@@ -1,0 +1,143 @@
+require 'rest_client'
+require 'json'
+require 'pp'
+
+namespace :testdroid do
+  HOST  = 'https://cloud.testdroid.com/api/v1/'
+  UHOST = 'https://users.testdroid.com/'
+  KEYFILE = File.join(ENV['HOME'], '.testdroid-apikey')
+  EMAIL = 'jan@soundcloud.com'
+  ANUM  = [ 'a'..'z', 'A'..'Z', '0'..'9' ].map(&:to_a).flatten.freeze
+  DIR   = 'testdroid'
+  STYLESHEET = 'scripts/junit-noframes.xsl'
+
+  file KEYFILE => :authorize
+  directory DIR
+
+  def apikey
+    @apikey ||= IO.read(KEYFILE).strip
+  end
+
+  def auth_header(res_name)
+    nonce = ANUM.shuffle[0..5].join
+    digestdata = [ apikey, nonce, res_name ].join(':')
+    {'X-Testdroid-Authentication' => [ EMAIL, nonce, Digest::SHA256.hexdigest(digestdata) ].join(' ') }
+  end
+
+  def get(path, endpoint=path)
+    RestClient.get HOST+path, auth_header(endpoint) do |resp, req, result, &block|
+      case resp.code
+      when 200;
+        JSON.parse(resp.to_str)
+      when 400;
+        error = JSON.parse(resp.to_str)['testdroidErrorMessage']
+        raise "Error getting #{path}: #{error}"
+      else
+        resp.return!(req, result, &block)
+      end
+    end
+  end
+
+  def projects; @projects ||= get('projects'); end
+
+  def project_id
+    raise "No projects" if projects.empty?
+    projects.first['id']
+  end
+
+  def project_runs; @project_runs ||= get("projects/#{project_id}/runs", 'runs'); end
+  def last_project_run; project_runs[-1]; end
+
+  def device_runs(runs)
+    @device_runs ||= [ runs ].flatten.map do |r|
+      get("projects/#{project_id}/runs/#{r['id']}/device-runs", 'deviceRuns')
+    end.flatten
+  end
+
+  def download_file(uri, dest_file, resource, &block)
+    if !File.exists?(dest_file) || File.size(dest_file) == 0
+      rake_output_message("downloading #{uri}")
+      output = RestClient.get uri, auth_header(resource)
+      File.open(dest_file, 'w') { |f| f << output }
+      block.call(uri, dest_file) if block
+    end
+    dest_file
+  end
+
+  def download_xml(device_runs)
+    device_runs.select { |r| r['groupState'] == 'FINISHED' }.map do |run|
+      download_file(run['junitURI'], File.join(DIR, "#{run['id']}_junit.xml"), 'junit XML') do |_, file|
+        sh "xmllint -o #{file} --format #{file}"
+      end
+    end
+  end
+
+  def download_logcat(device_runs)
+    device_runs.select { |r| r['groupState'] == 'FINISHED' }.map do |run|
+      download_file(run['logURI'], File.join(DIR, "#{run['id']}_log.txt"), 'log')
+    end
+  end
+
+  def download_screenhots(device_runs)
+    device_runs.select { |r| r['groupState'] == 'FINISHED' && r['screenshotsURI'] }.map do |run|
+      download_file(run['screenshotsURI'], File.join(DIR, "#{run['id']}_screenshots.zip"), 'screenshots.zip') do |_,file|
+        dir = File.join(DIR, "#{run['id']}_screenshots")
+        rm_rf dir
+        mkdir_p dir
+        sh "unzip #{file} -d #{dir}"
+      end
+    end
+  end
+
+  def format_xml(files)
+    files.each do |f|
+      out = File.join(File.dirname(f), File.basename(f).gsub(File.extname(f), ".html"))
+      sh "xsltproc -o #{out} #{STYLESHEET} #{f}"
+    end
+  end
+
+  task :authorize do
+    raise "Need PASSWORD= parameter" unless ENV['PASSWORD']
+    resp = JSON.parse(RestClient.post UHOST+'rest/authorize', {
+        :email    => EMAIL,
+        :password => ENV['PASSWORD']
+    }, :accept => :json)
+    if resp.is_a?(Hash) && apiKey = resp['secretApiKey']
+      File.open(KEYFILE, 'w') do |f|
+        f << apiKey
+      end
+    else
+      raise "could not get api key"
+    end
+  end
+
+  task :grab_xml => DIR do
+    format_xml(download_xml(device_runs(last_project_run)))
+  end
+
+  task :grab_logs => DIR do
+    download_logcat(device_runs(last_project_run))
+  end
+
+  task :grab_screenshots => DIR do
+    download_screenhots(device_runs(last_project_run))
+  end
+
+  task :grab_all => [ :grab_xml, :grab_logs, :grab_screenshots ]
+
+  task :runs do
+    pp runs
+  end
+
+  task :device_runs do
+    pp device_runs
+  end
+
+  task :projects do
+    pp projects
+  end
+
+  task :clean do
+    rm_rf DIR
+  end
+end

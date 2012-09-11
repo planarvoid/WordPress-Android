@@ -1,11 +1,11 @@
 package com.soundcloud.android.activity.settings;
 
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.preference.SwitchPreference;
 
 @SuppressWarnings("UnusedDeclaration")
-@SuppressLint("NewApi")
+@TargetApi(14)
 public class ICSSwitchPreference extends SwitchPreference {
     public ICSSwitchPreference(Context context, boolean initialState) {
         super(context);

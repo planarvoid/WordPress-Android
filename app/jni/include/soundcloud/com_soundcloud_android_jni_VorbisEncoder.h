@@ -15,27 +15,11 @@ extern "C" {
 #define com_soundcloud_android_jni_VorbisEncoder_STATE_CLOSED 2L
 /*
  * Class:     com_soundcloud_android_jni_VorbisEncoder
- * Method:    init
- * Signature: (Ljava/lang/String;Ljava/lang/String;JJF)I
- */
-JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_init
-  (JNIEnv *, jobject, jstring, jstring, jlong, jlong, jfloat);
-
-/*
- * Class:     com_soundcloud_android_jni_VorbisEncoder
  * Method:    write
  * Signature: (Ljava/nio/ByteBuffer;J)I
  */
 JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_write
   (JNIEnv *, jobject, jobject, jlong);
-
-/*
- * Class:     com_soundcloud_android_jni_VorbisEncoder
- * Method:    closeStream
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_closeStream
-  (JNIEnv *, jobject);
 
 /*
  * Class:     com_soundcloud_android_jni_VorbisEncoder
@@ -59,6 +43,22 @@ JNIEXPORT void JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_release
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_getState
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_soundcloud_android_jni_VorbisEncoder
+ * Method:    init
+ * Signature: (Ljava/lang/String;Ljava/lang/String;JJF)I
+ */
+JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_init
+  (JNIEnv *, jobject, jstring, jstring, jlong, jlong, jfloat);
+
+/*
+ * Class:     com_soundcloud_android_jni_VorbisEncoder
+ * Method:    closeStream
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_closeStream
   (JNIEnv *, jobject);
 
 /*

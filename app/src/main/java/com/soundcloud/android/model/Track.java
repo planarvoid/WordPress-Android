@@ -23,6 +23,7 @@ import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.FlowLayout;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -48,6 +49,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Track extends ScModel implements Origin, Playable, Refreshable {
     private static final String TAG = "Track";
+    public static final String EXTRA = "track";
 
     public static class TrackHolder extends CollectionHolder<Track> {}
 
@@ -55,7 +57,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     @JsonView(Views.Full.class) public Date created_at;
     @JsonView(Views.Mini.class) public long user_id;
     @JsonView(Views.Full.class) public int duration;
-    @JsonView(Views.Full.class) public State state;
+    @JsonView(Views.Full.class) @Nullable public State state;
     @JsonView(Views.Full.class) public boolean commentable;
     @JsonView(Views.Full.class) public Sharing sharing;  //  public | private
     @JsonView(Views.Full.class) public String tag_list;
@@ -203,6 +205,18 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     @JsonIgnore
     public boolean isStreamable() {
         return !TextUtils.isEmpty(stream_url) && (state == null || state.isStreamable());
+    }
+
+    public boolean isProcessing() {
+        return state != null && state.isProcessing();
+    }
+
+    public boolean isFinished() {
+        return state != null && state.isFinished();
+    }
+
+    public boolean isFailed() {
+        return state != null && state.isFailed();
     }
 
     public boolean isPublic() {
@@ -528,8 +542,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     }
 
     public Intent getPlayIntent() {
-        return new Intent(CloudPlaybackService.PLAY_ACTION)
-                .putExtra("track", this);
+        return new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(EXTRA, this);
     }
 
     public Uri commitLocally(ContentResolver resolver, TrackCache cache) {
@@ -582,7 +595,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
 
     public static Track fromIntent(Intent intent, ContentResolver resolver) {
         if (intent == null) throw new IllegalArgumentException("intent is null");
-        Track t = intent.getParcelableExtra("track");
+        Track t = intent.getParcelableExtra(EXTRA);
         if (t == null) {
             long id = intent.getLongExtra("track_id", 0);
             // TODO: should be one operation

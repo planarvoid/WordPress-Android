@@ -5,6 +5,7 @@ import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_P
 import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.tests.SlowTest;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -15,6 +16,7 @@ import android.test.suitebuilder.annotation.Suppress;
 /**
  * Testing edit functions of the recording: trimming, appending, fading etc.
  */
+@SlowTest
 public class RecordEditTest extends AbstractRecordingTestCase {
 
 

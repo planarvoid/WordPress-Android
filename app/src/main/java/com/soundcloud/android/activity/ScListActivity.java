@@ -309,9 +309,9 @@ public abstract class ScListActivity extends ScActivity {
         @Override
         public void onTrackClick(LazyEndlessAdapter wrapper, int position) {
             if (wrapper.getItem(position) instanceof Track &&
-                    !((Track) wrapper.getItem(position)).state.isStreamable()){
+                    !((Track) wrapper.getItem(position)).isStreamable()){
 
-                showDialog(((Track) wrapper.getItem(position)).state.isFailed() ?
+                showDialog(((Track) wrapper.getItem(position)).isFailed() ?
                         Consts.Dialogs.DIALOG_TRANSCODING_FAILED :
                         Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING);
             } else {

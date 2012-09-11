@@ -50,7 +50,6 @@ public class UploadService extends Service {
     public static final int UPLOAD_STAGE_TRANSFERRING   = 2;
 
     public static final String EXTRA_RECORDING   = Recording.EXTRA;
-    public static final String EXTRA_TRACK       = "track";
     public static final String EXTRA_TRANSFERRED = "transferred";
     public static final String EXTRA_TOTAL       = "total";
     public static final String EXTRA_PROGRESS    = "progress";
@@ -265,7 +264,7 @@ public class UploadService extends Service {
             } else if (TRANSFER_SUCCESS.equals(action)) {
                 Upload upload = mUploads.get(recording.id);
                 if (upload == null) return;
-                upload.track = intent.getParcelableExtra(EXTRA_TRACK);
+                upload.track = intent.getParcelableExtra(Track.EXTRA);
 
                 new Poller(createLooper("poller_" + upload.track.id, Process.THREAD_PRIORITY_BACKGROUND),
                             (AndroidCloudAPI) getApplication(),
@@ -280,7 +279,7 @@ public class UploadService extends Service {
 
             } else if (TRANSCODING_SUCCESS.equals(action) || TRANSCODING_FAILED.equals(action)) {
                 releaseWakelock();
-                onTranscodingDone(intent.<Track>getParcelableExtra(EXTRA_TRACK));
+                onTranscodingDone(intent.<Track>getParcelableExtra(Track.EXTRA));
             }
 
 
@@ -333,7 +332,7 @@ public class UploadService extends Service {
     private void onTranscodingDone(Track track) {
         releaseLocks();
 
-        if (!track.state.isFinished()) {
+        if (!track.isFinished()) {
             sendNotification(track, transcodingFailedNotification(track));
         }
 

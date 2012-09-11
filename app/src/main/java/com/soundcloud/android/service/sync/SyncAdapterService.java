@@ -18,7 +18,7 @@ import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
@@ -78,7 +78,7 @@ public class SyncAdapterService extends Service {
                 AndroidCloudAPI.Wrapper.setBackgroundMode(false);
             }
 
-            @Override @SuppressLint("NewApi")
+            @Override @TargetApi(8)
             public void onSyncCanceled() {
                 if (DEBUG_CANCEL) {
                     Log.d(TAG, "sync canceled, dumping stack");
