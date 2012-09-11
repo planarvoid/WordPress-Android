@@ -93,7 +93,7 @@ public class Han extends Solo {
         final boolean found = waitForActivity(a.getSimpleName(), timeout);
         Activity activity = getCurrentActivity();
         if (!found && !a.isAssignableFrom(activity.getClass())) {
-            fail("Current activity is " + activity.getClass().getSimpleName() + ", ex   pected " + a.getSimpleName());
+            fail("Current activity is " + activity.getClass().getSimpleName() + ", expected " + a.getSimpleName());
         }
         return (T) activity;
     }

@@ -13,8 +13,10 @@ public class ResolveTrackSoundCloudUriTest extends ResolveBaseTest {
         return TestConsts.CHE_FLUTE_SC_URI;
     }
 
+
     public void testResolveUrl() throws Exception {
         solo.assertActivity(ScPlayer.class, DEFAULT_WAIT);
+
         solo.assertText("CHE FLUTE");
 
         // make sure track doesn't keep playing in the background
