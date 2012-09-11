@@ -9,6 +9,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,6 +37,7 @@ public class PlaylistManager {
     private TrackCache mCache;
 
     private long mUserId;
+    private AsyncTask mLoadTask;
 
     public PlaylistManager(Context context, TrackCache cache, long userId) {
         mCache = cache;
@@ -142,6 +144,7 @@ public class PlaylistManager {
     }
 
     public void setTrack(Track toBePlayed) {
+        stopCurrentLoadTask();
         mCache.put(toBePlayed, false);
         mPlaylist = new Track[] { toBePlayed };
         mPlaylistUri = new PlaylistUri();
@@ -168,6 +171,8 @@ public class PlaylistManager {
      * @param initialTrack first track of this playlist, load rest asynchronously.
      */
     public void setUri(Uri uri, int position, @Nullable Track initialTrack) {
+        stopCurrentLoadTask();
+
         if (initialTrack != null) {
             setTrack(initialTrack);
         } else {
@@ -180,8 +185,15 @@ public class PlaylistManager {
 
         if (!mPlaylistUri.isDefault()) {
             if (uri != null) {
-                loadCursor(uri, position);
+                mLoadTask = loadCursor(uri, position);
             }
+        }
+    }
+
+    private void stopCurrentLoadTask() {
+        if (mLoadTask != null && !AndroidUtils.isTaskFinished(mLoadTask)){
+            mLoadTask.cancel(true);
+            mLoadTask = null;
         }
     }
 
@@ -197,7 +209,8 @@ public class PlaylistManager {
                 return cursor;
             }
             @Override protected void onPostExecute(Cursor cursor) {
-                if (cursor != null) {
+                // make sure this cursor is valid and still wanted
+                if (cursor != null && !isCancelled() && this == mLoadTask) {
                     long playingId = getCurrentTrackId();
                     final int size = cursor.getCount();
                     mPlaylist = new Track[size];
@@ -226,6 +239,7 @@ public class PlaylistManager {
     }
 
     public void setPlaylist(final List<? extends Playable> playlist, int playPos) {
+        stopCurrentLoadTask();
         // cache a new tracklist
         mPlaylist = new Track[playlist == null ? 0 : playlist.size()];
         if (playlist != null) {
