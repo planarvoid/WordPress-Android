@@ -555,7 +555,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     @TargetApi(9)
     private static void setupStrictMode() {
-        if (Build.VERSION.SDK_INT > 8) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectDiskReads()
                     .detectDiskWrites()

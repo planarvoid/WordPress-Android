@@ -1182,10 +1182,10 @@ public class ImageLoader {
 
         public final android.os.AsyncTask<ImageRequest, ImageRequest, Void> executeOnThreadPool(
                 ImageRequest... params) {
-            if (Build.VERSION.SDK_INT < 4) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.DONUT) {
                 // Thread pool size is 1
                 return execute(params);
-            } else if (Build.VERSION.SDK_INT < 11) {
+            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
                 // The execute() method uses a thread pool
                 return execute(params);
             } else {

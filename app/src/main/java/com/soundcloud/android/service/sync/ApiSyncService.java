@@ -123,7 +123,7 @@ public class ApiSyncService extends Service {
 
         public final android.os.AsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> executeOnThreadPool(
                 CollectionSyncRequest... params) {
-            if (Build.VERSION.SDK_INT < 11) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
                 // The execute() method uses a thread pool
                 return execute(params);
             } else {

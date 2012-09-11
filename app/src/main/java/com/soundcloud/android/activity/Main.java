@@ -286,7 +286,7 @@ public class Main extends TabActivity implements
         setTabTextStyle(this, widget, false);
 
 
-        if (Build.VERSION.SDK_INT > 7) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             for (int i = 0; i < widget.getChildCount(); i++) {
                 widget.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.tab_indicator));
             }
