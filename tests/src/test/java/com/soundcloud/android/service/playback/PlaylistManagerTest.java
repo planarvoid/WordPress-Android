@@ -273,17 +273,13 @@ public class PlaylistManagerTest {
         expect(pm2.length()).toEqual(0);
     }
 
-
     @Test
     public void shouldSetSingleTrack() throws Exception {
         List<Track> tracks = createTracks(1, true, 0);
         pm.setTrack(tracks.get(0));
-
-
-
-
+        expect(pm.length()).toEqual(1);
+        expect(pm.getCurrentTrack()).toBe(tracks.get(0));
     }
-
 
     private void insertTracksAsUri(Uri uri) throws IOException {
         List<Parcelable> items = new ArrayList<Parcelable>();
