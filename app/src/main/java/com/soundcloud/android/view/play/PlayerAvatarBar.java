@@ -135,6 +135,8 @@ public class PlayerAvatarBar extends View {
         if (mCanvasBmp != null) mCanvasBmp.recycle();
         if (mNextCanvasBmp != null) mNextCanvasBmp.recycle();
 
+        mCanvasBmp = mNextCanvasBmp = null;
+
         invalidate();
 
     }
@@ -298,7 +300,7 @@ public class PlayerAvatarBar extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (mCanvasBmp != null) {
+        if (mCanvasBmp != null && !mCanvasBmp.isRecycled()) {
             canvas.drawBitmap(mCanvasBmp, DEFAULT_MATRIX, mImagePaint);
         } else if (mCurrentComments != null) {
             for (Comment comment : mCurrentComments){
