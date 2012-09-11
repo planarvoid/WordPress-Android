@@ -9,7 +9,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +36,6 @@ public class PlaylistManager {
     private TrackCache mCache;
 
     private long mUserId;
-    private AsyncTask mLoadTask;
 
     public PlaylistManager(Context context, TrackCache cache, long userId) {
         mCache = cache;
@@ -144,7 +142,6 @@ public class PlaylistManager {
     }
 
     public void setTrack(Track toBePlayed) {
-        stopCurrentLoadTask();
         mCache.put(toBePlayed, false);
         mPlaylist = new Track[] { toBePlayed };
         mPlaylistUri = new PlaylistUri();
@@ -153,7 +150,7 @@ public class PlaylistManager {
         broadcastPlaylistChanged();
     }
 
-    public void setUri(Uri uri, int position, long initialTrackId) {
+    public void loadUri(Uri uri, int position, long initialTrackId) {
         Track t = null;
         if (initialTrackId != -1) {
             t = mCache.get(initialTrackId);
@@ -162,7 +159,7 @@ public class PlaylistManager {
                 t = SoundCloudDB.getTrackById(mContext.getContentResolver(), initialTrackId);
             }
         }
-        setUri(uri, position, t);
+        loadUri(uri, position, t);
     }
 
     /**
@@ -170,9 +167,7 @@ public class PlaylistManager {
      * @param position position within playlist
      * @param initialTrack first track of this playlist, load rest asynchronously.
      */
-    public void setUri(Uri uri, int position, @Nullable Track initialTrack) {
-        stopCurrentLoadTask();
-
+    public void loadUri(Uri uri, int position, @Nullable Track initialTrack) {
         if (initialTrack != null) {
             setTrack(initialTrack);
         } else {
@@ -182,18 +177,8 @@ public class PlaylistManager {
         }
         mPlaylistUri = new PlaylistUri(uri);
 
-
-        if (!mPlaylistUri.isDefault()) {
-            if (uri != null) {
-                mLoadTask = loadCursor(uri, position);
-            }
-        }
-    }
-
-    private void stopCurrentLoadTask() {
-        if (mLoadTask != null && !AndroidUtils.isTaskFinished(mLoadTask)){
-            mLoadTask.cancel(true);
-            mLoadTask = null;
+        if (uri != null) {
+            loadCursor(uri, position);
         }
     }
 
@@ -210,7 +195,7 @@ public class PlaylistManager {
             }
             @Override protected void onPostExecute(Cursor cursor) {
                 // make sure this cursor is valid and still wanted
-                if (cursor != null && !isCancelled() && this == mLoadTask) {
+                if (cursor != null) {
                     long playingId = getCurrentTrackId();
                     final int size = cursor.getCount();
                     mPlaylist = new Track[size];
@@ -239,7 +224,6 @@ public class PlaylistManager {
     }
 
     public void setPlaylist(final List<? extends Playable> playlist, int playPos) {
-        stopCurrentLoadTask();
         // cache a new tracklist
         mPlaylist = new Track[playlist == null ? 0 : playlist.size()];
         if (playlist != null) {
@@ -307,7 +291,7 @@ public class PlaylistManager {
             final int trackId = playlistUri.getTrackId();
             if (trackId > 0) {
                 Track t = SoundCloudDB.getTrackById(mContext.getContentResolver(), trackId);
-                setUri(playlistUri.uri, playlistUri.getPos(), t);
+                loadUri(playlistUri.uri, playlistUri.getPos(), t);
                 // adjust play position if it has changed
                 if (getCurrentTrack() != null && getCurrentTrack().id != trackId && playlistUri.isCollectionUri()) {
                     final int newPos = getPlaylistPositionFromUri( mContext.getContentResolver(), playlistUri.uri, trackId);

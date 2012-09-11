@@ -49,7 +49,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     protected CloudPlaybackService mPlaybackService;
 
     private long mSeekPos = -1;
-    private boolean mActivityPaused, mIsCommenting, mIsPlaying, mChangeTrackFast, mShouldShowComments;
+    private boolean mActivityPaused, mIsCommenting, mChangeTrackFast, mShouldShowComments;
     private Track mPlayingTrack;
     private RelativeLayout mContainer;
     private WorkspaceView mTrackWorkspace;
@@ -274,11 +274,13 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     };
 
     protected void onPlaybackServiceBound() {
-        if (CloudPlaybackService.getCurrentTrackId() == -1) {
+        if (CloudPlaybackService.getCurrentTrackId() == -1 && !mPlaybackService.configureLastPlaylist()) {
+
             // nothing to show, send them back to main
             Intent intent = new Intent(this, Main.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
+
         } else {
             setTrackDisplayFromService();
 
@@ -392,10 +394,6 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     private long refreshNow() {
         if (mPlaybackService == null)
             return REFRESH_DELAY;
-
-        if (mPlaybackService.loadPercent() > 0 && !mIsPlaying) {
-            mIsPlaying = true;
-        }
 
         long progress = mPlaybackService.getProgress();
         long remaining = REFRESH_DELAY - (progress % REFRESH_DELAY);

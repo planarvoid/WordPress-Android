@@ -197,12 +197,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         // system will relaunch it. Make sure it gets stopped again in that case.
         scheduleServiceShutdownCheck();
 
-        mResumeTime = mPlaylistManager.reloadQueue();
-        currentTrack = mPlaylistManager.getCurrentTrack();
-        if (currentTrack != null && mResumeTime > 0) {
-            mResumeTrackId = currentTrack.id;
-        }
-
         try {
             mProxy = new StreamProxy(getApp()).init().start();
         } catch (IOException e) {
@@ -269,12 +263,27 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mDelayedStopHandler.removeCallbacksAndMessages(null);
 
         if (intent != null) {
+
+            if (!PLAY_ACTION.equals(intent.getAction()) && mPlaylistManager.isEmpty()){
+                configureLastPlaylist();
+            }
             mIntentReceiver.onReceive(this, intent);
         }
         scheduleServiceShutdownCheck();
         // make sure the service will shut down on its own if it was
         // just started but not bound to and nothing is playing
         return START_STICKY;
+    }
+
+    public boolean configureLastPlaylist() {
+        mResumeTime = mPlaylistManager.reloadQueue();
+        currentTrack = mPlaylistManager.getCurrentTrack();
+        if (currentTrack != null && mResumeTime > 0) {
+            mResumeTrackId = currentTrack.id;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -1004,7 +1013,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             mPlaylistManager.setTrack(track);
             openCurrent();
         } else if (intent.getData() != null) {
-            mPlaylistManager.setUri(intent.getData(),
+            mPlaylistManager.loadUri(intent.getData(),
                     intent.getIntExtra(PlayExtras.playPosition, 0),
                     intent.getLongExtra(PlayExtras.trackId, -1)
             );
@@ -1013,7 +1022,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             mPlaylistManager.setPlaylist(playlistXfer, intent.getIntExtra(PlayExtras.playPosition, 0));
             playlistXfer = null;
             openCurrent();
-        } else {
+        } else if (!mPlaylistManager.isEmpty() || configureLastPlaylist()){
+            // random play intent, play whatever we had last
             play();
         }
     }
