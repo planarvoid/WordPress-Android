@@ -6,7 +6,7 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.Nullable;
 
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -24,7 +24,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-@SuppressLint("NewApi")
 public class FacebookWebFlow extends AbstractLoginActivity {
     private WebView mWebview;
 
@@ -56,7 +55,7 @@ public class FacebookWebFlow extends AbstractLoginActivity {
                 showConnectionError(description);
             }
 
-            @Override
+            @Override @TargetApi(8)
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                 handler.cancel();
                 showConnectionError(getString(R.string.authentication_log_in_with_facebook_ssl_error));

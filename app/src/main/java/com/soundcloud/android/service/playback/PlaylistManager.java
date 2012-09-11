@@ -179,7 +179,9 @@ public class PlaylistManager {
 
 
         if (!mPlaylistUri.isDefault()) {
-            loadCursor(uri, position);
+            if (uri != null) {
+                loadCursor(uri, position);
+            }
         }
     }
 

@@ -10,7 +10,7 @@ import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.accounts.Account;
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentProvider;
@@ -747,7 +747,7 @@ public class ScContentProvider extends ContentProvider {
         return null;
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(8)
     public static void enableSyncing(Account account, long pollFrequency) {
         ContentResolver.setIsSyncable(account, AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
@@ -757,7 +757,7 @@ public class ScContentProvider extends ContentProvider {
         }
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(8)
     public static void disableSyncing(Account account) {
         ContentResolver.setSyncAutomatically(account, AUTHORITY, false);
           if (Build.VERSION.SDK_INT >= 8) {

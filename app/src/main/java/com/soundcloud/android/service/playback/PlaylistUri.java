@@ -33,7 +33,6 @@ public class PlaylistUri {
         return Content.match(uri).isCollectionItem();
     }
 
-
     public int getSeekPos() {
         return extractValue(PARAM_SEEK_POS, 0);
     }

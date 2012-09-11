@@ -34,7 +34,8 @@ object AndroidBuild extends Build {
     "com.google.android" % "support-v4" % "r6",
     "com.google.android" % "android" % "4.0.1.2" % "provided",
     "com.intellij" % "annotations" % "9.0.4" % "compile",
-    "com.soundcloud.android" % "cropimage" % "1.1.0" artifacts(Artifact("cropimage", "apklib", "apklib"))
+    "com.soundcloud.android" % "cropimage" % "1.1.0" artifacts(Artifact("cropimage", "apklib", "apklib")),
+    "com.google.android" % "annotations" % "4.1.1.4"
   )
 
   val testDependencies = Seq(

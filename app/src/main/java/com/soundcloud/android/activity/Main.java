@@ -30,7 +30,7 @@ import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.app.TabActivity;
 import android.content.Context;
@@ -261,7 +261,7 @@ public class Main extends TabActivity implements
         return true;
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(8)
     private void buildTabHost(final SoundCloudApplication app, final TabHost host, final TabWidget widget) {
         for (Tab tab : Main.Tab.values()) {
             if (tab == Main.Tab.UNKNOWN) continue;

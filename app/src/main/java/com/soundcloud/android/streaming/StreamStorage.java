@@ -50,9 +50,6 @@ public class StreamStorage {
     private Context mContext;
     private File mBaseDir, mCompleteDir, mIncompleteDir;
 
-    private long mUsedSpace;
-    private long mUsableSpace;
-
     private Map<String, StreamItem> mItems = new HashMap<String, StreamItem>();
     private Set<String> mConvertingUrls = new HashSet<String>();
 
@@ -204,11 +201,10 @@ public class StreamStorage {
             SharedPreferencesUtils.apply(prefs.edit().putInt(Consts.PrefKeys.STREAMING_WRITES_SINCE_CLEANUP, currentCount));
 
             if (currentCount >= mCleanupInterval) {
-                mUsedSpace = calculateFileMetrics();
-                if (cleanup()) {
+                if (cleanup(calculateUsableSpace())) {
                     if (SoundCloudApplication.DEV_MODE) {
                         // print file stats again
-                        mUsedSpace = calculateFileMetrics();
+                        calculateUsableSpace();
                     }
                 }
             }
@@ -344,7 +340,10 @@ public class StreamStorage {
         }
     }
 
-    /* package */ long calculateFileMetrics() {
+    /**
+     * @return the usable space for caching
+     */
+    /* package */ long calculateUsableSpace() {
         long result     = getUsedSpace();
         long spaceLeft  = getSpaceLeft();
         long totalSpace = getTotalSpace();
@@ -370,7 +369,7 @@ public class StreamStorage {
         return result;
     }
 
-    private synchronized boolean cleanup() {
+    private synchronized boolean cleanup(long usableSpace) {
         if (!mConvertingUrls.isEmpty()) {
 
             if (Log.isLoggable(LOG_TAG, Log.DEBUG))
@@ -382,7 +381,7 @@ public class StreamStorage {
                 .edit()
                 .putInt(Consts.PrefKeys.STREAMING_WRITES_SINCE_CLEANUP, 0));
 
-        final long spaceToClean = mUsedSpace - mUsableSpace;
+        final long spaceToClean = getUsedSpace() - usableSpace;
         if (spaceToClean > 0) {
             if (Log.isLoggable(LOG_TAG, Log.DEBUG))
                 Log.d(LOG_TAG, String.format("performing cleanup, need to free %.1f mb", spaceToClean/(1024d*1024d)));

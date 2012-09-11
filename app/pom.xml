@@ -20,7 +20,7 @@
             <plugin>
                  <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                  <artifactId>android-maven-plugin</artifactId>
-                 <version>3.3.1-SNAPSHOT</version>
+                 <version>3.3.2</version>
 
                  <configuration>
                     <target>all</target>
@@ -146,6 +146,12 @@
             <groupId>com.google.android</groupId>
             <artifactId>support-v4</artifactId>
             <version>r6</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>annotations</artifactId>
+            <version>4.1.1.4</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

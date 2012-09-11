@@ -9,7 +9,7 @@ import com.soundcloud.android.streaming.StreamItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -31,7 +31,7 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
-@SuppressLint("NewApi")
+
 public class DebugUtils {
 
     @SuppressWarnings("UnusedDeclaration")
@@ -49,6 +49,7 @@ public class DebugUtils {
         }
     }
 
+    @TargetApi(8)
     public static void dumpStack(@NotNull Context context) {
         Map<Thread, StackTraceElement[]> traces = Thread.getAllStackTraces();
         final File debugDir = context.getExternalFilesDir("debug");
@@ -76,6 +77,7 @@ public class DebugUtils {
         }
     }
 
+    @TargetApi(8)
     public static boolean dumpLog(@NotNull Context context) {
         if (context.getPackageManager().checkPermission("android.permission.READ_LOGS", context.getPackageName())
                 != PackageManager.PERMISSION_GRANTED) {
