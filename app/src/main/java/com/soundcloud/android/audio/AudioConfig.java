@@ -24,7 +24,7 @@ public enum AudioConfig {
     public final int bitsPerSample;
     public final int sampleSize;
     public final int bytesPerSecond;
-    public final int source = MediaRecorder.AudioSource.MIC;
+    public final int source = MediaRecorder.AudioSource.DEFAULT;
 
     public static final AudioConfig DEFAULT = PCM16_44100_1;
 
