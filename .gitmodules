@@ -19,15 +19,3 @@
 [submodule "app/jni/tremor"]
 	path = app/jni/tremor
 	url = git@github.com:soundcloud/tremor.git
-[submodule "action-bar-sherlock"]
-	path = action-bar-sherlock
-	url = https://github.com/JakeWharton/ActionBarSherlock.git
-[submodule "view-pager-indicator"]
-	path = view-pager-indicator
-	url = https://github.com/JakeWharton/Android-ViewPagerIndicator.git
-[submodule "pull-to-refresh"]
-	path = pull-to-refresh
-	url = https://github.com/soundcloud/Android-PullToRefresh.git
-[submodule "Android-FlyInMenu"]
-	path = Android-FlyInMenu
-	url = https://github.com/soundcloud/Android-FlyInMenu.git
