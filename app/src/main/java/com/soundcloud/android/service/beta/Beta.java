@@ -111,7 +111,7 @@ public class Beta implements Comparable<Beta>, Parcelable {
     public void touch() throws IOException {
         if (!getLocalFile().setLastModified(lastmodified)) {
 
-            if (Build.VERSION.SDK_INT < 11) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
                 // XXX honeycomb+ devices don't support setLastModified
                 // http://code.google.com/p/android/issues/detail?id=18624
                 throw new IOException("could not set last modified");

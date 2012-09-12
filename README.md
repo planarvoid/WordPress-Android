@@ -7,11 +7,12 @@ Make sure the [Android SDK][], [Android NDK][] and Maven are installed:
     $ brew install android-sdk android-ndk # OSX - you'll also need XCode CLI tools
     $ mvn -version
 
-Add thess lines to your .zshrc (or bash or whatever)
+Add thess lines to your .zshrc (or bash or whatever) [version numbers may change]
 
     export ANDROID_HOME=/usr/local/Cellar/android-sdk/r20
     export ANDROID_SDK_ROOT=/usr/local/Cellar/android-sdk/r20
     export ANDROID_SDK_HOME=/usr/local/Cellar/android-sdk/r20
+    export ANDROID_NDK_HOME=/usr/local/Cellar/android-ndk/r7b/
 
 Run
 
@@ -28,19 +29,6 @@ Clone and build it:
 If you don't want to use maven (who does?!) and have [sbt][] installed:
 
     $ sbt android:package-debug
-
-## Handling dependencies / pom.xml
-
-Dependencies should not be included in the repo, they are declared in the sbt
-build file `project/build.scala`, split in `coreDependencies` and `testDependencies`.
-
-Based on `build.scala` you can regenerate the `pom.xml` using `sbt mavenize`. To
-actually download and copy the dependencies to your working directory use
-`sbt android:copy-libs`, this will populate `lib/` and `tests/lib`.
-
-To download dependencies for the integration tests:
-`sbt 'project tests-integration' android:copy-libs'` (this will populate
-`tests-integration/lib`).
 
 ## Betas and releasing
 

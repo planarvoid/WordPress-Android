@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -48,7 +49,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     protected CloudPlaybackService mPlaybackService;
 
     private long mSeekPos = -1;
-    private boolean mActivityPaused, mIsCommenting, mIsPlaying, mChangeTrackFast, mShouldShowComments;
+    private boolean mActivityPaused, mIsCommenting, mChangeTrackFast, mShouldShowComments;
     private Track mPlayingTrack;
     private RelativeLayout mContainer;
     private WorkspaceView mTrackWorkspace;
@@ -80,7 +81,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         mTransportBar.setOnCommentListener(mCommentListener);
         mTransportBar.setOnFavoriteListener(mFavoriteListener);
 
-        mShouldShowComments = getApp().getAccountDataBoolean("playerShowingComments");
+        mShouldShowComments = getApp().getAccountDataBoolean(PLAYER_SHOWING_COMMENTS);
         final Object[] saved = (Object[]) getLastCustomNonConfigurationInstance();
         if (saved != null && saved[0] != null) mPlayingTrack = (Track) saved[0];
 
@@ -274,11 +275,13 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     };
 
     protected void onPlaybackServiceBound() {
-        if (CloudPlaybackService.getCurrentTrackId() == -1) {
+        if (CloudPlaybackService.getCurrentTrackId() == -1 && !mPlaybackService.configureLastPlaylist()) {
+
             // nothing to show, send them back to main
             Intent intent = new Intent(this, Main.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
+
         } else {
             setTrackDisplayFromService();
 
@@ -392,10 +395,6 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     private long refreshNow() {
         if (mPlaybackService == null)
             return REFRESH_DELAY;
-
-        if (mPlaybackService.loadPercent() > 0 && !mIsPlaying) {
-            mIsPlaying = true;
-        }
 
         long progress = mPlaybackService.getProgress();
         long remaining = REFRESH_DELAY - (progress % REFRESH_DELAY);
@@ -560,6 +559,9 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         setCurrentTrackDataFromService();
 
         final long queueLength = mPlaybackService.getPlaylistManager().length();
+        if (queueLength == 0) {
+            Log.w(CloudPlaybackService.TAG, "play queue is empty!");
+        }
 
         // setup initial workspace, reusing them if possible
         int workspaceIndex = 0;

@@ -29,6 +29,7 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
                WavWriter
                AndroidCloudAPI
                FacebookSSO
+               NetworkConnectivityListener
               )
 
 [:device, :emu].each do |t|
@@ -138,7 +139,7 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
 end
 
 def manifest
-  @manifest ||= REXML::Document.new(File.read('app/AndroidManifest.xml'))
+  @manifest ||= REXML::Document.new(File.read(File.dirname(__FILE__)+'/app/AndroidManifest.xml'))
 end
 
 def versionCode() manifest.root.attribute('versionCode') end

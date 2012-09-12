@@ -1,7 +1,7 @@
 
 package com.soundcloud.android.utils;
 
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
@@ -72,7 +72,7 @@ public class InputObject {
 
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(8)
     private static int getActionIndex(MotionEvent event) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
            return event.getActionIndex();
@@ -83,7 +83,7 @@ public class InputObject {
 
 /** Show an event in the LogCat view, for debugging */
 private void dumpEvent(MotionEvent event) {
-   String names[] = { "DOWN" , "UP" , "MOVE" , "CANCEL" , "OUTSIDE" ,
+   String[] names = { "DOWN" , "UP" , "MOVE" , "CANCEL" , "OUTSIDE" ,
       "POINTER_DOWN" , "POINTER_UP" , "7?" , "8?" , "9?" };
    StringBuilder sb = new StringBuilder();
    int action = event.getAction();

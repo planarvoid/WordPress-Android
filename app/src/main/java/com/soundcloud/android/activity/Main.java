@@ -1,6 +1,5 @@
 package com.soundcloud.android.activity;
 
-import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.Actions;
@@ -31,7 +30,6 @@ import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -41,13 +39,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.widget.RelativeLayout;
-import android.widget.TabWidget;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -63,7 +57,7 @@ public class Main extends ScListActivity implements
 
     protected ScListView mListView;
 
-    private ResolveFetchTask mResolveTask;
+    private @Nullable ResolveFetchTask mResolveTask;
     private ChangeLog mChangeLog;
 
     private MainFragmentAdapter mAdapter;
@@ -99,12 +93,16 @@ public class Main extends ScListActivity implements
 
         handleIntent(getIntent());
 
-        final boolean resolving = (!AndroidUtils.isTaskFinished(mResolveTask));
+        final boolean resolving = !AndroidUtils.isTaskFinished(mResolveTask);
         final boolean showSplash = resolving || showSplash(state);
         mSplash = findViewById(R.id.splash);
-        mSplash.setVisibility(showSplash ? View.VISIBLE : View.GONE);
-        if (showSplash) findViewById(R.id.progress_resolve_layout).setVisibility(resolving ? View.VISIBLE : View.GONE);
 
+        if (showSplash) {
+            mSplash.setVisibility(View.VISIBLE);
+            findViewById(R.id.progress_resolve_layout).setVisibility(resolving ? View.VISIBLE : View.GONE);
+        } else {
+            mSplash.setVisibility(View.GONE);
+        }
 
         if (IOUtils.isConnected(this) &&
             app.getAccount() != null &&
@@ -112,7 +110,7 @@ public class Main extends ScListActivity implements
             !app.getLoggedInUser().isPrimaryEmailConfirmed() &&
             !justAuthenticated(getIntent()))
         {
-                checkEmailConfirmed(app);
+            checkEmailConfirmed(app);
         } else if (showSplash && !resolving) {
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -160,7 +158,7 @@ public class Main extends ScListActivity implements
         }
         if (getApp().getAccount() == null) {
             dismissSplash();
-            getApp().addAccount(Main.this, managerCallback);
+            getApp().addAccount(this, managerCallback);
             finish();
         }
         super.onResume();
@@ -258,9 +256,9 @@ public class Main extends ScListActivity implements
             Log.d(TAG, "activity start after successful authentication");
         }
 
-        intent.setAction("");
-        intent.setData(null);
-        intent.removeExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
+        intent.setAction("")
+            .setData(null)
+            .removeExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
     }
 
     protected boolean handleViewUrl(Intent intent) {
@@ -275,6 +273,7 @@ public class Main extends ScListActivity implements
         return true;
     }
 
+
     private void dismissSplash() {
         if (mSplash.getVisibility() == View.VISIBLE) {
             mSplash.startAnimation(new AlphaAnimation(1, 0) {
@@ -288,7 +287,6 @@ public class Main extends ScListActivity implements
                         @Override
                         public void onAnimationEnd(Animation animation) {
                             mSplash.setVisibility(View.GONE);
-
                             if (mChangeLog.isFirstRun()) {
                                 mChangeLog.getDialog(true).show();
                             }
@@ -307,14 +305,13 @@ public class Main extends ScListActivity implements
         return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
     }
 
-    @Override
     public Object onRetainCustomNonConfigurationInstance() {
         return mResolveTask;
     }
 
     protected void onTrackLoaded(Track track, @Nullable String action) {
         startService(track.getPlayIntent());
-        startActivity(new Intent(Main.this, ScPlayer.class));
+        startActivity(new Intent(this, ScPlayer.class));
     }
 
     protected void onUserLoaded(User u, @Nullable String action) {
@@ -325,12 +322,14 @@ public class Main extends ScListActivity implements
 
     @Override
     public void onError(long modelId) {
+        mResolveTask = null;
         dismissSplash();
-        Toast.makeText(Main.this, R.string.error_loading_url, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, R.string.error_loading_url, Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onSuccess(ScModel m, @Nullable String action) {
+        mResolveTask = null;
         mHideSplashOnResume = true;
         if (m instanceof Track) {
             onTrackLoaded((Track) m, null);

@@ -11,6 +11,7 @@ import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.record.SoundRecorder;
+import com.soundcloud.android.tests.SlowTest;
 
 import android.content.Intent;
 import android.os.Build;
@@ -18,6 +19,7 @@ import android.test.suitebuilder.annotation.Suppress;
 
 import java.io.File;
 
+@SlowTest
 public class NormalRecordingTest extends AbstractRecordingTestCase {
 
     public void testRecordAndPlayback() throws Exception {
@@ -250,6 +252,9 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     public void testDeleteWavFileAndUpload() throws Exception {
+        // test only makes sense if we have an ogg file + wav file
+        if (!getActivity().getRecorder().shouldEncodeWhileRecording()) return;
+
         record(RECORDING_TIME);
         solo.sleep(1000);
 
@@ -271,7 +276,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.enterTextId(R.id.what, title);
         solo.goBack();
 
-        solo.clickOnView(R.id.btn_you);
+//XXX        solo.clickOnView(R.id.btn_you);
 
         // delete wav file
         File wavFile = r.getFile();
@@ -294,7 +299,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     public void testShouldAutoSaveRecordingAndNavigateToYourSounds() throws Exception {
         record(RECORDING_TIME);
         solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
-        solo.clickOnView(R.id.btn_you);
+//XXX        solo.clickOnView(R.id.btn_you);
         solo.assertActivity(Main.class);
     }
 
@@ -320,16 +325,6 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         solo.assertActivity(ScUpload.class);
 
-        solo.finishOpenedActivities();
-
-        Main main = launchActivityWithIntent("com.soundcloud.android", Main.class, new Intent());
-
-
-        solo.clickOnText(name);
-
-        solo.sleep(500);
-
-//        solo.assertActivity(ScCreate.class);
         setActivity(reloadRecording(getActivity().getRecorder().getRecording()));
 
         record(RECORDING_TIME);

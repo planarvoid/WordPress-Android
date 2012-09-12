@@ -15,6 +15,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.ImageUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -134,6 +135,8 @@ public class PlayerAvatarBar extends View {
         if (mCanvasBmp != null) mCanvasBmp.recycle();
         if (mNextCanvasBmp != null) mNextCanvasBmp.recycle();
 
+        mCanvasBmp = mNextCanvasBmp = null;
+
         invalidate();
 
     }
@@ -148,7 +151,7 @@ public class PlayerAvatarBar extends View {
         invalidate();
     }
 
-    public void setCurrentComment(Comment c){
+    public void setCurrentComment(@Nullable Comment c){
         mCurrentComment = c;
         if (c != null) loadAvatar(c);
         invalidate();
@@ -297,7 +300,7 @@ public class PlayerAvatarBar extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (mCanvasBmp != null) {
+        if (mCanvasBmp != null && !mCanvasBmp.isRecycled()) {
             canvas.drawBitmap(mCanvasBmp, DEFAULT_MATRIX, mImagePaint);
         } else if (mCurrentComments != null) {
             for (Comment comment : mCurrentComments){

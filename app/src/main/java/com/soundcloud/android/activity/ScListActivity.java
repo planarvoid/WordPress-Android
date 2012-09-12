@@ -219,7 +219,6 @@ public abstract class ScListActivity extends ScActivity {
         f.execute(track);
     }
 
-
     public void removeFavorite(Track track) {
         FavoriteRemoveTask f = new FavoriteRemoveTask(getApp());
         f.setOnFavoriteListener(mFavoriteListener);

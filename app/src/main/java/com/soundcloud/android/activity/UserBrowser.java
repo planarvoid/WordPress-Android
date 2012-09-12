@@ -32,12 +32,9 @@ import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-import com.viewpagerindicator.TabPageIndicator;
 import com.viewpagerindicator.TitlePageIndicator;
+import org.jetbrains.annotations.Nullable;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -50,22 +47,16 @@ import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
-
 
 public class UserBrowser extends ScListActivity implements
         ParcelCache.Listener<Connection>,
@@ -73,7 +64,7 @@ public class UserBrowser extends ScListActivity implements
         FetchUserTask.FetchUserListener,
         EventAware, ActionBar.OnNavigationListener {
 
-    /* package */ User mUser;
+    /* package */ @Nullable User mUser;
 
     private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
     private View mVrStats;
@@ -210,6 +201,7 @@ public class UserBrowser extends ScListActivity implements
             }
 
             build();
+
             if (!isMe()) FollowStatus.get().requestUserFollowings(getApp(), this, false);
 
             /*

@@ -9,7 +9,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.TouchLayout;
 
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -232,11 +232,11 @@ public class WaveformController extends TouchLayout {
          if (mPlayerAvatarBar != null && killLoading) mPlayerAvatarBar.onStop();
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(8)
     public void resetCommentDisplay(){
         if (mCurrentCommentPanel != null) {
             if (mCurrentCommentPanel.getAnimation() != null){
-                if (Build.VERSION.SDK_INT > 7) mCurrentCommentPanel.getAnimation().cancel();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) mCurrentCommentPanel.getAnimation().cancel();
                 mCurrentCommentPanel.clearAnimation();
             }
             if (mCurrentCommentPanel.getParent() == mWaveformFrame){

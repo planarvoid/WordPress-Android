@@ -64,7 +64,7 @@ public class Han extends Solo {
 
     public void assertText(int resId, Object... args) {
         final String text = getString(resId, args);
-        assertTrue("Text "+text+ " not found", waitForText(Pattern.quote(text)));
+        assertTrue("Text '"+text+"' not found", waitForText(Pattern.quote(text)));
     }
 
     public void assertVisibleTextId(int resId, Object... args) {

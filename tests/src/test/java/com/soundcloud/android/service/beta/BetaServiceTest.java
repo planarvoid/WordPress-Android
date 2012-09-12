@@ -1,13 +1,13 @@
 package com.soundcloud.android.service.beta;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.xtremelabs.robolectric.Robolectric.*;
+import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
+import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
@@ -19,9 +19,6 @@ import org.junit.runner.RunWith;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.Environment;
 
 
 @RunWith(DefaultTestRunner.class)
@@ -30,13 +27,8 @@ public class BetaServiceTest {
     @Before
     public void before() {
         TestHelper.enableSDCard();
-        ConnectivityManager cm = (ConnectivityManager)
-                Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        Robolectric.shadowOf(cm).setBackgroundDataSetting(true);
-        Robolectric.shadowOf(cm).setNetworkInfo(ConnectivityManager.TYPE_WIFI,
-                newInstanceOf(NetworkInfo.class));
-
+        TestHelper.connectedViaWifi(true);
+        TestHelper.setBackgrounData(true);
         bs = new BetaService();
     }
 

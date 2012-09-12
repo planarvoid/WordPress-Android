@@ -210,7 +210,7 @@ public class TrackInfoBar extends LazyRow {
             mTitle.setText(track.title);
         }
 
-        if (track.state.isProcessing()){
+        if (track.isProcessing()){
             if (findViewById(R.id.processing_progress) != null){
                 findViewById(R.id.processing_progress).setVisibility(View.VISIBLE);
             } else {
