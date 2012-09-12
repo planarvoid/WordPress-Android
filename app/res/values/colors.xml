@@ -79,4 +79,6 @@
 
     <color name="authButtonSeparator">#ff000000</color>
 
+    <color name="fim_item_text_color">#ffffff</color>
+
 </resources>

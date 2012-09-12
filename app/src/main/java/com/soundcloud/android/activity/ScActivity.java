@@ -5,8 +5,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.android.imageloader.ImageLoader;
-import com.js.flyInMenu.view.RootView;
-import com.js.flyInMenu.view.SimpleListMenu;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -19,6 +17,8 @@ import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
+import com.soundcloud.android.view.RootView;
+import com.soundcloud.android.view.SimpleListMenu;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
