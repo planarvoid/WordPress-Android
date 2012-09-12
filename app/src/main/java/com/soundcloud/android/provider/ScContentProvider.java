@@ -752,7 +752,7 @@ public class ScContentProvider extends ContentProvider {
         ContentResolver.setIsSyncable(account, AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
 
-        if (Build.VERSION.SDK_INT >= 8) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             ContentResolver.addPeriodicSync(account, AUTHORITY, new Bundle(), pollFrequency);
         }
     }
@@ -760,7 +760,7 @@ public class ScContentProvider extends ContentProvider {
     @TargetApi(8)
     public static void disableSyncing(Account account) {
         ContentResolver.setSyncAutomatically(account, AUTHORITY, false);
-          if (Build.VERSION.SDK_INT >= 8) {
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             ContentResolver.removePeriodicSync(account, AUTHORITY, new Bundle());
         }
     }

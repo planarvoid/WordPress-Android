@@ -124,7 +124,7 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
 
      public void postDetach() {
         // XXX this blows up on ICS, possibly Honeycomb as well
-        if (Build.VERSION.SDK_INT < 11) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             post(new Runnable() {
                 @Override
                 public void run() {

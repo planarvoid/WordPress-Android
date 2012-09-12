@@ -123,7 +123,7 @@ public class Main extends TabActivity implements
         }
         if (getApp().getAccount() == null) {
             dismissSplash();
-            getApp().addAccount(Main.this, managerCallback);
+            getApp().addAccount(this, managerCallback);
             finish();
         }
         super.onResume();
@@ -244,9 +244,9 @@ public class Main extends TabActivity implements
             getTabHost().setCurrentTabByTag(tab.tag);
         }
 
-        intent.setAction("");
-        intent.setData(null);
-        intent.removeExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
+        intent.setAction("")
+            .setData(null)
+            .removeExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
     }
 
     protected boolean handleViewUrl(Intent intent) {
@@ -286,7 +286,7 @@ public class Main extends TabActivity implements
         setTabTextStyle(this, widget, false);
 
 
-        if (Build.VERSION.SDK_INT > 7) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             for (int i = 0; i < widget.getChildCount(); i++) {
                 widget.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.tab_indicator));
             }
@@ -340,7 +340,6 @@ public class Main extends TabActivity implements
                         @Override
                         public void onAnimationEnd(Animation animation) {
                             mSplash.setVisibility(View.GONE);
-
                             if (mChangeLog.isFirstRun()) {
                                 mChangeLog.getDialog(true).show();
                             }
@@ -366,7 +365,7 @@ public class Main extends TabActivity implements
 
     protected void onTrackLoaded(Track track, @Nullable String action) {
         startService(track.getPlayIntent());
-        startActivity(new Intent(Main.this, ScPlayer.class));
+        startActivity(new Intent(this, ScPlayer.class));
     }
 
     protected void onUserLoaded(User u, @Nullable String action) {

@@ -81,7 +81,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         mTransportBar.setOnCommentListener(mCommentListener);
         mTransportBar.setOnFavoriteListener(mFavoriteListener);
 
-        mShouldShowComments = getApp().getAccountDataBoolean("playerShowingComments");
+        mShouldShowComments = getApp().getAccountDataBoolean(PLAYER_SHOWING_COMMENTS);
         final Object[] saved = (Object[]) getLastNonConfigurationInstance();
         if (saved != null && saved[0] != null) mPlayingTrack = (Track) saved[0];
 
