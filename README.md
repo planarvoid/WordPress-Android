@@ -30,6 +30,17 @@ If you don't want to use maven (who does?!) and have [sbt][] installed:
 
     $ sbt android:package-debug
 
+## Opening the project in Intellij IDEA
+
+First make sure there are no leftover config files in the project (`find . -name '*.iml' | xargs rm && rm -rf .idea`).
+Open IntelliJ, select "New Project", then "Import project from external model", select "Maven".
+Make sure the settings look like in this screenshot: http://bit.ly/intellij-maven
+
+Select Next and confirm the import of the parent project.
+
+IDEA will automatically download and manage all dependencies. When switching branches you might need to reimport
+the Maven project.
+
 ## Betas and releasing
 
 Documented on the wiki: [releasing][], [betas][].
