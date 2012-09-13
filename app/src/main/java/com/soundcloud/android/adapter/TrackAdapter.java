@@ -1,13 +1,18 @@
 package com.soundcloud.android.adapter;
 
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 import com.soundcloud.android.view.quickaction.QuickAction;
 import com.soundcloud.android.view.quickaction.QuickTrackMenu;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 
 public class TrackAdapter extends ScBaseAdapter<Track> {
     private QuickAction mQuickActionMenu;
@@ -25,5 +30,10 @@ public class TrackAdapter extends ScBaseAdapter<Track> {
     @Override
     public QuickAction getQuickActionMenu() {
         return mQuickActionMenu;
+    }
+
+    @Override
+    public void handleListItemClick(int position, long id) {
+        mContext.startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(Track.EXTRA, getItem(position)));
     }
 }

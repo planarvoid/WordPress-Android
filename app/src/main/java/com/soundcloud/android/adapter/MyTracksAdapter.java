@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
@@ -16,6 +17,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -154,6 +156,11 @@ public class MyTracksAdapter extends ScBaseAdapter {
         if (!mDataValid) {
             onContentChanged();
         }
+    }
+
+    @Override
+    public void handleListItemClick(int position, long id) {
+        Log.i(SoundCloudApplication.TAG, "Clicked on item " + id);
     }
 
     public void onDestroy(){

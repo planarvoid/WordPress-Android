@@ -267,4 +267,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
             updateCollectionTask.execute(userUpdates);
         }
     }
+
+    public abstract void handleListItemClick(int position, long id);
 }

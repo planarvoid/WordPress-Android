@@ -1,7 +1,10 @@
 package com.soundcloud.android.adapter;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.view.adapter.CommentRow;
 import com.soundcloud.android.view.adapter.LazyRow;
@@ -9,7 +12,9 @@ import com.soundcloud.android.view.adapter.LikeRow;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 
 import java.util.Collections;
 
@@ -80,5 +85,19 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
     @Override
     protected void onSuccessfulRefresh() {
         // do nothing for now. new items will be merged and sorted with the existing items
+    }
+
+    @Override
+    public void handleListItemClick(int position, long id) {
+
+        Activity.Type type = Activity.Type.values()[getItemViewType(position)];
+        switch (type) {
+            case TRACK:
+            case TRACK_SHARING:
+                mContext.startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(Track.EXTRA, getItem(position).getTrack()));
+                break;
+            default:
+                Log.i(SoundCloudApplication.TAG, "Clicked on item " + id);
+        }
     }
 }

@@ -45,6 +45,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
+import android.widget.ListView;
 
 public class ScListFragment extends SherlockListFragment
         implements PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener, CollectionTask.Callback, AbsListView.OnScrollListener {
@@ -176,7 +177,13 @@ public class ScListFragment extends SherlockListFragment
         super.onAttach(activity);
     }
 
-//    @Override
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+        getListAdapter().handleListItemClick(position, id);
+    }
+
+    //    @Override
 //    public void onListItemClick(ListView l, View v, int position, long id) {
 //        super.onListItemClick(l, v, position, id);
 //
