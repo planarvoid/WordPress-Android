@@ -72,23 +72,16 @@ public enum Click implements Event {
     NEW_Record_tip_impressions                ("Record_tip_impressions", "%s",                  Type.action,     Level2.Record),
 
     // Old recording keys
-    Record_rec           ("Record", "rec",            Type.action, Level2.Record),
-    Record_rec_stop      ("Record", "rec_stop",       Type.action, Level2.Record),
     Record_discard       ("Record", "discard",        Type.action, Level2.Record),
     Record_discard__ok   ("Record", "discard::ok",    Type.action, Level2.Record),
     Record_discard_cancel("Record", "discard:cancel", Type.action, Level2.Record),
     Record_delete        ("Record", "delete",         Type.action, Level2.Record),
 
     Record_revert("Record", "revert", Type.action, Level2.Record),
-    Record_revert__ok("Record", "revert::ok", Type.action, Level2.Record),
     Record_revert_cancel("Record", "revert:cancel", Type.action, Level2.Record),
 
     Record_play          ("Record", "play",           Type.action, Level2.Record),
     Record_play_stop     ("Record", "play_stop",      Type.action, Level2.Record),
-    Record_next          ("Record", "next",           Type.navigation, Level2.Record), // record another sound
-    Record_save          ("Record", "save",           Type.navigation, Level2.Record), // TODO
-
-    Record_edit          ("Record", "edit",         Type.navigation, Level2.Record),
 
     Record_details_add_image       ("Record_details", "add_image",        Type.action,     Level2.Record),
     Record_details_new_image       ("Record_details", "new_image",        Type.action,     Level2.Record),

@@ -342,11 +342,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 final Recording rec = mRecorder.saveState();
                 if (rec != null) {
                     if (mCurrentState.isEdit()) {
-                        track(Click.Record_save);
                         track(Click.NEW_Record_edit_save, rec.getPlaybackStream().isTrimmed() ? "trimmed" : "not_trimmed");
                         updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
                     } else {
-                        track(Click.Record_next);
                         track(Click.NEW_Record_details_record_upload_share_detailed,
                               mTxtRecordMessage.getCurrentSuggestionKey(),
                               rec.getPlaybackStream().isTrimmed() ? "trimmed" : "not_trimmed");
@@ -372,19 +370,16 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 switch (mCurrentState) {
                     case IDLE_RECORD:
                         track(Click.NEW_Record_start, mTxtRecordMessage.getCurrentSuggestionKey());
-                        track(Click.Record_rec);
                         startRecording();
                         break;
 
                     case IDLE_PLAYBACK:
                     case PLAYBACK:
                         track(Click.NEW_Record_rec_more);
-                        track(Click.Record_rec);
                         startRecording();
                         break;
 
                     case RECORD:
-                        track(Click.Record_rec_stop);
                         track(Click.NEW_Record_record_pause);
                         mRecorder.stopRecording();
                         // XXX use prefs
@@ -420,7 +415,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                track(Click.Record_edit);
                 track(Click.NEW_Record_paused_edit);
                 updateUi(isPlayState() ? CreateState.EDIT_PLAYBACK : CreateState.EDIT);
             }
@@ -1010,7 +1004,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int whichButton) {
-                                        track(Click.Record_revert__ok);
                                         track(Click.NEW_Record_edit_revert_to_original);
                                         mRecorder.revertFile();
                                         updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
