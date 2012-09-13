@@ -34,6 +34,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
@@ -75,6 +76,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                 }
             }
         });
+
+        ImageView tempPlayer = new ImageView(this);
+        tempPlayer.setScaleType(ImageView.ScaleType.CENTER);
+        tempPlayer.setImageResource(R.drawable.cloud);
+
+        mRootView.setPlayerVew(tempPlayer);
 
         getSupportActionBar().setHomeButtonEnabled(true);
 
@@ -264,7 +271,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                mRootView.animateToggle();
+                mRootView.animateToggleMenu();
                 return true;
             case R.id.menu_my_info:
                 startNavActivity(UserBrowser.class);
