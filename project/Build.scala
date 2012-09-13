@@ -23,7 +23,7 @@ object AndroidBuild extends Build {
   val junit_interface = "com.novocode" % "junit-interface" % "0.8" % "test" intransitive()
   val jacksonVersion = "2.0.1"
   val coreDependencies = Seq(
-    "org.acra" % "acra" % "4.3.0-filter-SNAPSHOT",
+    "org.acra" % "acra" % "4.3.0-filter",
     "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
     "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
     "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
@@ -34,7 +34,8 @@ object AndroidBuild extends Build {
     "com.google.android" % "support-v4" % "r6",
     "com.google.android" % "android" % "4.0.1.2" % "provided",
     "com.intellij" % "annotations" % "9.0.4" % "compile",
-    "com.soundcloud.android" % "cropimage" % "1.1.0" artifacts(Artifact("cropimage", "apklib", "apklib"))
+    "com.soundcloud.android" % "cropimage" % "1.1.0" artifacts(Artifact("cropimage", "apklib", "apklib")),
+    "com.google.android" % "annotations" % "4.1.1.4"
   )
 
   val testDependencies = Seq(
@@ -44,7 +45,7 @@ object AndroidBuild extends Build {
     "org.mockito" % "mockito-core" % "1.9.5-rc1" % "test",
     "com.github.xian" % "great-expectations" % "0.13" % "test",
     "org.scalatest" %% "scalatest" % "1.7.1" % "test",
-    "org.scala-lang" % "scala-compiler" % "2.9.1" % "test",
+    "org.scala-lang" % "scala-compiler" % "2.9.2" % "test",
     junit_interface
   )
 
@@ -54,7 +55,7 @@ object AndroidBuild extends Build {
   )
 
   val repos = Seq(
-    MavenRepository("sc int repo", "http://files.int.s-cloud.net/maven/"),
+    MavenRepository("soundcloud repo", "http://maven.int.s-cloud.net/content/groups/hosted"),
     MavenRepository("sonatype snapshots", "https://oss.sonatype.org/content/repositories/snapshots"),
     MavenRepository("sonatype releases", "https://oss.sonatype.org/content/repositories/releases"),
     MavenRepository("Local Maven Repository", "file://" + Path.userHome + "/.m2/repository")
@@ -75,7 +76,8 @@ object AndroidBuild extends Build {
       jniSourcePath <<= baseDirectory / "jni",
       jniClasses := Seq(
         "com.soundcloud.android.jni.VorbisEncoder",
-        "com.soundcloud.android.jni.VorbisDecoder"
+        "com.soundcloud.android.jni.VorbisDecoder",
+        "com.soundcloud.android.jni.NativeAmplitudeAnalyzer"
       ),
       javahOutputDirectory <<= (baseDirectory) (_ / "jni" / "include" / "soundcloud")
     )) ++ inConfig(Test)(Seq(

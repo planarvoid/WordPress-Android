@@ -18,12 +18,15 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.ScListView;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -110,6 +113,32 @@ public abstract class ScListActivity extends ScActivity {
                 final AddCommentDialog dialog = new AddCommentDialog(this);
                 dialog.getWindow().setGravity(Gravity.TOP);
                 return dialog;
+
+            case Consts.Dialogs.DIALOG_TRANSCODING_FAILED:
+                return new AlertDialog.Builder(this).setTitle(R.string.dialog_transcoding_failed_title)
+                        .setMessage(R.string.dialog_transcoding_failed_message).setPositiveButton(
+                                android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_FAILED);
+                            }
+                        }).setNegativeButton(
+                                R.string.visit_support, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                startActivity(
+                                        new Intent(Intent.ACTION_VIEW,
+                                                Uri.parse(getString(R.string.authentication_support_uri))));
+                                removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_FAILED);
+                            }
+                        }).create();
+            case Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING:
+                            return new AlertDialog.Builder(this).setTitle(R.string.dialog_transcoding_processing_title)
+                                    .setMessage(R.string.dialog_transcoding_processing_message).setPositiveButton(
+                                            android.R.string.ok, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING);
+                                        }
+                                    }).create();
+
             default:
                 return super.onCreateDialog(which);
         }
@@ -279,7 +308,16 @@ public abstract class ScListActivity extends ScActivity {
 
         @Override
         public void onTrackClick(LazyEndlessAdapter wrapper, int position) {
-            playTrack(wrapper.getPlayInfo(position));
+            if (wrapper.getItem(position) instanceof Track &&
+                    !((Track) wrapper.getItem(position)).isStreamable()){
+
+                showDialog(((Track) wrapper.getItem(position)).isFailed() ?
+                        Consts.Dialogs.DIALOG_TRANSCODING_FAILED :
+                        Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING);
+            } else {
+                playTrack(wrapper.getPlayInfo(position));
+            }
+
         }
 
         @Override

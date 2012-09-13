@@ -9,16 +9,15 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.PlaybackStream;
-import com.soundcloud.android.audio.reader.EmptyReader;
 import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.AmplitudeData;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.upload.UploadService;
-import com.soundcloud.android.service.upload.UserCanceledException;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Endpoints;
@@ -51,10 +50,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 public class Recording extends ScModel implements Comparable<Recording> {
@@ -80,7 +77,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public double latitude;
 
     // assets
-    @NotNull private File audio_path;
+    @NotNull protected File audio_path;
     @Nullable public File artwork_path;
     @Nullable public File resized_artwork_path;
 
@@ -98,10 +95,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
     // status
     public boolean external_upload;
     public int upload_status;
-    public long track_id = NOT_SET;
 
     private PlaybackStream mPlaybackStream;
-    private Exception mUploadException;
 
     private static final Pattern AMPLITUDE_PATTERN = Pattern.compile("^.*\\.(amp)$");
     private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm|wav)$");
@@ -110,7 +105,11 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public static final String TAG_SOURCE_ANDROID_RECORD          = "soundcloud:source=android-record";
     public static final String TAG_RECORDING_TYPE_DEDICATED       = "soundcloud:recording-type=dedicated";
     public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
-    private static String PROCESSED_APPEND = "_processed";;
+    private static String PROCESSED_APPEND = "_processed";
+
+    public String getTitle(Resources r) {
+        return TextUtils.isEmpty(title) ? sharingNote(r) : title;
+    }
 
     public static interface Status {
         int NOT_YET_UPLOADED    = 0; // not yet uploaded, or canceled by user
@@ -139,7 +138,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         what_text = c.getString(c.getColumnIndex(Recordings.WHAT_TEXT));
         where_text = c.getString(c.getColumnIndex(Recordings.WHERE_TEXT));
         final String artwork = c.getString(c.getColumnIndex(Recordings.ARTWORK_PATH));
-        artwork_path = artwork == null ? null : new File(artwork);
+        artwork_path = TextUtils.isEmpty(artwork) ? null : new File(artwork);
         final String audio = c.getString(c.getColumnIndex(Recordings.AUDIO_PATH));
         if (audio == null) throw new IllegalArgumentException("audio is null");
         audio_path = new File(audio);
@@ -164,7 +163,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return audio_path;
     }
 
-    public File getRawFile() {
+    public @Nullable File getRawFile() {
         return isRawFilename(audio_path.getName()) ? audio_path : null;
     }
 
@@ -177,7 +176,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public File getAmplitudeFile() {
-        return IOUtils.changeExtension(audio_path, "amp");
+        return IOUtils.changeExtension(audio_path, AmplitudeData.EXTENSION);
     }
 
     /**
@@ -192,7 +191,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public User getRecipient()           { return recipient; }
     public String getRecipientUsername() { return recipient_username; }
 
-    public PlaybackStream getPlaybackStream() {
+    public @Nullable PlaybackStream getPlaybackStream() {
         if (mPlaybackStream == null && !external_upload) {
             mPlaybackStream = initializePlaybackStream(null);
         }
@@ -203,8 +202,11 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return new File(imageDir, IOUtils.changeExtension(audio_path, "bmp").getName());
     }
 
+    /**
+     * @return last modified time of recording, or 0 if file does not exist.
+     */
     public long lastModified() {
-        return audio_path.lastModified();
+        return audio_path.exists()? audio_path.lastModified() : getEncodedFile().lastModified();
     }
 
     public String getAbsolutePath() {
@@ -234,7 +236,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public boolean exists() {
-        return audio_path.exists();
+        return audio_path.exists() || getEncodedFile().exists();
     }
 
     private void setRecipient(User recipient) {
@@ -245,34 +247,44 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public ContentValues buildContentValues(){
-        ContentValues cv = super.buildContentValues();
-        cv.put(Recordings.USER_ID, user_id > 0 ? user_id : SoundCloudApplication.getUserId());
-        cv.put(Recordings.TIMESTAMP, lastModified());
+        ContentValues cv = buildBaseContentValues();
         cv.put(Recordings.LONGITUDE, longitude);
         cv.put(Recordings.LATITUDE, latitude);
         cv.put(Recordings.WHAT_TEXT, what_text);
         cv.put(Recordings.WHERE_TEXT, where_text);
-        cv.put(Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
-        cv.put(Recordings.DURATION, duration);
         cv.put(Recordings.DESCRIPTION, description);
-        if (artwork_path != null) cv.put(Recordings.ARTWORK_PATH, artwork_path.getAbsolutePath());
+        cv.put(Recordings.ARTWORK_PATH, artwork_path == null ? "" : artwork_path.getAbsolutePath());
         cv.put(Recordings.FOUR_SQUARE_VENUE_ID, four_square_venue_id);
         cv.put(Recordings.SHARED_EMAILS, shared_emails);
         cv.put(Recordings.SHARED_IDS, shared_ids);
-        cv.put(Recordings.PRIVATE_USER_ID, recipient_user_id);
         cv.put(Recordings.SERVICE_IDS, service_ids);
         cv.put(Recordings.IS_PRIVATE, is_private);
-        cv.put(Recordings.EXTERNAL_UPLOAD, external_upload);
-        cv.put(Recordings.UPLOAD_STATUS, upload_status);
-
-        if (mPlaybackStream != null) {
-            cv.put(DBHelper.Recordings.TRIM_LEFT,  mPlaybackStream.getStartPos());
-            cv.put(DBHelper.Recordings.TRIM_RIGHT, mPlaybackStream.getEndPos());
-            cv.put(DBHelper.Recordings.OPTIMIZE,   mPlaybackStream.isOptimized() ? 1 : 0);
-            cv.put(DBHelper.Recordings.FADING,     mPlaybackStream.isFading() ? 1 : 0);
-        }
         return cv;
     }
+
+    public ContentValues buildBaseContentValues() {
+        ContentValues cv = super.buildContentValues();
+        addBaseContentValues(cv);
+        return cv;
+    }
+
+
+    private void addBaseContentValues(ContentValues cv) {
+        cv.put(Recordings.USER_ID, user_id > 0 ? user_id : SoundCloudApplication.getUserId());
+        cv.put(Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
+        cv.put(Recordings.PRIVATE_USER_ID, recipient_user_id);
+        cv.put(Recordings.TIMESTAMP, lastModified());
+        cv.put(Recordings.DURATION, duration);
+        cv.put(Recordings.EXTERNAL_UPLOAD, external_upload);
+        cv.put(Recordings.UPLOAD_STATUS, upload_status);
+        if (mPlaybackStream != null) {
+            cv.put(Recordings.TRIM_LEFT,  mPlaybackStream.getStartPos());
+            cv.put(Recordings.TRIM_RIGHT, mPlaybackStream.getEndPos());
+            cv.put(Recordings.OPTIMIZE,   mPlaybackStream.isOptimized() ? 1 : 0);
+            cv.put(Recordings.FADING,     mPlaybackStream.isFading() ? 1 : 0);
+        }
+    }
+
 
     public static boolean isAmplitudeFile(String filename) {
         return AMPLITUDE_PATTERN.matcher(filename).matches();
@@ -294,6 +306,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
             } else {
                 note = what_text;
             }
+        } else if (external_upload && !isLegacyRecording()) {
+            note = audio_path.getName();
         } else {
             note = res.getString(R.string.sounds_from, !TextUtils.isEmpty(where_text) ? where_text :
                     recordingDateString(res));
@@ -303,6 +317,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     public Uri toUri() {
         return id > 0 ? Content.RECORDING.forId(id) : Content.RECORDINGS.uri;
+    }
+
+    public boolean isLegacyRecording(){
+        return (external_upload && audio_path.getParentFile().equals(SoundRecorder.RECORD_DIR));
     }
 
     public String getStatus(Resources resources) {
@@ -365,7 +383,11 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public Intent getMonitorIntent() {
-        return new Intent(Actions.UPLOAD_MONITOR).putExtra(UploadService.EXTRA_RECORDING, this);
+        return new Intent(Actions.UPLOAD_MONITOR).setData(toUri());
+    }
+
+    public Intent getMonitorIntentWithProgress(int uploadStage, int progress) {
+        return getMonitorIntent().putExtra(UploadService.EXTRA_STAGE,uploadStage).putExtra(UploadService.EXTRA_PROGRESS,progress);
     }
 
     public Intent getProcessIntent() {
@@ -452,14 +474,40 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return upload_status == Status.ERROR;
     }
 
+    /** Need to re-encode if fading/optimize is enabled, or no encoding happened during recording */
+    public boolean needsEncoding() {
+        if (external_upload) {
+            return false;
+        }
+        PlaybackStream stream = getPlaybackStream();
+        if (stream != null && stream.isFiltered()) {
+            return !getProcessedFile().exists();
+        } else {
+            return !getEncodedFile().exists();
+        }
+    }
+
+    public boolean needsProcessing() {
+        PlaybackStream stream = getPlaybackStream();
+        return !needsEncoding()
+                && stream != null
+                && stream.isTrimmed()
+                && (!getProcessedFile().exists() || getProcessedFile().length() == 0);
+    }
+
+    public boolean needsResizing() {
+        return hasArtwork() && !hasResizedArtwork();
+    }
+
     /**
      * Gets called after successful upload. Clean any tmp files here.
      */
-    public void onUploaded() {
+    public void onUploaded(ContentResolver resolver) {
         upload_status = Status.UPLOADED;
         IOUtils.deleteFile(getEncodedFile());
         IOUtils.deleteFile(getFile());
         IOUtils.deleteFile(resized_artwork_path);
+        updateStatus(resolver);
     }
 
     public boolean isUploaded() {
@@ -470,23 +518,14 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return upload_status == Status.UPLOADING;
     }
 
-    public boolean isCanceled() {
-        return mUploadException instanceof UserCanceledException;
-    }
-
-    public Recording setUploadException(Exception e) {
-        mUploadException = e;
-        upload_status = e instanceof UserCanceledException ? Status.NOT_YET_UPLOADED : Status.ERROR;
+    public Recording setUploadFailed(boolean cancelled) {
+        upload_status = cancelled ? Status.NOT_YET_UPLOADED : Status.ERROR;
         return this;
     }
 
     public void setPlaybackStream(PlaybackStream stream) {
         duration = stream == null ? 0 : stream.getDuration();
         mPlaybackStream = stream;
-    }
-
-    public Exception getUploadException() {
-        return mUploadException;
     }
 
     public boolean hasArtwork() {
@@ -505,53 +544,9 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return recipient_user_id > 0;
     }
 
-    public boolean needsMigration() {
-        if (!external_upload) {
-            final DeprecatedProfile profile = DeprecatedProfile.getProfile(audio_path);
-            return (profile != DeprecatedProfile.UNKNOWN);
-        }
-        return false;
-    }
-
-    /**
-     * Rename files, return CV for a bulk insert
-     */
-    public ContentValues migrate() {
-        final DeprecatedProfile profile = DeprecatedProfile.getProfile(audio_path);
-        if (profile != DeprecatedProfile.UNKNOWN) {
-            final File newPath = IOUtils.changeExtension(audio_path, profile.updatedExtension);
-            final long lastMod = audio_path.lastModified();
-            if (audio_path.renameTo(newPath)){
-                newPath.setLastModified(lastMod);
-                audio_path = newPath;
-                external_upload = true;
-
-                // return content values for bulk migration
-                ContentValues cv = new ContentValues();
-                cv.put(Recordings._ID, id);
-                cv.put(Recordings.EXTERNAL_UPLOAD, external_upload);
-                cv.put(Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
-                return cv;
-            }
-        }
-        return null;
-    }
-
     @Override
     public int compareTo(Recording recording) {
         return Long.valueOf(lastModified()).compareTo(recording.lastModified());
-    }
-
-    public static Recording checkForUnusedPrivateRecording(File directory, User user) {
-        if (user == null) return null;
-        for (File f : IOUtils.nullSafeListFiles(directory, new RecordingFilter(null))) {
-            if (Recording.getUserIdFromFile(f) == user.id) {
-                Recording r = new Recording(f);
-                r.recipient = user;
-                return r;
-            }
-        }
-        return null;
     }
 
     public static List<Recording> getUnsavedRecordings(ContentResolver resolver, File directory, Recording ignore, long userId) {
@@ -559,9 +554,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
         List<Recording> unsaved = new ArrayList<Recording>();
 
         Map<String,File> toCheck = new HashMap<String,File>();
-        for (File f : IOUtils.nullSafeListFiles(directory, new RecordingFilter(ignore))) {
+        final File[] list = IOUtils.nullSafeListFiles(directory, new RecordingFilter(ignore));
+        Arrays.sort(list); // we want .wav files taking precedence, so make sure they appear last (alpha order)
+        for (File f : list) {
             if (getUserIdFromFile(f) != -1) continue; //TODO, what to do about private messages
-            // this should put wav files in when possible (because of alphabetical ordering)
             toCheck.put(IOUtils.removeExtension(f).getAbsolutePath(), f);
         }
         for (File f : toCheck.values()) {
@@ -667,6 +663,12 @@ public class Recording extends ScModel implements Comparable<Recording> {
         }
     }
 
+    public static void clearRecordingFromIntent(Intent intent) {
+        intent.removeExtra(EXTRA);
+        intent.removeExtra(Intent.EXTRA_STREAM);
+        intent.setData(null);
+    }
+
     public static Recording fromUri(Uri uri, ContentResolver resolver) {
         Cursor cursor = resolver.query(uri, null, null, null, null);
         try {
@@ -689,6 +691,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
                 System.currentTimeMillis()
                 + (user == null ? "" : "_" + user.id)
                 + "."+WavReader.EXTENSION);
+
         return new Recording(file, user);
     }
 
@@ -820,7 +823,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     private PlaybackStream initializePlaybackStream(@Nullable Cursor c) {
         try {
-            final AudioReader reader = AudioReader.guess(audio_path);
+            final AudioReader reader = AudioReader.guessMultiple(getFile(), getEncodedFile());
+
             PlaybackStream stream = new PlaybackStream(reader);
             if (c != null) {
                 long startPos = c.getLong(c.getColumnIndex(Recordings.TRIM_LEFT));
@@ -839,70 +843,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
             return stream;
         } catch (IOException e) {
             Log.w(TAG, "could not initialize playback stream", e);
-            return new PlaybackStream(new EmptyReader());
+            return new PlaybackStream(AudioReader.EMPTY);
         }
     }
-
-    public static boolean migrateRecordings(List<Recording> recordings, final ContentResolver resolver) {
-        final List<Recording> migrate = new ArrayList<Recording>();
-        for (Recording r : recordings) {
-            if (r.needsMigration()) migrate.add(r);
-        }
-
-        if (migrate.size() > 0) {
-            new Thread() {
-                @Override
-                public void run() {
-                    Log.i(SoundCloudApplication.TAG,"Deprecated recordings found, trying to migrate " + migrate.size() + " recordings");
-                    ContentValues[] cv = new ContentValues[migrate.size()];
-                    int i = 0;
-                    for (Recording r : migrate) {
-                        cv[i] = r.migrate();
-                        i++;
-                    }
-                    int updated = resolver.bulkInsert(Content.RECORDINGS.uri, cv);
-                    Log.i(SoundCloudApplication.TAG,"Finished migrating " + updated + " recordings");
-                }
-            }.start();
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-
-    static enum DeprecatedProfile {
-
-        UNKNOWN(-1, null),
-        ENCODED_LOW(0, "ogg"),
-        ENCODED_HIGH(1, "ogg"),
-        RAW(2, "wav");
-
-        final int id;
-        final String updatedExtension;
-
-        DeprecatedProfile(int id, String updatedExtension){
-            this.id = id;
-            this.updatedExtension = updatedExtension;
-        }
-
-        public static DeprecatedProfile getProfile(File f) {
-            if (f != null) {
-                try {
-                    final int profile = Integer.parseInt(IOUtils.extension(f));
-                    for (DeprecatedProfile p : DeprecatedProfile.values()) {
-                        if (p.id == profile) return p;
-                    }
-                } catch (NumberFormatException ignore) {
-                }
-            }
-            return UNKNOWN;
-        }
-
-        public String getExtension() {
-            return "." + id;
-        }
-    }
-
 }
-

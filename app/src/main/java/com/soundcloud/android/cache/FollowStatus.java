@@ -36,6 +36,10 @@ import java.util.WeakHashMap;
 // TODO replace with db lookups
 @Deprecated
 public class FollowStatus implements Parcelable {
+    public static  final int FOLLOW_STATUS_SUCCESS = 0;
+    public static  final int FOLLOW_STATUS_FAIL    = 1;
+    public static  final int FOLLOW_STATUS_SPAM    = 2;
+
     private static final Request ENDPOINT = Request.to(Endpoints.MY_FOLLOWINGS + "/ids");
     private static final int MAX_AGE = 5 * 60 * 1000;
 
@@ -111,12 +115,14 @@ public class FollowStatus implements Parcelable {
                                 final Handler handler) {
         final boolean addFollowing = toggleFollowing(userid);
         return new AsyncApiTask<Long,Void,Boolean>(api) {
+            int status;
+
             @Override
             protected Boolean doInBackground(Long... params) {
                 Long id = params[0];
                 final Request request = Request.to(Endpoints.MY_FOLLOWING, id);
                 try {
-                    final int status = (addFollowing ? api.put(request) : api.delete(request))
+                    status = (addFollowing ? api.put(request) : api.delete(request))
                                       .getStatusLine().getStatusCode();
                     final boolean success;
                     if (addFollowing) {
@@ -140,12 +146,16 @@ public class FollowStatus implements Parcelable {
                     for (Listener l : listeners.keySet()) {
                         l.onChange(true, FollowStatus.this);
                     }
+
+                    if (handler != null) {
+                        Message.obtain(handler, FOLLOW_STATUS_SUCCESS).sendToTarget();
+                    }
                 } else {
                     updateFollowing(userid, !addFollowing); // revert state change
-                }
 
-                if (handler != null) {
-                    Message.obtain(handler, success ? 1 : 0).sendToTarget();
+                    if (handler != null) {
+                        Message.obtain(handler, status == 429 ? FOLLOW_STATUS_SPAM : FOLLOW_STATUS_FAIL).sendToTarget();
+                    }
                 }
             }
         }.execute(userid);

@@ -17,11 +17,13 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Tracks;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.task.fetch.FetchModelTask;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.LoadCommentsTask;
+import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.FlowLayout;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -42,10 +44,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Track extends ScModel implements Origin, Playable, Refreshable {
     private static final String TAG = "Track";
+    public static final String EXTRA = "track";
 
     public static class TrackHolder extends CollectionHolder<Track> {}
 
@@ -53,7 +57,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     @JsonView(Views.Full.class) public Date created_at;
     @JsonView(Views.Mini.class) public long user_id;
     @JsonView(Views.Full.class) public int duration;
-    @JsonView(Views.Full.class) public State state;
+    @JsonView(Views.Full.class) @Nullable public State state;
     @JsonView(Views.Full.class) public boolean commentable;
     @JsonView(Views.Full.class) public Sharing sharing;  //  public | private
     @JsonView(Views.Full.class) public String tag_list;
@@ -203,6 +207,18 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         return !TextUtils.isEmpty(stream_url) && (state == null || state.isStreamable());
     }
 
+    public boolean isProcessing() {
+        return state != null && state.isProcessing();
+    }
+
+    public boolean isFinished() {
+        return state != null && state.isFinished();
+    }
+
+    public boolean isFailed() {
+        return state != null && state.isFailed();
+    }
+
     public boolean isPublic() {
         return sharing == null || sharing.isPublic();
     }
@@ -272,10 +288,16 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         shared_to_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.SHARED_TO_COUNT));
         user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
         commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENTABLE)) == 1;
+
         final int sharingNoteIdx = cursor.getColumnIndex(DBHelper.TrackView.SHARING_NOTE_TEXT);
         if (sharingNoteIdx != -1) {
             sharing_note = new TrackSharing.SharingNote();
             sharing_note.text = cursor.getString(sharingNoteIdx);
+        }
+
+        final long lastUpdated = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.LAST_UPDATED));
+        if (lastUpdated > 0) {
+            last_updated = lastUpdated;
         }
 
         user = SoundCloudApplication.USER_CACHE.fromTrackView(cursor);
@@ -475,7 +497,8 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     public String toString() {
         return "Track{" +
                 "id="+id+
-                ", title='" + title + '\'' +
+                ", title='" + title + "'" +
+                ", permalink_url='" + permalink_url + "'" +
                 ", duration=" + duration +
                 ", state=" + state +
                 ", user=" + user +
@@ -516,6 +539,10 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         intent.putExtra(android.content.Intent.EXTRA_TEXT, permalink_url);
 
         return intent;
+    }
+
+    public Intent getPlayIntent() {
+        return new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(EXTRA, this);
     }
 
     public Uri commitLocally(ContentResolver resolver, TrackCache cache) {
@@ -568,7 +595,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
 
     public static Track fromIntent(Intent intent, ContentResolver resolver) {
         if (intent == null) throw new IllegalArgumentException("intent is null");
-        Track t = intent.getParcelableExtra("track");
+        Track t = intent.getParcelableExtra(EXTRA);
         if (t == null) {
             long id = intent.getLongExtra("track_id", 0);
             // TODO: should be one operation

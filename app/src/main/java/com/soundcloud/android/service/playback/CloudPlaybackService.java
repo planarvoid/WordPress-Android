@@ -7,6 +7,9 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.audio.managers.AudioManagerFactory;
+import com.soundcloud.android.audio.managers.IAudioManager;
+import com.soundcloud.android.audio.managers.IRemoteAudioManager;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
@@ -44,8 +47,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -111,7 +112,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private static final int MINIMUM_SEEKABLE_SDK = Build.VERSION_CODES.ECLAIR_MR1; // 7, 2.1
 
     private static final float FADE_CHANGE = 0.02f; // change to fade faster/slower
-    private static final String AUDIO_BECOMING_NOISY = "android.media.AUDIO_BECOMING_NOISY";
 
     private MediaPlayer mMediaPlayer;
     private int mLoadPercent = 0;       // track buffer indicator
@@ -127,7 +127,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private long mLastRefresh;          // time last refresh hit was sent
 
     private int mServiceStartId = -1;
-    private boolean mServiceInUse = false;
+    private boolean mServiceInUse;
     private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
 
     private static final int IDLE_DELAY = 60*1000;  // interval after which we stop the service when idle
@@ -139,7 +139,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private TrackCache mCache;
 
     // audio focus related
-    private IAudioManager mFocus;
+    private IRemoteAudioManager mFocus;
     private boolean mTransientFocusLoss;
 
     private final IBinder mBinder = new LocalBinder<CloudPlaybackService>() {
@@ -189,23 +189,13 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         commandFilter.addAction(PLAYLIST_CHANGED);
 
         registerReceiver(mIntentReceiver, commandFilter);
-        registerReceiver(mNoisyReceiver, new IntentFilter(AUDIO_BECOMING_NOISY));
+        registerReceiver(mNoisyReceiver, new IntentFilter(Consts.AUDIO_BECOMING_NOISY));
 
-        mFocus = AudioManagerFactory.createAudioManager(this);
-        if (!mFocus.isFocusSupported()) {
-            // setup call listening if not handled by audiofocus
-            TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-            tmgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
-        }
+        mFocus = AudioManagerFactory.createRemoteAudioManager(this);
+
         // If the service was idle, but got killed before it stopped itself, the
         // system will relaunch it. Make sure it gets stopped again in that case.
         scheduleServiceShutdownCheck();
-
-        mResumeTime = mPlaylistManager.reloadQueue();
-        currentTrack = mPlaylistManager.getCurrentTrack();
-        if (currentTrack != null && mResumeTime > 0) {
-            mResumeTrackId = currentTrack.id;
-        }
 
         try {
             mProxy = new StreamProxy(getApp()).init().start();
@@ -273,12 +263,27 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mDelayedStopHandler.removeCallbacksAndMessages(null);
 
         if (intent != null) {
+
+            if (!PLAY_ACTION.equals(intent.getAction()) && mPlaylistManager.isEmpty()){
+                configureLastPlaylist();
+            }
             mIntentReceiver.onReceive(this, intent);
         }
         scheduleServiceShutdownCheck();
         // make sure the service will shut down on its own if it was
         // just started but not bound to and nothing is playing
         return START_STICKY;
+    }
+
+    public boolean configureLastPlaylist() {
+        mResumeTime = mPlaylistManager.reloadQueue();
+        currentTrack = mPlaylistManager.getCurrentTrack();
+        if (currentTrack != null && mResumeTime > 0) {
+            mResumeTrackId = currentTrack.id;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -1003,21 +1008,22 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
         }
 
-        Track track = intent.getParcelableExtra("track");
+        Track track = intent.getParcelableExtra(Track.EXTRA);
         if (track != null) {
             mPlaylistManager.setTrack(track);
             openCurrent();
         } else if (intent.getData() != null) {
-            mPlaylistManager.setUri(intent.getData(),
+            mPlaylistManager.loadUri(intent.getData(),
                     intent.getIntExtra(PlayExtras.playPosition, 0),
                     intent.getLongExtra(PlayExtras.trackId, -1)
             );
             openCurrent();
         } else if (intent.getBooleanExtra(PlayExtras.playFromXferCache, false)) {
-            mPlaylistManager.setPlaylist(playlistXfer,intent.getIntExtra(PlayExtras.playPosition, 0));
+            mPlaylistManager.setPlaylist(playlistXfer, intent.getIntExtra(PlayExtras.playPosition, 0));
             playlistXfer = null;
             openCurrent();
-        } else {
+        } else if (!mPlaylistManager.isEmpty() || configureLastPlaylist()){
+            // random play intent, play whatever we had last
             play();
         }
     }
@@ -1271,23 +1277,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 }
             }
             return true;
-        }
-    };
-
-    // this is only used in pre 2.2 phones where there is no audio focus support
-    private PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
-        @Override
-        public void onCallStateChanged(int callState, String incomingNumber) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onCallStateChanged(state="+callState+", playerState="+state+")");
-            }
-            if (callState == TelephonyManager.CALL_STATE_OFFHOOK ||
-               (callState == TelephonyManager.CALL_STATE_RINGING &&
-                 mAudioManager.getStreamVolume(AudioManager.STREAM_RING) > 0)) {
-                focusLost(true, false);
-            } else if (callState == TelephonyManager.CALL_STATE_IDLE) {
-                focusGained();
-            }
         }
     };
 

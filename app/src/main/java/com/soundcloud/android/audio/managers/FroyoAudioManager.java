@@ -1,28 +1,19 @@
-package com.soundcloud.android.service.playback;
+package com.soundcloud.android.audio.managers;
 
-import com.soundcloud.android.model.Track;
-
-import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
+import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.media.AudioManager;
 
 @SuppressWarnings("UnusedDeclaration")
-@SuppressLint("NewApi")
+@TargetApi(8)
 public class FroyoAudioManager implements IAudioManager {
     private boolean mAudioFocusLost;
     private AudioManager.OnAudioFocusChangeListener listener;
 
     private final Context mContext;
 
-    protected final Class<? extends BroadcastReceiver> RECEIVER = RemoteControlReceiver.class;
-    protected final ComponentName receiverComponent;
-
     public FroyoAudioManager(final Context context) {
         mContext = context;
-        receiverComponent = new ComponentName(context, RECEIVER);
     }
 
     @Override
@@ -76,20 +67,10 @@ public class FroyoAudioManager implements IAudioManager {
 
     @Override
     public void onFocusObtained() {
-        registerMediaButton();
     }
 
     @Override
     public void onFocusAbandoned() {
-        unregisterMediaButton();
-    }
-
-    @Override
-    public void onTrackChanged(Track track, Bitmap artwork) {
-    }
-
-    @Override
-    public void setPlaybackState(State state) {
     }
 
     @Override
@@ -97,20 +78,9 @@ public class FroyoAudioManager implements IAudioManager {
         return true;
     }
 
-    @Override
-    public boolean isTrackChangeSupported() {
-        return false;
-    }
-
     protected AudioManager getAudioManager() {
         return (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
     }
 
-    private void registerMediaButton() {
-        getAudioManager().registerMediaButtonEventReceiver(receiverComponent);
-    }
 
-    private void unregisterMediaButton() {
-        getAudioManager().unregisterMediaButtonEventReceiver(receiverComponent);
-    }
 }

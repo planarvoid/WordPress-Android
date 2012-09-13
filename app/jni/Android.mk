@@ -202,3 +202,14 @@ LOCAL_LDLIBS := -llog
 LOCAL_STATIC_LIBRARIES := vorbis oggz
 
 include $(BUILD_SHARED_LIBRARY)
+
+#
+#  libnative_amplitude_analyzer
+#
+include $(CLEAR_VARS)
+LOCAL_MODULE := native_amplitude_analyzer
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
+LOCAL_SRC_FILES := soundcloud/com_soundcloud_android_jni_NativeAmplitudeAnalyzer.c
+LOCAL_LDLIBS := -llog
+
+include $(BUILD_SHARED_LIBRARY)

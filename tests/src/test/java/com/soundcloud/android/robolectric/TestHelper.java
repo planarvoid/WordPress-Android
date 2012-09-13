@@ -7,6 +7,7 @@ import com.soundcloud.android.provider.Content;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
+import com.xtremelabs.robolectric.shadows.ShadowNetworkInfo;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 
@@ -88,21 +89,28 @@ public class TestHelper {
         shadowOf(shadowOf(cm).getActiveNetworkInfo()).setConnectionStatus(false);
     }
 
+    public static void simulateOnline() {
+        ConnectivityManager cm = (ConnectivityManager)
+                Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
+        shadowOf(shadowOf(cm).getActiveNetworkInfo()).setConnectionStatus(true);
+    }
+
+
     public static void connectedViaWifi(boolean enabled) {
         ConnectivityManager cm = (ConnectivityManager)
                 Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         if (enabled) {
             // pretend we're connected via wifi
-            Robolectric.shadowOf(cm).setNetworkInfo(ConnectivityManager.TYPE_WIFI,
-                    newInstanceOf(NetworkInfo.class));
+            shadowOf(cm).setActiveNetworkInfo(ShadowNetworkInfo.newInstance(null, ConnectivityManager.TYPE_WIFI,
+                    0, true, true));
+
         } else {
             // pretend we're connected only via mobile, no wifi
-            Robolectric.shadowOf(cm).setNetworkInfo(ConnectivityManager.TYPE_MOBILE,
-                    newInstanceOf(NetworkInfo.class));
+            shadowOf(cm).setActiveNetworkInfo(ShadowNetworkInfo.newInstance(null, ConnectivityManager.TYPE_MOBILE,
+                    0, true, true));
 
-            NetworkInfo info = newInstanceOf(NetworkInfo.class);
-            Robolectric.shadowOf(info).setConnectionStatus(false);
+            NetworkInfo info = ShadowNetworkInfo.newInstance(null, ConnectivityManager.TYPE_WIFI, 0, true, false);
             Robolectric.shadowOf(cm).setNetworkInfo(ConnectivityManager.TYPE_WIFI, info);
         }
     }

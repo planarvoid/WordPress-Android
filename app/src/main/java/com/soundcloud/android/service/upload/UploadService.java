@@ -12,10 +12,12 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -31,22 +33,27 @@ import android.os.*;
 import android.os.Process;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class UploadService extends Service {
     /* package */ static final String TAG = UploadService.class.getSimpleName();
 
+    public static final int UPLOAD_STAGE_PROCESSING     = 1;
+    public static final int UPLOAD_STAGE_TRANSFERRING   = 2;
+
     public static final String EXTRA_RECORDING   = Recording.EXTRA;
-    public static final String EXTRA_TRACK       = "track";
     public static final String EXTRA_TRANSFERRED = "transferred";
     public static final String EXTRA_TOTAL       = "total";
     public static final String EXTRA_PROGRESS    = "progress";
+    public static final String EXTRA_STAGE       = "stage";
 
     public static final String UPLOAD_CANCEL     = "com.soundcloud.android.service.upload.cancel";
     public static final String UPLOAD_SUCCESS    = "com.soundcloud.android.service.upload.success";
@@ -81,6 +88,7 @@ public class UploadService extends Service {
         TRANSFER_SUCCESS,
 
         PROCESSING_STARTED,
+        PROCESSING_CANCELED,
         PROCESSING_SUCCESS,
         PROCESSING_ERROR,
         PROCESSING_PROGRESS,
@@ -95,27 +103,11 @@ public class UploadService extends Service {
 
     private static class Upload {
         final Recording recording;
+        Track track;
         Notification notification;
 
         public Upload(Recording r){
             recording = r;
-        }
-
-        /** Need to re-encode if fading/optimize is enabled, or no encoding happened during recording */
-        public boolean needsEncoding() {
-            return !recording.getEncodedFile().exists() ||
-                   (recording.getPlaybackStream().isFiltered() && !recording.getProcessedFile().exists());
-        }
-
-        public boolean needsResizing() {
-            return recording.hasArtwork() && !recording.hasResizedArtwork();
-        }
-
-        public boolean needsProcessing() {
-            return !needsEncoding() &&
-                    recording.getPlaybackStream() != null &&
-                    recording.getPlaybackStream().isTrimmed() &&
-                  (!recording.getProcessedFile().exists() || recording.getProcessedFile().length() == 0);
         }
 
         @Override
@@ -163,9 +155,6 @@ public class UploadService extends Service {
     public void onDestroy() {
         Log.d(TAG, "onDestroy()");
 
-        // ensure notification is gone
-        nm.cancel(UPLOADING_NOTIFY_ID);
-
         mIntentHandler.getLooper().quit();
         mUploadHandler.getLooper().quit();
         mProcessingHandler.getLooper().quit();
@@ -173,7 +162,7 @@ public class UploadService extends Service {
         if (isUploading()) {
             Log.w(TAG, "Service being destroyed while still uploading.");
             for (Upload u : mUploads.values()) {
-                cancel(u);
+                cancel(u.recording);
             }
         }
         mBroadcastManager.unregisterReceiver(mReceiver);
@@ -209,11 +198,11 @@ public class UploadService extends Service {
 
             Log.d(TAG, "handleMessage("+upload+")");
 
-            if (upload.needsResizing()) {
+            if (upload.recording.needsResizing()) {
                 post(new ImageResizer(UploadService.this, upload.recording));
-            } else if (upload.needsProcessing()) {
+            } else if (upload.recording.needsProcessing()) {
                 mProcessingHandler.post(new Processor(UploadService.this, upload.recording));
-            } else if (upload.needsEncoding()) {
+            } else if (upload.recording.needsEncoding()) {
                 mProcessingHandler.post(new Encoder(UploadService.this, upload.recording));
             } else {
                 // perform the actual upload
@@ -234,34 +223,30 @@ public class UploadService extends Service {
             final String action = intent.getAction();
             final Recording recording = intent.getParcelableExtra(EXTRA_RECORDING);
 
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Service received action " + action);
             if (RESIZE_STARTED.equals(action)) {
                 acquireWakelock();
-                // XXX notify
 
             } else if (RESIZE_SUCCESS.equals(action)) {
                 releaseWakelock();
                 queueUpload(recording);
 
-            } else if (RESIZE_ERROR.equals(action)) {
-                releaseWakelock();
-
             } else if (PROCESSING_STARTED.equals(action)) {
+                acquireWakelock();
                 showUploadingNotification(recording, PROCESSING_STARTED);
 
             } else if (PROCESSING_PROGRESS.equals(action)) {
                 sendNotification(recording,
                         updateProcessingProgress(
-                                getOngoingNotification(recording),
-                                R.string.uploader_event_processing,
+                                recording,
+                                R.string.uploader_event_processing_percent,
                                 intent.getIntExtra(EXTRA_PROGRESS, 0)
                         )
                 );
 
             } else if (PROCESSING_SUCCESS.equals(action)) {
+                releaseWakelock();
                 queueUpload(recording);
-
-            } else if (PROCESSING_ERROR.equals(action)) {
-                uploadDone(recording);
 
             } else if (TRANSFER_STARTED.equals(action)) {
                 showUploadingNotification(recording, TRANSFER_STARTED);
@@ -270,31 +255,47 @@ public class UploadService extends Service {
             } else if (TRANSFER_PROGRESS.equals(action)) {
                 sendNotification(recording,
                         updateUploadingProgress(
-                                getOngoingNotification(recording),
-                                R.string.uploader_event_uploading,
+                                recording,
+                                R.string.uploader_event_uploading_percent,
                                 intent.getIntExtra(EXTRA_PROGRESS, 0)
                         )
                 );
 
-            } else if (TRANSFER_SUCCESS.equals(action) ||
-                    TRANSFER_ERROR.equals(action) ||
-                    TRANSFER_CANCELLED.equals(action)) {
+            } else if (TRANSFER_SUCCESS.equals(action)) {
+                Upload upload = mUploads.get(recording.id);
+                if (upload == null) return;
+                upload.track = intent.getParcelableExtra(Track.EXTRA);
 
-                if (TRANSFER_SUCCESS.equals(action)) {
-                        new Poller(createLooper("poller_" + recording.track_id, Process.THREAD_PRIORITY_BACKGROUND),
-                                (AndroidCloudAPI) getApplication(),
-                                recording.track_id,
-                                Content.ME_TRACKS.uri).start();
+                new Poller(createLooper("poller_" + upload.track.id, Process.THREAD_PRIORITY_BACKGROUND),
+                            (AndroidCloudAPI) getApplication(),
+                            upload.track.id,
+                            Content.ME_TRACKS.uri).start();
 
-                    mBroadcastManager.sendBroadcast(new Intent(UPLOAD_SUCCESS)
-                            .putExtra(UploadService.EXTRA_RECORDING, recording));
-                }
+                mBroadcastManager.sendBroadcast(new Intent(UPLOAD_SUCCESS)
+                        .putExtra(UploadService.EXTRA_RECORDING, recording));
 
-                // XXX retry on temp. error?
-                uploadDone(recording);
-            } else if (TRANSCODING_FAILED.equals(action)) {
-                Track track = intent.getParcelableExtra(EXTRA_TRACK);
-                sendNotification(track, transcodingFailedNotification(track));
+                releaseWifilock();
+                onUploadDone(recording);
+
+            } else if (TRANSCODING_SUCCESS.equals(action) || TRANSCODING_FAILED.equals(action)) {
+                releaseWakelock();
+                onTranscodingDone(intent.<Track>getParcelableExtra(Track.EXTRA));
+            }
+
+
+            // error handling
+            final boolean wasError = RESIZE_ERROR.equals(action)
+                    || PROCESSING_CANCELED.equals(action)
+                    || PROCESSING_ERROR.equals(action)
+                    || TRANSFER_CANCELLED.equals(action)
+                    || TRANSFER_ERROR.equals(action);
+            if (wasError) {
+                recording.setUploadFailed(PROCESSING_CANCELED.equals(action) || TRANSFER_CANCELLED.equals(action))
+                        .updateStatus(getContentResolver()); // for list state
+
+                releaseLocks();
+                mUploads.remove(recording.id);
+                onUploadDone(recording);
             }
         }
     };
@@ -313,45 +314,95 @@ public class UploadService extends Service {
         return notification;
     }
 
-    private void uploadDone(Recording recording) {
-        mUploads.remove(recording.id);
-        releaseLocks();
-
+    private void onUploadDone(Recording recording) {
         // leave a note
         Notification n = notifyUploadCurrentUploadFinished(recording);
         if (n != null) {
-            sendNotification(recording,n);
+            sendNotification(recording, n);
+        } else {
+            cancelNotification(recording);
         }
 
         if (!isUploading()) { // last one switch off the lights
+            stopSelf();
+            nm.cancel(UPLOADING_NOTIFY_ID);
+        }
+    }
+
+    private void onTranscodingDone(Track track) {
+        releaseLocks();
+
+        if (!track.isFinished()) {
+            sendNotification(track, transcodingFailedNotification(track));
+        }
+
+        Iterator<Upload> it = mUploads.values().iterator();
+        while (it.hasNext()) {
+            Upload u = it.next();
+            if (track.equals(u.track)) it.remove();
+        }
+
+        if (!isUploading()) {
             stopSelf();
         }
     }
 
     private void sendNotification(ScModel r, Notification n) {
         // ugly way to help uniqueness
-        nm.notify((int) (9990000 + r.id), n);
+        nm.notify(getNotificationId(r), n);
     }
 
-    private Notification updateProcessingProgress(Notification n, int stringId, int progress) {
+    private void cancelNotification(ScModel r) {
+        nm.cancel(getNotificationId(r));
+    }
+
+    private int getNotificationId(ScModel r){
+        return (int) (9990000 + r.id);
+    }
+
+    private Notification updateProcessingProgress(Recording r, int stringId, int progress) {
+        final Notification n = getOngoingNotification(r);
         final int positiveProgress = Math.max(0, progress);
-        n.contentView.setTextViewText(R.id.txt_processing, getString(stringId, positiveProgress));
-        n.contentView.setProgressBar(R.id.progress_bar_processing, 100, positiveProgress, progress == -1); // just show indeterminate for 0 progress, looks better for quick uploads
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                r.getMonitorIntentWithProgress(UPLOAD_STAGE_PROCESSING, positiveProgress), PendingIntent.FLAG_UPDATE_CURRENT);
+
+        if (Consts.SdkSwitches.useCustomNotificationLayouts) {
+            n.contentIntent = pendingIntent;
+            n.contentView.setTextViewText(R.id.txt_processing, getString(stringId, positiveProgress));
+            n.contentView.setProgressBar(R.id.progress_bar_processing, 100, positiveProgress, progress == -1); // just show indeterminate for 0 progress, looks better for quick uploads
+        } else {
+            n.setLatestEventInfo(this, r.getTitle(getResources()), getString(stringId, positiveProgress), pendingIntent);
+        }
         return n;
     }
 
-    private Notification updateUploadingProgress(Notification n, int stringId, int progress) {
+    private Notification updateUploadingProgress(Recording r, int stringId, int progress) {
+        final Notification n = getOngoingNotification(r);
         final int positiveProgress = Math.max(0, progress);
-        n.contentView.setTextViewText(R.id.txt_uploading, getString(stringId, positiveProgress));
-        n.contentView.setProgressBar(R.id.progress_bar_uploading, 100, positiveProgress, progress == -1);
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                r.getMonitorIntentWithProgress(UPLOAD_STAGE_TRANSFERRING, positiveProgress), PendingIntent.FLAG_UPDATE_CURRENT);
+
+        if (Consts.SdkSwitches.useCustomNotificationLayouts) {
+            n.contentIntent = pendingIntent;
+            n.contentView.setTextViewText(R.id.txt_uploading, getString(stringId, positiveProgress));
+            n.contentView.setProgressBar(R.id.progress_bar_uploading, 100, positiveProgress, progress == -1);
+        } else {
+            n.setLatestEventInfo(this, r.getTitle(getResources()), getString(stringId, positiveProgress), pendingIntent);
+        }
         return n;
     }
 
 
     /* package */ void upload(Recording recording) {
+
+        final SoundRecorder soundRecorder = SoundRecorder.getInstance(getApplicationContext());
+        if (soundRecorder.isActive() && soundRecorder.getRecording().equals(recording)){
+            soundRecorder.gotoIdleState();
+        }
+
         // make sure recording is saved before uploading
         if (!recording.isSaved() &&
-            (recording = SoundCloudDB.insertRecording(getContentResolver(), recording)) == null) {
+            (recording = SoundCloudDB.upsertRecording(getContentResolver(), recording, null)) == null) {
             Log.w(TAG, "could not insert " + recording);
         } else {
             recording.upload_status = Recording.Status.UPLOADING;
@@ -361,19 +412,18 @@ public class UploadService extends Service {
     }
 
     /* package */  void cancel(Recording r) {
-        cancel(getUpload(r));
-    }
 
-    /* package */  void cancel(Upload u) {
-        mUploadHandler.removeMessages(0, u);
-
+        Upload u = mUploads.get(r.id);
+        if (u != null) mUploadHandler.removeMessages(0, u);
         if (mUploads.isEmpty()) {
             Log.d(TAG, "onCancel() called without any active uploads");
+            mBroadcastManager.sendBroadcast(new Intent(TRANSFER_CANCELLED).putExtra(EXTRA_RECORDING, r)); // send this in case someone is cancelling a stuck upload
             stopSelf();
-        }  else {
-            mBroadcastManager.sendBroadcast(new Intent(UploadService.UPLOAD_CANCEL).putExtra(EXTRA_RECORDING, u.recording));
+        } else {
+            mBroadcastManager.sendBroadcast(new Intent(UploadService.UPLOAD_CANCEL).putExtra(EXTRA_RECORDING, r));
         }
     }
+
 
     private void queueUpload(Recording recording) {
         Upload upload = getUpload(recording);
@@ -401,29 +451,38 @@ public class UploadService extends Service {
 
     private void showUploadingNotification(Recording recording, String action) {
         Notification n = getOngoingNotification(recording);
-        n.contentView.setTextViewText(R.id.time, getFormattedNotificationTimestamp(this, System.currentTimeMillis()));
-        n.contentView.setTextViewText(R.id.message, TextUtils.isEmpty(recording.title) ? recording.sharingNote(getResources()) : recording.title);
 
-        if (PROCESSING_STARTED.equals(action)) {
-            updateProcessingProgress(n, R.string.uploader_event_processing_percent, -1);
-            updateProcessingProgress(n, R.string.uploader_event_not_yet_uploading, 0);
-        } else if (TRANSFER_STARTED.equals(action)) {
-            updateProcessingProgress(n, R.string.uploader_event_processing_finished, 100);
-            updateUploadingProgress(n, R.string.uploader_event_uploading_percent, -1);
-        }
+        if (Consts.SdkSwitches.useCustomNotificationLayouts){
+            n.contentView.setTextViewText(R.id.time, getFormattedNotificationTimestamp(this, System.currentTimeMillis()));
+            n.contentView.setTextViewText(R.id.message, TextUtils.isEmpty(recording.title) ? recording.sharingNote(getResources()) : recording.title);
 
-        if (Consts.SdkSwitches.useRichNotifications && recording.hasArtwork()){
-            Bitmap b = ImageUtils.getConfiguredBitmap(recording.artwork_path,
-                    (int) getResources().getDimension(R.dimen.notification_image_width),
-                    (int) getResources().getDimension(R.dimen.notification_image_height));
-            if (b != null){
-                n.contentView.setImageViewBitmap(R.id.icon,b);
+            if (Consts.SdkSwitches.useRichNotifications && recording.hasArtwork()){
+                Bitmap b = ImageUtils.getConfiguredBitmap(recording.artwork_path,
+                        (int) getResources().getDimension(R.dimen.notification_image_width),
+                        (int) getResources().getDimension(R.dimen.notification_image_height));
+                if (b != null){
+                    n.contentView.setImageViewBitmap(R.id.icon,b);
+                }
+            }
+            if (PROCESSING_STARTED.equals(action)) {
+                updateProcessingProgress(recording, R.string.uploader_event_processing_percent, -1);
+                updateUploadingProgress(recording, R.string.uploader_event_not_yet_uploading, 0);
+            } else if (TRANSFER_STARTED.equals(action)) {
+                updateProcessingProgress(recording, R.string.uploader_event_processing_finished, 100);
+                updateUploadingProgress(recording, R.string.uploader_event_uploading_percent, -1);
+            }
+        } else {
+            if (PROCESSING_STARTED.equals(action)) {
+                updateProcessingProgress(recording, R.string.uploader_event_processing_percent, -1);
+            } else if (TRANSFER_STARTED.equals(action)) {
+                updateUploadingProgress(recording, R.string.uploader_event_uploading_percent, -1);
             }
         }
+
         sendNotification(recording, n);
     }
 
-    private Notification notifyUploadCurrentUploadFinished(Recording recording) {
+    private @Nullable Notification notifyUploadCurrentUploadFinished(Recording recording) {
         final CharSequence title;
         final CharSequence message;
         final CharSequence tickerText;
@@ -437,9 +496,9 @@ public class UploadService extends Service {
                     new Intent(Actions.MY_PROFILE).putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks),
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
-        } else if (!recording.isCanceled()) {
+        } else if (recording.isError()) {
             title = getString(R.string.cloud_uploader_notification_error_title);
-            message = getString(R.string.cloud_uploader_notification_error_message, recording.title);
+            message = getString(R.string.cloud_uploader_notification_error_message, recording.title); // XXX could be null
             tickerText = getString(R.string.cloud_uploader_notification_error_ticker);
             contentIntent = PendingIntent.getActivity(this, 0, recording.getMonitorIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -507,8 +566,8 @@ public class UploadService extends Service {
 
     private static CharSequence getFormattedNotificationTimestamp(Context context, long when) {
         final Date date = new Date(when);
-        return DateUtils.isToday(when) ? android.text.format.DateFormat.getTimeFormat(context).format(date)
-                : android.text.format.DateFormat.getDateFormat(context).format(date);
+        return DateUtils.isToday(when) ? DateFormat.getTimeFormat(context).format(date)
+                : DateFormat.getDateFormat(context).format(date);
     }
 
     private final class IntentHandler extends Handler {
@@ -518,7 +577,6 @@ public class UploadService extends Service {
         @Override
         public void handleMessage(Message msg) {
             final Intent intent = (Intent) msg.obj;
-
             Recording r = intent.getParcelableExtra(EXTRA_RECORDING);
             if (r != null) {
                 if (Actions.UPLOAD.equals(intent.getAction())) {

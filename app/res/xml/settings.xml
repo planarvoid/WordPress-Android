@@ -134,6 +134,11 @@
             android:summary="@string/pref_dev_crash_summary"
             android:key="dev.crash"/>
 
+        <Preference
+                android:title="@string/pref_dev_clear_recordings"
+                android:summary="@string/pref_dev_clear_recordings_summary"
+                android:key="dev.clearRecordings"/>
+
         <EditTextPreference
             android:title="@string/pref_dev_http_proxy"
             android:summary="@string/pref_dev_http_proxy_summary"

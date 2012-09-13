@@ -49,6 +49,9 @@ public class RemainingTimeCalculator {
     // size of the file at that time
     private long mLastFileSize;
 
+    /**
+     * @param bytesPerSecond the estimated bps rate of the audio stream to be recorded
+     */
     public RemainingTimeCalculator(int bytesPerSecond) {
         mSDCardDirectory = Environment.getExternalStorageDirectory();
         mBytesPerSecond = bytesPerSecond;
@@ -73,9 +76,12 @@ public class RemainingTimeCalculator {
     }
 
     /**
-     * Returns how long (in seconds) we can continue recording.
+     * @return how long (in seconds) we can continue recording, 0 if no more time left.
      */
     public long timeRemaining() {
+        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            return 0;
+        }
 
         // Calculate how long we can record based on free disk space
         StatFs fs = new StatFs(mSDCardDirectory.getAbsolutePath());
@@ -123,13 +129,19 @@ public class RemainingTimeCalculator {
         long result = (mLastBlocks * blockSize) / totalBytesPerSecond;
         // so now we have this much time
         result -= (now - mBlocksChangedTime) / 1000;
-
-        return result;
+        return Math.max(0, result);
     }
 
+    /**
+     * @return if some diskspace is available
+     */
     public boolean isDiskSpaceAvailable() {
-        StatFs fs = new StatFs(mSDCardDirectory.getAbsolutePath());
-        // keep some free block
-        return fs.getAvailableBlocks() > KEEP_BLOCKS;
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            StatFs fs = new StatFs(mSDCardDirectory.getAbsolutePath());
+            // keep some free block
+            return fs.getAvailableBlocks() > KEEP_BLOCKS;
+        } else {
+            return false;
+        }
     }
 }

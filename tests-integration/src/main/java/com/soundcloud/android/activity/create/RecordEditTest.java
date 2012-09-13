@@ -1,27 +1,29 @@
 package com.soundcloud.android.activity.create;
 
-import static com.soundcloud.android.activity.create.ScCreate.CreateState.EDIT;
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_PLAYBACK;
 
 import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.view.create.TrimHandle;
+import com.soundcloud.android.tests.SlowTest;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.test.FlakyTest;
 import android.test.suitebuilder.annotation.Suppress;
 
 
 /**
  * Testing edit functions of the recording: trimming, appending, fading etc.
  */
+@SlowTest
 public class RecordEditTest extends AbstractRecordingTestCase {
 
 
     /**
      * Record something, move trim handles, playback trimmed version.
      */
+    @FlakyTest
     public void testEditAndTrim() {
         record(RECORDING_TIME);
         gotoEditMode();
@@ -29,6 +31,9 @@ public class RecordEditTest extends AbstractRecordingTestCase {
         trim(0.25, 0.25);
 
         applyEdits();
+
+        solo.sleep(2000);
+
         playback();
         waitForState(IDLE_PLAYBACK, RECORDING_TIME);
 
@@ -71,6 +76,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
 
         uploadSound("A faded test upload", null, true);
 
+        assertSoundEncoded(RECORDING_TIME * 4);
         assertSoundUploaded();
         assertSoundTranscoded();
     }
@@ -88,7 +94,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
 
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
-        assertTrackDuration(track, 5000);
+        assertTrackDuration(track, 5000 + ROBO_SLEEP);
     }
 
     public void testTrimAndFadeAndUpload() throws Exception {
@@ -102,18 +108,10 @@ public class RecordEditTest extends AbstractRecordingTestCase {
 
         uploadSound("A faded + trimmed test upload", null, true);
 
+        assertSoundEncoded(RECORDING_TIME * 4);
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
-        assertTrackDuration(track, 5000);
-    }
-
-    private void trim(double left, double right) {
-        assertState(EDIT);
-        TrimHandle leftTrim = (TrimHandle) solo.getView(TrimHandle.class, 0);
-        TrimHandle rightTrim = (TrimHandle) solo.getView(TrimHandle.class, 1);
-        int width = solo.getScreenWidth();
-        if (left > 0)  solo.dragViewHorizontally(leftTrim ,  (int) (width * left), 5);
-        if (right > 0) solo.dragViewHorizontally(rightTrim, -(int) (width * right), 5);
+        assertTrackDuration(track, 5000 + ROBO_SLEEP);
     }
 
     @Suppress

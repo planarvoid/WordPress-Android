@@ -4,8 +4,9 @@
                 android:layout_height="fill_parent">
     <ImageButton android:id="@+id/btn_action"
                  android:scaleType="centerInside"
-                 android:background="@drawable/btn_rec_states"
+                 android:background="@null"
                  android:layout_centerInParent="true"
+                 android:adjustViewBounds="true"
                  android:layout_width="wrap_content"
                  android:layout_height="wrap_content"/>
 </RelativeLayout>

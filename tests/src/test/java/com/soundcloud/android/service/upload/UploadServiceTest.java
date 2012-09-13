@@ -5,7 +5,6 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.TestApplication;
-import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -85,6 +84,23 @@ public class UploadServiceTest {
     }
 
     @Test
+    public void shouldStopServiceAfterLastUploadCompletesSuccess() throws Exception {
+        mockSuccessfullTrackCreation();
+        getUploadScheduler().pause();
+        final Recording r1 = TestApplication.getValidRecording();
+        svc.upload(r1);
+
+        getUploadScheduler().runOneTask();
+        expect(shadowOf(svc).isStoppedBySelf()).toBeFalse();
+        getUploadScheduler().runOneTask();
+
+        expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
+
+        expect(r1.upload_status).toEqual(Recording.Status.UPLOADED);
+    }
+
+
+    @Test
     public void shouldNotifyAboutUploadSuccess() throws Exception {
         mockSuccessfullTrackCreation();
 
@@ -138,7 +154,7 @@ public class UploadServiceTest {
         expect(notification).toHaveTicker("Upload Error");
         expect(notification).toHaveText("There was an error uploading testing 2");
         expect(notification).toHaveTitle("Upload Error");
-        expect(notification).toMatchIntent(new Intent(Actions.UPLOAD_MONITOR));
+        expect(notification).toMatchIntent(new Intent(Actions.UPLOAD_MONITOR).setData(upload2.toUri()));
         expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
     }
 
@@ -158,7 +174,7 @@ public class UploadServiceTest {
         expect(notification).toHaveTicker("Upload Error");
         expect(notification).toHaveText("There was an error uploading testing");
         expect(notification).toHaveTitle("Upload Error");
-        expect(notification).toMatchIntent(new Intent(Actions.UPLOAD_MONITOR));
+        expect(notification).toMatchIntent(new Intent(Actions.UPLOAD_MONITOR).setData(upload.toUri()));
     }
 
     @Test
@@ -256,7 +272,7 @@ public class UploadServiceTest {
     public void shouldCheckForStuckRecordingsOnStartup() throws Exception {
         Recording stuck = TestApplication.getValidRecording();
         stuck.upload_status = Recording.Status.UPLOADING;
-        SoundCloudDB.insertRecording(svc.getContentResolver(), stuck);
+        SoundCloudDB.upsertRecording(svc.getContentResolver(), stuck, null);
 
         UploadService service = startService();
         Recording r = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), stuck.toUri());

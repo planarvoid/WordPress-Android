@@ -6,6 +6,7 @@
 # intellij
 soundcloud-android.ipr
 soundcloud-android.iws
+app/gen-external-apklibs/
 
 # keystore
 ks/

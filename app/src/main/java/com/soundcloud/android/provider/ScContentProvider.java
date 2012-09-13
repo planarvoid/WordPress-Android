@@ -10,7 +10,7 @@ import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.accounts.Account;
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentProvider;
@@ -408,6 +408,8 @@ public class ScContentProvider extends ContentProvider {
             case RECORDING:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 break;
+            case RECORDINGS:
+                break;
             case ME_TRACKS:
             case ME_FAVORITES:
             case ME_FOLLOWINGS:
@@ -669,6 +671,12 @@ public class ScContentProvider extends ContentProvider {
             case ANDROID_SEARCH_SUGGEST:
             case ANDROID_SEARCH_SUGGEST_PATH:
                 return SearchManager.SUGGEST_MIME_TYPE;
+
+            case RECORDING:
+            case RECORDINGS:
+                return "vnd.soundcloud/recording";
+
+
             default:
                 return null;
         }
@@ -739,20 +747,20 @@ public class ScContentProvider extends ContentProvider {
         return null;
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(8)
     public static void enableSyncing(Account account, long pollFrequency) {
         ContentResolver.setIsSyncable(account, AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
 
-        if (Build.VERSION.SDK_INT >= 8) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             ContentResolver.addPeriodicSync(account, AUTHORITY, new Bundle(), pollFrequency);
         }
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(8)
     public static void disableSyncing(Account account) {
         ContentResolver.setSyncAutomatically(account, AUTHORITY, false);
-          if (Build.VERSION.SDK_INT >= 8) {
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             ContentResolver.removePeriodicSync(account, AUTHORITY, new Bundle());
         }
     }

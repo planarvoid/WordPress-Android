@@ -23,33 +23,28 @@ import android.util.Log;
 import java.io.IOException;
 
 public class Poller extends Handler {
-    private static final long DEFAULT_MAX_EXECUTION_TIME = 60 * 1000 * 5; // 5 minutes
     private static final long DEFAULT_MIN_TIME_BETWEEN_REQUESTS = 5000;
-    private static final long DEFAULT_MAX_TRIES = 10;
+    private static final long DEFAULT_MAX_TRIES = 12; // timeout of ~10 minutes with exp. back-off
 
-    private AndroidCloudAPI mApp;
+    private AndroidCloudAPI mApi;
     private Request mRequest;
     private Uri mNotifyUri;
-    private long mFirstAttempt;
 
     private long mMinDelayBetweenRequests;
-    private long mMaxExecutionTime;
 
     public Poller(Looper looper, AndroidCloudAPI app, long trackId, Uri notifyUri) {
-        this(looper, app, trackId, notifyUri, DEFAULT_MIN_TIME_BETWEEN_REQUESTS, DEFAULT_MAX_EXECUTION_TIME);
+        this(looper, app, trackId, notifyUri, DEFAULT_MIN_TIME_BETWEEN_REQUESTS);
     }
 
-    public Poller(Looper looper, AndroidCloudAPI app,
+    public Poller(Looper looper, AndroidCloudAPI api,
                   long trackId,
                   Uri notifyUri,
-                  long delayBetweenRequests,
-                  long maxExecutionTime) {
+                  long delayBetweenRequests) {
         super(looper);
-        mApp = app;
+        mApi = api;
         mRequest = Request.to(Endpoints.TRACK_DETAILS, trackId);
         mNotifyUri = notifyUri;
         mMinDelayBetweenRequests = delayBetweenRequests;
-        mMaxExecutionTime = maxExecutionTime;
     }
 
     public void start() {
@@ -58,17 +53,13 @@ public class Poller extends Handler {
 
     @Override
     public void handleMessage(Message msg) {
-        if (msg.what == 0) {
-            mFirstAttempt = msg.getWhen();
-        }
-
         Track track = null;
         final int attempt = msg.what;
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "poll attempt "+(attempt+1));
         try {
-            HttpResponse resp = mApp.get(mRequest);
+            HttpResponse resp = mApi.get(mRequest);
             if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                track = mApp.getMapper().readValue(resp.getEntity().getContent(), Track.class);
+                track = mApi.getMapper().readValue(resp.getEntity().getContent(), Track.class);
             } else {
                 Log.w(TAG, "unexpected response " + resp.getStatusLine());
             }
@@ -76,23 +67,20 @@ public class Poller extends Handler {
             Log.e(TAG, "error", e);
         }
 
-        if ((track == null || track.state.isProcessing()) &&
-                attempt < DEFAULT_MAX_TRIES-1 &&
-                (msg.getWhen() - mFirstAttempt) < mMaxExecutionTime) {
-
+        if ((track == null || track.isProcessing()) && attempt < DEFAULT_MAX_TRIES-1) {
             final long backoff = attempt * attempt * 1000;
             sendEmptyMessageDelayed(attempt + 1, Math.max(backoff, mMinDelayBetweenRequests));
         } else {
 
-            if (track != null && track.state.isFinished()) {
+            if (track != null && track.isFinished()) {
                 onTrackProcessed(track);
             } else {
-                if (track != null && track.state.isFailed()) {
+                if (track != null && track.isFailed()) {
                     // track failed to transcode
                     LocalBroadcastManager
-                            .getInstance(mApp.getContext())
+                            .getInstance(mApi.getContext())
                             .sendBroadcast(new Intent(UploadService.TRANSCODING_FAILED)
-                                    .putExtra(UploadService.EXTRA_TRACK, track));
+                                    .putExtra(Track.EXTRA, track));
                 }
 
                 Log.e(TAG, "Track failed to be prepared " + track +
@@ -103,22 +91,21 @@ public class Poller extends Handler {
     }
 
     private void onTrackProcessed(Track track) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Track successfully prepared by the api: " + track);
+        }
+
         // local storage should reflect full track info
-        ContentResolver resolver = mApp.getContext().getContentResolver();
+        ContentResolver resolver = mApi.getContext().getContentResolver();
 
         track.commitLocally(resolver, SoundCloudApplication.TRACK_CACHE);
 
         // this will tell any observers to update their UIs to the up to date track
         if (mNotifyUri != null) resolver.notifyChange(mNotifyUri, null, false);
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Track successfully prepared by the api: " + track);
-        }
-
         LocalBroadcastManager
-                .getInstance(mApp.getContext())
+                .getInstance(mApi.getContext())
                 .sendBroadcast(new Intent(UploadService.TRANSCODING_SUCCESS)
-                        .putExtra(UploadService.EXTRA_TRACK, track));
-
+                        .putExtra(Track.EXTRA, track));
     }
 }

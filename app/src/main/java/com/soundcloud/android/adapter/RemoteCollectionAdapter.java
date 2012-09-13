@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Refreshable;
@@ -63,11 +64,11 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter implements Local
     private void refreshSyncData() {
         if (isSyncable()) {
             setListLastUpdated();
-
-            if ((mContent != null) && mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
-                refresh(false);
+            if ((mContent != null) && mActivity.getCurrentUserId() > 0 && mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
                 // this is to show the user something at the initial load
-                if (!mLocalCollection.hasSyncedBefore()) mListView.setRefreshing();
+                boolean showSyncHeader = !mLocalCollection.hasSyncedBefore();
+                refresh(false);
+                if (showSyncHeader) mListView.setRefreshing(true);
             }
         }
     }

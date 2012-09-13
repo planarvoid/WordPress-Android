@@ -4,13 +4,12 @@ import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -18,10 +17,7 @@ import android.widget.TextView;
 public class ShareUserHeader extends RelativeLayout {
     public ShareUserHeader(final ScActivity activity, User user) {
         super(activity);
-
-        LayoutInflater inflater = (LayoutInflater) activity
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.share_user_header, this);
+        View.inflate(getContext(), R.layout.share_user_header, this);
 
         ScTextUtils.clickify((TextView) findViewById(R.id.share_header_logout_txt), null,
                 new ScTextUtils.ClickSpan.OnClickListener() {
@@ -33,8 +29,8 @@ public class ShareUserHeader extends RelativeLayout {
 
         ((TextView) findViewById(R.id.share_header_username)).setText(user.username);
 
-        final ImageView icon = (ImageView) findViewById(R.id.icon);
         if (user.shouldLoadIcon()) {
+            final ImageView icon = (ImageView) findViewById(R.id.icon);
             if (ImageLoader.get(activity).bind(icon, user.avatar_url, null) != ImageLoader.BindResult.OK) {
                 icon.setImageDrawable(getResources().getDrawable(R.drawable.avatar_badge));
             }

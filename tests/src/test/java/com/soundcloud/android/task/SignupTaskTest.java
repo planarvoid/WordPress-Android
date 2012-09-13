@@ -31,8 +31,7 @@ public class SignupTaskTest {
         TestHelper.addCannedResponses(getClass(), "signup_token.json");
         Robolectric.addPendingHttpResponse(422, "{\"errors\":{\"error\":[\"Email has already been taken\",\"Email is already taken.\"]}}");
         SignupTask task = new SignupTask(DefaultTestRunner.application);
-        User u = task.doInBackground("email", "password");
-        expect(u).toBeNull();
+        expect(task.doInBackground("email", "password")).toBeNull();
         expect(task.mErrors).toEqual(Arrays.asList("Email has already been taken", "Email is already taken."));
     }
 
@@ -41,8 +40,7 @@ public class SignupTaskTest {
         TestHelper.addCannedResponses(getClass(), "signup_token.json");
         Robolectric.addPendingHttpResponse(422, "ada");
         SignupTask task = new SignupTask(DefaultTestRunner.application);
-        User u = task.doInBackground("email", "password");
-        expect(u).toBeNull();
+        expect(task.doInBackground("email", "password")).toBeNull();
         expect(task.mErrors).toBeEmpty();
     }
 

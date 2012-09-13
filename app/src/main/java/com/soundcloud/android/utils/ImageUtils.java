@@ -26,6 +26,7 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.ContactsContract;
@@ -561,14 +562,24 @@ public final class ImageUtils {
         Intent intent = new Intent(activity, CropImage.class)
                 .setData(inputUri)
                 .putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
-                .putExtra("crop", "true")
                 .putExtra("aspectX", 1)
                 .putExtra("aspectY", 1)
-                .putExtra("outputX", width)
-                .putExtra("outputY", width)
+                .putExtra("maxX", width)
+                .putExtra("maxY", height)
                 .putExtra("exifRotation", ImageUtils.getExifRotation(IOUtils.getFromMediaUri(activity.getContentResolver(), inputUri)))
                 .putExtra("noFaceDetection", true);
 
         activity.startActivityForResult(intent, Consts.RequestCodes.IMAGE_CROP);
+    }
+
+    public static void recycleImageViewBitmap(ImageView imageView){
+        if (imageView.getDrawable() != null) {
+            if (imageView.getDrawable() instanceof BitmapDrawable &&
+                    ((BitmapDrawable) imageView.getDrawable()).getBitmap() != null &&
+                    !((BitmapDrawable) imageView.getDrawable()).getBitmap().isRecycled()) {
+                clearBitmap(((BitmapDrawable) imageView.getDrawable()).getBitmap());
+                imageView.setImageDrawable(null);
+            }
+        }
     }
 }

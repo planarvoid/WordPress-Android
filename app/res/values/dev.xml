@@ -27,6 +27,11 @@
 
     <string name="pref_dev_extras">Extras</string>
 
+    <string name="pref_dev_clear_recordings">Clear recordings</string>
+    <string name="pref_dev_clear_recordings_summary">Deletes all local recordings</string>
+
+    <string name="dev_clear_recordings">Clear all recordings?</string>
+
     <!-- alarm clock -->
     <string name="dev_alarm_set">Alarm set to %s</string>
     <string name="dev_alarm_in">Alarm in %s</string>

@@ -5,7 +5,7 @@
     <artifactId>soundcloud-android</artifactId>
     <packaging>apk</packaging>
     <description>soundcloud-android</description>
-    <version>2.2.9</version>
+    <version>2.2.10</version>
     <name>soundcloud-android</name>
     <organization>
         <name>com.soundcloud.android</name>
@@ -13,16 +13,17 @@
     <parent>
         <groupId>com.soundcloud.android</groupId>
         <artifactId>parent</artifactId>
-        <version>2.2.9</version>
+        <version>2.2.10</version>
     </parent>
     <build>
         <plugins>
             <plugin>
-                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                  <artifactId>android-maven-plugin</artifactId>
+                 <version>3.3.2</version>
+
                  <configuration>
-                    <target>soundcloud_vorbis_encoder</target>
-                    <attachNativeArtifacts>true</attachNativeArtifacts>
+                    <target>all</target>
                     <clearNativeArtifacts>false</clearNativeArtifacts>
                     <useHeaderArchives>false</useHeaderArchives>
                  </configuration>
@@ -84,7 +85,7 @@
         <dependency>
             <groupId>org.acra</groupId>
             <artifactId>acra</artifactId>
-            <version>4.3.0-filter-SNAPSHOT</version>
+            <version>4.3.0-filter</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -124,12 +125,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.xiph</groupId>
-            <artifactId>libvorbis</artifactId>
-            <version>1.0.0-beta</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.at</groupId>
             <artifactId>ATInternet</artifactId>
             <version>1.1.003</version>
@@ -151,6 +146,12 @@
             <groupId>com.google.android</groupId>
             <artifactId>support-v4</artifactId>
             <version>r6</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>annotations</artifactId>
+            <version>4.1.1.4</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

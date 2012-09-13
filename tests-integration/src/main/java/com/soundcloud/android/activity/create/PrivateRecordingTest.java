@@ -13,7 +13,7 @@ public class PrivateRecordingTest extends AbstractRecordingTestCase {
     @Override
     public void setUp() throws Exception {
         recipient = new User();
-        recipient.id       = 133201;
+        recipient.id       = 3090821; // jberkel_testing
         recipient.username = "Super Hans";
 
         setActivityIntent(new Intent().putExtra(ScCreate.EXTRA_PRIVATE_MESSAGE_RECIPIENT, recipient));
@@ -23,7 +23,7 @@ public class PrivateRecordingTest extends AbstractRecordingTestCase {
     public void testRecordAndPlayback() throws Exception {
         record(RECORDING_TIME, solo.getString(R.string.private_message_title, recipient.username)); // "Record a sound for Super Hans"
         playback();
-        solo.sleep(RECORDING_TIME + 1000);
+        solo.sleep(RECORDING_TIME + 5000);
         assertState(IDLE_PLAYBACK);
     }
 

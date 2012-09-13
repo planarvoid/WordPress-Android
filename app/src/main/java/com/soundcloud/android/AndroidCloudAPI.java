@@ -22,7 +22,7 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.jetbrains.annotations.Nullable;
 
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -66,7 +66,6 @@ public interface AndroidCloudAPI extends CloudAPI {
 
     Context getContext();
 
-    @SuppressLint("NewApi")
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         public static final ObjectMapper Mapper;
         /**
@@ -143,6 +142,7 @@ public interface AndroidCloudAPI extends CloudAPI {
             }
         }
 
+
         @Override
         public void setProxy(URI proxy) {
             super.setProxy(proxy);
@@ -156,10 +156,11 @@ public interface AndroidCloudAPI extends CloudAPI {
         }
 
         @SuppressWarnings({"PointlessBooleanExpression", "ConstantConditions"})
+        @TargetApi(8)
         @Override protected SSLSocketFactory getSSLSocketFactory() {
             if (SoundCloudApplication.DALVIK &&
                 env == Env.LIVE &&
-                Build.VERSION.SDK_INT >= 8) {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
                 // make use of android's implementation
                 return SSLCertificateSocketFactory.getHttpSocketFactory(ApiWrapper.TIMEOUT,
                         new SSLSessionCache(mContext));

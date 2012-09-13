@@ -337,7 +337,7 @@ public class C2DMReceiver extends BroadcastReceiver {
     }
 
     private static boolean isEnabled() {
-        return Build.VERSION.SDK_INT >= 8;
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO;
     }
 
     private static PowerManager.WakeLock makeLock(Context context) {

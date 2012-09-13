@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.record.AmplitudeData;
 import com.soundcloud.android.record.RecordStream;
 import com.soundcloud.android.record.SoundRecorder;
+import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -12,6 +13,8 @@ import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Shader;
 import android.util.FloatMath;
 import android.view.View;
@@ -27,12 +30,13 @@ public class CreateWaveView extends View {
     private final static Paint UNPLAYED_PAINT;
     private final static Paint DARK_PAINT;
     private final static Paint BITMAP_PAINT;
+    private final static Paint CLEAR_PAINT;
 
-    private static final int WAVEFORM_TRIMMED   = 0xff444444;
-    private static final int WAVEFORM_UNPLAYED  = 0xffcccccc;
+    private static final int WAVEFORM_TRIMMED = 0xff444444;
+    private static final int WAVEFORM_UNPLAYED = 0xffcccccc;
 
-    private Bitmap mZoomBitmap;
-    private int nextBufferX;
+    private Bitmap mZoomBitmap1, mZoomBitmap2;
+    private int nextBitmapX = -1;
     private final int mGlowHeight;
     private int mMaxWaveHeight;
 
@@ -44,8 +48,8 @@ public class CreateWaveView extends View {
     private long mAnimationStartTime;
     private float[] mAmplitudePoints;
 
-    private MergedAmplitudeData mAmplitudeData = new MergedAmplitudeData();
-    private DrawData mDrawData = new DrawData();
+    private final MergedAmplitudeData mAmplitudeData = new MergedAmplitudeData();
+    private final DrawData mDrawData = new DrawData();
 
     static {
         BITMAP_PAINT = new Paint();
@@ -61,6 +65,10 @@ public class CreateWaveView extends View {
 
         DARK_PAINT = new Paint();
         DARK_PAINT.setColor(WAVEFORM_TRIMMED);
+
+        CLEAR_PAINT = new Paint();
+        CLEAR_PAINT.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+        CLEAR_PAINT.setColor(Color.TRANSPARENT);
     }
 
     public CreateWaveView(Context context) {
@@ -70,20 +78,18 @@ public class CreateWaveView extends View {
     }
 
     public void setMode(int mode, boolean animate) {
-        if (mMode != mode){
+        if (mMode != mode) {
             mMode = mode;
-            if (mZoomBitmap != null){
-                mZoomBitmap.recycle();
-                mZoomBitmap = null;
-            }
             mCurrentProgress = -1;
+
+            if (mMode == CreateWaveDisplay.MODE_REC) resetZoomBitmaps();
 
             if (animate) mAnimationStartTime = System.currentTimeMillis();
             invalidate();
         }
     }
 
-    public void setPlaybackProgress(float progress){
+    public void setPlaybackProgress(float progress) {
         mCurrentProgress = progress;
         invalidate();
     }
@@ -94,12 +100,18 @@ public class CreateWaveView extends View {
         mMode = CreateWaveDisplay.MODE_REC;
         mIsEditing = false;
 
-        if (mZoomBitmap != null) {
-            mZoomBitmap.recycle();
-            mZoomBitmap = null;
-        }
-
+        resetZoomBitmaps();
         invalidate();
+    }
+
+    private void resetZoomBitmaps() {
+        nextBitmapX = -1;
+        if (mZoomBitmap1 != null) {
+            new Canvas(mZoomBitmap1).drawRect(0, 0, mZoomBitmap1.getWidth(), mZoomBitmap1.getHeight(), CLEAR_PAINT);
+        }
+        if (mZoomBitmap2 != null) {
+            new Canvas(mZoomBitmap2).drawRect(0, 0, mZoomBitmap2.getWidth(), mZoomBitmap2.getHeight(), CLEAR_PAINT);
+        }
     }
 
     public void setIsEditing(boolean isEditing) {
@@ -162,6 +174,7 @@ public class CreateWaveView extends View {
     /**
      * Draw the full version of the amplitude data (not currently animating or recording)
      * This will be subject to editing variables and playback progress
+     *
      * @param canvas given by the view
      * @param points subset of amplitude data to be drawn
      */
@@ -207,76 +220,94 @@ public class CreateWaveView extends View {
 
     /**
      * Draw the zoomed in version of the amplitude (during recording) using the cached bitmaps
-     * @param c the canvas
+     *
+     * @param c        the canvas
      * @param drawData in case we have to rebuild the bitmaps, this is our current amplitude data
      */
     private void drawZoomView(Canvas c, DrawData drawData) {
         final int width = getWidth();
-        if (mZoomBitmap == null) {
+        if (nextBitmapX == -1) {
             // draw current amplitudes
-            mZoomBitmap = Bitmap.createBitmap(width * 2, getHeight(), Bitmap.Config.ARGB_8888);
-            Canvas bitmapCanvas = new Canvas(mZoomBitmap);
+            Canvas bitmapCanvas = new Canvas(mZoomBitmap1);
             final int drawCount = Math.min(width, drawData.size);
 
-            for (nextBufferX = 0; nextBufferX < drawCount; nextBufferX++) {
-                final int index = drawData.size - drawCount + nextBufferX;
-                drawAmplitude(bitmapCanvas, nextBufferX, drawData.get(index),
+            for (nextBitmapX = 0; nextBitmapX < drawCount; nextBitmapX++) {
+                final int index = drawData.size - drawCount + nextBitmapX;
+                drawAmplitude(bitmapCanvas, nextBitmapX, drawData.get(index),
                         (drawData.recIndex == -1) || (index < drawData.recIndex) ? DARK_PAINT : PLAYED_PAINT);
             }
+            nextBitmapX--;
         }
         // draw amplitudes cached to canvas
         Matrix m = new Matrix();
-        if (nextBufferX > getWidth()) {
-            m.setTranslate(getWidth() - nextBufferX, 0);
+        if (nextBitmapX > getWidth()) {
+            m.setTranslate(getWidth() - nextBitmapX + 1, 0);
+            c.drawBitmap(mZoomBitmap1, m, BITMAP_PAINT);
+            m.setTranslate(getWidth() * 2 - nextBitmapX, 0);
+            c.drawBitmap(mZoomBitmap2, m, BITMAP_PAINT);
         } else {
             m.setTranslate(0, 0);
+            c.drawBitmap(mZoomBitmap1, m, BITMAP_PAINT);
         }
-        c.drawBitmap(mZoomBitmap, m, BITMAP_PAINT);
+
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         mMaxWaveHeight = h - mGlowHeight;
-        LinearGradient lg =  new LinearGradient(0, 0, 0, mMaxWaveHeight,
-            new int[]{
-                    getResources().getColor(R.color.cloudProgressStart),
-                    getResources().getColor(R.color.cloudProgressCenter),
-                    getResources().getColor(R.color.cloudProgressEnd)
-            },
-            new float[]{0.0f,0.5f,1.0f},
-            Shader.TileMode.MIRROR);
+        LinearGradient lg = new LinearGradient(0, 0, 0, mMaxWaveHeight,
+                new int[]{
+                        getResources().getColor(R.color.cloudProgressStart),
+                        getResources().getColor(R.color.cloudProgressCenter),
+                        getResources().getColor(R.color.cloudProgressEnd)
+                },
+                new float[]{0.0f, 0.5f, 1.0f},
+                Shader.TileMode.MIRROR);
 
         PLAYED_PAINT.setShader(lg);
+
+        Bitmap old = mZoomBitmap1;
+        mZoomBitmap1 = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        if (old != null) old.recycle();
+
+        old = mZoomBitmap2;
+        mZoomBitmap2 = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        if (old != null) old.recycle();
+
+        nextBitmapX = -1;
     }
 
 
     public void updateAmplitude(float maxAmplitude, boolean isRecording) {
-         if (mMaxWaveHeight == 0) return;
-        if (mZoomBitmap != null) {
-            // if the new line would go over the edge, copy the last half of the old bitmap
-            // into the first half of the new bitmap
-            if (nextBufferX + 1 > mZoomBitmap.getWidth()) {
+        if (mMaxWaveHeight == 0) return;
 
-                final Bitmap old = mZoomBitmap;
-                mZoomBitmap = Bitmap.createBitmap(getWidth() * 2, getHeight(), Bitmap.Config.ARGB_8888);
+        final int width = getWidth();
+        if (nextBitmapX != -1 && mZoomBitmap1 != null && mZoomBitmap2 != null) {
+            nextBitmapX++;
+            if (nextBitmapX <= width) { // write to bitmap 1
+                drawAmplitude(new Canvas(mZoomBitmap1), nextBitmapX, maxAmplitude, isRecording ? PLAYED_PAINT : DARK_PAINT);
 
-                final Matrix mat = new Matrix();
-                mat.setTranslate(-old.getWidth() / 2, 0);
+            } else if (nextBitmapX <= width * 2) { // write to bitmap 2
+                drawAmplitude(new Canvas(mZoomBitmap2), nextBitmapX - width, maxAmplitude, isRecording ? PLAYED_PAINT : DARK_PAINT);
 
-                final Canvas c = new Canvas(mZoomBitmap);
-                c.drawBitmap(old, mat, new Paint());
+            } else {
+                // clear bitmap 1 and swap references
+                Canvas c = new Canvas(mZoomBitmap1);
+                c.drawRect(0, 0, width, getHeight(), CLEAR_PAINT);
 
-                nextBufferX = nextBufferX - old.getWidth() / 2;
-                old.recycle();
+                final Bitmap old = mZoomBitmap1;
+                mZoomBitmap1 = mZoomBitmap2;
+                mZoomBitmap2 = old;
+
+                nextBitmapX = width;
+                drawAmplitude(new Canvas(mZoomBitmap2), nextBitmapX, maxAmplitude, isRecording ? PLAYED_PAINT : DARK_PAINT);
             }
 
-            drawAmplitude(new Canvas(mZoomBitmap), nextBufferX,maxAmplitude, isRecording ? PLAYED_PAINT : DARK_PAINT);
-            nextBufferX++;
         }
         invalidate();
     }
 
-    public void  setCurrentProgress(float currentProgress) {
+    public void setCurrentProgress(float currentProgress) {
         mCurrentProgress = currentProgress;
         invalidate();
     }
@@ -291,6 +322,12 @@ public class CreateWaveView extends View {
     private void drawAmplitude(Canvas c, int xIndex, float amplitude, Paint p) {
         c.drawLine(xIndex, this.getHeight() / 2 - amplitude * mMaxWaveHeight / 2,
                 xIndex, this.getHeight() / 2 + amplitude * mMaxWaveHeight / 2, p);
+    }
+
+    public void onDestroy() {
+        ImageUtils.clearBitmap(mZoomBitmap1);
+        ImageUtils.clearBitmap(mZoomBitmap2);
+        mZoomBitmap1 = mZoomBitmap2 = null;
     }
 
     /**
@@ -308,12 +345,7 @@ public class CreateWaveView extends View {
         public int recordStartIndexWithTrim;
         public int recordEndIndexWithTrim;
 
-        MergedAmplitudeData() {
-
-        }
-
         public void configure(RecordStream recordStream, float[] trimWindow) {
-
             mPreRecData = recordStream.getPreRecordAmplitudeData();
             mRecData = recordStream.getAmplitudeData();
 
@@ -349,11 +381,12 @@ public class CreateWaveView extends View {
         public int lastDrawX;
         public int height;
 
-        public DrawData(){}
+        public DrawData() {
+        }
 
         public void configure(MergedAmplitudeData mergedAmplitudeData, float interpolatedTime,
-                        boolean isZooming,
-                        boolean isEditing, int height, int width) {
+                              boolean isZooming,
+                              boolean isEditing, int height, int width) {
 
             mAmpData = mergedAmplitudeData;
             this.height = height;
@@ -361,7 +394,7 @@ public class CreateWaveView extends View {
             // only show trim in recording
             final int absRecIndex = isEditing ? mAmpData.preRecSize : mergedAmplitudeData.recordStartIndexWithTrim;
 
-            if (isZooming){
+            if (isZooming) {
                 if (mAmpData.totalSize < width) {
                     startIndex = (int) (absRecIndex - absRecIndex * interpolatedTime);
                 } else if (mAmpData.writtenSize < width) {
@@ -384,9 +417,9 @@ public class CreateWaveView extends View {
             endIndex = isEditing ? mAmpData.totalSize : mergedAmplitudeData.recordEndIndexWithTrim;
             size = endIndex - startIndex;
 
-            recIndex = Math.max(0,mAmpData.preRecSize - startIndex);
+            recIndex = Math.max(0, mAmpData.preRecSize - startIndex);
 
-            if (isZooming){
+            if (isZooming) {
                 lastDrawX = (size < width) ? (int) (width - (width - size) * interpolatedTime) : width;
             } else {
                 lastDrawX = (size < width) ? (int) (size + (width - size) * interpolatedTime) : width;
@@ -394,7 +427,7 @@ public class CreateWaveView extends View {
         }
 
         public float get(int i) {
-            return mAmpData.get(i+startIndex);
+            return mAmpData.get(i + startIndex);
         }
 
         public float getInterpolatedValue(int x, int width) {

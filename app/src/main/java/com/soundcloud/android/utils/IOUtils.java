@@ -94,14 +94,17 @@ public final class IOUtils {
         if ("file".equals(uri.getScheme())) {
             return new File(uri.getPath());
         } else if ("content".equals(uri.getScheme())) {
-            String[] filePathColumn = { MediaStore.MediaColumns.DATA };
+            final String[] filePathColumn = { MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME };
             Cursor cursor = null;
             try {
                 cursor = resolver.query(uri, filePathColumn, null, null, null);
                 if (cursor != null && cursor.moveToFirst()) {
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String filePath = cursor.getString(columnIndex);
-                    return new File(filePath);
+                    final int columnIndex = (uri.toString().startsWith("content://com.google.android.gallery3d")) ?
+                            cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME) :
+                            cursor.getColumnIndex(MediaStore.MediaColumns.DATA); // if it is a picasa image on newer devices with OS 3.0 and up
+                    if (columnIndex != -1) {
+                        return new File(cursor.getString(columnIndex));
+                    }
                 }
             } catch (SecurityException ignored) {
                 // nothing to be done
@@ -423,9 +426,8 @@ public final class IOUtils {
         }
     }
 
-    public static File removeExtension(File file) {
+    public static @NotNull File removeExtension(@NotNull File file) {
         if (file.isDirectory()) return file;
-
         String name = file.getName();
         final int lastPeriodPos = name.lastIndexOf('.');
         return lastPeriodPos <= 0 ? file : new File(file.getParent(), name.substring(0, lastPeriodPos));

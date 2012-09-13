@@ -1,21 +1,20 @@
 package com.soundcloud.android.view.play;
 
-import android.annotation.SuppressLint;
+import com.soundcloud.android.R;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.utils.InputObject;
+
+import android.annotation.TargetApi;
+import android.content.Context;
 import android.graphics.Matrix;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-
-import android.content.Context;
 import android.util.AttributeSet;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 import android.widget.RelativeLayout;
-
-import com.soundcloud.android.R;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.utils.InputObject;
 
 public class WaveformControllerLand extends WaveformController {
     private CommentPanel mCommentPanel;
@@ -205,7 +204,7 @@ public class WaveformControllerLand extends WaveformController {
         }
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(8)
     private void toggleCommentsPanelVisibility(boolean visible) {
 
         if (visible && !mCommentPanelVisible) {
@@ -235,7 +234,9 @@ public class WaveformControllerLand extends WaveformController {
             }
 
         } else if (!visible && mCommentPanelVisible && mCommentPanel.getParent() == this) {
-            if (mCommentPanel.getAnimation() != null && Build.VERSION.SDK_INT > 7) mCommentPanel.getAnimation().cancel();
+            if (mCommentPanel.getAnimation() != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+                mCommentPanel.getAnimation().cancel();
+            }
             mCommentPanelVisible = false;
             Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
                     Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
@@ -291,10 +292,12 @@ public class WaveformControllerLand extends WaveformController {
         super.setCommentMode(commenting);
     }
 
-    @Override @SuppressLint("NewApi")
+    @Override @TargetApi(8)
     public void resetCommentDisplay(){
         if (mCommentPanel != null && mCommentPanel.getParent() == this) {
-            if (mCommentPanel.getAnimation() != null && Build.VERSION.SDK_INT > 7) mCommentPanel.getAnimation().cancel();
+            if (mCommentPanel.getAnimation() != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+                mCommentPanel.getAnimation().cancel();
+            }
             mCommentPanelVisible = false;
             removeView(mCommentPanel);
         }

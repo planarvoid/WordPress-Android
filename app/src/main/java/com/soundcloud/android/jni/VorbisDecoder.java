@@ -1,6 +1,8 @@
 package com.soundcloud.android.jni;
 
 
+import org.jetbrains.annotations.NotNull;
+
 import android.util.Log;
 
 import java.io.File;
@@ -16,7 +18,7 @@ public class VorbisDecoder {
     @SuppressWarnings("UnusedDeclaration") // used in JNI code
     private int decoder_state;
 
-    public VorbisDecoder(File file) throws DecoderException {
+    public VorbisDecoder(@NotNull File file) throws DecoderException {
         this.file = file;
         int ret = init(file.getAbsolutePath());
         if (ret != 0) {
@@ -118,6 +120,16 @@ public class VorbisDecoder {
 
     /**
      * @param pos time in seconds
+     * @return nonzero indicates failure, described by several error codes:
+     * <ul>
+     *     <li>{@link VorbisConstants.OV_ENOSEEK} - Bitstream is not seekable.</li>
+     *     <li>{@link VorbisConstants.OV_EINVAL} - Invalid argument value; possibly called with an OggVorbis_File structure that isn't open.</li>
+     *     <li>{@link VorbisConstants.OV_EREAD} - A read from media returned an error.</li>
+     *     <li>{@link VorbisConstants.OV_EFAULT} - Internal logic fault; indicates a bug or heap/stack corruption.</li>
+     *     <li>{@link VorbisConstants.OV_EBADLINK} - Invalid stream section supplied to libvorbisfile, or the requested link is corrupt.</li>
+     * </ul>
+     * @see <a href="http://xiph.org/vorbis/doc/vorbisfile/ov_pcm_seek.html">ov_pcm_seek</a>
+
      */
     public int timeSeek(double pos) {
         return timeSeek(pos, ALIGN_SEEK_ON_PAGE);

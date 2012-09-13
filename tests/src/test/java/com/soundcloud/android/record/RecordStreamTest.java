@@ -1,16 +1,13 @@
 package com.soundcloud.android.record;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.audio.AudioConfig;
-import com.soundcloud.android.audio.AudioWriter;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.shadows.ShadowNativeAmplitudeAnalyzer;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -18,7 +15,11 @@ import java.util.Random;
 
 @RunWith(DefaultTestRunner.class)
 public class RecordStreamTest {
-    @Mock private AudioWriter writer;
+    private ByteArrayAudioWriter writer;
+
+    @Before public void before() {
+        writer = new ByteArrayAudioWriter();
+    }
 
     @Test
     public void shouldRecordAmplitudeData() throws Exception {
@@ -36,12 +37,9 @@ public class RecordStreamTest {
         final ByteBuffer buffer = randomData(100);
         rs.write(buffer, 100);
 
-        ArgumentCaptor<ByteBuffer> captor = ArgumentCaptor.forClass(ByteBuffer.class);
-        verify(writer).write(captor.capture(), Mockito.eq(100));
-
-        expect(captor.getValue().position()).toEqual(0);
+        expect(writer.getBytes().length).toEqual(100);
         expect(rs.getAmplitudeData().isEmpty()).toBeFalse();
-        expect(rs.getLastAmplitude()).toBeGreaterThan(0f);
+//        expect(rs.getLastAmplitude()).toBeGreaterThan(0f);
     }
 
     @Test
@@ -68,6 +66,17 @@ public class RecordStreamTest {
         expect(rs.getAmplitudeData().size()).toEqual(31);
     }
 
+    @Test
+    public void shouldWriteFadeOut() throws Exception {
+        ShadowNativeAmplitudeAnalyzer.lastValue = 20;
+
+        RecordStream rs = new RecordStream(AudioConfig.DEFAULT);
+        final ByteBuffer buffer = randomData(100);
+        rs.setWriter(writer);
+        rs.write(buffer, 100);
+        rs.finalizeStream(null);
+        expect(writer.getBytes().length).toEqual(8920);
+    }
 
     private static ByteBuffer randomData(int length) {
         Random r = new Random(System.currentTimeMillis());

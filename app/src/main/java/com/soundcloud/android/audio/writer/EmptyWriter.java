@@ -44,8 +44,8 @@ public class EmptyWriter implements AudioWriter {
     }
 
     @Override
-    public AudioReader getAudioFile() throws IOException {
-        return null;
+    public AudioReader getAudioReader() throws IOException {
+        return AudioReader.EMPTY;
     }
 
     @Override

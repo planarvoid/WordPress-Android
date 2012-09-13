@@ -1,8 +1,9 @@
-package com.soundcloud.android.service.playback;
+package com.soundcloud.android.audio.managers;
 
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.service.playback.State;
 
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -11,11 +12,11 @@ import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
 
 @SuppressWarnings("UnusedDeclaration")
-@SuppressLint("NewApi")
-public class ICSAudioManager extends FroyoAudioManager {
+@TargetApi(14)
+public class ICSRemoteAudioManager extends FroyoRemoteAudioManager {
     private final RemoteControlClient client;
 
-    public ICSAudioManager(Context context) {
+    public ICSRemoteAudioManager(Context context) {
         super(context);
         client = createRemoteControlClient(context);
     }

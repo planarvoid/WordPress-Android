@@ -15,7 +15,6 @@ import com.soundcloud.android.model.Search;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.auth.AuthenticatorService;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.task.fetch.ResolveFetchTask;
@@ -31,9 +30,7 @@ import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
-import android.annotation.SuppressLint;
-import android.app.Dialog;
-import android.app.ProgressDialog;
+import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.app.TabActivity;
 import android.content.Context;
@@ -58,16 +55,15 @@ import java.io.IOException;
 public class Main extends TabActivity implements
         FetchModelTask.FetchModelListener<ScModel> {
 
-    private static final int RESOLVING = 0;
-
     private View mSplash;
 
     public static final String TAB_TAG = "tab";
     private static final long SPLASH_DELAY = 1200;
     private static final long FADE_DELAY   = 400;
 
-    private ResolveFetchTask mResolveTask;
+    private @Nullable ResolveFetchTask mResolveTask;
     private ChangeLog mChangeLog;
+    private boolean mHideSplashOnResume;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -78,34 +74,39 @@ public class Main extends TabActivity implements
 
         final SoundCloudApplication app = getApp();
 
-        final boolean showSplash = showSplash(state);
+        mResolveTask = (ResolveFetchTask) getLastNonConfigurationInstance();
+        if (mResolveTask != null) {
+            mResolveTask.setListener(this);
+        }
+
+        buildTabHost(getApp(), getTabHost(), getTabWidget());
+        handleIntent(getIntent());
+
+        final boolean resolving = !AndroidUtils.isTaskFinished(mResolveTask);
+        final boolean showSplash = resolving || showSplash(state);
         mSplash = findViewById(R.id.splash);
-        mSplash.setVisibility(showSplash ? View.VISIBLE : View.GONE);
+
+        if (showSplash) {
+            mSplash.setVisibility(View.VISIBLE);
+            findViewById(R.id.progress_resolve_layout).setVisibility(resolving ? View.VISIBLE : View.GONE);
+        } else {
+            mSplash.setVisibility(View.GONE);
+        }
+
         if (IOUtils.isConnected(this) &&
             app.getAccount() != null &&
             app.getToken().valid() &&
             !app.getLoggedInUser().isPrimaryEmailConfirmed() &&
             !justAuthenticated(getIntent()))
         {
-                checkEmailConfirmed(app);
-        } else if (showSplash) {
+            checkEmailConfirmed(app);
+        } else if (showSplash && !resolving) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     dismissSplash();
                 }
             }, SPLASH_DELAY);
-        }
-
-        buildTabHost(getApp(), getTabHost(), getTabWidget());
-        handleIntent(getIntent());
-
-        mResolveTask  = (ResolveFetchTask) getLastNonConfigurationInstance();
-        if (mResolveTask != null) {
-            mResolveTask.setListener(this);
-            if (!AndroidUtils.isTaskFinished(mResolveTask)) {
-                showDialog(RESOLVING);
-            }
         }
     }
 
@@ -116,9 +117,13 @@ public class Main extends TabActivity implements
 
     @Override
     protected void onResume() {
+        if (mHideSplashOnResume) {
+            mSplash.setVisibility(View.GONE); // for after resolving, hide here for a more continuous resolving flow
+            mHideSplashOnResume = false;
+        }
         if (getApp().getAccount() == null) {
             dismissSplash();
-            getApp().addAccount(Main.this, managerCallback);
+            getApp().addAccount(this, managerCallback);
             finish();
         }
         super.onResume();
@@ -132,7 +137,7 @@ public class Main extends TabActivity implements
         (new FetchUserTask(app) {
             @Override protected void onPostExecute(User user) {
                 if (user == null || user.isPrimaryEmailConfirmed()) {
-                    dismissSplash();
+                    if (AndroidUtils.isTaskFinished(mResolveTask)) dismissSplash();
                 } else {
                     startActivityForResult(
                             new Intent(Main.this, EmailConfirm.class)
@@ -221,8 +226,10 @@ public class Main extends TabActivity implements
             }
         } else if (Actions.MY_PROFILE.equals(intent.getAction()) && intent.hasExtra(UserBrowser.Tab.EXTRA)) {
             getTabHost().setCurrentTabByTag(Main.Tab.PROFILE.tag);
-            if (getCurrentActivity() instanceof UserBrowser && intent.getStringExtra(UserBrowser.Tab.EXTRA) != null) {
-                ((UserBrowser) getCurrentActivity()).setTab(intent.getStringExtra(UserBrowser.Tab.EXTRA));
+
+            final Object tExtra = intent.getExtras().get(UserBrowser.Tab.EXTRA);
+            if (getCurrentActivity() instanceof UserBrowser && tExtra != null) {
+                ((UserBrowser) getCurrentActivity()).setTab(tExtra.toString());
             }
         } else if (Actions.USER_BROWSER.equals(intent.getAction())) {
             startActivity((new Intent(this, UserBrowser.class).putExtras(intent.getExtras())));
@@ -237,9 +244,9 @@ public class Main extends TabActivity implements
             getTabHost().setCurrentTabByTag(tab.tag);
         }
 
-        intent.setAction("");
-        intent.setData(null);
-        intent.removeExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
+        intent.setAction("")
+            .setData(null)
+            .removeExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
     }
 
     protected boolean handleViewUrl(Intent intent) {
@@ -251,11 +258,10 @@ public class Main extends TabActivity implements
         mResolveTask = new ResolveFetchTask(getApp());
         mResolveTask.setListener(this);
         mResolveTask.execute(data);
-        showDialog(RESOLVING);
         return true;
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(8)
     private void buildTabHost(final SoundCloudApplication app, final TabHost host, final TabWidget widget) {
         for (Tab tab : Main.Tab.values()) {
             if (tab == Main.Tab.UNKNOWN) continue;
@@ -280,7 +286,7 @@ public class Main extends TabActivity implements
         setTabTextStyle(this, widget, false);
 
 
-        if (Build.VERSION.SDK_INT > 7) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             for (int i = 0; i < widget.getChildCount(); i++) {
                 widget.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.tab_indicator));
             }
@@ -334,7 +340,6 @@ public class Main extends TabActivity implements
                         @Override
                         public void onAnimationEnd(Animation animation) {
                             mSplash.setVisibility(View.GONE);
-
                             if (mChangeLog.isFirstRun()) {
                                 mChangeLog.getDialog(true).show();
                             }
@@ -353,18 +358,14 @@ public class Main extends TabActivity implements
         return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
     }
 
-   @Override
+    @Override
     public Object onRetainNonConfigurationInstance() {
         return mResolveTask;
     }
 
     protected void onTrackLoaded(Track track, @Nullable String action) {
-        startService(new Intent(Main.this, CloudPlaybackService.class)
-                .setAction(CloudPlaybackService.PLAY_ACTION)
-                .putExtra("track", track));
-
-        startActivity(new Intent(Main.this, ScPlayer.class));
-
+        startService(track.getPlayIntent());
+        startActivity(new Intent(this, ScPlayer.class));
     }
 
     protected void onUserLoaded(User u, @Nullable String action) {
@@ -375,13 +376,15 @@ public class Main extends TabActivity implements
 
     @Override
     public void onError(long modelId) {
-        removeDialog(RESOLVING);
-        Toast.makeText(Main.this, R.string.error_loading_url, Toast.LENGTH_LONG).show();
+        mResolveTask = null;
+        dismissSplash();
+        Toast.makeText(this, R.string.error_loading_url, Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onSuccess(ScModel m, @Nullable String action) {
-        removeDialog(RESOLVING);
+        mResolveTask = null;
+        mHideSplashOnResume = true;
         if (m instanceof Track) {
             onTrackLoaded((Track) m, null);
         } else if (m instanceof User) {
@@ -506,18 +509,4 @@ public class Main extends TabActivity implements
 
         tabWidget.getLayoutParams().height = height;
     }
-
-    @Override
-        protected Dialog onCreateDialog(int id) {
-            switch (id) {
-                case RESOLVING:
-                    ProgressDialog progress = new ProgressDialog(this);
-                    progress.setMessage(getString(R.string.resolve_progress));
-                    progress.setCancelable(true);
-                    progress.setIndeterminate(true);
-                    return progress;
-                default:
-                    return super.onCreateDialog(id);
-            }
-        }
 }

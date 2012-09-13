@@ -3,6 +3,7 @@ package com.soundcloud.android.audio.writer;
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.AudioWriter;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -73,9 +74,9 @@ public class MultiAudioWriter implements AudioWriter {
     }
 
     @Override
-    public AudioReader getAudioFile() throws IOException {
+    public @Nullable AudioReader getAudioReader() throws IOException {
         for (AudioWriter w : writers) {
-            final AudioReader audioFile = w.getAudioFile();
+            final AudioReader audioFile = w.getAudioReader();
             if (audioFile != null) return audioFile;
         }
         return null;

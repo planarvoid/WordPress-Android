@@ -23,6 +23,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.EventAware;
@@ -40,9 +41,8 @@ import com.soundcloud.android.view.UserlistLayout;
 import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+import org.jetbrains.annotations.Nullable;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -51,7 +51,6 @@ import android.os.Message;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -73,7 +72,7 @@ public class UserBrowser extends ScListActivity implements
         FetchUserTask.FetchUserListener,
         EventAware {
 
-    /* package */ User mUser;
+    /* package */ @Nullable User mUser;
 
     private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
     private View mVrStats;
@@ -193,6 +192,7 @@ public class UserBrowser extends ScListActivity implements
             }
 
             build();
+
             if (!isMe()) FollowStatus.get().requestUserFollowings(getApp(), this, false);
 
             if (intent.hasExtra(Tab.EXTRA)) {
@@ -569,9 +569,14 @@ public class UserBrowser extends ScListActivity implements
                 mFollowBtn.setEnabled(true);
                 mFollowingBtn.setEnabled(true);
 
-                if (msg.what == 0) {
+                if (msg.what != FollowStatus.FOLLOW_STATUS_SUCCESS) {
                     setFollowingButton();
-                    AndroidUtils.showToast(UserBrowser.this, R.string.error_change_following_status);
+
+                    if (msg.what == FollowStatus.FOLLOW_STATUS_SPAM) {
+                        AndroidUtils.showToast(UserBrowser.this, R.string.following_spam_warning);
+                    } else {
+                        AndroidUtils.showToast(UserBrowser.this, R.string.error_change_following_status);
+                    }
                 }
             }
         });
@@ -778,18 +783,7 @@ public class UserBrowser extends ScListActivity implements
     @Override
     protected void handleRecordingClick(final Recording recording) {
         if (recording.upload_status == Recording.Status.UPLOADING) {
-            new AlertDialog.Builder(this)
-                .setTitle(null)
-                .setMessage(R.string.dialog_cancel_upload_message)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        recording.cancelUpload(UserBrowser.this);
-                    }
-                })
-                .setNegativeButton(android.R.string.no, null)
-                .create()
-                .show();
+            startActivity(recording.getMonitorIntent());
         } else {
             startActivity(new Intent(UserBrowser.this,
                     (recording.external_upload ? ScUpload.class : ScCreate.class)).
@@ -868,7 +862,8 @@ public class UserBrowser extends ScListActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!isMe()) {
+        SoundRecorder soundRecorder = SoundRecorder.getInstance(this);
+        if (!isMe() && (!soundRecorder.isRecording() || soundRecorder.getRecording().getRecipient() == mUser)) {
             menu.add(menu.size(), Consts.OptionsMenu.PRIVATE_MESSAGE,
                 menu.size(), R.string.menu_private_message).setIcon(R.drawable.ic_options_menu_rec);
         }
