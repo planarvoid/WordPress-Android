@@ -12,7 +12,9 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
@@ -23,7 +25,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
@@ -458,4 +462,60 @@ public class RecordingTest {
         expect(IOUtils.extension(r.getEncodedFile())).toEqual(VorbisReader.EXTENSION);
         expect(r.getEncodedFile().getName()).not.toContain(WavReader.EXTENSION);
     }
+
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder();
+    public static String FAKE_DATA = "welcome_to_the_junitungle";
+    public static final Long FAKE_DATA_LENGTH = Long.valueOf(FAKE_DATA.length());
+
+
+    @Test
+    public void shouldTrimOneFile() throws Exception {
+        fillTempDirectory(1);
+        final File root = tempFolder.getRoot();
+        long size = IOUtils.getDirSize(root);
+        expect(Recording.trimWaveFiles(root,null,size - 1)).toEqual(FAKE_DATA_LENGTH);
+    }
+
+    @Test
+    public void shouldNotTrimIgnoredFile() throws Exception {
+        Recording r = fillTempDirectory(1);
+        final File root = tempFolder.getRoot();
+        long size = IOUtils.getDirSize(root);
+        expect(Recording.trimWaveFiles(root, r, size - 1)).toEqual(0l);
+    }
+
+    @Test
+    public void shouldTrimOneFile2() throws Exception {
+        Recording r = fillTempDirectory(2);
+        final File root = tempFolder.getRoot();
+        expect(Recording.trimWaveFiles(root, r, 1)).toEqual(FAKE_DATA_LENGTH);
+    }
+
+    @Test
+    public void shouldTrimOneFile3() throws Exception {
+        Recording r = fillTempDirectory(3);
+        final File root = tempFolder.getRoot();
+        long size = IOUtils.getDirSize(root);
+        expect(Recording.trimWaveFiles(root, r, size - 1)).toEqual(FAKE_DATA_LENGTH);
+    }
+
+    @Test
+    public void shouldTrimTwoFiles() throws Exception {
+        Recording r = fillTempDirectory(3);
+        final File root = tempFolder.getRoot();
+        expect(Recording.trimWaveFiles(root, r, 1)).toEqual(2* FAKE_DATA_LENGTH);
+    }
+
+    private Recording fillTempDirectory(int count) throws IOException {
+        File f = null;
+        for (int i = 0; i < count; i++) {
+            f = tempFolder.newFile(i + ".wav");
+            BufferedWriter out = new BufferedWriter(new FileWriter(f));
+            out.write(FAKE_DATA);
+            out.close();
+        }
+        return new Recording(f);
+    }
+
 }

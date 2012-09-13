@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
+import java.util.Comparator;
 
 public final class IOUtils {
     private static final int BUFFER_SIZE = 4096;
@@ -461,5 +462,30 @@ public final class IOUtils {
                         WifiManager.WIFI_MODE_FULL_HIGH_PERF : WifiManager.WIFI_MODE_FULL,
                         tag
                 );
+    }
+
+    public static class LastModifiedComparator implements Comparator<File> {
+
+        private boolean ascending;
+
+        public LastModifiedComparator() {
+            this.ascending = Boolean.FALSE;
+        }
+
+        public LastModifiedComparator(boolean ascending) {
+            this.ascending = ascending;
+        }
+
+        @Override
+        public int compare(File file1, File file2) {
+            int retVal = 0;
+
+            if (file1.lastModified() > file2.lastModified()) {
+                retVal = (ascending ? 1 : -1);
+            } else if (file1.lastModified() < file2.lastModified()) {
+                retVal = (ascending ? -1 : 1);
+            }
+            return retVal;
+        }
     }
 }

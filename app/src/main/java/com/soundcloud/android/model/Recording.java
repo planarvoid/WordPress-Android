@@ -58,6 +58,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     public static final File IMAGE_DIR = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
     public static final String EXTRA = "recording";
+    public static final int MAX_WAVE_CACHE = 50 * 1024 * 1024; // 50 mb
 
     // basic properties
     public long user_id;
@@ -599,11 +600,24 @@ public class Recording extends ScModel implements Comparable<Recording> {
         }
 
         @Override
-        public boolean accept(File file, String name) {
-            return Recording.isRawFilename(name) || Recording.isEncodedFilename(name) || Recording.isAmplitudeFile(name) &&
-                    (toIgnore == null || !toIgnore.audio_path.equals(file));
+        public boolean accept(File dir, String name) {
+            return (Recording.isRawFilename(name) || Recording.isEncodedFilename(name) || Recording.isAmplitudeFile(name)) &&
+                    (toIgnore == null || !toIgnore.audio_path.getName().equals(name));
         }
     }
+
+    public static class RecordingWavFilter implements FilenameFilter {
+            private Recording toIgnore;
+
+            public RecordingWavFilter(@Nullable Recording ignore) {
+                toIgnore = ignore;
+            }
+
+            @Override
+            public boolean accept(File dir, String name) {
+                return Recording.isRawFilename(name) && (toIgnore == null || !toIgnore.audio_path.getName().equals(name));
+            }
+        }
 
     public static long getUserIdFromFile(File file) {
         final String path = file.getName();
@@ -845,5 +859,31 @@ public class Recording extends ScModel implements Comparable<Recording> {
             Log.w(TAG, "could not initialize playback stream", e);
             return new PlaybackStream(AudioReader.EMPTY);
         }
+    }
+
+    public static long trimWaveFiles(File directory, Recording ignore) {
+        return trimWaveFiles(directory, ignore, MAX_WAVE_CACHE);
+    }
+
+    public static long trimWaveFiles(File directory, Recording ignore, long maxCacheSize) {
+        final RecordingWavFilter filter = new RecordingWavFilter(ignore);
+        final long dirSize = IOUtils.getDirSize(directory);
+
+        long trimmed = 0;
+        final long toTrim = Math.max(0, dirSize - maxCacheSize);
+
+        if (toTrim > 0){
+            final File[] list = IOUtils.nullSafeListFiles(directory, filter);
+            if (list.length > 0){
+                Arrays.sort(list,new IOUtils.LastModifiedComparator(true));
+                int i = 0;
+                while (trimmed < toTrim && i < list.length){
+                    trimmed += list[i].length();
+                    list[i].delete();
+                    i++;
+                }
+            }
+        }
+        return trimmed;
     }
 }
