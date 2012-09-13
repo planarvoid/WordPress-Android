@@ -28,48 +28,50 @@ public enum Click implements Event {
     Stream_box_stream_cancel        ("Stream_box",  "stream_cancel",         Type.action, Level2.Stream),
 
     // New recording keys
-    NEW_Record_start                    ("Record_Main", "Record_start::%s",                 Type.action,     Level2.Record),
+    Record_start                    ("Record_Main", "Record_start::%s",                 Type.action,     Level2.Record),
 
-    NEW_Record_stop                     ("Record", "Record_stop",                           Type.action,     Level2.Record),
-    NEW_Record_play                     ("Record", "Record_play",                           Type.action,     Level2.Record),
-    NEW_Record_play_pause               ("Record", "Record_play_pause",                     Type.action,     Level2.Record),
-    NEW_Record_reset                    ("Record", "Record_reset",                          Type.navigation, Level2.Record),
-    NEW_Record_save                     ("Record", "Record_save",                           Type.navigation, Level2.Record),
-    NEW_Record_start_recording_did_fail ("Record", "Start_Recording_Did_Fail",              Type.action,     Level2.Record),
+    Record_play_stop                ("Record", "play_stop",                             Type.action, Level2.Record),
 
-    NEW_Record_recording_was_interrupted("Record", "Recording_Was_Interrupted",             Type.action,     Level2.Record),
-    NEW_Record_dedicated_recording_was_interrupted("Dedicated_Record", "Dedicated_Recording_Was_Interrupted", Type.action, Level2.Record),
+    Record_stop                     ("Record", "Record_stop",                           Type.action,     Level2.Record),
+    Record_play                     ("Record", "Record_play",                           Type.action,     Level2.Record),
+    Record_play_pause               ("Record", "Record_play_pause",                     Type.action,     Level2.Record),
+    Record_reset                    ("Record", "Record_reset",                          Type.navigation, Level2.Record),
+    Record_save                     ("Record", "Record_save",                           Type.navigation, Level2.Record),
+    Record_start_recording_did_fail ("Record", "Start_Recording_Did_Fail",              Type.action,     Level2.Record),
 
-    NEW_Record_record_pause             ("Record", "Record_pause",                          Type.action,     Level2.Record),
-    NEW_Record_rec_more                 ("Record", "Rec_more",                              Type.action,     Level2.Record),
-    NEW_Record_close_main               ("Record", "close::main::%s",                       Type.action,     Level2.Record),
-    NEW_Record_paused_play              ("Record", "paused::play",                          Type.action,     Level2.Record),
-    NEW_Record_paused_discard           ("Record", "paused::discard",                       Type.action,     Level2.Record),
-    NEW_Record_paused_save              ("Record", "paused::save",                          Type.action,     Level2.Record),
-    NEW_Record_paused_edit              ("Record", "paused::edit",                          Type.action,     Level2.Record),
+    Record_recording_was_interrupted("Record", "Recording_Was_Interrupted",             Type.action,     Level2.Record),
+    Record_dedicated_recording_was_interrupted("Dedicated_Record", "Dedicated_Recording_Was_Interrupted", Type.action, Level2.Record),
 
-    NEW_Record_edit_revert_to_original  ("Record", "edit::revert_to_original",              Type.action,     Level2.Record),
-    NEW_Record_edit_interaction         ("Record", "edit::interaction",                     Type.action,     Level2.Record),
-    NEW_Record_edit_save                ("Record", "edit::save::%s",                        Type.action,     Level2.Record),
-    NEW_Record_old_rec_import_error     ("Record", "old_rec_import_error",                  Type.action,     Level2.Record),
-    NEW_Record_old_rec_import           ("Record", "old_rec_import::%i",                    Type.action,     Level2.Record),
+    Record_record_pause             ("Record", "Record_pause",                          Type.action,     Level2.Record),
+    Record_rec_more                 ("Record", "Rec_more",                              Type.action,     Level2.Record),
+    Record_close_main               ("Record", "close::main::%s",                       Type.action,     Level2.Record),
+    Record_paused_play              ("Record", "paused::play",                          Type.action,     Level2.Record),
+    Record_paused_discard           ("Record", "paused::discard",                       Type.action,     Level2.Record),
+    Record_paused_save              ("Record", "paused::save",                          Type.action,     Level2.Record),
+    Record_paused_edit              ("Record", "paused::edit",                          Type.action,     Level2.Record),
 
-    NEW_Record_details_record_upload_share_detailed ("Record_details",           "Post::%s::%s", Type.action, Level2.Record),
-    NEW_Record_details_record_upload_share          ("Record_details",           "Post",         Type.action, Level2.Record),
-    NEW_Record_dedicated_details_record_upload_share("Dedicated_Record_details", "Post",         Type.action, Level2.Record),
+    Record_edit_revert_to_original  ("Record", "edit::revert_to_original",              Type.action,     Level2.Record),
+    Record_edit_interaction         ("Record", "edit::interaction",                     Type.action,     Level2.Record),
+    Record_edit_save                ("Record", "edit::save::%s",                        Type.action,     Level2.Record),
+    Record_old_rec_import_error     ("Record", "old_rec_import_error",                  Type.action,     Level2.Record),
+    Record_old_rec_import           ("Record", "old_rec_import::%i",                    Type.action,     Level2.Record),
 
-    NEW_Record_details_record_another_sound  ("Record_details", "Record_another_sound",        Type.action,     Level2.Record),
-    NEW_Record_dedicated_details_record_another_sound("Dedicated_Record_details", "Dedicated_Record_another_sound", Type.action, Level2.Record),
+    Record_details_record_upload_share_detailed ("Record_details",           "Post::%s::%s", Type.action, Level2.Record),
+    Record_details_record_upload_share          ("Record_details",           "Post",         Type.action, Level2.Record),
+    Record_dedicated_details_record_upload_share("Dedicated_Record_details", "Post",         Type.action, Level2.Record),
 
-    NEW_Record_details_close                 ("Record_details", "Close",                       Type.action,     Level2.Record),
-    NEW_Record_details_record_edit_delete    ("Record_details", "Record_edit_delete",          Type.action,     Level2.Record),
+    Record_details_record_another_sound  ("Record_details", "Record_another_sound",        Type.action,     Level2.Record),
+    Record_dedicated_details_record_another_sound("Dedicated_Record_details", "Dedicated_Record_another_sound", Type.action, Level2.Record),
+
+    Record_details_close                 ("Record_details", "Close",                       Type.action,     Level2.Record),
+    Record_details_record_edit_delete    ("Record_details", "Record_edit_delete",          Type.action,     Level2.Record),
 
     // Not used on iOS, also spelling mistake in the key
-    NEW_Record_details_record_rehearsal_play  ("Record_details", "Record_Rehersal_play",        Type.action,     Level2.Record),
-    NEW_Record_details_record_rehearsal_pause ("Record_details", "Record_Rehersal_pause",       Type.action,     Level2.Record),
-    NEW_Record_details_record_rehearsal_save  ("Record_details", "Record_Rehersal_save",        Type.navigation, Level2.Record),
-    NEW_Record_details_record_rehearsal_delete("Record_details", "Record_Rehersal_delete",      Type.navigation, Level2.Record),
-    NEW_Record_tip_impressions                ("Record_tip_impressions", "%s",                  Type.action,     Level2.Record),
+    Record_details_record_rehearsal_play  ("Record_details", "Record_Rehersal_play",        Type.action,     Level2.Record),
+    Record_details_record_rehearsal_pause ("Record_details", "Record_Rehersal_pause",       Type.action,     Level2.Record),
+    Record_details_record_rehearsal_save  ("Record_details", "Record_Rehersal_save",        Type.navigation, Level2.Record),
+    Record_details_record_rehearsal_delete("Record_details", "Record_Rehersal_delete",      Type.navigation, Level2.Record),
+    Record_tip_impressions                ("Record_tip_impressions", "%s",                  Type.action,     Level2.Record),
 
     // Old recording keys
     Record_discard       ("Record", "discard",        Type.action, Level2.Record),
@@ -80,8 +82,6 @@ public enum Click implements Event {
     Record_revert("Record", "revert", Type.action, Level2.Record),
     Record_revert_cancel("Record", "revert:cancel", Type.action, Level2.Record),
 
-    Record_play          ("Record", "play",           Type.action, Level2.Record),
-    Record_play_stop     ("Record", "play_stop",      Type.action, Level2.Record),
 
     Record_details_add_image       ("Record_details", "add_image",        Type.action,     Level2.Record),
     Record_details_new_image       ("Record_details", "new_image",        Type.action,     Level2.Record),

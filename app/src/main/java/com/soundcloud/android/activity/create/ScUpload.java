@@ -93,9 +93,9 @@ public class ScUpload extends ScActivity {
                 track(Click.Record_details_record_another);
 
                 if (mRecording.getRecipient() != null) {
-                    track(Click.NEW_Record_details_record_another_sound);
+                    track(Click.Record_details_record_another_sound);
                 } else {
-                    track(Click.NEW_Record_dedicated_details_record_another_sound);
+                    track(Click.Record_dedicated_details_record_another_sound);
                 }
 
                 if (mRecording.external_upload && !mRecording.isLegacyRecording()){
@@ -111,9 +111,9 @@ public class ScUpload extends ScActivity {
                 track(Click.Record_details_Upload_and_share);
 
                 if (mRecording.getRecipient() != null) {
-                    track(Click.NEW_Record_dedicated_details_record_upload_share);
+                    track(Click.Record_dedicated_details_record_upload_share);
                 } else {
-                    track(Click.NEW_Record_details_record_upload_share);
+                    track(Click.Record_details_record_upload_share);
                 }
                 if (mRecording != null) {
                     saveRecording();
