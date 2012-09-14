@@ -17,6 +17,7 @@ import org.junit.runners.model.InitializationError;
 import org.mockito.MockitoAnnotations;
 
 import android.content.ContentProvider;
+import android.os.Build;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -44,8 +45,8 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         ShadowApplication shadowApplication = shadowOf(application);
         shadowApplication.setPackageName(robolectricConfig.getPackageName());
         shadowApplication.setPackageManager(new RobolectricPackageManager(application, robolectricConfig));
+//        TestHelper.setSdkVersion(Build.VERSION_CODES.ECLAIR_MR1);
         application.onCreate();
-
         // delegate content provider methods
         ContentProvider provider = new ScContentProvider();
         provider.onCreate();

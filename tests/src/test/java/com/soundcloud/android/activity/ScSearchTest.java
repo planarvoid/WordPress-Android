@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 
+@Ignore
 @RunWith(DefaultTestRunner.class)
 public class ScSearchTest {
     ScSearch search;
