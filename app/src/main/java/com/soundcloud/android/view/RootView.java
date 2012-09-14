@@ -1,6 +1,7 @@
 package com.soundcloud.android.view;
 
-import android.R;
+import com.soundcloud.android.R;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -52,9 +53,9 @@ public class RootView extends ViewGroup {
 
     public static final String EXTRA_MENU_STATE = "fim_menuState";
 
-    private View mMenu;
+    private SimpleListMenu mMenu;
     private View mPlayer;
-    private View mContent;
+    private ViewGroup mContent;
 
     private boolean mTracking;
     private boolean mLocked;
@@ -134,9 +135,15 @@ public class RootView extends ViewGroup {
     public RootView(Context context) {
         super(context, null, 0);
 
+        View.inflate(context, R.layout.root_view, this);
+
         setId(101010101);
 
         setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+
+        mMenu = (SimpleListMenu) findViewById(R.id.root_menu);
+        mContent = (ViewGroup) findViewById(R.id.content_frame);
+        mPlayer = findViewById(R.id.player_frame);
 
         mScroller = new Scroller(context,new DecelerateInterpolator());
 
@@ -162,26 +169,24 @@ public class RootView extends ViewGroup {
 
         mExpandedState = COLLAPSED_FULL_CLOSED;
 
-        setBackgroundColor(getContext().getResources().getColor(R.color.background_dark));
+        setBackgroundColor(getContext().getResources().getColor(android.R.color.background_dark));
         setAlwaysDrawnWithCacheEnabled(false);
     }
 
-
-    public void setContent(View content){
-        if (mContent != null && mContent.getParent() == this) {
-            removeView(mContent);
-        }
-
-        mContent = content;
-        mContent.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
-                LayoutParams.MATCH_PARENT));
-        addView(mContent);
+    public int getPlayerHolderId(){
+        return mPlayer.getId();
     }
 
-    public void setMenu(int menuResourceId, final SimpleListMenu.OnMenuItemClickListener listener) {
-        final SimpleListMenu menu = new SimpleListMenu(getContext(), menuResourceId);
-        setMenu(menu);
-        menu.setOnItemClickListener(new SimpleListMenu.OnMenuItemClickListener() {
+    public void setContent(View content){
+        if (mContent.getChildCount() > 0) mContent.removeAllViews();
+
+        content.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        mContent.addView(content);
+    }
+
+    public void configureMenu(int menuResourceId, final SimpleListMenu.OnMenuItemClickListener listener) {
+        mMenu.setMenuItems(menuResourceId);
+        mMenu.setOnItemClickListener(new SimpleListMenu.OnMenuItemClickListener() {
             @Override
             public void onMenuItemClicked(int id) {
                 if (listener != null) listener.onMenuItemClicked(id);
@@ -255,41 +260,6 @@ public class RootView extends ViewGroup {
             }, 100); // post on delay to avoid animation jank at start of activity
         }
     }
-
-    public void setMenuView(View menu) {
-
-    }
-
-    private void setMenu(View menu) {
-        if (mMenu != null && mMenu.getParent() == this) {
-            removeView(mMenu);
-        }
-
-        mMenu = menu;
-        mMenu.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
-                LayoutParams.MATCH_PARENT));
-
-        addView(mMenu);
-        mMenu.requestLayout();
-        mMenu.invalidate();
-
-    }
-
-    public void setPlayerVew(View player) {
-        if (mPlayer != null && mPlayer.getParent() == this) {
-            removeView(mPlayer);
-        }
-
-        mPlayer = player;
-        mPlayer.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
-                LayoutParams.MATCH_PARENT));
-
-        addView(mPlayer);
-        mPlayer.requestLayout();
-        mPlayer.invalidate();
-
-    }
-
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {

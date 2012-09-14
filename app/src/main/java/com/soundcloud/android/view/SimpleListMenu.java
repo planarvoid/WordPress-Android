@@ -44,11 +44,6 @@ public class SimpleListMenu extends RelativeLayout {
         init();
     }
 
-    public SimpleListMenu(Context context, int menuResourceId) {
-        this(context);
-        setMenuItems(menuResourceId);
-    }
-
     public SimpleListMenu(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();

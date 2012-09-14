@@ -37,7 +37,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
@@ -51,8 +50,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private Boolean mIsConnected;
     private boolean mIsForeground;
 
-    private int PLAYER_HOLDER_ID = 999990;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +62,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         mRootView = new RootView(this);
         super.setContentView(mRootView);
 
-        mRootView.setMenu(R.menu.main_nav, new SimpleListMenu.OnMenuItemClickListener() {
+        mRootView.configureMenu(R.menu.main_nav, new SimpleListMenu.OnMenuItemClickListener() {
             @Override
             public void onMenuItemClicked(int id) {
                 switch (id) {
@@ -85,14 +82,10 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        FrameLayout playerFrame = new FrameLayout(this);
-        playerFrame.setId(PLAYER_HOLDER_ID);
-        mRootView.setPlayerVew(playerFrame);
-
         if (savedInstanceState == null) {
             Fragment newFragment = new PlayerFragment();
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.add(PLAYER_HOLDER_ID, newFragment).commit();
+            ft.add(mRootView.getPlayerHolderId(), newFragment).commit();
 
             handleIntent(getIntent());
         }
