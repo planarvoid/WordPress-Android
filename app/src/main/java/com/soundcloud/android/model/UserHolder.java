@@ -10,6 +10,9 @@ import java.util.List;
 
 public class UserHolder extends CollectionHolder<User> {
 
+    public UserHolder() {
+    }
+
     public UserHolder(List<User> collection) {
         this.collection = collection;
     }

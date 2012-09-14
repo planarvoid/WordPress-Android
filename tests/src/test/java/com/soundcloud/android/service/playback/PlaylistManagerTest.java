@@ -9,6 +9,7 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackHolder;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -282,13 +283,13 @@ public class PlaylistManagerTest {
     }
 
     private void insertTracksAsUri(Uri uri) throws IOException {
-        List<Track> items = new ArrayList<Track>();
-        CollectionHolder<Track> holder = ScModel.getCollectionFromStream(getClass().getResourceAsStream("tracks.json"), AndroidCloudAPI.Mapper, Track.class);
-        for (Track t: holder){
+        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(getClass().getResourceAsStream("tracks.json"), TrackHolder.class);
+
+        for (Track t: tracks){
             SoundCloudApplication.TRACK_CACHE.put(t);
         }
 
-        expect(SoundCloudDB.bulkInsertModels(resolver, items, uri, USER_ID)).toEqual(4);
+        expect(SoundCloudDB.bulkInsertModels(resolver, tracks.collection, uri, USER_ID)).toEqual(4);
 
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(3);

@@ -10,6 +10,9 @@ import java.util.List;
 
 public class TrackHolder extends CollectionHolder<Track> {
 
+    public TrackHolder() {
+    }
+
     public TrackHolder(List<Track> collection) {
         this.collection = collection;
     }
