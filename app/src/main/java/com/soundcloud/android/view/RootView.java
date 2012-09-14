@@ -42,9 +42,9 @@ public class RootView extends ViewGroup {
     private static final float DROP_SHADOW_WIDTH = 10.0f;
 
     private static int mExpandedState;
-    private static final int EXPANDED_LEFT = 0;
-    private static final int COLLAPSED_FULL_CLOSED = 1;
-    private static final int EXPANDED_RIGHT = 2;
+    private static final int EXPANDED_LEFT = 100000;
+    private static final int COLLAPSED_FULL_CLOSED = 100001;
+    private static final int EXPANDED_RIGHT = 100002;
 
     private static final int MAXIMUM_OVERLAY_ALPHA = 180;
 
@@ -160,7 +160,7 @@ public class RootView extends ViewGroup {
         mShadowLeftDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[]{0x00000000,0x8F000000});
         mShadowRightDrawable = new GradientDrawable(GradientDrawable.Orientation.RIGHT_LEFT,new int[]{0x00000000,0x8F000000});
 
-        mExpandedState = 1;
+        mExpandedState = COLLAPSED_FULL_CLOSED;
 
         setBackgroundColor(getContext().getResources().getColor(R.color.background_dark));
         setAlwaysDrawnWithCacheEnabled(false);
@@ -588,11 +588,9 @@ public class RootView extends ViewGroup {
         if (position == EXPANDED_LEFT) {
             final int togo = (getMeasuredWidth() - mOffsetRight) - mContent.getLeft();
             mContent.offsetLeftAndRight(togo); //todo proper value
-
         } else if (position == EXPANDED_RIGHT) {
             final int togo = (-getMeasuredWidth() + mOffsetLeft) - mContent.getLeft();
             mContent.offsetLeftAndRight(togo); //todo proper value
-
         } else if (position == COLLAPSED_FULL_CLOSED) {
             mContent.offsetLeftAndRight(0 - mContent.getLeft());
 
@@ -755,7 +753,6 @@ public class RootView extends ViewGroup {
     }
 
     private void openLeft() {
-
         moveContent(EXPANDED_LEFT);
         mMenu.setVisibility(View.VISIBLE);
         mPlayer.setVisibility(View.GONE);
