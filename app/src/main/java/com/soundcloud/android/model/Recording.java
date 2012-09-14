@@ -18,6 +18,7 @@ import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.AmplitudeData;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.upload.UploadService;
+import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Endpoints;
@@ -388,7 +389,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public Intent getMonitorIntentWithProgress(int uploadStage, int progress) {
-        return getMonitorIntent().putExtra(UploadService.EXTRA_STAGE,uploadStage).putExtra(UploadService.EXTRA_PROGRESS,progress);
+        return getMonitorIntent().putExtra(UploadService.EXTRA_STAGE, uploadStage).putExtra(UploadService.EXTRA_PROGRESS, progress);
     }
 
     public Intent getProcessIntent() {
@@ -875,7 +876,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         if (toTrim > 0){
             final File[] list = IOUtils.nullSafeListFiles(directory, filter);
             if (list.length > 0){
-                Arrays.sort(list,new IOUtils.LastModifiedComparator(true));
+                Arrays.sort(list,new FiletimeComparator(true));
                 int i = 0;
                 while (trimmed < toTrim && i < list.length){
                     trimmed += list[i].length();

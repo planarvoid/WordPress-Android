@@ -463,29 +463,4 @@ public final class IOUtils {
                         tag
                 );
     }
-
-    public static class LastModifiedComparator implements Comparator<File> {
-
-        private boolean ascending;
-
-        public LastModifiedComparator() {
-            this.ascending = Boolean.FALSE;
-        }
-
-        public LastModifiedComparator(boolean ascending) {
-            this.ascending = ascending;
-        }
-
-        @Override
-        public int compare(File file1, File file2) {
-            int retVal = 0;
-
-            if (file1.lastModified() > file2.lastModified()) {
-                retVal = (ascending ? 1 : -1);
-            } else if (file1.lastModified() < file2.lastModified()) {
-                retVal = (ascending ? -1 : 1);
-            }
-            return retVal;
-        }
-    }
 }
