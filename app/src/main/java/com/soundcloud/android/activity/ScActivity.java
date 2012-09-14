@@ -11,6 +11,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.fragment.PlayerFragment;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
@@ -30,6 +31,8 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -48,6 +51,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private Boolean mIsConnected;
     private boolean mIsForeground;
 
+    private int PLAYER_HOLDER_ID = 999990;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +64,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         mRootView = new RootView(this);
         super.setContentView(mRootView);
+
         mRootView.setMenu(R.menu.main_nav, new SimpleListMenu.OnMenuItemClickListener() {
             @Override
             public void onMenuItemClicked(int id) {
@@ -77,15 +83,17 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             }
         });
 
-        ImageView tempPlayer = new ImageView(this);
-        tempPlayer.setScaleType(ImageView.ScaleType.CENTER);
-        tempPlayer.setImageResource(R.drawable.cloud);
-
-        mRootView.setPlayerVew(tempPlayer);
-
         getSupportActionBar().setHomeButtonEnabled(true);
 
+        FrameLayout playerFrame = new FrameLayout(this);
+        playerFrame.setId(PLAYER_HOLDER_ID);
+        mRootView.setPlayerVew(playerFrame);
+
         if (savedInstanceState == null) {
+            Fragment newFragment = new PlayerFragment();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.add(PLAYER_HOLDER_ID, newFragment).commit();
+
             handleIntent(getIntent());
         }
     }
