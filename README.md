@@ -16,7 +16,7 @@ Add thess lines to your .zshrc (or bash or whatever) [version numbers may change
 
 Run
 
-    $ /usr/local/Cellar/android-sdk/r20/tools/android update sdk --no-ui --obsolete --force
+    $ android update sdk --no-ui --obsolete --force
 
 Clone and build it:
 
