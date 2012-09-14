@@ -13,6 +13,7 @@ import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -30,13 +31,8 @@ public class BetaServiceTest {
     @Before
     public void before() {
         TestHelper.enableSDCard();
-        ConnectivityManager cm = (ConnectivityManager)
-                Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        Robolectric.shadowOf(cm).setBackgroundDataSetting(true);
-        Robolectric.shadowOf(cm).setNetworkInfo(ConnectivityManager.TYPE_WIFI,
-                newInstanceOf(NetworkInfo.class));
-
+        TestHelper.connectedViaWifi(true);
+        TestHelper.setBackgrounData(true);
         bs = new BetaService();
     }
 
