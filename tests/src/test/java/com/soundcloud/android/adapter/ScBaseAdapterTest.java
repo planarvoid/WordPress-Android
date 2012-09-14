@@ -17,6 +17,10 @@ public class ScBaseAdapterTest {
             protected LazyRow createRow(int position) {
                 return null;
             }
+
+            @Override
+            public void handleListItemClick(int position, long id) {
+            }
         };
     }
 }
