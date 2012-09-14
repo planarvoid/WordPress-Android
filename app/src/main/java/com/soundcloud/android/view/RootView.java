@@ -2,12 +2,14 @@ package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -579,6 +581,7 @@ public class RootView extends ViewGroup {
         invalidate();
     }
 
+    @TargetApi(11)
     private void prepareContent() {
         if (mAnimating) {
             return;
@@ -591,7 +594,10 @@ public class RootView extends ViewGroup {
         // Try only once... we should really loop but it's not a big deal
         // if the draw was cancelled, it will only be temporary anyway
         content.getViewTreeObserver().dispatchOnPreDraw();
-        if (!content.isHardwareAccelerated()) content.buildDrawingCache();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && !content.isHardwareAccelerated()) {
+            content.buildDrawingCache();
+        }
 
         content.setVisibility(View.GONE);
     }
