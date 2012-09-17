@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
+import java.util.Comparator;
 
 public final class IOUtils {
     private static final int BUFFER_SIZE = 4096;
