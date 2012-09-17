@@ -125,8 +125,16 @@ public class FacebookSSO extends AbstractLoginActivity {
                 FBToken token = FBToken.fromIntent(intent);
                 if (token != null) {
                     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "got FB token via intent: "+token);
-                    // TODO: enable after migration
-                    // extendAccessToken(token, context);
+
+                    if (token.isShortLived()) {
+                        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "token is short lived, extending");
+                        extendAccessToken(token, context);
+                    } else {
+                        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "token is long-lived");
+                        // we already got a long-lived token, store it
+                        token.store(context);
+                        token.sendToBackend(context);
+                    }
                 }
                 return true;
             } else return false;
@@ -143,9 +151,7 @@ public class FacebookSSO extends AbstractLoginActivity {
 
 
     public static boolean isSupported(Context context) {
-        return false;
-        // TODO: enable this after offline_access migration
-        /* return FacebookSSO.validateActivityIntent(context, FacebookSSO.getAuthIntent(context)); */
+        return FacebookSSO.validateActivityIntent(context, FacebookSSO.getAuthIntent(context));
     }
 
 
@@ -177,13 +183,18 @@ public class FacebookSSO extends AbstractLoginActivity {
                             String aToken = msg.getData().getString(TOKEN);
                             long expiresAt = msg.getData().getLong(EXPIRES) * 1000L;
                             if (aToken != null) {
+                                FBToken extendedToken = new FBToken(aToken, expiresAt);
                                 if (Log.isLoggable(TAG, Log.DEBUG)) {
-                                    Log.d(TAG, "token refresh via service: " + token);
+                                    Log.d(TAG, "token refreshed via service: " + token + " ===> " + extendedToken);
                                 }
 
-                                FBToken newToken = new FBToken(aToken, expiresAt);
-                                newToken.store(context);
-                                newToken.sendToBackend(context);
+                                if (!extendedToken.isExpired() && !extendedToken.isShortLived()) {
+                                    extendedToken.store(context);
+                                    extendedToken.sendToBackend(context);
+                                } else {
+                                    // either expired or short-lived, no point sending back to back-end
+                                    Log.w(TAG, "not a valid token: " + extendedToken);
+                                }
                             } else {
                                 Log.w(TAG, "token is null");
                             }
@@ -359,6 +370,10 @@ public class FacebookSSO extends AbstractLoginActivity {
 
         public boolean isExpired() {
             return expires > 0 && System.currentTimeMillis() >= expires;
+        }
+
+        public boolean isShortLived() {
+            return (expires - System.currentTimeMillis()) <=  120 * 1000 * 60; // short-lived == 1-2 hours
         }
 
         public static void clear(Context context) {
