@@ -10,6 +10,8 @@ import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.util.SparseIntArray;
 import android.util.Xml;
 import android.view.InflateException;
 import android.view.LayoutInflater;
@@ -18,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -25,7 +28,9 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class SimpleListMenu extends RelativeLayout {
     private ListView mList;
@@ -37,6 +42,7 @@ public class SimpleListMenu extends RelativeLayout {
      */
     public static interface OnMenuItemClickListener {
         public void onMenuItemClicked(int id);
+        public void onHeaderClicked(int id);
     }
 
     public SimpleListMenu(Context context) {
@@ -66,7 +72,7 @@ public class SimpleListMenu extends RelativeLayout {
             }
         });
         mAdapter = new MenuAdapter();
-        mList.setAdapter(mAdapter);
+
     }
 
     public void setOnItemClickListener(OnMenuItemClickListener onMenuItemClickListener){
@@ -84,7 +90,21 @@ public class SimpleListMenu extends RelativeLayout {
             int eventType = parser.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
-                    if ("item".equals(parser.getName())) {
+                    if ("header".equals(parser.getName())) {
+                        final TypedArray a = getContext().obtainStyledAttributes(attrs,R.styleable.SimpleMenu);
+                        if (a.getResourceId(R.styleable.SimpleMenu_android_layout, 0) != 0){
+                            View header = View.inflate(getContext(), a.getResourceId(R.styleable.SimpleMenu_android_layout, 0), null);
+                            header.setOnClickListener(new OnClickListener(){
+                                @Override
+                                public void onClick(View v) {
+                                    if (mClickListener != null){
+                                        mClickListener.onHeaderClicked(a.getResourceId(R.styleable.SimpleMenu_android_id, 0));
+                                    }
+                                }
+                            });
+                            mList.addHeaderView(header);
+                        }
+                    } else if ("item".equals(parser.getName())) {
                         mAdapter.addItem(new SimpleListMenuItem(
                               getContext().obtainStyledAttributes(attrs,R.styleable.SimpleMenu)
                         ));
@@ -100,28 +120,32 @@ public class SimpleListMenu extends RelativeLayout {
         } finally {
             if (parser != null) parser.close();
         }
-        mAdapter.notifyDataSetChanged();
+        mList.setAdapter(mAdapter);
     }
 
     class SimpleListMenuItem {
         int id;
         CharSequence text;
         Drawable icon;
+        int layoutId;
 
         public SimpleListMenuItem(TypedArray a) {
             this.id = a.getResourceId(R.styleable.SimpleMenu_android_id, 0);
             this.text = a.getText(R.styleable.SimpleMenu_android_text);
             this.icon = a.getDrawable(R.styleable.SimpleMenu_android_icon);
+            this.layoutId = a.getResourceId(R.styleable.SimpleMenu_android_layout, 0);
         }
     }
 
     private class MenuAdapter extends BaseAdapter {
         final private LayoutInflater inflater;
         private List<SimpleListMenuItem> mMenuItems;
+        private SparseIntArray mLayouts;
 
         public MenuAdapter() {
             inflater = LayoutInflater.from(getContext());
             mMenuItems = new ArrayList<SimpleListMenuItem>();
+            mLayouts = new SparseIntArray();
         }
 
         void clear(){
@@ -130,11 +154,25 @@ public class SimpleListMenu extends RelativeLayout {
 
         void addItem(SimpleListMenuItem item){
             mMenuItems.add(item);
+            if (mLayouts.get(item.layoutId, -1) == -1) {
+                mLayouts.put(item.layoutId, mLayouts.size());
+            }
+
         }
 
         @Override
         public int getCount() {
             return mMenuItems.size();
+        }
+
+        @Override
+        public int getViewTypeCount() {
+            return mLayouts.size() <= 1 ? 1 : mLayouts.size();
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return mLayouts.get(mMenuItems.get(position).layoutId, 0);
         }
 
         @Override
@@ -151,8 +189,9 @@ public class SimpleListMenu extends RelativeLayout {
         public View getView(int position, View convertView, ViewGroup parent) {
 
             final ViewHolder holder;
-            if (convertView == null || convertView instanceof TextView) {
-                convertView = inflater.inflate(R.layout.slm_menu_item, null);
+            if (convertView == null) {
+                final int layout_id = mMenuItems.get(position).layoutId;
+                convertView = inflater.inflate(layout_id == 0 ? R.layout.slm_menu_item : layout_id, null);
 
                 holder = new ViewHolder();
                 holder.image = (ImageView) convertView.findViewById(R.id.slm_item_icon);
@@ -165,8 +204,8 @@ public class SimpleListMenu extends RelativeLayout {
             }
 
             final SimpleListMenuItem menuItem = mMenuItems.get(position);
-            holder.image.setImageDrawable(menuItem.icon);
-            holder.text.setText(menuItem.text);
+            if (holder.image != null) holder.image.setImageDrawable(menuItem.icon);
+            if (holder.text != null) holder.text.setText(menuItem.text);
             return convertView;
         }
 

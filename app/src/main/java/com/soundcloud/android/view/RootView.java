@@ -188,13 +188,7 @@ public class RootView extends ViewGroup {
 
     public void configureMenu(int menuResourceId, final SimpleListMenu.OnMenuItemClickListener listener) {
         mMenu.setMenuItems(menuResourceId);
-        mMenu.setOnItemClickListener(new SimpleListMenu.OnMenuItemClickListener() {
-            @Override
-            public void onMenuItemClicked(int id) {
-                if (listener != null) listener.onMenuItemClicked(id);
-            }
-        });
-
+        mMenu.setOnItemClickListener(listener);
     }
 
     public Bundle getMenuBundle() {

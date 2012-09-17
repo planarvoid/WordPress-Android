@@ -33,6 +33,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -76,6 +77,13 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     case R.id.nav_record:
                         startNavActivity(ScCreate.class);
                         break;
+                }
+            }
+
+            @Override
+            public void onHeaderClicked(int id) {
+                if (id == R.id.nav_search) {
+                    // go to search
                 }
             }
         });

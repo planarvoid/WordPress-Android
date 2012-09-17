@@ -81,4 +81,8 @@
 
     <color name="fim_item_text_color">#ffffff</color>
 
+    <color name="search_item_unselected_color">#999999</color>
+    <color name="search_item_selected_color">#ffffff</color>
+    <color name="search_item_pressed_color">#ff6600</color>
+
 </resources>
