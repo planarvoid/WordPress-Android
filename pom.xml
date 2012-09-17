@@ -32,6 +32,15 @@
                         <outputApk>${project.build.directory}/${project.artifactId}-${project.version}-market.apk</outputApk>
                     </zipalign>
                 </configuration>
+                <executions>
+                  <execution>
+                    <id>alignApk</id>
+                    <phase>install</phase>
+                    <goals>
+                      <goal>zipalign</goal>
+                    </goals>
+                  </execution>
+                </executions>
                 <extensions>true</extensions>
             </plugin>
         </plugins>
@@ -50,7 +59,7 @@
             <url>http://maven.int.s-cloud.net/content/groups/hosted</url>
         </repository>
 
-	<repository>
+        <repository>
             <id>soundcloud.internal.releases</id>
             <name>SoundCloud Internal Releases</name>
             <url>http://maven.int.s-cloud.net/content/repositories/releases</url>
@@ -76,6 +85,13 @@
             <url>http://maven.int.s-cloud.net/content/groups/proxy</url>
         </repository>
     </repositories>
+
+    <properties>
+      <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
+      <keystore.alias>jons keystore</keystore.alias>
+      <keystore.password></keystore.password>
+      <keystore.keypass></keystore.keypass>
+    </properties>
 
     <!--
     <pluginRepositories>
