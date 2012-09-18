@@ -7,7 +7,7 @@ import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
 import android.test.FlakyTest;
-import android.test.suitebuilder.annotation.Suppress;
+import android.util.Log;
 import android.webkit.WebView;
 import android.widget.EditText;
 
@@ -44,19 +44,14 @@ public class LoginTest extends ActivityTestCase<Main> {
     public void testLoginWithFacebook() throws Exception {
         solo.clickOnButtonResId(R.string.authentication_log_in_with_facebook);
         solo.assertDialogClosed();
-        solo.assertActivity(FacebookWebFlow.class);
-
-        WebView webView = ((FacebookWebFlow) solo.getCurrentActivity()).getWebView();
+        WebView webView = solo.assertActivity(FacebookWebFlow.class).getWebView();
         assertNotNull(webView);
-
         int i = 0;
-        while (webView.getUrl() == null && i++ < 20) {
+        while (webView.getUrl() == null && i++ < 30) {
             solo.sleep(500);
         }
-
         assertNotNull(webView.getUrl());
-        assertTrue("got url:"+webView.getUrl(), webView.getUrl().startsWith("http://m.facebook.com/login.php"));
-        assertEquals("Facebook", webView.getTitle());
+        assertTrue("got url:" + webView.getUrl(), webView.getUrl().startsWith("http://m.facebook.com/login.php"));
     }
 
     public void testLoginWithWrongCredentials() {
