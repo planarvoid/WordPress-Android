@@ -255,7 +255,7 @@ public final class AlarmClock {
                 return true;
             }
         };
-        if (Build.VERSION.SDK_INT >= 14) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             try {
                 Class switchPrefClass = Class.forName("com.soundcloud.android.activity.settings.ICSSwitchPreference");
                 Constructor ctor = switchPrefClass.getConstructor(Context.class, boolean.class);

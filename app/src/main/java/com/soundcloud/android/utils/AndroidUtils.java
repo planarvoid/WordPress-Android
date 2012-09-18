@@ -245,7 +245,7 @@ public final class AndroidUtils {
 
     @TargetApi(8)
     public static boolean isUserAMonkey() {
-        if (Build.VERSION.SDK_INT >= 8) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             try {
                 return ActivityManager.isUserAMonkey();
             } catch (RuntimeException e) {

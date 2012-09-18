@@ -32,13 +32,21 @@
                         <outputApk>${project.build.directory}/${project.artifactId}-${project.version}-market.apk</outputApk>
                     </zipalign>
                 </configuration>
+                <executions>
+                  <execution>
+                    <id>alignApk</id>
+                    <phase>install</phase>
+                    <goals>
+                      <goal>zipalign</goal>
+                    </goals>
+                  </execution>
+                </executions>
                 <extensions>true</extensions>
             </plugin>
         </plugins>
     </build>
 
     <modules>
-        <module>android-cropimage</module>
         <module>app</module>
         <module>tests</module>
         <module>tests-integration</module>
@@ -49,6 +57,12 @@
             <id>soundcloud.internal.hosted</id>
             <name>SoundCloud Internal hosted</name>
             <url>http://maven.int.s-cloud.net/content/groups/hosted</url>
+        </repository>
+
+        <repository>
+            <id>soundcloud.internal.releases</id>
+            <name>SoundCloud Internal Releases</name>
+            <url>http://maven.int.s-cloud.net/content/repositories/releases</url>
         </repository>
 
         <repository>
@@ -71,6 +85,13 @@
             <url>http://maven.int.s-cloud.net/content/groups/proxy</url>
         </repository>
     </repositories>
+
+    <properties>
+      <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
+      <keystore.alias>jons keystore</keystore.alias>
+      <keystore.password></keystore.password>
+      <keystore.keypass></keystore.keypass>
+    </properties>
 
     <!--
     <pluginRepositories>

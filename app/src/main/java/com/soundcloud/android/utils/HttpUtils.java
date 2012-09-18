@@ -57,7 +57,7 @@ public final class HttpUtils {
 
     @TargetApi(8)
     public static HttpClient createHttpClient(String userAgent) {
-        if (Build.VERSION.SDK_INT >= 8) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             return AndroidHttpClient.newInstance(userAgent);
         } else {
             return new DefaultHttpClient();

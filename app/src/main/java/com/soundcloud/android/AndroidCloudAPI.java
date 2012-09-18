@@ -160,7 +160,7 @@ public interface AndroidCloudAPI extends CloudAPI {
         @Override protected SSLSocketFactory getSSLSocketFactory() {
             if (SoundCloudApplication.DALVIK &&
                 env == Env.LIVE &&
-                Build.VERSION.SDK_INT >= 8) {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
                 // make use of android's implementation
                 return SSLCertificateSocketFactory.getHttpSocketFactory(ApiWrapper.TIMEOUT,
                         new SSLSessionCache(mContext));
