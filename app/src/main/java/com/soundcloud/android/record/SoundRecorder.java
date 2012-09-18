@@ -494,6 +494,12 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     public @Nullable Recording  saveState() {
         if (mRecording != null) {
+
+            if (shouldEncodeWhileRecording()){
+                final long trimmed = Recording.trimWaveFiles(RECORD_DIR, mRecording);
+                if (trimmed > 0) Log.i(TAG,"Trimmed " + trimmed + " bytes of wav data");
+            }
+
             mRecording.setPlaybackStream(mPlaybackStream);
             return SoundCloudDB.upsertRecording(mContext.getContentResolver(), mRecording, mRecording.buildBaseContentValues());
         } else {
