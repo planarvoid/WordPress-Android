@@ -16,7 +16,6 @@ import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -55,7 +54,7 @@ public class RootView extends ViewGroup {
 
     public static final String EXTRA_MENU_STATE = "fim_menuState";
 
-    private SimpleListMenu mMenu;
+    private MainMenu mMenu;
     private View mPlayer;
     private ViewGroup mContent;
 
@@ -89,6 +88,7 @@ public class RootView extends ViewGroup {
     private final int mOffsetLeft;
     private final int mDrowShadoWidth;
     private final int mBezelHitWidth;
+
 
     /**
      * Callback invoked when the menu is opened.
@@ -143,7 +143,7 @@ public class RootView extends ViewGroup {
 
         setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
-        mMenu = (SimpleListMenu) findViewById(R.id.root_menu);
+        mMenu = (MainMenu) findViewById(R.id.root_menu);
         mContent = (ViewGroup) findViewById(R.id.content_frame);
         mPlayer = findViewById(R.id.player_frame);
 
@@ -186,7 +186,7 @@ public class RootView extends ViewGroup {
         mContent.addView(content);
     }
 
-    public void configureMenu(int menuResourceId, final SimpleListMenu.OnMenuItemClickListener listener) {
+    public void configureMenu(int menuResourceId, final MainMenu.OnMenuItemClickListener listener) {
         mMenu.setMenuItems(menuResourceId);
         mMenu.setOnItemClickListener(listener);
     }
@@ -653,6 +653,13 @@ public class RootView extends ViewGroup {
         invalidate();
         requestLayout();
     }
+
+    public void onBack() {
+        if (!mMenu.handleBack()){
+            animateClose();
+        }
+    }
+
 
     /**
      * Closes the menus with an animation.

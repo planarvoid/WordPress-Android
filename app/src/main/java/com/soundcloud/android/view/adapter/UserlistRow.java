@@ -38,8 +38,8 @@ public class UserlistRow extends LazyRow {
     private Button mFollowingBtn;
 
 
-    public UserlistRow(Context _activity, IScAdapter _adapter) {
-        super(_activity, _adapter);
+    public UserlistRow(Context context, IScAdapter _adapter) {
+        super(context, _adapter);
 
         mUsername = (TextView) findViewById(R.id.username);
         mTracks = (TextView) findViewById(R.id.tracks);
@@ -74,6 +74,10 @@ public class UserlistRow extends LazyRow {
             });
         }
 
+    }
+
+    public UserlistRow(Context context) {
+        super(context,null);
     }
 
     @Override

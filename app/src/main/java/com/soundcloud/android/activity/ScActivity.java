@@ -18,8 +18,8 @@ import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
+import com.soundcloud.android.view.MainMenu;
 import com.soundcloud.android.view.RootView;
-import com.soundcloud.android.view.SimpleListMenu;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -33,7 +33,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -63,7 +62,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         mRootView = new RootView(this);
         super.setContentView(mRootView);
 
-        mRootView.configureMenu(R.menu.main_nav, new SimpleListMenu.OnMenuItemClickListener() {
+        mRootView.configureMenu(R.menu.main_nav, new MainMenu.OnMenuItemClickListener() {
             @Override
             public void onMenuItemClicked(int id) {
                 switch (id) {
@@ -81,10 +80,18 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             }
 
             @Override
-            public void onHeaderClicked(int id) {
-                if (id == R.id.nav_search) {
-                    // go to search
-                }
+            public void onSearchQuery(CharSequence query) {
+                startActivity(new Intent(ScActivity.this, ScSearch.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY));
+            }
+
+            @Override
+            public void onSearchSuggestedTrackClicked(int id) {
+            }
+
+            @Override
+            public void onSearchSuggestedUserClicked(int id) {
             }
         });
 
@@ -342,7 +349,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         // handle back button to go back to previous screen
         if (keyCode == KeyEvent.KEYCODE_BACK
                 && (mRootView.isExpanded() || mRootView.isMoving())) {
-            mRootView.animateClose();
+            mRootView.onBack();
             return true;
         } else {
             return super.onKeyDown(keyCode, event);

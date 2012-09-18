@@ -177,7 +177,7 @@
         <activity android:name=".activity.track.TrackFavoriters" />
         <activity android:name=".activity.track.TrackComments" />
         <activity android:name=".activity.track.TracksByTag" />
-        <activity android:name=".activity.ScSearch"/>
+        <activity android:name=".activity.ScSearch" />
         <activity android:name=".activity.settings.Settings" android:label="Settings"/>
         <activity android:name=".activity.settings.AccountSettings" />
         <activity android:name=".activity.settings.NotificationSettings" android:label="Notifications Settings" />

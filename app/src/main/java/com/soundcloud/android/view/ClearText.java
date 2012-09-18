@@ -11,6 +11,9 @@ import android.widget.EditText;
 import com.soundcloud.android.R;
 
 public class ClearText extends EditText{
+
+    private Drawable mOriginalRightDrawable;
+
     public ClearText(Context context) {
         super(context);
         init();
@@ -29,9 +32,12 @@ public class ClearText extends EditText{
     private void init(){
         String value = "";//any text you are pre-filling in the EditText
         setText(value);
+
+        mOriginalRightDrawable = getCompoundDrawables()[2];
+
         final Drawable x = getResources().getDrawable(R.drawable.ic_txt_delete_states);//your x image, this one from standard android images looks pretty good actually
         x.setBounds(0, 0, x.getIntrinsicWidth(), x.getIntrinsicHeight());
-        setCompoundDrawables(null, null, "".equals(value) ? null : x, null);
+        setCompoundDrawables(null, null, "".equals(value) ? mOriginalRightDrawable : x, null);
         setCompoundDrawablePadding((int) (getResources().getDisplayMetrics().density * 5));
         setOnTouchListener(new OnTouchListener() {
             @Override
@@ -44,7 +50,7 @@ public class ClearText extends EditText{
                 }
                 if (event.getX() > getWidth() - getPaddingRight() - x.getIntrinsicWidth()) {
                     setText("");
-                    setCompoundDrawables(null, null, null, null);
+                    setCompoundDrawables(null, null, mOriginalRightDrawable, null);
                 }
                 return false;
             }
@@ -52,7 +58,7 @@ public class ClearText extends EditText{
         addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                setCompoundDrawables(null, null, getText().toString().equals("") ? null : x, null);
+                setCompoundDrawables(null, null, getText().toString().equals("") ? mOriginalRightDrawable : x, null);
             }
 
             @Override

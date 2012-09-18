@@ -1,7 +1,9 @@
 package com.soundcloud.android.adapter;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +18,12 @@ import java.util.List;
 
 public class SearchHistoryAdapter extends BaseAdapter {
     final Context context;
+    final int rowResourceId;
     private List<Search> data = new ArrayList<Search>();
 
-    public SearchHistoryAdapter(Context context) {
+    public SearchHistoryAdapter(Context context, int rowResourceId) {
         this.context = context;
+        this.rowResourceId = rowResourceId;
     }
 
     public List<Search> getData() {
@@ -53,7 +57,7 @@ public class SearchHistoryAdapter extends BaseAdapter {
 
         if (row == null) {
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-            row = inflater.inflate(R.layout.search_history_row, parent, false);
+            row = inflater.inflate(rowResourceId, parent, false);
 
             holder = new SearchHolder();
             holder.iv_search_type = (ImageView) row.findViewById(R.id.iv_search_type);
@@ -81,4 +85,40 @@ public class SearchHistoryAdapter extends BaseAdapter {
         ImageView iv_search_type;
         TextView tv_query;
     }
+
+    @SuppressWarnings("unchecked")
+    public static AsyncTask refreshHistory(final ContentResolver resolver,
+                                           final SearchHistoryAdapter adapter,
+                                           final Search... toInsert) {
+        return new AsyncTask<Void, Void, List<Search>>() {
+            @Override
+            protected List<Search> doInBackground(Void... params) {
+                if (toInsert != null) for (Search s : toInsert) s.insert(resolver);
+                return Search.getHistory(resolver);
+            }
+
+            @Override
+            protected void onPostExecute(List<Search> searches) {
+                if (searches != null) {
+                    for (Search searchDefault : SEARCH_DEFAULTS) {
+                        if (!searches.contains(searchDefault)) searches.add(searchDefault);
+                    }
+                    adapter.setData(searches);
+                }
+            }
+        }.execute();
+    }
+
+    public static final Search[] SEARCH_DEFAULTS = new Search[]{
+            new Search("Comedy show", Search.SOUNDS),
+            new Search("Bird calls", Search.SOUNDS),
+            new Search("Ambient", Search.SOUNDS),
+            new Search("Rap", Search.SOUNDS),
+            new Search("Garage rock", Search.SOUNDS),
+            new Search("Thunder storm", Search.SOUNDS),
+            new Search("Snoring", Search.SOUNDS),
+            new Search("Goa", Search.SOUNDS),
+            new Search("Nature sounds", Search.SOUNDS),
+            new Search("dubstep", Search.SOUNDS),
+    };
 }

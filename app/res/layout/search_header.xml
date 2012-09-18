@@ -1,38 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingTop="@dimen/slm_item_padding_topbottom"
-    android:paddingBottom="@dimen/slm_item_padding_topbottom"
-    android:paddingLeft="@dimen/slm_item_padding_leftright"
-    android:paddingRight="@dimen/slm_item_padding_leftright" >
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/search_header_padding_topbottom"
+                android:paddingBottom="@dimen/search_header_padding_topbottom"
+                android:paddingLeft="@dimen/search_header_padding_leftright"
+                android:paddingRight="@dimen/search_header_padding_leftright">
 
-    <ImageView
-        android:id="@+id/slm_item_icon"
-        android:layout_height="@dimen/slm_item_image_height"
-        android:layout_width="@dimen/slm_item_image_width"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_tab_search"
-        android:layout_centerVertical="true"
-        android:paddingRight="@dimen/slm_search_item_icon_padding_right"
-        android:layout_alignParentRight="true"
-        android:duplicateParentState="true" />
+    <LinearLayout android:id="@+id/focus_catcher"
+                  android:focusable="true"
+                  android:focusableInTouchMode="true"
+                  android:layout_width="0px"
+                  android:layout_height="0px"/>
 
-    <TextView
-        android:id="@+id/slm_item_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/search"
-        android:textSize="@dimen/slm_item_text_size"
-        android:textColorHint="@drawable/txt_menu_search_states"
-        android:background="@drawable/txt_menu_search_bg_states"
-        android:paddingTop="@dimen/slm_search_item_text_padding"
-        android:paddingBottom="@dimen/slm_search_item_text_padding"
-        android:paddingLeft="@dimen/slm_search_item_text_padding"
-        android:paddingRight="@dimen/slm_search_item_text_padding_right"
-        android:layout_gravity="center_vertical"
-        android:layout_alignParentLeft="true"
-        android:duplicateParentState="true"
-        android:singleLine="true"
-        android:ellipsize="end"/>
+    <com.soundcloud.android.view.ClearText
+            android:id="@+id/query"
+            android:nextFocusUp="@id/query"
+            android:nextFocusLeft="@id/query"
+            style="@style/txt_search"
+            android:textColor="@drawable/txt_light_states"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/search"
+            android:drawableRight="@drawable/ic_tab_search"
+            android:layout_alignParentLeft="true"
+            android:duplicateParentState="true"
+            android:singleLine="true"
+            android:ellipsize="end"/>
+
 </RelativeLayout>

@@ -4,12 +4,14 @@ import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.IScAdapter;
+import com.soundcloud.android.adapter.SearchSuggestionsAdapter;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.quickaction.QuickTrackMenu;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -54,19 +56,19 @@ public class TrackInfoBar extends LazyRow {
     protected ImageView mIcon;
     private ImageLoader.BindResult mCurrentIconBindResult;
 
-    public TrackInfoBar(Context context, IScAdapter adapter) {
+    public TrackInfoBar(Context context, @Nullable IScAdapter adapter) {
         super(context,adapter);
+        init();
+    }
+
+    public TrackInfoBar(Context context) {
+        super(context,null);
         init();
     }
 
     @Override
     protected View addContent() {
         return View.inflate(getContext(), R.layout.track_info_bar, this);
-    }
-
-    public TrackInfoBar(Context context, AttributeSet attrs) {
-        super(context, null);
-        init();
     }
 
     private void init(){

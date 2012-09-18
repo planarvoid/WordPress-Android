@@ -17,6 +17,10 @@
         <item name="android:buttonStyle">@style/btn_default</item>
     </style>
 
+    <style name="Theme.ScMenu" parent="Theme.ScDark">
+        <item name="android:textColor">@drawable/txt_light_states</item>
+    </style>
+
     <style name="Theme.ScAuth" parent="Theme.ScBaseNoActionBar">
         <item name="android:buttonStyle">@style/btn_default</item>
         <item name="android:windowBackground">@color/darkBg</item>

@@ -56,7 +56,6 @@
               android:layout_below="@id/user"
               android:maxLines="2"
               android:ellipsize="marquee"
-              style="@style/txt_list_main"
               android:text="@string/track"/>
     <RelativeLayout
             android:id="@+id/stats"

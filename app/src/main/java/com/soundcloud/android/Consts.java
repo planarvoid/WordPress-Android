@@ -5,6 +5,7 @@ import com.soundcloud.android.utils.ImageUtils;
 import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
+import android.text.TextUtils;
 
 import java.io.File;
 
@@ -129,6 +130,22 @@ public final class Consts {
             }
         }
 
+        public static String formatUriForSearchSuggestionsList(Context c, String uri) {
+            return getSearchSuggestionsListItemGraphicSize(c).formatUri(uri);
+        }
+
+        public static Consts.GraphicSize getSearchSuggestionsListItemGraphicSize(Context c) {
+            if (ImageUtils.isScreenXL(c)) {
+                return GraphicSize.T67;
+            } else {
+                if (c.getResources().getDisplayMetrics().density > 1) {
+                    return GraphicSize.BADGE;
+                } else {
+                    return GraphicSize.SMALL;
+                }
+            }
+        }
+
         public static String formatUriForPlayer(Context c, String uri) {
             return getPlayerGraphicSize(c).formatUri(uri);
         }
@@ -139,7 +156,7 @@ public final class Consts {
         }
 
         public String formatUri(String uri) {
-            if (uri == null) return null;
+            if (TextUtils.isEmpty(uri)) return null;
             else if (this == Consts.GraphicSize.LARGE) return uri;
             else return uri.replace(Consts.GraphicSize.LARGE.key, key);
         }

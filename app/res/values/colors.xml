@@ -7,6 +7,10 @@
     <color name="listTxtRecSecondary">#FFcccccc</color>
     <color name="listTxtCreatedAt">#FFc9c9c9</color>
 
+    <color name="listTxtDarkValue">#FFFFFFFF</color>
+    <color name="listTxtDarkValuePressed">#88FFFFFF</color>
+    <color name="listTxtDarkValueInactive">#FFa9a9a9</color>
+
     <color name="darkBg">#FF333333</color>
 
     <color name="listTxtHeader">#777777</color>

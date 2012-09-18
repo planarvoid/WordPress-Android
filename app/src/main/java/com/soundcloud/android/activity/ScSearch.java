@@ -65,11 +65,6 @@ public class ScSearch extends ScListActivity {
 
         txtQuery = (EditText) findViewById(R.id.query);
 
-        findViewById(R.id.search).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                perform(getSearch());
-            }
-        });
 
         //mList = new SectionedListView(this);
         mList = new ScListView(this);
@@ -108,7 +103,7 @@ public class ScSearch extends ScListActivity {
             }
         });
 
-        mHistoryAdapter = new SearchHistoryAdapter(this);
+        mHistoryAdapter = new SearchHistoryAdapter(this, R.layout.search_history_row);
         recentSearches.setAdapter(mHistoryAdapter);
 
         Object[] previousState = getLastCustomNonConfigurationInstance();
@@ -127,7 +122,7 @@ public class ScSearch extends ScListActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        refreshHistory(getContentResolver(), mHistoryAdapter);
+        SearchHistoryAdapter.refreshHistory(getContentResolver(), mHistoryAdapter);
         track(getClass());
     }
 
@@ -175,7 +170,7 @@ public class ScSearch extends ScListActivity {
         if (mWorkspaceView.getCurrentScreen() != 1) {
             mWorkspaceView.scrollRight();
         }
-        refreshHistory(getContentResolver(), mHistoryAdapter, search);
+        SearchHistoryAdapter.refreshHistory(getContentResolver(), mHistoryAdapter, search);
         mCurrentSearch = search;
         return true;
     }
@@ -245,37 +240,5 @@ public class ScSearch extends ScListActivity {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private static AsyncTask refreshHistory(final ContentResolver resolver,
-                                            final SearchHistoryAdapter adapter,
-                                            final Search... toInsert) {
-        return new AsyncTask<Void, Void, List<Search>>() {
-            @Override protected List<Search> doInBackground(Void... params) {
-                if (toInsert != null) for (Search s : toInsert) s.insert(resolver);
-                return Search.getHistory(resolver);
-            }
 
-            @Override protected void onPostExecute(List<Search> searches) {
-                if (searches != null) {
-                    for (Search searchDefault : SEARCH_DEFAULTS) {
-                        if (!searches.contains(searchDefault)) searches.add(searchDefault);
-                    }
-                    adapter.setData(searches);
-                }
-            }
-        }.execute();
-    }
-
-    private static final Search[] SEARCH_DEFAULTS = new Search[] {
-            new Search("Comedy show", Search.SOUNDS),
-            new Search("Bird calls", Search.SOUNDS),
-            new Search("Ambient", Search.SOUNDS),
-            new Search("Rap", Search.SOUNDS),
-            new Search("Garage rock", Search.SOUNDS),
-            new Search("Thunder storm", Search.SOUNDS),
-            new Search("Snoring", Search.SOUNDS),
-            new Search("Goa", Search.SOUNDS),
-            new Search("Nature sounds", Search.SOUNDS),
-            new Search("dubstep", Search.SOUNDS),
-    };
 }

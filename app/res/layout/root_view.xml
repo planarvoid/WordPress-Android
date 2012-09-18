@@ -2,9 +2,10 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="fill_parent"
              android:layout_height="fill_parent">
-    <com.soundcloud.android.view.SimpleListMenu android:id="@+id/root_menu"
-                 android:layout_width="match_parent"
-                 android:layout_height="match_parent"/>
+    <com.soundcloud.android.view.MainMenu android:id="@+id/root_menu"
+                                          style="@style/Theme.ScMenu"
+                                          android:layout_width="match_parent"
+                                          android:layout_height="match_parent"/>
     <FrameLayout android:id="@+id/player_frame"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"/>

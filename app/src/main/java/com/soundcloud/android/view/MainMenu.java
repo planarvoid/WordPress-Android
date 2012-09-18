@@ -2,6 +2,8 @@ package com.soundcloud.android.view;
 
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.adapter.SearchHistoryAdapter;
+import com.soundcloud.android.adapter.SearchSuggestionsAdapter;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -9,6 +11,8 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.graphics.drawable.Drawable;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseIntArray;
@@ -20,59 +24,107 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
-import android.widget.HeaderViewListAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-public class SimpleListMenu extends RelativeLayout {
+public class MainMenu extends LinearLayout {
     private ListView mList;
-    private MenuAdapter mAdapter;
+    private MenuAdapter mMenuAdapter;
     private OnMenuItemClickListener mClickListener;
+
+    private SearchHistoryAdapter mSearchAdapter;
+    private SearchSuggestionsAdapter mSuggestionsAdapter;
+
+    private boolean mInSearchMode;
+    private EditText mQueryText;
+    private View mFocusCatcher;
 
     /**
      * Callback invoked when a menu item is clicked.
      */
     public static interface OnMenuItemClickListener {
-        public void onMenuItemClicked(int id);
-        public void onHeaderClicked(int id);
-    }
 
-    public SimpleListMenu(Context context) {
+        public void onMenuItemClicked(int id);
+        public void onSearchQuery(CharSequence query);
+        public void onSearchSuggestedTrackClicked(int id);
+        public void onSearchSuggestedUserClicked(int id);
+    }
+    public MainMenu(Context context) {
         super(context);
         init();
     }
 
-    public SimpleListMenu(Context context, AttributeSet attrs) {
+    public MainMenu(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public SimpleListMenu(Context context, AttributeSet attrs, int menuResourceId) {
-        this(context, attrs);
-        setMenuItems(menuResourceId);
+    public boolean handleBack() {
+        if (mInSearchMode){
+            toggleSearchMode();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private void init() {
-        LayoutInflater.from(getContext()).inflate(R.layout.slm_menu, this, true);
+        setOrientation(LinearLayout.VERTICAL);
+
+        LayoutInflater.from(getContext()).inflate(R.layout.main_menu, this, true);
         mList = (ListView) findViewById(android.R.id.list);
         mList.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (mClickListener != null){
-                    mClickListener.onMenuItemClicked(((SimpleListMenuItem)mAdapter.getItem(position)).id);
+                    mClickListener.onMenuItemClicked(((SimpleListMenuItem) mMenuAdapter.getItem(position - mList.getHeaderViewsCount())).id);
                 }
             }
         });
-        mAdapter = new MenuAdapter();
 
+        mQueryText = (EditText) findViewById(R.id.query);
+        mQueryText.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+
+                if (hasFocus && !mInSearchMode) {
+                    toggleSearchMode();
+                }
+            }
+        });
+
+        mMenuAdapter = new MenuAdapter();
+        mSearchAdapter = new SearchHistoryAdapter(getContext(), R.layout.search_history_row_dark);
+        mSuggestionsAdapter = new SearchSuggestionsAdapter(getContext(),null);
+        mFocusCatcher = findViewById(R.id.focus_catcher);
+
+    }
+
+    private void toggleSearchMode(){
+        if (!mInSearchMode){
+            mInSearchMode = true;
+            if (mQueryText.length() > 0){
+                mList.setAdapter(mSuggestionsAdapter);
+                mSuggestionsAdapter.notifyDataSetChanged();
+            } else {
+                mList.setAdapter(mSearchAdapter);
+                SearchHistoryAdapter.refreshHistory(getContext().getContentResolver(), mSearchAdapter);
+            }
+            mQueryText.addTextChangedListener(mTextWatcher);
+
+        } else {
+            mInSearchMode = false;
+            mList.setAdapter(mMenuAdapter);
+            mQueryText.removeTextChangedListener(mTextWatcher);
+            mFocusCatcher.requestFocus();
+        }
     }
 
     public void setOnItemClickListener(OnMenuItemClickListener onMenuItemClickListener){
@@ -81,7 +133,7 @@ public class SimpleListMenu extends RelativeLayout {
 
 
     public void setMenuItems(int menu) {
-        mAdapter.clear();
+        mMenuAdapter.clear();
         XmlResourceParser parser = null;
         try {
             parser = getResources().getLayout(menu);
@@ -90,23 +142,9 @@ public class SimpleListMenu extends RelativeLayout {
             int eventType = parser.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
-                    if ("header".equals(parser.getName())) {
-                        final TypedArray a = getContext().obtainStyledAttributes(attrs,R.styleable.SimpleMenu);
-                        if (a.getResourceId(R.styleable.SimpleMenu_android_layout, 0) != 0){
-                            View header = View.inflate(getContext(), a.getResourceId(R.styleable.SimpleMenu_android_layout, 0), null);
-                            header.setOnClickListener(new OnClickListener(){
-                                @Override
-                                public void onClick(View v) {
-                                    if (mClickListener != null){
-                                        mClickListener.onHeaderClicked(a.getResourceId(R.styleable.SimpleMenu_android_id, 0));
-                                    }
-                                }
-                            });
-                            mList.addHeaderView(header);
-                        }
-                    } else if ("item".equals(parser.getName())) {
-                        mAdapter.addItem(new SimpleListMenuItem(
-                              getContext().obtainStyledAttributes(attrs,R.styleable.SimpleMenu)
+                    if ("item".equals(parser.getName())) {
+                        mMenuAdapter.addItem(new SimpleListMenuItem(
+                                getContext().obtainStyledAttributes(attrs, R.styleable.SimpleMenu)
                         ));
                     }
                 }
@@ -120,7 +158,7 @@ public class SimpleListMenu extends RelativeLayout {
         } finally {
             if (parser != null) parser.close();
         }
-        mList.setAdapter(mAdapter);
+        mList.setAdapter(mMenuAdapter);
     }
 
     class SimpleListMenuItem {
@@ -146,6 +184,7 @@ public class SimpleListMenu extends RelativeLayout {
             inflater = LayoutInflater.from(getContext());
             mMenuItems = new ArrayList<SimpleListMenuItem>();
             mLayouts = new SparseIntArray();
+            mLayouts.put(R.layout.main_menu_item, 0);
         }
 
         void clear(){
@@ -167,7 +206,7 @@ public class SimpleListMenu extends RelativeLayout {
 
         @Override
         public int getViewTypeCount() {
-            return mLayouts.size() <= 1 ? 1 : mLayouts.size();
+            return mLayouts.size();
         }
 
         @Override
@@ -191,7 +230,7 @@ public class SimpleListMenu extends RelativeLayout {
             final ViewHolder holder;
             if (convertView == null) {
                 final int layout_id = mMenuItems.get(position).layoutId;
-                convertView = inflater.inflate(layout_id == 0 ? R.layout.slm_menu_item : layout_id, null);
+                convertView = inflater.inflate(layout_id == 0 ? R.layout.main_menu_item : layout_id, null);
 
                 holder = new ViewHolder();
                 holder.image = (ImageView) convertView.findViewById(R.id.slm_item_icon);
@@ -214,6 +253,30 @@ public class SimpleListMenu extends RelativeLayout {
             ImageView image;
         }
     }
+
+
+    private final TextWatcher mTextWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence seq, int start, int before, int count) {
+            if (count == 0){
+                mList.setAdapter(mSearchAdapter);
+            } else {
+                final String s = seq.toString();
+                mSuggestionsAdapter.getFilter().filter(
+                        s.contains(",") ?
+                                s.subSequence(s.lastIndexOf(",") + 1, s.length()).toString().trim() :
+                                s.trim());
+
+                if (mList.getAdapter() != mSuggestionsAdapter) mList.setAdapter( mSuggestionsAdapter);
+            }
+
+        }
+    };
 
 
 }

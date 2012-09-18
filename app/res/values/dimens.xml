@@ -5,8 +5,12 @@
     <dimen name="notification_image_width">65dip</dimen>
     <dimen name="notification_image_height">65dip</dimen>
 
+    <dimen name="search_list_icon_width">32dip</dimen>
+    <dimen name="search_list_icon_height">32dip</dimen>
+
     <dimen name="list_icon_width">47dip</dimen>
     <dimen name="list_icon_height">47dip</dimen>
+
     <dimen name="list_icon_margin_left">5dip</dimen>
     <dimen name="list_icon_margin_right">5dip</dimen>
     <dimen name="list_txt_pull_size">16sp</dimen>
@@ -84,5 +88,8 @@
     <dimen name="slm_search_item_text_padding">10dp</dimen>
     <dimen name="slm_search_item_text_padding_right">30dp</dimen>
     <dimen name="slm_search_item_icon_padding_right">5dp</dimen>
+
+    <dimen name="search_header_padding_topbottom">16dp</dimen>
+    <dimen name="search_header_padding_leftright">8dp</dimen>
 
 </resources>
