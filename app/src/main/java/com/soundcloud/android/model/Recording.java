@@ -59,7 +59,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     public static final File IMAGE_DIR = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
     public static final String EXTRA = "recording";
-    public static final int MAX_WAVE_CACHE = 50 * 1024 * 1024; // 50 mb
+    public static final int MAX_WAVE_CACHE = 100 * 1024 * 1024; // 100 mb
 
     // basic properties
     public long user_id;
