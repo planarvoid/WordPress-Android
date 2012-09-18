@@ -13,17 +13,24 @@
                     android:paddingRight="@dimen/search_header_padding_leftright"
                     android:layout_width="fill_parent">
 
-        <com.soundcloud.android.view.ClearText android:id="@+id/query"
-                                               android:layout_margin="5dip"
-                                               style="@style/txt_search"
-                                               android:layout_height="wrap_content"
-                                               android:nextFocusUp="@+id/query"
-                                               android:nextFocusLeft="@+id/query"
-                                               android:singleLine="true"
-                                               android:imeOptions="actionSearch"
-                                               android:layout_width="fill_parent"
-                                               android:layout_alignParentLeft="true"
-                                               android:layout_toLeftOf="@+id/search"/>
+        <LinearLayout android:id="@+id/focus_catcher"
+                      android:focusable="true"
+                      android:focusableInTouchMode="true"
+                      android:layout_width="0px"
+                      android:layout_height="0px"/>
+
+
+        <EditText android:id="@+id/query"
+                  android:layout_margin="5dip"
+                  style="@style/txt_search"
+                  android:text="asdf"
+                  android:layout_height="wrap_content"
+                  android:nextFocusUp="@+id/query"
+                  android:nextFocusLeft="@+id/query"
+                  android:singleLine="true"
+                  android:imeOptions="actionSearch"
+                  android:layout_width="fill_parent"
+                  android:layout_alignParentLeft="true"/>
 
     </RelativeLayout>
 

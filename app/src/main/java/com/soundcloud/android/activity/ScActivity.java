@@ -33,6 +33,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -81,9 +82,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
             @Override
             public void onSearchQuery(CharSequence query) {
-                startActivity(new Intent(ScActivity.this, ScSearch.class)
-                        .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                        .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY));
+                Log.i("asdf","On Search Query " + query);
+                startActivity(getNavIntent(ScSearch.class).putExtra(ScSearch.EXTRA_QUERY, query));
             }
 
             @Override
@@ -133,10 +133,14 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     private void startNavActivity(Class activity) {
-        startActivity(new Intent(ScActivity.this, activity)
+        startActivity(getNavIntent(activity));
+    }
+
+    private Intent getNavIntent(Class activity) {
+        return new Intent(ScActivity.this, activity)
                 .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                .putExtras(mRootView.getMenuBundle()));
+                .putExtras(mRootView.getMenuBundle());
     }
 
     @Override

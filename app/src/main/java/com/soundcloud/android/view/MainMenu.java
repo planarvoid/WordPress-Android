@@ -18,9 +18,12 @@ import android.util.Log;
 import android.util.SparseIntArray;
 import android.util.Xml;
 import android.view.InflateException;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
@@ -79,7 +82,7 @@ public class MainMenu extends LinearLayout {
         setOrientation(LinearLayout.VERTICAL);
 
         LayoutInflater.from(getContext()).inflate(R.layout.main_menu, this, true);
-        mList = (ListView) findViewById(android.R.id.list);
+        mList = (ListView) findViewById(R.id.root_menu_list);
         mList.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -89,22 +92,39 @@ public class MainMenu extends LinearLayout {
             }
         });
 
-        mQueryText = (EditText) findViewById(R.id.query);
+        mQueryText = (EditText) findViewById(R.id.root_menu_query);
         mQueryText.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-
                 if (hasFocus && !mInSearchMode) {
                     toggleSearchMode();
                 }
             }
         });
 
+        mQueryText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH && mClickListener != null) {
+                    mClickListener.onSearchQuery(mQueryText.getText().toString());
+                    toggleSearchMode();
+                    mQueryText.setText("");
+
+                    InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(mQueryText.getWindowToken(), 0);
+                    return true;
+
+                } else {
+                    return false;
+                }
+            }
+        });
+
+
         mMenuAdapter = new MenuAdapter();
         mSearchAdapter = new SearchHistoryAdapter(getContext(), R.layout.search_history_row_dark);
         mSuggestionsAdapter = new SearchSuggestionsAdapter(getContext(),null);
-        mFocusCatcher = findViewById(R.id.focus_catcher);
-
+        mFocusCatcher = findViewById(R.id.root_menu_focus_catcher);
     }
 
     private void toggleSearchMode(){

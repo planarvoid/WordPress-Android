@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -13,6 +14,7 @@ import com.soundcloud.android.R;
 public class ClearText extends EditText{
 
     private Drawable mOriginalRightDrawable;
+    private OnClickListener mDefaultDrawableListener;
 
     public ClearText(Context context) {
         super(context);
@@ -27,6 +29,10 @@ public class ClearText extends EditText{
     public ClearText(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
+    }
+
+    public void setDefaultDrawableClickListener(OnClickListener listener){
+        mDefaultDrawableListener = listener;
     }
 
     private void init(){
@@ -49,8 +55,14 @@ public class ClearText extends EditText{
                     return false;
                 }
                 if (event.getX() > getWidth() - getPaddingRight() - x.getIntrinsicWidth()) {
-                    setText("");
-                    setCompoundDrawables(null, null, mOriginalRightDrawable, null);
+                    if (TextUtils.isEmpty(getText())){
+                        if (mDefaultDrawableListener != null){
+                            mDefaultDrawableListener.onClick(ClearText.this);
+                        }
+                    } else {
+                        setText("");
+                        setCompoundDrawables(null, null, mOriginalRightDrawable, null);
+                    }
                 }
                 return false;
             }

@@ -25,17 +25,17 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
     }
 
     @Override
-    public int getViewTypeCount() {
-        return super.getViewTypeCount() + Activity.Type.values().length;
-    }
+        public int getViewTypeCount() {
+            return super.getViewTypeCount() + Activity.Type.values().length;
+        }
 
-    @Override
-    public int getItemViewType(int position) {
-        int type = super.getItemViewType(position);
-        if (type == IGNORE_ITEM_VIEW_TYPE) return type;
+        @Override
+        public int getItemViewType(int position) {
+            int type = super.getItemViewType(position);
+            if (type == IGNORE_ITEM_VIEW_TYPE) return type;
 
-        return getItem(position).type.ordinal();
-    }
+            return getItem(position).type.ordinal();
+        }
 
     @Override
     protected LazyRow createRow(int position) {

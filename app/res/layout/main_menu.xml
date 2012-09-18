@@ -3,11 +3,39 @@
        android:layout_width="match_parent"
        android:layout_height="match_parent">
 
-    <include layout="@layout/search_header"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"/>
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/search_header_padding_topbottom"
+                    android:paddingBottom="@dimen/search_header_padding_topbottom"
+                    android:paddingLeft="@dimen/search_header_padding_leftright"
+                    android:paddingRight="@dimen/search_header_padding_leftright">
+
+        <LinearLayout android:id="@+id/root_menu_focus_catcher"
+                      android:focusable="true"
+                      android:focusableInTouchMode="true"
+                      android:layout_width="0px"
+                      android:layout_height="0px"/>
+
+        <com.soundcloud.android.view.ClearText
+                android:id="@+id/root_menu_query"
+                android:nextFocusUp="@id/root_menu_query"
+                android:nextFocusLeft="@id/root_menu_query"
+                style="@style/txt_search_menu"
+                android:textColor="@drawable/txt_light_states"
+                android:imeOptions="actionSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/search"
+                android:drawableRight="@drawable/ic_tab_search"
+                android:layout_alignParentLeft="true"
+                android:duplicateParentState="true"
+                android:singleLine="true"
+                android:ellipsize="end"/>
+
+    </RelativeLayout>
+
     <ListView
-            android:id="@android:id/list"
+            android:id="@+id/root_menu_list"
             android:layout_width="match_parent"
             android:layout_margin="20dp"
             android:layout_height="match_parent"

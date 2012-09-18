@@ -1,118 +1,99 @@
 package com.soundcloud.android.activity;
 
-import static android.widget.FrameLayout.LayoutParams.FILL_PARENT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.SearchHistoryAdapter;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.view.ClearText;
 import com.soundcloud.android.view.ScListView;
-import com.soundcloud.android.view.WorkspaceView;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.os.AsyncTask;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Tracking(page = Page.Search_main)
 public class ScSearch extends ScListActivity {
-    private EditText txtQuery;
 
-    private RadioGroup rdoSearchType;
-    private RadioButton rdoUser, rdoTrack;
+    private static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
 
-    private FrameLayout mListHolder;
+    private ClearText mTxtQuery;
+    private Spinner mSpinner;
     private ScListView mList;
-
-    private WorkspaceView mWorkspaceView;
-    private SearchHistoryAdapter mHistoryAdapter;
     private Search mCurrentSearch;
+    public static String EXTRA_QUERY = "query";
 
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
-        setContentView(R.layout.workspace_view);
+        setContentView(R.layout.sc_search);
 
-        mWorkspaceView = (WorkspaceView) findViewById(R.id.workspace_view);
-        mWorkspaceView.setIgnoreChildFocusRequests(true); // we handle scrolling manually
-        mWorkspaceView.addView(getLayoutInflater().inflate(R.layout.sc_search_controls, null));
+        mSpinner = (Spinner) findViewById(R.id.spinner_search_type);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.search_types, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinner.setAdapter(adapter);
 
-        rdoSearchType = (RadioGroup) findViewById(R.id.rdo_search_type);
-        rdoUser = (RadioButton) findViewById(R.id.rdo_users);
-        rdoTrack = (RadioButton) findViewById(R.id.rdo_tracks);
+        mTxtQuery = (ClearText) findViewById(R.id.txt_query);
 
-        AndroidUtils.setTextShadowForGrayBg(rdoUser);
-        AndroidUtils.setTextShadowForGrayBg(rdoTrack);
-
-        txtQuery = (EditText) findViewById(R.id.query);
-
-
-        //mList = new SectionedListView(this);
-        mList = new ScListView(this);
-        //configureList(mList);
-
-        mListHolder = new FrameLayout(this);
-        mListHolder.setLayoutParams(new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.FILL_PARENT,
-                ViewGroup.LayoutParams.FILL_PARENT));
-        mListHolder.addView(mList);
+        mList = (ScListView) findViewById(R.id.list_results);
         mList.setVisibility(View.GONE);
 
-        final View root = findViewById(R.id.search_root);
-        root.setOnFocusChangeListener(keyboardHideFocusListener);
-        root.setOnClickListener(keyboardHideClickListener);
-        root.setOnTouchListener(keyboardHideTouchListener);
-
-        txtQuery.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        mTxtQuery.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 return !isFinishing() && actionId == EditorInfo.IME_ACTION_SEARCH && perform(getSearch());
             }
         });
 
-        final ListView recentSearches = new ListView(this);
-        recentSearches.setSelector(R.drawable.list_selector_background);
-        ((ViewGroup) findViewById(R.id.fl_searches)).addView(recentSearches,
-                new FrameLayout.LayoutParams(FILL_PARENT, FILL_PARENT));
-
-        recentSearches.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Search search = ((Search) parent.getItemAtPosition(position));
-                if (search != null) {
-                    perform(search);
+        // Disable button if no recognition service is present
+        PackageManager pm = getPackageManager();
+        List<ResolveInfo> activities = pm.queryIntentActivities(
+                new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
+        if (activities.size() == 0) {
+            mTxtQuery.setDefaultDrawableClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                    intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "What do you want to find?");
+                    startActivityForResult(intent, VOICE_RECOGNITION_REQUEST_CODE);
                 }
-            }
-        });
-
-        mHistoryAdapter = new SearchHistoryAdapter(this, R.layout.search_history_row);
-        recentSearches.setAdapter(mHistoryAdapter);
+            });
+        } else {
+            //use alternative drawable, disable button
+        }
 
         Object[] previousState = getLastCustomNonConfigurationInstance();
         if (previousState != null) {
             restorePreviousState(previousState);
         } else {
-            mWorkspaceView.initWorkspace(0);
+            final Intent intent = getIntent();
+            if (intent.hasExtra(EXTRA_QUERY)) {
+                perform(new Search(intent.getCharSequenceExtra(EXTRA_QUERY).toString(), Search.SOUNDS));
+            }
         }
+
+
     }
+
 
     @Override
     public Object[] getLastCustomNonConfigurationInstance() {
@@ -122,30 +103,28 @@ public class ScSearch extends ScListActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        SearchHistoryAdapter.refreshHistory(getContentResolver(), mHistoryAdapter);
         track(getClass());
     }
 
     private Search getSearch() {
-        return new Search(txtQuery.getText().toString(),
-                (rdoSearchType.getCheckedRadioButtonId() == R.id.rdo_tracks) ?
+        return new Search(mTxtQuery.getText().toString(), mSpinner.getSelectedItemId() < 2 ?
                 Search.SOUNDS : Search.USERS);
     }
 
     boolean perform(final Search search) {
         if (search.isEmpty()) return false;
         // when called from Main or History
-        txtQuery.setText(search.query);
+        mTxtQuery.setText(search.query);
 
         switch (search.search_type) {
             case Search.SOUNDS:
-                rdoTrack.setChecked(true);
+                mSpinner.setSelection(1);
                 //configureAdapter(mSoundAdpWrapper, search);
                 track(Page.Search_results__sounds__keyword, search.query);
                 break;
 
             case Search.USERS:
-                rdoUser.setChecked(true);
+                mSpinner.setSelection(2);
                 //configureAdapter(mUserAdpWrapper, search);
                 track(Page.Search_results__people__keyword, search.query);
                 break;
@@ -156,89 +135,52 @@ public class ScSearch extends ScListActivity {
 
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (mgr != null) {
-            mgr.hideSoftInputFromWindow(txtQuery.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            mgr.hideSoftInputFromWindow(mTxtQuery.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
 
         mList.setLastUpdated(0);
         mList.setVisibility(View.VISIBLE);
-
-        if (mWorkspaceView.getChildCount() < 2) {
-            // only add list after 1st search (otherwise it is scrollable on load)
-            mWorkspaceView.addView(mListHolder);
-        }
-
-        if (mWorkspaceView.getCurrentScreen() != 1) {
-            mWorkspaceView.scrollRight();
-        }
-        SearchHistoryAdapter.refreshHistory(getContentResolver(), mHistoryAdapter, search);
         mCurrentSearch = search;
+
         return true;
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        // handle back button to go back to previous screen
-        if (keyCode == KeyEvent.KEYCODE_BACK
-                && mWorkspaceView != null
-                && mWorkspaceView.getCurrentScreen() != 0) {
-            mWorkspaceView.scrollLeft();
-            return true;
-        } else {
-            return super.onKeyDown(keyCode, event);
-        }
-    }
-
-    private final View.OnFocusChangeListener keyboardHideFocusListener = new View.OnFocusChangeListener() {
-        public void onFocusChange(View v, boolean hasFocus) {
-            hideKeyboard();
-        }
-    };
-
-    private final View.OnClickListener keyboardHideClickListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            hideKeyboard();
-        }
-    };
-
-    private final View.OnTouchListener keyboardHideTouchListener = new View.OnTouchListener() {
-        public boolean onTouch(View v, MotionEvent event) {
-            hideKeyboard();
-            return false;
-        }
-    };
-
-    private void hideKeyboard() {
-        if (!isFinishing()) {
-            InputMethodManager mgr = (InputMethodManager)
-                    getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (mgr != null)
-                mgr.hideSoftInputFromWindow(txtQuery.getWindowToken(),
-                        InputMethodManager.HIDE_NOT_ALWAYS);
-        }
-    }
 
     @Override
     public Object[] onRetainCustomNonConfigurationInstance() {
-        return new Object[] {
+        return new Object[]{
                 mCurrentSearch,
                 mList.getVisibility(),
-                mWorkspaceView.getCurrentScreen()
+
         };
     }
 
     void restorePreviousState(Object[] previous) {
         mCurrentSearch = (Search) previous[0];
         if ((Integer) previous[1] == View.VISIBLE) {
-            mWorkspaceView.addView(mListHolder);
             mList.setVisibility(View.VISIBLE);
         }
-        mWorkspaceView.initWorkspace((Integer) previous[4]);
+
         if (mCurrentSearch != null) {
-            txtQuery.setText(mCurrentSearch.query);
+            mTxtQuery.setText(mCurrentSearch.query);
             //configureAdapter(mCurrentSearch.search_type == Search.SOUNDS ?
-              //      mSoundAdpWrapper : mUserAdpWrapper, mCurrentSearch);
+            //      mSoundAdpWrapper : mUserAdpWrapper, mCurrentSearch);
         }
     }
 
+    /**
+     * Handle the results from the voice recognition activity.
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
+            ArrayList<String> matches = data.getStringArrayListExtra(
+                    RecognizerIntent.EXTRA_RESULTS);
+            if (matches.size() > 0) {
+                mTxtQuery.setText(matches.get(0));
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
 }
