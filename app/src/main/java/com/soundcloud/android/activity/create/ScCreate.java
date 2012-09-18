@@ -183,7 +183,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     @Override
     public void onStop() {
-        track(Click.Record_close_main, "cancel");
+        // Are we sure we don't need this anymore?
+        // track(Click.Record_close_main, "cancel");
         super.onStop();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mStatusListener);
     }
@@ -245,14 +246,14 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     @Override
     public void onAdjustTrimLeft(float newPos, long moveTime) {
         mRecorder.onNewStartPosition(newPos, moveTime);
-        track(Click.Record_edit_interaction);
+        track(Click.Record_Edit_Interact);
         configurePlaybackInfo();
     }
 
     @Override
     public void onAdjustTrimRight(float newPos, long moveTime) {
         mRecorder.onNewEndPosition(newPos, moveTime);
-        track(Click.Record_edit_interaction);
+        track(Click.Record_Edit_Interact);
         configurePlaybackInfo();
     }
 
@@ -321,10 +322,10 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             @Override
             public void onClick(View v) {
                 if (!mCurrentState.isEdit()) {
-                    track(Click.Record_discard);
+                    track(Click.Record_Pause_Delete, mTxtRecordMessage.getCurrentSuggestionKey());
                     showDialog(Consts.Dialogs.DIALOG_DISCARD_RECORDING);
                 } else {
-                    track(Click.Record_revert);
+                    track(Click.Record_Edit_Revert_To_Original);
                     showDialog(Consts.Dialogs.DIALOG_REVERT_RECORDING);
                 }
             }
@@ -332,7 +333,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.DELETE, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                track(Click.Record_delete);
+                track(Click.Record_Pause_Delete, mTxtRecordMessage.getCurrentSuggestionKey());
                 showDialog(Consts.Dialogs.DIALOG_DELETE_RECORDING);
             }
         }), R.string.delete);
@@ -342,10 +343,10 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 final Recording rec = mRecorder.saveState();
                 if (rec != null) {
                     if (mCurrentState.isEdit()) {
-                        track(Click.Record_edit_save, rec.getPlaybackStream().isTrimmed() ? "trimmed" : "not_trimmed");
+                        track(Click.Record_Edit_Apply, rec.getPlaybackStream().isTrimmed() ? "trimmed" : "not_trimmed");
                         updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
                     } else {
-                        track(Click.Record_details_record_upload_share_detailed,
+                        track(Click.Record_Pause_Publish,
                               mTxtRecordMessage.getCurrentSuggestionKey(),
                               rec.getPlaybackStream().isTrimmed() ? "trimmed" : "not_trimmed");
 
@@ -369,18 +370,18 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             public void onClick(View v) {
                 switch (mCurrentState) {
                     case IDLE_RECORD:
-                        track(Click.Record_start, mTxtRecordMessage.getCurrentSuggestionKey());
+                        track(Click.Record_Main_Record_Start, mTxtRecordMessage.getCurrentSuggestionKey());
                         startRecording();
                         break;
 
                     case IDLE_PLAYBACK:
                     case PLAYBACK:
-                        track(Click.Record_rec_more);
+                        track(Click.Record_Pause_Record_More);
                         startRecording();
                         break;
 
                     case RECORD:
-                        track(Click.Record_record_pause);
+                        track(Click.Record_Main_Record_Pause, mTxtRecordMessage.getCurrentSuggestionKey());
                         mRecorder.stopRecording();
                         // XXX use prefs
                         if (getApp().getAccountDataBoolean(User.DataKeys.SEEN_CREATE_AUTOSAVE)) {
@@ -399,9 +400,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         if (button != null){
             button.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
-                    track((mRecorder.isPlaying()) ? Click.Record_play_stop : Click.Record_play);
                     if (!mRecorder.isPlaying()) {
-                        track(Click.Record_paused_play);
+                        track(Click.Record_Pause_Play);
                     }
                     mRecorder.togglePlayback();
                 }
@@ -415,7 +415,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                track(Click.Record_paused_edit);
                 updateUi(isPlayState() ? CreateState.EDIT_PLAYBACK : CreateState.EDIT);
             }
         });
@@ -984,16 +983,10 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         .setPositiveButton(android.R.string.yes,
                             new DialogInterface.OnClickListener() {
                                 @Override public void onClick(DialogInterface dialog, int whichButton) {
-                                    track(Click.Record_discard__ok);
                                     reset(true);
                                 }
                         })
-                        .setNegativeButton(android.R.string.no,
-                            new DialogInterface.OnClickListener() {
-                                @Override public void onClick(DialogInterface dialog, int which) {
-                                    track(Click.Record_discard_cancel);
-                                }
-                        })
+                        .setNegativeButton(android.R.string.no, null)
                         .create();
 
             case Consts.Dialogs.DIALOG_REVERT_RECORDING:
@@ -1004,18 +997,12 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int whichButton) {
-                                        track(Click.Record_edit_revert_to_original);
+                                        track(Click.Record_Edit_Revert_To_Original);
                                         mRecorder.revertFile();
                                         updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
                                     }
                                 })
-                        .setNegativeButton(android.R.string.no,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        track(Click.Record_revert_cancel);
-                                    }
-                                })
+                        .setNegativeButton(android.R.string.no, null)
                         .create();
 
             case Consts.Dialogs.DIALOG_DELETE_RECORDING:
@@ -1026,7 +1013,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
 
-                                        track(Click.Record_paused_discard);
+                                        track(Click.Record_Pause_Delete, mTxtRecordMessage.getCurrentSuggestionKey());
                                         mRecorder.reset(true);
                                         finish();
                                     }

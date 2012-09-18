@@ -34,7 +34,7 @@ public class ClickTest {
 
     @Test
     public void shouldExpandMultipleArgs() throws  Exception {
-        expect(Click.NEW_Record_details_record_upload_share_detailed.expandClick("some_tip", "trimmed"))
-                .toEqual("Record_details::Post::some_tip::trimmed");
+        expect(Click.Record_Share_Post.expandClick("some_tip", "trimmed", "fading"))
+                .toEqual("record_share::post::some_tip::trimmed::fading");
     }
 }
