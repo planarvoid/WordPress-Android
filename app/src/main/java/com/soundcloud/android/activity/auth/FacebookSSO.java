@@ -148,12 +148,9 @@ public class FacebookSSO extends AbstractLoginActivity {
         return token.shouldRefresh() && extendAccessToken(token, context);
     }
 
-
-
     public static boolean isSupported(Context context) {
         return FacebookSSO.validateActivityIntent(context, FacebookSSO.getAuthIntent(context));
     }
-
 
     /* package */ static Intent getRefreshIntent() {
         Intent intent = new Intent();

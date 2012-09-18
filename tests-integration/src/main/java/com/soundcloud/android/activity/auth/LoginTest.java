@@ -41,15 +41,20 @@ public class LoginTest extends ActivityTestCase<Main> {
         solo.assertText(R.string.tab_stream);
     }
 
-    @Suppress
     public void testLoginWithFacebook() throws Exception {
         solo.clickOnButtonResId(R.string.authentication_log_in_with_facebook);
         solo.assertDialogClosed();
         solo.assertActivity(FacebookWebFlow.class);
 
-        solo.takeScreenshot();
-
         WebView webView = ((FacebookWebFlow) solo.getCurrentActivity()).getWebView();
+        assertNotNull(webView);
+
+        int i = 0;
+        while (webView.getUrl() == null && i++ < 20) {
+            solo.sleep(500);
+        }
+
+        assertNotNull(webView.getUrl());
         assertTrue("got url:"+webView.getUrl(), webView.getUrl().startsWith("http://m.facebook.com/login.php"));
         assertEquals("Facebook", webView.getTitle());
     }
