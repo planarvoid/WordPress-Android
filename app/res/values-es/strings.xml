@@ -125,16 +125,14 @@
     <string name="signup_scope_revoked">¡Huy! No hemos podido registrarte.\nPrueba a actualizar la aplicación o regístrate en SoundCloud.com.</string>
 
 
-    <!-- TODO: google translated strings, replace with real translation -->
+    <string name="dialog_transcoding_failed_title">Error de transcodificación</string>
+    <string name="dialog_transcoding_failed_message">Vaya, algo ha salido mal y no se puede reproducir tu sonido. Puedes eliminar el sonido de tu lista a través de la página web. Para obtener más información, ponte en contacto con nuestro soporte.</string>
 
-    <string name="dialog_transcoding_failed_title">Transcoding failed</string>
-    <string name="dialog_transcoding_failed_message">Lamentablemente, algo salió mal y su sonido puede \'t reproducir. Se puede quitar el sonido de su lista a través de la página web. Para obtener más información, póngase en contacto con nuestro apoyo.</string>
+    <string name="dialog_transcoding_processing_title">Procesando sonido</string>
+    <string name="dialog_transcoding_processing_message">Se está procesando tu sonido y en unos segundos se podrá reproducir.</string>
 
-    <string name="dialog_transcoding_processing_title">Procesamiento de sonido</string>
-    <string name="dialog_transcoding_processing_message">Su sonido se procesa y se podrá jugar en pocos segundos.</string>
-
-    <string name="visit_support">Visita apoyo</string>
-    <string name="following_spam_warning">Usted ha llegado al límite de los siguientes usuarios y esta opción está desactivada temporalmente para su cuenta.</string>
+    <string name="visit_support">Visita Soporte</string>
+    <string name="following_spam_warning">Has alcanzado el límite de seguidores usuarios, se desactivará esta opción de tu cuenta de forma temporal.</string>
 
     <string name="yes">Sí</string>
     <string name="no">No</string>
