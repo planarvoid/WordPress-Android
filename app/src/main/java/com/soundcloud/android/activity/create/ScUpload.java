@@ -103,7 +103,7 @@ public class ScUpload extends ScActivity {
             @Override
             public void onClick(View v) {
                 track(Click.Record_Share_Post,
-                      "RECORDING_TIP_GOES_HERE",
+                      mRecording.tip_key == null ? "tip_unknown" : mRecording.tip_key,
                       mRecording.getPlaybackStream().isTrimmed() ? "trimmed" : "not_trimmed",
                       mRecording.getPlaybackStream().isFading()  ? "fading"  : "not_fading");
 
