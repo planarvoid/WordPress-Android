@@ -90,7 +90,8 @@ public class ScUpload extends ScActivity {
         ((ButtonBar) findViewById(R.id.bottom_bar)).addItem(new ButtonBar.MenuItem(REC_ANOTHER, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                track(Click.Record_details_record_another);
+                track(Click.Record_Share_Record_Another);
+
                 if (mRecording.external_upload && !mRecording.isLegacyRecording()){
                     mRecording.delete(getContentResolver());
                 } else {
@@ -101,7 +102,11 @@ public class ScUpload extends ScActivity {
         }), mRecording.external_upload ? R.string.cancel : R.string.record_another_sound).addItem(new ButtonBar.MenuItem(POST, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                track(Click.Record_details_Upload_and_share);
+                track(Click.Record_Share_Post,
+                      mRecording.tip_key == null ? "tip_unknown" : mRecording.tip_key,
+                      mRecording.getPlaybackStream().isTrimmed() ? "trimmed" : "not_trimmed",
+                      mRecording.getPlaybackStream().isFading()  ? "fading"  : "not_fading");
+
                 if (mRecording != null) {
                     saveRecording();
                     mRecording.upload(ScUpload.this);

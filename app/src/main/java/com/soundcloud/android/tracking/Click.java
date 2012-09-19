@@ -27,32 +27,20 @@ public enum Click implements Event {
     Stream_box_stream_only_Exclusive("Stream_box",  "stream_only_exclusive", Type.action, Level2.Stream),
     Stream_box_stream_cancel        ("Stream_box",  "stream_cancel",         Type.action, Level2.Stream),
 
-    Record_rec           ("Record", "rec",            Type.action, Level2.Record),
-    Record_rec_stop      ("Record", "rec_stop",       Type.action, Level2.Record),
-    Record_discard       ("Record", "discard",        Type.action, Level2.Record),
-    Record_discard__ok   ("Record", "discard::ok",    Type.action, Level2.Record),
-    Record_discard_cancel("Record", "discard:cancel", Type.action, Level2.Record),
-    Record_delete        ("Record", "delete",         Type.action, Level2.Record),
-
-    Record_revert("Record", "revert", Type.action, Level2.Record),
-    Record_revert__ok("Record", "revert::ok", Type.action, Level2.Record),
-    Record_revert_cancel("Record", "revert:cancel", Type.action, Level2.Record),
-
-    Record_play          ("Record", "play",           Type.action, Level2.Record),
-    Record_play_stop     ("Record", "play_stop",      Type.action, Level2.Record),
-    Record_next          ("Record", "next",           Type.navigation, Level2.Record), // record another sound
-    Record_save          ("Record", "save",           Type.navigation, Level2.Record), // TODO
-
-    Record_edit          ("Record", "edit",         Type.navigation, Level2.Record),
-
-    Record_details_add_image       ("Record_details", "add_image",        Type.action,     Level2.Record),
-    Record_details_new_image       ("Record_details", "new_image",        Type.action,     Level2.Record),
-    Record_details_existing_image  ("Record_details", "existing_image",   Type.action,     Level2.Record),
-    Record_details_record_another  ("Record_details", "record_another",   Type.navigation, Level2.Record),
-    Record_details_Upload_and_share("Record_details", "Upload_and_share", Type.action,     Level2.Record),
-
-    Dedicated_recording_details_back("Dedicated_recording_details", "back",   Type.navigation, Level2.Record),
-    Dedicated_recording_details_send("Dedicated_recording_details", "send",   Type.action,     Level2.Record),
+    // New recording keys
+    Record_Main_Record_Start       ("record_main",  "record_start::%s",   Type.action, Level2.Record),
+    Record_Main_Record_Pause       ("record_main",  "record_pause::%s",   Type.action, Level2.Record),
+    Record_Pause_Record_More       ("record_pause", "record_more",        Type.action, Level2.Record),
+    Record_Pause_Play              ("record_pause", "play",               Type.action, Level2.Record),
+    Record_Pause_Delete            ("record_pause", "delete::%s",         Type.action, Level2.Record),
+    Record_Pause_Publish           ("record_pause", "publish::%s::%s",    Type.action, Level2.Record),
+    Record_Edit_Play               ("record_edit",  "play",               Type.action, Level2.Record),
+    Record_Edit_Interact           ("record_edit",  "interact",           Type.action, Level2.Record),
+    Record_Edit_Apply              ("record_edit",  "apply",              Type.action, Level2.Record),
+    Record_Edit_Revert_To_Original ("record_edit",  "revert_to_original", Type.action, Level2.Record),
+    Record_Edit_Fade_In_Interact   ("record_edit",  "fade_in_interact",   Type.action, Level2.Record),
+    Record_Share_Post              ("record_share", "post::%s::%s::%s)",  Type.action, Level2.Record),
+    Record_Share_Record_Another    ("record_share", "record_another",     Type.action, Level2.Record),
 
     Follow  ("Follow",   "level2::user_permalink", Type.action, null /* read from args */),
     Unfollow("Unfollow", "level2::user_permalink", Type.action, null /* read from args */),
@@ -107,10 +95,7 @@ public enum Click implements Event {
 
     /* package */ String expandClick(Object... args) {
         String result = chapter+"::"+name;
-        for (Object o : args) {
-            result = Page.expandVariables(result, o);
-        }
-        return result;
+        return Page.expandVariables(result, args);
     }
 
     @Override

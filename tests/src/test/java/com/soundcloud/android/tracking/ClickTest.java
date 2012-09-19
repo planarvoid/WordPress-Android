@@ -31,4 +31,10 @@ public class ClickTest {
         expect(Click.Follow.expandClick(Level2.Search, user)).toEqual("Follow::Search::a_user");
         expect(Click.Unfollow.expandClick(Level2.Search, user)).toEqual("Unfollow::Search::a_user");
     }
+
+    @Test
+    public void shouldExpandMultipleArgs() throws  Exception {
+        expect(Click.Record_Share_Post.expandClick("some_tip", "trimmed", "fading"))
+                .toEqual("record_share::post::some_tip::trimmed::fading");
+    }
 }
