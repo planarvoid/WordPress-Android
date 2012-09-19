@@ -4,6 +4,7 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SearchHistoryAdapter;
 import com.soundcloud.android.adapter.SearchSuggestionsAdapter;
+import com.soundcloud.android.model.Search;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -42,7 +43,7 @@ public class MainMenu extends LinearLayout {
     private MenuAdapter mMenuAdapter;
     private OnMenuItemClickListener mClickListener;
 
-    private SearchHistoryAdapter mSearchAdapter;
+    private SearchHistoryAdapter mSearchHistoryAdapter;
     private SearchSuggestionsAdapter mSuggestionsAdapter;
 
     private boolean mInSearchMode;
@@ -55,9 +56,9 @@ public class MainMenu extends LinearLayout {
     public static interface OnMenuItemClickListener {
 
         public void onMenuItemClicked(int id);
-        public void onSearchQuery(CharSequence query);
-        public void onSearchSuggestedTrackClicked(int id);
-        public void onSearchSuggestedUserClicked(int id);
+        public void onSearchQuery(Search query);
+        public void onSearchSuggestedTrackClicked(long id);
+        public void onSearchSuggestedUserClicked(long id);
     }
     public MainMenu(Context context) {
         super(context);
@@ -86,8 +87,21 @@ public class MainMenu extends LinearLayout {
         mList.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (mClickListener != null){
-                    mClickListener.onMenuItemClicked(((SimpleListMenuItem) mMenuAdapter.getItem(position - mList.getHeaderViewsCount())).id);
+                if (mClickListener != null) {
+                    if (!mInSearchMode) {
+                        mClickListener.onMenuItemClicked(((SimpleListMenuItem) mMenuAdapter.getItem(position - mList.getHeaderViewsCount())).id);
+                    } else if (parent.getAdapter() == mSuggestionsAdapter){
+                        switch (mSuggestionsAdapter.getItemViewType(position)){
+                            case SearchSuggestionsAdapter.TYPE_TRACK:
+                                mClickListener.onSearchSuggestedTrackClicked(id);
+                                break;
+                            case SearchSuggestionsAdapter.TYPE_USER:
+                                mClickListener.onSearchSuggestedUserClicked(id);
+                                break;
+                        }
+                    } else {
+                        mClickListener.onSearchQuery(mSearchHistoryAdapter.getItem(position));
+                    }
                 }
             }
         });
@@ -106,7 +120,7 @@ public class MainMenu extends LinearLayout {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH && mClickListener != null) {
-                    mClickListener.onSearchQuery(mQueryText.getText().toString());
+                    mClickListener.onSearchQuery(new Search(mQueryText.getText().toString(), Search.SOUNDS));
                     toggleSearchMode();
                     mQueryText.setText("");
 
@@ -122,7 +136,7 @@ public class MainMenu extends LinearLayout {
 
 
         mMenuAdapter = new MenuAdapter();
-        mSearchAdapter = new SearchHistoryAdapter(getContext(), R.layout.search_history_row_dark);
+        mSearchHistoryAdapter = new SearchHistoryAdapter(getContext(), R.layout.search_history_row_dark);
         mSuggestionsAdapter = new SearchSuggestionsAdapter(getContext(),null);
         mFocusCatcher = findViewById(R.id.root_menu_focus_catcher);
     }
@@ -134,8 +148,8 @@ public class MainMenu extends LinearLayout {
                 mList.setAdapter(mSuggestionsAdapter);
                 mSuggestionsAdapter.notifyDataSetChanged();
             } else {
-                mList.setAdapter(mSearchAdapter);
-                SearchHistoryAdapter.refreshHistory(getContext().getContentResolver(), mSearchAdapter);
+                mList.setAdapter(mSearchHistoryAdapter);
+                SearchHistoryAdapter.refreshHistory(getContext().getContentResolver(), mSearchHistoryAdapter);
             }
             mQueryText.addTextChangedListener(mTextWatcher);
 
@@ -284,7 +298,7 @@ public class MainMenu extends LinearLayout {
 
         public void onTextChanged(CharSequence seq, int start, int before, int count) {
             if (count == 0){
-                mList.setAdapter(mSearchAdapter);
+                mList.setAdapter(mSearchHistoryAdapter);
             } else {
                 final String s = seq.toString();
                 mSuggestionsAdapter.getFilter().filter(

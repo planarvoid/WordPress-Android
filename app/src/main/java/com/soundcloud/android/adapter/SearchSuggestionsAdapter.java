@@ -43,14 +43,20 @@ public class SearchSuggestionsAdapter extends CursorAdapter{
 
     private ImageLoader mImageLoader;
 
-    private final static int TYPE_TRACK = 0;
-    private final static int TYPE_USER = 1;
+    public final static int TYPE_TRACK = 0;
+    public final static int TYPE_USER = 1;
 
     public SearchSuggestionsAdapter(Context context, Cursor c) {
         super(context, c);
         mContentResolver = context.getContentResolver();
         mContext = context;
         mImageLoader = ImageLoader.get(mContext);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        final Cursor cursor = (Cursor) getItem(position);
+        return cursor.getLong(cursor.getColumnIndex(DBHelper.ResourceTable._ID));
     }
 
     @Override

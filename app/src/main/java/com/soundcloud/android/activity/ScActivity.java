@@ -12,6 +12,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.fragment.PlayerFragment;
+import com.soundcloud.android.model.Search;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
@@ -81,17 +82,20 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             }
 
             @Override
-            public void onSearchQuery(CharSequence query) {
-                Log.i("asdf","On Search Query " + query);
-                startActivity(getNavIntent(ScSearch.class).putExtra(ScSearch.EXTRA_QUERY, query));
+            public void onSearchQuery(Search search) {
+                startActivity(getNavIntent(ScSearch.class)
+                        .putExtra(ScSearch.EXTRA_QUERY, search.query)
+                        .putExtra(ScSearch.EXTRA_SEARCH_TYPE, search.search_type));
             }
 
             @Override
-            public void onSearchSuggestedTrackClicked(int id) {
+            public void onSearchSuggestedTrackClicked(long id) {
+                // go to track
             }
 
             @Override
-            public void onSearchSuggestedUserClicked(int id) {
+            public void onSearchSuggestedUserClicked(long id) {
+                // go to user
             }
         });
 

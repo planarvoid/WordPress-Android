@@ -36,6 +36,7 @@ public class ScSearch extends ScListActivity {
     private Spinner mSpinner;
     private ScListView mList;
     private Search mCurrentSearch;
+    public static String EXTRA_SEARCH_TYPE = "search_type";
     public static String EXTRA_QUERY = "query";
 
     @Override
@@ -87,7 +88,7 @@ public class ScSearch extends ScListActivity {
         } else {
             final Intent intent = getIntent();
             if (intent.hasExtra(EXTRA_QUERY)) {
-                perform(new Search(intent.getCharSequenceExtra(EXTRA_QUERY).toString(), Search.SOUNDS));
+                perform(new Search(intent.getCharSequenceExtra(EXTRA_QUERY).toString(), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.SOUNDS)));
             }
         }
 
