@@ -3,7 +3,7 @@ $ 45
   _ 2012-09-20
   ! New Sound Creation Features
     * Recordings can now be paused and resumed
-    * Trim and add fades to your sounds
+    * Trim and add fades to your recordings
 
 $ 45
   % v 2.2.10
