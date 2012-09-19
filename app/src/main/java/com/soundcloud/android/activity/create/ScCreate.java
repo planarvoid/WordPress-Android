@@ -183,8 +183,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     @Override
     public void onStop() {
-        // Are we sure we don't need this anymore?
-        // track(Click.Record_close_main, "cancel");
         super.onStop();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mStatusListener);
     }
