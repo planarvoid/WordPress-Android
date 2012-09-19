@@ -4,6 +4,10 @@ $ 45
   ! New Sound Creation Features
     * Recordings can now be paused and resumed
     * Trim and add fades to your recordings
+    - Enable Holo where possible
+    - Image cropping (signup / upload sound)
+    - Adjustable stream cache
+    - Optional analytics
 
 $ 45
   % v 2.2.10
