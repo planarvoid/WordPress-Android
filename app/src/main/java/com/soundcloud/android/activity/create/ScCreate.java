@@ -760,7 +760,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mRecordErrorMessage = null;
 
         try {
-            mRecorder.startRecording(mRecipient);
+            mRecorder.startRecording(mRecipient, mTxtRecordMessage.getCurrentSuggestionKey());
             mWaveDisplay.gotoRecordMode();
         } catch (IOException e) {
             onRecordingError(e.getMessage());
