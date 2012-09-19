@@ -77,8 +77,9 @@ public class RecordStream  {
             playDuration = writer.getAudioReader().getDuration();
         } catch (IOException ignored) {
         }
-        final long requiredSize = (int) (SoundRecorder.PIXELS_PER_SECOND *
-                SoundCloudApplication.instance.getResources().getDisplayMetrics().density) * playDuration;
+        final long requiredSize = (long) (((int) (SoundRecorder.PIXELS_PER_SECOND *
+                        SoundCloudApplication.instance.getResources().getDisplayMetrics().density) * playDuration)
+                * .95); // 5 percent tolerance
 
         int delta = (int) ((requiredSize / 1000d) -  mAmplitudeData.size());
 
