@@ -40,6 +40,7 @@ public class LoginTest extends ActivityTestCase<Main> {
         solo.assertText(R.string.tab_stream);
     }
 
+    @FlakyTest
     public void testLoginWithFacebookWebFlow() throws Exception {
         if (FacebookSSO.isSupported(getInstrumentation().getTargetContext())) {
             log("Facebook SSO is available, not testing WebFlow");
