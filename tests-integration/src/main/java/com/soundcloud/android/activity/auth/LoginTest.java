@@ -7,7 +7,6 @@ import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
 import android.test.FlakyTest;
-import android.util.Log;
 import android.webkit.WebView;
 import android.widget.EditText;
 
@@ -52,10 +51,10 @@ public class LoginTest extends ActivityTestCase<Main> {
         WebView webView = solo.assertActivity(FacebookWebFlow.class).getWebView();
         assertNotNull(webView);
         int i = 0;
-        while (webView.getUrl() == null && i++ < 30) {
+        while (webView.getUrl() == null && i++ < 40) {
             solo.sleep(500);
         }
-        assertNotNull(webView.getUrl());
+        assertNotNull("FB request timed out", webView.getUrl());
         assertTrue("got url:" + webView.getUrl(), webView.getUrl().startsWith("http://m.facebook.com/login.php"));
     }
 
