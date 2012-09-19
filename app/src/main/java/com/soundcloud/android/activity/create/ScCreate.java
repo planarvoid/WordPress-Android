@@ -439,6 +439,14 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
             Recording recording = Recording.fromIntent(intent, getContentResolver(), getCurrentUserId());
             if (recording != null){
+
+                // failsafe, if they try to play an uploading recording
+                if (recording.upload_status == Recording.Status.UPLOADING) {
+                    startActivity(recording.getMonitorIntent());
+                    finish();
+                    return;
+                }
+
                 mRecorder.setRecording(recording);
                 setRecipient(recording.getRecipient());
                 mSeenSavedMessage = true;
