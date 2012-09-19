@@ -122,7 +122,20 @@
     <string name="cloud_uploader_notification_transcoding_error_message">Se ha producido un error al transcodificar %s</string>
     <string name="cloud_uploader_notification_transcoding_error_ticker">Error de transcodificación</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Error de transcodificación</string>
-
-    <!-- error to show when signup scope was revoked on server side -->
     <string name="signup_scope_revoked">¡Huy! No hemos podido registrarte.\nPrueba a actualizar la aplicación o regístrate en SoundCloud.com.</string>
+
+
+    <!-- TODO: google translated strings, replace with real translation -->
+
+    <string name="dialog_transcoding_failed_title">Transcoding failed</string>
+    <string name="dialog_transcoding_failed_message">Lamentablemente, algo salió mal y su sonido puede \'t reproducir. Se puede quitar el sonido de su lista a través de la página web. Para obtener más información, póngase en contacto con nuestro apoyo.</string>
+
+    <string name="dialog_transcoding_processing_title">Procesamiento de sonido</string>
+    <string name="dialog_transcoding_processing_message">Su sonido se procesa y se podrá jugar en pocos segundos.</string>
+
+    <string name="visit_support">Visita apoyo</string>
+    <string name="following_spam_warning">Usted ha llegado al límite de los siguientes usuarios y esta opción está desactivada temporalmente para su cuenta.</string>
+
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
 </resources>
