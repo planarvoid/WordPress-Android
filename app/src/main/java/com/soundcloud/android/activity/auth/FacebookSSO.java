@@ -59,7 +59,6 @@ public class FacebookSSO extends AbstractLoginActivity {
     // permissions used by SoundCloud (also backend) - only email is required for successful signup
     private static final String[] DEFAULT_PERMISSIONS = {
         "publish_actions",
-        "offline_access",   /* this is going to be deprecated soon, Oct 2012 */
         "email",
         "user_birthday",
     };
