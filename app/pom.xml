@@ -18,6 +18,27 @@
     <build>
         <plugins>
             <plugin>
+                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                 <artifactId>android-maven-plugin</artifactId>
+                 <version>3.3.2</version>
+
+                 <configuration>
+                    <target>all</target>
+                    <clearNativeArtifacts>false</clearNativeArtifacts>
+                    <useHeaderArchives>false</useHeaderArchives>
+                 </configuration>
+                 <extensions>true</extensions>
+                 <executions>
+                  <execution>
+                    <phase>compile</phase>
+                    <goals>
+                      <goal>ndk-build</goal>
+                    </goals>
+                  </execution>
+                 </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3</version>
@@ -47,6 +68,14 @@
                         <fileset>
                             <directory>lib</directory>
                         </fileset>
+
+                        <fileset>
+                            <directory>libs</directory>
+                        </fileset>
+
+                        <fileset>
+                            <directory>obj</directory>
+                        </fileset>
                     </filesets>
                 </configuration>
             </plugin>
@@ -56,7 +85,7 @@
         <dependency>
             <groupId>org.acra</groupId>
             <artifactId>acra</artifactId>
-            <version>4.3.0-filter-SNAPSHOT</version>
+            <version>4.3.0-filter</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -96,12 +125,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.xiph</groupId>
-            <artifactId>libvorbis</artifactId>
-            <version>1.0.0-beta</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.at</groupId>
             <artifactId>ATInternet</artifactId>
             <version>1.1.003</version>
@@ -119,5 +142,73 @@
             <version>9.0.4</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>support-v4</artifactId>
+            <version>r6</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>annotations</artifactId>
+            <version>4.1.1.4</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.soundcloud.android</groupId>
+            <artifactId>cropimage</artifactId>
+            <version>1.1.0</version>
+            <scope>compile</scope>
+            <type>apklib</type>
+        </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>sign</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jarsigner-plugin</artifactId>
+                        <version>1.2</version>
+                        <executions>
+                            <execution>
+                                <id>signing</id>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <inherited>true</inherited>
+                                <configuration>
+                                    <archiveDirectory></archiveDirectory>
+                                    <includes>
+                                        <include>target/*.apk</include>
+                                    </includes>
+                                    <keystore>${keystore.location}</keystore>
+                                    <storepass>${keystore.password}</storepass>
+                                    <keypass>${keystore.keypass}</keypass>
+                                    <alias>${keystore.alias}</alias>
+                                    <arguments>
+                                      <argument>-sigalg</argument><argument>MD5withRSA</argument>
+                                      <argument>-digestalg</argument><argument>SHA1</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                        <artifactId>android-maven-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <sign>
+                                <debug>false</debug>
+                            </sign>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

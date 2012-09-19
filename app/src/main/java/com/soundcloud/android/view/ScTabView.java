@@ -1,26 +1,26 @@
 
 package com.soundcloud.android.view;
 
-import android.util.Log;
-import android.view.View;
-import android.widget.FrameLayout;
-import com.soundcloud.android.activity.ScActivity;
+import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
+
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 
-import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
+import android.view.View;
+import android.widget.FrameLayout;
 
 public class ScTabView extends FrameLayout {
     public ScListView mListView;
-    protected ScActivity mActivity;
+    protected ScListActivity mActivity;
 
-    public ScTabView(ScActivity activity) {
+    public ScTabView(ScListActivity activity) {
         super(activity);
         mActivity = activity;
 
         setLayoutParams(new LayoutParams(FILL_PARENT, FILL_PARENT));
     }
 
-    public ScTabView(ScActivity activity, ScListView lv) {
+    public ScTabView(ScListActivity activity, ScListView lv) {
         this(activity);
         mListView = lv;
     }
@@ -39,6 +39,17 @@ public class ScTabView extends FrameLayout {
             mListView.setVisibility(View.VISIBLE);
             mListView.getWrapper().allowInitialLoading();
             mListView.getWrapper().onResume();
+        }
+    }
+
+    public void setToTop(){
+        if (mListView != null){
+            mListView.post(new Runnable() {
+                @Override
+                public void run() {
+                    mListView.getRefreshableView().setSelection(0);
+                }
+            });
         }
     }
 }

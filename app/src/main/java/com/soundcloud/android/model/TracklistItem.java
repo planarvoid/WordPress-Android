@@ -15,7 +15,8 @@ public class TracklistItem extends ScModel{
     public Date created_at;
     public int duration;
     public String permalink;
-    public String sharing;
+    public Track.Sharing sharing;
+    public Track.State state;
     public boolean commentable;
     public boolean streamable;
     public String artwork_url;

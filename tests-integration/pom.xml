@@ -28,7 +28,7 @@
         <dependency>
             <groupId>com.jayway.android.robotium</groupId>
             <artifactId>robotium-solo</artifactId>
-            <version>3.2</version>
+            <version>3.3</version>
         </dependency>
 
         <dependency>
@@ -54,12 +54,18 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
+                <version>3.3.2</version>
                 <configuration>
                     <test>
                         <debug>false</debug>
                         <coverage>false</coverage>
-                        <!--<logonly>true|false</logonly>  avd-->
-                        <!--<testsize>small|medium|large</testsize>-->
+
+                        <!--
+                        <excludeAnnotations>
+                          <excludeAnnotation>com.soundcloud.android.tests.SlowTest</excludeAnnotation>
+                        </excludeAnnotations>
+                        -->
+
                         <createReport>true</createReport>
                     </test>
                 </configuration>

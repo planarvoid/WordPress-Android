@@ -10,7 +10,6 @@ import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.util.Log;
@@ -64,15 +63,21 @@ public abstract class FetchModelTask<Model extends ScModel> extends AsyncTask<Re
             HttpResponse resp = mApi.get(request[0]);
             if (isCancelled()) return null;
 
-            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                Model model = mApi.getMapper().readValue(resp.getEntity().getContent(), mModel);
-                if (mApi instanceof Context && model != null){
-                    updateLocally(((Context) mApi).getContentResolver(), model);
+            switch (resp.getStatusLine().getStatusCode()) {
+                case HttpStatus.SC_OK: {
+                    Model model = mApi.getMapper().readValue(resp.getEntity().getContent(), mModel);
+                    if (model != null) {
+                        updateLocally(mApi.getContext().getContentResolver(), model);
+                    }
+                    return model;
                 }
-                return model;
-            } else {
-                Log.w(TAG, "unexpected response " + resp.getStatusLine());
-                return null;
+
+                case HttpStatus.SC_NOT_FOUND: // gone
+                    return null;
+
+                default:
+                    Log.w(TAG, "unexpected response " + resp.getStatusLine());
+                    return null;
             }
         } catch (IOException e) {
             Log.e(TAG, "error", e);

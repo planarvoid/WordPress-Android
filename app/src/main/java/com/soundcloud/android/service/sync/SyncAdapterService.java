@@ -18,6 +18,7 @@ import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
+import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
@@ -32,6 +33,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.IOException;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 
 /**
@@ -76,7 +78,7 @@ public class SyncAdapterService extends Service {
                 AndroidCloudAPI.Wrapper.setBackgroundMode(false);
             }
 
-            @Override
+            @Override @TargetApi(8)
             public void onSyncCanceled() {
                 if (DEBUG_CANCEL) {
                     Log.d(TAG, "sync canceled, dumping stack");
@@ -153,7 +155,7 @@ public class SyncAdapterService extends Service {
                 } else {
                     // set last sync time to 0 so it auto-refreshes on next load
                     final LocalCollection lc = LocalCollection.fromContent(Content.ME_FOLLOWERS, app.getContentResolver(), false);
-                    if (lc != null) lc.updateLastSyncTime(0, app.getContentResolver());
+                    if (lc != null) lc.updateLastSyncSuccessTime(0, app.getContentResolver());
                 }
 
                 break;
@@ -164,7 +166,7 @@ public class SyncAdapterService extends Service {
                 } else {
                     // set last sync time to 0 so it auto-refreshes on next load
                     final LocalCollection lc = LocalCollection.fromContent(Content.ME_ACTIVITIES, app.getContentResolver(), false);
-                    if (lc != null) lc.updateLastSyncTime(0, app.getContentResolver());
+                    if (lc != null) lc.updateLastSyncSuccessTime(0, app.getContentResolver());
                 }
                 break;
 

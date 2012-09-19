@@ -2,7 +2,7 @@ package com.soundcloud.android.view;
 
 import android.widget.AbsListView;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
@@ -29,7 +29,7 @@ public class SectionedListView extends ScListView {
 
     private SectionedEndlessAdapter adapter;
 
-    public SectionedListView(ScActivity activity) {
+    public SectionedListView(ScListActivity activity) {
         super(activity);
 
         mSectionHeaderView = new FrameLayout(activity);

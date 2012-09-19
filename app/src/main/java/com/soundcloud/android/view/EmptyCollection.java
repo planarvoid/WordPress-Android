@@ -16,7 +16,9 @@ public class EmptyCollection extends FrameLayout {
     private TextView mTxtLink;
     private ImageView mImage;
     private Button mBtnAction;
-    private ActionListener mActionListener;
+    private ActionListener mButtonActionListener;
+
+    private ActionListener mImageActionListener;
 
     public EmptyCollection(Context context) {
         super(context);
@@ -32,14 +34,23 @@ public class EmptyCollection extends FrameLayout {
         mBtnAction = (Button) findViewById(R.id.btn_action);
         mImage = (ImageView) findViewById(R.id.img_1);
 
+        mImage.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mImageActionListener!= null) {
+                    mImageActionListener.onAction();
+                }
+            }
+        });
+
         mTxtMessage.setVisibility(View.GONE);
         mTxtLink.setVisibility(View.GONE);
 
         mBtnAction.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mActionListener != null) {
-                    mActionListener.onAction();
+                if (mButtonActionListener != null) {
+                    mButtonActionListener.onAction();
                 }
             }
         });
@@ -67,8 +78,8 @@ public class EmptyCollection extends FrameLayout {
         ScTextUtils.clickify(mTxtLink, mTxtLink.getText().toString(), new ScTextUtils.ClickSpan.OnClickListener() {
             @Override
             public void onClick() {
-                if (mActionListener != null) {
-                    mActionListener.onSecondaryAction();
+                if (mButtonActionListener != null) {
+                    mButtonActionListener.onSecondaryAction();
                 }
             }
         }, true);
@@ -85,8 +96,13 @@ public class EmptyCollection extends FrameLayout {
         return this;
     }
 
-    public EmptyCollection setActionListener(ActionListener listener){
-        mActionListener = listener;
+    public EmptyCollection setButtonActionListener(ActionListener listener){
+        mButtonActionListener = listener;
+        return this;
+    }
+
+    public EmptyCollection setImageActionListener(ActionListener listener){
+        mImageActionListener = listener;
         return this;
     }
 

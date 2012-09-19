@@ -4,6 +4,7 @@ import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
@@ -36,9 +37,8 @@ import java.util.Set;
 public class StreamStorage {
     static final String LOG_TAG = StreamStorage.class.getSimpleName();
 
-    public static final int DEFAULT_CHUNK_SIZE = 128 * 1024;     // 128k
-    public static final int STREAM_CACHE_SIZE  = 200* 1024 * 1024; // 200 MB
-    public static final double MAX_PCT_OF_FREE_SPACE = 0.1d; // use 10% of sd card
+    public static final int DEFAULT_CHUNK_SIZE = 128 * 1024; // 128k
+    public static final int DEFAULT_PCT_OF_FREE_SPACE = 10;  // use 10% of sd card
 
     private static final int CLEANUP_INTERVAL = 20;
 
@@ -49,9 +49,6 @@ public class StreamStorage {
 
     private Context mContext;
     private File mBaseDir, mCompleteDir, mIncompleteDir;
-
-    private long mUsedSpace;
-    private long mUsableSpace;
 
     private Map<String, StreamItem> mItems = new HashMap<String, StreamItem>();
     private Set<String> mConvertingUrls = new HashSet<String>();
@@ -204,11 +201,10 @@ public class StreamStorage {
             SharedPreferencesUtils.apply(prefs.edit().putInt(Consts.PrefKeys.STREAMING_WRITES_SINCE_CLEANUP, currentCount));
 
             if (currentCount >= mCleanupInterval) {
-                calculateFileMetrics();
-                if (cleanup()) {
+                if (cleanup(calculateUsableSpace())) {
                     if (SoundCloudApplication.DEV_MODE) {
                         // print file stats again
-                        calculateFileMetrics();
+                        calculateUsableSpace();
                     }
                 }
             }
@@ -344,16 +340,36 @@ public class StreamStorage {
         }
     }
 
-    /* package */ void calculateFileMetrics() {
-        long spaceLeft = getSpaceLeft();
-        mUsedSpace = getUsedSpace();
-        mUsableSpace = IOUtils.getUsableSpace(mUsedSpace, spaceLeft, STREAM_CACHE_SIZE, MAX_PCT_OF_FREE_SPACE);
+    /**
+     * @return the usable space for caching
+     */
+    /* package */ long calculateUsableSpace() {
+        long result     = getUsedSpace();
+        long spaceLeft  = getSpaceLeft();
+        long totalSpace = getTotalSpace();
+
+        int percentageOfExternal = PreferenceManager
+                .getDefaultSharedPreferences(mContext)
+                .getInt(Settings.STREAM_CACHE_SIZE, DEFAULT_PCT_OF_FREE_SPACE);
+
+        if (percentageOfExternal < 0) {
+            percentageOfExternal = 0;
+        }
+
+        if (percentageOfExternal > 100) {
+            percentageOfExternal = 100;
+        }
+
+        result = IOUtils.getUsableSpace(result, spaceLeft, totalSpace, percentageOfExternal / 100.0);
+
         if (Log.isLoggable(LOG_TAG, Log.DEBUG))
             Log.d(LOG_TAG, String.format("[File Metrics] %.1f mb used, %.1f mb free, %.1f mb usable for caching",
-                    mUsedSpace/(1024d*1024d), spaceLeft /(1024d*1024d), mUsableSpace/(1024d*1024d)));
+                    result/(1024d*1024d), spaceLeft /(1024d*1024d), result/(1024d*1024d)));
+
+        return result;
     }
 
-    private synchronized boolean cleanup() {
+    private synchronized boolean cleanup(long usableSpace) {
         if (!mConvertingUrls.isEmpty()) {
 
             if (Log.isLoggable(LOG_TAG, Log.DEBUG))
@@ -365,7 +381,7 @@ public class StreamStorage {
                 .edit()
                 .putInt(Consts.PrefKeys.STREAMING_WRITES_SINCE_CLEANUP, 0));
 
-        final long spaceToClean = mUsedSpace - mUsableSpace;
+        final long spaceToClean = getUsedSpace() - usableSpace;
         if (spaceToClean > 0) {
             if (Log.isLoggable(LOG_TAG, Log.DEBUG))
                 Log.d(LOG_TAG, String.format("performing cleanup, need to free %.1f mb", spaceToClean/(1024d*1024d)));
@@ -400,11 +416,11 @@ public class StreamStorage {
 
     private List<File> allFiles(Comparator<File> comparator) {
         final List<File> files = new ArrayList<File>();
-        File[] chunks = mIncompleteDir.listFiles(extension(CHUNKS_EXTENSION));
-        if (chunks != null) files.addAll(Arrays.asList(chunks));
+        File[] chunks = IOUtils.nullSafeListFiles(mIncompleteDir, extension(CHUNKS_EXTENSION));
+        if (chunks.length > 0) files.addAll(Arrays.asList(chunks));
 
-        File[] complete = mCompleteDir.listFiles();
-        if (complete != null) files.addAll(Arrays.asList(complete));
+        File[] complete = IOUtils.nullSafeListFiles(mCompleteDir, null);
+        if (complete.length > 0) files.addAll(Arrays.asList(complete));
 
         if (comparator != null) {
             Collections.sort(files, comparator);
@@ -415,13 +431,13 @@ public class StreamStorage {
 
     /* package */ long getUsedSpace() {
         long currentlyUsedSpace = 0;
-        File[] complete = mCompleteDir.listFiles();
-        if (complete != null) for (File f : complete) {
+        File[] complete = IOUtils.nullSafeListFiles(mCompleteDir, null);
+        for (File f : complete) {
             currentlyUsedSpace += f.length();
         }
 
-        File[] incomplete = mIncompleteDir.listFiles();
-        if (incomplete != null) for (File f : incomplete) {
+        File[] incomplete = IOUtils.nullSafeListFiles(mIncompleteDir, null);
+        for (File f : incomplete) {
             currentlyUsedSpace += f.length();
         }
         return currentlyUsedSpace;
@@ -429,6 +445,10 @@ public class StreamStorage {
 
     /* package */ long getSpaceLeft() {
         return IOUtils.getSpaceLeft(mBaseDir);
+    }
+
+    /* package */ long getTotalSpace() {
+        return IOUtils.getTotalSpace(mBaseDir);
     }
 
     /* package */ void verifyMetadata(StreamItem item) {

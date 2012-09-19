@@ -7,8 +7,6 @@
   <string name="add_image">Add\nImage</string>
   <string name="app_name">SoundCloud</string>
   <string name="at_timestamp">at %s</string>
-  <!--<string name="audio_file_picker_empty">No files or directories</string>-->
-  <!--<string name="audio_file_picker_label">Local file</string>-->
   <string name="authentication_I_forgot_my_password">I forgot my password</string>
   <string name="authentication_add_info_add_image_msg">Smile! This image will appear on your profile.</string>
   <string name="authentication_add_info_error">Error adding info</string>
@@ -55,26 +53,21 @@
   <string name="btn_following">Following</string>
   <string name="btn_login">Log In</string>
   <string name="btn_next">Next</string>
-  <!--<string name="btn_reply">Reply</string>-->
   <string name="btn_save">Save</string>
   <string name="btn_signup">Sign Up</string>
   <string name="btn_skip">Skip</string>
-  <!--<string name="bubble_new_instructions">Release to enter a timed comment at</string>-->
   <string name="cache_clearing">Clearing cache</string>
   <string name="cache_clearing_message">Deleting cached files ...</string>
   <string name="changelog_full_title">Change Log</string>
   <string name="changelog_title">New Updates</string>
-  <string name="cloud_recorder_event_message">Recording for %d seconds</string>
+  <string name="cloud_recorder_event_message">Recording for %s</string>
   <string name="cloud_recorder_event_title">Recording in progress</string>
-  <string name="cloud_recorder_notification_ticker">Recording started</string>
   <string name="cloud_recorder_playback_event_title">Playback in progress</string>
   <string name="cloud_recorder_playback_notification_ticker">Playing %s</string>
   <string name="cloud_upload_clear_artwork">Hold to clear artwork</string>
   <string name="cloud_upload_currently_uploading">Uploading. You can check on progress in Notifications</string>
   <string name="cloud_upload_not_yet_uploaded">not yet uploaded</string>
   <string name="cloud_upload_upload_failed">upload failed</string>
-  <string name="cloud_uploader_event_encoding">Encoding: %d\%%%</string>
-  <string name="cloud_uploader_event_uploading">Uploading: %d\%%%</string>
   <string name="cloud_uploader_notification_error_message">There was an error uploading %s</string>
   <string name="cloud_uploader_notification_error_ticker">Upload Error</string>
   <string name="cloud_uploader_notification_error_title">Upload Error</string>
@@ -219,14 +212,7 @@
   <string name="email_confirmation_thanks_later">Thanks, I will confirm it later</string>
   <string name="email_confirmation_you_need_to_confirm">To get the most out of SoundCloud you need to confirm your email address.</string>
   <string name="email_picker_clear">Clear</string>
-  <!--<string name="empty_exclusive_text">No one has shared any exclusive sounds with you yet.&lt;br/&gt;&lt;br/&gt; Why not send an audio shout-out to your friends to get them to share their sounds?</string>-->
-  <!--<string name="empty_incoming_text">Your list of sounds is empty.&lt;br/&gt;&lt;br/&gt;Find new sounds from our Suggested Users tab.</string>-->
   <string name="empty_list">No Results</string>
-  <!--<string name="empty_my_favorites_text">You don\'t have any favorites yet.&lt;br/&gt;&lt;br/&gt; Find new sounds using the Suggested Users and Search tabs.</string>-->
-  <!--<string name="empty_my_followers_text">You aren\'t being followed by anyone yet.&lt;br/&gt;&lt;br/&gt; Why not send an audio shout-out to your friends to get them to follow you?</string>-->
-  <!--<string name="empty_my_followings_text">You haven\'t started following anyone yet.&lt;br/&gt;&lt;br/&gt; Find interesting sounds from our Suggested People tab.</string>-->
-  <!--<string name="empty_my_tracks_text">You don\'t have any sounds yet.&lt;br/&gt;&lt;br/&gt; Why not record and share your favorite sounds?</string>-->
-  <!--<string name="empty_news_text">You have no Activity.&lt;br/&gt;&lt;br/&gt;Add new sounds and Comment &amp;amp; Like other people\'s sounds to get your Activity going!</string>-->
   <string name="empty_user_favorites_text">%1$s hasn\'t chosen any favorites yet.</string>
   <string name="empty_user_followers_text">%1$s isn\'t being followed by anyone yet.</string>
   <string name="empty_user_followings_text">%1$s isn\'t following anyone yet.</string>
@@ -246,7 +232,6 @@
   <string name="facebook_authentication_error_no_connection_message">Please try again shortly or log in using your SoundCloud username and password.</string>
   <string name="facebook_authentication_failed_message">Please try again shortly or log in using your SoundCloud username and password.</string>
   <string name="facebook_authentication_failed_title">Hmm, we aren\'t able to connect to Facebook right now.</string>
-  <!--<string name="filename">filename</string>-->
   <string name="follower_count">follower count</string>
   <string name="from">from</string>
   <string name="high">High</string>
@@ -271,8 +256,6 @@
   <string name="list_empty_user_followers_message">You don’t have any followers yet. But you can change that! The best way to get people to follow you is to share your sounds with others.</string>
   <string name="list_empty_user_followers_nosounds_action">Record your first sound</string>
   <string name="list_empty_user_followers_nosounds_message">You don’t have any followers yet. But you can change that! Create sounds for people to listen to and you\'ll have followers in no time.</string>
-  <!--<string name="list_empty_user_followers_nosounds_secondary">Check your settings to automatically share your original sounds to your social networks</string>-->
-  <!--<string name="list_empty_user_followers_secondary">Check your settings to automatically share your original sounds to your social networks</string>-->
   <string name="list_empty_user_following_action">Find people to follow</string>
   <string name="list_empty_user_following_message">Hey! SoundCloud is much more fun when you follow people! Find interesting people to follow to listen to their latest sounds.</string>
   <string name="list_empty_user_likes_action">Find people with great sounds</string>
@@ -291,7 +274,6 @@
   <string name="location_picker_no_providers_enabled">No location providers enabled.</string>
   <string name="low">Low</string>
   <string name="menu_cancel_current_upload">Cancel Upload</string>
-  <!--<string name="menu_clear_user">Clear user data</string>-->
   <string name="menu_clear_user_desc">You will have to re-connect your SoundCloud account.</string>
   <string name="menu_clear_user_title">Clear user data?</string>
   <string name="menu_friend_finder">Find Friends</string>
@@ -299,16 +281,7 @@
   <string name="menu_load_more">Load more</string>
   <string name="menu_refresh">Refresh</string>
   <string name="menu_settings">Settings</string>
-  <!--<string name="menu_show_all">Show all</string>-->
-  <!--<string name="menu_show_audio">Show only audio</string>-->
-  <!--<string name="menu_sort_by_follower_count">Sort by follower count</string>-->
-  <!--<string name="menu_sort_by_hotness">Sort by hotness</string>-->
-  <!--<string name="menu_sort_by_track_count">Sort by number of sounds</string>-->
-  <!--<string name="menu_sort_by_upload_date">Sort by upload date</string>-->
-  <!--<string name="menu_sort_by_user_name">Sort by username</string>-->
   <string name="menu_stream_setting">Stream Setting</string>
-  <!--<string name="menu_upload">Upload</string>-->
-  <!--<string name="menu_upload_file">Upload file</string>-->
   <string name="menu_view_current_track">View Player</string>
   <plurals name="minutes_available">
     <item quantity="one">1 minute available</item>
@@ -316,17 +289,13 @@
   </plurals>
   <string name="myspace">Myspace</string>
   <string name="new_connection_error">There was a problem adding the network</string>
-  <!--<string name="playback_error_no_sdcard">Playback not possible because SD card not available</string>-->
   <string name="playback_in_progress">Playback in progress. Press stop to end the playback or select the playback notification to view it.</string>
   <string name="player_error">There was a playback error</string>
   <string name="player_not_streamable">This sound cannot be played</string>
   <string name="player_stream_error">There was a problem connecting to the stream</string>
   <string name="player_touch_bar">Tap here to make a timed comment</string>
-  <!--<string name="player_touch_bar_disabled">Comments disabled. Tap to enable.</string>-->
   <string name="pref_app_details">App Details</string>
   <string name="pref_basic_settings">Basic settings</string>
-  <!--<string name="pref_buffer_during_pause">Idle caching</string>-->
-  <!--<string name="pref_buffer_during_pause_desc">Continue caching audio even when player is paused.</string>-->
   <string name="pref_change_log">Change Log</string>
   <string name="pref_change_log_desc">See the latest changes for this release</string>
   <string name="pref_clear_cache">Clear Cache</string>
@@ -354,8 +323,6 @@
   <string name="pref_notifications_stream">Stream</string>
   <string name="pref_notifications_wifi_only">Wifi only notifications</string>
   <string name="pref_notifications_wifi_only_description">Request updates only when connected via wifi</string>
-  <!--<string name="pref_page_size">Default page size</string>-->
-  <!--<string name="pref_page_size_desc">The default number of items returned in a list</string>-->
   <string name="pref_record_quality">Recording quality</string>
   <string name="pref_record_quality_desc">Choose your preferred recording quality</string>
   <string name="pref_revoke_access">Log Out</string>
@@ -375,9 +342,7 @@
   <string name="pref_sync_wifi_only_description">Sync my data only when connected via wifi</string>
   <string name="pref_take_tour">SoundCloud tour</string>
   <string name="pref_take_tour_desc">Take a quick tour of the app</string>
-  <!--<string name="private_message">Private message</string>-->
   <string name="private_message_btn_send">Send</string>
-  <!--<string name="private_message_for">Private message for %s</string>-->
   <string name="private_message_title">Record a sound for %s</string>
   <string name="private_message_upload_message">Before we send it out privately to %s, maybe you want to add some more info?</string>
   <string name="private_message_upload_title">Your sound message got saved.</string>
@@ -387,7 +352,6 @@
   <string name="pull_to_refresh_release_label">Release to refresh...</string>
   <string name="raw">Raw</string>
   <string name="record_another_sound">Record another sound</string>
-  <!--<string name="record_currently_uploading">Your sound is being uploaded. Please check the status bar to see its progress.</string>-->
   <string name="record_insert_sd_card">Please insert an SD card to record.</string>
   <string name="record_instructions">Share your Sounds</string>
   <string name="record_max_length_reached">Maximum filesize reached.</string>
@@ -400,14 +364,12 @@
   <string name="recording_in_progress">Recording in progress. Press stop to end the recording or select to the recording notification to view it.</string>
   <string name="recording_not_found">Recording not found</string>
   <string name="reset">Discard</string>
-  <!--<string name="save">Next</string>-->
   <string name="sc_search_tracks">\u00A0Sounds</string>
   <string name="sc_search_users">\u00A0People</string>
   <string name="sc_upload_add_image">Add\nImage</string>
   <string name="sc_upload_only_you">Only You</string>
   <string name="sc_upload_private">\u00A0Private</string>
   <string name="sc_upload_public">\u00A0Public</string>
-  <!--<string name="sc_upload_sharing_options">Sharing Options</string>-->
   <string name="sc_upload_sharing_options_private">Your sound will be made private on SoundCloud. Add anyone you would like to share it privately with below.</string>
   <string name="sc_upload_sharing_options_public">Your sound will be made public on SoundCloud. Which other networks would you like to share it to?</string>
   <string name="sc_upload_with_access">With Access</string>
@@ -419,7 +381,6 @@
     <item quantity="other">%d seconds available</item>
   </plurals>
   <string name="settings_error_revoking_account_message">There was a problem logging out. Please try again.</string>
-  <!--<string name="settings_error_revoking_account_title">Oops!</string>-->
   <string name="share_encoding">Encoding...</string>
   <string name="share_fail_message">Ok, that went wrong.</string>
   <string name="share_log_out">Log out</string>
@@ -429,52 +390,31 @@
   <string name="share_track">Share: %s</string>
   <string name="share_uploading">Uploading...</string>
   <string name="sounds_from">Sounds from %s</string>
-  <!--<string name="suggested_users">Suggested People</string>-->
   <string name="suggested_users_msg">Welcome! Thanks for joining SoundCloud. Find you Facebook friends or follow Suggested People to listen to their sounds.</string>
   <string name="suggested_users_no_friends_msg">You\'re the first of your friends to join SoundCloud. Check out new sounds from our Suggested People.</string>
   <string name="tab_activity">Activity</string>
-  <!--<string name="tab_exclusive">Exclusive</string>-->
-  <!--<string name="tab_favorites">Favorites</string>-->
-  <!--<string name="tab_followers">Followers</string>-->
-  <!--<string name="tab_followings">Following</string>-->
-  <!--<string name="tab_friend_finder">Find Friends</string>-->
-  <!--<string name="tab_incoming">Stream</string>-->
-  <!--<string name="tab_info">Info</string>-->
   <string name="tab_record">Record</string>
   <string name="tab_search">Search</string>
   <string name="tab_stream">Stream</string>
-  <!--<string name="tab_tracks">Sounds</string>-->
   <string name="tab_you">You</string>
   <string name="take_new_picture">Take a new picture</string>
   <string name="take_new_picture_error">Could not take picture</string>
   <string name="this_user">this user</string>
   <string name="tour_btn_done">Done</string>
-  <!--<string name="tour_btn_lets_party">Let\'s Go!</string>-->
-  <!--<string name="tour_btn_next">Next</string>-->
   <string name="tour_comment_message">Favorite sounds and comment on the ones you like. Check out comments on your own sounds too!</string>
   <string name="tour_comment_subject">Comment &amp; Favorite</string>
-  <!--<string name="tour_comment_title">Add Activity</string>-->
   <string name="tour_finish_enjoy">Enjoy SoundCloud</string>
   <string name="tour_finish_message">It\'s really that simple. If you need more help try our &lt;a href="http://soundcloud.com/101"&gt;101s&lt;/a&gt;. Have fun creating and sharing sounds!</string>
-  <!--<string name="tour_finish_title">Start Sharing</string>-->
   <string name="tour_follow_message">Make connections by finding your Facebook friends on SoundCloud and following Suggested People.</string>
   <string name="tour_follow_subject">Find &amp; Follow People</string>
-  <!--<string name="tour_follow_title">Find &amp; Follow People</string>-->
   <string name="tour_record_message">First up, meet your new best friend the Record button. Capture a song idea, podcast or voice memo in an instant.</string>
   <string name="tour_record_subject">Record Your Sounds</string>
-  <!--<string name="tour_record_title">The Record Button</string>-->
   <string name="tour_share_message">Share sounds publicly and to Facebook, Twitter and Tumblr, or share them privately to a few special people.</string>
   <string name="tour_share_subject">Share Your Sounds</string>
-  <!--<string name="tour_share_title">Share Your Sounds</string>-->
-  <!--<string name="tour_start_btn_enter">Start The Tour</string>-->
   <string name="tour_start_hello">Hello!</string>
   <string name="tour_start_message">You\'re all signed up so let\'s start creating and sharing sounds.</string>
-  <!--<string name="tour_start_title">Welcome to SoundCloud</string>-->
   <string name="tour_start_welcome">Welcome to SoundCloud</string>
   <string name="tour_title">Welcome</string>
-  <!--<string name="tour_you_message">Explore your own sounds, favorites and info settings. See who you\'re following and being followed by.</string>-->
-  <!--<string name="tour_you_subject">Don\'t forget You!</string>-->
-  <!--<string name="tour_you_title">You</string>-->
   <string name="track">sound</string>
   <string name="track_by">by</string>
   <string name="track_count">number of sounds</string>
@@ -492,8 +432,6 @@
   <string name="tracklist_item_shared_with_1_person">1 Person</string>
   <string name="tracklist_item_shared_with_x_people">%d People</string>
   <string name="tracklist_item_shared_with_you">You</string>
-  <!--<string name="upload">Upload</string>-->
-  <string name="upload_and_share">Upload &amp; Share</string>
   <string name="use_existing_image">Use existing image</string>
   <string name="use_existing_image_error">Could not use existing image</string>
   <string name="user">person</string>
@@ -514,4 +452,131 @@
   <string name="widget_touch_to_open">Touch to open SoundCloud</string>
   <string name="wifi_settings">Wireless &amp; network settings</string>
   <string name="wifi_settings_summary">Edit your settings. Use Wi-Fi for best performance.</string>
+
+  <string name="menu_select_file">Select File</string>
+
+  <string name="btn_revert_to_original">Revert to original</string>
+
+  <string name="fade_toggle_on">Fade in/out</string>
+  <string name="fade_toggle_off">No Fade in/out</string>
+
+  <string name="optimize_toggle_on">Optimized</string>
+  <string name="optimize_toggle_off">Not Optimized</string>
+
+  <string name="menu_private_message">Private Message</string>
+
+  <string name="pref_stream_cache_size">Stream Cache Size</string>
+  <string name="pref_stream_cache_size_desc">The size of the stream cache in percent</string>
+
+  <string name="create_autosave_message">Your recordings will automatically be saved as you create them. You can find them in your list of sounds.</string>
+  <string name="create_regenerating_waveform_message">Regenerating waveform, please wait.</string>
+
+  <string name="dialog_revert_recording_message">You will lose all of your edits. Proceed?</string>
+
+  <string name="post">Post</string>
+  <string name="share">Share</string>
+
+  <string name="btn_publish">Publish</string>
+  <string name="btn_apply">Apply</string>
+
+  <string name="process">Process</string>
+  <string name="dialog_install_processor">Audio processor not installed. Install it?</string>
+
+  <string name="rec_your_sound_is_saved_locally_at">Your sound is saved locally</string>
+
+  <string name="pref_analytics">Analytics</string>
+  <string name="pref_analytics_desc">Enabling analytics allows us to collect data about your use of this app which helps us improve the app. See our Privacy Policy for more details.</string>
+  <string name="pref_crashlogs">Crashlogs</string>
+  <string name="pref_crashlogs_desc">Enabling Crashlogs helps us improve the app significantly. We don\'t collect any personal data. See our Privacy Policy for more details.</string>
+
+  <string name="crop_save_text">Save</string>
+  <string name="crop_discard_text">Discard</string>
+  <string name="savingImage">Saving picture\u2026</string>
+
+  <string name="playback_error_logging">Playback error logging : %s</string>
+  <string name="enabled">Enabled</string>
+  <string name="disabled">Disabled</string>
+  <string name="player_track_unavailable">This sound is no longer available</string>
+
+  <string name="sound_processed">Processed sound</string>
+  <string name="sound_processed_error">Error processing sound: %s</string>
+  <string name="sound_processed_pick_app">Pick app to process sound</string>
+
+  <string name="uploader_event_processing">Processing</string>
+  <string name="uploader_event_processing_percent">Processing: %d%%</string>
+  <string name="uploader_event_not_yet_uploading">Not yet uploading</string>
+  <string name="uploader_event_uploading">Uploading</string>
+  <string name="uploader_event_uploading_percent">Uploading: %d%%</string>
+  <string name="uploader_event_cancelling">Cancelling</string>
+
+  <string name="uploader_event_processing_failed">Processing failed</string>
+  <string name="uploader_event_processing_finished">Processing finished</string>
+
+  <string name="cancel">Cancel</string>
+  <string name="retry">Retry</string>
+
+  <string name="rec_title_generating_waveform">Please Wait...</string>
+  <string name="rec_title_idle_rec">Record</string>
+  <string name="rec_title_recording">Recording</string>
+  <string name="rec_title_idle_play">Pause</string>
+  <string name="rec_title_playing">Pause</string>
+  <string name="rec_title_editing">Edit</string>
+
+  <string name="rectip_default">Why don\'t you record the sounds of your street?.</string>
+
+  <string name="rectip_memories_voice_notes">Record voice notes as handy reminders.</string>
+  <string name="rectip_memories_voice_blog">Use the REC button to create a voice blog – what will you share today?</string>
+  <string name="rectip_memories_what_are_you_doing_right_now">What are you doing right now?</string>
+  <string name="rectip_memories_child_first_words">Capture the moment: a child\’s first words</string>
+  <string name="rectip_memories_sound_your_pet_makes">Capture the moment: the sounds your pet makes</string>
+  <string name="rectip_memories_voice_of_someone_you_care_about">Capture the moment: the voice of someone you care about</string>
+  <string name="rectip_memories_shopping_reminders">Going shopping?  Record reminders so you don\’t forget what to buy.</string>
+  <string name="rectip_memories_great_idea">Had a great idea?  Capture it with the REC button.</string>
+
+  <string name="rectip_social_good_joke">Heard a good joke lately? Share it!</string>
+  <string name="rectip_social_great_conversaion">Enjoying a great conversation?  Why not record it for posterity?</string>
+  <string name="rectip_social_hilarious_moment">Capture a hilarious moment in sound</string>
+
+  <string name="rectip_general_did_you_know">Did you know you can save private recordings if you don\’t want to share them?</string>
+  <string name="rectip_general_best_recording_device">Sometimes the best recording device is the one you have with you.</string>
+  <string name="rectip_general_unmute_yourself">Unmute yourself!</string>
+  <string name="rectip_general_unmute_internet">Unmute the internet.</string>
+  <string name="rectip_general_unmute_the_world">Unmute the world.</string>
+  <string name="rectip_general_express_yourself">Express yourself!</string>
+
+  <string name="rectip_general_professional_minutes_of_meeting">Why not record the minutes of your next meeting?</string>
+  <string name="rectip_general_professional_capture_ideas_for_later">Use the REC button to capture ideas for later.</string>
+  <string name="rectip_general_professional_study_aid">Use the REC button as a study aid: store your notes on the go.</string>
+  <string name="rectip_general_professional_record_interviews_and_meetings">You can use the REC button to record interviews and meetings.</string>
+
+  <string name="rectip_environmental_ocean_waves">Record the sound of the ocean waves at the beach</string>
+  <string name="rectip_environmental_vibrant_rush_hour">Capture the sounds of a vibrant city at rush hour</string>
+  <string name="rectip_environmental_crazy_sound">Heard a crazy sound?  Capture it with the REC button!</string>
+
+  <string name="rectip_music_feel_inspired">Feel inspired? Capture your idea with the REC button.</string>
+  <string name="rectip_music_track_idea">Got an idea for a new track? Save it with the REC button.</string>
+  <string name="rectip_music_tune_stuck">Tune stuck in your head? Capture it with the REC button.</string>
+  <string name="rectip_music_song_lyric_ideas">Ideas for song lyrics? Capture them instantly with the REC button.</string>
+
+  <string name="rectip_events_whats_going_on">What’s going on right now?</string>
+  <string name="rectip_events_current_events_as_they_happen">Record current events as they happen and share them with the world.</string>
+  <string name="rectip_events_something_interesting">Is something interesting happening?  Capture the moment in audio.</string>
+  <string name="rectip_events_citizen_reporter">Citizen Reporter?  Tell the world what\’s happening where you are.</string>
+
+  <string name="rectip_private_happy_birthday">Wish %s a Happy Birthday</string>
+  <string name="rectip_private_record_a_message">Why not record a message for %s?</string>
+  <string name="rectip_private_how_much_they_mean">Tell %s how much they mean to you.</string>
+  <string name="rectip_private_send_reminder">Send %s a reminder</string>
+  <string name="rectip_private_liked_their_sound">Tell %s how much you liked their sound</string>
+  <string name="rectip_private_leave_feedback">Leave some feedback for %s</string>
+
+  <string name="resolve_progress">Loading</string>
+  <string name="error_loading_url">There was a problem loading that url</string>
+
+  <string name="cloud_uploader_notification_transcoding_error_message">There was an error transcoding %s</string>
+  <string name="cloud_uploader_notification_transcoding_error_ticker">Transcoding Error</string>
+  <string name="cloud_uploader_notification_transcoding_error_title">Transcoding Error</string>
+
+  <!-- error to show when signup scope was revoked on server side -->
+  <string name="signup_scope_revoked">Oops! We couldn\'t sign you up\nPlease try updating the app or sign up at SoundCloud.com.</string>
 </resources>

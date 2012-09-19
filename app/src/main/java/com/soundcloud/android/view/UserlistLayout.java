@@ -6,19 +6,22 @@ import com.soundcloud.android.R;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import com.soundcloud.android.utils.CloudUtils;
+
+import com.soundcloud.android.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserlistLayout extends RelativeLayout {
     private final WorkspaceView mWorkspaceView;
-    private final RelativeLayout mLabelHolder;
+    private final ViewGroup mLabelHolder;
 
     private final List<TabLabel> tabLabels;
 
@@ -41,7 +44,7 @@ public class UserlistLayout extends RelativeLayout {
 
         mSpacer = (int) (context.getResources().getDisplayMetrics().density * 10);
 
-        mLabelHolder = (RelativeLayout) findViewById(R.id.label_holder);
+        mLabelHolder = (ViewGroup) findViewById(R.id.label_holder);
         tabLabels = new ArrayList<TabLabel>();
 
         mLeftArrow = findViewById(R.id.left_arrow);
@@ -63,7 +66,7 @@ public class UserlistLayout extends RelativeLayout {
         labelTxt.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.FILL_PARENT));
         labelTxt.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
         labelTxt.setCompoundDrawablePadding((int) (getResources().getDisplayMetrics().density * 5));
-        CloudUtils.setTextShadowForGrayBg(labelTxt);
+        AndroidUtils.setTextShadowForGrayBg(labelTxt);
         mLabelHolder.addView(labelTxt);
         tabLabels.add(new TabLabel(labelTxt, label, tag, mLabelHolder.getChildCount() - 1));
     }
@@ -119,6 +122,10 @@ public class UserlistLayout extends RelativeLayout {
         TabLabel label = findLabel(tag);
         if (label != null) {
             mWorkspaceView.setCurrentScreenNow(label.index, true);
+            final View currentScreen = mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen());
+            if (currentScreen instanceof ScTabView){
+                ((ScTabView) currentScreen).setToTop();
+            }
         }
     }
 

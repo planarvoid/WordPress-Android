@@ -26,8 +26,8 @@
 		android:layout_gravity="left"
 		android:scaleType="fitXY"
         android:src="@drawable/artwork_badge"
-		android:layout_width="65dip"
-		android:layout_height="65dip" />
+		android:layout_width="@dimen/notification_image_width"
+		android:layout_height="@dimen/notification_image_height" />
 	<LinearLayout
 		android:layout_width="0dp"
 		android:layout_weight="4"

@@ -62,7 +62,7 @@ public class ChangeLog {
         mContext = context;
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         mOldVersion = sp.getInt(Consts.PrefKeys.VERSION_KEY, 0);
-        mThisVersion = CloudUtils.getAppVersionCode(context, 0);
+        mThisVersion = AndroidUtils.getAppVersionCode(context, 0);
         if (mThisVersion != 0) {
             sp.edit().putInt(Consts.PrefKeys.VERSION_KEY, mThisVersion).commit();
         }
@@ -147,7 +147,7 @@ public class ChangeLog {
                         closeList();
                         String version = line.substring(1).trim();
                         if ("v current".equals(version)) {
-                            version = "v " + CloudUtils.getAppVersion(mContext, "unknown");
+                            version = "v " + AndroidUtils.getAppVersion(mContext, "unknown");
                         }
                         mSb.append("<div class='title'>").append(version).append("</div>\n");
                     // line contains date

@@ -5,8 +5,6 @@ import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Connect;
-import com.soundcloud.android.robolectric.ApiTests;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.shadows.ShadowActivity;
 import org.junit.Ignore;
@@ -15,7 +13,7 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(DefaultTestRunner.class)
-public class SuggestUsersTest extends ApiTests {
+public class SuggestUsersTest {
 
     @Test @Ignore
     public void testConfigureFacebook() throws Exception {

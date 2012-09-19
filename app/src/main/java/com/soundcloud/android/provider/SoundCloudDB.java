@@ -1,9 +1,12 @@
 package com.soundcloud.android.provider;
 
 import com.soundcloud.android.model.Origin;
+import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.utils.IOUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
@@ -13,6 +16,7 @@ import android.net.Uri;
 import android.os.Parcelable;
 import android.util.Log;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -56,11 +60,11 @@ public class SoundCloudDB {
         return uri;
     }
 
-    public static Uri insertUser(ContentResolver resolver, User user) {
+    public static @Nullable Uri insertUser(ContentResolver resolver, User user) {
         return resolver.insert(Content.USERS.uri, user.buildContentValues(getUserId(resolver) == user.id));
     }
 
-    public static Uri upsertUser(ContentResolver resolver, User user) {
+    public static @Nullable Uri upsertUser(ContentResolver resolver, User user) {
         if (!user.isSaved()) {
             return insertUser(resolver, user);
         } else {
@@ -112,8 +116,6 @@ public class SoundCloudDB {
         return resolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
     }
 
-
-
     public static @Nullable User getUserById(ContentResolver resolver, long id) {
         if (id >= 0) {
             return getUserByUri(resolver, Content.USERS.forId(id));
@@ -140,7 +142,7 @@ public class SoundCloudDB {
 
     public static int bulkInsertParcelables(ContentResolver resolver,
                                             List<? extends Parcelable> items,
-                                            Uri uri,
+                                            @Nullable Uri uri,
                                             long ownerId) {
         if (uri != null && ownerId < 0) {
             throw new IllegalArgumentException("need valid ownerId for collection");
@@ -211,6 +213,48 @@ public class SoundCloudDB {
         return usersInserted + tracksInserted;
     }
 
+    public static @Nullable Recording upsertRecording(ContentResolver resolver, Recording r, @Nullable ContentValues values) {
+        if (r.getRecipient() != null) {
+            upsertUser(resolver, r.getRecipient());
+        }
+        final ContentValues contentValues = values == null ? r.buildContentValues() : values;
+        if (!r.isSaved() || resolver.update(r.toUri(), contentValues, null, null) == 0) {
+            Uri uri = resolver.insert(Content.RECORDINGS.uri, contentValues);
+            if (uri != null) {
+                r.id = Long.parseLong(uri.getLastPathSegment());
+            }
+        }
+        return r;
+
+    }
+
+    public static @Nullable Recording getRecordingByUri(ContentResolver resolver, Uri uri) {
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        Recording recording = null;
+        if (cursor != null && cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            recording = new Recording(cursor);
+        }
+        if (cursor != null) cursor.close();
+        return recording;
+    }
+
+    public static @Nullable Recording getRecordingByPath(ContentResolver resolver, File file) {
+        Cursor cursor = resolver.query(Content.RECORDINGS.uri,
+                null,
+                DBHelper.Recordings.AUDIO_PATH + " LIKE ?",
+                new String[]{ IOUtils.removeExtension(file).getAbsolutePath() + "%" },
+                null);
+
+        Recording recording = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            recording = new Recording(cursor);
+        }
+        if (cursor != null) cursor.close();
+
+        return recording;
+    }
+
     private static long getUserId(ContentResolver resolver) {
         Cursor c = resolver.query(Content.ME_USERID.uri, null, null, null, null);
         try {
@@ -224,7 +268,7 @@ public class SoundCloudDB {
         }
     }
 
-    public static List<Long> idCursorToList(Cursor c) {
+    public static @NotNull List<Long> idCursorToList(Cursor c) {
         List<Long> ids = new ArrayList<Long>();
         if (c != null && c.moveToFirst()) {
             do {

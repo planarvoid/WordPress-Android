@@ -13,10 +13,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Connect;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.Tour;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
@@ -24,7 +23,7 @@ import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.task.NewConnectionTask;
+import com.soundcloud.android.task.create.NewConnectionTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.view.ScListView;
@@ -36,7 +35,7 @@ import java.util.ArrayList;
 
 
 @Tracking(page = Page.Entry_signup__find_friends)
-public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapter.SectionListener {
+public class SuggestedUsers extends ScListActivity implements SectionedEndlessAdapter.SectionListener {
     private ScListView mListView;
     private SectionedAdapter.Section mFriendsSection;
     private SectionedUserlistAdapter ffAdp;
@@ -155,7 +154,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
                             (new Intent(SuggestedUsers.this, Connect.class))
                                     .putExtra("service", Connection.Service.Facebook.name())
                                     .setData(uri),
-                            Connect.MAKE_CONNECTION);
+                            Consts.RequestCodes.MAKE_CONNECTION);
                 } else {
                     showToast(R.string.new_connection_error);
                 }
@@ -166,7 +165,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         switch (requestCode) {
-            case Connect.MAKE_CONNECTION:
+            case Consts.RequestCodes.MAKE_CONNECTION:
                 if (resultCode == RESULT_OK) {
                     boolean success = result.getBooleanExtra("success", false);
                     String msg = getString(

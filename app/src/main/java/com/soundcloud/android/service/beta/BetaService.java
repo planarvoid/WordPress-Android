@@ -1,14 +1,16 @@
 package com.soundcloud.android.service.beta;
 
-import static com.soundcloud.android.utils.CloudUtils.getAppVersionCode;
-import static com.soundcloud.android.utils.CloudUtils.getElapsedTimeString;
+import static com.soundcloud.android.utils.AndroidUtils.getAppVersionCode;
+import static com.soundcloud.android.utils.ScTextUtils.getElapsedTimeString;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
 import org.apache.http.client.HttpClient;
+import org.jetbrains.annotations.Nullable;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -85,7 +87,7 @@ public class BetaService extends Service {
                 skip(null, "Wifi is disabled", intent);
             } else {
                 sRunning = true;
-                mClient = IOUtils.createHttpClient(USER_AGENT);
+                mClient = HttpUtils.createHttpClient(USER_AGENT);
 
                 checkForUpdates(intent);
             }
@@ -103,7 +105,7 @@ public class BetaService extends Service {
         sRunning = false;
 
         releaseLocks();
-        IOUtils.closeHttpClient(mClient);
+        HttpUtils.closeHttpClient(mClient);
     }
 
     /* package */ void checkForUpdates(final Intent intent) {
@@ -170,7 +172,7 @@ public class BetaService extends Service {
         }
     }
 
-    private void skip(Beta beta, String reason, Intent intent) {
+    private void skip(@Nullable Beta beta, String reason, Intent intent) {
         String message;
         if (beta == null) {
             message = "skipping betaservice run: " + reason;
@@ -409,7 +411,7 @@ public class BetaService extends Service {
 
     static List<Beta> getBetas() {
         if (IOUtils.isSDCardAvailable()) {
-            File[] md = APK_PATH.listFiles(new FilenameFilter() {
+            File[] md = IOUtils.nullSafeListFiles(APK_PATH, new FilenameFilter() {
                 @Override
                 public boolean accept(File file, String s) {
                     return s.endsWith(Beta.META_DATA_EXT);

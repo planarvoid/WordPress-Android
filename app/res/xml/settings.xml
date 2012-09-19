@@ -15,18 +15,24 @@
                 android:title="@string/pref_notifications"
                 android:summary="@string/pref_notifications_description" />
 
-        <ListPreference
-                android:title="@string/pref_record_quality"
-                android:summary="@string/pref_record_quality_desc"
-                android:key="defaultRecordingQuality"
-                android:defaultValue="high"
-                android:entries="@array/pref_record_quality_entries"
-                android:entryValues="@array/pref_record_quality_values"/>
-
         <Preference
                 android:title="@string/pref_revoke_access"
                 android:summary="@string/pref_revoke_desc"
                 android:key="logout"/>
+
+        <CheckBoxPreference
+                android:key="acra.enable"
+                android:title="@string/pref_analytics"
+                android:summary="@string/pref_analytics_desc"
+                android:defaultValue="true"
+                />
+
+        <CheckBoxPreference
+                android:key="crashlogs"
+                android:title="@string/pref_crashlogs"
+                android:summary="@string/pref_crashlogs_desc"
+                android:defaultValue="true"
+                />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -41,6 +47,15 @@
                 android:key="clearCache"
                 android:title="@string/pref_clear_cache"
                 android:summary="@string/pref_clear_cache_desc"
+                />
+
+        <com.soundcloud.android.activity.preference.SeekBarPreference
+                android:key="streamCacheSize"
+                android:title="@string/pref_stream_cache_size"
+                android:summary="@string/pref_stream_cache_size_desc"
+                android:inputType="number"
+                android:defaultValue="10"
+                android:text="%"
                 />
 
         <Preference
@@ -92,12 +107,12 @@
             android:entryValues="@array/pref_dashboard_store_max_values"/>
 
         <ListPreference
-            android:title="@string/pref_record_high_quality_type"
-            android:summary="@string/pref_record_high_quality_type_desc"
-            android:key="dev.defaultRecordingHighQualityType"
+            android:title="@string/pref_dev_record_type"
+            android:summary="@string/pref_dev_record_type_desc"
+            android:key="dev.defaultRecordingType"
             android:defaultValue="compressed"
-            android:entries="@array/pref_record_high_quality_type_entries"
-            android:entryValues="@array/pref_record_high_quality_type_values"/>
+            android:entries="@array/pref_dev_record_type_entries"
+            android:entryValues="@array/pref_dev_record_type_values"/>
 
         <Preference
             android:title="@string/pref_dev_clear_notification"
@@ -118,6 +133,11 @@
             android:title="@string/pref_dev_crash"
             android:summary="@string/pref_dev_crash_summary"
             android:key="dev.crash"/>
+
+        <Preference
+                android:title="@string/pref_dev_clear_recordings"
+                android:summary="@string/pref_dev_clear_recordings_summary"
+                android:key="dev.clearRecordings"/>
 
         <EditTextPreference
             android:title="@string/pref_dev_http_proxy"

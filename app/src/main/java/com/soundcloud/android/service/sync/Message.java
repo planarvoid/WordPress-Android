@@ -114,7 +114,7 @@ class Message {
                                                   final int id,
                                                   String artworkUri) {
 
-        if (!SoundCloudApplication.useRichNotifications() || !ImageUtils.checkIconShouldLoad(artworkUri)) {
+        if (!Consts.SdkSwitches.useRichNotifications || !ImageUtils.checkIconShouldLoad(artworkUri)) {
             showDashboardNotification(context, ticker, intent, title, message, id, null);
         } else {
             final Bitmap bmp = ImageLoader.get(context).getBitmap(artworkUri,null, new ImageLoader.Options(false));

@@ -71,7 +71,7 @@
                 <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
                            android:id="@+id/artwork"/>
             </FrameLayout>
-            <com.soundcloud.android.view.WaveformController
+            <com.soundcloud.android.view.play.WaveformController
                     android:id="@+id/waveform_controller"
                     android:layout_height="wrap_content"
                     android:layout_width="fill_parent"

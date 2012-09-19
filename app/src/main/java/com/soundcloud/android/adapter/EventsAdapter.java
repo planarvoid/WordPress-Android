@@ -2,7 +2,7 @@
 package com.soundcloud.android.adapter;
 
 import android.os.Parcelable;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.view.ActivityRow;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class EventsAdapter extends TracklistAdapter {
     private boolean mIsActivityFeed;
 
-    public EventsAdapter(ScActivity context, ArrayList<Parcelable> data, boolean isActivityFeed, Class<?> model) {
+    public EventsAdapter(ScListActivity context, ArrayList<Parcelable> data, boolean isActivityFeed, Class<?> model) {
         super(context, data, model);
         mIsActivityFeed = isActivityFeed;
     }

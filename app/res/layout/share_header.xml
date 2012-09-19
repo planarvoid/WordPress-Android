@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.soundcloud.android.view.ShareHeaderView
+<com.soundcloud.android.view.create.ShareHeaderView
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
         android:id="@+id/share_header_txt"
+        android:layout_width="fill_parent"
         android:gravity="center_vertical"
         android:drawableLeft="@drawable/tiny_cloud"
         android:drawablePadding="5dip"

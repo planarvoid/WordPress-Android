@@ -170,7 +170,7 @@ public class RemoteCollectionTask extends AsyncTask<Object, List<? super Parcela
                 localCollection = insertLocalCollection(mParams.contentUri, app.getContentResolver());
                  idList = new ArrayList<Long>();
             } else {
-                idList = Content.match(mParams.contentUri).getLocalIds(app.getContentResolver(), app.getCurrentUserId(), mParams.startIndex, mParams.maxToLoad);
+                idList = Content.match(mParams.contentUri).getLocalIds(app.getContentResolver(), SoundCloudApplication.getUserId(), mParams.startIndex, mParams.maxToLoad);
             }
         }
 

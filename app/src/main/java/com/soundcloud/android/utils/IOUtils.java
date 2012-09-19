@@ -4,11 +4,9 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.Consts;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -16,7 +14,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Proxy;
 import android.net.Uri;
-import android.net.http.AndroidHttpClient;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
@@ -24,8 +22,10 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,29 +33,35 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
+import java.util.Comparator;
 
 public final class IOUtils {
     private static final int BUFFER_SIZE = 4096;
 
     private IOUtils() {}
 
+    public static @NotNull File[] nullSafeListFiles(File f, @Nullable FilenameFilter filter) {
+        if (f == null) return new File[0];
+        File[] files;
+        if (filter != null) {
+            files = f.listFiles(filter);
+        } else {
+            files = f.listFiles();
+        }
+        return files == null ? new File[0] : files;
+    }
+
     public static long getDirSize(File dir) {
         long result = 0;
-        File[] fileList = dir.listFiles();
-        if (fileList != null) {
-            for (File aFileList : fileList) {
-                if (aFileList.isDirectory()) {
-                    result += getDirSize(aFileList);
-                } else {
-                    result += aFileList.length();
-                }
+        File[] fileList = nullSafeListFiles(dir, null);
+        for (File aFileList : fileList) {
+            if (aFileList.isDirectory()) {
+                result += getDirSize(aFileList);
+            } else {
+                result += aFileList.length();
             }
         }
         return result;
@@ -72,20 +78,34 @@ public final class IOUtils {
         }
     }
 
+    public static long getTotalSpace(File dir) {
+        try {
+            StatFs fs = new StatFs(dir.getAbsolutePath());
+            return (long) fs.getBlockSize() * (long) fs.getBlockCount();
+        } catch (IllegalArgumentException e) {
+            // gets thrown when call to statfs fails
+            Log.e(TAG, "getTotalSpace("+dir+")", e);
+            return 0;
+        }
+    }
+
     public static File getFromMediaUri(ContentResolver resolver, Uri uri) {
         if (uri == null) return null;
 
         if ("file".equals(uri.getScheme())) {
             return new File(uri.getPath());
         } else if ("content".equals(uri.getScheme())) {
-            String[] filePathColumn = { MediaStore.MediaColumns.DATA };
+            final String[] filePathColumn = { MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME };
             Cursor cursor = null;
             try {
                 cursor = resolver.query(uri, filePathColumn, null, null, null);
                 if (cursor != null && cursor.moveToFirst()) {
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String filePath = cursor.getString(columnIndex);
-                    return new File(filePath);
+                    final int columnIndex = (uri.toString().startsWith("content://com.google.android.gallery3d")) ?
+                            cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME) :
+                            cursor.getColumnIndex(MediaStore.MediaColumns.DATA); // if it is a picasa image on newer devices with OS 3.0 and up
+                    if (columnIndex != -1) {
+                        return new File(cursor.getString(columnIndex));
+                    }
                 }
             } catch (SecurityException ignored) {
                 // nothing to be done
@@ -103,6 +123,21 @@ public final class IOUtils {
             stream.append(new String(b, 0, n));
         }
         return stream.toString();
+    }
+
+    public static byte[] readInputStreamAsBytes(InputStream in) throws IOException {
+        byte[] b = new byte[BUFFER_SIZE];
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        if (!(in instanceof BufferedInputStream)) {
+            in = new BufferedInputStream(in);
+        }
+        int n;
+        while ((n = in.read(b)) != -1) {
+            bos.write(b, 0, n);
+        }
+        bos.close();
+        in.close();
+        return bos.toByteArray();
     }
 
     public static boolean mkdirs(File d) {
@@ -126,18 +161,15 @@ public final class IOUtils {
 
     public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
-            File[] children = dir.listFiles();
-            if (children != null) {
-                for (File f : children) {
-                    boolean success;
-                    if (f.isDirectory()) {
-                         success = deleteDir(f);
-                    } else {
-                        success = deleteFile(f);
-                    }
-                    if (!success) {
-                        return false;
-                    }
+            for (File f : nullSafeListFiles(dir, null)) {
+                boolean success;
+                if (f.isDirectory()) {
+                     success = deleteDir(f);
+                } else {
+                    success = deleteFile(f);
+                }
+                if (!success) {
+                    return false;
                 }
             }
             // The directory is now empty so delete it
@@ -149,7 +181,7 @@ public final class IOUtils {
     public static File ensureUpdatedDirectory(File newDir, File deprecatedDir) {
         mkdirs(newDir);
         if (deprecatedDir.exists()) {
-            for (File f : deprecatedDir.listFiles()) {
+            for (File f : nullSafeListFiles(deprecatedDir, null)) {
                 if (!f.renameTo(new File(newDir, f.getName()))) {
                     Log.w(TAG, "could not rename "+f);
                 }
@@ -172,13 +204,13 @@ public final class IOUtils {
 
     public static boolean fileExistsCaseSensitive(final File f) {
         if (f != null && f.exists() && f.getParentFile() != null) {
-            File[] files = f.getParentFile().listFiles(new FilenameFilter() {
+            File[] files = nullSafeListFiles(f.getParentFile(), new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
                     return name.equals(f.getName());
                 }
             });
-            return files != null && files.length > 0;
+            return files.length > 0;
         } else return false;
     }
 
@@ -287,7 +319,7 @@ public final class IOUtils {
             while ((n = f.read(buffer)) != -1) {
                 digest.update(buffer, 0, n);
             }
-            return CloudUtils.hexString(digest.digest());
+            return ScTextUtils.hexString(digest.digest());
         } catch (NoSuchAlgorithmException e) {
             Log.e(TAG, "error", e);
             return "";
@@ -295,40 +327,6 @@ public final class IOUtils {
             throw new RuntimeException(e);
         }
     }
-
-    public static void fetchUriToFile(String url, File file, boolean useCache) throws FileNotFoundException {
-        OutputStream os = null;
-        HttpURLConnection conn = null;
-        try {
-            conn = (HttpURLConnection) new URL(url).openConnection();
-            conn.setUseCaches(useCache);
-            conn.connect();
-            final int status = conn.getResponseCode();
-            if (status == HttpStatus.SC_OK) {
-                InputStream is = conn.getInputStream();
-                os = new BufferedOutputStream(new FileOutputStream(file));
-                final byte[] buffer = new byte[8192];
-                int n;
-                while ((n = is.read(buffer, 0, buffer.length)) != -1) {
-                    os.write(buffer, 0, n);
-                }
-            } else {
-                throw new FileNotFoundException("HttpStatus: "+status);
-            }
-        } catch (MalformedURLException e) {
-            throw new FileNotFoundException(e.getMessage());
-        } catch (IOException e) {
-            deleteFile(file);
-            throw new FileNotFoundException(e.getMessage());
-        } finally {
-            if (conn != null) conn.disconnect();
-            if (os != null) try {
-                os.close();
-            } catch (IOException ignored) {
-            }
-        }
-    }
-
 
     /**
      * @param context context
@@ -358,25 +356,6 @@ public final class IOUtils {
         return proxy;
     }
 
-    @SuppressLint("NewApi")
-    public static HttpClient createHttpClient(String userAgent) {
-        if (Build.VERSION.SDK_INT >= 8) {
-            return AndroidHttpClient.newInstance(userAgent);
-        } else {
-            return new DefaultHttpClient();
-        }
-    }
-
-    @SuppressLint("NewApi")
-    public static void closeHttpClient(HttpClient client) {
-        if (client instanceof AndroidHttpClient) {
-            // avoid leak error logging
-            ((AndroidHttpClient) client).close();
-        } else if (client != null) {
-            client.getConnectionManager().shutdown();
-        }
-    }
-
     public static boolean isConnected(Context context) {
         ConnectivityManager mgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info =  mgr == null ? null : mgr.getActiveNetworkInfo();
@@ -387,5 +366,101 @@ public final class IOUtils {
         ConnectivityManager mgr = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = mgr == null ? null : mgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         return info != null && info.isConnectedOrConnecting();
+    }
+
+    public static void copy(InputStream is, File out) throws IOException {
+        FileOutputStream fos = new FileOutputStream(out);
+        byte[] buffer = new byte[BUFFER_SIZE];
+        int n;
+        while ((n = is.read(buffer)) != -1) {
+            fos.write(buffer, 0, n);
+        }
+        fos.close();
+    }
+
+    public static void copy(File in, File out) throws IOException {
+        final FileInputStream is = new FileInputStream(in);
+        try {
+            copy(is, out);
+        } finally {
+            is.close();
+        }
+    }
+
+    public static void close(Closeable file) {
+        if (file != null) {
+            try {
+                file.close();
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
+    public static @NotNull File appendToFilename(File file, String text) {
+        String name = file.getName();
+        final int lastDot = name.lastIndexOf('.');
+        if (lastDot != -1) {
+            String ext = name.substring(lastDot, name.length());
+            return new File(file.getParentFile(), name.substring(0, lastDot)+text+ext);
+        } else {
+            return new File(file.getParentFile(), file.getName()+text);
+        }
+    }
+
+    public static @Nullable String extension(File file) {
+        final String name = file.getName();
+        final int lastDot = name.lastIndexOf('.');
+        if (lastDot != -1 && lastDot != name.length() -1) {
+            return name.substring(lastDot+1, name.length()).toLowerCase();
+        } else {
+            return null;
+        }
+    }
+
+    public static @NotNull File changeExtension(File file, String ext) {
+        final String name = file.getName();
+        final int lastDot = name.lastIndexOf('.');
+        if (lastDot != -1) {
+            return new File(file.getParentFile(), name.substring(0, lastDot)+"."+ext);
+        } else {
+            return new File(file.getParentFile(), file.getName()+"."+ext);
+        }
+    }
+
+    public static @NotNull File removeExtension(@NotNull File file) {
+        if (file.isDirectory()) return file;
+        String name = file.getName();
+        final int lastPeriodPos = name.lastIndexOf('.');
+        return lastPeriodPos <= 0 ? file : new File(file.getParent(), name.substring(0, lastPeriodPos));
+    }
+
+    public static void skipFully(InputStream in, long n) throws IOException {
+        while (n > 0) {
+            long amt = in.skip(n);
+            if (amt == 0) {
+                // Force a blocking read to avoid infinite loop
+                if (in.read() == -1) {
+                    throw new EOFException();
+                }
+                n--;
+            } else {
+                n -= amt;
+            }
+        }
+    }
+
+    /**
+     * some phones have really low transfer rates when the screen is turned off, so request a full
+     * performance lock on newer devices
+     *
+     * @see <a href="http://code.google.com/p/android/issues/detail?id=9781">http://code.google.com/p/android/issues/detail?id=9781</a>
+     */
+    public static WifiManager.WifiLock createHiPerfWifiLock(Context context, String tag) {
+        return ((WifiManager) context.getSystemService(Context.WIFI_SERVICE))
+                .createWifiLock(
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD ?
+                        WifiManager.WIFI_MODE_FULL_HIGH_PERF : WifiManager.WIFI_MODE_FULL,
+                        tag
+                );
     }
 }

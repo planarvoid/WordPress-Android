@@ -753,8 +753,7 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
                 mTouchState = TOUCH_STATE_REST;
                 mActivePointerId = INVALID_POINTER;
                 setImageLoaderState();
-                // Intentially fall through to cancel
-
+            //noinspection fallthrough
             case MotionEvent.ACTION_CANCEL:
                 mTouchState = TOUCH_STATE_REST;
                 mActivePointerId = INVALID_POINTER;

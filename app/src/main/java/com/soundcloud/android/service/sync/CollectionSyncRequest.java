@@ -51,6 +51,7 @@ import java.io.IOException;
         AndroidCloudAPI.Wrapper.setBackgroundMode(!isUI);
 
         ApiSyncer syncer = new ApiSyncer(context);
+
         localCollection.updateSyncState(LocalCollection.SyncState.SYNCING, context.getContentResolver());
         try {
             result = syncer.syncContent(contentUri, action);

@@ -3,17 +3,19 @@ package com.soundcloud.android.task;
 import static com.soundcloud.android.Expect.expect;
 
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.soundcloud.android.robolectric.ApiTests;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-public class AsyncApiTaskTest extends ApiTests {
+@RunWith(DefaultTestRunner.class)
+public class AsyncApiTaskTest {
     private List<String> parse(String input) throws IOException {
-        ObjectReader reader = api.getMapper().reader();
+        ObjectReader reader = DefaultTestRunner.application.getMapper().reader();
         return AsyncApiTask.parseError(reader, new ByteArrayInputStream(input.getBytes()));
     }
 

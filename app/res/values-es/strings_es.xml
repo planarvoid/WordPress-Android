@@ -60,7 +60,7 @@
   <string name="cache_clearing_message">Borrando archivos temporales...</string>
   <string name="changelog_full_title">Registro de cambios</string>
   <string name="changelog_title">Nuevas actualizaciones</string>
-  <string name="cloud_recorder_event_message">Grabando durante %d segundos</string>
+  <string name="cloud_recorder_event_message">Grabando durante %s</string>
   <string name="cloud_recorder_event_title">Grabación en curso</string>
   <string name="cloud_recorder_notification_ticker">Comenzó la grabación</string>
   <string name="cloud_recorder_playback_event_title">Reproducción en curso</string>
@@ -69,8 +69,6 @@
   <string name="cloud_upload_currently_uploading">Subida en curso. Puede comprobar el progreso en Avisos</string>
   <string name="cloud_upload_not_yet_uploaded">Aún no se ha subido</string>
   <string name="cloud_upload_upload_failed">fallo en la subida</string>
-  <string name="cloud_uploader_event_encoding">Codificando: %d\%%%</string>
-  <string name="cloud_uploader_event_uploading">Subiendo: %d\%%%</string>
   <string name="cloud_uploader_notification_error_message">Ocurrió un error al subir %s</string>
   <string name="cloud_uploader_notification_error_ticker">Error en la subida</string>
   <string name="cloud_uploader_notification_error_title">Error en la subida</string>
@@ -435,7 +433,6 @@
   <string name="tracklist_item_shared_with_1_person">1 persona</string>
   <string name="tracklist_item_shared_with_x_people">%d personas</string>
   <string name="tracklist_item_shared_with_you">Usted</string>
-  <string name="upload_and_share">Subir y compartir</string>
   <string name="use_existing_image">Usar la imagen actual</string>
   <string name="use_existing_image_error">No se pudo usar la imagen actual</string>
   <string name="user">persona</string>

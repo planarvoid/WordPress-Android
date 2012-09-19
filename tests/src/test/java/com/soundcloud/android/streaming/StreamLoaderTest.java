@@ -2,11 +2,12 @@ package com.soundcloud.android.streaming;
 
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.streaming.BufferUtils.readToByteBuffer;
+import static com.soundcloud.android.utils.BufferUtils.readToByteBuffer;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Stream;
 import com.xtremelabs.robolectric.Robolectric;

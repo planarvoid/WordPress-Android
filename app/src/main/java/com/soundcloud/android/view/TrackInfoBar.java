@@ -2,7 +2,7 @@ package com.soundcloud.android.view;
 
 import android.database.Cursor;
 import android.os.Parcelable;
-import android.util.Log;
+import android.view.ViewStub;
 import android.view.animation.Transformation;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
@@ -10,8 +10,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.ITracklistAdapter;
 import com.soundcloud.android.model.*;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -20,10 +19,8 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class TrackInfoBar extends LazyRow {
@@ -98,12 +95,12 @@ public class TrackInfoBar extends LazyRow {
     }
 
     public void addTextShadows(){
-        CloudUtils.setTextShadowForGrayBg(mTitle);
-        CloudUtils.setTextShadowForGrayBg(mUser);
-        CloudUtils.setTextShadowForGrayBg(mCreatedAt);
-        CloudUtils.setTextShadowForGrayBg(mFavoriteCount);
-        CloudUtils.setTextShadowForGrayBg(mPlayCount);
-        CloudUtils.setTextShadowForGrayBg(mCommentCount);
+        AndroidUtils.setTextShadowForGrayBg(mTitle);
+        AndroidUtils.setTextShadowForGrayBg(mUser);
+        AndroidUtils.setTextShadowForGrayBg(mCreatedAt);
+        AndroidUtils.setTextShadowForGrayBg(mFavoriteCount);
+        AndroidUtils.setTextShadowForGrayBg(mPlayCount);
+        AndroidUtils.setTextShadowForGrayBg(mCommentCount);
     }
 
     private Drawable getPlayingDrawable() {
@@ -159,7 +156,7 @@ public class TrackInfoBar extends LazyRow {
         mUser.setText(track.user != null ? track.user.username : "");
         mCreatedAt.setText(p.getTimeSinceCreated(context));
 
-        if (track.sharing == null || track.sharing.equals("public")) {
+        if (track.isPublic()) {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
             if (track.shared_to_count == 0){
@@ -202,6 +199,16 @@ public class TrackInfoBar extends LazyRow {
             mTitle.setText(sb);
         } else {
             mTitle.setText(track.title);
+        }
+
+        if (track.isProcessing()){
+            if (findViewById(R.id.processing_progress) != null){
+                findViewById(R.id.processing_progress).setVisibility(View.VISIBLE);
+            } else {
+                ((ViewStub) findViewById(R.id.processing_progress_stub)).inflate();
+            }
+        } else if (findViewById(R.id.processing_progress) != null){
+            findViewById(R.id.processing_progress).setVisibility(View.GONE);
         }
 
         if (shouldLoadIcon) loadIcon();

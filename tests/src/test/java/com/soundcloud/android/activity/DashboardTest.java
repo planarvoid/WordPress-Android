@@ -23,7 +23,7 @@ public class DashboardTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowIfNoTabSpecified() throws Exception {
+    public void shouldNotThrowIfNoTabSpecified() throws Exception {
         new Dashboard().onCreate(null);
     }
 

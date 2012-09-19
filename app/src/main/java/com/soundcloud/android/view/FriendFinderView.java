@@ -10,8 +10,8 @@ import android.widget.TextView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Connect;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.auth.Connect;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.FriendFinderAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
@@ -20,7 +20,7 @@ import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Connection.Service;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.NewConnectionTask;
+import com.soundcloud.android.task.create.NewConnectionTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
@@ -53,7 +53,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         int CONNECTION_ERROR = 4;
     }
 
-    public FriendFinderView(ScActivity activity) {
+    public FriendFinderView(ScListActivity activity) {
         super(activity, null);
 
         LayoutInflater inflater = activity.getLayoutInflater();
@@ -77,7 +77,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                                 (new Intent(mActivity, Connect.class))
                                         .putExtra("service", Service.Facebook.name())
                                         .setData(uri),
-                                Connect.MAKE_CONNECTION);
+                                Consts.RequestCodes.MAKE_CONNECTION);
                     } else {
                         mActivity.showToast(R.string.new_connection_error);
                     }

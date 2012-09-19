@@ -1,7 +1,5 @@
 package com.soundcloud.android;
 
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 

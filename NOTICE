@@ -4,8 +4,11 @@ Copyright 2010- Emmanuel Astier & Kevin Gaudin
 Jackson Json-processor
 Copyright (c) 2007- Tatu Saloranta, tatu.saloranta@iki.fi
 
-libvorbis-java
-Copyright (c) 2002-2004 Xiph.org Foundation
+libvorbis, libogg
+Copyright (c) 1997-2007 Xiph.org Foundation, http://www.xiph.org/
+
+liboggz
+Copyright (C) 2003 CSIRO Australia
 
 CWAC-AdapterWrapper
 Copyright (c) 2010 Mark Murphy (commonsguy)
@@ -24,6 +27,9 @@ Copyright (C) 2011, Karsten Priegnitz
 
 Android-PullToRefresh
 Copyright (C) 2011, Chris Banes
+
+SeekBarPreference
+Copyright (C) 2009, Matthew Wiggins
 
 This software contains code derived from code developed by
 The Android Open Source Project (http://www.android.com/).

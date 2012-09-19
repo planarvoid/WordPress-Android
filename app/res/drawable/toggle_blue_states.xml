@@ -1,0 +1,4 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true" android:drawable="@drawable/toggle_blue_on_states"/>
+    <item                              android:drawable="@drawable/toggle_blue_off_states"/>
+</selector>

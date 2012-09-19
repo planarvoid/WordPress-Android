@@ -4,7 +4,7 @@ import java.util.EnumSet;
 /**
  * States the mediaplayer can be in - we need to track these manually.
  */
-/* package */ enum State {
+    public enum State {
     STOPPED,            // initial state, or stopped
     ERROR,              // onError() was called
     ERROR_RETRYING,     // onError() + retry

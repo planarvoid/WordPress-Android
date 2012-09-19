@@ -1,6 +1,7 @@
 package com.soundcloud.android.utils;
 
 import com.soundcloud.android.SoundCloudApplication;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -22,11 +23,11 @@ import java.util.Map;
 public class NetworkConnectivityListener {
     private static final String TAG = "NetworkConnectivityListener";
 
-    private Context mContext;
     private Map<Handler, Integer> mHandlers = new HashMap<Handler, Integer>();
+    private @Nullable Context mContext;
+    private @Nullable ConnectivityManager mConnectivityManager;
 
     private State mState;
-    private boolean mListening;
 
     /**
      * Network connectivity information
@@ -73,13 +74,13 @@ public class NetworkConnectivityListener {
      * This method starts listening for network connectivity state changes.
      */
     public synchronized NetworkConnectivityListener startListening(Context context) {
-        if (!mListening) {
+        if (mContext == null) {
             mContext = context;
+            mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
             IntentFilter filter = new IntentFilter();
             filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
             context.registerReceiver(mReceiver, filter);
-            mListening = true;
         }
         return this;
     }
@@ -88,12 +89,12 @@ public class NetworkConnectivityListener {
      * This method stops this class from listening for network changes.
      */
     public synchronized void stopListening() {
-        if (mListening) {
+        if (mContext != null) {
             mContext.unregisterReceiver(mReceiver);
             mContext = null;
+            mConnectivityManager = null;
             mNetworkInfo = null;
             mOtherNetworkInfo = null;
-            mListening = false;
         }
     }
 
@@ -145,20 +146,21 @@ public class NetworkConnectivityListener {
     }
 
     public synchronized boolean isConnected() {
-        if (mNetworkInfo == null && mContext != null) {
-            // obtain current network info if no messages have been received yet
-            mNetworkInfo =
-                ((ConnectivityManager)
-                mContext.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-        }
-        return mNetworkInfo != null && mNetworkInfo.isConnected();
+        NetworkInfo info = mConnectivityManager != null ? mConnectivityManager.getActiveNetworkInfo() : mNetworkInfo;
+        return info != null && info.isConnected();
     }
 
     public boolean isWifiConnected() {
-        return mNetworkInfo != null
-                && mNetworkInfo.isConnected()
-                && (mNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI
-                || mNetworkInfo.getType() == ConnectivityManager.TYPE_WIMAX);
+        // obtain current network info if no messages have been received yet
+        NetworkInfo info = mConnectivityManager != null ? mConnectivityManager.getActiveNetworkInfo() : mNetworkInfo;
+        return info != null
+                && info.isConnected()
+                && (info.getType() == ConnectivityManager.TYPE_WIFI
+                || info.getType() == ConnectivityManager.TYPE_WIMAX);
+    }
+
+    public State getState() {
+        return mState;
     }
 
     private class ConnectivityBroadcastReceiver extends BroadcastReceiver {
@@ -166,7 +168,7 @@ public class NetworkConnectivityListener {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
-            if (!action.equals(ConnectivityManager.CONNECTIVITY_ACTION) || !mListening) {
+            if (!action.equals(ConnectivityManager.CONNECTIVITY_ACTION) || mContext == null) {
                 Log.w(TAG, "onReceived() called with " + mState.toString() + " and " + intent);
                 return;
             }

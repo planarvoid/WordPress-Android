@@ -1,5 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -7,16 +9,19 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.GetTokensTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
@@ -54,7 +59,7 @@ public abstract class AbstractLoginActivity extends Activity {
 
     protected void login(final Bundle data) {
         if (data.getString(SCOPES_EXTRA) == null) {
-            // default to non-expiring scope+playcount
+            // default to non-expiring scope
             data.putStringArray(SCOPES_EXTRA, SCOPES_TO_REQUEST);
         }
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
@@ -65,17 +70,21 @@ public abstract class AbstractLoginActivity extends Activity {
             @Override
             protected void onPreExecute() {
                 if (!isFinishing()) {
-                    progress = CloudUtils.showProgress(AbstractLoginActivity.this,
+                    progress = AndroidUtils.showProgress(AbstractLoginActivity.this,
                             R.string.authentication_login_progress_message);
                 }
             }
 
             @Override
             protected void onPostExecute(final Token token) {
+                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+token+")");
+
                 if (token != null) {
-                    new FetchUserTask(app, -1) {
+                    new FetchUserTask(app) {
                         @Override
                         protected void onPostExecute(User user) {
+                            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
+
                             if (user != null) {
                                 dismissDialog(progress);
                                 setResult(RESULT_OK,
@@ -97,7 +106,7 @@ public abstract class AbstractLoginActivity extends Activity {
         }.execute(data);
     }
 
-    protected void showError(IOException e) {
+    protected void showError(@Nullable IOException e) {
         if (!isFinishing()) {
             final boolean tokenError = e instanceof CloudAPI.InvalidTokenException;
             new AlertDialog.Builder(AbstractLoginActivity.this)

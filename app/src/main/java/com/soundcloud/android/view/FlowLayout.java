@@ -29,10 +29,12 @@ public class FlowLayout extends ViewGroup {
         }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public FlowLayout(Context context) {
         super(context);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public FlowLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
@@ -92,10 +94,7 @@ public class FlowLayout extends ViewGroup {
 
     @Override
     protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
-        if (p instanceof LayoutParams) {
-            return true;
-        }
-        return false;
+        return p != null;
     }
 
     @Override

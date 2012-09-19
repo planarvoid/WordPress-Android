@@ -1,8 +1,8 @@
 package com.soundcloud.android.service.beta;
 
-import static com.soundcloud.android.utils.CloudUtils.getAppVersion;
-import static com.soundcloud.android.utils.CloudUtils.getAppVersionCode;
-import static com.soundcloud.android.utils.CloudUtils.getElapsedTimeString;
+import static com.soundcloud.android.utils.AndroidUtils.getAppVersion;
+import static com.soundcloud.android.utils.AndroidUtils.getAppVersionCode;
+import static com.soundcloud.android.utils.ScTextUtils.getElapsedTimeString;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;

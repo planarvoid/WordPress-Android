@@ -1,8 +1,6 @@
 package com.handmark.pulltorefresh.library.internal;
 
 import android.content.Context;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +8,6 @@ import android.view.animation.Animation;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -18,7 +15,7 @@ import android.widget.TextView;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 
 public class LoadingLayout extends RelativeLayout {
 
@@ -120,7 +117,7 @@ public class LoadingLayout extends RelativeLayout {
     public void configureLastUpdated(){
         if (lastUpdated > 0){
             lastUpdatedText.setText(getResources().getString(R.string.pull_to_refresh_last_updated,
-                    CloudUtils.getElapsedTimeString(getResources(), lastUpdated, true)));
+                    ScTextUtils.getElapsedTimeString(getResources(), lastUpdated, true)));
             lastUpdatedText.setVisibility(View.VISIBLE);
         } else {
             lastUpdatedText.setVisibility(View.INVISIBLE);

@@ -196,7 +196,7 @@ public class ApiSyncServiceTest {
         LocalCollection collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver, false);
 
         expect(collection).not.toBeNull();
-        expect(collection.last_sync).toBeGreaterThan(0L);
+        expect(collection.last_sync_success).toBeGreaterThan(0L);
         expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(99);
@@ -349,7 +349,7 @@ public class ApiSyncServiceTest {
         LocalCollection collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver, false);
 
         expect(collection).not.toBeNull();
-        expect(collection.last_sync).toBeGreaterThan(0L);
+        expect(collection.last_sync_success).toBeGreaterThan(0L);
         expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
 
         addCannedResponse(SyncAdapterServiceTest.class,
@@ -388,7 +388,6 @@ public class ApiSyncServiceTest {
     public void shouldClearSyncStatuses() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
-        expect(LocalCollection.fromContentUri(Content.ME_TRACKS.uri, resolver, true).sync_state).toBe(LocalCollection.SyncState.PENDING);
         svc.onDestroy();
         expect(LocalCollection.fromContentUri(Content.ME_TRACKS.uri, resolver, true).sync_state).toBe(LocalCollection.SyncState.IDLE);
     }

@@ -1,10 +1,7 @@
 package com.soundcloud.android.view.quickaction;
 
-import android.content.Context;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
-import com.soundcloud.android.utils.CloudUtils;
 
 public class BubbleDrawable extends Drawable {
 

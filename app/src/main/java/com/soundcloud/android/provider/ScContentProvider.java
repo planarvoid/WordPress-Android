@@ -6,10 +6,11 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.accounts.Account;
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentProvider;
@@ -110,7 +111,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_USERID:
                 MatrixCursor c = new MatrixCursor(new String[] { BaseColumns._ID}, 1);
-                c.addRow(new Object[] { SoundCloudApplication.fromContext(getContext()).getCurrentUserId() });
+                c.addRow(new Object[] { SoundCloudApplication.getUserId() });
                 return c;
 
             case USER_TRACKS:
@@ -206,8 +207,17 @@ public class ScContentProvider extends ContentProvider {
                         _sortOrder, null);
                 break;
             case RECORDING:
-                qb.setTables(content.table.name);
+                qb.setTables(content.table.name +
+                                        " LEFT OUTER JOIN "+Table.USERS+
+                                        " ON "+content.table.field(DBHelper.Recordings.PRIVATE_USER_ID)+
+                                        "="+Table.USERS.field(DBHelper.Users._ID));
+
                 qb.appendWhere(Table.RECORDINGS.id + " = "+ uri.getLastPathSegment());
+                query = qb.buildQuery(new String[] { content.table.allFields(), DBHelper.Users.USERNAME },
+                                        selection,
+                                        null,
+                                        null,
+                                        _sortOrder, null);
                 break;
 
             case ME_SOUND_STREAM:
@@ -275,19 +285,19 @@ public class ScContentProvider extends ContentProvider {
         final Content content = Content.match(uri);
         switch (content) {
             case COLLECTIONS:
-                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_REPLACE);
+                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case COLLECTION_PAGES:
-                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_REPLACE);
+                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case TRACKS:
-                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
@@ -321,25 +331,29 @@ public class ScContentProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
             case USERS:
-                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_REPLACE);
+                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case RECORDINGS:
-                id = db.insert(content.table.name, null, values);
-                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                getContext().getContentResolver().notifyChange(result, null, false);
-                return result;
+                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
+                if (id >= 0) {
+                    result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                    getContext().getContentResolver().notifyChange(result, null, false);
+                    return result;
+                } else {
+                    return null;
+                }
 
             case ME_FAVORITES:
-                id = dbInsertWithOnConflict(db, Table.TRACKS, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = Table.TRACKS.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, userId);
                     cv.put(DBHelper.CollectionItems.ITEM_ID, (Long) values.get(DBHelper.Tracks._ID));
                     cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, FAVORITE);
-                    id = dbInsertWithOnConflict(db, Table.COLLECTION_ITEMS, cv, SQLiteDatabase.CONFLICT_ABORT);
+                    id = Table.COLLECTION_ITEMS.insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_ABORT);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null, false);
                     return result;
@@ -350,7 +364,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_SOUND_STREAM:
             case ME_ACTIVITIES:
             case ME_EXCLUSIVE_STREAM:
-                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 return result;
 
@@ -393,6 +407,8 @@ public class ScContentProvider extends ContentProvider {
                 break;
             case RECORDING:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
+                break;
+            case RECORDINGS:
                 break;
             case ME_TRACKS:
             case ME_FAVORITES:
@@ -516,6 +532,7 @@ public class ScContentProvider extends ContentProvider {
         switch (content) {
             case TRACKS:
             case USERS:
+            case RECORDINGS:
                 content.table.upsert(db, values);
                 if (values.length != 0) getContext().getContentResolver().notifyChange(uri, null, false);
                 return values.length;
@@ -594,7 +611,7 @@ public class ScContentProvider extends ContentProvider {
                         if (artworkUri != null) {
                             final File artworkFile = IOUtils.getCacheFile(getContext(), IOUtils.md5(artworkUri));
                             if (!artworkFile.exists()) {
-                                IOUtils.fetchUriToFile(artworkUri, artworkFile, false);
+                                HttpUtils.fetchUriToFile(artworkUri, artworkFile, false);
                             }
                             return ParcelFileDescriptor.open(artworkFile, ParcelFileDescriptor.MODE_READ_ONLY);
                         } else throw new FileNotFoundException();
@@ -654,6 +671,12 @@ public class ScContentProvider extends ContentProvider {
             case ANDROID_SEARCH_SUGGEST:
             case ANDROID_SEARCH_SUGGEST_PATH:
                 return SearchManager.SUGGEST_MIME_TYPE;
+
+            case RECORDING:
+            case RECORDINGS:
+                return "vnd.soundcloud/recording";
+
+
             default:
                 return null;
         }
@@ -724,20 +747,20 @@ public class ScContentProvider extends ContentProvider {
         return null;
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(8)
     public static void enableSyncing(Account account, long pollFrequency) {
         ContentResolver.setIsSyncable(account, AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
 
-        if (Build.VERSION.SDK_INT >= 8) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             ContentResolver.addPeriodicSync(account, AUTHORITY, new Bundle(), pollFrequency);
         }
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(8)
     public static void disableSyncing(Account account) {
         ContentResolver.setSyncAutomatically(account, AUTHORITY, false);
-          if (Build.VERSION.SDK_INT >= 8) {
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             ContentResolver.removePeriodicSync(account, AUTHORITY, new Bundle());
         }
     }
@@ -778,18 +801,6 @@ public class ScContentProvider extends ContentProvider {
                     + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.Users.USER_FOLLOWER
     };
 
-
-    @SuppressLint("NewApi")
-    private static long dbInsertWithOnConflict(SQLiteDatabase db, Table table,
-                                              ContentValues values,
-                                              int conflictAlgorithm) {
-        if (Build.VERSION.SDK_INT > 7) {
-            return db.insertWithOnConflict(table.name, null, values, conflictAlgorithm);
-        }  else {
-            // TODO: do something sensible here
-            return db.insert(table.name, null, values);
-        }
-    }
 
     public interface CollectionItemTypes {
         int TRACK          = 0;

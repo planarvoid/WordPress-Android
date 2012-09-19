@@ -10,7 +10,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
-import com.soundcloud.android.view.PlaybackRemoteViews;
+import com.soundcloud.android.view.play.PlaybackRemoteViews;
 
 public class PlayerAppWidgetProvider extends AppWidgetProvider {
     private static final String TAG = "PlayerWidget";

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <dimen name="rec_header_you_button_height">60dp</dimen>
+    <dimen name="rec_header_you_button_width">60dp</dimen>
+
     <dimen name="tab_text_size">18sp</dimen>
 
     <dimen name="list_icon_width">100sp</dimen>
@@ -33,4 +36,6 @@
     <dimen name="player_comment_bar_height">70dip</dimen>
     <dimen name="player_comment_bar_toggle_margin_right">20dip</dimen>
     <dimen name="player_comment_bar_txt_size">22sp</dimen>
+
+    <dimen name="rec_toggle_fade_margin_top">30dp</dimen>
 </resources>

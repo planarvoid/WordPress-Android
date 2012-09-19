@@ -5,16 +5,19 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import java.io.File;
 
 
 @RunWith(DefaultTestRunner.class)
 public class AppTest {
-    @Test
-    public void shouldHaveProductionEnabled() throws Exception {
-        // make sure this doesn't get accidentally committed
-        expect(SoundCloudApplication.API_PRODUCTION).toBeTrue();
-    }
-
     @Test
     public void shouldNotBeDetectedAsDalvik() throws Exception {
         expect(SoundCloudApplication.DALVIK).toBeFalse();
@@ -22,10 +25,32 @@ public class AppTest {
 
     @Test
     public void shouldDeobfuscateClientSecret() throws Exception {
-        expect(DefaultTestRunner.application.getClientSecret(false))
-                .toEqual("0000000pGDzQNAPHzBH6hBTHphl4Q1e9");
+        // live
+        expect(AndroidCloudAPI.Wrapper.getClientSecret(true))
+                .toEqual("26a5240f7ee0ee2d4fa9956ed80616c2");
 
-        expect(DefaultTestRunner.application.getClientSecret(true))
-                .toEqual("GANQKmfSMpx9FUJ7G837OQZzeBEyv7Fj3ART1WvjQA");
+        // sandbox
+        expect(AndroidCloudAPI.Wrapper.getClientSecret(false))
+                .toEqual("0000000pGDzQNAPHzBH6hBTHphl4Q1e9");
+    }
+
+    @Test
+    public void shouldOnlyHaveOneLauncherActivity() throws Exception {
+        DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
+        f.setNamespaceAware(true);
+        Document doc = f.newDocumentBuilder().parse(new File("../app/AndroidManifest.xml"));
+        NodeList nl = (NodeList) XPathFactory.newInstance().newXPath().compile("//activity/intent-filter/category").evaluate(doc, XPathConstants.NODESET);
+        int launchers = 0;
+        for (int i = 0; i < nl.getLength(); i++) {
+            Node n = nl.item(i);
+            NamedNodeMap attributes = n.getAttributes();
+            if (attributes != null) {
+                Node name = attributes.getNamedItem("android:name");
+                if (name != null && "android.intent.category.LAUNCHER".equals(name.getTextContent())) {
+                    launchers++;
+                }
+            }
+        }
+        expect(launchers).toEqual(1);
     }
 }

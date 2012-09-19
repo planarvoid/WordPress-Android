@@ -6,10 +6,13 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TracklistItem;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.IOException;
 
+@RunWith(DefaultTestRunner.class)
 public class TrackCacheTest {
     TrackCache cache = new TrackCache();
 

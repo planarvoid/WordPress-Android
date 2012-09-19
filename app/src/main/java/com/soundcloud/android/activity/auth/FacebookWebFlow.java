@@ -2,11 +2,11 @@ package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
+import org.jetbrains.annotations.Nullable;
 
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -24,7 +24,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-@SuppressLint("NewApi")
 public class FacebookWebFlow extends AbstractLoginActivity {
     private WebView mWebview;
 
@@ -56,7 +55,7 @@ public class FacebookWebFlow extends AbstractLoginActivity {
                 showConnectionError(description);
             }
 
-            @Override
+            @Override @TargetApi(8)
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                 handler.cancel();
                 showConnectionError(getString(R.string.authentication_log_in_with_facebook_ssl_error));
@@ -114,19 +113,19 @@ public class FacebookWebFlow extends AbstractLoginActivity {
         });
 
         if (IOUtils.isConnected(this)) {
-            final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+            final AndroidCloudAPI api = (AndroidCloudAPI) getApplication();
             removeAllCookies();
             String[] options = new String[SCOPES_TO_REQUEST.length+1];
             options[0] = Endpoints.FACEBOOK_CONNECT;
             System.arraycopy(SCOPES_TO_REQUEST, 0, options, 1, SCOPES_TO_REQUEST.length);
 
-            mWebview.loadUrl(app.authorizationCodeUrl(options).toString());
+            mWebview.loadUrl(api.authorizationCodeUrl(options).toString());
         } else {
             showConnectionError(null);
         }
     }
 
-    private void showConnectionError(final String message) {
+    private void showConnectionError(@Nullable final String message) {
         if (isFinishing()) return;
 
         String error = getString(R.string.facebook_authentication_error_no_connection_message);
@@ -156,5 +155,10 @@ public class FacebookWebFlow extends AbstractLoginActivity {
     protected void onDestroy() {
         super.onDestroy();
         mWebview.stopLoading();
+    }
+
+    // for testing
+    public WebView getWebView() {
+        return mWebview;
     }
 }

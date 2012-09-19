@@ -1,18 +1,19 @@
 
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
+import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.MyTracklistRow;
+import com.soundcloud.android.view.TrackInfoBar;
 
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Handler;
 import android.os.Parcelable;
-import com.soundcloud.android.view.TrackInfoBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,14 +22,16 @@ public class MyTracksAdapter extends TracklistAdapter {
     private Cursor mCursor;
     private boolean mDataValid;
     private List<Recording> mRecordingData;
+    private ScListActivity mActivity;
 
     private static final int TYPE_PENDING_RECORDING = 0;
     private static final int TYPE_TRACK = 1;
     private ChangeObserver mChangeObserver;
 
-    public MyTracksAdapter(ScActivity activity, ArrayList<Parcelable> data,
+    public MyTracksAdapter(ScListActivity activity, ArrayList<Parcelable> data,
             Class<?> model) {
         super(activity, data, model);
+        mActivity = activity;
         refreshCursor();
 
         mChangeObserver = new ChangeObserver();
@@ -66,7 +69,7 @@ public class MyTracksAdapter extends TracklistAdapter {
 
     private void refreshCursor() {
         mCursor = mContext.getContentResolver().query(Content.RECORDINGS.uri, null,
-                Recordings.UPLOAD_STATUS + " < 2",
+                Recordings.UPLOAD_STATUS + " < " + Recording.Status.UPLOADED + " OR " + Recordings.UPLOAD_STATUS + " = " + Recording.Status.ERROR,
                 null,
                 Recordings.TIMESTAMP + " DESC");
 
@@ -81,7 +84,11 @@ public class MyTracksAdapter extends TracklistAdapter {
             mCursor.close();
             mCursor = null;
         }
+
+        // updated recording functionality requires special handling of old recordings
+        DeprecatedRecordingProfile.migrateRecordings(mRecordingData, mContext.getContentResolver());
     }
+
 
     private List<Recording> loadRecordings(Cursor cursor) {
         List<Recording> recordings = new ArrayList<Recording>();
@@ -89,23 +96,6 @@ public class MyTracksAdapter extends TracklistAdapter {
             recordings.add(new Recording(cursor));
         }
         return recordings;
-    }
-
-    /*
-     * fix false upload statuses that may have resulted from a crash
-     */
-    public void checkUploadStatus(long uploadId) {
-        if (mRecordingData == null || mRecordingData.size() == 0) return;
-
-        boolean changed = false;
-        for (Recording r : mRecordingData) {
-            if (r.upload_status == 1 && uploadId != r.id) {
-                r.upload_status = 0;
-                mContext.getContentResolver().update(r.toUri(), r.buildContentValues(), null, null);
-                changed = true;
-            }
-        }
-        if (changed)  onContentChanged();
     }
 
     @Override
@@ -156,9 +146,16 @@ public class MyTracksAdapter extends TracklistAdapter {
      * @see ContentObserver#onChange(boolean)
      */
     protected void onContentChanged() {
-        if (mCursor == null) {
+        mDataValid = false;
+        if (mActivity.isForeground() && mCursor == null) {
             refreshCursor();
             notifyDataSetChanged();
+        }
+    }
+
+    public void onResume() {
+        if (!mDataValid) {
+            onContentChanged();
         }
     }
 

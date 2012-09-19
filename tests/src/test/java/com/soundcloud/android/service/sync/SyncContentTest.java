@@ -34,6 +34,7 @@ public class SyncContentTest {
         LocalCollection c = LocalCollection.insertLocalCollection(
                 SyncContent.MySounds.content.uri, // uri
                 1, // sync state
+                -1l, // last sync attempt, ignored in the sync adapter
                 System.currentTimeMillis(), // last sync
                 2, // size
                 "some-extra", // extra
@@ -48,6 +49,7 @@ public class SyncContentTest {
         LocalCollection c = LocalCollection.insertLocalCollection(
                 SyncContent.MySounds.content.uri, // uri
                 1, // sync state
+                -1l, // last sync attempt, ignored in the sync adapter
                 System.currentTimeMillis() - SyncConfig.TRACK_BACKOFF_MULTIPLIERS[1] * SyncConfig.TRACK_STALE_TIME + 5000, // last sync
                 2, // size
                 "1", // extra
@@ -62,6 +64,7 @@ public class SyncContentTest {
         LocalCollection c = LocalCollection.insertLocalCollection(
                 SyncContent.MySounds.content.uri, // uri
                 1, // sync state
+                -1l, // last sync attempt, ignored in the sync adapter
                 System.currentTimeMillis() - SyncConfig.TRACK_BACKOFF_MULTIPLIERS[1] * SyncConfig.TRACK_STALE_TIME, // last sync
                 2, // size
                 "1", // extra
@@ -76,6 +79,7 @@ public class SyncContentTest {
         LocalCollection c = LocalCollection.insertLocalCollection(
                 SyncContent.MySounds.content.uri, // uri
                 1, // sync state
+                -1l, // last sync attempt, ignored in the sync adapter
                 1, // last sync
                 2, // size
                 String.valueOf(SyncConfig.TRACK_BACKOFF_MULTIPLIERS.length), // extra
@@ -90,6 +94,7 @@ public class SyncContentTest {
         LocalCollection c = LocalCollection.insertLocalCollection(
                 SyncContent.MySounds.content.uri,// uri
                 1, // sync state
+                -1l, // last sync attempt, ignored in the sync adapter
                 System.currentTimeMillis() - SyncConfig.TRACK_STALE_TIME, // last sync
                 2, // size
                 "", // extra

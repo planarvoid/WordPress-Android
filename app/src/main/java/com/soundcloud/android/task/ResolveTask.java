@@ -31,17 +31,22 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, Uri>  {
 
         try {
             HttpResponse resp = mApi.get(Request.to(Endpoints.RESOLVE).add("url",uri.toString()));
-
-            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
-                final Header location = resp.getFirstHeader("Location");
-                if (location != null && location.getValue() != null) {
-                    return Uri.parse(location.getValue());
-                } else {
-                    return null;
+            switch (resp.getStatusLine().getStatusCode()) {
+                case HttpStatus.SC_MOVED_TEMPORARILY: {
+                    final Header location = resp.getFirstHeader("Location");
+                    if (location != null && location.getValue() != null) {
+                        return Uri.parse(location.getValue());
+                    } else {
+                        warn("no location header in response "+resp);
+                        return null;
+                    }
                 }
-            } else {
-                warn("unexpected status code: "+resp.getStatusLine());
-                return null;
+                case HttpStatus.SC_NOT_FOUND: // item is gone
+                    return null;
+
+                default:
+                    warn("unexpected status code: "+resp.getStatusLine());
+                    return null;
             }
         } catch (IOException e) {
             warn("error resolving url", e);

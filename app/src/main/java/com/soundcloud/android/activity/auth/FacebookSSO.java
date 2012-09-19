@@ -6,6 +6,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Env;
 import com.soundcloud.api.Http;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -119,13 +120,21 @@ public class FacebookSSO extends AbstractLoginActivity {
                 !intent.getAction().startsWith(COM_FACEBOOK_APPLICATION)) {
             return false;
         } else {
-            if (intent.getAction().equals(COM_FACEBOOK_APPLICATION + getFacebookAppId(context))) {
+            if (intent.getAction().equals(COM_FACEBOOK_APPLICATION + getFacebookAppId(SoundCloudApplication.instance))) {
                 // fb deeplink intent, contains short-lived token which can be extended ?
                 FBToken token = FBToken.fromIntent(intent);
                 if (token != null) {
                     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "got FB token via intent: "+token);
-                    // TODO: enable after migration
-                    // extendAccessToken(token, context);
+
+                    if (token.isShortLived()) {
+                        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "token is short lived, extending");
+                        extendAccessToken(token, context);
+                    } else {
+                        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "token is long-lived");
+                        // we already got a long-lived token, store it
+                        token.store(context);
+                        token.sendToBackend(context);
+                    }
                 }
                 return true;
             } else return false;
@@ -139,14 +148,9 @@ public class FacebookSSO extends AbstractLoginActivity {
         return token.shouldRefresh() && extendAccessToken(token, context);
     }
 
-
-
     public static boolean isSupported(Context context) {
-        return false;
-        // TODO: enable this after offline_access migration
-        /* return FacebookSSO.validateActivityIntent(context, FacebookSSO.getAuthIntent(context)); */
+        return FacebookSSO.validateActivityIntent(context, FacebookSSO.getAuthIntent(context));
     }
-
 
     /* package */ static Intent getRefreshIntent() {
         Intent intent = new Intent();
@@ -155,7 +159,7 @@ public class FacebookSSO extends AbstractLoginActivity {
     }
 
     /* package */ static Intent getAuthIntent(Context context, String... permissions) {
-        final String applicationId = getFacebookAppId(context);
+        final String applicationId = getFacebookAppId(SoundCloudApplication.instance);
         Intent intent = new Intent();
         intent.setClassName(FB_PACKAGE, "com.facebook.katana.ProxyAuth");
         intent.putExtra(FB_CLIENT_ID_EXTRA, applicationId);
@@ -176,13 +180,18 @@ public class FacebookSSO extends AbstractLoginActivity {
                             String aToken = msg.getData().getString(TOKEN);
                             long expiresAt = msg.getData().getLong(EXPIRES) * 1000L;
                             if (aToken != null) {
+                                FBToken extendedToken = new FBToken(aToken, expiresAt);
                                 if (Log.isLoggable(TAG, Log.DEBUG)) {
-                                    Log.d(TAG, "token refresh via service: " + token);
+                                    Log.d(TAG, "token refreshed via service: " + token + " ===> " + extendedToken);
                                 }
 
-                                FBToken newToken = new FBToken(aToken, expiresAt);
-                                newToken.store(context);
-                                newToken.sendToBackend(context);
+                                if (!extendedToken.isExpired() && !extendedToken.isShortLived()) {
+                                    extendedToken.store(context);
+                                    extendedToken.sendToBackend(context);
+                                } else {
+                                    // either expired or short-lived, no point sending back to back-end
+                                    Log.w(TAG, "not a valid token: " + extendedToken);
+                                }
                             } else {
                                 Log.w(TAG, "token is null");
                             }
@@ -224,9 +233,9 @@ public class FacebookSSO extends AbstractLoginActivity {
         }
     }
 
-    private static String getFacebookAppId(Context context) {
-        return context.getString(SoundCloudApplication.API_PRODUCTION ?
-                R.string.production_facebook_app_id : R.string.sandbox_facebook_app_id);
+    private static String getFacebookAppId(AndroidCloudAPI api) {
+        return api.getContext().getString(
+               api.getEnv() == Env.LIVE ? R.string.production_facebook_app_id : R.string.sandbox_facebook_app_id);
     }
 
     private static boolean validateAppSignatureForPackage(Context context, String packageName) {
@@ -358,6 +367,10 @@ public class FacebookSSO extends AbstractLoginActivity {
 
         public boolean isExpired() {
             return expires > 0 && System.currentTimeMillis() >= expires;
+        }
+
+        public boolean isShortLived() {
+            return (expires - System.currentTimeMillis()) <=  120 * 1000 * 60; // short-lived == 1-2 hours
         }
 
         public static void clear(Context context) {

@@ -1,8 +1,7 @@
 package com.soundcloud.android.adapter;
 
-import android.graphics.drawable.Drawable;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
@@ -25,8 +24,8 @@ public class TracklistAdapter extends LazyBaseAdapter implements ITracklistAdapt
 
     public TracklistAdapter(Context c, ArrayList<Parcelable> data, Class<?> model) {
         super(c, data, model);
-        if (c instanceof ScActivity){
-            mQuickTrackMenu = new QuickTrackMenu((ScActivity) c, this);
+        if (c instanceof ScListActivity){
+            mQuickTrackMenu = new QuickTrackMenu((ScListActivity) c, this);
         }
     }
 

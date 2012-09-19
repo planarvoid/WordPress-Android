@@ -1,0 +1,141 @@
+<resources>
+    <string name="menu_select_file">Seleccionar archivo</string>
+
+    <string name="btn_revert_to_original">Volver a original</string>
+
+    <string name="fade_toggle_on">Fundido de entrada/salida</string>
+    <string name="fade_toggle_off">Sin fundido de entrada/salida</string>
+
+    <string name="optimize_toggle_on">Optimizado</string>
+    <string name="optimize_toggle_off">No optimizado</string>
+
+    <string name="menu_private_message">Mensaje privado</string>
+
+    <string name="pref_stream_cache_size">Tamaño de caché de transferencia</string>
+    <string name="pref_stream_cache_size_desc">El tamaño de la caché de transferencia en porcentaje</string>
+
+    <string name="create_autosave_message">Tus grabaciones se guardarán automáticamente a medida que las crees. Puedes encontrarlas en tu lista de sonidos.</string>
+    <string name="create_regenerating_waveform_message">Regenerando forma de onda, espera.</string>
+
+    <string name="dialog_revert_recording_message">Perderás todas tus ediciones. ¿Continuar?</string>
+
+    <string name="post">Colgar</string>
+    <string name="share">Compartir</string>
+
+    <string name="btn_publish">Publicar</string>
+    <string name="btn_apply">Aplicar</string>
+
+    <string name="process">Procesar</string>
+    <string name="dialog_install_processor">Procesador de audio no instalado. ¿Instalar?</string>
+
+    <string name="rec_your_sound_is_saved_locally_at">Tu sonido se ha guardado localmente</string>
+
+    <string name="pref_analytics">Analítica de datos</string>
+    <string name="pref_analytics_desc">Al activar la analítica de datos sobre el uso que haces de esta aplicación, lo cual nos ayuda a mejorarla. Para obtener más detalles consulta nuestra Política de privacidad.</string>
+    <string name="pref_crashlogs">Registro de errores</string>
+    <string name="pref_crashlogs_desc">Al activar el registro de errores nos ayudas a mejorar considerablemente la aplicación. No recogemos ningún dato personal. Para obtener más detalles consulta nuestra Política de privacidad.</string>
+
+    <string name="crop_save_text">Guardar</string>
+    <string name="crop_discard_text">Descartar</string>
+    <string name="savingImage">Guardando imagen\u2026</string>
+
+    <string name="playback_error_logging">Registro de errores de reproducción: %s</string>
+    <string name="enabled">Activado</string>
+    <string name="disabled">Desactivado</string>
+    <string name="player_track_unavailable">Este sonido ya no está disponible</string>
+
+    <string name="sound_processed">Sonido procesado</string>
+    <string name="sound_processed_error">Error al procesar sonido: %s</string>
+    <string name="sound_processed_pick_app">Elige aplicación para procesar sonido</string>
+
+    <string name="uploader_event_processing">Procesando</string>
+    <string name="uploader_event_processing_percent">Procesando: %d%%</string>
+    <string name="uploader_event_not_yet_uploading">Subida no iniciada aún</string>
+    <string name="uploader_event_uploading">Subiendo</string>
+    <string name="uploader_event_uploading_percent">Subiendo: %d%%</string>
+    <string name="uploader_event_cancelling">Cancelando</string>
+
+    <string name="uploader_event_processing_failed">Error en el proceso</string>
+    <string name="uploader_event_processing_finished">Proceso finalizado</string>
+
+    <string name="cancel">Cancelar</string>
+    <string name="retry">Volver a intentar</string>
+
+    <string name="rec_title_generating_waveform">Espera...</string>
+    <string name="rec_title_idle_rec">Grabar</string>
+    <string name="rec_title_recording">Grabando</string>
+    <string name="rec_title_idle_play">Pausa</string>
+    <string name="rec_title_playing">Pausa</string>
+    <string name="rec_title_editing">Editar</string>
+
+    <string name="rectip_default">¿Por qué no grabas los sonidos de tu calle?</string>
+
+    <string name="rectip_memories_voice_notes">Graba notas de voz a modo de útiles recordatorios.</string>
+    <string name="rectip_memories_voice_blog">Usa el botón REC para crear un blog de voz: ¿qué vas a compartir hoy?</string>
+    <string name="rectip_memories_what_are_you_doing_right_now">¿Qué haces ahora mismo?</string>
+    <string name="rectip_memories_child_first_words">Captura el instante: las primeras palabras de un niño</string>
+    <string name="rectip_memories_sound_your_pet_makes">Captura el instante: los sonidos que hace tu mascota</string>
+    <string name="rectip_memories_voice_of_someone_you_care_about">Captura el instante: la voz de alguien que te importa</string>
+    <string name="rectip_memories_shopping_reminders">¿Vas a ir de compras? Grábate recordatorios para no olvidar lo que necesitas comprar.</string>
+    <string name="rectip_memories_great_idea">¿Has tenido una idea genial? Captúrala con el botón REC.</string>
+
+    <string name="rectip_social_good_joke">¿Te han contado un chiste muy bueno? ¡Compártelo!</string>
+    <string name="rectip_social_great_conversaion">¿Estás disfrutando de una excelente conversación? ¿Por qué no grabarla para la posteridad?</string>
+    <string name="rectip_social_hilarious_moment">Captura el sonido de un momento tronchante.</string>
+
+    <string name="rectip_general_did_you_know">¿Sabías que puedes guardar conversaciones privadas si no quieres compartirlas?</string>
+    <string name="rectip_general_best_recording_device">A veces el mejor dispositivo de grabación es el que llevas encima.</string>
+    <string name="rectip_general_unmute_yourself">¡Haz oír tu voz!</string>
+    <string name="rectip_general_unmute_internet">Da voz a Internet.</string>
+    <string name="rectip_general_unmute_the_world">Da voz al mundo.</string>
+    <string name="rectip_general_express_yourself">¡Exprésate!</string>
+
+    <string name="rectip_general_professional_minutes_of_meeting">¿Por qué no grabar cada minuto de tu siguiente reunión?</string>
+    <string name="rectip_general_professional_capture_ideas_for_later">Usa el botón REC para capturar ideas para más adelante.</string>
+    <string name="rectip_general_professional_study_aid">Usa el botón REC como ayuda para tus estudios: almacena tus notas sobre la marcha.</string>
+    <string name="rectip_general_professional_record_interviews_and_meetings">Puedes usar el botón REC para grabar entevistas y reuniones.</string>
+
+    <string name="rectip_environmental_ocean_waves">Graba el sonido de las olas del mar en la playa.</string>
+    <string name="rectip_environmental_vibrant_rush_hour">Captura los sonidos de una ciudad efervescente en hora punta.</string>
+    <string name="rectip_environmental_crazy_sound">¿Has oído un sonido curioso? ¡Captúralo con el botón REC!</string>
+
+    <string name="rectip_music_feel_inspired">¿Te ha venido la inspiración? Captura tu idea con el botón REC.</string>
+    <string name="rectip_music_track_idea">¿Tienes una idea para un tema nuevo? Guárdalo con el botón REC.</string>
+    <string name="rectip_music_tune_stuck">¿Se te ha metido una canción en la cabeza? Captúrala con el botón REC.</string>
+    <string name="rectip_music_song_lyric_ideas">¿Ideas para la letra de una canción? Captúralas al instante con el botón REC.</string>
+
+    <string name="rectip_events_whats_going_on">¿Qué pasa ahora mismo?</string>
+    <string name="rectip_events_current_events_as_they_happen">Graba los sucesos actuales en el momento en que ocurren y compártelos con el mundo.</string>
+    <string name="rectip_events_something_interesting">¿Está pasando algo interesante? Captura el instante en forma de audio.</string>
+    <string name="rectip_events_citizen_reporter">¿Reportero vocacional? Cuéntale al mundo lo que sucede allí donde estés.</string>
+
+    <string name="rectip_private_happy_birthday">Felicita un cumpleaños.</string>
+    <string name="rectip_private_record_a_message">¿Por qué no grabar un mensaje para %s?</string>
+    <string name="rectip_private_how_much_they_mean">Dile a %s lo mucho que significa para ti.</string>
+    <string name="rectip_private_send_reminder">Envía a %s un recordatorio.</string>
+    <string name="rectip_private_liked_their_sound">Dile a %s lo mucho que te ha gustado su sonido.</string>
+    <string name="rectip_private_leave_feedback">Deja algún comentario para %s.</string>
+
+    <string name="resolve_progress">Cargando</string>
+    <string name="error_loading_url">Se ha producido un problema al cargar esa dirección</string>
+
+    <string name="cloud_uploader_notification_transcoding_error_message">Se ha producido un error al transcodificar %s</string>
+    <string name="cloud_uploader_notification_transcoding_error_ticker">Error de transcodificación</string>
+    <string name="cloud_uploader_notification_transcoding_error_title">Error de transcodificación</string>
+    <string name="signup_scope_revoked">¡Huy! No hemos podido registrarte.\nPrueba a actualizar la aplicación o regístrate en SoundCloud.com.</string>
+
+
+    <!-- TODO: google translated strings, replace with real translation -->
+
+    <string name="dialog_transcoding_failed_title">Transcoding failed</string>
+    <string name="dialog_transcoding_failed_message">Lamentablemente, algo salió mal y su sonido puede \'t reproducir. Se puede quitar el sonido de su lista a través de la página web. Para obtener más información, póngase en contacto con nuestro apoyo.</string>
+
+    <string name="dialog_transcoding_processing_title">Procesamiento de sonido</string>
+    <string name="dialog_transcoding_processing_message">Su sonido se procesa y se podrá jugar en pocos segundos.</string>
+
+    <string name="visit_support">Visita apoyo</string>
+    <string name="following_spam_warning">Usted ha llegado al límite de los siguientes usuarios y esta opción está desactivada temporalmente para su cuenta.</string>
+
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
+</resources>

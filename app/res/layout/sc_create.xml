@@ -1,140 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:background="@drawable/bg_rec">
+                android:layout_height="fill_parent">
+    <include layout="@layout/rec_header"
+             android:id="@+id/header_layout"/>
 
-    <RelativeLayout android:id="@+id/RelativeLayout01"
-                    android:layout_height="wrap_content"
-                    android:layout_width="fill_parent"
-                    android:layout_above="@+id/btn_action"
-                    android:layout_alignParentTop="true">
+    <LinearLayout android:orientation="vertical"
+                  android:layout_width="fill_parent"
+                  android:layout_below="@id/header_layout"
+                  android:layout_height="0dp"
+                  android:layout_alignParentBottom="true">
 
-        <TextView android:id="@+id/txt_instructions"
-                  android:layout_centerHorizontal="true"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:gravity="center"
-                  style="@style/txt_record_instructions"
-                  android:text="@string/record_instructions"
-                  android:layout_centerInParent="true"/>
-    </RelativeLayout>
-
-    <TableLayout android:layout_height="wrap_content"
-                 android:layout_width="fill_parent"
-                 android:layout_above="@+id/btn_action"
-                 android:layout_alignParentTop="true"
-                 android:stretchColumns="*">
-        <TableRow android:layout_width="fill_parent"
-                  android:layout_height="wrap_content"
-                  android:gravity="center_vertical"
-                  android:layout_weight="1">
-            <TextView android:id="@+id/chronometer"
-                      android:gravity="center"
-                      android:layout_marginBottom="-5dp"
+        <RelativeLayout android:layout_width="fill_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="3">
+            <LinearLayout android:layout_height="fill_parent"
+                          android:layout_width="fill_parent"
+                          android:layout_alignParentBottom="true"
+                          android:orientation="vertical">
+                <com.soundcloud.android.view.create.Chronometer android:id="@+id/chronometer"
+                                                                android:gravity="center"
+                                                                android:layout_margin="8dp"
+                                                                android:layout_height="wrap_content"
+                                                                style="@style/txt_record_chrono"
+                                                                android:layout_width="fill_parent"
+                                                                android:singleLine="true"/>
+                <RelativeLayout android:id="@+id/gauge_holder"
+                                android:layout_height="0dp"
+                                android:layout_weight="1"
+                                android:layout_width="fill_parent"/>
+            </LinearLayout>
+            <TextView android:id="@+id/txt_instructions"
+                      android:layout_centerHorizontal="true"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      style="@style/txt_record_counter"/>
-        </TableRow>
-        <TableRow android:layout_width="fill_parent"
-                  android:layout_height="wrap_content"
-                  android:gravity="center_vertical"
-                  android:layout_weight="1">
+                      android:gravity="center"
+                      style="@style/txt_record_instructions"
+                      android:text="@string/record_instructions"
+                      android:layout_centerInParent="true"
+                      android:layout_marginLeft="20dp"
+                      android:layout_marginRight="20dp"
+                      android:paddingBottom="50dp"/>
+        </RelativeLayout>
 
-            <RelativeLayout android:layout_width="fill_parent"
-                            android:gravity="center_vertical"
-                            android:layout_height="60dip"
-                            android:layout_marginLeft="15dip"
-                            android:layout_marginRight="15dip">
-
-                <SeekBar android:id="@+id/progress_bar"
-                         android:thumb="@drawable/empty"
-                         android:layout_centerVertical="true"
-                         android:orientation="horizontal"
-                         style="@style/ScProgressBarRound"
-                         android:layout_width="fill_parent"
-                         android:layout_height="30dp"/>
-
-                <FrameLayout android:id="@+id/gauge_holder"
-                             android:layout_below="@+id/chronometer"
-                             android:layout_width="fill_parent"
-                             android:layout_height="fill_parent"/>
+        <RelativeLayout android:layout_width="fill_parent"
+                        android:id="@+id/control_layout"
+                        android:gravity="center"
+                        android:layout_margin="5dip"
+                        android:layout_height="0dp"
+                        android:layout_weight="2">
+            <LinearLayout android:layout_width="fill_parent"
+                          android:layout_alignParentBottom="true"
+                          android:gravity="center_vertical"
+                          android:id="@+id/rec_controls"
+                          android:layout_height="wrap_content">
+                <RelativeLayout android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="fill_parent">
+                    <ImageButton android:id="@+id/btn_play"
+                                 android:src="@drawable/btn_rec_play_states"
+                                 android:background="@null"
+                                 android:layout_width="wrap_content"
+                                 android:layout_height="wrap_content"
+                                 android:layout_centerInParent="true"/>
+                </RelativeLayout>
+                <ImageButton android:id="@+id/btn_action"
+                             android:background="@null"
+                             android:src="@drawable/btn_rec_states"
+                             android:scaleType="centerInside"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"/>
+                <RelativeLayout android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="fill_parent">
+                    <ImageButton android:id="@+id/btn_edit"
+                                 android:src="@drawable/btn_rec_edit_states"
+                                 android:background="@null"
+                                 android:layout_width="wrap_content"
+                                 android:layout_height="wrap_content"
+                                 android:layout_centerInParent="true"/>
+                </RelativeLayout>
+            </LinearLayout>
+            <RelativeLayout android:id="@+id/edit_controls"
+                            android:layout_alignParentBottom="true"
+                            android:gravity="center"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content">
+                <ImageButton android:id="@+id/btn_play_edit"
+                             android:src="@drawable/btn_rec_play_states"
+                             android:background="@null"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:layout_centerHorizontal="true"/>
+                <ToggleButton android:id="@+id/toggle_optimize"
+                              android:visibility="gone"
+                              style="@style/toggle_record_edit"
+                              android:textOn="@string/optimize_toggle_on"
+                              android:textOff="@string/optimize_toggle_off"
+                              android:layout_centerInParent="true"/>
+                <ToggleButton android:id="@+id/toggle_fade"
+                              android:layout_marginTop="@dimen/rec_toggle_fade_margin_top"
+                              android:layout_centerHorizontal="true"
+                              android:layout_below="@id/btn_play_edit"
+                              style="@style/toggle_record_edit"
+                              android:textOn="@string/fade_toggle_on"
+                              android:textOff="@string/fade_toggle_off"/>
             </RelativeLayout>
-        </TableRow>
-    </TableLayout>
+        </RelativeLayout>
+        <RelativeLayout android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_width="match_parent"
+                        android:gravity="center_horizontal">
+            <com.soundcloud.android.view.create.RecordMessageView android:id="@+id/txt_record_message"
+                                                                  android:layout_width="wrap_content"
+                                                                  android:layout_margin="5dp"
+                                                                  android:padding="10dp"
+                                                                  style="@style/txt_record_message"
+                                                                  android:gravity="center"
+                                                                  android:lines="2"
+                                                                  android:layout_height="wrap_content"/>
+        </RelativeLayout>
+    </LinearLayout>
 
-    <ImageButton android:id="@+id/btn_action"
-                 android:background="@color/transparent"
-                 android:src="@drawable/btn_rec_states"
-                 android:layout_centerInParent="true"
-                 android:scaleType="centerInside"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"/>
-
-    <TextView android:id="@+id/txt_record_status"
-              android:layout_width="fill_parent"
-              android:layout_marginTop="5dip"
-              style="@style/txt_record_message"
-              android:layout_alignParentBottom="true"
-              android:layout_alignParentTop="false"
-              android:layout_marginBottom="10dip"
-              android:gravity="bottom|center"
-              android:layout_height="wrap_content"/>
-
-    <RelativeLayout android:layout_height="wrap_content"
-                    android:layout_width="fill_parent"
-                    android:paddingBottom="5dip"
-                    android:layout_alignParentBottom="true"
-                    android:layout_below="@+id/btn_action">
-
-        <LinearLayout android:id="@+id/file_layout"
-                      android:paddingBottom="5dip"
-                      android:orientation="horizontal"
-                      android:layout_width="fill_parent"
-                      android:layout_height="wrap_content"
-                      android:layout_alignParentBottom="false"
-                      android:layout_centerInParent="true">
-
-            <Button android:id="@+id/btn_delete"
-                    style="@style/btn_orange"
-                    android:text="@string/delete"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:padding="15dip"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dip"
-                    android:layout_marginRight="15dip"/>
-
-            <Button android:id="@+id/btn_reset"
-                    style="@style/btn_dark"
-                    android:text="@string/reset"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:padding="15dip"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dip"
-                    android:layout_marginRight="15dip"/>
-
-            <Button android:id="@+id/btn_save"
-                    style="@style/btn_dark"
-                    android:text="@string/btn_next"
-                    android:padding="15dip"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dip"
-                    android:layout_marginRight="10dip"/>
-        </LinearLayout>
-    </RelativeLayout>
-    <RelativeLayout android:id="@+id/progress_frame"
-                    android:layout_height="fill_parent"
-                    android:layout_width="fill_parent"
-                    android:background="@color/progressDarkAlphaBackground"
-                    android:visibility="gone">
-
-        <ProgressBar android:indeterminateOnly="true"
-                     android:layout_centerInParent="true"
-                     android:layout_width="40dip"
-                     android:layout_height="40dip"/>
-    </RelativeLayout>
+    <com.soundcloud.android.view.ButtonBar android:id="@+id/bottom_bar"
+                                           android:visibility="gone"
+                                           android:layout_width="fill_parent"
+                                           android:layout_height="@dimen/button_bar_height"
+                                           style="@style/rec_button_bar"
+                                           android:layout_alignParentBottom="true"
+                                           app:button_background="@drawable/btn_transparent_bg_states"
+                                           app:separator_color="@color/recButtonBarSeparator"/>
 </RelativeLayout>

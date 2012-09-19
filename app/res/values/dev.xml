@@ -3,8 +3,8 @@
 
     <string name='pref_dev_settings'>Dev settings</string>
 
-    <string name='pref_record_high_quality_type'>High quality type</string>
-    <string name='pref_record_high_quality_type_desc'>Choose your preferred high quality recording type</string>
+    <string name='pref_dev_record_type'>Recording type</string>
+    <string name='pref_dev_record_type_desc'>Choose your preferred recording type</string>
 
     <string name='pref_dashboard_store_max'>Dashboard maximum storage</string>
     <string name='pref_dashboard_store_max_desc'>How many dashboard tracks do you want to store</string>
@@ -26,6 +26,11 @@
     <string name='pref_dev_http_proxy_invalid_url'>Invalid URL</string>
 
     <string name="pref_dev_extras">Extras</string>
+
+    <string name="pref_dev_clear_recordings">Clear recordings</string>
+    <string name="pref_dev_clear_recordings_summary">Deletes all local recordings</string>
+
+    <string name="dev_clear_recordings">Clear all recordings?</string>
 
     <!-- alarm clock -->
     <string name="dev_alarm_set">Alarm set to %s</string>
