@@ -3,9 +3,9 @@ package com.soundcloud.android.activity.create;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
@@ -30,15 +30,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -50,7 +47,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -58,9 +54,7 @@ import java.util.List;
 @Tracking(page = Page.Record_main)
 public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
-    public static final int REQUEST_GET_FILE      = 1;
-    public static final int REQUEST_PROCESS_SOUND = 2;
-    public static final int REQUEST_UPLOAD_SOUND  = 3;
+    public static final int REQUEST_UPLOAD_SOUND  = 1;
 
     private static final int MSG_ANIMATE_OUT_SAVE_MESSAGE = 0;
     private static final long SAVE_MSG_DISPLAY_TIME = 3000; //ms
@@ -273,39 +267,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     // back button pressed, do nothing
                 }
                 break;
-            case REQUEST_GET_FILE:
-                if (resultCode == RESULT_OK) {
-                    // what's this for?
-                    final Uri uri = data.getData();
-                    final Intent intent = (new Intent(Actions.EDIT)).putExtra(Intent.EXTRA_STREAM, uri);
-                    final String file = uri.getLastPathSegment();
-                    if (file != null && file.lastIndexOf(".") != -1) {
-                        intent.putExtra(Actions.EXTRA_TITLE,
-                                file.substring(0, file.lastIndexOf(".")));
-                    }
-                    startActivity(intent);
-                }
-                break;
-            case REQUEST_PROCESS_SOUND:
-                if (resultCode == RESULT_OK) {
-                    String message = data.getStringExtra("message");
-                    if (message != null) {
-                        AndroidUtils.showToast(this, R.string.sound_processed_error, message);
-                    } else {
-                        AndroidUtils.showToast(this, R.string.sound_processed);
-                    }
-                    String in = data.getStringExtra(Actions.RECORDING_EXTRA_IN);
-                    String out = data.getStringExtra(Actions.RECORDING_EXTRA_OUT);
-                    Log.d(SoundCloudApplication.TAG, "processed " + in + " => " + out);
-                    if (out != null) {
-                        if (new File(out).renameTo(new File(in))) {
-                            // reload player
-                            mRecorder.reload();
-                        } else {
-                            Log.w(SoundCloudApplication.TAG, "could not rename");
-                        }
-                    }
-                }
         }
     }
 
@@ -340,13 +301,14 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             public void onClick(View v) {
                 final Recording rec = mRecorder.saveState();
                 if (rec != null) {
+                    final PlaybackStream ps = rec.getPlaybackStream();
                     if (mCurrentState.isEdit()) {
-                        track(Click.Record_Edit_Apply, rec.getPlaybackStream().isTrimmed() ? "trimmed" : "not_trimmed");
+                        track(Click.Record_Edit_Apply, ps != null && ps.isTrimmed() ? "trimmed" : "not_trimmed");
                         updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
                     } else {
                         track(Click.Record_Pause_Publish,
                               mTxtRecordMessage.getCurrentSuggestionKey(),
-                              rec.getPlaybackStream().isTrimmed() ? "trimmed" : "not_trimmed");
+                              ps != null && ps.isTrimmed() ? "trimmed" : "not_trimmed");
 
                         startActivityForResult(new Intent(ScCreate.this, ScUpload.class)
                                 .setData(rec.toUri()), REQUEST_UPLOAD_SOUND);
@@ -1035,40 +997,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
     @Override public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(menu.size(), Consts.OptionsMenu.SELECT_FILE, 0, R.string.menu_select_file)
-             .setIcon(android.R.drawable.ic_menu_add);
-        menu.add(menu.size(), Consts.OptionsMenu.PROCESS, 0, R.string.process)
-             .setIcon(android.R.drawable.ic_menu_rotate);
         menu.add(menu.size(), Consts.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
              .setIcon(android.R.drawable.ic_menu_preferences);
         return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(Consts.OptionsMenu.PROCESS);
-        item.setVisible(mCurrentState == CreateState.EDIT);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case Consts.OptionsMenu.SELECT_FILE:
-                startActivityForResult(new Intent(Intent.ACTION_GET_CONTENT).setType("audio/*"), REQUEST_GET_FILE);
-                return true;
-
-            case Consts.OptionsMenu.PROCESS:
-                Recording recording = mRecorder.getRecording();
-                if (recording != null) {
-                    startActivityForResult(Intent.createChooser(recording.getProcessIntent(),
-                            getString(R.string.sound_processed_pick_app)
-                            ), REQUEST_PROCESS_SOUND);
-                }
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     /* package, for testing */ CreateState getState() { return mCurrentState; }
