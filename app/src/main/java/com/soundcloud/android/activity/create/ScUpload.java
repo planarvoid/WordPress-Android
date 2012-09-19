@@ -7,6 +7,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.tracking.Click;
@@ -102,11 +103,11 @@ public class ScUpload extends ScActivity {
         }), mRecording.external_upload ? R.string.cancel : R.string.record_another_sound).addItem(new ButtonBar.MenuItem(POST, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                PlaybackStream ps = mRecording.getPlaybackStream();
                 track(Click.Record_Share_Post,
                       mRecording.tip_key == null ? "tip_unknown" : mRecording.tip_key,
-                      mRecording.getPlaybackStream().isTrimmed() ? "trimmed" : "not_trimmed",
-                      mRecording.getPlaybackStream().isFading()  ? "fading"  : "not_fading");
-
+                      ps != null && ps.isTrimmed() ? "trimmed" : "not_trimmed",
+                      ps != null && ps.isFading()  ? "fading"  : "not_fading");
                 if (mRecording != null) {
                     saveRecording();
                     mRecording.upload(ScUpload.this);
