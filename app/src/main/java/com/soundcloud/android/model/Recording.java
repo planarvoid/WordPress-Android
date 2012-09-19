@@ -359,7 +359,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     public boolean delete(@Nullable ContentResolver resolver) {
         boolean deleted = false;
-        if (!external_upload) {
+        if (!external_upload || isLegacyRecording()) {
             deleted = IOUtils.deleteFile(audio_path);
         }
         IOUtils.deleteFile(getEncodedFile());

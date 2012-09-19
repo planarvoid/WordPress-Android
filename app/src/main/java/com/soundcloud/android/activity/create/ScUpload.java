@@ -88,19 +88,23 @@ public class ScUpload extends ScActivity {
         mRecordingMetadata = (RecordingMetaData) findViewById(R.id.metadata_layout);
         mRecordingMetadata.setActivity(this);
 
+        final int backStringId = !mRecording.external_upload ? R.string.record_another_sound :
+                                 mRecording.isLegacyRecording() ? R.string.delete :
+                                 R.string.cancel;
+
         ((ButtonBar) findViewById(R.id.bottom_bar)).addItem(new ButtonBar.MenuItem(REC_ANOTHER, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 track(Click.Record_Share_Record_Another);
 
-                if (mRecording.external_upload && !mRecording.isLegacyRecording()){
+                if (mRecording.external_upload){
                     mRecording.delete(getContentResolver());
                 } else {
                     setResult(RESULT_OK, new Intent().setData(mRecording.toUri()));
                 }
                 finish();
             }
-        }), mRecording.external_upload ? R.string.cancel : R.string.record_another_sound).addItem(new ButtonBar.MenuItem(POST, new View.OnClickListener() {
+        }), backStringId).addItem(new ButtonBar.MenuItem(POST, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 PlaybackStream ps = mRecording.getPlaybackStream();
@@ -187,7 +191,7 @@ public class ScUpload extends ScActivity {
     protected void onStop() {
         super.onStop();
 
-        if (mRecording != null && !mUploading && (!mRecording.external_upload || mRecording.isLegacyRecording())) {
+        if (mRecording != null && !mUploading && (!mRecording.external_upload)) {
             // recording exists and hasn't been uploaded
             saveRecording();
         }
