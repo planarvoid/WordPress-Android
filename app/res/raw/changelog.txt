@@ -8,6 +8,7 @@ $ 45
     - Image cropping (signup / upload sound)
     - Adjustable stream cache
     - Optional analytics
+    - Fixed FB SSO (introduced in 2.2.10)
 
 $ 45
   % v 2.2.10
