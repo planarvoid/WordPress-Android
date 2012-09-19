@@ -68,7 +68,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
             super.runTest();
         } catch (Throwable e) {
             if (!(e instanceof OutOfMemoryError)) {
-                solo.poseForScreenshot(getName());
+                solo.poseForScreenshot(getClass().getSimpleName()+"-"+getName());
             }
             throw e;
         }

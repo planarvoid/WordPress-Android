@@ -1,5 +1,6 @@
 package com.soundcloud.android.utils;
 
+import com.soundcloud.android.tests.NonUiTest;
 import com.soundcloud.android.tests.ScAndroidTestCase;
 
 import android.graphics.BitmapFactory;
@@ -8,6 +9,7 @@ import android.test.suitebuilder.annotation.Suppress;
 
 import java.io.File;
 
+@NonUiTest
 public class ImageUtilsTest extends ScAndroidTestCase {
     private static final String IMAGE_LANDSCAPE_JPG      = "image/landscape.jpg";
     private static final String IMAGE_PORTRAIT_JPG       = "image/portrait.jpg";
