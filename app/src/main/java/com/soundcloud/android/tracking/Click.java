@@ -39,7 +39,7 @@ public enum Click implements Event {
     Record_Edit_Apply              ("record_edit",  "apply",              Type.action, Level2.Record),
     Record_Edit_Revert_To_Original ("record_edit",  "revert_to_original", Type.action, Level2.Record),
     Record_Edit_Fade_In_Interact   ("record_edit",  "fade_in_interact",   Type.action, Level2.Record),
-    Record_Share_Post              ("record_share", "post::%s::%s::%s)",  Type.action, Level2.Record),
+    Record_Share_Post              ("record_share", "post::%s::%s::%s",   Type.action, Level2.Record),
     Record_Share_Record_Another    ("record_share", "record_another",     Type.action, Level2.Record),
 
     Follow  ("Follow",   "level2::user_permalink", Type.action, null /* read from args */),
