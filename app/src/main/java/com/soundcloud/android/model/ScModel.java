@@ -11,6 +11,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.SoundCloudApplication;
@@ -31,6 +33,13 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.SoundCloudApplication.TRACK_CACHE;
 import static com.soundcloud.android.SoundCloudApplication.USER_CACHE;
 
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "kind")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = Track.class, name = "track"),
+    @JsonSubTypes.Type(value = User.class, name = "user") })
 public abstract class ScModel implements Parcelable {
 
     public static final int NOT_SET = -1;
@@ -48,12 +57,12 @@ public abstract class ScModel implements Parcelable {
         CollectionHolder holder = null;
         List<ScModel> items = new ArrayList<ScModel>();
         if (Track.class.equals(loadModel)) {
-            holder = mapper.readValue(is, TracklistItemHolder.class);
+            holder = mapper.readValue(is, TrackHolder.class);
             for (TracklistItem t : (TracklistItemHolder) holder) {
                 items.add(TRACK_CACHE.fromListItem(t));
             }
         } else if (User.class.equals(loadModel)) {
-            holder = mapper.readValue(is, UserlistItemHolder.class);
+            holder = mapper.readValue(is, UserHolder.class);
             for (UserlistItem u : (UserlistItemHolder) holder) {
                 items.add(USER_CACHE.fromListItem(u));
             }
@@ -67,8 +76,13 @@ public abstract class ScModel implements Parcelable {
             for (Comment f : (CommentHolder) holder) {
                 items.add(f);
             }
+        } else if (ScModel.class.equals(loadModel)) {
+            holder = mapper.readValue(is, ScModelHolder.class);
+            for (ScModel m : (ScModelHolder) holder) {
+                items.add(m);
+            }
         } else {
-            throw new RuntimeException("Unknown moodel "+loadModel);
+            throw new RuntimeException("Unknown moodel " + loadModel);
         }
         holder.collection = items;
         return holder;
@@ -223,7 +237,7 @@ public abstract class ScModel implements Parcelable {
         return id > NOT_SET;
     }
 
-
+    public static class ScModelHolder extends CollectionHolder<ScModel> {}
     public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}
     public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}
     public static class CommentHolder extends CollectionHolder<Comment> {}

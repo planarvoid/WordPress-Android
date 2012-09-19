@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
+import com.soundcloud.android.adapter.SearchAdapter;
 import com.soundcloud.android.adapter.TrackAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.cache.FollowStatus;
@@ -129,6 +130,11 @@ public class ScListFragment extends SherlockListFragment
                 case USER_FAVORITES:
                     adapter = new TrackAdapter(getActivity(), mContentUri);
                     break;
+
+                case SEARCH:
+                    adapter = new SearchAdapter(getActivity(), Content.SEARCH.uri);
+                    break;
+
 
 
                  default:
@@ -315,7 +321,7 @@ public class ScListFragment extends SherlockListFragment
     }
 
     protected boolean isSyncable() {
-        return mContent.isSyncable();
+        return mContent != null && mContent.isSyncable();
     }
 
     public void setListLastUpdated() {
@@ -425,9 +431,10 @@ public class ScListFragment extends SherlockListFragment
             reset();
         }
 
+
         if (isSyncable()) {
             requestSync();
-        } else {
+        } else if (getActivity() != null) {
             executeRefreshTask();
             getListAdapter().notifyDataSetChanged();
         }

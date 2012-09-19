@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.ScModel;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -36,7 +37,8 @@ public class CollectionTask extends AsyncTask<CollectionParams, ReturnData, Retu
         CollectionParams params = xparams[0];
         Log.d(TAG, getClass().getSimpleName() + "Loading collection with params: " + params);
 
-        if (Activity.class.isAssignableFrom(params.getContent().resourceType)) {
+        final Class<? extends ScModel> resourceType = params.getContent().resourceType;
+        if (resourceType != null && Activity.class.isAssignableFrom(resourceType)) {
             return new ActivitiesLoader().load(mApi, params);
         } else if (params.getContent().isMine()) {
             return new MyCollectionLoader().load(mApi, params);

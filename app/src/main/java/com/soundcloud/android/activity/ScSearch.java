@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.fragment.ScSearchFragment;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -15,6 +16,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -34,8 +36,9 @@ public class ScSearch extends ScListActivity {
 
     private ClearText mTxtQuery;
     private Spinner mSpinner;
-    private ScListView mList;
     private Search mCurrentSearch;
+    private ScSearchFragment mSearchFragment;
+
     public static String EXTRA_SEARCH_TYPE = "search_type";
     public static String EXTRA_QUERY = "query";
 
@@ -53,8 +56,6 @@ public class ScSearch extends ScListActivity {
 
         mTxtQuery = (ClearText) findViewById(R.id.txt_query);
 
-        mList = (ScListView) findViewById(R.id.list_results);
-        mList.setVisibility(View.GONE);
 
         mTxtQuery.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -86,6 +87,10 @@ public class ScSearch extends ScListActivity {
         if (previousState != null) {
             restorePreviousState(previousState);
         } else {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            mSearchFragment = ScSearchFragment.newInstance();
+            ft.add(R.id.results_holder, mSearchFragment).commit();
+
             final Intent intent = getIntent();
             if (intent.hasExtra(EXTRA_QUERY)) {
                 perform(new Search(intent.getCharSequenceExtra(EXTRA_QUERY).toString(), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.SOUNDS)));
@@ -134,15 +139,14 @@ public class ScSearch extends ScListActivity {
                 return false;
         }
 
+        mSearchFragment.setCurrentSearch(search);
+
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (mgr != null) {
             mgr.hideSoftInputFromWindow(mTxtQuery.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
 
-        mList.setLastUpdated(0);
-        mList.setVisibility(View.VISIBLE);
         mCurrentSearch = search;
-
         return true;
     }
 
@@ -151,21 +155,14 @@ public class ScSearch extends ScListActivity {
     public Object[] onRetainCustomNonConfigurationInstance() {
         return new Object[]{
                 mCurrentSearch,
-                mList.getVisibility(),
 
         };
     }
 
     void restorePreviousState(Object[] previous) {
         mCurrentSearch = (Search) previous[0];
-        if ((Integer) previous[1] == View.VISIBLE) {
-            mList.setVisibility(View.VISIBLE);
-        }
-
         if (mCurrentSearch != null) {
             mTxtQuery.setText(mCurrentSearch.query);
-            //configureAdapter(mCurrentSearch.search_type == Search.SOUNDS ?
-            //      mSoundAdpWrapper : mUserAdpWrapper, mCurrentSearch);
         }
     }
 
