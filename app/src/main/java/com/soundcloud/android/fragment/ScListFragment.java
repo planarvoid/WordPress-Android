@@ -62,7 +62,7 @@ public class ScListFragment extends SherlockListFragment
     private NetworkConnectivityListener connectivityListener;
     private @Nullable CollectionTask mRefreshTask;
     private @Nullable UpdateCollectionTask mUpdateCollectionTask;
-    protected LocalCollection mLocalCollection;
+    protected @Nullable LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
 
     private boolean mContentInvalid, mObservingContent;
@@ -70,11 +70,13 @@ public class ScListFragment extends SherlockListFragment
 
 
     public static ScListFragment newInstance(Content content) {
+        return newInstance(content.uri);
+    }
 
+    public static ScListFragment newInstance(Uri contentUri) {
         ScListFragment fragment = new ScListFragment();
         Bundle args = new Bundle();
-
-        args.putParcelable("contentUri", content.uri);
+        args.putParcelable("contentUri", contentUri);
         fragment.setArguments(args);
         return fragment;
     }
@@ -89,16 +91,18 @@ public class ScListFragment extends SherlockListFragment
         mContentUri = (Uri) getArguments().get("contentUri");
         mContent = Content.match(mContentUri);
 
-        final ContentResolver contentResolver = getActivity().getContentResolver();
-        // TODO :  Move off the UI thread.
-        mLocalCollection = LocalCollection.fromContentUri(mContentUri, contentResolver, true);
-        mLocalCollection.startObservingSelf(contentResolver, this);
+        if (mContent.isSyncable()) {
 
-        mChangeObserver = new ChangeObserver();
-        mObservingContent = true;
-        contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);
+            final ContentResolver contentResolver = getActivity().getContentResolver();
+            // TODO :  Move off the UI thread.
+            mLocalCollection = LocalCollection.fromContentUri(mContentUri, contentResolver, true);
+            mLocalCollection.startObservingSelf(contentResolver, this);
 
-        refreshSyncData();
+            mChangeObserver = new ChangeObserver();
+            mObservingContent = true;
+            contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);
+            refreshSyncData();
+        }
     }
 
     @Override
@@ -111,24 +115,24 @@ public class ScListFragment extends SherlockListFragment
                 case ME_SOUND_STREAM:
                 case ME_EXCLUSIVE_STREAM:
                 case ME_ACTIVITIES:
-                    adapter = new ActivityAdapter(getActivity(), mContent.uri);
+                    adapter = new ActivityAdapter(getActivity(), mContentUri);
                     break;
                 case ME_FOLLOWERS:
                 case ME_FOLLOWINGS:
                 case USER_FOLLOWINGS:
                 case USER_FOLLOWERS:
-                    adapter = new UserAdapter(getActivity(), mContent.uri);
+                    adapter = new UserAdapter(getActivity(), mContentUri);
                     break;
 
                 case ME_FAVORITES:
                 case ME_TRACKS:
                 case USER_FAVORITES:
-                    adapter = new TrackAdapter(getActivity(), mContent.uri);
+                    adapter = new TrackAdapter(getActivity(), mContentUri);
                     break;
 
 
                  default:
-                     adapter = new TrackAdapter(getActivity(), mContent.uri);
+                     adapter = new TrackAdapter(getActivity(), mContentUri);
 
             }
             setListAdapter(adapter);
@@ -154,7 +158,7 @@ public class ScListFragment extends SherlockListFragment
         mListView.setOnScrollListener(this);
 
         mEmptyCollection = EmptyCollection.fromContent(context, mContent);
-        mEmptyCollection.setHasSyncedBefore(mLocalCollection.hasSyncedBefore());
+        mEmptyCollection.setHasSyncedBefore(mLocalCollection == null || mLocalCollection.hasSyncedBefore());
         mListView.setEmptyView(mEmptyCollection);
 
         if (isRefreshing()){
@@ -180,7 +184,7 @@ public class ScListFragment extends SherlockListFragment
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-        getListAdapter().handleListItemClick(position, id);
+        getListAdapter().handleListItemClick(position - getListView().getHeaderViewsCount(), id);
     }
 
     //    @Override
@@ -305,7 +309,9 @@ public class ScListFragment extends SherlockListFragment
 
     protected void doneRefreshing() {
         if (isSyncable()) setListLastUpdated();
-        mListView.onRefreshComplete();
+        if (mListView != null) {
+            mListView.onRefreshComplete();
+        }
     }
 
     protected boolean isSyncable() {
@@ -313,7 +319,9 @@ public class ScListFragment extends SherlockListFragment
     }
 
     public void setListLastUpdated() {
-        if (mLocalCollection.last_sync_success > 0 && mListView != null) mListView.setLastUpdated(mLocalCollection.last_sync_success);
+        if (mLocalCollection != null && mListView != null && mLocalCollection.last_sync_success > 0) {
+            mListView.setLastUpdated(mLocalCollection.last_sync_success);
+        }
     }
 
     @Override
@@ -390,11 +398,11 @@ public class ScListFragment extends SherlockListFragment
 
     protected Request getRequest(boolean isRefresh) {
         if (!mContent.hasRequest()) return null;
-        return !(isRefresh) && !TextUtils.isEmpty(mNextHref) ? new Request(mNextHref) : mContent.request();
+        return !(isRefresh) && !TextUtils.isEmpty(mNextHref) ? new Request(mNextHref) : mContent.request(mContentUri);
     }
 
     private void refreshSyncData() {
-        if (isSyncable()) {
+        if (isSyncable() && mLocalCollection != null) {
             setListLastUpdated();
 
             if (mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {

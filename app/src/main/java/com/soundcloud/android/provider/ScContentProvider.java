@@ -458,7 +458,7 @@ public class ScContentProvider extends ContentProvider {
                 count = db.update(content.table.name, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
-            case SEARCH:
+            case SEARCHES_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 count = db.update(content.table.name, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);

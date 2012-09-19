@@ -70,7 +70,7 @@ public class MainMenu extends LinearLayout {
         init();
     }
 
-    public boolean handleBack() {
+    public boolean gotoMenu() {
         if (mInSearchMode){
             toggleSearchMode();
             return true;
@@ -102,6 +102,7 @@ public class MainMenu extends LinearLayout {
                     } else {
                         mClickListener.onSearchQuery(mSearchHistoryAdapter.getItem(position));
                     }
+                    closeKeyboard();
                 }
             }
         });
@@ -123,9 +124,7 @@ public class MainMenu extends LinearLayout {
                     mClickListener.onSearchQuery(new Search(mQueryText.getText().toString(), Search.SOUNDS));
                     toggleSearchMode();
                     mQueryText.setText("");
-
-                    InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(mQueryText.getWindowToken(), 0);
+                    closeKeyboard();
                     return true;
 
                 } else {
@@ -139,6 +138,11 @@ public class MainMenu extends LinearLayout {
         mSearchHistoryAdapter = new SearchHistoryAdapter(getContext(), R.layout.search_history_row_dark);
         mSuggestionsAdapter = new SearchSuggestionsAdapter(getContext(),null);
         mFocusCatcher = findViewById(R.id.root_menu_focus_catcher);
+    }
+
+    private void closeKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mQueryText.getWindowToken(), 0);
     }
 
     private void toggleSearchMode(){

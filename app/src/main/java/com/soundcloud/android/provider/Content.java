@@ -2,6 +2,7 @@ package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
 
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.soundcloud.android.model.Activity;
@@ -50,7 +51,7 @@ public enum Content {
     SUGGESTED_USERS("users/suggested", null, 161, User.class, SUGGESTED_USER, null),
 
     TRACKS("tracks", Endpoints.TRACKS, 201, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
-    TRACK("tracks/#", null, 202, Track.class, -1, Table.TRACKS),
+    TRACK("tracks/#", Endpoints.TRACK_DETAILS, 202, Track.class, -1, Table.TRACKS),
     TRACK_ARTWORK("tracks/#/artwork", null, 203, null, -1, Table.TRACKS),
     TRACK_COMMENTS("tracks/#/comments", null, 204, Comment.class, -1, Table.COMMENTS),
     TRACK_PERMISSIONS("tracks/#/permissions", null, 205, null, -1, null),
@@ -58,10 +59,10 @@ public enum Content {
 
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
     USER("users/#", null, 302, User.class, -1, Table.USERS),
-    USER_TRACKS("users/#/tracks", null, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
+    USER_TRACKS("users/#/tracks", Endpoints.USER_TRACKS, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
     USER_FAVORITES("users/#/favorites", Endpoints.USER_FAVORITES, 304, Track.class, FAVORITE, null),
-    USER_FOLLOWERS("users/#/followers", null, 305, User.class, FOLLOWER, null),
-    USER_FOLLOWINGS("users/#/followings", null, 306, User.class, FOLLOWING, null),
+    USER_FOLLOWERS("users/#/followers", Endpoints.USER_FOLLOWERS, 305, User.class, FOLLOWER, null),
+    USER_FOLLOWINGS("users/#/followings", Endpoints.USER_FOLLOWINGS, 306, User.class, FOLLOWING, null),
     USER_COMMENTS("users/#/comments", null, 307, Comment.class, -1, null),
     USER_GROUPS("users/#/groups", null, 308, null, -1, null),
     USER_PLAYLISTS("users/#/playlists", null, 309, null, -1, null),
@@ -96,7 +97,7 @@ public enum Content {
     TRACK_METADATA("track_metadata", null, 1302, null, -1, Table.TRACK_METADATA),
 
     SEARCHES("searches", null, 1400, null, -1, Table.SEARCHES),
-    SEARCH("searches/#", null, 1401, null, -1, Table.SEARCHES),
+    SEARCHES_ITEM("searches/#", null, 1401, null, -1, Table.SEARCHES),
     SEARCHES_TRACKS("searches/tracks", null, 1402, Track.class, -1, null),
     SEARCHES_USERS("searches/users", null, 1403, User.class, -1, null),
     SEARCHES_TRACK("searches/tracks/*", null, 1404, Track.class, ScContentProvider.CollectionItemTypes.SEARCH, null),
@@ -194,8 +195,27 @@ public enum Content {
     }
 
     public Request request() {
+        return request(null);
+    }
+
+    public Request request(Uri contentUri) {
         if (remoteUri != null) {
-            return Request.to(remoteUri);
+            if (remoteUri.contains("%d")){
+                int substitute = 0;
+                if (contentUri != null) {
+                    for (String segment : contentUri.getPathSegments()) {
+                        try {
+                            substitute = Integer.parseInt(segment);
+                            break;
+                        } catch (NumberFormatException e) {
+                        }
+                    }
+                }
+                return Request.to(remoteUri.replace("%d",String.valueOf(substitute)));
+            } else {
+                return Request.to(remoteUri);
+            }
+
         } else {
             throw new IllegalArgumentException("no remoteuri defined for content" + this);
         }
@@ -227,8 +247,6 @@ public enum Content {
     public static Content byUri(Uri uri) {
         return sUris.get(uri);
     }
-
-
 
     public List<Long> getLocalIds(ContentResolver resolver, long userId) {
         return getLocalIds(resolver, userId, -1, -1);

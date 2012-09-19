@@ -655,7 +655,7 @@ public class RootView extends ViewGroup {
     }
 
     public void onBack() {
-        if (!mMenu.handleBack()){
+        if (!mMenu.gotoMenu()){
             animateClose();
         }
     }
@@ -717,6 +717,8 @@ public class RootView extends ViewGroup {
         mContent.setVisibility(View.VISIBLE);
         mMenu.setVisibility(View.GONE);
         mPlayer.setVisibility(View.GONE);
+
+        mMenu.gotoMenu();
 
 
         if (mExpandedState == COLLAPSED_FULL_CLOSED) {

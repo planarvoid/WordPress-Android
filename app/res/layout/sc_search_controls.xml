@@ -23,7 +23,7 @@
         <EditText android:id="@+id/query"
                   android:layout_margin="5dip"
                   style="@style/txt_search"
-                  android:text="asdf"
+                  android:text=""
                   android:layout_height="wrap_content"
                   android:nextFocusUp="@+id/query"
                   android:nextFocusLeft="@+id/query"

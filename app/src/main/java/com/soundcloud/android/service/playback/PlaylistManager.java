@@ -142,6 +142,13 @@ public class PlaylistManager {
         }
     }
 
+    public void setTrack(long toBePlayed) {
+        Track t = SoundCloudDB.getTrackById(mContext.getContentResolver(), toBePlayed);
+        if (t != null) {
+            setTrack(t);
+        }
+    }
+
     public void setTrack(Track toBePlayed) {
         mCache.put(toBePlayed, false);
         mPlaylist = new Track[] { toBePlayed };

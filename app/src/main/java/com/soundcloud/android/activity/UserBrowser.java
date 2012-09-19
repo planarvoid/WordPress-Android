@@ -64,6 +64,8 @@ public class UserBrowser extends ScListActivity implements
         FetchUserTask.FetchUserListener,
         EventAware, ActionBar.OnNavigationListener {
 
+    public static final String EXTRA_USER_ID = "userId";
+    public static final String EXTRA_USER = "user";
     /* package */ @Nullable User mUser;
 
     private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
@@ -192,10 +194,10 @@ public class UserBrowser extends ScListActivity implements
         if (c != null) {
             fromConfiguration(c);
         } else {
-            if (intent.hasExtra("user")) {
-                loadUserByObject((User) intent.getParcelableExtra("user"));
-            } else if (intent.hasExtra("userId")) {
-                loadUserById(intent.getLongExtra("userId", -1));
+            if (intent.hasExtra(EXTRA_USER)) {
+                loadUserByObject((User) intent.getParcelableExtra(EXTRA_USER));
+            } else if (intent.hasExtra(EXTRA_USER_ID)) {
+                loadUserById(intent.getLongExtra(EXTRA_USER_ID, -1));
             } else {
                 loadYou();
             }
@@ -232,8 +234,11 @@ public class UserBrowser extends ScListActivity implements
 
 
     class UserFragmentAdapter extends FragmentPagerAdapter {
-            protected final Content[] contents = new Content[]{Content.ME_TRACKS, Content.ME_FAVORITES,Content.ME_FOLLOWERS,Content.ME_FOLLOWINGS};
-            protected final int[] titleIds = new int[]{R.string.tab_title_user_sounds,R.string.tab_title_user_likes,R.string.tab_title_user_followers,R.string.tab_title_user_followings};
+        protected final Content[] my_contents = new Content[]{Content.ME_TRACKS, Content.ME_FAVORITES, Content.ME_FOLLOWERS, Content.ME_FOLLOWINGS};
+        protected final int[] myTitleIds = new int[]{R.string.tab_title_my_sounds, R.string.tab_title_my_likes, R.string.tab_title_my_followers, R.string.tab_title_my_followings};
+
+        protected final Content[] user_contents = new Content[]{Content.USER_TRACKS, Content.USER_FAVORITES, Content.USER_FOLLOWERS, Content.USER_FOLLOWINGS};
+        protected final int[] userTitleIds = new int[]{R.string.tab_title_user_sounds, R.string.tab_title_user_likes, R.string.tab_title_user_followers, R.string.tab_title_user_followings};
 
             public UserFragmentAdapter(FragmentManager fm) {
                 super(fm);
@@ -241,17 +246,18 @@ public class UserBrowser extends ScListActivity implements
 
             @Override
             public ScListFragment getItem(int position) {
-                return ScListFragment.newInstance(contents[position]);
+                return ScListFragment.newInstance(isMe() ? my_contents[position].uri : user_contents[position].forId(mUser.id));
+
             }
 
             @Override
             public int getCount() {
-                return contents.length;
+                return isMe() ? my_contents.length : user_contents.length;
             }
 
             @Override
             public CharSequence getPageTitle(int position) {
-                return getResources().getString(titleIds[position]);
+                return getResources().getString(isMe() ? myTitleIds[position] : userTitleIds[position]);
             }
         }
 

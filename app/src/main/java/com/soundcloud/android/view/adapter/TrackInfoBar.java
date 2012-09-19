@@ -238,7 +238,7 @@ public class TrackInfoBar extends LazyRow {
 
     @Override
     public void display(int position, Parcelable p) {
-        if (!(p instanceof Playable)) throw new IllegalArgumentException("Not a valid track");
+        if (!(p instanceof Playable)) throw new IllegalArgumentException("Not a valid track " + p);
 
         // have to set the playable here for list icon loading purposes, it gets set again above for non-lists
         mPlayable = (Playable) p;

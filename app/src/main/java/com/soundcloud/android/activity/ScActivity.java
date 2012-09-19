@@ -13,6 +13,7 @@ import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.fragment.PlayerFragment;
 import com.soundcloud.android.model.Search;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
@@ -90,12 +91,15 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
             @Override
             public void onSearchSuggestedTrackClicked(long id) {
-                // go to track
+                // go to track, for now just play it
+                startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(CloudPlaybackService.EXTRA_TRACK_ID, id));
+                mRootView.animateClose();
             }
 
             @Override
             public void onSearchSuggestedUserClicked(long id) {
                 // go to user
+                startActivity(getNavIntent(UserBrowser.class).putExtra(UserBrowser.EXTRA_USER_ID, id));
             }
         });
 

@@ -47,7 +47,7 @@ public class SearchSuggestionsAdapter extends CursorAdapter{
     public final static int TYPE_USER = 1;
 
     public SearchSuggestionsAdapter(Context context, Cursor c) {
-        super(context, c);
+        super(context, c, false);
         mContentResolver = context.getContentResolver();
         mContext = context;
         mImageLoader = ImageLoader.get(mContext);

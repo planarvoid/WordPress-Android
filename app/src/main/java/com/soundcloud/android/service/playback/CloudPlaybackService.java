@@ -1013,6 +1013,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         if (track != null) {
             mPlaylistManager.setTrack(track);
             openCurrent();
+        } else if (intent.hasExtra(EXTRA_TRACK_ID)) {
+            mPlaylistManager.setTrack(intent.getLongExtra(EXTRA_TRACK_ID, -1l));
+            openCurrent();
         } else if (intent.getData() != null) {
             mPlaylistManager.loadUri(intent.getData(),
                     intent.getIntExtra(PlayExtras.playPosition, 0),
