@@ -47,7 +47,7 @@ import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends ScModel implements Origin, Playable, Refreshable {
+public class Track extends ScResource implements Origin, Playable, Refreshable {
     private static final String TAG = "Track";
     public static final String EXTRA = "track";
 
@@ -247,10 +247,6 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
 
     public Track(Parcel in) {
         readFromParcel(in);
-    }
-
-    public Track(TracklistItem tracklistItem) {
-        updateFromTracklistItem(tracklistItem);
     }
 
     public Track(Cursor cursor) {
@@ -517,7 +513,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     }
 
     @Override
-    public ScModel getRefreshableResource() {
+    public ScResource getRefreshableResource() {
         return this;
     }
 
@@ -550,35 +546,28 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         return SoundCloudDB.upsertTrack(resolver, this);
     }
 
-    public Track updateFrom(Context c, ScModel updatedItem) {
-         if (updatedItem instanceof TracklistItem){
-             updateFromTracklistItem((TracklistItem) updatedItem);
-         }
+    public Track updateFrom(Context c, Track updatedItem) {
+        id = updatedItem.id;
+        title = updatedItem.title;
+        created_at = updatedItem.created_at;
+        user_id = updatedItem.user_id;
+        duration = updatedItem.duration;
+        commentable = updatedItem.commentable;
+        state = updatedItem.state;
+        sharing = updatedItem.sharing;
+        permalink = updatedItem.permalink;
+        streamable = updatedItem.streamable;
+        artwork_url = updatedItem.artwork_url;
+        waveform_url = updatedItem.waveform_url;
+        user = updatedItem.user;
+        stream_url = updatedItem.stream_url;
+        playback_count = updatedItem.playback_count;
+        comment_count = updatedItem.comment_count;
+        favoritings_count = updatedItem.favoritings_count;
+        user_favorite = updatedItem.user_favorite;
+        shared_to_count = updatedItem.shared_to_count;
         refreshListArtworkUri(c);
         refreshTimeSinceCreated(c);
-        return this;
-    }
-
-    public Track updateFromTracklistItem(TracklistItem tracklistItem) {
-        id = tracklistItem.id;
-        title = tracklistItem.title;
-        created_at = tracklistItem.created_at;
-        user_id = tracklistItem.user_id;
-        duration = tracklistItem.duration;
-        commentable = tracklistItem.commentable;
-        state = tracklistItem.state;
-        sharing = tracklistItem.sharing;
-        permalink = tracklistItem.permalink;
-        streamable = tracklistItem.streamable;
-        artwork_url = tracklistItem.artwork_url;
-        waveform_url = tracklistItem.waveform_url;
-        user = tracklistItem.user;
-        stream_url = tracklistItem.stream_url;
-        playback_count = tracklistItem.playback_count;
-        comment_count = tracklistItem.comment_count;
-        favoritings_count = tracklistItem.favoritings_count;
-        user_favorite = tracklistItem.user_favorite;
-        shared_to_count = tracklistItem.shared_to_count;
         return this;
     }
 

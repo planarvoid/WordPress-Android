@@ -9,7 +9,7 @@ import com.soundcloud.android.activity.auth.EmailConfirm;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.settings.AccountSettings;
 import com.soundcloud.android.fragment.ScListFragment;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -47,7 +47,7 @@ import android.widget.Toast;
 import java.io.IOException;
 
 public class Main extends ScListActivity implements
-        FetchModelTask.FetchModelListener<ScModel> {
+        FetchModelTask.FetchModelListener<ScResource> {
 
     private View mSplash;
 
@@ -328,7 +328,7 @@ public class Main extends ScListActivity implements
     }
 
     @Override
-    public void onSuccess(ScModel m, @Nullable String action) {
+    public void onSuccess(ScResource m, @Nullable String action) {
         mResolveTask = null;
         mHideSplashOnResume = true;
         if (m instanceof Track) {

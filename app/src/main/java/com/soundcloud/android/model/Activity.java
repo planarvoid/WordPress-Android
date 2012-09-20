@@ -198,7 +198,7 @@ public class Activity extends ScModel implements Refreshable, Origin, Playable, 
     }
 
     @Override
-    public ScModel getRefreshableResource() {
+    public ScResource getRefreshableResource() {
         return getTrack();
     }
 

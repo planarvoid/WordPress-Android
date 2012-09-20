@@ -11,6 +11,7 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.LocalCollectionPage;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackHolder;
 import com.soundcloud.android.model.User;

@@ -238,9 +238,9 @@ public class LocalCollection {
         Content c = Content.byUri(uri);
 
         // do not auto refresh users when the list opens, because users are always changing
-        if (User.class.equals(c.resourceType)) return last_sync_success <= 0;
-        final long staleTime = (Track.class.equals(c.resourceType))    ? SyncConfig.TRACK_STALE_TIME :
-                               (Activity.class.equals(c.resourceType)) ? SyncConfig.ACTIVITY_STALE_TIME :
+        if (User.class.equals(c.modelType)) return last_sync_success <= 0;
+        final long staleTime = (Track.class.equals(c.modelType))    ? SyncConfig.TRACK_STALE_TIME :
+                               (Activity.class.equals(c.modelType)) ? SyncConfig.ACTIVITY_STALE_TIME :
                                SyncConfig.DEFAULT_STALE_TIME;
 
         return System.currentTimeMillis() - last_sync_success > staleTime;

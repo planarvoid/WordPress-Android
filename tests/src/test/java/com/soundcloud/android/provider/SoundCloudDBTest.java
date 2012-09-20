@@ -2,7 +2,7 @@ package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -208,13 +208,13 @@ public class SoundCloudDBTest {
 
     @Test
     public void shouldBulkInsert() throws Exception {
-        List<ScModel> items = createModels();
+        List<ScResource> items = createModels();
         expect(SoundCloudDB.bulkInsertModels(resolver, items)).toEqual(3);
     }
 
     @Test
     public void shouldBulkInsertWithCollections() throws Exception {
-        List<ScModel> items = createModels();
+        List<ScResource> items = createModels();
         expect(SoundCloudDB.bulkInsertModels(resolver, items, Content.ME_FAVORITES.uri, USER_ID)).toEqual(3);
 
         Cursor c = resolver.query(Content.ME_FAVORITES.uri, null, null, null, null);
@@ -226,8 +226,8 @@ public class SoundCloudDBTest {
         SoundCloudDB.bulkInsertModels(resolver, createModels(), Content.ME_FAVORITES.uri, -1);
     }
 
-    private List<ScModel> createModels() {
-        List<ScModel> items = new ArrayList<ScModel>();
+    private List<ScResource> createModels() {
+        List<ScResource> items = new ArrayList<ScResource>();
 
         User u1 = new User();
         u1.permalink = "u1";

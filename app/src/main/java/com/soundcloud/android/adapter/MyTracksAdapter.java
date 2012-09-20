@@ -6,6 +6,7 @@ import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.view.MyTracklistRow;
@@ -16,7 +17,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.util.Log;
 
 import java.util.ArrayList;

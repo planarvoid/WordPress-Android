@@ -3,7 +3,7 @@ package com.soundcloud.android.task.fetch;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-public abstract class FetchModelTask<Model extends ScModel> extends AsyncTask<Request, Void, Model> {
+public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask<Request, Void, Model> {
     private AndroidCloudAPI mApi;
     private ArrayList<WeakReference<FetchModelListener<Model>>> mListenerWeakReferences;
     private long mModelId;

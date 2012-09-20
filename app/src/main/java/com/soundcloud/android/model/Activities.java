@@ -252,7 +252,7 @@ public class Activities extends CollectionHolder<Activity> {
         if (content != null) {
             contentToDelete = content;
         }
-        if (!Activity.class.isAssignableFrom(contentToDelete.resourceType)) {
+        if (!Activity.class.isAssignableFrom(contentToDelete.modelType)) {
             throw new IllegalArgumentException("specified content is not an activity");
         }
         // make sure to delete corresponding collection

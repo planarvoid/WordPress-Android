@@ -17,7 +17,7 @@ import android.os.Parcel;
 import java.util.Comparator;
 import java.util.Date;
 
-public class Comment extends ScModel implements Origin {
+public class Comment extends ScResource implements Origin {
     @JsonView(Views.Mini.class) public Date created_at;
     @JsonView(Views.Mini.class) public long user_id;
     @JsonView(Views.Mini.class) public long track_id;

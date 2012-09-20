@@ -3,6 +3,6 @@ package com.soundcloud.android.model;
 
 public interface Refreshable {
     long getRefreshableId();
-    ScModel getRefreshableResource();
+    ScResource getRefreshableResource();
     boolean isStale();
 }

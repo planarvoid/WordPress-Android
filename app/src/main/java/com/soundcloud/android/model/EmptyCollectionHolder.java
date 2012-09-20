@@ -4,6 +4,6 @@ import java.util.ArrayList;
 
 public class EmptyCollectionHolder extends CollectionHolder {
     public EmptyCollectionHolder(){
-        this.collection = new ArrayList<ScModel>();
+        this.collection = new ArrayList<ScResource>();
     }
 }

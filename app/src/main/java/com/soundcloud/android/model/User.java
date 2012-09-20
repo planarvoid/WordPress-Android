@@ -31,7 +31,7 @@ import java.util.EnumSet;
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Model
-public class User extends ScModel implements  Refreshable, Origin {
+public class User extends ScResource implements  Refreshable, Origin {
     @JsonView(Views.Mini.class) public String username;
     @JsonView(Views.Mini.class) public String uri;
     @JsonView(Views.Mini.class) public String avatar_url;
@@ -113,10 +113,6 @@ public class User extends ScModel implements  Refreshable, Origin {
         u.permalink = c.getString(c.getColumnIndex(DBHelper.ActivityView.USER_PERMALINK));
         u.avatar_url = c.getString(c.getColumnIndex(DBHelper.ActivityView.USER_AVATAR_URL));
         return u;
-    }
-
-    public User(UserlistItem userlistItem) {
-        updateFromUserlistItem(userlistItem);
     }
 
     public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
@@ -263,7 +259,7 @@ public class User extends ScModel implements  Refreshable, Origin {
     }
 
     @Override
-    public ScModel getRefreshableResource() {
+    public ScResource getRefreshableResource() {
         return this;
     }
 
@@ -282,33 +278,7 @@ public class User extends ScModel implements  Refreshable, Origin {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.user;
     }
 
-    // TODO, this is kind of dumb.
-    public User updateFrom(ScModel updatedItem) {
-         if (updatedItem instanceof UserlistItem){
-             updateFromUserlistItem((UserlistItem) updatedItem);
-         } else if (updatedItem instanceof User){
-             updateFromUser((User) updatedItem);
-         }
-        return this;
-    }
-
-    public User updateFromUserlistItem(UserlistItem userlistItem) {
-        this.id = userlistItem.id;
-        this.username = userlistItem.username;
-        this.track_count = userlistItem.track_count;
-        this.city = userlistItem.city;
-        this.country = userlistItem.country;
-        this.avatar_url = userlistItem.avatar_url;
-        this.permalink = userlistItem.permalink;
-        this.full_name = userlistItem.full_name;
-        this.followers_count = userlistItem.followers_count;
-        this.followings_count = userlistItem.followings_count;
-        this.public_favorites_count = userlistItem.public_favorites_count;
-        this.private_tracks_count = userlistItem.private_tracks_count;
-        return this;
-    }
-
-    public User updateFromUser(User user) {
+    public User updateFrom(User user) {
         this.id = user.id;
         this.username = user.username;
         this.avatar_url = user.avatar_url;

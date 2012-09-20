@@ -4,11 +4,9 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TracklistItem;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserlistItem;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -27,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class UpdateCollectionTask extends AsyncTask<Map<Long, ? extends ScModel>, String, Boolean> {
+public class UpdateCollectionTask extends AsyncTask<Map<Long, ? extends ScResource>, String, Boolean> {
     protected SoundCloudApplication mApp;
     protected Class<?> mLoadModel;
     protected WeakReference<BaseAdapter> mAdapterReference;
@@ -59,8 +57,8 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, ? extends ScModel>
     }
 
     @Override
-    protected Boolean doInBackground(Map<Long, ? extends ScModel>... params) {
-        Map<Long,? extends ScModel> itemsToUpdate = params[0];
+    protected Boolean doInBackground(Map<Long, ? extends ScResource>... params) {
+        Map<Long,? extends ScResource> itemsToUpdate = params[0];
         Log.i(TAG,"Updating " + itemsToUpdate.size() + " items");
         try {
             HttpResponse resp = mApp.get(Request.to(Track.class.equals(mLoadModel) ? Endpoints.TRACKS : Endpoints.USERS)
@@ -71,21 +69,21 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, ? extends ScModel>
             }
 
             CollectionHolder holder = null;
-            List<ScModel> objectsToWrite = new ArrayList<ScModel>();
+            List<ScResource> objectsToWrite = new ArrayList<ScResource>();
             if (Track.class.equals(mLoadModel)) {
-                holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScModel.TracklistItemHolder.class);
-                for (TracklistItem t : (ScModel.TracklistItemHolder) holder) {
-                    objectsToWrite.add(((Track) itemsToUpdate.get(t.id)).updateFrom(mApp, t));
+                holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScResource.ScResourceHolder.class);
+                for (ScResource scResource : (ScResource.ScResourceHolder) holder) {
+                    objectsToWrite.add(((Track) itemsToUpdate.get(scResource.id)).updateFrom(mApp, (Track) scResource));
                 }
             } else if (User.class.equals(mLoadModel)) {
-                holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScModel.UserlistItemHolder.class);
-                for (UserlistItem u : (ScModel.UserlistItemHolder) holder) {
-                    objectsToWrite.add(((User) itemsToUpdate.get(u.id)).updateFrom(u));
+                holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScResource.ScResourceHolder.class);
+                for (ScResource scResource : (ScResource.ScResourceHolder) holder) {
+                    objectsToWrite.add(((User) itemsToUpdate.get(scResource.id)).updateFrom((User) scResource));
                 }
             }
 
             for (Parcelable p : objectsToWrite) {
-                ((ScModel) p).resolve(mApp);
+                ((ScResource) p).resolve(mApp);
             }
 
             publishProgress();

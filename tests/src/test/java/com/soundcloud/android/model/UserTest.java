@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
@@ -85,11 +86,11 @@ public class UserTest {
         user.website_title = "Peters World";
         user.myspace_name = "peter93";
         user.discogs_name = "peter_discogs";
-        user.track_count      = 1;
-        user.followers_count  = 2;
+        user.track_count = 1;
+        user.followers_count = 2;
         user.followings_count = 3;
         user.public_favorites_count = 4;
-        user.private_tracks_count   = 5;
+        user.private_tracks_count = 5;
 
 
         Parcel p = Parcel.obtain();
@@ -117,5 +118,34 @@ public class UserTest {
         expect(u.followings_count).toEqual(user.followings_count);
         expect(u.public_favorites_count).toEqual(user.public_favorites_count);
         expect(u.private_tracks_count).toEqual(user.private_tracks_count);
+    }
+
+    @Test
+    public void shouldDeserializeUser() throws Exception {
+        ScResource u = AndroidCloudAPI.Mapper.readValue(
+                getClass().getResourceAsStream("user.json"),
+                ScResource.class);
+
+        System.out.print(u);
+
+        /*
+        expect(u.id).not.toBeNull();
+        expect(u.username).not.toBeNull();
+        expect(u.uri).not.toBeNull();
+        expect(u.avatar_url).not.toBeNull();
+        expect(u.permalink).not.toBeNull();
+        expect(u.permalink_url).not.toBeNull();
+        expect(u.full_name).not.toBeNull();
+        expect(u.description).not.toBeNull();
+        expect(u.city).not.toBeNull();
+        expect(u.country).not.toBeNull();
+        expect(u.website).not.toBeNull();
+        expect(u.website_title).not.toBeNull();
+        expect(u.track_count).not.toBeNull();
+        expect(u.followers_count).not.toBeNull();
+        expect(u.followings_count).not.toBeNull();
+        expect(u.public_favorites_count).not.toBeNull();
+        expect(u.private_tracks_count).not.toBeNull();  */
+
     }
 }

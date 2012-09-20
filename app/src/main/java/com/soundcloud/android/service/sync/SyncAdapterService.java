@@ -210,6 +210,12 @@ public class SyncAdapterService extends Service {
             if (id != -1) {
                 User u = SoundCloudApplication.USER_CACHE.containsKey(id) ? SoundCloudApplication.USER_CACHE.get(id)
                         : SoundCloudDB.getUserById(app.getContentResolver(), id);
+
+
+                //
+                SoundCloudApplication.USER_CACHE.put(u);
+
+
                 if (u != null && !u.isStale()){
                     Message.showNewFollower(app, u);
                     return true;

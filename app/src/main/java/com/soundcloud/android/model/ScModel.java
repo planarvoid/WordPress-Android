@@ -1,5 +1,10 @@
 package com.soundcloud.android.model;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import com.fasterxml.jackson.annotation.JsonView;
+import com.soundcloud.android.json.Views;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -10,125 +15,15 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.json.Views;
-import com.soundcloud.android.task.create.NewConnectionTask;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.SoundCloudApplication.TRACK_CACHE;
-import static com.soundcloud.android.SoundCloudApplication.USER_CACHE;
-
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    property = "kind")
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = Track.class, name = "track"),
-    @JsonSubTypes.Type(value = User.class, name = "user") })
-public abstract class ScModel implements Parcelable {
+public class ScModel implements Parcelable {
 
     public static final int NOT_SET = -1;
-    public static final List<ScModel> EMPTY_LIST = new ArrayList<ScModel>();
-
     @JsonView(Views.Mini.class) public long id = NOT_SET;
-    @JsonIgnore public long last_updated       = NOT_SET;
-
-    public ScModel() {
-    }
-
-    public static @NotNull <T extends ScModel> CollectionHolder<T> getCollectionFromStream(InputStream is,
-                                                           ObjectMapper mapper,
-                                                           Class<T> loadModel) throws IOException {
-        CollectionHolder holder = null;
-        List<ScModel> items = new ArrayList<ScModel>();
-        if (Track.class.equals(loadModel)) {
-            holder = mapper.readValue(is, TrackHolder.class);
-            for (TracklistItem t : (TracklistItemHolder) holder) {
-                items.add(TRACK_CACHE.fromListItem(t));
-            }
-        } else if (User.class.equals(loadModel)) {
-            holder = mapper.readValue(is, UserHolder.class);
-            for (UserlistItem u : (UserlistItemHolder) holder) {
-                items.add(USER_CACHE.fromListItem(u));
-            }
-        } else if (Activity.class.equals(loadModel)) {
-            holder = mapper.readValue(is, Activities.class);
-            for (Activity e : (Activities) holder) {
-                items.add(e);
-            }
-        } else if (Comment.class.equals(loadModel)) {
-            holder = mapper.readValue(is, CommentHolder.class);
-            for (Comment f : (CommentHolder) holder) {
-                items.add(f);
-            }
-        } else if (ScModel.class.equals(loadModel)) {
-            holder = mapper.readValue(is, ScModelHolder.class);
-            for (ScModel m : (ScModelHolder) holder) {
-                items.add(m);
-            }
-        } else {
-            throw new RuntimeException("Unknown moodel " + loadModel);
-        }
-        holder.collection = items;
-        return holder;
-    }
-
-    @Deprecated // XXX this is slow (reflection)
-    protected void readFromParcel(Parcel in) {
-        Bundle data = in.readBundle(getClass().getClassLoader());
-        for (String key : data.keySet()) {
-            try {
-                setFieldFromBundle(this, getClass().getDeclaredField(key), data, key);
-            } catch (SecurityException e) {
-                Log.e(TAG, "error ", e);
-            } catch (IllegalArgumentException e) {
-                Log.e(TAG, "error ", e);
-            } catch (NoSuchFieldException e) {
-                try {
-                    setFieldFromBundle(this, getClass().getField(key), data, key);
-                } catch (NoSuchFieldException ignored) {
-                    Log.e(TAG, "error ", ignored);
-                }
-            }
-        }
-        this.id = data.getLong("id");
-    }
-
-    @Override @Deprecated // XXX AVOID THIS: slow (reflection)
-    public void writeToParcel(Parcel out, int flags) {
-        Bundle data = new Bundle();
-        for (Field f : getClass().getDeclaredFields()) {
-            try {
-                if (!Modifier.isStatic(f.getModifiers()) && f.get(this) != null) {
-                    setBundleFromField(data, f.getName(), f.getType(), f.get(this));
-                }
-            } catch (IllegalAccessException e) {
-                //Log.e(TAG, "error ", e);
-            }
-        }
-        data.putLong("id", id);
-        out.writeBundle(data);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
     @Deprecated
     protected static void setBundleFromField(Bundle bundle, String fieldName, Class fieldType, Object fieldValue) {
@@ -207,38 +102,34 @@ public abstract class ScModel implements Parcelable {
         }
     }
 
-    public void resolve(Context context) {
+    @Override @Deprecated // XXX AVOID THIS: slow (reflection)
+    public void writeToParcel(Parcel out, int flags) {
+        Bundle data = new Bundle();
+        for (Field f : getClass().getDeclaredFields()) {
+            try {
+                if (!Modifier.isStatic(f.getModifiers()) && f.get(this) != null) {
+                    setBundleFromField(data, f.getName(), f.getType(), f.get(this));
+                }
+            } catch (IllegalAccessException e) {
+                //Log.e(TAG, "error ", e);
+            }
+        }
+        data.putLong("id", id);
+        out.writeBundle(data);
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ScModel)) return false;
-
-        ScModel modelBase = (ScModel) o;
-        return id == modelBase.id;
-    }
-
-    @Override
-    public int hashCode() {
-        return (int) (id ^ (id >>> 32));
+    public int describeContents() {
+        return 0;
     }
 
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        if (id != NOT_SET) cv.put(BaseColumns._ID, id);
+        if (id != ScResource.NOT_SET) cv.put(BaseColumns._ID, id);
         return cv;
     }
 
-    /**
-     * @return whether this object has been saved to the database.
-     */
-    public boolean isSaved() {
-        return id > NOT_SET;
-    }
+    public void resolve(Context context) {
 
-    public static class ScModelHolder extends CollectionHolder<ScModel> {}
-    public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}
-    public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}
-    public static class CommentHolder extends CollectionHolder<Comment> {}
+    }
 }

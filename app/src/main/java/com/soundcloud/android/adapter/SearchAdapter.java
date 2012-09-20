@@ -1,28 +1,19 @@
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.task.collection.CollectionParams;
-import com.soundcloud.android.view.adapter.CommentRow;
 import com.soundcloud.android.view.adapter.LazyRow;
-import com.soundcloud.android.view.adapter.LikeRow;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 import com.soundcloud.android.view.adapter.UserlistRow;
 
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
 
-import java.util.Collections;
-
-public class SearchAdapter extends ScBaseAdapter<ScModel> {
+public class SearchAdapter extends ScBaseAdapter<ScResource> {
 
     private static final int TYPE_TRACK = 0;
     private static final int TYPE_USER = 1;

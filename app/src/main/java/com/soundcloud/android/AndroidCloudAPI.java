@@ -76,11 +76,11 @@ public interface AndroidCloudAPI extends CloudAPI {
 
         static {
             Mapper = createMapper();
-            // need to create separate mapper (for user deserialization)
+            // XXX need to create separate mapper (for user deserialization)
             final ObjectMapper mapper = createMapper();
 
             Mapper.registerModule(new SimpleModule("CustomDeserialization", new Version(1, 0, 0, null, null, null))
-                    .addDeserializer(User.class, new UserDeserializer(mapper))
+                    // TODO, handle caching .addDeserializer(User.class, new UserDeserializer(mapper))
                     .addDeserializer(Activity.class, new ActivityDeserializer(Mapper)));
         }
 

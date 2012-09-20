@@ -1,7 +1,7 @@
 package com.soundcloud.android.task.fetch;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.ResolveTask;
 import com.soundcloud.api.Request;
@@ -15,9 +15,9 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class ResolveFetchTask extends AsyncTask<Uri, Void, ScModel> {
+public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
     private static final String TAG = ResolveFetchTask.class.getSimpleName();
-    private WeakReference<FetchModelTask.FetchModelListener<ScModel>> mListener;
+    private WeakReference<FetchModelTask.FetchModelListener<ScResource>> mListener;
     private AndroidCloudAPI mApi;
 
     public ResolveFetchTask(AndroidCloudAPI api) {
@@ -25,12 +25,12 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScModel> {
     }
 
     @Override
-    protected ScModel doInBackground(Uri... params) {
+    protected ScResource doInBackground(Uri... params) {
         final Uri uri = fixUri(params[0]);
-        ScModel model = resolveLocally(uri);
-        if (model != null) {
+        ScResource resource = resolveLocally(uri);
+        if (resource != null) {
             Log.d(TAG, "resolved uri "+uri+" locally");
-            return model;
+            return resource;
         }
 
         try {
@@ -68,24 +68,24 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScModel> {
     }
 
     @Override
-    protected void onPostExecute(ScModel model) {
-        Log.d(TAG, "onPostExecute("+model+")");
+    protected void onPostExecute(ScResource resource) {
+        Log.d(TAG, "onPostExecute("+ resource +")");
 
-        FetchModelTask.FetchModelListener<ScModel> listener = getListener();
+        FetchModelTask.FetchModelListener<ScResource> listener = getListener();
         if (listener != null) {
-            if (model != null) {
-                listener.onSuccess(model, null);
+            if (resource != null) {
+                listener.onSuccess(resource, null);
             } else {
                 listener.onError(0);
             }
         }
     }
 
-    public void setListener(FetchModelTask.FetchModelListener<ScModel> listener) {
-        mListener = new WeakReference<FetchModelTask.FetchModelListener<ScModel>>(listener);
+    public void setListener(FetchModelTask.FetchModelListener<ScResource> listener) {
+        mListener = new WeakReference<FetchModelTask.FetchModelListener<ScResource>>(listener);
     }
 
-    private FetchModelTask.FetchModelListener<ScModel> getListener() {
+    private FetchModelTask.FetchModelListener<ScResource> getListener() {
         return mListener == null ? null : mListener.get();
     }
 
@@ -108,7 +108,7 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScModel> {
         return data;
     }
 
-    private ScModel resolveLocally(Uri uri) {
+    private ScResource resolveLocally(Uri uri) {
         if (uri != null && "soundcloud".equalsIgnoreCase(uri.getScheme())) {
             final String specific = uri.getSchemeSpecificPart();
             final String[] components = specific.split(":", 2);

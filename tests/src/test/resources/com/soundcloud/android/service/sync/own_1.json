@@ -1,295 +1,320 @@
 {
+  "next_href": "https://api.soundcloud.com/me/activities/all/own?cursor=254f19b6-7c58-11e0-89af-da40bafef417&limit=10",
   "collection": [
-     {
+    {
       "type": "favoriting",
-      "created_at": "2011\/07\/29 22:30:59 +0000",
       "origin": {
-        "track": {
-          "id": 13090155,
-          "permalink": "p-watzlawick-anleitung-zum",
-          "title": "P. Watzlawick - Anleitung zum Ungl\u00fccklichsein",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/13090155",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/p-watzlawick-anleitung-zum",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/13090155\/stream"
-        },
         "user": {
+          "permalink_url": "http://soundcloud.com/paulko",
+          "uri": "https://api.soundcloud.com/users/6311652",
           "id": 6311652,
-          "permalink": "paulko",
+          "avatar_url": "http://i1.sndcdn.com/avatars-000005077051-ttwttz-large.jpg?8935bc4",
           "username": "Paul Ko",
-          "uri": "https:\/\/api.soundcloud.com\/users\/6311652",
-          "permalink_url": "http:\/\/soundcloud.com\/paulko",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000005077051-ttwttz-large.jpg?8935bc4"
+          "kind": "user",
+          "permalink": "paulko"
+        },
+        "track": {
+          "stream_url": "https://api.soundcloud.com/tracks/13090155/stream",
+          "permalink_url": "http://soundcloud.com/jberkel/p-watzlawick-anleitung-zum",
+          "uri": "https://api.soundcloud.com/tracks/13090155",
+          "id": 13090155,
+          "user_uri": "https://api.soundcloud.com/users/133201",
+          "title": "P. Watzlawick - Anleitung zum Unglücklichsein",
+          "kind": "track",
+          "permalink": "p-watzlawick-anleitung-zum",
+          "user_id": 133201
         }
       },
-      "tags": "own"
+      "tags": "own",
+      "created_at": "2011/07/29 22:30:59 +0000"
     },
     {
       "type": "comment",
-      "created_at": "2011\/07\/29 15:26:44 +0000",
       "origin": {
-        "id": 22140210,
-        "created_at": "2011\/07\/29 15:26:44 +0000",
-        "user_id": 1360,
-        "track_id": 20023414,
-        "timestamp": null,
+        "user": {
+          "permalink_url": "http://soundcloud.com/jensnikolaus",
+          "uri": "https://api.soundcloud.com/users/1360",
+          "id": 1360,
+          "avatar_url": "http://i1.sndcdn.com/avatars-000003534540-77he5z-large.jpg?8935bc4",
+          "username": "jensnikolaus",
+          "kind": "user",
+          "permalink": "jensnikolaus"
+        },
         "body": "Hach, Fernweh.",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/22140210",
-        "user": {
-          "id": 1360,
-          "permalink": "jensnikolaus",
-          "username": "jensnikolaus",
-          "uri": "https:\/\/api.soundcloud.com\/users\/1360",
-          "permalink_url": "http:\/\/soundcloud.com\/jensnikolaus",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003534540-77he5z-large.jpg?8935bc4"
-        },
+        "timestamp": null,
+        "uri": "https://api.soundcloud.com/comments/22140210",
         "track": {
+          "stream_url": "https://api.soundcloud.com/tracks/20023414/stream",
+          "permalink_url": "http://soundcloud.com/jberkel/sounds-from-dalston-kingsland",
+          "uri": "https://api.soundcloud.com/tracks/20023414",
           "id": 20023414,
-          "permalink": "sounds-from-dalston-kingsland",
+          "user_uri": "https://api.soundcloud.com/users/133201",
           "title": "Sounds from Dalston Kingsland Railway Station (DLK)",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/20023414",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/sounds-from-dalston-kingsland",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/20023414\/stream",
-          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000009823303-xte9r2-large.jpg?8935bc4"
-        }
+          "artwork_url": "http://i1.sndcdn.com/artworks-000009823303-xte9r2-large.jpg?8935bc4",
+          "kind": "track",
+          "permalink": "sounds-from-dalston-kingsland",
+          "user_id": 133201
+        },
+        "id": 22140210,
+        "kind": "comment",
+        "track_id": 20023414,
+        "user_id": 1360,
+        "created_at": "2011/07/29 15:26:44 +0000"
       },
-      "tags": "own, affiliated"
+      "tags": "own, affiliated",
+      "created_at": "2011/07/29 15:26:44 +0000"
     },
     {
       "type": "comment",
-      "created_at": "2011\/07\/23 11:52:29 +0000",
       "origin": {
-        "id": 21623911,
-        "created_at": "2011\/07\/23 11:52:28 +0000",
-        "user_id": 4253183,
-        "track_id": 19446062,
-        "timestamp": 58982,
-        "body": "its a very quiet lullaby....eddie...",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/21623911",
         "user": {
+          "permalink_url": "http://soundcloud.com/eddiesongwriter",
+          "uri": "https://api.soundcloud.com/users/4253183",
           "id": 4253183,
-          "permalink": "eddiesongwriter",
+          "avatar_url": "http://i1.sndcdn.com/avatars-000003378812-m83f4d-large.jpg?8935bc4",
           "username": "EddieSongWriter",
-          "uri": "https:\/\/api.soundcloud.com\/users\/4253183",
-          "permalink_url": "http:\/\/soundcloud.com\/eddiesongwriter",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003378812-m83f4d-large.jpg?8935bc4"
+          "kind": "user",
+          "permalink": "eddiesongwriter"
         },
+        "body": "its a very quiet lullaby....eddie...",
+        "timestamp": 58982,
+        "uri": "https://api.soundcloud.com/comments/21623911",
         "track": {
+          "stream_url": "https://api.soundcloud.com/tracks/19446062/stream",
+          "permalink_url": "http://soundcloud.com/jberkel/lullaby",
+          "uri": "https://api.soundcloud.com/tracks/19446062",
           "id": 19446062,
-          "permalink": "lullaby",
+          "user_uri": "https://api.soundcloud.com/users/133201",
           "title": "lullaby",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/19446062",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/lullaby",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/19446062\/stream"
-        }
+          "kind": "track",
+          "permalink": "lullaby",
+          "user_id": 133201
+        },
+        "id": 21623911,
+        "kind": "comment",
+        "track_id": 19446062,
+        "user_id": 4253183,
+        "created_at": "2011/07/23 11:52:28 +0000"
       },
-      "tags": "own"
+      "tags": "own",
+      "created_at": "2011/07/23 11:52:29 +0000"
     },
     {
       "type": "favoriting",
-      "created_at": "2011\/07\/22 17:12:46 +0000",
       "origin": {
-        "track": {
-          "id": 5848128,
-          "permalink": "william-gibson-cory-doctorow-on-zero-history",
-          "title": "William Gibson & Cory Doctorow on 'Zero History'",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/5848128",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/william-gibson-cory-doctorow-on-zero-history",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/5848128\/stream"
-        },
         "user": {
+          "permalink_url": "http://soundcloud.com/changmangoo",
+          "uri": "https://api.soundcloud.com/users/4462218",
           "id": 4462218,
-          "permalink": "changmangoo",
+          "avatar_url": "http://i1.sndcdn.com/avatars-000003571226-xdhfqb-large.jpg?8935bc4",
           "username": "changmangoo",
-          "uri": "https:\/\/api.soundcloud.com\/users\/4462218",
-          "permalink_url": "http:\/\/soundcloud.com\/changmangoo",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003571226-xdhfqb-large.jpg?8935bc4"
+          "kind": "user",
+          "permalink": "changmangoo"
+        },
+        "track": {
+          "stream_url": "https://api.soundcloud.com/tracks/5848128/stream",
+          "permalink_url": "http://soundcloud.com/jberkel/william-gibson-cory-doctorow-on-zero-history",
+          "uri": "https://api.soundcloud.com/tracks/5848128",
+          "id": 5848128,
+          "user_uri": "https://api.soundcloud.com/users/133201",
+          "title": "William Gibson & Cory Doctorow on 'Zero History'",
+          "kind": "track",
+          "permalink": "william-gibson-cory-doctorow-on-zero-history",
+          "user_id": 133201
         }
       },
-      "tags": "own"
+      "tags": "own",
+      "created_at": "2011/07/22 17:12:46 +0000"
     },
     {
       "type": "favoriting",
-      "created_at": "2011\/07\/20 23:55:30 +0000",
       "origin": {
-        "track": {
-          "id": 19446062,
-          "permalink": "lullaby",
-          "title": "lullaby",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/19446062",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/lullaby",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/19446062\/stream"
-        },
         "user": {
+          "permalink_url": "http://soundcloud.com/jensnikolaus",
+          "uri": "https://api.soundcloud.com/users/1360",
           "id": 1360,
-          "permalink": "jensnikolaus",
+          "avatar_url": "http://i1.sndcdn.com/avatars-000003534540-77he5z-large.jpg?8935bc4",
           "username": "jensnikolaus",
-          "uri": "https:\/\/api.soundcloud.com\/users\/1360",
-          "permalink_url": "http:\/\/soundcloud.com\/jensnikolaus",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003534540-77he5z-large.jpg?8935bc4"
+          "kind": "user",
+          "permalink": "jensnikolaus"
+        },
+        "track": {
+          "stream_url": "https://api.soundcloud.com/tracks/19446062/stream",
+          "permalink_url": "http://soundcloud.com/jberkel/lullaby",
+          "uri": "https://api.soundcloud.com/tracks/19446062",
+          "id": 19446062,
+          "user_uri": "https://api.soundcloud.com/users/133201",
+          "title": "lullaby",
+          "kind": "track",
+          "permalink": "lullaby",
+          "user_id": 133201
         }
       },
-      "tags": "own, affiliated"
+      "tags": "own, affiliated",
+      "created_at": "2011/07/20 23:55:30 +0000"
     },
     {
       "type": "favoriting",
-      "created_at": "2011\/06\/10 22:42:16 +0000",
       "origin": {
-        "track": {
-          "id": 16111648,
-          "permalink": "sleeping-at-mtv",
-          "title": "Sleeping at MTV",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/16111648",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/sleeping-at-mtv",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/16111648\/stream",
-          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000007695739-1bkuev-large.jpg?8935bc4"
-        },
         "user": {
+          "permalink_url": "http://soundcloud.com/freenerd",
+          "uri": "https://api.soundcloud.com/users/3498080",
           "id": 3498080,
-          "permalink": "freenerd",
+          "avatar_url": "http://i1.sndcdn.com/avatars-000002860642-a8gj43-large.jpg?8935bc4",
           "username": "Freenerd",
-          "uri": "https:\/\/api.soundcloud.com\/users\/3498080",
-          "permalink_url": "http:\/\/soundcloud.com\/freenerd",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000002860642-a8gj43-large.jpg?8935bc4"
+          "kind": "user",
+          "permalink": "freenerd"
+        },
+        "track": {
+          "stream_url": "https://api.soundcloud.com/tracks/16111648/stream",
+          "permalink_url": "http://soundcloud.com/jberkel/sleeping-at-mtv",
+          "uri": "https://api.soundcloud.com/tracks/16111648",
+          "id": 16111648,
+          "user_uri": "https://api.soundcloud.com/users/133201",
+          "title": "Sleeping at MTV",
+          "artwork_url": "http://i1.sndcdn.com/artworks-000007695739-1bkuev-large.jpg?8935bc4",
+          "kind": "track",
+          "permalink": "sleeping-at-mtv",
+          "user_id": 133201
         }
       },
-      "tags": "own"
+      "tags": "own",
+      "created_at": "2011/06/10 22:42:16 +0000"
     },
     {
       "type": "favoriting",
-      "created_at": "2011\/05\/29 11:54:10 +0000",
       "origin": {
-        "track": {
-          "id": 16111648,
-          "permalink": "sleeping-at-mtv",
-          "title": "Sleeping at MTV",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/16111648",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/sleeping-at-mtv",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/16111648\/stream",
-          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000007695739-1bkuev-large.jpg?8935bc4"
-        },
         "user": {
+          "permalink_url": "http://soundcloud.com/fronx",
+          "uri": "https://api.soundcloud.com/users/375367",
           "id": 375367,
-          "permalink": "fronx",
+          "avatar_url": "http://i1.sndcdn.com/avatars-000003575192-wqnp00-large.jpg?8935bc4",
           "username": "fronx",
-          "uri": "https:\/\/api.soundcloud.com\/users\/375367",
-          "permalink_url": "http:\/\/soundcloud.com\/fronx",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003575192-wqnp00-large.jpg?8935bc4"
+          "kind": "user",
+          "permalink": "fronx"
+        },
+        "track": {
+          "stream_url": "https://api.soundcloud.com/tracks/16111648/stream",
+          "permalink_url": "http://soundcloud.com/jberkel/sleeping-at-mtv",
+          "uri": "https://api.soundcloud.com/tracks/16111648",
+          "id": 16111648,
+          "user_uri": "https://api.soundcloud.com/users/133201",
+          "title": "Sleeping at MTV",
+          "artwork_url": "http://i1.sndcdn.com/artworks-000007695739-1bkuev-large.jpg?8935bc4",
+          "kind": "track",
+          "permalink": "sleeping-at-mtv",
+          "user_id": 133201
         }
       },
-      "tags": "own, affiliated"
+      "tags": "own, affiliated",
+      "created_at": "2011/05/29 11:54:10 +0000"
     },
     {
       "type": "comment",
-      "created_at": "2011\/05\/29 11:53:09 +0000",
       "origin": {
-        "id": 17485296,
-        "created_at": "2011\/05\/29 11:51:16 +0000",
-        "user_id": 375367,
-        "track_id": 16110503,
-        "timestamp": null,
+        "user": {
+          "permalink_url": "http://soundcloud.com/fronx",
+          "uri": "https://api.soundcloud.com/users/375367",
+          "id": 375367,
+          "avatar_url": "http://i1.sndcdn.com/avatars-000003575192-wqnp00-large.jpg?8935bc4",
+          "username": "fronx",
+          "kind": "user",
+          "permalink": "fronx"
+        },
         "body": "heh :)",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/17485296",
-        "user": {
-          "id": 375367,
-          "permalink": "fronx",
-          "username": "fronx",
-          "uri": "https:\/\/api.soundcloud.com\/users\/375367",
-          "permalink_url": "http:\/\/soundcloud.com\/fronx",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003575192-wqnp00-large.jpg?8935bc4"
-        },
+        "timestamp": null,
+        "uri": "https://api.soundcloud.com/comments/17485296",
         "track": {
+          "stream_url": "https://api.soundcloud.com/tracks/16110503/stream",
+          "permalink_url": "http://soundcloud.com/jberkel/autotune-at-mtv",
+          "uri": "https://api.soundcloud.com/tracks/16110503",
           "id": 16110503,
-          "permalink": "autotune-at-mtv",
+          "user_uri": "https://api.soundcloud.com/users/133201",
           "title": "Autotune at MTV",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/16110503",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/autotune-at-mtv",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/16110503\/stream"
-        }
-      },
-      "tags": "own, affiliated"
-    },
-    {
-      "type": "comment",
-      "created_at": "2011\/05\/28 22:38:49 +0000",
-      "origin": {
-        "id": 17459485,
-        "created_at": "2011\/05\/28 22:38:47 +0000",
-        "user_id": 4126,
-        "track_id": 16111648,
-        "timestamp": null,
-        "body": "best track evar. public please :)",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/17459485",
-        "user": {
-          "id": 4126,
-          "permalink": "diskodna",
-          "username": "Disko DNA",
-          "uri": "https:\/\/api.soundcloud.com\/users\/4126",
-          "permalink_url": "http:\/\/soundcloud.com\/diskodna",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000002113655-c6vf7r-large.jpg?8935bc4"
+          "kind": "track",
+          "permalink": "autotune-at-mtv",
+          "user_id": 133201
         },
-        "track": {
-          "id": 16111648,
-          "permalink": "sleeping-at-mtv",
-          "title": "Sleeping at MTV",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/16111648",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/sleeping-at-mtv",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/16111648\/stream",
-          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000007695739-1bkuev-large.jpg?8935bc4"
-        }
-      },
-      "tags": "own, affiliated"
-    },
-    {
-      "type": "comment",
-      "created_at": "2011\/05\/26 21:46:22 +0000",
-      "origin": {
-        "id": 17218792,
-        "created_at": "2011\/05\/26 21:46:19 +0000",
+        "id": 17485296,
+        "kind": "comment",
+        "track_id": 16110503,
         "user_id": 375367,
-        "track_id": 15999948,
-        "timestamp": null,
-        "body": "nice! sounds like a place i should visit.",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/17218792",
-        "user": {
-          "id": 375367,
-          "permalink": "fronx",
-          "username": "fronx",
-          "uri": "https:\/\/api.soundcloud.com\/users\/375367",
-          "permalink_url": "http:\/\/soundcloud.com\/fronx",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003575192-wqnp00-large.jpg?8935bc4"
-        },
-        "track": {
-          "id": 15999948,
-          "permalink": "jam-at-16-doors",
-          "title": "Jam at 16 Doors",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/15999948",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/jam-at-16-doors",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/15999948\/stream"
-        }
+        "created_at": "2011/05/29 11:51:16 +0000"
       },
-      "tags": "own, affiliated"
+      "tags": "own, affiliated",
+      "created_at": "2011/05/29 11:53:09 +0000"
+    },
+    {
+      "type": "comment",
+      "origin": {
+        "user": {
+          "permalink_url": "http://soundcloud.com/diskodna",
+          "uri": "https://api.soundcloud.com/users/4126",
+          "id": 4126,
+          "avatar_url": "http://i1.sndcdn.com/avatars-000002113655-c6vf7r-large.jpg?8935bc4",
+          "username": "Disko DNA",
+          "kind": "user",
+          "permalink": "diskodna"
+        },
+        "body": "best track evar. public please :)",
+        "timestamp": null,
+        "uri": "https://api.soundcloud.com/comments/17459485",
+        "track": {
+          "stream_url": "https://api.soundcloud.com/tracks/16111648/stream",
+          "permalink_url": "http://soundcloud.com/jberkel/sleeping-at-mtv",
+          "uri": "https://api.soundcloud.com/tracks/16111648",
+          "id": 16111648,
+          "user_uri": "https://api.soundcloud.com/users/133201",
+          "title": "Sleeping at MTV",
+          "artwork_url": "http://i1.sndcdn.com/artworks-000007695739-1bkuev-large.jpg?8935bc4",
+          "kind": "track",
+          "permalink": "sleeping-at-mtv",
+          "user_id": 133201
+        },
+        "id": 17459485,
+        "kind": "comment",
+        "track_id": 16111648,
+        "user_id": 4126,
+        "created_at": "2011/05/28 22:38:47 +0000"
+      },
+      "tags": "own, affiliated",
+      "created_at": "2011/05/28 22:38:49 +0000"
+    },
+    {
+      "type": "comment",
+      "origin": {
+        "user": {
+          "permalink_url": "http://soundcloud.com/fronx",
+          "uri": "https://api.soundcloud.com/users/375367",
+          "id": 375367,
+          "avatar_url": "http://i1.sndcdn.com/avatars-000003575192-wqnp00-large.jpg?8935bc4",
+          "username": "fronx",
+          "kind": "user",
+          "permalink": "fronx"
+        },
+        "body": "nice! sounds like a place i should visit.",
+        "timestamp": null,
+        "uri": "https://api.soundcloud.com/comments/17218792",
+        "track": {
+          "stream_url": "https://api.soundcloud.com/tracks/15999948/stream",
+          "permalink_url": "http://soundcloud.com/jberkel/jam-at-16-doors",
+          "uri": "https://api.soundcloud.com/tracks/15999948",
+          "id": 15999948,
+          "user_uri": "https://api.soundcloud.com/users/133201",
+          "title": "Jam at 16 Doors",
+          "kind": "track",
+          "permalink": "jam-at-16-doors",
+          "user_id": 133201
+        },
+        "id": 17218792,
+        "kind": "comment",
+        "track_id": 15999948,
+        "user_id": 375367,
+        "created_at": "2011/05/26 21:46:19 +0000"
+      },
+      "tags": "own, affiliated",
+      "created_at": "2011/05/26 21:46:22 +0000"
     }
   ],
-  "next_href": "https:\/\/api.soundcloud.com\/me\/activities\/all\/own?cursor=254f19b6-7c58-11e0-89af-da40bafef417&limit=10",
-  "future_href": "https:\/\/api.soundcloud.com\/me\/activities\/all\/own?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738"
+  "future_href": "https://api.soundcloud.com/me/activities/all/own?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738"
 }

@@ -17,6 +17,7 @@ import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.cache.UserCache;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.beta.BetaService;
@@ -82,6 +83,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public static final boolean DALVIK = Build.PRODUCT != null;
 
+
+
     public static final TrackCache TRACK_CACHE = new TrackCache();
     public static final UserCache USER_CACHE = new UserCache();
 
@@ -95,6 +98,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public Comment pendingComment;
 
+    public static ScModelManager MODEL_MANAGER;
     public static SoundCloudApplication instance;
 
     @Override
@@ -117,6 +121,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         mCloudApi = Wrapper.create(this, account == null ? null : getToken(account));
         mCloudApi.setTokenListener(this);
+
+        MODEL_MANAGER = new ScModelManager(this, getMapper());
 
         if (account != null) {
             FollowStatus.initialize(this, getCurrentUserId());

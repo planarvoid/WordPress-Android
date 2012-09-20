@@ -2,7 +2,7 @@ package com.soundcloud.android.provider;
 
 import com.soundcloud.android.model.Origin;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.IOUtils;
@@ -134,11 +134,11 @@ public class SoundCloudDB {
         return user;
     }
 
-    public static int bulkInsertModels(ContentResolver resolver, List<? extends ScModel> items) {
+    public static int bulkInsertModels(ContentResolver resolver, List<? extends ScResource> items) {
             return bulkInsertModels(resolver, items, null, -1);
         }
     public static int bulkInsertModels(ContentResolver resolver,
-                                       List<? extends ScModel> items,
+                                       List<? extends ScResource> items,
                                        @Nullable Uri uri,
                                        long ownerId) {
         if (uri != null && ownerId < 0) {
@@ -152,7 +152,7 @@ public class SoundCloudDB {
         ContentValues[] bulkValues = uri == null ? null : new ContentValues[items.size()];
 
         for (int i=0; i <items.size(); i++) {
-            ScModel p = items.get(i);
+            ScResource p = items.get(i);
             long id = p.id;
             if (p instanceof Origin) {
                 Origin origin = (Origin) p;

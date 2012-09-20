@@ -8,7 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -347,16 +347,16 @@ public class UploadService extends Service {
         }
     }
 
-    private void sendNotification(ScModel r, Notification n) {
+    private void sendNotification(ScResource r, Notification n) {
         // ugly way to help uniqueness
         nm.notify(getNotificationId(r), n);
     }
 
-    private void cancelNotification(ScModel r) {
+    private void cancelNotification(ScResource r) {
         nm.cancel(getNotificationId(r));
     }
 
-    private int getNotificationId(ScModel r){
+    private int getNotificationId(ScResource r){
         return (int) (9990000 + r.id);
     }
 

@@ -2,13 +2,13 @@ package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
 
-import android.util.Log;
 import android.util.SparseArray;
 
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.sync.SyncConfig;
@@ -20,14 +20,13 @@ import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.UriMatcher;
 import android.net.Uri;
-import android.os.Parcelable;
 
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public enum Content {
+public enum Content  {
     ME("me", Endpoints.MY_DETAILS, 100, User.class, -1, Table.USERS),
     ME_TRACKS("me/tracks", Endpoints.MY_TRACKS, 101, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.COLLECTION_ITEMS),
     ME_COMMENTS("me/comments", null, 102, Comment.class, -1, Table.COMMENTS),
@@ -103,7 +102,7 @@ public enum Content {
     SEARCHES_TRACK("searches/tracks/*", null, 1404, Track.class, ScContentProvider.CollectionItemTypes.SEARCH, null),
     SEARCHES_USER("searches/users/*", null, 1405, User.class, ScContentProvider.CollectionItemTypes.SEARCH, null),
 
-    SEARCH("search", null, 1500, ScModel.class, -1, null),
+    SEARCH("search", null, 1500, ScResource.class, -1, null),
 
     TRACK_CLEANUP("cleanup/tracks", null, 9998, null, -1, null),
     USERS_CLEANUP("cleanup/users", null, 9999, null, -1, null),
@@ -117,13 +116,13 @@ public enum Content {
     UNKNOWN(null, null, -1, null, -1, null);
 
 
-    Content(String uri, String remoteUri, int id, Class<? extends ScModel> resourceType,
+    Content(String uri, String remoteUri, int id, Class<? extends ScModel> modelType,
             int collectionType,
             Table table) {
         this.uriPath = uri;
         this.uri = Uri.parse("content://" + ScContentProvider.AUTHORITY + "/" + uriPath);
         this.id = id;
-        this.resourceType = resourceType;
+        this.modelType = modelType;
         this.collectionType = collectionType;
         this.remoteUri = remoteUri;
         this.table = table;
@@ -133,7 +132,7 @@ public enum Content {
     public final int id;
     public final
     @Nullable
-    Class<? extends ScModel> resourceType;
+    Class<? extends ScModel> modelType;
     public final Uri uri;
     public final String uriPath;
     public final String remoteUri;
@@ -235,6 +234,7 @@ public enum Content {
     public static Content match(Uri uri) {
         if (uri == null) return null;
         final int match = sMatcher.match(uri);
+
         return match != -1 ? sMap.get(match) : UNKNOWN;
     }
 
@@ -265,9 +265,9 @@ public enum Content {
 
     public boolean isStale(long lastSync) {
         // do not auto refresh users when the list opens, because users are always changing
-        if (resourceType == User.class) return lastSync <= 0;
-        final long staleTime = (resourceType == Track.class) ? SyncConfig.TRACK_STALE_TIME :
-                (resourceType == Activity.class) ? SyncConfig.ACTIVITY_STALE_TIME :
+        if (modelType == User.class) return lastSync <= 0;
+        final long staleTime = (modelType == Track.class) ? SyncConfig.TRACK_STALE_TIME :
+                (modelType == Activity.class) ? SyncConfig.ACTIVITY_STALE_TIME :
                         SyncConfig.DEFAULT_STALE_TIME;
 
         return System.currentTimeMillis() - lastSync > staleTime;

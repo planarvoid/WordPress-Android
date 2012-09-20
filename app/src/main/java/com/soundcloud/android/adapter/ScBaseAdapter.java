@@ -4,7 +4,6 @@ package com.soundcloud.android.adapter;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -14,6 +13,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -117,8 +117,8 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     @Override
     public long getItemId(int position) {
         Object o = getItem(position);
-        if (o instanceof ScModel && ((ScModel) o).id != -1) {
-            return ((ScModel) o).id;
+        if (o instanceof ScResource && ((ScResource) o).id != -1) {
+            return ((ScResource) o).id;
         }
         return position;
     }
@@ -212,7 +212,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     public CollectionParams getParams(boolean refresh) {
         CollectionParams params = new CollectionParams();
-        params.loadModel = mContent.resourceType;
+        params.loadModel = mContent.modelType;
         params.isRefresh = refresh;
         params.startIndex = refresh ? 0 : getItemCount();
         params.contentUri = mContentUri;
@@ -244,7 +244,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         for (ScModel newItem : mData) {
 
             if (newItem instanceof Refreshable) {
-                ScModel resource = ((Refreshable) newItem).getRefreshableResource();
+                ScResource resource = ((Refreshable) newItem).getRefreshableResource();
                 if (resource != null) {
                     if (((Refreshable) newItem).isStale()) {
                         if (resource instanceof Track) {

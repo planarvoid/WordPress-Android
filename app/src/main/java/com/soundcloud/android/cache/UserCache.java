@@ -1,8 +1,6 @@
 package com.soundcloud.android.cache;
 
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserlistItem;
 import com.soundcloud.android.provider.DBHelper;
 
 import android.database.Cursor;
@@ -23,22 +21,6 @@ public class UserCache extends LruCache<Long, User> {
         if (u == null) return null;
         if (containsKey(u.id)) u.setAppFields(get(u.id));
         return put(u);
-    }
-
-    public ScModel fromListItem(ScModel listItem) {
-        if (listItem instanceof UserlistItem){
-            final UserlistItem u = (UserlistItem)listItem;
-            User user = get(((UserlistItem) listItem).id);
-            if (user == null) {
-                user = new User(u);
-                put(user);
-            } else {
-                user.updateFrom((ScModel) listItem);
-            }
-            return user;
-        } else {
-            throw new IllegalArgumentException("Illegal param, tracklistitem required");
-        }
     }
 
     public User fromCursor(Cursor cursor) {

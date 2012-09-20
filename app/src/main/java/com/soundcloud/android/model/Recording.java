@@ -55,7 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class Recording extends ScModel implements Comparable<Recording> {
+public class Recording extends ScResource implements Comparable<Recording> {
 
     public static final File IMAGE_DIR = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
     public static final String EXTRA = "recording";

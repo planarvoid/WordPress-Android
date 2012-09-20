@@ -2,12 +2,9 @@ package com.soundcloud.android.cache;
 
 import android.database.Cursor;
 import android.os.Parcelable;
-import android.util.Log;
-import com.soundcloud.android.SoundCloudApplication;
+
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Origin;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TracklistItem;
 import com.soundcloud.android.provider.DBHelper;
 
 import java.util.ArrayList;
@@ -43,23 +40,6 @@ public class TrackCache extends LruCache<Long, Track> {
             if (track.comments == null) track.comments = new ArrayList<Comment>();
             track.comments.add(comment);
         }
-    }
-
-    public Track fromListItem(Parcelable listItem) {
-        if (listItem instanceof TracklistItem) {
-            final TracklistItem t = (TracklistItem)listItem;
-            Track track = get(((TracklistItem) listItem).id);
-            if (track == null) {
-                track = new Track(t);
-                put(track);
-            } else {
-                track.updateFromTracklistItem((TracklistItem) listItem);
-            }
-            return track;
-        } else {
-            throw new IllegalArgumentException("Illegal param, tracklistitem required");
-        }
-
     }
 
     public Track fromCursor(Cursor cursor) {

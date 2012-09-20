@@ -37,7 +37,7 @@ public class CollectionTask extends AsyncTask<CollectionParams, ReturnData, Retu
         CollectionParams params = xparams[0];
         Log.d(TAG, getClass().getSimpleName() + "Loading collection with params: " + params);
 
-        final Class<? extends ScModel> resourceType = params.getContent().resourceType;
+        final Class<? extends ScModel> resourceType = params.getContent().modelType;
         if (resourceType != null && Activity.class.isAssignableFrom(resourceType)) {
             return new ActivitiesLoader().load(mApi, params);
         } else if (params.getContent().isMine()) {

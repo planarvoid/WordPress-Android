@@ -8,7 +8,7 @@ import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -173,13 +172,13 @@ public class ApiSyncer {
                         .getEntity().getContent();
 
                 // parse and add first items
-                CollectionHolder<User> holder = ScModel.getCollectionFromStream(is, mApi.getMapper(), User.class);
+                CollectionHolder<User> holder = ScResource.getCollectionFromStream(is, mApi.getMapper());
 
                 added = SoundCloudDB.bulkInsertModels(mResolver, holder.collection, content.uri, userId);
 
 
                 // remove items from master remote list and adjust start index
-                for (ScModel m : holder) {
+                for (ScResource m : holder) {
                     remote.remove(((User) m).id);
                 }
                 startPosition = holder.size();
@@ -200,7 +199,7 @@ public class ApiSyncer {
                         mApi,
                         mResolver,
                         new ArrayList<Long>(remote.subList(0, Math.min(remote.size(), MINIMUM_LOCAL_ITEMS_STORED))),
-                        Track.class.equals(content.resourceType) ? Content.TRACKS : Content.USERS,
+                        Track.class.equals(content.modelType) ? Content.TRACKS : Content.USERS,
                         false
                 ));
                 break;
@@ -278,13 +277,13 @@ public class ApiSyncer {
      * @return a list of models which are not stored in the database
      * @throws IOException
      */
-    public static List<ScModel> getMissingModelsById(AndroidCloudAPI api,
+    public static List<ScResource> getMissingModelsById(AndroidCloudAPI api,
                                                      ContentResolver resolver,
                                                      List<Long> modelIds,
                                                      Content content,
                                                      boolean ignoreStored) throws IOException {
         if (modelIds == null || modelIds.isEmpty()) {
-            return ScModel.EMPTY_LIST;
+            return ScResource.EMPTY_LIST;
         }
         // copy so we don't modify the original
         List<Long> ids = new ArrayList<Long>(modelIds);
@@ -295,8 +294,8 @@ public class ApiSyncer {
         return doBatchLookup(api, ids, content);
     }
 
-    private static List<ScModel> doBatchLookup(AndroidCloudAPI api, List<Long> ids, Content content) throws IOException {
-        List<ScModel> models = new ArrayList<ScModel>();
+    private static List<ScResource> doBatchLookup(AndroidCloudAPI api, List<Long> ids, Content content) throws IOException {
+        List<ScResource> resources = new ArrayList<ScResource>();
         int i = 0;
         while (i < ids.size()) {
             List<Long> batch = ids.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, ids.size()));
@@ -307,14 +306,13 @@ public class ApiSyncer {
                     .add("limit", API_LOOKUP_BATCH_SIZE)
                     .add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
 
-            models.addAll(ScModel.getCollectionFromStream(is,
-                    api.getMapper(),
-                    content.resourceType
+            resources.addAll(ScResource.getCollectionFromStream(is,
+                    api.getMapper()
             ).collection);
 
             i += API_LOOKUP_BATCH_SIZE;
         }
-        return models;
+        return resources;
     }
 
     /**
