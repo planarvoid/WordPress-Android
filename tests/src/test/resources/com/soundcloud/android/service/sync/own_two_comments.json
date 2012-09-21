@@ -1,74 +1,74 @@
 {
   "collection": [
     {
-      "created_at": "2011/05/29 11:53:09 +0000",
-      "tags": "own, affiliated",
       "type": "comment",
+      "tags": "own, affiliated",
       "origin": {
-        "id": 17485296,
-        "uri": "https://api.soundcloud.com/comments/17485296",
-        "body": "heh :)",
-        "kind": "comment",
-        "user": {
-          "username": "fronx",
-          "id": 375367,
-          "uri": "https://api.soundcloud.com/users/375367",
-          "avatar_url": "http://i1.sndcdn.com/avatars-000003575192-wqnp00-large.jpg?8935bc4",
-          "kind": "user",
-          "permalink_url": "http://soundcloud.com/fronx",
-          "permalink": "fronx"
-        },
-        "track_id": 16110503,
-        "created_at": "2011/05/29 11:51:16 +0000",
         "user_id": 375367,
         "timestamp": null,
+        "body": "heh :)",
+        "uri": "https://api.soundcloud.com/comments/17485296",
+        "created_at": "2011/05/29 11:51:16 +0000",
+        "track_id": 16110503,
         "track": {
-          "id": 16110503,
-          "title": "Autotune at MTV",
+          "user_id": 133201,
           "uri": "https://api.soundcloud.com/tracks/16110503",
+          "title": "Autotune at MTV",
+          "permalink": "autotune-at-mtv",
+          "user_uri": "https://api.soundcloud.com/users/133201",
+          "stream_url": "https://api.soundcloud.com/tracks/16110503/stream",
           "kind": "track",
           "permalink_url": "http://soundcloud.com/jberkel/autotune-at-mtv",
-          "stream_url": "https://api.soundcloud.com/tracks/16110503/stream",
-          "user_id": 133201,
-          "user_uri": "https://api.soundcloud.com/users/133201",
-          "permalink": "autotune-at-mtv"
-        }
-      }
+          "id": 16110503
+        },
+        "user": {
+          "uri": "https://api.soundcloud.com/users/375367",
+          "permalink": "fronx",
+          "avatar_url": "http://i1.sndcdn.com/avatars-000003575192-wqnp00-large.jpg?8935bc4",
+          "username": "fronx",
+          "kind": "user",
+          "permalink_url": "http://soundcloud.com/fronx",
+          "id": 375367
+        },
+        "kind": "comment",
+        "id": 17485296
+      },
+      "created_at": "2011/05/29 11:53:09 +0000"
     },
     {
-      "created_at": "2011/05/29 11:53:09 +0000",
-      "tags": "own, affiliated",
       "type": "comment",
+      "tags": "own, affiliated",
       "origin": {
-        "id": 17485297,
-        "uri": "https://api.soundcloud.com/comments/17485296",
-        "body": "heh :)",
-        "kind": "comment",
-        "user": {
-          "username": "bronx",
-          "id": 5453,
-          "uri": "https://api.soundcloud.com/users/375367",
-          "avatar_url": "http://i1.sndcdn.com/avatars-000003575192-wqnp00-large.jpg?8935bc4",
-          "kind": "user",
-          "permalink_url": "http://soundcloud.com/fronx",
-          "permalink": "bronx"
-        },
-        "track_id": 16110503,
-        "created_at": "2011/05/29 11:51:16 +0000",
         "user_id": 375367,
         "timestamp": null,
+        "body": "heh :)",
+        "uri": "https://api.soundcloud.com/comments/17485296",
+        "created_at": "2011/05/29 11:51:16 +0000",
+        "track_id": 16110503,
         "track": {
-          "id": 16110503,
-          "title": "Autotune at MTV",
+          "user_id": 133201,
           "uri": "https://api.soundcloud.com/tracks/16110503",
+          "title": "Autotune at MTV",
+          "permalink": "autotune-at-mtv",
+          "user_uri": "https://api.soundcloud.com/users/133201",
+          "stream_url": "https://api.soundcloud.com/tracks/16110503/stream",
           "kind": "track",
           "permalink_url": "http://soundcloud.com/jberkel/autotune-at-mtv",
-          "stream_url": "https://api.soundcloud.com/tracks/16110503/stream",
-          "user_id": 133201,
-          "user_uri": "https://api.soundcloud.com/users/133201",
-          "permalink": "autotune-at-mtv"
-        }
-      }
+          "id": 16110503
+        },
+        "user": {
+          "uri": "https://api.soundcloud.com/users/375367",
+          "permalink": "bronx",
+          "avatar_url": "http://i1.sndcdn.com/avatars-000003575192-wqnp00-large.jpg?8935bc4",
+          "username": "bronx",
+          "kind": "user",
+          "permalink_url": "http://soundcloud.com/fronx",
+          "id": 5453
+        },
+        "kind": "comment",
+        "id": 17485297
+      },
+      "created_at": "2011/05/29 11:53:09 +0000"
     }
   ]
 }

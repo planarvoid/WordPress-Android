@@ -1,8 +1,10 @@
 package com.soundcloud.android.json;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
@@ -18,6 +20,6 @@ public class UserDeserializer extends JsonDeserializer<User> {
 
     @Override
     public User deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-        return SoundCloudApplication.USER_CACHE.assertCached(mapper.readValue(parser, User.class));
+        return SoundCloudApplication.USER_CACHE.assertCached(mapper.treeToValue(mapper.readTree(parser),User.class));
     }
 }

@@ -1,1 +1,15 @@
-{"gender":"male","email":"jan+ralph@soundcloud.com","kind":"user","verified":true,"timezone":2,"last_name":"Schmidt","name":"Ralph Schmidt","locale":"en_US","id":"100002298577764","updated_time":"2012-06-10T02:26:36+0000","username":"ralph.schmidt.33","link":"http://www.facebook.com/ralph.schmidt.33","first_name":"Ralph"}
+{
+  "link": "http://www.facebook.com/ralph.schmidt.33",
+  "id": "100002298577764",
+  "kind": "user",
+  "username": "ralph.schmidt.33",
+  "timezone": 2,
+  "updated_time": "2012-06-10T02:26:36+0000",
+  "name": "Ralph Schmidt",
+  "gender": "male",
+  "email": "jan+ralph@soundcloud.com",
+  "locale": "en_US",
+  "last_name": "Schmidt",
+  "first_name": "Ralph",
+  "verified": true
+}

@@ -1,53 +1,59 @@
 [
   {
-    "id": 24100348,
+    "user": {
+      "kind": "user",
+      "permalink_url": "http://soundcloud.com/yvg",
+      "permalink": "yvg",
+      "uri": "https://api.soundcloud.com/users/476254",
+      "username": "yvg",
+      "id": 476254,
+      "avatar_url": "http://i1.sndcdn.com/avatars-000007195988-vqn0b7-large.jpg?6cb05e8"
+    },
+    "kind": "comment",
     "created_at": "2011/08/22 11:35:24 +0000",
-    "user_id": 476254,
-    "track_id": 21607568,
-    "timestamp": 138751,
     "body": "wow, great voice!",
+    "timestamp": 138751,
     "uri": "https://api.soundcloud.com/comments/24100348",
-    "user": {
-      "id": 476254,
-      "permalink": "yvg",
-      "username": "yvg",
-      "uri": "https://api.soundcloud.com/users/476254",
-      "permalink_url": "http://soundcloud.com/yvg",
-      "avatar_url": "http://i1.sndcdn.com/avatars-000007195988-vqn0b7-large.jpg?6cb05e8"
-    }
+    "id": 24100348,
+    "track_id": 21607568,
+    "user_id": 476254
   },
   {
-    "id": 24100285,
+    "user": {
+      "kind": "user",
+      "permalink_url": "http://soundcloud.com/yvg",
+      "permalink": "yvg",
+      "uri": "https://api.soundcloud.com/users/476254",
+      "username": "yvg",
+      "id": 476254,
+      "avatar_url": "http://i1.sndcdn.com/avatars-000007195988-vqn0b7-large.jpg?6cb05e8"
+    },
+    "kind": "comment",
     "created_at": "2011/08/22 11:34:13 +0000",
-    "user_id": 476254,
-    "track_id": 21607568,
-    "timestamp": 73469,
     "body": "xD",
+    "timestamp": 73469,
     "uri": "https://api.soundcloud.com/comments/24100285",
-    "user": {
-      "id": 476254,
-      "permalink": "yvg",
-      "username": "yvg",
-      "uri": "https://api.soundcloud.com/users/476254",
-      "permalink_url": "http://soundcloud.com/yvg",
-      "avatar_url": "http://i1.sndcdn.com/avatars-000007195988-vqn0b7-large.jpg?6cb05e8"
-    }
+    "id": 24100285,
+    "track_id": 21607568,
+    "user_id": 476254
   },
   {
-    "id": 24100276,
-    "created_at": "2011/08/22 11:34:02 +0000",
-    "user_id": 476254,
-    "track_id": 21607568,
-    "timestamp": 13644,
-    "body": "invasion! :d",
-    "uri": "https://api.soundcloud.com/comments/24100276",
     "user": {
-      "id": 476254,
-      "permalink": "yvg",
-      "username": "yvg",
-      "uri": "https://api.soundcloud.com/users/476254",
+      "kind": "user",
       "permalink_url": "http://soundcloud.com/yvg",
+      "permalink": "yvg",
+      "uri": "https://api.soundcloud.com/users/476254",
+      "username": "yvg",
+      "id": 476254,
       "avatar_url": "http://i1.sndcdn.com/avatars-000007195988-vqn0b7-large.jpg?6cb05e8"
-    }
+    },
+    "kind": "comment",
+    "created_at": "2011/08/22 11:34:02 +0000",
+    "body": "invasion! :d",
+    "timestamp": 13644,
+    "uri": "https://api.soundcloud.com/comments/24100276",
+    "id": 24100276,
+    "track_id": 21607568,
+    "user_id": 476254
   }
 ]

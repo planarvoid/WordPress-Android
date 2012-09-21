@@ -1,39 +1,39 @@
 {
   "collection": [
     {
-      "created_at": "2010/02/20 12:55:24 +0000",
       "origin": {
-        "body": "So nice!",
+        "track_id": 539076,
         "kind": "comment",
         "created_at": "2010/02/20 12:55:24 +0000",
-        "user_id": 327051,
-        "id": 1281370,
-        "track": {
-          "title": "Artists Only",
-          "kind": "track",
-          "user_uri": "https://api.soundcloud.com/users/133201",
-          "user_id": 133201,
-          "permalink_url": "http://soundcloud.com/jberkel/artists-only",
-          "id": 539076,
-          "stream_url": "https://api.soundcloud.com/tracks/539076/stream",
-          "permalink": "artists-only",
-          "uri": "https://api.soundcloud.com/tracks/539076"
-        },
         "timestamp": 31830,
+        "track": {
+          "kind": "track",
+          "title": "Artists Only",
+          "id": 539076,
+          "uri": "https://api.soundcloud.com/tracks/539076",
+          "permalink": "artists-only",
+          "stream_url": "https://api.soundcloud.com/tracks/539076/stream",
+          "permalink_url": "http://soundcloud.com/jberkel/artists-only",
+          "user_id": 133201,
+          "user_uri": "https://api.soundcloud.com/users/133201"
+        },
+        "id": 1281370,
+        "uri": "https://api.soundcloud.com/comments/1281365",
         "user": {
           "kind": "user",
-          "permalink_url": "http://soundcloud.com/ianhooper",
           "username": "Ian Hooper",
-          "id": 327051,
           "avatar_url": "http://i1.sndcdn.com/avatars-000002166613-dix72d-large.jpg?8935bc4",
+          "id": 327051,
+          "uri": "https://api.soundcloud.com/users/327051",
           "permalink": "ianhooper",
-          "uri": "https://api.soundcloud.com/users/327051"
+          "permalink_url": "http://soundcloud.com/ianhooper"
         },
-        "uri": "https://api.soundcloud.com/comments/1281365",
-        "track_id": 539076
+        "user_id": 327051,
+        "body": "So nice!"
       },
-      "tags": "own, affiliated",
-      "type": "comment"
+      "created_at": "2010/02/20 12:55:24 +0000",
+      "type": "comment",
+      "tags": "own, affiliated"
     }
   ]
 }

@@ -147,7 +147,7 @@ public abstract class ScListActivity extends ScActivity {
             // changing tracks
             intent.putExtra(CloudPlaybackService.PlayExtras.trackId, t.id);
             if (info.uri != null) {
-                SoundCloudApplication.TRACK_CACHE.put(info.getTrack(), false);
+                SoundCloudApplication.MODEL_MANAGER.cache(info.getTrack());
                 intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.getTrack().id)
                       .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                       .setData(info.uri);

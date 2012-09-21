@@ -15,7 +15,7 @@ public class ScModelManager {
     private ObjectMapper mMapper;
 
     private TrackCache mTrackCache;
-    private LruCache<Long, User> mUserCache;
+    private UserCache mUserCache;
 
     public ScModelManager(Context context, ObjectMapper mapper) {
         mContext = context;
@@ -28,11 +28,19 @@ public class ScModelManager {
 
     public ScResource getCachedModel(Class<? extends ScResource> modelClass, long id) {
         if (Track.class.equals(modelClass)) {
-            return mTrackCache.get(id);
+            return getCachedTrack(id);
         } else if (User.class.equals(modelClass)) {
-            return mUserCache.get(id);
+            return getCachedUser(id);
         }
         return null;
+    }
+
+    public Track getCachedTrack(long id) {
+        return mTrackCache.get(id);
+    }
+
+    public User getCachedUser(long id) {
+        return mUserCache.get(id);
     }
 
     public ScResource cache(ScResource resource) {
@@ -48,19 +56,19 @@ public class ScModelManager {
     public Track cache(Track model) {
         if (mTrackCache.containsKey(model.id)) {
             return mTrackCache.get(model.id).updateFrom(mContext, model);
+        } else {
+            mTrackCache.put(model);
+            return model;
         }
-        return model;
     }
 
     public User cache(User model) {
         if (mUserCache.containsKey(model.id)) {
             return mUserCache.get(model.id).updateFrom(model);
+        } else {
+            mUserCache.put(model);
+            return model;
         }
-        return model;
-    }
 
-    public Track put(Track t) {
-        return mTrackCache.putWithLocalFields(t);
     }
-
 }

@@ -6,6 +6,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackHolder;
 import com.soundcloud.android.model.User;
@@ -34,7 +35,7 @@ public class PlaylistManagerTest {
     @Before
     public void before() {
         resolver = Robolectric.application.getContentResolver();
-        pm = new PlaylistManager(Robolectric.application, SoundCloudApplication.TRACK_CACHE, USER_ID);
+        pm = new PlaylistManager(Robolectric.application, SoundCloudApplication.MODEL_MANAGER, USER_ID);
 
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
     }
@@ -266,7 +267,7 @@ public class PlaylistManagerTest {
         PlaylistManager.clearState(Robolectric.application);
         expect(pm.reloadQueue()).toEqual(0L);
 
-        PlaylistManager pm2 = new PlaylistManager(Robolectric.application, new TrackCache(), USER_ID);
+        PlaylistManager pm2 = new PlaylistManager(Robolectric.application, new ScModelManager(Robolectric.application,SoundCloudApplication.Mapper), USER_ID);
         expect(pm2.reloadQueue()).toEqual(0L);
         expect(pm2.getPosition()).toEqual(0);
         expect(pm2.length()).toEqual(0);

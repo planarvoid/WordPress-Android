@@ -5,6 +5,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
@@ -34,12 +35,12 @@ public class PlaylistManager {
 
     private int mPlayPos;
     private final Context mContext;
-    private TrackCache mCache;
+    private ScModelManager mModelManager;
 
     private long mUserId;
 
-    public PlaylistManager(Context context, TrackCache cache, long userId) {
-        mCache = cache;
+    public PlaylistManager(Context context, ScModelManager modelManager, long userId) {
+        mModelManager = modelManager;
         mContext = context;
         mUserId = userId;
     }
@@ -81,7 +82,7 @@ public class PlaylistManager {
                     mPlaylist[pos] = new Track(mTrackCursor);
                 }
             }
-            mCache.put(mPlaylist[pos], false);
+            mModelManager.cache(mPlaylist[pos]);
             return mPlaylist[pos];
 
         } else {
@@ -150,7 +151,7 @@ public class PlaylistManager {
     }
 
     public void setTrack(Track toBePlayed) {
-        mCache.put(toBePlayed, false);
+        mModelManager.cache(toBePlayed);
         mPlaylist = new Track[] { toBePlayed };
         mPlaylistUri = new PlaylistUri();
         mPlayPos = 0;
@@ -161,7 +162,7 @@ public class PlaylistManager {
     public void loadUri(Uri uri, int position, long initialTrackId) {
         Track t = null;
         if (initialTrackId != -1) {
-            t = mCache.get(initialTrackId);
+            t = mModelManager.getCachedTrack(initialTrackId);
             // ensure that we have an initial track to load, should be cached to avoid this db hit on the UI
             if (t == null) {
                 t = SoundCloudDB.getTrackById(mContext.getContentResolver(), initialTrackId);

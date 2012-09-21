@@ -1,1 +1,27 @@
-{"collection":[{"website":null,"description":"A description","permalink_url":"http://soundcloud.com/soundcloud-android-mwc","public_favorites_count":10,"country":"Germany","followers_count":4,"city":"Berlin","username":"SoundCloud Android @ MWC","myspace_name":null,"website_title":null,"permalink":"soundcloud-android-mwc","id":3135930,"online":false,"full_name":"SoundCloud Android","avatar_url":"http://i1.soundcloud.com/avatars-000002679242-0j7zgk-large.jpg?05a778","uri":"http://api.soundcloud.com/users/3135930","followings_count":63,"kind":"user","track_count":11,"discogs_name":null}],"next_href":"https://api.soundcloud.com/tracks.json?limit=50&linked_partitioning=1&offset=50"}
+{
+  "next_href": "https://api.soundcloud.com/tracks.json?limit=50&linked_partitioning=1&offset=50",
+  "collection": [
+    {
+      "discogs_name": null,
+      "uri": "http://api.soundcloud.com/users/3135930",
+      "id": 3135930,
+      "followings_count": 63,
+      "avatar_url": "http://i1.soundcloud.com/avatars-000002679242-0j7zgk-large.jpg?05a778",
+      "public_favorites_count": 10,
+      "full_name": "SoundCloud Android",
+      "track_count": 11,
+      "kind": "user",
+      "username": "SoundCloud Android @ MWC",
+      "city": "Berlin",
+      "followers_count": 4,
+      "country": "Germany",
+      "website": null,
+      "online": false,
+      "website_title": null,
+      "permalink_url": "http://soundcloud.com/soundcloud-android-mwc",
+      "myspace_name": null,
+      "description": "A description",
+      "permalink": "soundcloud-android-mwc"
+    }
+  ]
+}

@@ -1,104 +1,104 @@
 {
-  "next_href": "https://api.soundcloud.com/me/activities/tracks?cursor=new_href",
   "collection": [
     {
-      "created_at": "2011/07/29 22:30:59 +0000",
-      "type": "favoriting",
       "origin": {
         "track": {
           "title": "P. Watzlawick - Anleitung zum Unglücklichsein",
-          "user_id": 133201,
-          "id": 13090155,
-          "kind": "track",
           "user_uri": "https://api.soundcloud.com/users/133201",
-          "stream_url": "https://api.soundcloud.com/tracks/13090155/stream",
           "uri": "https://api.soundcloud.com/tracks/13090155",
+          "user_id": 133201,
           "permalink": "p-watzlawick-anleitung-zum",
-          "permalink_url": "http://soundcloud.com/jberkel/p-watzlawick-anleitung-zum"
+          "permalink_url": "http://soundcloud.com/jberkel/p-watzlawick-anleitung-zum",
+          "id": 13090155,
+          "stream_url": "https://api.soundcloud.com/tracks/13090155/stream",
+          "kind": "track"
         },
         "user": {
-          "id": 6311652,
-          "kind": "user",
-          "uri": "https://api.soundcloud.com/users/6311652",
           "avatar_url": "http://i1.sndcdn.com/avatars-000005077051-ttwttz-large.jpg?0dfc9e6",
+          "uri": "https://api.soundcloud.com/users/6311652",
           "permalink": "paulko",
+          "username": "Paul Ko",
           "permalink_url": "http://soundcloud.com/paulko",
-          "username": "Paul Ko"
+          "id": 6311652,
+          "kind": "user"
         }
       },
-      "tags": "own"
+      "type": "favoriting",
+      "tags": "own",
+      "created_at": "2011/07/29 22:30:59 +0000"
     },
     {
-      "created_at": "2011/07/29 15:26:44 +0000",
-      "type": "comment",
       "origin": {
-        "created_at": "2011/07/29 15:26:44 +0000",
-        "body": "Hach, Fernweh.",
-        "user_id": 1360,
-        "id": 22140210,
-        "kind": "comment",
         "track": {
           "title": "Sounds from Dalston Kingsland Railway Station (DLK)",
-          "user_id": 133201,
-          "id": 20023414,
-          "artwork_url": "http://i1.sndcdn.com/artworks-000009823303-xte9r2-large.jpg?0dfc9e6",
-          "kind": "track",
           "user_uri": "https://api.soundcloud.com/users/133201",
-          "stream_url": "https://api.soundcloud.com/tracks/20023414/stream",
           "uri": "https://api.soundcloud.com/tracks/20023414",
+          "user_id": 133201,
           "permalink": "sounds-from-dalston-kingsland",
-          "permalink_url": "http://soundcloud.com/jberkel/sounds-from-dalston-kingsland"
+          "artwork_url": "http://i1.sndcdn.com/artworks-000009823303-xte9r2-large.jpg?0dfc9e6",
+          "permalink_url": "http://soundcloud.com/jberkel/sounds-from-dalston-kingsland",
+          "id": 20023414,
+          "stream_url": "https://api.soundcloud.com/tracks/20023414/stream",
+          "kind": "track"
         },
-        "timestamp": null,
-        "track_id": 20023414,
         "uri": "https://api.soundcloud.com/comments/22140210",
+        "body": "Hach, Fernweh.",
+        "track_id": 20023414,
+        "timestamp": null,
+        "user_id": 1360,
         "user": {
-          "id": 1360,
-          "kind": "user",
-          "uri": "https://api.soundcloud.com/users/1360",
           "avatar_url": "http://i1.sndcdn.com/avatars-000003534540-77he5z-large.jpg?0dfc9e6",
+          "uri": "https://api.soundcloud.com/users/1360",
           "permalink": "jensnikolaus",
+          "username": "jensnikolaus",
           "permalink_url": "http://soundcloud.com/jensnikolaus",
-          "username": "jensnikolaus"
-        }
+          "id": 1360,
+          "kind": "user"
+        },
+        "id": 22140210,
+        "kind": "comment",
+        "created_at": "2011/07/29 15:26:44 +0000"
       },
-      "tags": "own, affiliated"
+      "type": "comment",
+      "tags": "own, affiliated",
+      "created_at": "2011/07/29 15:26:44 +0000"
     },
     {
-      "created_at": "2011/07/23 11:52:29 +0000",
-      "type": "comment",
       "origin": {
-        "created_at": "2011/07/23 11:52:28 +0000",
-        "body": "its a very quiet lullaby....eddie...",
-        "user_id": 4253183,
-        "id": 21623911,
-        "kind": "comment",
         "track": {
           "title": "lullaby",
-          "user_id": 133201,
-          "id": 19446062,
-          "kind": "track",
           "user_uri": "https://api.soundcloud.com/users/133201",
-          "stream_url": "https://api.soundcloud.com/tracks/19446062/stream",
           "uri": "https://api.soundcloud.com/tracks/19446062",
+          "user_id": 133201,
           "permalink": "lullaby",
-          "permalink_url": "http://soundcloud.com/jberkel/lullaby"
+          "permalink_url": "http://soundcloud.com/jberkel/lullaby",
+          "id": 19446062,
+          "stream_url": "https://api.soundcloud.com/tracks/19446062/stream",
+          "kind": "track"
         },
-        "timestamp": 58982,
-        "track_id": 19446062,
         "uri": "https://api.soundcloud.com/comments/21623911",
+        "body": "its a very quiet lullaby....eddie...",
+        "track_id": 19446062,
+        "timestamp": 58982,
+        "user_id": 4253183,
         "user": {
-          "id": 4253183,
-          "kind": "user",
-          "uri": "https://api.soundcloud.com/users/4253183",
           "avatar_url": "http://i1.sndcdn.com/avatars-000003378812-m83f4d-large.jpg?0dfc9e6",
+          "uri": "https://api.soundcloud.com/users/4253183",
           "permalink": "eddiesongwriter",
+          "username": "EddieSongWriter",
           "permalink_url": "http://soundcloud.com/eddiesongwriter",
-          "username": "EddieSongWriter"
-        }
+          "id": 4253183,
+          "kind": "user"
+        },
+        "id": 21623911,
+        "kind": "comment",
+        "created_at": "2011/07/23 11:52:28 +0000"
       },
-      "tags": "own"
+      "type": "comment",
+      "tags": "own",
+      "created_at": "2011/07/23 11:52:29 +0000"
     }
   ],
-  "future_href": "https://api.soundcloud.com/me/activities/tracks?uuid[to]=new_href"
+  "future_href": "https://api.soundcloud.com/me/activities/tracks?uuid[to]=new_href",
+  "next_href": "https://api.soundcloud.com/me/activities/tracks?cursor=new_href"
 }

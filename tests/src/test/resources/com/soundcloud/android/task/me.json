@@ -1,1 +1,25 @@
-{"description":null,"uri":"http://api.soundcloud.com/users/3090821","id":3090821,"followers_count":0,"website_title":null,"kind":"user","followings_count":1,"permalink":"testing","plan":"Free","online":true,"avatar_url":"http://a1.soundcloud.com/images/default_avatar_large.png?05a778","track_count":8,"website":null,"city":"Test","myspace_name":null,"discogs_name":null,"permalink_url":"http://soundcloud.com/testing","username":"testing","private_tracks_count":0,"public_favorites_count":0,"full_name":"Test Or","primary_email_confirmed":false,"country":null}
+{
+  "website": null,
+  "website_title": null,
+  "private_tracks_count": 0,
+  "permalink_url": "http://soundcloud.com/testing",
+  "permalink": "testing",
+  "followings_count": 1,
+  "id": 3090821,
+  "myspace_name": null,
+  "plan": "Free",
+  "kind": "user",
+  "public_favorites_count": 0,
+  "username": "testing",
+  "full_name": "Test Or",
+  "online": true,
+  "track_count": 8,
+  "country": null,
+  "city": "Test",
+  "uri": "http://api.soundcloud.com/users/3090821",
+  "avatar_url": "http://a1.soundcloud.com/images/default_avatar_large.png?05a778",
+  "followers_count": 0,
+  "primary_email_confirmed": false,
+  "discogs_name": null,
+  "description": null
+}

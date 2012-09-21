@@ -176,7 +176,9 @@ public class Track extends ScResource implements Origin, Playable, Refreshable {
 
     @Override
     public void refreshTimeSinceCreated(Context context) {
-        _elapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
+        if (created_at != null){
+            _elapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
+        }
     }
 
     public void refreshListArtworkUri(Context context) {

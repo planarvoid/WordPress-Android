@@ -1,69 +1,69 @@
 {
-  "future_href": "https://api.soundcloud.com/me/activities/tracks?uuid[to]=new_href",
-  "next_href": null,
   "collection": [
     {
-      "type": "favoriting",
-      "created_at": "2011/07/29 22:30:59 +0000",
       "origin": {
         "track": {
           "title": "P. Watzlawick - Anleitung zum Unglücklichsein",
-          "permalink_url": "http://soundcloud.com/jberkel/p-watzlawick-anleitung-zum",
           "uri": "https://api.soundcloud.com/tracks/13090155",
+          "permalink_url": "http://soundcloud.com/jberkel/p-watzlawick-anleitung-zum",
           "user_uri": "https://api.soundcloud.com/users/133201",
           "stream_url": "https://api.soundcloud.com/tracks/13090155/stream",
-          "permalink": "p-watzlawick-anleitung-zum",
           "kind": "track",
-          "id": 13090155,
-          "user_id": 133201
+          "permalink": "p-watzlawick-anleitung-zum",
+          "user_id": 133201,
+          "id": 13090155
         },
         "user": {
-          "avatar_url": "http://i1.sndcdn.com/avatars-000005077051-ttwttz-large.jpg?0dfc9e6",
-          "permalink_url": "http://soundcloud.com/paulko",
           "uri": "https://api.soundcloud.com/users/6311652",
-          "permalink": "paulko",
+          "permalink_url": "http://soundcloud.com/paulko",
+          "avatar_url": "http://i1.sndcdn.com/avatars-000005077051-ttwttz-large.jpg?0dfc9e6",
           "kind": "user",
-          "id": 6311652,
-          "username": "Paul Ko"
+          "permalink": "paulko",
+          "username": "Paul Ko",
+          "id": 6311652
         }
       },
-      "tags": "own"
+      "created_at": "2011/07/29 22:30:59 +0000",
+      "tags": "own",
+      "type": "favoriting"
     },
     {
-      "type": "comment",
-      "created_at": "2011/07/29 15:26:44 +0000",
       "origin": {
-        "uri": "https://api.soundcloud.com/comments/22140210",
-        "created_at": "2011/07/29 15:26:44 +0000",
-        "body": "Hach, Fernweh.",
-        "kind": "comment",
-        "id": 22140210,
-        "track": {
-          "title": "Sounds from Dalston Kingsland Railway Station (DLK)",
-          "permalink_url": "http://soundcloud.com/jberkel/sounds-from-dalston-kingsland",
-          "uri": "https://api.soundcloud.com/tracks/20023414",
-          "user_uri": "https://api.soundcloud.com/users/133201",
-          "stream_url": "https://api.soundcloud.com/tracks/20023414/stream",
-          "artwork_url": "http://i1.sndcdn.com/artworks-000009823303-xte9r2-large.jpg?0dfc9e6",
-          "permalink": "sounds-from-dalston-kingsland",
-          "kind": "track",
-          "id": 20023414,
-          "user_id": 133201
-        },
         "track_id": 20023414,
         "timestamp": null,
-        "user": {
-          "avatar_url": "http://i1.sndcdn.com/avatars-000003534540-77he5z-large.jpg?0dfc9e6",
-          "permalink_url": "http://soundcloud.com/jensnikolaus",
-          "uri": "https://api.soundcloud.com/users/1360",
-          "permalink": "jensnikolaus",
-          "kind": "user",
-          "id": 1360,
-          "username": "jensnikolaus"
+        "uri": "https://api.soundcloud.com/comments/22140210",
+        "created_at": "2011/07/29 15:26:44 +0000",
+        "track": {
+          "title": "Sounds from Dalston Kingsland Railway Station (DLK)",
+          "uri": "https://api.soundcloud.com/tracks/20023414",
+          "permalink_url": "http://soundcloud.com/jberkel/sounds-from-dalston-kingsland",
+          "user_uri": "https://api.soundcloud.com/users/133201",
+          "stream_url": "https://api.soundcloud.com/tracks/20023414/stream",
+          "kind": "track",
+          "permalink": "sounds-from-dalston-kingsland",
+          "artwork_url": "http://i1.sndcdn.com/artworks-000009823303-xte9r2-large.jpg?0dfc9e6",
+          "user_id": 133201,
+          "id": 20023414
         },
-        "user_id": 1360
+        "kind": "comment",
+        "body": "Hach, Fernweh.",
+        "user_id": 1360,
+        "user": {
+          "uri": "https://api.soundcloud.com/users/1360",
+          "permalink_url": "http://soundcloud.com/jensnikolaus",
+          "avatar_url": "http://i1.sndcdn.com/avatars-000003534540-77he5z-large.jpg?0dfc9e6",
+          "kind": "user",
+          "permalink": "jensnikolaus",
+          "username": "jensnikolaus",
+          "id": 1360
+        },
+        "id": 22140210
       },
-      "tags": "own, affiliated"
+      "created_at": "2011/07/29 15:26:44 +0000",
+      "tags": "own, affiliated",
+      "type": "comment"
     }
-  ]
+  ],
+  "future_href": "https://api.soundcloud.com/me/activities/tracks?uuid[to]=new_href",
+  "next_href": null
 }

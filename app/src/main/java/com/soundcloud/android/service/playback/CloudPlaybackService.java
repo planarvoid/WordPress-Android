@@ -137,7 +137,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private boolean mWaitingForSeek;
 
     private StreamProxy mProxy;
-    private TrackCache mCache;
 
     // audio focus related
     private IRemoteAudioManager mFocus;
@@ -174,8 +173,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     @Override
     public void onCreate() {
         super.onCreate();
-        mCache = SoundCloudApplication.TRACK_CACHE;
-        mPlaylistManager = new PlaylistManager(this, mCache, SoundCloudApplication.getUserId());
+        mPlaylistManager = new PlaylistManager(this, SoundCloudApplication.MODEL_MANAGER, SoundCloudApplication.getUserId());
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         IntentFilter commandFilter = new IntentFilter();
@@ -899,8 +897,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
         }
 
-        if (mCache.containsKey(trackId)) {
-            mCache.get(trackId).user_favorite = isFavorite;
+        final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(trackId);
+        if (cachedTrack != null) {
+            cachedTrack.user_favorite = isFavorite;
         }
 
         if (currentTrack.id == trackId && currentTrack.user_favorite != isFavorite) {

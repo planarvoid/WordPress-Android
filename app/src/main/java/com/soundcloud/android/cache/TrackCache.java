@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DBHelper;
 
 import java.util.ArrayList;
@@ -15,14 +16,7 @@ public class TrackCache extends LruCache<Long, Track> {
     }
 
     public Track put(Track t) {
-        return put(t, true);
-    }
-
-    public Track put(Track t, boolean overwrite) {
-        if (t != null && (!containsKey(t.id) || overwrite)){
-            return put(t.id,t);
-        }
-        return null;
+        return t != null ? put(t.id, t) : null;
     }
 
     /*

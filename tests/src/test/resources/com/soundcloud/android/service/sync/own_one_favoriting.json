@@ -1,31 +1,31 @@
 {
   "collection": [
     {
+      "type": "favoriting",
+      "tags": "own",
       "origin": {
         "track": {
-          "user_uri": "https://api.soundcloud.com/users/133201",
-          "stream_url": "https://api.soundcloud.com/tracks/13090155/stream",
-          "user_id": 133201,
           "id": 13090155,
-          "permalink_url": "http://soundcloud.com/jberkel/p-watzlawick-anleitung-zum",
+          "stream_url": "https://api.soundcloud.com/tracks/13090155/stream",
+          "user_uri": "https://api.soundcloud.com/users/133201",
           "uri": "https://api.soundcloud.com/tracks/13090155",
+          "user_id": 133201,
+          "permalink_url": "http://soundcloud.com/jberkel/p-watzlawick-anleitung-zum",
+          "kind": "track",
           "permalink": "p-watzlawick-anleitung-zum",
-          "title": "P. Watzlawick - Anleitung zum Unglücklichsein",
-          "kind": "track"
+          "title": "P. Watzlawick - Anleitung zum Unglücklichsein"
         },
         "user": {
-          "username": "Paul Ko",
-          "avatar_url": "http://i1.sndcdn.com/avatars-000005077051-ttwttz-large.jpg?8935bc4",
           "id": 6311652,
-          "permalink_url": "http://soundcloud.com/paulko",
           "uri": "https://api.soundcloud.com/users/6311652",
+          "permalink_url": "http://soundcloud.com/paulko",
+          "kind": "user",
           "permalink": "paulko",
-          "kind": "user"
+          "avatar_url": "http://i1.sndcdn.com/avatars-000005077051-ttwttz-large.jpg?8935bc4",
+          "username": "Paul Ko"
         }
       },
-      "created_at": "2011/07/29 22:30:59 +0000",
-      "type": "favoriting",
-      "tags": "own"
+      "created_at": "2011/07/29 22:30:59 +0000"
     }
   ]
 }

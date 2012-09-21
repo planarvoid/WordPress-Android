@@ -1,1 +1,22 @@
-{"city":"Berlin","permalink_url":"http://soundcloud.com/soundcloud-android-mwc","uri":"http://api.soundcloud.com/users/3135930","country":"Germany","permalink":"soundcloud-android-mwc","track_count":11,"online":false,"description":"A description","followers_count":4,"website":null,"full_name":"SoundCloud Android","id":3135930,"kind":"user","followings_count":63,"myspace_name":null,"discogs_name":null,"avatar_url":"http://i1.soundcloud.com/avatars-000002679242-0j7zgk-large.jpg?05a778","website_title":null,"public_favorites_count":10,"username":"SoundCloud Android @ MWC"}
+{
+  "website_title": null,
+  "followings_count": 63,
+  "kind": "user",
+  "track_count": 11,
+  "uri": "http://api.soundcloud.com/users/3135930",
+  "username": "SoundCloud Android @ MWC",
+  "avatar_url": "http://i1.soundcloud.com/avatars-000002679242-0j7zgk-large.jpg?05a778",
+  "description": "A description",
+  "country": "Germany",
+  "permalink_url": "http://soundcloud.com/soundcloud-android-mwc",
+  "online": false,
+  "city": "Berlin",
+  "discogs_name": null,
+  "website": null,
+  "public_favorites_count": 10,
+  "myspace_name": null,
+  "id": 3135930,
+  "full_name": "SoundCloud Android",
+  "followers_count": 4,
+  "permalink": "soundcloud-android-mwc"
+}
