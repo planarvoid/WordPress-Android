@@ -3,14 +3,12 @@ package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,12 +33,10 @@ public class PlaylistManager {
 
     private int mPlayPos;
     private final Context mContext;
-    private ScModelManager mModelManager;
 
     private long mUserId;
 
-    public PlaylistManager(Context context, ScModelManager modelManager, long userId) {
-        mModelManager = modelManager;
+    public PlaylistManager(Context context, long userId) {
         mContext = context;
         mUserId = userId;
     }
@@ -79,10 +75,9 @@ public class PlaylistManager {
         if (pos >= 0 && pos < mPlaylist.length) {
             if (mPlaylist[pos] == null) {
                 if (mTrackCursor != null && !mTrackCursor.isClosed() && mTrackCursor.moveToPosition(pos)){
-                    mPlaylist[pos] = new Track(mTrackCursor);
+                    mPlaylist[pos] = SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(mTrackCursor);
                 }
             }
-            mModelManager.cache(mPlaylist[pos]);
             return mPlaylist[pos];
 
         } else {
@@ -144,14 +139,14 @@ public class PlaylistManager {
     }
 
     public void setTrack(long toBePlayed) {
-        Track t = SoundCloudDB.getTrackById(mContext.getContentResolver(), toBePlayed);
+        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(toBePlayed);
         if (t != null) {
             setTrack(t);
         }
     }
 
     public void setTrack(Track toBePlayed) {
-        mModelManager.cache(toBePlayed);
+        SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, false);
         mPlaylist = new Track[] { toBePlayed };
         mPlaylistUri = new PlaylistUri();
         mPlayPos = 0;
@@ -162,10 +157,10 @@ public class PlaylistManager {
     public void loadUri(Uri uri, int position, long initialTrackId) {
         Track t = null;
         if (initialTrackId != -1) {
-            t = mModelManager.getCachedTrack(initialTrackId);
+            t = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(initialTrackId);
             // ensure that we have an initial track to load, should be cached to avoid this db hit on the UI
             if (t == null) {
-                t = SoundCloudDB.getTrackById(mContext.getContentResolver(), initialTrackId);
+                t = SoundCloudApplication.MODEL_MANAGER.getTrack(initialTrackId);
             }
         }
         loadUri(uri, position, t);
@@ -256,7 +251,7 @@ public class PlaylistManager {
                 List<Track> tracks = new ArrayList<Track>();
                 Collections.addAll(tracks, mPlaylist);
                 mContext.getContentResolver().delete(playlistUri, null, null);
-                SoundCloudDB.bulkInsertModels(mContext.getContentResolver(), (List<? extends ScResource>) tracks, playlistUri, mUserId);
+                SoundCloudApplication.MODEL_MANAGER.writeCollection(tracks, playlistUri, mUserId);
                 return null;
             }
         }.execute((Void[]) null);
@@ -299,7 +294,7 @@ public class PlaylistManager {
             long seekPos      = playlistUri.getSeekPos();
             final int trackId = playlistUri.getTrackId();
             if (trackId > 0) {
-                Track t = SoundCloudDB.getTrackById(mContext.getContentResolver(), trackId);
+                Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(trackId);
                 loadUri(playlistUri.uri, playlistUri.getPos(), t);
                 // adjust play position if it has changed
                 if (getCurrentTrack() != null && getCurrentTrack().id != trackId && playlistUri.isCollectionUri()) {

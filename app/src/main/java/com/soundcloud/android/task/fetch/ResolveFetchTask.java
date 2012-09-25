@@ -1,8 +1,9 @@
 package com.soundcloud.android.task.fetch;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.ResolveTask;
 import com.soundcloud.api.Request;
 
@@ -120,9 +121,9 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
                     try {
                         long _id = Long.parseLong(id);
                         if ("tracks".equalsIgnoreCase(type)) {
-                            return SoundCloudDB.getTrackById(mApi.getContext().getContentResolver(), _id);
+                            return SoundCloudApplication.MODEL_MANAGER.getTrack(_id);
                         } else if ("users".equalsIgnoreCase(type)) {
-                            return SoundCloudDB.getUserById(mApi.getContext().getContentResolver(), _id);
+                            return SoundCloudApplication.MODEL_MANAGER.getUser(_id);
                         }
                     } catch (NumberFormatException ignored) {
                     }

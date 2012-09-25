@@ -54,10 +54,10 @@ public class AddCommentTask extends AsyncTask<Comment, String, Comment> {
     @Override
     protected void onPostExecute(Comment comment) {
         if (comment != null) {
-            if (SoundCloudApplication.TRACK_CACHE.containsKey(comment.track_id)) {
-                final Track track = SoundCloudApplication.TRACK_CACHE.get(comment.track_id);
-                if (track.comments == null) track.comments = new ArrayList<Comment>();
-                track.comments.add(comment);
+            Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(comment.track_id);
+            if (t != null) {
+                if (t.comments == null) t.comments = new ArrayList<Comment>();
+                t.comments.add(comment);
             }
             app.sendBroadcast(new Intent(Actions.COMMENT_ADDED)
                     .putExtra("id", comment.track_id)

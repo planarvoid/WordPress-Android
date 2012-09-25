@@ -9,7 +9,6 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -33,7 +32,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.IOException;
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 
 /**
@@ -208,14 +206,7 @@ public class SyncAdapterService extends Service {
                 && extras.containsKey(SyncAdapterService.EXTRA_PUSH_EVENT_URI)) {
             final long id = PushEvent.getIdFromUri(extras.getString(SyncAdapterService.EXTRA_PUSH_EVENT_URI));
             if (id != -1) {
-                User u = SoundCloudApplication.USER_CACHE.containsKey(id) ? SoundCloudApplication.USER_CACHE.get(id)
-                        : SoundCloudDB.getUserById(app.getContentResolver(), id);
-
-
-                //
-                SoundCloudApplication.USER_CACHE.put(u);
-
-
+                User u = SoundCloudApplication.MODEL_MANAGER.getUser(id);
                 if (u != null && !u.isStale()){
                     Message.showNewFollower(app, u);
                     return true;
@@ -224,8 +215,7 @@ public class SyncAdapterService extends Service {
                         HttpResponse resp = app.get(Request.to(Endpoints.USERS + "/" + id));
                         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                             u = app.getMapper().readValue(resp.getEntity().getContent(), User.class);
-                            SoundCloudDB.insertUser(app.getContentResolver(), u);
-                            SoundCloudApplication.USER_CACHE.put(u);
+                            SoundCloudApplication.MODEL_MANAGER.write(u);
                             Message.showNewFollower(app, u);
                             return true;
                         }

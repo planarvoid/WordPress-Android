@@ -68,6 +68,7 @@ public class ScListFragment extends SherlockListFragment
 
     private boolean mContentInvalid, mObservingContent;
     protected String mNextHref;
+    private boolean mKeepGoing;
 
 
     public static ScListFragment newInstance(Content content) {
@@ -91,6 +92,7 @@ public class ScListFragment extends SherlockListFragment
 
         mContentUri = (Uri) getArguments().get("contentUri");
         mContent = Content.match(mContentUri);
+        mKeepGoing = true;
 
         if (mContent.isSyncable()) {
 
@@ -371,7 +373,9 @@ public class ScListFragment extends SherlockListFragment
 
     protected void onContentChanged() {
         mContentInvalid = true;
-        executeRefreshTask();
+        if (!isRefreshing()){
+            executeRefreshTask();
+        }
     }
 
     public void executeRefreshTask() {
@@ -447,6 +451,7 @@ public class ScListFragment extends SherlockListFragment
             setListAdapter(adp);
             adp.notifyDataSetChanged();
         }
+        mKeepGoing = true;
         clearRefreshTask();
         clearUpdateTask();
     }
@@ -506,6 +511,7 @@ public class ScListFragment extends SherlockListFragment
 
     @Override
     public void onPostTaskExecute(ReturnData data) {
+        mKeepGoing = data.keepGoing;
         getListAdapter().handleTaskReturnData(data);
 
         if (data.wasRefresh) {
@@ -527,7 +533,7 @@ public class ScListFragment extends SherlockListFragment
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        if (getListAdapter().shouldRequestNextPage(firstVisibleItem, visibleItemCount, totalItemCount)) {
+        if (getListAdapter().shouldRequestNextPage(firstVisibleItem, visibleItemCount, totalItemCount) && mKeepGoing) {
             append();
         }
     }

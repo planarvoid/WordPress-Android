@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -22,7 +23,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -147,7 +147,7 @@ public abstract class ScListActivity extends ScActivity {
             // changing tracks
             intent.putExtra(CloudPlaybackService.PlayExtras.trackId, t.id);
             if (info.uri != null) {
-                SoundCloudApplication.MODEL_MANAGER.cache(info.getTrack());
+                SoundCloudApplication.MODEL_MANAGER.cache(info.getTrack(), false);
                 intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.getTrack().id)
                       .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                       .setData(info.uri);

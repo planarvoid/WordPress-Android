@@ -157,4 +157,10 @@ public class Comment extends ScResource implements Origin {
             return new Comment[size];
         }
     };
+
+    public Origin resolveCache(ScModelManager modelManager, boolean updateCachedInstance) {
+        track = modelManager.cache(track, updateCachedInstance);
+        user = modelManager.cache(user, updateCachedInstance);
+        return this;
+    }
 }

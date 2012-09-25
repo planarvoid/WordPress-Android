@@ -3,6 +3,7 @@ package com.soundcloud.android.view.adapter;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.SearchSuggestionsAdapter;
 import com.soundcloud.android.model.Playable;
@@ -233,7 +234,7 @@ public class TrackInfoBar extends LazyRow {
 
     @Override
     public void display(Cursor cursor) {
-        display(cursor.getPosition(), new Track(cursor));
+        display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor));
     }
 
     @Override

@@ -54,7 +54,7 @@ public class Activity extends ScModel implements Refreshable, Origin, Playable, 
         created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.CREATED_AT)));
         switch (type) {
             case TRACK:
-                origin = SoundCloudApplication.TRACK_CACHE.fromActivityCursor(c);
+                origin = SoundCloudApplication.MODEL_MANAGER.TRACK_CACHE.fromActivityCursor(c);
                 break;
             case TRACK_SHARING:
                 origin = new TrackSharing(c);

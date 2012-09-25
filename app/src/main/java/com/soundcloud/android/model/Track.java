@@ -11,12 +11,10 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.track.TracksByTag;
-import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Tracks;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchModelTask;
@@ -251,11 +249,7 @@ public class Track extends ScResource implements Origin, Playable, Refreshable {
         readFromParcel(in);
     }
 
-    public Track(Cursor cursor) {
-        updateFromCursor(cursor);
-    }
-
-    public Track updateFromCursor(Cursor cursor) {
+    Track(Cursor cursor) {
         final int trackIdIdx = cursor.getColumnIndex(DBHelper.ActivityView.TRACK_ID);
         if (trackIdIdx == -1) {
             id = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView._ID));
@@ -296,7 +290,6 @@ public class Track extends ScResource implements Origin, Playable, Refreshable {
             last_updated = lastUpdated;
         }
 
-        user = SoundCloudApplication.USER_CACHE.fromTrackView(cursor);
         // gets joined in
         final int favIdx = cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE);
         if (favIdx != -1) {
@@ -310,11 +303,11 @@ public class Track extends ScResource implements Origin, Playable, Refreshable {
         if (cachedIdx != -1) {
             local_cached = cursor.getInt(cachedIdx) == 1;
         }
-        return this;
     }
 
     @Override
     public void resolve(Context context) {
+
         refreshTimeSinceCreated(context);
         refreshListArtworkUri(context);
     }
@@ -541,14 +534,13 @@ public class Track extends ScResource implements Origin, Playable, Refreshable {
         return new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(EXTRA, this);
     }
 
-    public Uri commitLocally(ContentResolver resolver, TrackCache cache) {
+    public Uri commitLocally() {
         last_updated = System.currentTimeMillis();
         full_track_info_loaded = true;
-        cache.putWithLocalFields(this);
-        return SoundCloudDB.upsertTrack(resolver, this);
+        return SoundCloudApplication.MODEL_MANAGER.write(this);
     }
 
-    public Track updateFrom(Context c, Track updatedItem) {
+    public Track updateFrom(Track updatedItem) {
         id = updatedItem.id;
         title = updatedItem.title;
         created_at = updatedItem.created_at;
@@ -568,8 +560,8 @@ public class Track extends ScResource implements Origin, Playable, Refreshable {
         favoritings_count = updatedItem.favoritings_count;
         user_favorite = updatedItem.user_favorite;
         shared_to_count = updatedItem.shared_to_count;
-        refreshListArtworkUri(c);
-        refreshTimeSinceCreated(c);
+        //refreshListArtworkUri(c);
+        //refreshTimeSinceCreated(c);
         return this;
     }
 
@@ -586,15 +578,8 @@ public class Track extends ScResource implements Origin, Playable, Refreshable {
         if (intent == null) throw new IllegalArgumentException("intent is null");
         Track t = intent.getParcelableExtra(EXTRA);
         if (t == null) {
-            long id = intent.getLongExtra("track_id", 0);
-            // TODO: should be one operation
-            t = SoundCloudApplication.TRACK_CACHE.get(id);
-            if (t == null && resolver != null) {
-              t = SoundCloudDB.getTrackById(resolver, id);
-            }
-            if (t != null) {
-                SoundCloudApplication.TRACK_CACHE.put(t);
-            } else {
+            t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra("track_id", 0));
+            if (t == null) {
                 throw new IllegalArgumentException("Could not obtain track from intent "+intent);
             }
         }

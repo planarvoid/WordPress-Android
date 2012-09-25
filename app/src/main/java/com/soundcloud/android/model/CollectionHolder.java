@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class CollectionHolder<T extends ScModel> implements Iterable<T> {
+public class CollectionHolder<T extends ScModel> implements Iterable<T> {
     @JsonProperty
     @JsonView(Views.Mini.class)
     public List<T> collection;
@@ -27,6 +27,7 @@ public abstract class CollectionHolder<T extends ScModel> implements Iterable<T>
     public String next_href;
 
     public CollectionHolder(){
+        this(Collections.<T>emptyList());
     }
 
     public CollectionHolder(List<T> collection){
@@ -88,7 +89,9 @@ public abstract class CollectionHolder<T extends ScModel> implements Iterable<T>
     }
 
     public void resolve(Context context) {
-        // do nothing, specific to collection type
+        for (ScModel m : this) {
+            m.resolve(context);
+        }
     }
 }
 

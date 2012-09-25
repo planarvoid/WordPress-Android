@@ -3,6 +3,7 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -357,26 +358,19 @@ public class Activities extends CollectionHolder<Activity> {
         return cv;
     }
 
-    public List<Track> getTracks() {
-        final List<Track> tracks = new ArrayList<Track>();
+    public List<ScResource> getScResources() {
+        final List<ScResource> resources = new ArrayList<ScResource>();
         for (Activity a : this) {
             Track t = a.getTrack();
-            if (t != null && !tracks.contains(t)) {
-                tracks.add(t);
+            if (t != null && !resources.contains(t)) {
+                resources.add(t);
             }
-        }
-        return tracks;
-    }
-
-    public List<User> getUsers() {
-        final List<User> users = new ArrayList<User>();
-        for (Activity a : this) {
             User u = a.getUser();
-            if (u != null && !users.contains(u)) {
-                users.add(u);
+            if (u != null && !resources.contains(u)) {
+                resources.add(u);
             }
         }
-        return users;
+        return resources;
     }
 
     public List<Comment> getComments() {
@@ -388,14 +382,6 @@ public class Activities extends CollectionHolder<Activity> {
             }
         }
         return comments;
-    }
-
-    public ContentValues[] getTrackContentValues() {
-        return buildContentValues(getTracks());
-    }
-
-    public ContentValues[] getUserContentValues() {
-        return buildContentValues(getUsers());
     }
 
     public ContentValues[] getCommentContentValues() {
@@ -411,8 +397,7 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public int insert(Content content, ContentResolver resolver) {
-        resolver.bulkInsert(Content.TRACKS.uri, getTrackContentValues());
-        resolver.bulkInsert(Content.USERS.uri, getUserContentValues());
+        SoundCloudApplication.MODEL_MANAGER.writeCollection(getScResources());
 
         if (content == Content.ME_ACTIVITIES || content == Content.ME_ALL_ACTIVITIES) {
             resolver.bulkInsert(Content.COMMENTS.uri, getCommentContentValues());

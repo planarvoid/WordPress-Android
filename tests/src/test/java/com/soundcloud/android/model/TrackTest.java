@@ -5,7 +5,6 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -144,7 +143,7 @@ public class TrackTest {
         t.permalink = "permalink";
         Intent i = new Intent();
         i.putExtra("track_id", t.id);
-        SoundCloudApplication.TRACK_CACHE.put(t);
+        SoundCloudApplication.MODEL_MANAGER.cache(t, false);
         expect(Track.fromIntent(i, null)).toEqual(t);
     }
 
@@ -241,7 +240,7 @@ public class TrackTest {
                 getClass().getResourceAsStream("track.json"),
                 Track.class);
 
-        Uri uri = SoundCloudDB.insertTrack(resolver,t);
+        Uri uri = SoundCloudApplication.MODEL_MANAGER.write(t);
         expect(uri).not.toBeNull();
 
         Cursor cursor = resolver.query(uri, null, null, null, null);

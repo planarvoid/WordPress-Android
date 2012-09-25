@@ -18,7 +18,7 @@ public class TrackSharing implements Origin {
     @JsonProperty @JsonView(Views.Mini.class) public SharingNote sharing_note;
 
     public TrackSharing(Cursor c) {
-        track = SoundCloudApplication.TRACK_CACHE.fromActivityCursor(c);
+        track = SoundCloudApplication.MODEL_MANAGER.TRACK_CACHE.fromActivityCursor(c);
         sharing_note = track.sharing_note;
     }
 

@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.task.AddCommentTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.MotionEventUtils;
@@ -23,6 +24,8 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 
 public class AddCommentDialog extends Dialog {
     private ScListActivity mActivity;
@@ -130,7 +133,11 @@ public class AddCommentDialog extends Dialog {
             // cannot simply dismiss, or state will be saved
             mActivity.removeDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
 
-            SoundCloudApplication.TRACK_CACHE.addCommentToTrack(comment);
+            final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(comment.track_id);
+            if (track != null) {
+                if (track.comments == null) track.comments = new ArrayList<Comment>();
+                track.comments.add(comment);
+            }
 
             if (mActivity instanceof ScPlayer) {
                 ((ScPlayer)mActivity).onNewComment(comment);

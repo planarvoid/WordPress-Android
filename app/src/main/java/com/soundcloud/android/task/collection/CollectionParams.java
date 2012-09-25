@@ -22,6 +22,17 @@ public class CollectionParams<T extends ScModel> {
         return Content.match(contentUri);
     }
 
+    public Uri getPagedUri() {
+        if (contentUri == null) return null;
+
+        Uri.Builder b = contentUri.buildUpon();
+        if (startIndex > 0) {
+            b.appendQueryParameter("offset", String.valueOf(startIndex));
+        }
+        b.appendQueryParameter("limit", String.valueOf(maxToLoad));
+        return b.build();
+    }
+
     @Override
     public String toString() {
         return "CollectionParams{" +

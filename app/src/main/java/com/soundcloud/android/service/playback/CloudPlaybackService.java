@@ -10,10 +10,9 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
-import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.streaming.StreamItem;
 import com.soundcloud.android.streaming.StreamProxy;
@@ -138,6 +137,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private StreamProxy mProxy;
 
+    private ScModelManager mModelManager;
+
     // audio focus related
     private IRemoteAudioManager mFocus;
     private boolean mTransientFocusLoss;
@@ -173,8 +174,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     @Override
     public void onCreate() {
         super.onCreate();
-        mPlaylistManager = new PlaylistManager(this, SoundCloudApplication.MODEL_MANAGER, SoundCloudApplication.getUserId());
+        mPlaylistManager = new PlaylistManager(this, SoundCloudApplication.getUserId());
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        mModelManager = SoundCloudApplication.MODEL_MANAGER;
 
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(TOGGLEPAUSE_ACTION);
@@ -451,7 +453,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         new Thread() {
             @Override
             public void run() {
-                SoundCloudDB.markTrackAsPlayed(getContentResolver(), currentTrack);
+                SoundCloudApplication.MODEL_MANAGER.markTrackAsPlayed(currentTrack);
             }
         }.start();
         startTrack(track);
@@ -890,16 +892,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     private void onFavoriteStatusSet(long trackId, boolean isFavorite) {
-        Track track = SoundCloudDB.getTrackById(getContentResolver(), trackId);
+        Track track = mModelManager.getTrack(trackId);
+
         if (track != null) {
             track.user_favorite = isFavorite;
-            SoundCloudDB.upsertTrack(getContentResolver(), track);
+            mModelManager.write(track);
 
-        }
-
-        final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(trackId);
-        if (cachedTrack != null) {
-            cachedTrack.user_favorite = isFavorite;
         }
 
         if (currentTrack.id == trackId && currentTrack.user_favorite != isFavorite) {

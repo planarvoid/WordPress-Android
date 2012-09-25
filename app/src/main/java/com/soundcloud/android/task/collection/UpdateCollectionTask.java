@@ -2,31 +2,29 @@ package com.soundcloud.android.task.collection;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
 import android.os.AsyncTask;
-import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.BaseAdapter;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class UpdateCollectionTask extends AsyncTask<Map<Long, ? extends ScResource>, String, Boolean> {
-    protected SoundCloudApplication mApp;
+    protected AndroidCloudAPI mApp;
     protected Class<?> mLoadModel;
     protected WeakReference<BaseAdapter> mAdapterReference;
 
@@ -68,27 +66,8 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, ? extends ScResour
                 throw new IOException("Invalid response: " + resp.getStatusLine());
             }
 
-            CollectionHolder holder = null;
-            List<ScResource> objectsToWrite = new ArrayList<ScResource>();
-            if (Track.class.equals(mLoadModel)) {
-                holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScResource.ScResourceHolder.class);
-                for (ScResource scResource : (ScResource.ScResourceHolder) holder) {
-                    objectsToWrite.add(((Track) itemsToUpdate.get(scResource.id)).updateFrom(mApp, (Track) scResource));
-                }
-            } else if (User.class.equals(mLoadModel)) {
-                holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScResource.ScResourceHolder.class);
-                for (ScResource scResource : (ScResource.ScResourceHolder) holder) {
-                    objectsToWrite.add(((User) itemsToUpdate.get(scResource.id)).updateFrom((User) scResource));
-                }
-            }
-
-            for (Parcelable p : objectsToWrite) {
-                ((ScResource) p).resolve(mApp);
-            }
-
+            SoundCloudApplication.MODEL_MANAGER.writeCollectionFromStream(resp.getEntity().getContent());
             publishProgress();
-            SoundCloudDB.bulkInsertModels(mApp.getContentResolver(), objectsToWrite);
-
             return true;
 
         } catch (IOException e) {

@@ -4,14 +4,12 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackHolder;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -35,7 +33,7 @@ public class PlaylistManagerTest {
     @Before
     public void before() {
         resolver = Robolectric.application.getContentResolver();
-        pm = new PlaylistManager(Robolectric.application, SoundCloudApplication.MODEL_MANAGER, USER_ID);
+        pm = new PlaylistManager(Robolectric.application, USER_ID);
 
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
     }
@@ -267,7 +265,7 @@ public class PlaylistManagerTest {
         PlaylistManager.clearState(Robolectric.application);
         expect(pm.reloadQueue()).toEqual(0L);
 
-        PlaylistManager pm2 = new PlaylistManager(Robolectric.application, new ScModelManager(Robolectric.application,SoundCloudApplication.Mapper), USER_ID);
+        PlaylistManager pm2 = new PlaylistManager(Robolectric.application, USER_ID);
         expect(pm2.reloadQueue()).toEqual(0L);
         expect(pm2.getPosition()).toEqual(0);
         expect(pm2.length()).toEqual(0);
@@ -285,10 +283,10 @@ public class PlaylistManagerTest {
         TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(getClass().getResourceAsStream("tracks.json"), TrackHolder.class);
 
         for (Track t: tracks){
-            SoundCloudApplication.TRACK_CACHE.put(t);
+            SoundCloudApplication.MODEL_MANAGER.cache(t, true);
         }
 
-        expect(SoundCloudDB.bulkInsertModels(resolver, tracks.collection, uri, USER_ID)).toEqual(4);
+        expect(SoundCloudApplication.MODEL_MANAGER.writeCollection(tracks.collection, uri, USER_ID)).toEqual(4);
 
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(3);
@@ -306,7 +304,7 @@ public class PlaylistManagerTest {
             t.title = "track #"+(startPos+i);
             t.user = user;
             t.stream_url = streamable ? "http://www.soundcloud.com/sometrackurl" : null;
-            SoundCloudDB.insertTrack(resolver, t);
+            SoundCloudApplication.MODEL_MANAGER.write(t);
             list.add(t);
         }
         return list;

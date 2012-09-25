@@ -8,6 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;

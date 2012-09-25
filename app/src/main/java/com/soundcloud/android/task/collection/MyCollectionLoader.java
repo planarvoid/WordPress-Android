@@ -1,26 +1,17 @@
 package com.soundcloud.android.task.collection;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.service.sync.ApiSyncer.getMissingModelsById;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.LocalCollectionPage;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackHolder;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserHolder;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
 
 import android.content.ContentResolver;
-import android.database.Cursor;
 import android.util.Log;
 
 import java.io.IOException;
@@ -45,16 +36,14 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
 
         // if we already have all the data, this is a NOP
         try {
-            SoundCloudDB.bulkInsertModels(resolver,
-                    getMissingModelsById(api, resolver, localData.idList, params.getContent(), false));
+            SoundCloudApplication.MODEL_MANAGER.writeMissingCollectionItems(api, localData.idList, params.getContent(), false);
+
         } catch (IOException e) {
             Log.e(TAG, "error", e);
             keepGoing = false;
         }
 
-        CollectionHolder<T> newItems = loadLocalContent(resolver, params);
-        newItems.resolve(api.getContext());
-
+        CollectionHolder<T> newItems = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver, params.loadModel, params.getPagedUri());
         return new ReturnData<T>(newItems, params, null, -1, keepGoing, true);
     }
 
@@ -65,8 +54,8 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
 
         public LocalData(ContentResolver resolver, CollectionParams mParams) {
             localCollection = LocalCollection.fromContentUri(mParams.contentUri, resolver, true);
-            idList = Content.match(mParams.contentUri).getLocalIds(resolver,
-                    SoundCloudApplication.getUserId(), mParams.startIndex, mParams.maxToLoad);
+            idList = SoundCloudApplication.MODEL_MANAGER.getLocalIds(mParams.getContent(), SoundCloudApplication.getUserId(),
+                    mParams.startIndex, mParams.maxToLoad);
         }
 
         @Override
@@ -79,20 +68,5 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private CollectionHolder<T> loadLocalContent(ContentResolver resolver, CollectionParams<T> params) {
-        Cursor itemsCursor = resolver.query(
-                SoundCloudDB.addPagingParams(params.contentUri, params.startIndex, params.maxToLoad)
-                , null, null, null, null);
 
-        if (Track.class.equals(params.loadModel)) {
-            return (CollectionHolder<T>) TrackHolder.fromCursor(itemsCursor);
-        } else if (User.class.equals(params.loadModel)) {
-            return(CollectionHolder<T>) UserHolder.fromCursor(itemsCursor);
-        } else if (Activity.class.equals(params.loadModel)) {
-            return (CollectionHolder<T>) Activities.fromCursor(itemsCursor);
-        } else {
-            throw new IllegalArgumentException("NOT HANDLED YET " + params.loadModel);
-        }
-    }
 }

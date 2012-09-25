@@ -112,7 +112,7 @@ public class PlayerTrackView extends LinearLayout implements
                     final long userId = mTrack.user != null ? mTrack.user.id : mTrack.user_id;
                     if (userId == -1) return;
 
-                    if (mTrack.user != null) SoundCloudApplication.USER_CACHE.put(mTrack.user);
+                    if (mTrack.user != null) SoundCloudApplication.MODEL_MANAGER.cache(mTrack.user, false);
                     Intent intent = new Intent(getContext(), UserBrowser.class);
                     intent.putExtra("userId", mTrack.user_id);
                     getContext().startActivity(intent);

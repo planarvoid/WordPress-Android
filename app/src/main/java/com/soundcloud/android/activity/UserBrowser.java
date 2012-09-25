@@ -16,9 +16,9 @@ import com.soundcloud.android.cache.ParcelCache;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.tracking.Click;
@@ -321,8 +321,8 @@ public class UserBrowser extends ScListActivity implements
     private void loadUserById(long userId) {
         if (userId != -1) {
             // check DB first as the cached user might be incomplete
-            final User u = SoundCloudDB.getUserById(getContentResolver(), userId);
-            setUser(u != null ? u : SoundCloudApplication.USER_CACHE.get(userId));
+            final User u = SoundCloudApplication.MODEL_MANAGER.getUser(userId);
+            setUser(u != null ? u : SoundCloudApplication.MODEL_MANAGER.getCachedUser(userId));
         }
         if (mUser == null) {
             mUser = new User();
@@ -335,7 +335,7 @@ public class UserBrowser extends ScListActivity implements
 
         // show a user out of db if possible because he will be a complete user unlike
         // a parceled user that came from a track, list or comment
-        final User dbUser = SoundCloudDB.getUserById(getContentResolver(), user.id);
+        final User dbUser = SoundCloudApplication.MODEL_MANAGER.getUser(user.id);
         setUser(dbUser != null ? dbUser : user);
     }
 

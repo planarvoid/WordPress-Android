@@ -59,7 +59,8 @@ public class SoundCloudDB {
         return uri;
     }
 
-    public static @Nullable Uri insertUser(ContentResolver resolver, User user) {
+    public static @Nullable
+    Uri insertUser(ContentResolver resolver, User user) {
         return resolver.insert(Content.USERS.uri, user.buildContentValues(getUserId(resolver) == user.id));
     }
 
@@ -85,53 +86,6 @@ public class SoundCloudDB {
         Uri uri = user.toUri();
         resolver.update(uri, user.buildContentValues(getUserId(resolver) == user.id), null, null);
         return uri;
-    }
-
-
-    public static @Nullable Track getTrackById(ContentResolver resolver, long id) {
-        if (id >= 0) {
-            return getTrackByUri(resolver, Content.TRACKS.forId(id));
-        } else {
-            return null;
-        }
-    }
-
-    /* package */ static @Nullable Track getTrackByUri(ContentResolver resolver, Uri uri) {
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        if (cursor != null && cursor.getCount() != 0) {
-            cursor.moveToFirst();
-            Track track = new Track(cursor);
-            cursor.close();
-            return track;
-        }
-
-        if (cursor != null) cursor.close();
-        return null;
-    }
-
-    public static boolean markTrackAsPlayed(ContentResolver resolver, Track track) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(DBHelper.TrackMetadata._ID, track.id);
-        return resolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
-    }
-
-    public static @Nullable User getUserById(ContentResolver resolver, long id) {
-        if (id >= 0) {
-            return getUserByUri(resolver, Content.USERS.forId(id));
-        } else {
-            return null;
-        }
-    }
-
-    public static @Nullable User getUserByUri(ContentResolver resolver, Uri uri) {
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        User user = null;
-        if (cursor != null && cursor.getCount() != 0) {
-            cursor.moveToFirst();
-            user = new User(cursor);
-        }
-        if (cursor != null) cursor.close();
-        return user;
     }
 
     public static int bulkInsertModels(ContentResolver resolver, List<? extends ScResource> items) {
@@ -210,7 +164,8 @@ public class SoundCloudDB {
         return usersInserted + tracksInserted;
     }
 
-    public static @Nullable Recording upsertRecording(ContentResolver resolver, Recording r, @Nullable ContentValues values) {
+    public static @Nullable
+    Recording upsertRecording(ContentResolver resolver, Recording r, @Nullable ContentValues values) {
         if (r.getRecipient() != null) {
             upsertUser(resolver, r.getRecipient());
         }
@@ -265,7 +220,8 @@ public class SoundCloudDB {
         }
     }
 
-    public static @NotNull List<Long> idCursorToList(Cursor c) {
+    public static @NotNull
+    List<Long> idCursorToList(Cursor c) {
         List<Long> ids = new ArrayList<Long>();
         if (c != null && c.moveToFirst()) {
             do {

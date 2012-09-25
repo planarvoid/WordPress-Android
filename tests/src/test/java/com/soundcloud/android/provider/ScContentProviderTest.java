@@ -6,8 +6,11 @@ import static com.soundcloud.android.provider.ScContentProvider.Parameter.LIMIT;
 import static com.soundcloud.android.provider.ScContentProvider.Parameter.RANDOM;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackHolder;
 import com.soundcloud.android.model.User;
@@ -123,8 +126,8 @@ public class ScContentProviderTest {
 
         expect(Content.TRACK).toHaveCount(50);
         expect(Content.USERS).toHaveCount(32);
+        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(18876167l);       // jwagener/grand-piano-keys
 
-        Track t = SoundCloudDB.getTrackById(resolver, 18876167l); // jwagener/grand-piano-keys
         expect(t).not.toBeNull();
         expect(t.user.permalink).toEqual("jwagener");
         expect(t.permalink).toEqual("grand-piano-keys");
@@ -203,11 +206,9 @@ public class ScContentProviderTest {
         expect(cursor.getCount()).toEqual(7);
 
         expect(cursor.moveToFirst()).toBeTrue();
-        Track first = SoundCloudDB.getTrackById(resolver,
-                cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)));
+        Track first = SoundCloudApplication.MODEL_MANAGER.getTrack(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)));
         expect(cursor.moveToLast()).toBeTrue();
-        Track last = SoundCloudDB.getTrackById(resolver,
-                cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)));
+        Track last = SoundCloudApplication.MODEL_MANAGER.getTrack(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)));
 
         expect(first.created_at.after(last.created_at)).toBeTrue();
     }
@@ -246,7 +247,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveATracksEndpointWithRandom() throws Exception {
-        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
+        CollectionHolder<Track> tracks  = AndroidCloudAPI.Mapper.readValue(
                 getClass().getResourceAsStream("user_favorites.json"),
                 TrackHolder.class);
 
@@ -271,7 +272,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveATracksEndpointWhichReturnsOnlyCachedItems() throws Exception {
-        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
+        CollectionHolder<Track> tracks  = AndroidCloudAPI.Mapper.readValue(
                 getClass().getResourceAsStream("user_favorites.json"),
                 TrackHolder.class);
 
@@ -295,9 +296,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveFavoriteEndpointWhichOnlyReturnsCachedItems() throws Exception {
-        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("user_favorites.json"),
-                TrackHolder.class);
+        CollectionHolder<Track> tracks = SoundCloudApplication.MODEL_MANAGER.getCollectionFromStream(getClass().getResourceAsStream("user_favorites.json"));
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();

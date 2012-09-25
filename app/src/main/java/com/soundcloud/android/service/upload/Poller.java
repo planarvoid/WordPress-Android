@@ -98,7 +98,7 @@ public class Poller extends Handler {
         // local storage should reflect full track info
         ContentResolver resolver = mApi.getContext().getContentResolver();
 
-        track.commitLocally(resolver, SoundCloudApplication.TRACK_CACHE);
+        track.commitLocally();
 
         // this will tell any observers to update their UIs to the up to date track
         if (mNotifyUri != null) resolver.notifyChange(mNotifyUri, null, false);

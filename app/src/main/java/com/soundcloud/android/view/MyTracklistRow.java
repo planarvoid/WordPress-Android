@@ -12,6 +12,7 @@ import android.widget.BaseAdapter;
 
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
@@ -67,7 +68,7 @@ public class MyTracklistRow extends TrackInfoBar {
 
      @Override
     public void display(Cursor cursor) {
-        display(cursor.getPosition(), new Track(cursor));
+        display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor));
     }
     @Override
     public void display(int position, Parcelable p) {

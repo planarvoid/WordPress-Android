@@ -5,8 +5,8 @@ import static com.soundcloud.android.utils.IOUtils.readInputStream;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -32,7 +32,7 @@ public class FetchUserTaskTest {
         u.username = "old username";
         u.user_following = true;
         u.user_follower = true;
-        SoundCloudApplication.USER_CACHE.put(u);
+        SoundCloudApplication.MODEL_MANAGER.cache(u, false);
 
         final User[] user = {null};
         listener = new FetchUserTask.FetchUserListener() {
@@ -53,11 +53,11 @@ public class FetchUserTaskTest {
         expect(user[0].isPrimaryEmailConfirmed()).toBeFalse();
 
 
-        u = SoundCloudDB.getUserById(Robolectric.application.getContentResolver(), 3135930);
+        u = SoundCloudApplication.MODEL_MANAGER.getUser(3135930);
         expect(u).not.toBeNull();
         expect(u.username).toEqual("SoundCloud Android @ MWC");
 
-        u = SoundCloudApplication.USER_CACHE.get(3135930l);
+        u = SoundCloudApplication.MODEL_MANAGER.getCachedUser(3135930l);
         expect(u).not.toBeNull();
         expect(u.username).toEqual("SoundCloud Android @ MWC");
         expect(u.user_following).toBeTrue();

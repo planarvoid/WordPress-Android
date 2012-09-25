@@ -3,11 +3,12 @@ package com.soundcloud.android.service.upload;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -137,8 +138,8 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
     private void onUploadSuccess(HttpResponse response) {
         try {
-            Track track = api.getMapper().readValue(response.getEntity().getContent(), Track.class);
-            SoundCloudDB.insertTrack(api.getContext().getContentResolver(), track);
+            Track track = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(response.getEntity().getContent(), Track.class);
+            SoundCloudApplication.MODEL_MANAGER.write(track);
 
             //request to update my collection
             LocalCollection.forceToStale(Content.ME_TRACKS.uri, api.getContext().getContentResolver());

@@ -3,7 +3,9 @@ package com.soundcloud.android.task.collection;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -25,7 +27,7 @@ public class RemoteCollectionLoader<T extends ScResource> extends CollectionLoad
             }
 
             // process new items and publish them
-            CollectionHolder<T> holder = ScResource.getCollectionFromStream(resp.getEntity().getContent(), app.getMapper());
+            CollectionHolder<T> holder = SoundCloudApplication.MODEL_MANAGER.getCollectionFromStream(resp.getEntity().getContent());
 
             final String nextHref = TextUtils.isEmpty(holder.next_href) ? null : holder.next_href;
             holder.resolve(app.getContext());

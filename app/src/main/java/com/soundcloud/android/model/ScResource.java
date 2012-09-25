@@ -35,21 +35,6 @@ public abstract class ScResource extends ScModel {
     public ScResource() {
     }
 
-    public static
-    @NotNull
-    <T extends ScResource> CollectionHolder<T> getCollectionFromStream(InputStream is,
-                                                                    ObjectMapper mapper) throws IOException {
-
-        List<ScResource> items = new ArrayList<ScResource>();
-        CollectionHolder holder = mapper.readValue(is, ScResourceHolder.class);
-        for (ScResource m : (ScResourceHolder) holder) {
-            items.add(SoundCloudApplication.MODEL_MANAGER.cache(m));
-        }
-
-        holder.collection = items;
-        return holder;
-    }
-
     public static @NotNull Activities getActivitiesFromStream(InputStream is,
                                                                     ObjectMapper mapper) throws IOException {
         return mapper.readValue(is, Activities.class);

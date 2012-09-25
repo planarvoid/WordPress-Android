@@ -8,7 +8,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlaylistManager;
@@ -148,7 +147,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
 
         final PlayerTrackView ptv;
         if (newScreenIndex == 0 && prevTrackId != -1) {
-            final Track prevTrack = getTrackById(prevTrackId);
+            final Track prevTrack = SoundCloudApplication.MODEL_MANAGER.getTrack(prevTrackId);
             if (prevTrack != null) {
                 if (mTrackWorkspace.getScreenCount() > 2) {
                     ptv = (PlayerTrackView) mTrackWorkspace.cycleBackViewToFront();
@@ -161,7 +160,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
             }
 
         } else if (newScreenIndex == mTrackWorkspace.getScreenCount() - 1 && nextTrackId != -1) {
-            final Track nextTrack = getTrackById(nextTrackId);
+            final Track nextTrack = SoundCloudApplication.MODEL_MANAGER.getTrack(nextTrackId);
             if (nextTrack != null) {
                 if (mTrackWorkspace.getScreenCount() > 2) {
                     ptv = (PlayerTrackView) mTrackWorkspace.cycleFrontViewToBack();
@@ -530,12 +529,6 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         mPlaybackService = null;
     }
 
-    private Track getTrackById(long trackId) {
-        Track t = SoundCloudApplication.TRACK_CACHE.get(trackId);
-        // TODO : StrictMode policy violation; ~duration=106 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=23 violation=2
-        return t != null ? t : SoundCloudDB.getTrackById(getContentResolver(), trackId);
-    }
-
     private void setCurrentTrackDataFromService() {
         setCurrentTrackDataFromService(CloudPlaybackService.getCurrentTrackId());
     }
@@ -544,7 +537,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         if (mPlaybackService == null) return;
 
         mCurrentQueuePosition = mPlaybackService.getPlaylistManager().getPosition();
-        mPlayingTrack = getTrackById(id);
+        mPlayingTrack = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
         if (mPlayingTrack == null) {
             mPlayingTrack = CloudPlaybackService.getCurrentTrack();
         }
@@ -577,7 +570,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
             final boolean priority = pos == mCurrentQueuePosition;
             ptv.setOnScreen(priority);
 
-            final Track track = priority ? mPlayingTrack : getTrackById(mPlaybackService.getPlaylistManager().getTrackIdAt(pos));
+            final Track track = priority ? mPlayingTrack : SoundCloudApplication.MODEL_MANAGER.getTrack(mPlaybackService.getPlaylistManager().getTrackIdAt(pos));
             if (track != null) {
                 ptv.setTrack(track, pos, false, priority);
                 workspaceIndex++;

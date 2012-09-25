@@ -4,10 +4,10 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
@@ -105,7 +105,7 @@ public class PollerTest {
         t.user.id = USER_ID;
         t.id = id;
         t.state = Track.State.PROCESSING;
-        Uri newUri = t.commitLocally(resolver, SoundCloudApplication.TRACK_CACHE);
+        Uri newUri = t.commitLocally();
         expect(newUri).not.toBeNull();
 
         HandlerThread ht = new HandlerThread("poll");
@@ -121,21 +121,21 @@ public class PollerTest {
     }
 
     private void expectLocalTracksStreamable(long id) {
-        Track track = SoundCloudApplication.TRACK_CACHE.get(id);
+        Track track = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(id);
         expect(track).not.toBeNull();
         expect(track.state.isStreamable()).toBeTrue();
 
-        track = SoundCloudDB.getTrackById(resolver, id);
+        track = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
         expect(track).not.toBeNull();
         expect(track.state.isStreamable()).toBeTrue();
     }
 
     private void expectLocalTracksNotStreamable(long id) {
-        Track track = SoundCloudApplication.TRACK_CACHE.get(id);
+        Track track = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(id);
         expect(track).not.toBeNull();
         expect(track.state.isStreamable()).toBeFalse();
 
-        track = SoundCloudDB.getTrackById(resolver, id);
+        track = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
         expect(track).not.toBeNull();
         expect(track.state.isStreamable()).toBeFalse();
     }

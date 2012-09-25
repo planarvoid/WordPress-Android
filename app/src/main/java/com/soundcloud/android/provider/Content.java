@@ -8,6 +8,7 @@ import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -248,19 +249,6 @@ public enum Content  {
 
     public static Content byUri(Uri uri) {
         return sUris.get(uri);
-    }
-
-    public List<Long> getLocalIds(ContentResolver resolver, long userId) {
-        return getLocalIds(resolver, userId, -1, -1);
-    }
-
-    public List<Long> getLocalIds(ContentResolver resolver, long userId, int startIndex, int limit) {
-        return SoundCloudDB.idCursorToList(resolver.query(
-                SoundCloudDB.addPagingParams(Content.COLLECTION_ITEMS.uri, startIndex, limit),
-                new String[]{DBHelper.CollectionItems.ITEM_ID},
-                DBHelper.CollectionItems.COLLECTION_TYPE + " = ? AND " + DBHelper.CollectionItems.USER_ID + " = ?",
-                new String[]{String.valueOf(collectionType), String.valueOf(userId)},
-                DBHelper.CollectionItems.SORT_ORDER));
     }
 
     public boolean isStale(long lastSync) {

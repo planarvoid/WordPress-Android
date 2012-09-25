@@ -2,8 +2,9 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
@@ -55,7 +56,7 @@ public class UserBrowserTest {
     @Test @DisableStrictI18n
     public void testOnCreateYouDb() throws Exception {
         Robolectric.getFakeHttpLayer().setDefaultHttpResponse(404, "");
-        SoundCloudDB.insertUser(Robolectric.application.getContentResolver(),getUserWithUsername());
+        SoundCloudApplication.MODEL_MANAGER.write(getUserWithUsername());
 
         browser.setIntent(new Intent());
         browser.onCreate(null);
@@ -92,7 +93,7 @@ public class UserBrowserTest {
     @Test @DisableStrictI18n
     public void testOnCreateOtherIdDb() throws Exception {
         Robolectric.getFakeHttpLayer().setDefaultHttpResponse(404, "");
-        SoundCloudDB.insertUser(Robolectric.application.getContentResolver(),getUserWithUsername());
+        SoundCloudApplication.MODEL_MANAGER.write(getUserWithUsername());
 
         browser.setIntent(new Intent().putExtra("userId",3135930l));
         browser.onCreate(null);

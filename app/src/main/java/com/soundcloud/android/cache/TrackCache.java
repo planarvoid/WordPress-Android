@@ -3,6 +3,7 @@ package com.soundcloud.android.cache;
 import android.database.Cursor;
 import android.os.Parcelable;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -28,29 +29,11 @@ public class TrackCache extends LruCache<Long, Track> {
         return put(t);
     }
 
-    public void addCommentToTrack(Comment comment) {
-        final Track track = get(comment.track_id);
-        if (track != null) {
-            if (track.comments == null) track.comments = new ArrayList<Comment>();
-            track.comments.add(comment);
-        }
-    }
-
-    public Track fromCursor(Cursor cursor) {
-        final long id = cursor.getLong(cursor.getColumnIndex(DBHelper.Tracks._ID));
-        Track track = get(id);
-        if (track == null) {
-            track = new Track(cursor);
-            put(track);
-        }
-        return track;
-    }
-
     public Track fromActivityCursor(Cursor c) {
         final long id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.TRACK_ID));
         Track track = get(id);
         if (track == null) {
-            track = new Track(c);
+            track = SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(c);
             put(track);
         }
         return track;

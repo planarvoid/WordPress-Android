@@ -7,6 +7,7 @@ import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ApiSyncer;
 
 import android.content.ContentResolver;
+import android.util.Log;
 
 import java.io.IOException;
 

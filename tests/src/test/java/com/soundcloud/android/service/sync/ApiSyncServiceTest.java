@@ -5,13 +5,14 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.*;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
@@ -182,7 +183,7 @@ public class ApiSyncServiceTest {
         // make sure tracks+users got written
         expect(Content.USERS).toHaveCount(3);
         expect(Content.ME_FOLLOWERS).toHaveCount(3);
-        assertFirstIdToBe(Content.ME_FOLLOWERS, 308291);
+        assertFirstIdToBe(Content.ME_FOLLOWERS, 792584);
     }
 
     @Test
@@ -222,13 +223,13 @@ public class ApiSyncServiceTest {
         // sync activities concerning these tracks
         sync(svc, Content.ME_ACTIVITIES, "tracks_activities.json");
 
-        Track t = SoundCloudDB.getTrackById(resolver, 10853436L);
+        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(10853436L);
         expect(t).not.toBeNull();
         expect(t.duration).toEqual(782);
         // title should get changed from the activity json
         expect(t.title).toEqual("recording on sunday night (edit)");
 
-        User u = SoundCloudDB.getUserById(resolver, 3135930L);
+        User u = SoundCloudApplication.MODEL_MANAGER.getUser(3135930L);
         expect(u).not.toBeNull();
         expect(u.username).toEqual("I'm your father");
         // permalink was set in first sync run, not present in second
@@ -247,7 +248,7 @@ public class ApiSyncServiceTest {
 
         expect(Content.TRACKS).toHaveCount(3);
 
-        Track t = SoundCloudDB.getTrackById(resolver, 10853436L);
+        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(10853436L);
         expect(t).not.toBeNull();
         expect(t.duration).toEqual(782);
     }

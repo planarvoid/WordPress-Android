@@ -6,6 +6,7 @@ import android.os.Parcelable;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
@@ -103,7 +104,7 @@ public abstract class ActivityRow extends LazyRow {
 
     @Override
     public void display(Cursor cursor) {
-        display(cursor.getPosition(), new Track(cursor));
+        display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor));
     }
 
     protected abstract  boolean fillParcelable(Parcelable p);

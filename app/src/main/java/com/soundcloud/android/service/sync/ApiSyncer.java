@@ -6,19 +6,15 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
-import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +25,6 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -52,9 +47,6 @@ public class ApiSyncer {
     private final AndroidCloudAPI mApi;
     private final ContentResolver mResolver;
     private final Context mContext;
-
-    private static final int API_LOOKUP_BATCH_SIZE = 200;
-    private static final int RESOLVER_BATCH_SIZE = 100;
 
     public ApiSyncer(Context context) {
         mApi = (AndroidCloudAPI) context.getApplicationContext();
@@ -124,7 +116,7 @@ public class ApiSyncer {
             Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
             if (lastActivity != null) request.add("cursor", lastActivity.toGUID());
             activities = Activities.fetch(mApi, request);
-            if (activities == null || (activities.size() == 1 && activities.get(0).equals(lastActivity))) {
+            if (activities == null || activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(lastActivity))) {
                 // this can happen at the end of the list
                 inserted = 0;
             } else {
@@ -151,8 +143,9 @@ public class ApiSyncer {
 
     private Result syncContent(Content content, final long userId) throws IOException {
         Result result = new Result(content.uri);
-        List<Long> local = content.getLocalIds(mResolver, userId);
+        List<Long> local = SoundCloudApplication.MODEL_MANAGER.getLocalIds(content, userId);
         List<Long> remote = getCollectionIds(mApi, content.remoteUri);
+
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
         result.setSyncData(System.currentTimeMillis(), remote.size(), null);
 
@@ -166,42 +159,33 @@ public class ApiSyncer {
             case ME_FOLLOWINGS:
 
                 // load the first page of items to getSince proper last_seen ordering
-                InputStream is = validateResponse(mApi.get(Request.to(content.remoteUri)
+                InputStream is = ScModelManager.validateResponse(mApi.get(Request.to(content.remoteUri)
                         .add("linked_partitioning", "1")
                         .add("limit", Consts.COLLECTION_PAGE_SIZE)))
                         .getEntity().getContent();
 
                 // parse and add first items
-                CollectionHolder<User> holder = ScResource.getCollectionFromStream(is, mApi.getMapper());
-
-                added = SoundCloudDB.bulkInsertModels(mResolver, holder.collection, content.uri, userId);
-
-
-                // remove items from master remote list and adjust start index
-                for (ScResource m : holder) {
-                    remote.remove(((User) m).id);
-                }
-                startPosition = holder.size();
+                added = SoundCloudApplication.MODEL_MANAGER.writeCollectionFromStream(is, content.uri, userId);
                 break;
+
             case ME_TRACKS:
                 // ensure the first couple of pages of items for quick loading
-                added = SoundCloudDB.bulkInsertModels(mResolver, getMissingModelsById(
+                added = SoundCloudApplication.MODEL_MANAGER.writeMissingCollectionItems(
                         mApi,
-                        mResolver,
                         remote,
                         Content.TRACKS,
                         false
-                ));
+                );
                 break;
+
             default:
                 // ensure the first couple of pages of items for quick loading
-                added = SoundCloudDB.bulkInsertModels(mResolver, getMissingModelsById(
+                added = SoundCloudApplication.MODEL_MANAGER.writeMissingCollectionItems(
                         mApi,
-                        mResolver,
                         new ArrayList<Long>(remote.subList(0, Math.min(remote.size(), MINIMUM_LOCAL_ITEMS_STORED))),
                         Track.class.equals(content.modelType) ? Content.TRACKS : Content.USERS,
                         false
-                ));
+                );
                 break;
         }
 
@@ -253,9 +237,9 @@ public class ApiSyncer {
             log("Need to remove " + itemDeletions.size() + " items");
             int i = 0;
             while (i < itemDeletions.size()) {
-                List<Long> batch = itemDeletions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, itemDeletions.size()));
-                mResolver.delete(content.uri, DBHelper.getWhereInClause(DBHelper.CollectionItems.ITEM_ID, batch), longListToStringArr(batch));
-                i += RESOLVER_BATCH_SIZE;
+                List<Long> batch = itemDeletions.subList(i, Math.min(i + ScModelManager.RESOLVER_BATCH_SIZE, itemDeletions.size()));
+                mResolver.delete(content.uri, DBHelper.getWhereInClause(DBHelper.CollectionItems.ITEM_ID, batch), ScModelManager.longListToStringArr(batch));
+                i += ScModelManager.RESOLVER_BATCH_SIZE;
             }
         }
         return itemDeletions;
@@ -271,68 +255,6 @@ public class ApiSyncer {
         return result;
     }
 
-    /**
-     * @param modelIds a list of model ids
-     * @param ignoreStored if it should ignore stored ids
-     * @return a list of models which are not stored in the database
-     * @throws IOException
-     */
-    public static List<ScResource> getMissingModelsById(AndroidCloudAPI api,
-                                                     ContentResolver resolver,
-                                                     List<Long> modelIds,
-                                                     Content content,
-                                                     boolean ignoreStored) throws IOException {
-        if (modelIds == null || modelIds.isEmpty()) {
-            return ScResource.EMPTY_LIST;
-        }
-        // copy so we don't modify the original
-        List<Long> ids = new ArrayList<Long>(modelIds);
-
-        if (!ignoreStored) {
-            ids.removeAll(getStoredIds(resolver, modelIds, content));
-        }
-        return doBatchLookup(api, ids, content);
-    }
-
-    private static List<ScResource> doBatchLookup(AndroidCloudAPI api, List<Long> ids, Content content) throws IOException {
-        List<ScResource> resources = new ArrayList<ScResource>();
-        int i = 0;
-        while (i < ids.size()) {
-            List<Long> batch = ids.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, ids.size()));
-            InputStream is = validateResponse(
-               api.get(
-                Request.to(content.remoteUri)
-                    .add("linked_partitioning", "1")
-                    .add("limit", API_LOOKUP_BATCH_SIZE)
-                    .add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
-
-            resources.addAll(ScResource.getCollectionFromStream(is,
-                    api.getMapper()
-            ).collection);
-
-            i += API_LOOKUP_BATCH_SIZE;
-        }
-        return resources;
-    }
-
-    /**
-     * @return a list of all ids for which objects are store in the database
-     */
-    private static List<Long> getStoredIds(ContentResolver resolver, List<Long> ids, Content content) {
-        int i = 0;
-        List<Long> storedIds = new ArrayList<Long>();
-        while (i < ids.size()) {
-            List<Long> batch = ids.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, ids.size()));
-            storedIds.addAll(SoundCloudDB.idCursorToList(
-                    resolver.query(content.uri, new String[]{BaseColumns._ID},
-                        DBHelper.getWhereInClause(BaseColumns._ID, batch) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0"
-                        , longListToStringArr(batch), null)
-            ));
-            i += RESOLVER_BATCH_SIZE;
-        }
-        return storedIds;
-    }
-
     private static List<Long> getCollectionIds(AndroidCloudAPI app, String endpoint) throws IOException {
         List<Long> items = new ArrayList<Long>();
         IdHolder holder = null;
@@ -341,22 +263,11 @@ public class ApiSyncer {
             Request request =  (holder == null) ? Request.to(endpoint + "/ids") : Request.to(holder.next_href);
             request.add("linked_partitioning", "1");
 
-            holder = app.getMapper().readValue(validateResponse(app.get(request)).getEntity().getContent(), IdHolder.class);
+            holder = app.getMapper().readValue(ScModelManager.validateResponse(app.get(request)).getEntity().getContent(), IdHolder.class);
             if (holder.collection != null) items.addAll(holder.collection);
 
         } while (holder.next_href != null);
         return items;
-    }
-
-    private static HttpResponse validateResponse(HttpResponse response) throws IOException {
-        final int code = response.getStatusLine().getStatusCode();
-        if (code == HttpStatus.SC_UNAUTHORIZED) {
-            throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
-                    response.getStatusLine().getReasonPhrase());
-        } else if (code != HttpStatus.SC_OK && code != HttpStatus.SC_NOT_MODIFIED) {
-            throw new IOException("Invalid response: " + response.getStatusLine());
-        }
-        return response;
     }
 
 
@@ -454,13 +365,4 @@ public class ApiSyncer {
         }
     }
 
-    private static String[] longListToStringArr(List<Long> deletions) {
-        int i = 0;
-        String[] idList = new String[deletions.size()];
-        for (Long id : deletions) {
-            idList[i] = String.valueOf(id);
-            i++;
-        }
-        return idList;
-    }
 }

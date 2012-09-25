@@ -4,8 +4,10 @@ import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -120,7 +122,7 @@ public class UploadServiceTest {
         expect(notification).toMatchIntent(new Intent(Actions.MY_PROFILE));
         expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
 
-        Track t = SoundCloudDB.getTrackById(Robolectric.application.getContentResolver(), 12345l);
+        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(12345l);
         expect(t).not.toBeNull();
         expect(t.state).toBe(Track.State.FINISHED);
     }

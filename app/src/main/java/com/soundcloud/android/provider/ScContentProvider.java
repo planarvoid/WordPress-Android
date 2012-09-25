@@ -602,7 +602,7 @@ public class ScContentProvider extends ContentProvider {
                 Cursor c = query(Content.TRACK.forId(trackId), null, null, null, null);
                 try {
                     if (c != null && c.moveToFirst()) {
-                        Track track = new Track(c);
+                        Track track = SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(c);
                         Consts.GraphicSize gs = (size == null || "list".equals(size)) ?
                                 Consts.GraphicSize.getListItemGraphicSize(getContext()) :
                                 Consts.GraphicSize.fromString(size);

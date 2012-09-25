@@ -23,35 +23,4 @@ public class UserCache extends LruCache<Long, User> {
         return put(u);
     }
 
-    public User fromCursor(Cursor cursor) {
-        final long id = cursor.getLong(cursor.getColumnIndex(DBHelper.Users._ID));
-        User user = get(id);
-        if (user == null) {
-            user = new User(cursor);
-            put(user);
-        }
-        return user;
-    }
-
-    public User fromTrackView(Cursor cursor) {
-        final long id = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
-        User user = get(id);
-        if (user == null) {
-            user = User.fromTrackView(cursor);
-            put(user);
-        }
-        return user;
-    }
-
-    public User assertCached(User user) {
-        // todo, update stale cache objects...
-        User stored = get(user.id);
-        if (stored == null) {
-            put(user);
-            return user;
-        } else {
-            stored.updateFrom(user);
-            return stored;
-        }
-    }
 }

@@ -67,7 +67,7 @@ public class AddCommentTaskTest {
         Comment c = new Comment();
         c.track = new Track();
         c.track.id = 100;
-        SoundCloudApplication.TRACK_CACHE.put(c.track);
+        SoundCloudApplication.MODEL_MANAGER.cache(c.track, false);
 
         Robolectric.addHttpResponseRule("/tracks/100/comments", new TestHttpResponse(201, "OK"));
         AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);
