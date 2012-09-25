@@ -282,6 +282,20 @@ public class Activities extends CollectionHolder<Activity> {
         return a;
     }
 
+    public static Activity getFirstActivity(Content content, ContentResolver resolver) {
+        Activity a = null;
+        Cursor c = resolver.query(content.uri,
+                null,
+                null,
+                null,
+                DBHelper.ActivityView.CREATED_AT + " DESC LIMIT 1");
+        if (c != null && c.moveToFirst()) {
+            a = new Activity(c);
+        }
+        if (c != null) c.close();
+        return a;
+    }
+
     public static Activities get(Content content, ContentResolver contentResolver) {
         return getSince(content, contentResolver, 0);
     }
@@ -329,7 +343,7 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public static Activities get(ContentResolver resolver, Uri uri) {
-        return get(resolver,uri, null, null, null, null);
+        return get(resolver, uri, null, null, null, null);
     }
 
     public static Activities get(ContentResolver resolver, Uri uri, @Nullable String[] projection,
@@ -397,7 +411,7 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public int insert(Content content, ContentResolver resolver) {
-        SoundCloudApplication.MODEL_MANAGER.writeCollection(getScResources());
+        SoundCloudApplication.MODEL_MANAGER.writeCollection(getScResources(), ScModel.CacheUpdateMode.MINI);
 
         if (content == Content.ME_ACTIVITIES || content == Content.ME_ALL_ACTIVITIES) {
             resolver.bulkInsert(Content.COMMENTS.uri, getCommentContentValues());

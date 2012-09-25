@@ -8,6 +8,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.FavoriteAddTask;
@@ -147,7 +148,7 @@ public abstract class ScListActivity extends ScActivity {
             // changing tracks
             intent.putExtra(CloudPlaybackService.PlayExtras.trackId, t.id);
             if (info.uri != null) {
-                SoundCloudApplication.MODEL_MANAGER.cache(info.getTrack(), false);
+                SoundCloudApplication.MODEL_MANAGER.cache(info.getTrack(), ScModel.CacheUpdateMode.NONE);
                 intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.getTrack().id)
                       .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                       .setData(info.uri);

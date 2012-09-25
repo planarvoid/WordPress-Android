@@ -5,6 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackHolder;
@@ -283,10 +284,10 @@ public class PlaylistManagerTest {
         TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(getClass().getResourceAsStream("tracks.json"), TrackHolder.class);
 
         for (Track t: tracks){
-            SoundCloudApplication.MODEL_MANAGER.cache(t, true);
+            SoundCloudApplication.MODEL_MANAGER.cache(t, ScModel.CacheUpdateMode.FULL);
         }
 
-        expect(SoundCloudApplication.MODEL_MANAGER.writeCollection(tracks.collection, uri, USER_ID)).toEqual(4);
+        expect(SoundCloudApplication.MODEL_MANAGER.writeCollection(tracks.collection, uri, USER_ID, ScModel.CacheUpdateMode.FULL)).toEqual(4);
 
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(3);

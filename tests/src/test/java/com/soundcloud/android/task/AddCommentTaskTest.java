@@ -5,6 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -67,7 +68,7 @@ public class AddCommentTaskTest {
         Comment c = new Comment();
         c.track = new Track();
         c.track.id = 100;
-        SoundCloudApplication.MODEL_MANAGER.cache(c.track, false);
+        SoundCloudApplication.MODEL_MANAGER.cache(c.track);
 
         Robolectric.addHttpResponseRule("/tracks/100/comments", new TestHttpResponse(201, "OK"));
         AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);

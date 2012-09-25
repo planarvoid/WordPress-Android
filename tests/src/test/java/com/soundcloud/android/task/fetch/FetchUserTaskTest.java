@@ -32,7 +32,7 @@ public class FetchUserTaskTest {
         u.username = "old username";
         u.user_following = true;
         u.user_follower = true;
-        SoundCloudApplication.MODEL_MANAGER.cache(u, false);
+        SoundCloudApplication.MODEL_MANAGER.cache(u);
 
         final User[] user = {null};
         listener = new FetchUserTask.FetchUserListener() {

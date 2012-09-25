@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -132,7 +133,13 @@ public class ApiSyncer {
                 mResolver.delete(c.uri, null, null);
             }
 
-            inserted = activities.insert(c, mResolver);
+            if (activities == null || activities.isEmpty() ||
+                    (activities.size() == 1 && activities.get(0).equals(Activities.getFirstActivity(c, mResolver)))) {
+                // this can happen at the beginning of the list if the api returns the first item incorrectly
+                inserted = 0;
+            } else {
+                inserted = activities.insert(c, mResolver);
+            }
             result.setSyncData(System.currentTimeMillis(), activities.size(), activities.future_href);
         }
 
@@ -165,7 +172,7 @@ public class ApiSyncer {
                         .getEntity().getContent();
 
                 // parse and add first items
-                added = SoundCloudApplication.MODEL_MANAGER.writeCollectionFromStream(is, content.uri, userId);
+                added = SoundCloudApplication.MODEL_MANAGER.writeCollectionFromStream(is, content.uri, userId, ScModel.CacheUpdateMode.FULL);
                 break;
 
             case ME_TRACKS:

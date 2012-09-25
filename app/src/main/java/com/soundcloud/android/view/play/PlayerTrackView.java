@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.fetch.FetchModelTask;
@@ -112,7 +113,7 @@ public class PlayerTrackView extends LinearLayout implements
                     final long userId = mTrack.user != null ? mTrack.user.id : mTrack.user_id;
                     if (userId == -1) return;
 
-                    if (mTrack.user != null) SoundCloudApplication.MODEL_MANAGER.cache(mTrack.user, false);
+                    if (mTrack.user != null) SoundCloudApplication.MODEL_MANAGER.cache(mTrack.user, ScModel.CacheUpdateMode.NONE);
                     Intent intent = new Intent(getContext(), UserBrowser.class);
                     intent.putExtra("userId", mTrack.user_id);
                     getContext().startActivity(intent);

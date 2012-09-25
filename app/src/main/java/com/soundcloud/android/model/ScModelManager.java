@@ -13,6 +13,7 @@ import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -31,6 +32,7 @@ public class ScModelManager {
 
     public static final int RESOLVER_BATCH_SIZE = 100;
     private static final int API_LOOKUP_BATCH_SIZE = 200;
+
     private ContentResolver mResolver;
     private ObjectMapper mMapper;
 
@@ -59,7 +61,7 @@ public class ScModelManager {
         List<ScResource> items = new ArrayList<ScResource>();
         CollectionHolder holder = mMapper.readValue(is, ScResource.ScResourceHolder.class);
         for (ScResource m : (ScResource.ScResourceHolder) holder) {
-            items.add(cache(m, true));
+            items.add(cache(m, ScModel.CacheUpdateMode.FULL));
         }
         holder.collection = items;
         holder.resolve(mContext);
@@ -130,7 +132,9 @@ public class ScModelManager {
         return user;
     }
 
-    public Track getTrack(long id) {
+    public @Nullable Track getTrack(long id) {
+        if (id < 0) return null;
+
         Track t = TRACK_CACHE.get(id);
         if (t == null) {
             t = getTrack(Content.TRACK.forId(id));
@@ -139,7 +143,7 @@ public class ScModelManager {
         return t;
     }
 
-    public Track getTrack(Uri uri) {
+    public @Nullable Track getTrack(Uri uri) {
         Track t = null;
         Cursor cursor = mResolver.query(uri, null, null, null, null);
         if (cursor != null) {
@@ -151,7 +155,9 @@ public class ScModelManager {
         return t;
     }
 
-    public User getUser(long id) {
+    public @Nullable User getUser(long id) {
+        if (id < 0) return null;
+
         User u = USER_CACHE.get(id);
         if (u == null) {
             u = getUser(Content.USER.forId(id));
@@ -160,7 +166,7 @@ public class ScModelManager {
         return u;
     }
 
-    public User getUser(Uri uri) {
+    public @Nullable User getUser(Uri uri) {
         User u = null;
         Cursor cursor = mResolver.query(uri, null, null, null, null);
         if (cursor != null) {
@@ -190,31 +196,31 @@ public class ScModelManager {
     }
 
     public ScResource cache(ScResource resource) {
-        return cache(resource, false);
+        return cache(resource, ScModel.CacheUpdateMode.NONE);
     }
 
-    public ScResource cache(ScResource resource, boolean updateCachedInstance) {
+    public ScResource cache(ScResource resource, ScModel.CacheUpdateMode updateMode) {
         if (resource instanceof Track) {
-            return cache((Track) resource, updateCachedInstance);
+            return cache((Track) resource, updateMode);
         } else if (resource instanceof User) {
-            return cache((User) resource, updateCachedInstance);
+            return cache((User) resource, updateMode);
         } else {
             return resource;
         }
     }
 
     public Track cache(Track track) {
-        return cache(track, false);
+        return cache(track, ScModel.CacheUpdateMode.NONE);
     }
 
-    public Track cache(Track track, boolean updateCachedInstance) {
+    public Track cache(Track track, ScModel.CacheUpdateMode updateMode) {
         if (track.user != null) {
-            track.user = cache(track.user, updateCachedInstance);
+            track.user = cache(track.user, updateMode);
         }
 
         if (TRACK_CACHE.containsKey(track.id)) {
-            if (updateCachedInstance) {
-                return TRACK_CACHE.get(track.id).updateFrom(track);
+            if (updateMode.shouldUpdate()) {
+                return TRACK_CACHE.get(track.id).updateFrom(track, updateMode);
             } else {
                 return TRACK_CACHE.get(track.id);
             }
@@ -226,13 +232,13 @@ public class ScModelManager {
     }
 
     public ScResource cache(User user) {
-        return cache(user, false);
+        return cache(user, ScModel.CacheUpdateMode.NONE);
     }
 
-    public User cache(User user, boolean updateCachedInstance) {
+    public User cache(User user, ScModel.CacheUpdateMode updateMode) {
         if (USER_CACHE.containsKey(user.id)) {
-            if (updateCachedInstance) {
-                return USER_CACHE.get(user.id).updateFrom(user);
+            if (updateMode.shouldUpdate()) {
+                return USER_CACHE.get(user.id).updateFrom(user, updateMode);
             } else {
                 return USER_CACHE.get(user.id);
             }
@@ -347,23 +353,23 @@ public class ScModelManager {
         return idList;
     }
 
-    public int writeCollectionFromStream(InputStream is) throws IOException {
-        return writeCollectionFromStream(is, null, -1);
+    public int writeCollectionFromStream(InputStream is, ScModel.CacheUpdateMode updateMode) throws IOException {
+        return writeCollectionFromStream(is, null, -1, updateMode);
     }
 
-    public int writeCollectionFromStream(InputStream is, Uri uri, long userId) throws IOException {
-        return writeCollection(getCollectionFromStream(is).collection, uri, userId);
+    public int writeCollectionFromStream(InputStream is, Uri uri, long userId, ScModel.CacheUpdateMode updateMode) throws IOException {
+        return writeCollection(getCollectionFromStream(is).collection, uri, userId, updateMode);
     }
 
-    public Object writeCollection(List<ScResource> items) {
-        return writeCollection(items, null, -1l);
+    public Object writeCollection(List<ScResource> items, ScModel.CacheUpdateMode updateMode) {
+        return writeCollection(items, null, -1l, updateMode);
     }
 
-    public <T extends ScResource> int writeCollection(List<T> items, Uri localUri, long userId) {
+    public <T extends ScResource> int writeCollection(List<T> items, Uri localUri, long userId, ScModel.CacheUpdateMode updateMode) {
         if (items.isEmpty()) return 0;
 
         for (T item : items) {
-            cache(item);
+            cache(item, updateMode);
         }
 
         return SoundCloudDB.bulkInsertModels(mResolver, items, localUri, userId);

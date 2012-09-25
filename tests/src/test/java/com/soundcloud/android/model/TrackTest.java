@@ -143,7 +143,7 @@ public class TrackTest {
         t.permalink = "permalink";
         Intent i = new Intent();
         i.putExtra("track_id", t.id);
-        SoundCloudApplication.MODEL_MANAGER.cache(t, false);
+        SoundCloudApplication.MODEL_MANAGER.cache(t);
         expect(Track.fromIntent(i, null)).toEqual(t);
     }
 

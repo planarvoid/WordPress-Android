@@ -132,4 +132,12 @@ public class ScModel implements Parcelable {
     public void resolve(Context context) {
 
     }
+
+    public enum CacheUpdateMode {
+        NONE, MINI, FULL;
+
+        public boolean shouldUpdate(){
+            return this != NONE;
+        }
+    }
 }

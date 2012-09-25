@@ -52,7 +52,7 @@ public class Track extends ScResource implements Origin, Playable, Refreshable {
     // API fields
     @JsonView(Views.Full.class) public Date created_at;
     @JsonView(Views.Mini.class) public long user_id;
-    @JsonView(Views.Full.class) public int duration;
+    @JsonView(Views.Full.class) public int duration = NOT_SET;
     @JsonView(Views.Full.class) @Nullable public State state;
     @JsonView(Views.Full.class) public boolean commentable;
     @JsonView(Views.Full.class) public Sharing sharing;  //  public | private
@@ -540,28 +540,34 @@ public class Track extends ScResource implements Origin, Playable, Refreshable {
         return SoundCloudApplication.MODEL_MANAGER.write(this);
     }
 
-    public Track updateFrom(Track updatedItem) {
+    public Track updateFrom(Track updatedItem, CacheUpdateMode cacheUpdateMode) {
+
         id = updatedItem.id;
         title = updatedItem.title;
-        created_at = updatedItem.created_at;
-        user_id = updatedItem.user_id;
-        duration = updatedItem.duration;
-        commentable = updatedItem.commentable;
-        state = updatedItem.state;
-        sharing = updatedItem.sharing;
         permalink = updatedItem.permalink;
-        streamable = updatedItem.streamable;
-        artwork_url = updatedItem.artwork_url;
-        waveform_url = updatedItem.waveform_url;
-        user = updatedItem.user;
         stream_url = updatedItem.stream_url;
-        playback_count = updatedItem.playback_count;
-        comment_count = updatedItem.comment_count;
-        favoritings_count = updatedItem.favoritings_count;
-        user_favorite = updatedItem.user_favorite;
-        shared_to_count = updatedItem.shared_to_count;
-        //refreshListArtworkUri(c);
-        //refreshTimeSinceCreated(c);
+        user_id = updatedItem.user_id;
+        uri = updatedItem.uri;
+
+        if (cacheUpdateMode == CacheUpdateMode.FULL){
+            duration = updatedItem.duration;
+            commentable = updatedItem.commentable;
+            state = updatedItem.state;
+            sharing = updatedItem.sharing;
+            streamable = updatedItem.streamable;
+            artwork_url = updatedItem.artwork_url;
+            waveform_url = updatedItem.waveform_url;
+            user = updatedItem.user;
+            playback_count = updatedItem.playback_count;
+            comment_count = updatedItem.comment_count;
+            favoritings_count = updatedItem.favoritings_count;
+            user_favorite = updatedItem.user_favorite;
+            shared_to_count = updatedItem.shared_to_count;
+            created_at = updatedItem.created_at;
+            //refreshListArtworkUri(c);
+            //refreshTimeSinceCreated(c);
+        }
+
         return this;
     }
 

@@ -38,12 +38,12 @@ public class ScModelManagerTest {
         Track track = new Track();
         track.id = 1234;
         track.bpm = 120f;
-        manager.cache(track, true);
+        manager.cache(track, ScModel.CacheUpdateMode.FULL);
 
         Track track2 = new Track();
         track2.id = 1234;
         track2.duration = 9876;
-        Track t = manager.cache(track2, true);
+        Track t = manager.cache(track2, ScModel.CacheUpdateMode.FULL);
 
         expect(t.bpm).toEqual(track.bpm);
         expect(t.duration).toEqual(track.duration);
@@ -274,13 +274,13 @@ public class ScModelManagerTest {
     @Test
         public void shouldBulkInsert() throws Exception {
             List<ScResource> items = createModels();
-            expect(manager.writeCollection(items)).toEqual(3);
+            expect(manager.writeCollection(items, ScModel.CacheUpdateMode.MINI)).toEqual(3);
         }
 
         @Test
         public void shouldBulkInsertWithCollections() throws Exception {
             List<ScResource> items = createModels();
-            expect(manager.writeCollection( items, Content.ME_FAVORITES.uri, USER_ID)).toEqual(3);
+            expect(manager.writeCollection( items, Content.ME_FAVORITES.uri, USER_ID, ScModel.CacheUpdateMode.MINI)).toEqual(3);
 
             Cursor c = resolver.query(Content.ME_FAVORITES.uri, null, null, null, null);
             expect(c.getCount()).toEqual(1);
@@ -288,7 +288,7 @@ public class ScModelManagerTest {
 
         @Test(expected = IllegalArgumentException.class)
         public void shouldNotBulkInsertWithoutOwnerId() throws Exception {
-            manager.writeCollection(createModels(), Content.ME_FAVORITES.uri, -1);
+            manager.writeCollection(createModels(), Content.ME_FAVORITES.uri, -1, ScModel.CacheUpdateMode.NONE);
         }
 
         private List<ScResource> createModels() {

@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -66,7 +67,7 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, ? extends ScResour
                 throw new IOException("Invalid response: " + resp.getStatusLine());
             }
 
-            SoundCloudApplication.MODEL_MANAGER.writeCollectionFromStream(resp.getEntity().getContent());
+            SoundCloudApplication.MODEL_MANAGER.writeCollectionFromStream(resp.getEntity().getContent(), ScModel.CacheUpdateMode.FULL);
             publishProgress();
             return true;
 

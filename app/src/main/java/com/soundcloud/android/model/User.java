@@ -278,12 +278,12 @@ public class User extends ScResource implements  Refreshable, Origin {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.user;
     }
 
-    public User updateFrom(User user) {
+    public User updateFrom(User user, CacheUpdateMode cacheUpdateMode) {
         this.id = user.id;
         this.username = user.username;
         this.avatar_url = user.avatar_url;
-        this.permalink = user.permalink;
 
+        if (user.permalink != null) this.permalink = user.permalink;
         if (user.full_name != null) this.full_name = user.full_name;
         if (user.city != null) this.city = user.city;
         if (user.country != null)this.country = user.country;

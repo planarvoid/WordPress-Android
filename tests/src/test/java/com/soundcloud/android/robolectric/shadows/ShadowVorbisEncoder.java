@@ -18,7 +18,7 @@ public class ShadowVorbisEncoder {
     public static IOException throwException;
 
     @Implementation
-    public static int encodeWav(File in, File out, EncoderOptions options) throws IOException, InterruptedException {
+    public static int encodeWav(File in, File out, EncoderOptions options) throws IOException {
         if (throwException != null) throw throwException;
 
         if (simulateProgress && options.listener != null) {
@@ -38,12 +38,12 @@ public class ShadowVorbisEncoder {
     }
 
     @Implementation
-    public static int encodeVorbis(File in, File out, EncoderOptions options) throws IOException, InterruptedException {
+    public static int encodeVorbis(File in, File out, EncoderOptions options) throws IOException {
         return encodeWav(in, out, options);
     }
 
     @Implementation
-    public static int encodeFile(File in, File out, EncoderOptions options) throws IOException, InterruptedException {
+    public static int encodeFile(File in, File out, EncoderOptions options) throws IOException {
         return encodeWav(in, out, options);
     }
 

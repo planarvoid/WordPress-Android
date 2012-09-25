@@ -30,7 +30,7 @@ public class FetchTrackTaskTest {
         Track t = new Track();
         t.id = 12345;
         t.title = "Old Title";
-        SoundCloudApplication.MODEL_MANAGER.cache(t, false);
+        SoundCloudApplication.MODEL_MANAGER.cache(t);
 
         final Track[] track = {null};
         listener = new FetchTrackTask.FetchTrackListener() {
