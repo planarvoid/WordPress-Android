@@ -13,14 +13,26 @@ import android.text.TextUtils;
 
 import java.util.Date;
 
+/*
+{
+      "type": "track-sharing",
+      "origin": {
+        "track": {
+          ... FULL TRACK ...
+        },
+        "sharing_note": {
+          "created_at": "2011/07/11 20:28:04 +0000",
+          "text": "I hope everyone is well. Here is the massive set that I promised. Enjoy, share, and dont be shy leave me your thoughts!"
+        }
+      },
+      "tags": "first",
+      "created_at": "2011/07/11 20:42:34 +0000"
+    }
+ */
+
 public class TrackSharing implements Origin {
     @JsonProperty @JsonView(Views.Mini.class) public Track track;
     @JsonProperty @JsonView(Views.Mini.class) public SharingNote sharing_note;
-
-    public TrackSharing(Cursor c) {
-        track = SoundCloudApplication.MODEL_MANAGER.TRACK_CACHE.fromActivityCursor(c);
-        sharing_note = track.sharing_note;
-    }
 
     /* package */ TrackSharing() {
     }
@@ -38,6 +50,16 @@ public class TrackSharing implements Origin {
     @Override @JsonIgnore
     public User getUser() {
         return track.user;
+    }
+
+    @Override
+    public void setCachedTrack(Track track) {
+        this.track = track;
+    }
+
+    @Override
+    public void setCachedUser(User user) {
+        // nop
     }
 
     @Override

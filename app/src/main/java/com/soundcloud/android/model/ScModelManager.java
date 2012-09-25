@@ -47,6 +47,80 @@ public class ScModelManager {
         mMapper = mapper;
     }
 
+    private User getLoggedInUser() {
+        User user = getUser(SoundCloudApplication.getUserId());
+        if (user != null){
+            return user;
+        } else {
+            user = new User();
+            user.id = SoundCloudApplication.getUserId();
+            return (User) cache(user);
+        }
+
+    }
+
+    public Activities getActivitiesFromCursor(Cursor cursor) {
+
+        Activities activities = new Activities();
+        User loggedInUser = getLoggedInUser();
+        while (cursor != null && cursor.moveToNext()) {
+            final Activity a = new Activity(cursor);
+
+            Origin origin = null;
+            switch (a.type) {
+                case TRACK:
+                    origin = SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor, DBHelper.ActivityView.TRACK_ID);
+                    break;
+
+                case TRACK_SHARING:
+                    origin = new TrackSharing();
+                    Track track = SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor, DBHelper.ActivityView.TRACK_ID);
+                    origin.setCachedTrack(track);
+                    ((TrackSharing) origin).sharing_note = track.sharing_note;
+                    break;
+
+                case COMMENT:
+                case FAVORITING:
+                    origin = a.type == Activity.Type.COMMENT ? new Comment(cursor, true) : new Favoriting();
+                    final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor, DBHelper.ActivityView.TRACK_ID);
+                    cachedTrack.setCachedUser(loggedInUser);
+                    origin.setCachedTrack(cachedTrack);
+                    origin.setCachedUser(SoundCloudApplication.MODEL_MANAGER.getUserFromActivityCursor(cursor));
+                    break;
+            }
+            a.setOrigin(origin);
+            activities.add(a);
+        }
+
+        if (cursor != null) cursor.close();
+        return activities;
+    }
+
+    public Activities fromJSON(InputStream is) throws IOException {
+        Activities activities = mMapper.readValue(is, Activities.class);
+        User loggedInUser = getLoggedInUser();
+        for (Activity a : activities) {
+            switch (a.type) {
+                case TRACK:
+                    a.setCachedTrack(SoundCloudApplication.MODEL_MANAGER.cache((Track) a.origin, ScModel.CacheUpdateMode.MINI));
+                    break;
+
+                case TRACK_SHARING:
+                    a.origin.setCachedTrack(SoundCloudApplication.MODEL_MANAGER.cache(a.getTrack(), ScModel.CacheUpdateMode.MINI));
+                    break;
+
+                case COMMENT:
+                case FAVORITING:
+                    final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.cache(a.getTrack(), ScModel.CacheUpdateMode.MINI);
+                    cachedTrack.setCachedUser(loggedInUser);
+                    a.origin.setCachedTrack(cachedTrack);
+                    a.origin.setCachedUser((User) SoundCloudApplication.MODEL_MANAGER.cache(a.getUser(), ScModel.CacheUpdateMode.MINI));
+                    break;
+            }
+        }
+        return activities;
+    }
+
     /**
      * Turn an input stream into a collection of objects, using the cache to ensure that there is only one instance
      * of each resource object in memory
@@ -80,8 +154,12 @@ public class ScModelManager {
         return (T) getModelFromStream(is, ScResource.class);
     }
 
-    public Track getTrackFromCursor(Cursor cursor) {
-        final long id = cursor.getLong(cursor.getColumnIndex(DBHelper.Tracks._ID));
+    public Track getTrackFromCursor(Cursor cursor){
+        return getTrackFromCursor(cursor, DBHelper.Tracks._ID);
+    }
+
+    public Track getTrackFromCursor(Cursor cursor, String idCol) {
+        final long id = cursor.getLong(cursor.getColumnIndex(idCol));
         Track track = TRACK_CACHE.get(id);
 
         // assumes track cache has always
@@ -127,6 +205,16 @@ public class ScModelManager {
         User user = USER_CACHE.get(id);
         if (user == null) {
             user = new User(itemsCursor);
+            USER_CACHE.put(user);
+        }
+        return user;
+    }
+
+    public User getUserFromActivityCursor(Cursor itemsCursor) {
+        final long id = itemsCursor.getLong(itemsCursor.getColumnIndex(DBHelper.ActivityView.USER_ID));
+        User user = USER_CACHE.get(id);
+        if (user == null) {
+            user = User.fromActivityView(itemsCursor);
             USER_CACHE.put(user);
         }
         return user;
@@ -387,4 +475,6 @@ public class ScModelManager {
                 new String[]{String.valueOf(content.collectionType), String.valueOf(userId)},
                 DBHelper.CollectionItems.SORT_ORDER));
     }
+
+
 }

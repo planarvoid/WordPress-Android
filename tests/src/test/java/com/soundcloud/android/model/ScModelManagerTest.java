@@ -1,11 +1,14 @@
 package com.soundcloud.android.model;
 
+import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.toTime;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -231,7 +234,7 @@ public class ScModelManagerTest {
             for (int i=0; i<PLAYS; i++)
                 expect(manager.markTrackAsPlayed(track)).toBeTrue();
 
-            Cursor c = Robolectric.application.getContentResolver().query(Content.TRACK_PLAYS.uri, null, null, null, null);
+            Cursor c = resolver.query(Content.TRACK_PLAYS.uri, null, null, null, null);
             expect(c.getCount()).toEqual(1);
             expect(c.moveToFirst()).toBeTrue();
 
@@ -314,5 +317,72 @@ public class ScModelManagerTest {
             items.add(t);
             items.add(u2_);
             return items;
+        }
+
+
+    @Test
+        public void shouldInsertActivitiesIntoDb() throws Exception {
+            Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
+                    SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
+            a.insert(Content.ME_SOUND_STREAM, resolver);
+            expect(Content.ME_SOUND_STREAM).toHaveCount(50);
+        }
+
+        @Test
+        public void shouldGetActivitiesFromDB() throws Exception {
+            Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
+                    SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
+            a.insert(Content.ME_SOUND_STREAM, resolver);
+            expect(Content.ME_SOUND_STREAM).toHaveCount(50);
+
+            expect(
+                Activities.getSince(Content.ME_SOUND_STREAM,
+                        resolver, -1).size()
+            ).toEqual(50);
+        }
+
+        @Test
+        public void shouldGetActivitiesFromDBWithTimeFiltering() throws Exception {
+            Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
+                    SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
+            a.insert(Content.ME_SOUND_STREAM, resolver);
+            expect(Content.ME_SOUND_STREAM).toHaveCount(50);
+
+            expect(
+                    Activities.getSince(Content.ME_SOUND_STREAM,
+                            resolver,
+                            toTime("2011/07/12 09:13:36 +0000")).size()
+            ).toEqual(2);
+        }
+
+        @Test
+        public void shouldGetLastActivity() throws Exception {
+            Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
+                    SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
+            a.insert(Content.ME_SOUND_STREAM, resolver);
+            expect(Content.ME_SOUND_STREAM).toHaveCount(50);
+
+            expect(
+                    Activities.getLastActivity(Content.ME_SOUND_STREAM,
+                            resolver).created_at.getTime()
+            ).toEqual(toTime("2011/07/06 15:47:50 +0000"));
+        }
+
+        @Test
+        public void shouldClearAllActivities() throws Exception {
+            Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
+                    SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
+
+            a.insert(Content.ME_SOUND_STREAM, resolver);
+            expect(Content.ME_SOUND_STREAM).toHaveCount(50);
+
+            LocalCollection.insertLocalCollection(Content.ME_SOUND_STREAM.uri,
+                    0, System.currentTimeMillis(), System.currentTimeMillis(), a.size(),a.future_href,
+                    resolver);
+
+            Activities.clear(null, resolver);
+
+            expect(Content.ME_SOUND_STREAM).toHaveCount(0);
+            expect(Content.COLLECTIONS).toHaveCount(0);
         }
 }

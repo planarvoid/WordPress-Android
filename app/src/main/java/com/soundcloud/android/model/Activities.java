@@ -21,7 +21,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 import static com.soundcloud.android.SoundCloudApplication.*;
@@ -134,10 +133,6 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
 
-    public static Activities fromJSON(InputStream is) throws IOException {
-        return AndroidCloudAPI.Mapper.readValue(is, Activities.class);
-    }
-
     // TODO, get rid of future href and next href and generate them
     public Activities merge(Activities old) {
         //noinspection ObjectEquality
@@ -210,7 +205,7 @@ public class Activities extends CollectionHolder<Activity> {
         final int status = response.getStatusLine().getStatusCode();
         switch (status) {
             case HttpStatus.SC_OK: {
-                Activities a = fromJSON(response.getEntity().getContent());
+                Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(response.getEntity().getContent());
                 if (a.size() < max && a.hasMore() && !a.isEmpty() && requestNumber < MAX_REQUESTS) {
                     /* should not happen in theory, but backend might limit max number per requests */
                     return a.merge(fetchRecent(api, a.getNextRequest(), max - a.size(), requestNumber+1));
@@ -234,7 +229,7 @@ public class Activities extends CollectionHolder<Activity> {
                                    final Request request) throws IOException {
         HttpResponse response = api.get(request);
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            return fromJSON(response.getEntity().getContent());
+            return SoundCloudApplication.MODEL_MANAGER.fromJSON(response.getEntity().getContent());
         } else {
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Got no content response (204)");
@@ -322,7 +317,7 @@ public class Activities extends CollectionHolder<Activity> {
         } else {
             c = resolver.query(contentUri, null, null, null, null);
         }
-        return fromCursor(c);
+        return SoundCloudApplication.MODEL_MANAGER.getActivitiesFromCursor(c);
     }
 
     public static Activities getBefore(Uri contentUri, ContentResolver resolver, long before)  {
@@ -339,7 +334,7 @@ public class Activities extends CollectionHolder<Activity> {
             c = resolver.query(contentUri, null, null, null, null);
         }
 
-        return fromCursor(c);
+        return SoundCloudApplication.MODEL_MANAGER.getActivitiesFromCursor(c);
     }
 
     public static Activities get(ContentResolver resolver, Uri uri) {
@@ -348,17 +343,7 @@ public class Activities extends CollectionHolder<Activity> {
 
     public static Activities get(ContentResolver resolver, Uri uri, @Nullable String[] projection,
                                  @Nullable String where, @Nullable String[] whereArgs, @Nullable String sort) {
-        return fromCursor(resolver.query(uri, projection, where, whereArgs, sort));
-    }
-
-    public static Activities fromCursor(Cursor cursor) {
-
-        Activities activities = new Activities();
-        while (cursor != null && cursor.moveToNext()) {
-            activities.add(new Activity(cursor));
-        }
-        if (cursor != null) cursor.close();
-        return activities;
+        return SoundCloudApplication.MODEL_MANAGER.getActivitiesFromCursor(resolver.query(uri, projection, where, whereArgs, sort));
     }
 
     public ContentValues[] buildContentValues(final int contentId) {

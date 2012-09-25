@@ -200,6 +200,16 @@ public class Track extends ScResource implements Origin, Playable, Refreshable {
         return user;
     }
 
+    @Override
+    public void setCachedTrack(Track track) {
+        // nop
+    }
+
+    @Override
+    public void setCachedUser(User user) {
+        this.user = user;
+    }
+
     @JsonIgnore
     public boolean isStreamable() {
         return !TextUtils.isEmpty(stream_url) && (state == null || state.isStreamable());

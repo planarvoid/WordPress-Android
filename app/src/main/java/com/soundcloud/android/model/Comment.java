@@ -17,6 +17,37 @@ import android.os.Parcel;
 import java.util.Comparator;
 import java.util.Date;
 
+/*
+"origin": {
+        "track_id": 19446062,
+        "track": {
+          "stream_url": "https://api.soundcloud.com/tracks/19446062/stream",
+          "permalink": "lullaby",
+          "user_uri": "https://api.soundcloud.com/users/133201",
+          "id": 19446062,
+          "permalink_url": "http://soundcloud.com/jberkel/lullaby",
+          "user_id": 133201,
+          "uri": "https://api.soundcloud.com/tracks/19446062",
+          "title": "lullaby",
+          "kind": "track"
+        },
+        "created_at": "2011/07/23 11:52:28 +0000",
+        "id": 21623911,
+        "user_id": 4253183,
+        "uri": "https://api.soundcloud.com/comments/21623911",
+        "body": "its a very quiet lullaby....eddie...",
+        "user": {
+          "permalink": "eddiesongwriter",
+          "id": 4253183,
+          "permalink_url": "http://soundcloud.com/eddiesongwriter",
+          "uri": "https://api.soundcloud.com/users/4253183",
+          "kind": "user",
+          "avatar_url": "http://i1.sndcdn.com/avatars-000003378812-m83f4d-large.jpg?0dfc9e6",
+          "username": "EddieSongWriter"
+        },
+ */
+
+
 public class Comment extends ScResource implements Origin {
     @JsonView(Views.Mini.class) public Date created_at;
     @JsonView(Views.Mini.class) public long user_id;
@@ -40,7 +71,6 @@ public class Comment extends ScResource implements Origin {
     }
 
     public Comment(Cursor c, boolean view) {
-        track = new Track(c);
         if (view) {
             id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_ID));
             user_id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.USER_ID));
@@ -71,6 +101,16 @@ public class Comment extends ScResource implements Origin {
     @Override @JsonIgnore
     public User getUser() {
         return user;
+    }
+
+    @Override
+    public void setCachedTrack(Track track) {
+        this.track = track;
+    }
+
+    @Override
+    public void setCachedUser(User user) {
+        this.user = user;
     }
 
     public void prefetchAvatar(Context c) {

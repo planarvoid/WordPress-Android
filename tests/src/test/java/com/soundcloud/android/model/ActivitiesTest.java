@@ -1,9 +1,10 @@
 package com.soundcloud.android.model;
 
 import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.fromString;
-import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.toTime;
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -11,6 +12,7 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.jetbrains.annotations.Nullable;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +28,17 @@ import java.util.Set;
 @RunWith(DefaultTestRunner.class)
 public class ActivitiesTest {
 
+    static final long USER_ID = 133201L;
+    ScModelManager manager;
+    ContentResolver resolver;
+
+    @Before
+    public void before() {
+        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+        manager = new ScModelManager(Robolectric.application, AndroidCloudAPI.Mapper);
+        resolver = Robolectric.application.getContentResolver();
+    }
+
     @Test
     public void testIsEmpty() throws Exception {
         Activities activities = new Activities();
@@ -35,7 +48,7 @@ public class ActivitiesTest {
 
     @Test
     public void testIsEmptyParsed() throws Exception {
-        Activities a = Activities.fromJSON(getClass().getResourceAsStream("activities_empty.json"));
+        Activities a = manager.fromJSON(getClass().getResourceAsStream("activities_empty.json"));
         expect(a.isEmpty()).toBeTrue();
     }
 
@@ -127,7 +140,7 @@ public class ActivitiesTest {
     }
 
     private Activities getActivities() throws IOException {
-        return Activities.fromJSON(getClass().getResourceAsStream("activities_all.json"));
+        return manager.fromJSON(getClass().getResourceAsStream("activities_all.json"));
     }
 
     @Test
@@ -139,9 +152,9 @@ public class ActivitiesTest {
 
     @Test
     public void testMerge() throws Exception {
-        Activities a1 = Activities.fromJSON(getClass().getResourceAsStream("activities_1.json"));
-        Activities a2 = Activities.fromJSON(getClass().getResourceAsStream("activities_2.json"));
-        Activities all = Activities.fromJSON(getClass().getResourceAsStream("activities_all.json"));
+        Activities a1 = manager.fromJSON(getClass().getResourceAsStream("activities_1.json"));
+        Activities a2 = manager.fromJSON(getClass().getResourceAsStream("activities_2.json"));
+        Activities all = manager.fromJSON(getClass().getResourceAsStream("activities_all.json"));
 
         Activities merged = a2.merge(a1);
         expect(merged.size()).toEqual(all.size());
@@ -153,13 +166,13 @@ public class ActivitiesTest {
 
     @Test
     public void testMergeWithEmpty() throws Exception {
-        Activities a1 = Activities.fromJSON(getClass().getResourceAsStream("activities_1.json"));
+        Activities a1 = manager.fromJSON(getClass().getResourceAsStream("activities_1.json"));
         expect(a1.merge(Activities.EMPTY)).toBe(a1);
     }
 
     @Test
     public void testFilter() throws Exception {
-        Activities a2 = Activities.fromJSON(getClass().getResourceAsStream("activities_2.json"));
+        Activities a2 = manager.fromJSON(getClass().getResourceAsStream("activities_2.json"));
         Date start = fromString("2011/07/29 15:36:44 +0000");
 
         Activities filtered = a2.filter(start);
@@ -169,7 +182,7 @@ public class ActivitiesTest {
 
     @Test
     public void testGetNextRequest() throws Exception {
-        Activities a1 = Activities.fromJSON(getClass().getResourceAsStream("activities_1.json"));
+        Activities a1 = manager.fromJSON(getClass().getResourceAsStream("activities_1.json"));
         expect(a1.hasMore()).toBeTrue();
         expect(a1.getNextRequest().toUrl()).toEqual("/me/activities/tracks?cursor=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
     }
@@ -211,95 +224,28 @@ public class ActivitiesTest {
 
     @Test
     public void shouldBuildContentValues() throws Exception {
-        Activities a = Activities.fromJSON(getClass().getResourceAsStream("activities_1.json"));
+        Activities a = manager.fromJSON(getClass().getResourceAsStream("activities_1.json"));
         ContentValues[] cv = a.buildContentValues(-1);
         expect(cv.length).toEqual(a.size());
     }
 
-    @Test
-    public void shouldInsertActivitiesIntoDb() throws Exception {
-        Activities a = Activities.fromJSON(
-                SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
-        a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
-        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
-    }
 
-    @Test
-    public void shouldGetActivitiesFromDB() throws Exception {
-        Activities a = Activities.fromJSON(
-                SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
-        a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
-        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
-
-        expect(
-            Activities.getSince(Content.ME_SOUND_STREAM,
-                    Robolectric.application.getContentResolver(), -1).size()
-        ).toEqual(50);
-    }
-
-    @Test
-    public void shouldGetActivitiesFromDBWithTimeFiltering() throws Exception {
-        Activities a = Activities.fromJSON(
-                SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
-        a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
-        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
-
-        expect(
-                Activities.getSince(Content.ME_SOUND_STREAM,
-                        Robolectric.application.getContentResolver(),
-                        toTime("2011/07/12 09:13:36 +0000")).size()
-        ).toEqual(2);
-    }
-
-    @Test
-    public void shouldGetLastActivity() throws Exception {
-        Activities a = Activities.fromJSON(
-                SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
-        a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
-        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
-
-        expect(
-                Activities.getLastActivity(Content.ME_SOUND_STREAM,
-                        Robolectric.application.getContentResolver()).created_at.getTime()
-        ).toEqual(toTime("2011/07/06 15:47:50 +0000"));
-    }
-
-    @Test
-    public void shouldClearAllActivities() throws Exception {
-        Activities a = Activities.fromJSON(
-                SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
-
-        a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
-        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
-
-        LocalCollection.insertLocalCollection(Content.ME_SOUND_STREAM.uri,
-                0, System.currentTimeMillis(), System.currentTimeMillis(), a.size(),a.future_href,
-                Robolectric.application.getContentResolver());
-
-        Activities.clear(null, Robolectric.application.getContentResolver());
-
-        expect(Content.ME_SOUND_STREAM).toHaveCount(0);
-        expect(Content.COLLECTIONS).toHaveCount(0);
-    }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowIfContentPassedToClearIsUnrelated() throws Exception {
-        Activities.clear(Content.ME, Robolectric.application.getContentResolver());
+        Activities.clear(Content.ME, resolver);
     }
 
     @Test
     public void shouldPersistAllActivityTypes() throws Exception {
-        Activities a = Activities.fromJSON(
-                getClass().getResourceAsStream("one_of_each_activity_type.json"));
-
         // need to insert track owner for joins to work
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Users._ID, 133201L);
         cv.put(DBHelper.Users.USERNAME, "Foo Bar");
-
-        ContentResolver resolver = Robolectric.application.getContentResolver();
         resolver.insert(Content.USERS.uri, cv);
 
+        Activities a = manager.fromJSON(
+                getClass().getResourceAsStream("one_of_each_activity_type.json"));
         a.insert(Content.ME_ACTIVITIES, resolver);
 
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(4);
@@ -359,7 +305,7 @@ public class ActivitiesTest {
 
     @Test
     public void shouldGetArtworkUrls() throws Exception {
-        Activities a = Activities.fromJSON(
+        Activities a = manager.fromJSON(
                 getClass().getResourceAsStream("one_of_each_activity_type.json"));
 
         Set<String> urls = a.artworkUrls();
@@ -407,7 +353,7 @@ public class ActivitiesTest {
     @Ignore
     public void shouldNotCreateNewUserObjectsIfObjectIdIsTheSame() throws Exception {
 
-        Activities a = Activities.fromJSON(
+        Activities a = manager.fromJSON(
                 getClass().getResourceAsStream("two_activities_by_same_user.json"));
 
         // fronx favorites + comments

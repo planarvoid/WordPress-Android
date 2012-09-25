@@ -309,6 +309,16 @@ public class User extends ScResource implements  Refreshable, Origin {
         return this;
     }
 
+    @Override
+    public void setCachedTrack(Track track) {
+        // nop
+    }
+
+    @Override
+    public void setCachedUser(User user) {
+        // nop
+    }
+
     public void resolve(Context context) {
         refreshListAvatarUri(context);
     }

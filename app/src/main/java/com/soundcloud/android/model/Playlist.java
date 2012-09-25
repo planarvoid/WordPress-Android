@@ -18,4 +18,14 @@ public class Playlist extends ScResource implements Origin {
     public User getUser() {
         return user;
     }
+
+    @Override
+    public void setCachedTrack(Track track) {
+        // nop
+    }
+
+    @Override
+    public void setCachedUser(User user) {
+        this.user = user;
+    }
 }

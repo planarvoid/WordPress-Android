@@ -15,6 +15,7 @@ import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -81,7 +82,7 @@ public class SyncAdapterServiceTest {
 
     @Test
     public void testIncomingNotificationMessage() throws Exception {
-        Activities activities = Activities.fromJSON(getClass().getResourceAsStream("incoming_2.json"));
+        Activities activities = SoundCloudApplication.MODEL_MANAGER.fromJSON(getClass().getResourceAsStream("incoming_2.json"));
         String message = Message.getIncomingNotificationMessage(
                 DefaultTestRunner.application, activities);
 
@@ -90,7 +91,7 @@ public class SyncAdapterServiceTest {
 
     @Test
     public void testExclusiveNotificationMessage() throws Exception {
-        Activities events = Activities.fromJSON(getClass().getResourceAsStream("incoming_2.json"));
+        Activities events = SoundCloudApplication.MODEL_MANAGER.fromJSON(getClass().getResourceAsStream("incoming_2.json"));
         String message = Message.getExclusiveNotificationMessage(
                 DefaultTestRunner.application, events);
 

@@ -19,6 +19,28 @@ import android.os.Parcelable;
 import java.util.Date;
 import java.util.UUID;
 
+/*
+
+
+switch (type) {
+            case TRACK:
+                origin = SoundCloudApplication.MODEL_MANAGER.TRACK_CACHE.fromActivityCursor(c);
+                break;
+            case TRACK_SHARING:
+                origin = new TrackSharing(c);
+                break;
+            case COMMENT:
+                origin = new Comment(c, true);
+                break;
+            case FAVORITING:
+                origin = new Favoriting(c);
+                break;
+        }
+
+ */
+
+
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Activity extends ScModel implements Refreshable, Origin, Playable, Comparable<Activity> {
     @JsonProperty
@@ -52,24 +74,26 @@ public class Activity extends ScModel implements Refreshable, Origin, Playable, 
         type =  Type.fromString(c.getString(c.getColumnIndex(DBHelper.ActivityView.TYPE)));
         tags = c.getString(c.getColumnIndex(DBHelper.ActivityView.TAGS));
         created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.CREATED_AT)));
-        switch (type) {
-            case TRACK:
-                origin = SoundCloudApplication.MODEL_MANAGER.TRACK_CACHE.fromActivityCursor(c);
-                break;
-            case TRACK_SHARING:
-                origin = new TrackSharing(c);
-                break;
-            case COMMENT:
-                origin = new Comment(c, true);
-                break;
-            case FAVORITING:
-                origin = new Favoriting(c);
-                break;
-        }
+    }
+
+    public void setOrigin(Origin origin){
+        this.origin = origin;
     }
 
     public User getUser() {
         return origin == null ?  null : origin.getUser();
+    }
+
+    @Override
+    public void setCachedTrack(Track track) {
+        if (type == Type.TRACK){
+            this.origin = track;
+        }
+    }
+
+    @Override
+    public void setCachedUser(User user) {
+        // nop
     }
 
     public Track getTrack() {

@@ -2,19 +2,30 @@ package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 
 import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncerTest {
+
+    static final long USER_ID = 133201L;
+
+    @Before
+    public void before() {
+        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+    }
 
     @Test(expected = IOException.class)
     public void shouldThrowIOException() throws Exception {
