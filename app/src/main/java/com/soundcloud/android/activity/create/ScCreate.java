@@ -2,12 +2,10 @@ package com.soundcloud.android.activity.create;
 
 
 import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
@@ -38,8 +36,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
