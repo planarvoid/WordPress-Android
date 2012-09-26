@@ -16,7 +16,7 @@ import java.util.List;
 public class DBHelper extends SQLiteOpenHelper {
     static final String TAG = "DBHelper";
 
-    public static final int DATABASE_VERSION = 14;
+    public static final int DATABASE_VERSION = 15;
     private static final String DATABASE_NAME = "SoundCloud";
 
     DBHelper(Context context) {
@@ -76,6 +76,9 @@ public class DBHelper extends SQLiteOpenHelper {
                             break;
                         case 14:
                             success = upgradeTo14(db, oldVersion);
+                            break;
+                        case 15:
+                            success = upgradeTo15(db, oldVersion);
                             break;
                         default:
                             break;
@@ -198,6 +201,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "shared_emails text," +
             "shared_ids text, " +
             "private_user_id INTEGER," +
+            "tip_key VARCHAR(255)," +
             "service_ids VARCHAR(255)," +
             "is_private BOOLEAN," +
             "external_upload BOOLEAN," +
@@ -500,6 +504,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String SHARED_EMAILS   = "shared_emails";
         public static final String SHARED_IDS      = "shared_ids";
         public static final String PRIVATE_USER_ID = "private_user_id";
+        public static final String TIP_KEY         = "tip_key";
         public static final String SERVICE_IDS     = "service_ids";
         public static final String IS_PRIVATE      = "is_private";
         public static final String EXTERNAL_UPLOAD = "external_upload";
@@ -514,7 +519,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String[] ALL_FIELDS = {
                 _ID, USER_ID, TIMESTAMP, LONGITUDE, LATITUDE, WHAT_TEXT,
                 WHERE_TEXT, AUDIO_PATH, DURATION, DESCRIPTION, ARTWORK_PATH,
-                SHARED_EMAILS, SHARED_IDS, PRIVATE_USER_ID, SERVICE_IDS, IS_PRIVATE,
+                SHARED_EMAILS, SHARED_IDS, PRIVATE_USER_ID, TIP_KEY, SERVICE_IDS, IS_PRIVATE,
                 EXTERNAL_UPLOAD, UPLOAD_STATUS, FOUR_SQUARE_VENUE_ID,
                 TRIM_LEFT, TRIM_RIGHT, FILTERS, OPTIMIZE, FADING
         };
@@ -777,6 +782,17 @@ public class DBHelper extends SQLiteOpenHelper {
     private static boolean upgradeTo14(SQLiteDatabase db, int oldVersion) {
         try {
             resetSyncState(db);
+            return true;
+        } catch (SQLException e) {
+            SoundCloudApplication.handleSilentException("error during upgrade13 " +
+                    "(from " + oldVersion + ")", e);
+        }
+        return false;
+    }
+
+    private static boolean upgradeTo15(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.RECORDINGS.alterColumns(db);
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade13 " +

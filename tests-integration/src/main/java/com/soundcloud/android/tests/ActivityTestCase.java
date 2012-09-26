@@ -68,11 +68,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
             super.runTest();
         } catch (Throwable e) {
             if (!(e instanceof OutOfMemoryError)) {
-                try {
-                    solo.takeScreenshot();
-                } catch (Throwable ignore) {
-                    Log.w(getClass().getSimpleName(), "error taking screenshot", ignore);
-                }
+                solo.poseForScreenshot(getClass().getSimpleName()+"-"+getName());
             }
             throw e;
         }
@@ -80,5 +76,9 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
 
     protected void assertMatches(String pattern, String string) {
         assertTrue("String " + string + " doesn't match "+pattern , Pattern.compile(pattern).matcher(string).matches());
+    }
+
+    protected void log(Object msg, Object... args) {
+        Log.d(getClass().getSimpleName(), msg == null ? null : String.format(msg.toString(), args));
     }
 }

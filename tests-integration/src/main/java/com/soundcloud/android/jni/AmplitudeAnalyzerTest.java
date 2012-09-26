@@ -3,10 +3,12 @@ package com.soundcloud.android.jni;
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.record.JavaAmplitudeAnalyzer;
 import com.soundcloud.android.tests.AudioTestCase;
+import com.soundcloud.android.tests.NonUiTest;
 import com.soundcloud.android.utils.BufferUtils;
 
 import java.nio.ByteBuffer;
 
+@NonUiTest
 public class AmplitudeAnalyzerTest extends AudioTestCase {
     final static int SIZE = 1024;
     final static AudioConfig CONFIG = AudioConfig.PCM16_44100_1;

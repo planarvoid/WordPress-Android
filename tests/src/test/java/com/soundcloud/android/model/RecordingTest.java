@@ -173,6 +173,7 @@ public class RecordingTest {
         expect(r2.user_id).toEqual(r.user_id);
         expect(r2.recipient_user_id).toEqual(r.recipient_user_id);
         expect(r2.upload_status).toEqual(r.upload_status);
+        expect(r2.tip_key).toEqual(r.tip_key);
 
         // just this recording
         cursor = resolver.query(uri, null, null, null, null);
@@ -233,6 +234,7 @@ public class RecordingTest {
         r.upload_status = Recording.Status.NOT_YET_UPLOADED;
         r.artwork_path = r.getFile();
         r.resized_artwork_path = r.artwork_path;
+        r.tip_key = "something";
 
         return r;
     }

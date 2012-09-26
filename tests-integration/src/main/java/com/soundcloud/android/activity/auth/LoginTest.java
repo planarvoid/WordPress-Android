@@ -7,7 +7,6 @@ import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
 import android.test.FlakyTest;
-import android.test.suitebuilder.annotation.Suppress;
 import android.webkit.WebView;
 import android.widget.EditText;
 
@@ -41,17 +40,23 @@ public class LoginTest extends ActivityTestCase<Main> {
         solo.assertText(R.string.tab_stream);
     }
 
-    @Suppress
-    public void testLoginWithFacebook() throws Exception {
+    @FlakyTest
+    public void testLoginWithFacebookWebFlow() throws Exception {
+        if (FacebookSSO.isSupported(getInstrumentation().getTargetContext())) {
+            log("Facebook SSO is available, not testing WebFlow");
+            return;
+        }
+
         solo.clickOnButtonResId(R.string.authentication_log_in_with_facebook);
         solo.assertDialogClosed();
-        solo.assertActivity(FacebookWebFlow.class);
-
-        solo.takeScreenshot();
-
-        WebView webView = ((FacebookWebFlow) solo.getCurrentActivity()).getWebView();
-        assertTrue("got url:"+webView.getUrl(), webView.getUrl().startsWith("http://m.facebook.com/login.php"));
-        assertEquals("Facebook", webView.getTitle());
+        WebView webView = solo.assertActivity(FacebookWebFlow.class).getWebView();
+        assertNotNull(webView);
+        int i = 0;
+        while (webView.getUrl() == null && i++ < 40) {
+            solo.sleep(500);
+        }
+        assertNotNull("FB request timed out", webView.getUrl());
+        assertTrue("got url:" + webView.getUrl(), webView.getUrl().startsWith("http://m.facebook.com/login.php"));
     }
 
     public void testLoginWithWrongCredentials() {

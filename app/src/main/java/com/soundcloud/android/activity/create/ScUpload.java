@@ -7,6 +7,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -88,21 +89,30 @@ public class ScUpload extends ScActivity {
         mRecordingMetadata = (RecordingMetaData) findViewById(R.id.metadata_layout);
         mRecordingMetadata.setActivity(this);
 
+        final int backStringId = !mRecording.external_upload ? R.string.record_another_sound :
+                                 mRecording.isLegacyRecording() ? R.string.delete :
+                                 R.string.cancel;
+
         ((ButtonBar) findViewById(R.id.bottom_bar)).addItem(new ButtonBar.MenuItem(REC_ANOTHER, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                track(Click.Record_details_record_another);
-                if (mRecording.external_upload && !mRecording.isLegacyRecording()){
+                track(Click.Record_Share_Record_Another);
+
+                if (mRecording.external_upload){
                     mRecording.delete(getContentResolver());
                 } else {
                     setResult(RESULT_OK, new Intent().setData(mRecording.toUri()));
                 }
                 finish();
             }
-        }), mRecording.external_upload ? R.string.cancel : R.string.record_another_sound).addItem(new ButtonBar.MenuItem(POST, new View.OnClickListener() {
+        }), backStringId).addItem(new ButtonBar.MenuItem(POST, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                track(Click.Record_details_Upload_and_share);
+                PlaybackStream ps = mRecording.getPlaybackStream();
+                track(Click.Record_Share_Post,
+                      mRecording.tip_key == null ? "tip_unknown" : mRecording.tip_key,
+                      ps != null && ps.isTrimmed() ? "trimmed" : "not_trimmed",
+                      ps != null && ps.isFading()  ? "fading"  : "not_fading");
                 if (mRecording != null) {
                     saveRecording();
                     mRecording.upload(ScUpload.this);
@@ -182,7 +192,7 @@ public class ScUpload extends ScActivity {
     protected void onStop() {
         super.onStop();
 
-        if (mRecording != null && !mUploading && (!mRecording.external_upload || mRecording.isLegacyRecording())) {
+        if (mRecording != null && !mUploading && (!mRecording.external_upload)) {
             // recording exists and hasn't been uploaded
             saveRecording();
         }

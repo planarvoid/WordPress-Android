@@ -1,6 +1,7 @@
 LOCAL_PATH:= $(call my-dir)
 
 MY_CFLAGS := -O2 -Wall -D__ANDROID__ -DFIXED_POINT -D_ARM_ASSEM_ -DOPT_GENERIC -DHAVE_STRERROR
+VORBIS_DISABLE_WARNINGS := -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable
 #
 # libogg
 # https://github.com/soundcloud/ogg
@@ -27,7 +28,7 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/vorbis/lib \
 	$(LOCAL_PATH)/ogg/include \
 	$(LOCAL_PATH)/include
 
-LOCAL_CFLAGS   := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS)
+LOCAL_CFLAGS   := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS) $(VORBIS_DISABLE_WARNINGS)
 LOCAL_CPPFLAGS := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS)
 LOCAL_LDLIBS := -lm
 
@@ -100,7 +101,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := tremolo
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/tremolo $(LOCAL_PATH)/include
 
-LOCAL_CFLAGS   := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS)
+LOCAL_CFLAGS   := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS) $(VORBIS_DISABLE_WARNINGS)
 LOCAL_CPPFLAGS := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS)
 LOCAL_LDLIBS := -lm
 LOCAL_ARM_MODE  := arm
@@ -133,7 +134,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := tremor
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/tremor $(LOCAL_PATH)/include $(LOCAL_PATH)/ogg/include
 
-LOCAL_CFLAGS   := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS)
+LOCAL_CFLAGS   := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS) $(VORBIS_DISABLE_WARNINGS)
 LOCAL_CPPFLAGS := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS)
 LOCAL_LDLIBS := -lm
 LOCAL_ARM_MODE  := arm

@@ -59,7 +59,6 @@ public class FacebookSSO extends AbstractLoginActivity {
     // permissions used by SoundCloud (also backend) - only email is required for successful signup
     private static final String[] DEFAULT_PERMISSIONS = {
         "publish_actions",
-        "offline_access",   /* this is going to be deprecated soon, Oct 2012 */
         "email",
         "user_birthday",
     };
@@ -148,12 +147,9 @@ public class FacebookSSO extends AbstractLoginActivity {
         return token.shouldRefresh() && extendAccessToken(token, context);
     }
 
-
-
     public static boolean isSupported(Context context) {
         return FacebookSSO.validateActivityIntent(context, FacebookSSO.getAuthIntent(context));
     }
-
 
     /* package */ static Intent getRefreshIntent() {
         Intent intent = new Intent();

@@ -2,8 +2,8 @@ package com.soundcloud.android.jni;
 
 import com.soundcloud.android.audio.WavHeader;
 import com.soundcloud.android.tests.AudioTestCase;
+import com.soundcloud.android.tests.NonUiTest;
 
-import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.Suppress;
 
 import java.io.File;
@@ -11,7 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-@LargeTest
+@NonUiTest
 public class VorbisDecoderTest extends AudioTestCase {
 
     public void testDecodeToFile() throws Exception {

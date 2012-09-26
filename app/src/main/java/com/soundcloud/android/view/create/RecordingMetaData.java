@@ -107,11 +107,6 @@ public class RecordingMetaData extends RelativeLayout {
                 @Override protected File getFile() {
                     return getCurrentImageFile();
                 }
-
-                // tracking shizzle
-                @Override public void onClick() { getTracker().track(Click.Record_details_add_image); }
-                @Override public void onExistingImage() { getTracker().track(Click.Record_details_existing_image); }
-                @Override public void onNewImage() { getTracker().track(Click.Record_details_new_image); }
             }
         );
 

@@ -56,7 +56,7 @@ public class FacebookSSOTest {
         ShadowActivity.IntentForResult act = shadowOf(sso).getNextStartedActivityForResult();
         expect(act).not.toBeNull();
         expect(act.intent.getStringExtra(FacebookSSO.FB_PERMISSION_EXTRA))
-                .toEqual("publish_actions,offline_access,email,user_birthday");
+                .toEqual("publish_actions,email,user_birthday");
     }
 
     @Test

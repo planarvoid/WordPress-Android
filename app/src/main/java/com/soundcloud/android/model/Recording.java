@@ -78,6 +78,8 @@ public class Recording extends ScResource implements Comparable<Recording> {
     public double longitude;
     public double latitude;
 
+    public String tip_key;
+
     // assets
     @NotNull protected File audio_path;
     @Nullable public File artwork_path;
@@ -121,14 +123,17 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     public Recording(File f) {
-        this(f, null);
+        this(f, null, null);
     }
 
-    private Recording(File f, @Nullable User user) {
+    private Recording(File f, @Nullable User user, @Nullable String tip_key) {
         if (f == null) throw new IllegalArgumentException("file is null");
         audio_path = f;
         if (user != null) {
             setRecipient(user);
+        }
+        if (!TextUtils.isEmpty(tip_key)){
+            this.tip_key = tip_key;
         }
     }
 
@@ -154,6 +159,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
         if (usernameIdx != -1) { // gets joined in
             recipient_username = c.getString(usernameIdx);
         }
+        tip_key = c.getString(c.getColumnIndex(Recordings.TIP_KEY));
         service_ids = c.getString(c.getColumnIndex(Recordings.SERVICE_IDS));
         is_private = c.getInt(c.getColumnIndex(Recordings.IS_PRIVATE)) == 1;
         external_upload = c.getInt(c.getColumnIndex(Recordings.EXTERNAL_UPLOAD)) == 1;
@@ -278,6 +284,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
         cv.put(Recordings.TIMESTAMP, lastModified());
         cv.put(Recordings.DURATION, duration);
         cv.put(Recordings.EXTERNAL_UPLOAD, external_upload);
+        cv.put(Recordings.TIP_KEY, tip_key);
         cv.put(Recordings.UPLOAD_STATUS, upload_status);
         if (mPlaybackStream != null) {
             cv.put(Recordings.TRIM_LEFT,  mPlaybackStream.getStartPos());
@@ -352,7 +359,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
 
     public boolean delete(@Nullable ContentResolver resolver) {
         boolean deleted = false;
-        if (!external_upload) {
+        if (!external_upload || isLegacyRecording()) {
             deleted = IOUtils.deleteFile(audio_path);
         }
         IOUtils.deleteFile(getEncodedFile());
@@ -694,20 +701,25 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     public static @NotNull Recording create() {
-        return create(null);
+        return create(null, null);
+    }
+
+    public static @NotNull Recording create(@Nullable User user) {
+        return create(user, null);
     }
 
     /**
      * @param user the user this recording is for, or null if there's no recipient
+     * @param tip_key the key of the suggestion (tip) that was present when recording started
      * @return a recording initialised with a file path (which will be used for the recording).
      */
-    public static @NotNull Recording create(@Nullable User user) {
+    public static @NotNull Recording create(@Nullable User user, @Nullable String tip_key ) {
         File file = new File(SoundRecorder.RECORD_DIR,
                 System.currentTimeMillis()
                 + (user == null ? "" : "_" + user.id)
                 + "."+WavReader.EXTENSION);
 
-        return new Recording(file, user);
+        return new Recording(file, user, tip_key);
     }
 
     @Override
@@ -726,6 +738,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
                 ", shared_emails='" + shared_emails + '\'' +
                 ", shared_ids='" + shared_ids + '\'' +
                 ", service_ids='" + service_ids + '\'' +
+                ", tip_key='" + tip_key + '\'' +
                 ", is_private=" + is_private +
                 ", external_upload=" + external_upload +
                 ", upload_status=" + upload_status +
@@ -769,6 +782,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
         shared_ids = data.getString("shared_ids");
         recipient_user_id = data.getLong("recipient_user_id");
         recipient_username = data.getString("recipient_username");
+        tip_key = data.getString("tip_key");
         service_ids = data.getString("service_ids");
         is_private = data.getBoolean("is_private", false);
         external_upload = data.getBoolean("external_upload", false);
@@ -800,6 +814,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
         data.putString("genre", genre);
         data.putLong("recipient_user_id", recipient_user_id);
         data.putString("recipient_username", recipient_username);
+        data.putString("tip_key", tip_key);
         data.putString("service_ids", service_ids);
         data.putBoolean("is_private", is_private);
         data.putBoolean("external_upload", external_upload);

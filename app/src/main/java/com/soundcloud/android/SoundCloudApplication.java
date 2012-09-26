@@ -161,10 +161,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             }
             // user not in db, fall back to local storage
             if (mLoggedInUser == null) {
-                mLoggedInUser = new User();
-                mLoggedInUser.id = getAccountDataLong(User.DataKeys.USER_ID);
-                mLoggedInUser.username = getAccountData(User.DataKeys.USERNAME);
-                mLoggedInUser.permalink = getAccountData(User.DataKeys.USER_PERMALINK);
+                User user = new User();
+                user.id = getAccountDataLong(User.DataKeys.USER_ID);
+                user.username = getAccountData(User.DataKeys.USERNAME);
+                user.permalink = getAccountData(User.DataKeys.USER_PERMALINK);
+                return user;
             }
             mLoggedInUser.via = SignupVia.fromString(getAccountData(User.DataKeys.SIGNUP));
         }
