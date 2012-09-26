@@ -78,9 +78,7 @@ public final class Consts {
         int STREAM = 204;
         int FRIEND_FINDER = 205;
         int FILTER = 206;
-        int SELECT_FILE = 207;
-        int PRIVATE_MESSAGE = 208;
-        int PROCESS = 209;
+        int PRIVATE_MESSAGE = 207;
     }
 
     public enum GraphicSize {

@@ -104,7 +104,6 @@ public class TestHelper {
             // pretend we're connected via wifi
             shadowOf(cm).setActiveNetworkInfo(ShadowNetworkInfo.newInstance(null, ConnectivityManager.TYPE_WIFI,
                     0, true, true));
-
         } else {
             // pretend we're connected only via mobile, no wifi
             shadowOf(cm).setActiveNetworkInfo(ShadowNetworkInfo.newInstance(null, ConnectivityManager.TYPE_MOBILE,

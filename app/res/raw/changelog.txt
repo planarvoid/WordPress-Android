@@ -1,11 +1,19 @@
 $ 46
   % v current
-  _ 2012-07-18
-  ! Recording
-    * More robust recording UI
-    * Pause and resume recordings
-    * Trim and apply fading to recordings
+  _ 2012-09-26
+  ! Maintenance
+    * Honeycomb Styling fix
 
+  % v 2.3
+  _ 2012-09-20
+  ! New Sound Creation Features
+    * Recordings can now be paused and resumed
+    * Trim and add fades to your recordings
+    - Enable Holo where possible
+    - Image cropping (signup / upload sound)
+    - Adjustable stream cache
+    - Optional analytics
+    - Fixed FB SSO (introduced in 2.2.10)
 
 $ 45
   % v 2.2.10

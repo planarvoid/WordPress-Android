@@ -13,6 +13,7 @@ import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

@@ -6,12 +6,8 @@
 
     <string name="dialog_transcoding_processing_title">Sound processing</string>
     <string name="dialog_transcoding_processing_message">Your sound is being processed and will be playable in few seconds.</string>
-    <!--<string name="error_loading_url">There was a problem loading that url</string>-->
 
     <string name="following_spam_warning">You have reached the limit for following users and this options is temporarily disabled for your account.</string>
-
-    <!-- error to show when signup scope was revoked on server side -->
-    <!--<string name="signup_scope_revoked">Oops! We couldn\'t sign you up\nPlease try updating the app or sign up at SoundCloud.com.</string>-->
 
     <string name="yes">Yes</string>
     <string name="no">No</string>
