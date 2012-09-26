@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.json.Views;
@@ -20,7 +19,6 @@ import com.soundcloud.android.utils.ImageUtils;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -341,8 +339,8 @@ public class User extends ScModel implements  Refreshable, Origin {
         return this;
     }
 
-    public void resolve(SoundCloudApplication application) {
-        refreshListAvatarUri(application);
+    public void resolve(Context context) {
+        refreshListAvatarUri(context);
     }
 
     public void setAppFields(User u) {

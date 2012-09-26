@@ -16,7 +16,6 @@
 
 package com.google.android.imageloader;
 
-import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.utils.ImageUtils;
 import org.jetbrains.annotations.Nullable;
@@ -1120,11 +1119,7 @@ public class ImageLoader {
                 return;
             }
             if (!adapter.isEmpty()) {
-                if (adapter instanceof LazyBaseAdapter){
-                    ((LazyBaseAdapter) adapter).scheduleNotifyDataSetChanged();
-                } else {
-                    adapter.notifyDataSetChanged();
-                }
+                adapter.notifyDataSetChanged();
             } else {
                 // The adapter is empty or no longer in use.
                 // It is important that BaseAdapter#notifyDataSetChanged()

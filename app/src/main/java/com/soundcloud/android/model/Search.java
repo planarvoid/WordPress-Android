@@ -1,7 +1,6 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.api.Endpoints;
@@ -59,18 +58,6 @@ public class Search {
                       .with("q", query);
     }
 
-    public SectionedAdapter.Section getSection(Context context) {
-        final boolean isUser = search_type == USERS;
-        return new SectionedAdapter.Section(
-                context.getString(
-                        isUser ? R.string.list_header_user_results_for :
-                                 R.string.list_header_track_results_for, query),
-                isUser ? User.class : Track.class,
-                new ArrayList<Parcelable>(),
-                null,  /* uri */
-                request()
-        );
-    }
 
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();

@@ -16,7 +16,7 @@ import java.util.List;
 public class DBHelper extends SQLiteOpenHelper {
     static final String TAG = "DBHelper";
 
-    public static final int DATABASE_VERSION = 14;
+    public static final int DATABASE_VERSION = 15;
     private static final String DATABASE_NAME = "SoundCloud";
 
     DBHelper(Context context) {
@@ -801,8 +801,8 @@ public class DBHelper extends SQLiteOpenHelper {
         return false;
     }
 
-    public static String getWhereIds(String column, List<Long> idSet){
-        StringBuilder sb = new StringBuilder(column + " in (?");
+    public static String getWhereInClause(String column, List<Long> idSet){
+        StringBuilder sb = new StringBuilder(column + " IN (?");
         for (int i = 1; i < idSet.size(); i++) {
             sb.append(",?");
         }

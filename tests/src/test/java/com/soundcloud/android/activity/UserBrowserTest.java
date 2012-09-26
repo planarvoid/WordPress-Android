@@ -11,12 +11,14 @@ import com.xtremelabs.robolectric.annotation.DisableStrictI18n;
 import com.xtremelabs.robolectric.shadows.ShadowAdapterView;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.Intent;
 
 
+@Ignore // XXX move to integration test
 @RunWith(DefaultTestRunner.class)
 public class UserBrowserTest {
 
@@ -25,7 +27,10 @@ public class UserBrowserTest {
 
     @Before
     public void before() {
+
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
+
+
         browser = new UserBrowser() {};
         // TODO should fix race condition in LazyEndlessAdapter
         ShadowAdapterView.automaticallyUpdateRowViews(false);

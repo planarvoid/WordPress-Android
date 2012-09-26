@@ -1,25 +1,21 @@
 package com.soundcloud.android.activity;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.create.ScUpload;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.MyTracksAdapter;
-import com.soundcloud.android.adapter.RemoteCollectionAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.cache.ParcelCache;
+import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -33,27 +29,24 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyCollection;
-import com.soundcloud.android.view.FriendFinderView;
 import com.soundcloud.android.view.FullImageDialog;
-import com.soundcloud.android.view.ScListView;
-import com.soundcloud.android.view.ScTabView;
-import com.soundcloud.android.view.UserlistLayout;
-import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+import com.viewpagerindicator.TitlePageIndicator;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -63,14 +56,13 @@ import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserBrowser extends ScListActivity implements
         ParcelCache.Listener<Connection>,
         FollowStatus.Listener,
         FetchUserTask.FetchUserListener,
-        EventAware {
+        EventAware, ActionBar.OnNavigationListener {
 
     /* package */ @Nullable User mUser;
 
@@ -83,16 +75,23 @@ public class UserBrowser extends ScListActivity implements
     private EmptyCollection mEmptyInfoView;
     boolean mDisplayedInfo, mInfoError;
 
-    private ScTabView mMyTracksView;
     private FrameLayout mInfoView;
-    private FriendFinderView mFriendFinderView;
     private Button mFollowBtn, mFollowingBtn;
-    private UserlistLayout mUserlistBrowser;
     private FetchUserTask mLoadUserTask;
     private boolean mUpdateInfo;
 
     private List<Connection> mConnections;
     private Object[] mAdapterStates;
+
+    private UserFragmentAdapter mAdapter;
+    private ViewPager mPager;
+    private TitlePageIndicator mIndicator;
+
+
+    @Override
+    public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+        return false;
+    }
 
     public enum Tab {
         tracks(Page.Users_sounds, Page.You_sounds),
@@ -175,11 +174,21 @@ public class UserBrowser extends ScListActivity implements
             }
         });
 
+        mAdapter = new UserFragmentAdapter(getSupportFragmentManager());
+
+                mPager = (ViewPager) findViewById(R.id.pager);
+                mPager.setAdapter(mAdapter);
+                mPager.setBackgroundColor(Color.WHITE);
+
+                mIndicator = (TitlePageIndicator) findViewById(R.id.indicator);
+                mIndicator.setViewPager(mPager);
+
+
         Intent intent = getIntent();
         // XXX in case user is already loaded - should be handled here, not in caller
         mUpdateInfo = intent.getBooleanExtra("updateInfo",true);
 
-        Configuration c = (Configuration) getLastNonConfigurationInstance();
+        Configuration c = (Configuration) getLastCustomNonConfigurationInstance();
         if (c != null) {
             fromConfiguration(c);
         } else {
@@ -195,6 +204,7 @@ public class UserBrowser extends ScListActivity implements
 
             if (!isMe()) FollowStatus.get().requestUserFollowings(getApp(), this, false);
 
+            /*
             if (intent.hasExtra(Tab.EXTRA)) {
                 mUserlistBrowser.initByTag(intent.getStringExtra(Tab.EXTRA));
             } else if (isMe()) {
@@ -207,20 +217,45 @@ public class UserBrowser extends ScListActivity implements
             } else {
                 mUserlistBrowser.initWorkspace(1);//tracks tab
             }
-
+                          */
             if (isMe()) {
                 mConnections = Connections.get().getObjectsOrNull();
-                mFriendFinderView.onConnections(mConnections, true);
+                //mFriendFinderView.onConnections(mConnections, true);
                 Connections.get().requestUpdate(getApp(), false, this);
             }
         }
 
-        mMyTracksView.onVisible();
-        ((ScTabView) mUserlistBrowser.getCurrentWorkspaceView()).onVisible();
         loadDetails();
-
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
+
+
+
+    class UserFragmentAdapter extends FragmentPagerAdapter {
+            protected final Content[] contents = new Content[]{Content.ME_TRACKS, Content.ME_FAVORITES,Content.ME_FOLLOWERS,Content.ME_FOLLOWINGS};
+            protected final int[] titleIds = new int[]{R.string.tab_title_user_sounds,R.string.tab_title_user_likes,R.string.tab_title_user_followers,R.string.tab_title_user_followings};
+
+            public UserFragmentAdapter(FragmentManager fm) {
+                super(fm);
+            }
+
+            @Override
+            public ScListFragment getItem(int position) {
+                return ScListFragment.newInstance(contents[position]);
+            }
+
+            @Override
+            public int getCount() {
+                return contents.length;
+            }
+
+            @Override
+            public CharSequence getPageTitle(int position) {
+                return getResources().getString(titleIds[position]);
+            }
+        }
+
+
 
     private void follow(User user) {
         getApp().track(Click.Follow, user, Level2.Users);
@@ -233,62 +268,26 @@ public class UserBrowser extends ScListActivity implements
     }
 
     public void setTab(String tag) {
-        mUserlistBrowser.setCurrentScreenByTag(tag);
+        //mUserlistBrowser.setCurrentScreenByTag(tag);
     }
 
     public boolean isShowingTab(Tab tab) {
-        return mUserlistBrowser.getCurrentTag().equals(tab.tag);
+        return false;
+        //return mUserlistBrowser.getCurrentTag().equals(tab.tag);
     }
 
 
     @Override
     protected void onResume() {
-        if (getApp().getAccount() != null && mAdapterStates != null){
-            restoreAdapterStates(mAdapterStates);
-            mAdapterStates = null;
-        }
         trackScreen();
-
         super.onResume();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        for (ScListView list : mLists) {
-            list.checkForManualDetatch();
-        }
-    }
+
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        FollowStatus.get().removeListener(this);
-        mAdapterStates = new Object[mLists.size()];
-        int i = 0;
-        for (ScListView list : mLists) {
-            if (list.getWrapper() != null) {
-                mAdapterStates[i] = list.getWrapper().saveState();
-                list.getWrapper().cleanup();
-                list.postDetach(); // detach from window to clear recycler
-            }
-            i++;
-        }
-    }
-
-    @Override
-    public Configuration onRetainNonConfigurationInstance() {
+    public Configuration onRetainCustomNonConfigurationInstance() {
         return toConfiguration();
-    }
-
-    private void restoreAdapterStates(Object[] adapterStates) {
-        int i = 0;
-        for (Object adapterState : adapterStates) {
-            if (adapterState != null) {
-                mLists.get(i).getWrapper().restoreState((Object[]) adapterState);
-            }
-            i++;
-        }
     }
 
     @Override
@@ -300,13 +299,13 @@ public class UserBrowser extends ScListActivity implements
     public void refreshConnections(){
         if (isMe()) {
             Connections.get().requestUpdate(getApp(), true, this);
-            if (mFriendFinderView != null) mFriendFinderView.setState(FriendFinderView.States.LOADING, true);
+            //if (mFriendFinderView != null) mFriendFinderView.setState(FriendFinderView.States.LOADING, true);
         }
     }
 
     public void onChanged(List<Connection> connections, ParcelCache<Connection> cache) {
         mConnections = connections;
-        mFriendFinderView.onConnections(connections, true);
+        //mFriendFinderView.onConnections(connections, true);
     }
 
     private void loadYou() {
@@ -353,19 +352,22 @@ public class UserBrowser extends ScListActivity implements
     }
 
     public Page getEvent() {
-        Tab current = Tab.valueOf(mUserlistBrowser.getCurrentTag());
-        return isMe() ? current.you : current.user;
+        //Tab current = Tab.valueOf(mUserlistBrowser.getCurrentTag());
+        //return isMe() ? current.you : current.user;
+        return Page.Users_sounds;
     }
 
     private void build() {
 
-        mUserlistBrowser = (UserlistLayout) findViewById(R.id.userlist_browser);
+        //mUserlistBrowser = (UserlistLayout) findViewById(R.id.userlist_browser);
         final boolean isMe = isMe();
 
+        getSupportActionBar().setTitle(mUser.username);
+        /*
         // Tracks View
-        LazyBaseAdapter adp = isOtherUser() ? new TracklistAdapter(this,
-                new ArrayList<Parcelable>(), Track.class) : new MyTracksAdapter(this,
-                new ArrayList<Parcelable>(), Track.class);
+        ScBaseAdapter adp = isOtherUser() ?
+                new ScBaseAdapter(this, Content.TRACK) :
+                new MyTracksAdapter(this, Content.TRACK);
 
         LazyEndlessAdapter adpWrap = new RemoteCollectionAdapter(this, adp,
                 isMe ?  Content.ME_TRACKS.uri : null,
@@ -399,7 +401,7 @@ public class UserBrowser extends ScListActivity implements
         mMyTracksView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_TRACKS, true);
 
         // Favorites View
-        adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
+        adp = new ScBaseAdapter(this, Content.TRACK);
 
         adpWrap = new RemoteCollectionAdapter(this, adp,
                 isMe ?  Content.ME_FAVORITES.uri : null,//CloudUtils.replaceWildcard(Content.USER_FAVORITES.uri, mUser.id),
@@ -434,7 +436,7 @@ public class UserBrowser extends ScListActivity implements
         favoritesView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_FAVORITES, true);
 
         // Followings View
-        adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
+        adp = new ScBaseAdapter(this, Content.USER);
         adpWrap = new RemoteCollectionAdapter(this, adp,
                 isMe ?  Content.ME_FOLLOWINGS.uri : null, //CloudUtils.replaceWildcard(Content.USER_FOLLOWINGS.uri, mUser.id),
                 isMe ?  null : Request.to(Endpoints.USER_FOLLOWINGS, mUser.id), false);
@@ -466,7 +468,7 @@ public class UserBrowser extends ScListActivity implements
 
 
         // Followers View
-        adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class, isMe);
+        adp = new ScBaseAdapter(this, Content.USER);
         adpWrap = new RemoteCollectionAdapter(this, adp,
                 isMe ?  Content.ME_FOLLOWERS.uri : null,//CloudUtils.replaceWildcard(Content.USER_FOLLOWERS.uri, mUser.id),
                 isMe ?  null : Request.to(Endpoints.USER_FOLLOWERS, mUser.id), false);
@@ -528,12 +530,14 @@ public class UserBrowser extends ScListActivity implements
             }
         }
 
+
         if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, getString(R.string.user_browser_tab_friend_finder), getResources().getDrawable(R.drawable.ic_user_tab_friendfinder), Tab.friend_finder.tag);
         mUserlistBrowser.addView(mMyTracksView,  getString(R.string.user_browser_tab_sounds), getResources().getDrawable(R.drawable.ic_user_tab_sounds), Tab.tracks.tag);
         mUserlistBrowser.addView(favoritesView, getString(R.string.user_browser_tab_likes), getResources().getDrawable(R.drawable.ic_user_tab_likes), Tab.favorites.tag);
         mUserlistBrowser.addView(followingsView, getString(R.string.user_browser_tab_followings), getResources().getDrawable(R.drawable.ic_user_tab_following), Tab.followings.tag);
         mUserlistBrowser.addView(followersView, getString(R.string.user_browser_tab_followers), getResources().getDrawable(R.drawable.ic_user_tab_followers), Tab.followers.tag);
         mUserlistBrowser.addView(infoView, getString(R.string.user_browser_tab_info), getResources().getDrawable(R.drawable.ic_user_tab_info), Tab.details.tag);
+
 
         mUserlistBrowser.setOnScreenChangedListener(new WorkspaceView.OnScreenChangeListener() {
             @Override public void onScreenChanged(View newScreen, int newScreenIndex) {
@@ -547,9 +551,10 @@ public class UserBrowser extends ScListActivity implements
 
             @Override
             public void onNextScreenVisible(View newScreen, int newScreenIndex) {
-                ((ScTabView) newScreen).onVisible();
+                //((ScTabView) newScreen).onVisible();
             }
         });
+        */
     }
 
     private boolean isOtherUser() {
@@ -807,10 +812,6 @@ public class UserBrowser extends ScListActivity implements
 
                     if (success && isMe()) {
                         Connections.get().requestUpdate(getApp(), true, this);
-
-                        if (mFriendFinderView != null) {
-                            mFriendFinderView.setState(FriendFinderView.States.LOADING, false);
-                        }
                     }
                 }
             //noinspection fallthrough
@@ -823,9 +824,7 @@ public class UserBrowser extends ScListActivity implements
         c.loadUserTask = mLoadUserTask;
         c.user = mUser;
         c.connections = mConnections;
-        c.workspaceIndex = mUserlistBrowser.getCurrentWorkspaceIndex();
-        c.adapterStates = mAdapterStates;
-        c.friendFinderState = mFriendFinderView != null ? mFriendFinderView.getCurrentState() : -1;
+        //c.workspaceIndex = mUserlistBrowser.getCurrentWorkspaceIndex();
         c.infoError = mInfoError;
         return c;
     }
@@ -839,15 +838,7 @@ public class UserBrowser extends ScListActivity implements
             mLoadUserTask = c.loadUserTask;
         }
         if (isMe()) mConnections = c.connections;
-        mUserlistBrowser.initWorkspace(c.workspaceIndex);
-        if (c.friendFinderState != -1) {
-            if (c.friendFinderState == FriendFinderView.States.LOADING){
-                refreshConnections();
-            } else {
-                mFriendFinderView.setState(c.friendFinderState, false);
-            }
-        }
-        restoreAdapterStates(c.adapterStates);
+        //mUserlistBrowser.initWorkspace(c.workspaceIndex);
     }
 
     private static class Configuration {
@@ -855,8 +846,6 @@ public class UserBrowser extends ScListActivity implements
         User user;
         List<Connection> connections;
         int workspaceIndex;
-        Object[] adapterStates;
-        int friendFinderState;
         boolean infoError;
     }
 

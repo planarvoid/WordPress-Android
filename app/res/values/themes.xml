@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.ScBase" parent="android:Theme.NoTitleBar"/>
-    <style name="Theme.ScBaseLight" parent="android:Theme.Light.NoTitleBar"/>
+    <style name="Theme.ScBase" parent="Theme.Sherlock.ForceOverflow"/>
+    <style name="Theme.ScBaseNoActionBar" parent="Theme.Sherlock.NoActionBar"/>
+    <style name="Theme.ScBaseLight" parent="Theme.Sherlock.Light.DarkActionBar.ForceOverflow"/>
     <style name="Theme.ScDialog" parent="android:Theme.Dialog"/>
+
+    <style name="Theme.ScLight" parent="Theme.ScBaseLight">
+        <item name="android:buttonStyle">@style/btn_default</item>
+        <item name="ptrLoadingProgressStyle">@style/ScProgressBarHolo</item>
+        <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
+        <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
+	</style>
 
     <style name="Theme.ScDark" parent="Theme.ScBase">
         <item name="android:buttonStyle">@style/btn_default</item>
     </style>
 
-    <style name="Theme.ScLight" parent="Theme.ScBaseLight">
+    <style name="Theme.ScAuth" parent="Theme.ScBaseNoActionBar">
         <item name="android:buttonStyle">@style/btn_default</item>
-    </style>
-
-    <style name="Theme.ScAuth" parent="Theme.ScDark">
         <item name="android:windowBackground">@color/darkBg</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
     </style>
@@ -24,6 +29,30 @@
 
     <style name="Theme.ScPlayer" parent="Theme.ScDark">
         <item name="android:windowBackground">@null</item>
+    </style>
+
+
+    <style name="Widget.ScTabPageIndicator" parent="Widget.TabPageIndicator">
+        <item name="android:background">@drawable/vpi__tab_indicator</item>
+        <item name="android:textAppearance">@style/TextAppearance.ScTabPageIndicator</item>
+        <item name="footerColor">#ff6600</item>
+    </style>
+
+    <style name="TextAppearance.ScTabPageIndicator" parent="TextAppearance.TabPageIndicator">
+        <item name="android:textColor">@color/vpi__light_theme</item>
+    </style>
+
+    <style name="Widget.ScTitlePageIndicator">
+        <item name="android:background">@drawable/vpi__tab_indicator</item>
+        <item name="android:textSize">13dp</item>
+        <item name="selectedColor">@color/black</item>
+
+        <item name="android:textColor">#666666</item>
+        <item name="footerColor">#ff6600</item>
+    </style>
+
+    <style name="TextAppearance.ScTitlePageIndicator" parent="TextAppearance.TabPageIndicator">
+        <item name="android:textColor">@color/vpi__light_theme</item>
     </style>
 
     <style name="Dialog" parent="android:Theme.Dialog">

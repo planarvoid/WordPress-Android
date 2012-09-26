@@ -5,9 +5,11 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
+import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackHolder;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -20,7 +22,6 @@ import org.junit.runner.RunWith;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Parcelable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -282,13 +283,13 @@ public class PlaylistManagerTest {
     }
 
     private void insertTracksAsUri(Uri uri) throws IOException {
-        List<Parcelable> items = new ArrayList<Parcelable>();
-        ScModel.getCollectionFromStream(getClass().getResourceAsStream("tracks.json"), AndroidCloudAPI.Mapper, Track.class, items);
-        for (Parcelable p: items){
-            SoundCloudApplication.TRACK_CACHE.put((Track) p);
+        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(getClass().getResourceAsStream("tracks.json"), TrackHolder.class);
+
+        for (Track t: tracks){
+            SoundCloudApplication.TRACK_CACHE.put(t);
         }
 
-        expect(SoundCloudDB.bulkInsertParcelables(resolver, items, uri, USER_ID)).toEqual(4);
+        expect(SoundCloudDB.bulkInsertModels(resolver, tracks.collection, uri, USER_ID)).toEqual(4);
 
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(3);

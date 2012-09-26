@@ -307,17 +307,12 @@ public class Activities extends CollectionHolder<Activity> {
         } else {
             c = resolver.query(contentUri, null, null, null, null);
         }
-        while (c != null && c.moveToNext()) {
-            activities.add(new Activity(c));
-        }
-        if (c != null) c.close();
-        return activities;
+        return fromCursor(c);
     }
 
     public static Activities getBefore(Uri contentUri, ContentResolver resolver, long before)  {
         if (Log.isLoggable(TAG, Log.DEBUG))
             Log.d(TAG, "Activities.getBefore("+contentUri+", before="+before+")");
-        Activities activities = new Activities();
         Cursor c;
         if (before > 0) {
             c = resolver.query(contentUri,
@@ -329,11 +324,7 @@ public class Activities extends CollectionHolder<Activity> {
             c = resolver.query(contentUri, null, null, null, null);
         }
 
-        while (c != null && c.moveToNext()) {
-            activities.add(new Activity(c));
-        }
-        if (c != null) c.close();
-        return activities;
+        return fromCursor(c);
     }
 
     public static Activities get(ContentResolver resolver, Uri uri) {
@@ -342,12 +333,16 @@ public class Activities extends CollectionHolder<Activity> {
 
     public static Activities get(ContentResolver resolver, Uri uri, @Nullable String[] projection,
                                  @Nullable String where, @Nullable String[] whereArgs, @Nullable String sort) {
+        return fromCursor(resolver.query(uri, projection, where, whereArgs, sort));
+    }
+
+    public static Activities fromCursor(Cursor cursor) {
+
         Activities activities = new Activities();
-        Cursor c = resolver.query(uri, projection, where, whereArgs, sort);
-        while (c != null && c.moveToNext()) {
-            activities.add(new Activity(c));
+        while (cursor != null && cursor.moveToNext()) {
+            activities.add(new Activity(cursor));
         }
-        if (c != null) c.close();
+        if (cursor != null) cursor.close();
         return activities;
     }
 

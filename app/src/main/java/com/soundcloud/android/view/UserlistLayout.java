@@ -122,10 +122,6 @@ public class UserlistLayout extends RelativeLayout {
         TabLabel label = findLabel(tag);
         if (label != null) {
             mWorkspaceView.setCurrentScreenNow(label.index, true);
-            final View currentScreen = mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen());
-            if (currentScreen instanceof ScTabView){
-                ((ScTabView) currentScreen).setToTop();
-            }
         }
     }
 

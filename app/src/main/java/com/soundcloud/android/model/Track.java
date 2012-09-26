@@ -51,8 +51,6 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     private static final String TAG = "Track";
     public static final String EXTRA = "track";
 
-    public static class TrackHolder extends CollectionHolder<Track> {}
-
     // API fields
     @JsonView(Views.Full.class) public Date created_at;
     @JsonView(Views.Mini.class) public long user_id;
@@ -318,9 +316,9 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     }
 
     @Override
-    public void resolve(SoundCloudApplication application) {
-        refreshTimeSinceCreated(application);
-        refreshListArtworkUri(application);
+    public void resolve(Context context) {
+        refreshTimeSinceCreated(context);
+        refreshListArtworkUri(context);
     }
 
     public void setAppFields(Track t) {

@@ -1,24 +1,28 @@
 
 package com.soundcloud.android.adapter;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
-import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.MyTracklistRow;
-import com.soundcloud.android.view.TrackInfoBar;
+import com.soundcloud.android.view.adapter.LazyRow;
+import com.soundcloud.android.view.adapter.TrackInfoBar;
 
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyTracksAdapter extends TracklistAdapter {
+public class MyTracksAdapter extends ScBaseAdapter {
     private Cursor mCursor;
     private boolean mDataValid;
     private List<Recording> mRecordingData;
@@ -28,9 +32,8 @@ public class MyTracksAdapter extends TracklistAdapter {
     private static final int TYPE_TRACK = 1;
     private ChangeObserver mChangeObserver;
 
-    public MyTracksAdapter(ScListActivity activity, ArrayList<Parcelable> data,
-            Class<?> model) {
-        super(activity, data, model);
+    public MyTracksAdapter(ScListActivity activity, Uri uri) {
+        super(activity, uri);
         mActivity = activity;
         refreshCursor();
 
@@ -60,11 +63,6 @@ public class MyTracksAdapter extends TracklistAdapter {
 
     public int getPendingRecordingsCount(){
         return mRecordingData == null ? 0 : mRecordingData.size();
-    }
-
-    @Override
-    public int positionOffset() {
-        return getPendingRecordingsCount();
     }
 
     private void refreshCursor() {
@@ -113,7 +111,7 @@ public class MyTracksAdapter extends TracklistAdapter {
         }
     }
     @Override
-    public Object getItem(int position) {
+    public ScModel getItem(int position) {
         if (mDataValid && mRecordingData != null) {
             if (position < mRecordingData.size()) {
                 return mRecordingData.get(position);
@@ -138,6 +136,7 @@ public class MyTracksAdapter extends TracklistAdapter {
         }
     }
 
+
     /**
      * Called when the {@link ContentObserver} on the cursor receives a change notification.
      * The default implementation provides the auto-requery logic, but may be overridden by
@@ -157,6 +156,11 @@ public class MyTracksAdapter extends TracklistAdapter {
         if (!mDataValid) {
             onContentChanged();
         }
+    }
+
+    @Override
+    public void handleListItemClick(int position, long id) {
+        Log.i(SoundCloudApplication.TAG, "Clicked on item " + id);
     }
 
     public void onDestroy(){

@@ -5,15 +5,11 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SearchHistoryAdapter;
-import com.soundcloud.android.adapter.SectionedEndlessAdapter;
-import com.soundcloud.android.adapter.SectionedTracklistAdapter;
-import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.ScListView;
-import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.android.view.WorkspaceView;
 
 import android.content.ContentResolver;
@@ -46,7 +42,6 @@ public class ScSearch extends ScListActivity {
 
     private FrameLayout mListHolder;
     private ScListView mList;
-    SectionedEndlessAdapter mSoundAdpWrapper, mUserAdpWrapper;
 
     private WorkspaceView mWorkspaceView;
     private SearchHistoryAdapter mHistoryAdapter;
@@ -76,8 +71,9 @@ public class ScSearch extends ScListActivity {
             }
         });
 
-        mList = new SectionedListView(this);
-        configureList(mList);
+        //mList = new SectionedListView(this);
+        mList = new ScListView(this);
+        //configureList(mList);
 
         mListHolder = new FrameLayout(this);
         mListHolder.setLayoutParams(new FrameLayout.LayoutParams(
@@ -85,9 +81,6 @@ public class ScSearch extends ScListActivity {
                 ViewGroup.LayoutParams.FILL_PARENT));
         mListHolder.addView(mList);
         mList.setVisibility(View.GONE);
-
-        mSoundAdpWrapper = new SectionedEndlessAdapter(this, new SectionedTracklistAdapter(this), true);
-        mUserAdpWrapper = new SectionedEndlessAdapter(this, new SectionedUserlistAdapter(this), true);
 
         final View root = findViewById(R.id.search_root);
         root.setOnFocusChangeListener(keyboardHideFocusListener);
@@ -118,7 +111,7 @@ public class ScSearch extends ScListActivity {
         mHistoryAdapter = new SearchHistoryAdapter(this);
         recentSearches.setAdapter(mHistoryAdapter);
 
-        Object[] previousState = getLastNonConfigurationInstance();
+        Object[] previousState = getLastCustomNonConfigurationInstance();
         if (previousState != null) {
             restorePreviousState(previousState);
         } else {
@@ -127,8 +120,8 @@ public class ScSearch extends ScListActivity {
     }
 
     @Override
-    public Object[] getLastNonConfigurationInstance() {
-        return (Object[]) super.getLastNonConfigurationInstance();
+    public Object[] getLastCustomNonConfigurationInstance() {
+        return (Object[]) super.getLastCustomNonConfigurationInstance();
     }
 
     @Override
@@ -152,13 +145,13 @@ public class ScSearch extends ScListActivity {
         switch (search.search_type) {
             case Search.SOUNDS:
                 rdoTrack.setChecked(true);
-                configureAdapter(mSoundAdpWrapper, search);
+                //configureAdapter(mSoundAdpWrapper, search);
                 track(Page.Search_results__sounds__keyword, search.query);
                 break;
 
             case Search.USERS:
                 rdoUser.setChecked(true);
-                configureAdapter(mUserAdpWrapper, search);
+                //configureAdapter(mUserAdpWrapper, search);
                 track(Page.Search_results__people__keyword, search.query);
                 break;
             default:
@@ -229,23 +222,11 @@ public class ScSearch extends ScListActivity {
         }
     }
 
-    private SectionedEndlessAdapter configureAdapter(SectionedEndlessAdapter adapter, Search search) {
-        adapter.reset();
-        adapter.clearSections();
-        adapter.addSection(search.getSection(this));
-        adapter.configureViews(mList);
-        mList.setAdapter(adapter, true);
-        mList.setLongClickable(search.search_type == Search.SOUNDS);
-        return adapter;
-    }
-
     @Override
-    public Object[] onRetainNonConfigurationInstance() {
+    public Object[] onRetainCustomNonConfigurationInstance() {
         return new Object[] {
                 mCurrentSearch,
                 mList.getVisibility(),
-                mSoundAdpWrapper.saveState(),
-                mUserAdpWrapper.saveState(),
                 mWorkspaceView.getCurrentScreen()
         };
     }
@@ -256,13 +237,11 @@ public class ScSearch extends ScListActivity {
             mWorkspaceView.addView(mListHolder);
             mList.setVisibility(View.VISIBLE);
         }
-        mSoundAdpWrapper.restoreState((Object[]) previous[2]);
-        mUserAdpWrapper.restoreState((Object[]) previous[3]);
         mWorkspaceView.initWorkspace((Integer) previous[4]);
         if (mCurrentSearch != null) {
             txtQuery.setText(mCurrentSearch.query);
-            configureAdapter(mCurrentSearch.search_type == Search.SOUNDS ?
-                    mSoundAdpWrapper : mUserAdpWrapper, mCurrentSearch);
+            //configureAdapter(mCurrentSearch.search_type == Search.SOUNDS ?
+              //      mSoundAdpWrapper : mUserAdpWrapper, mCurrentSearch);
         }
     }
 

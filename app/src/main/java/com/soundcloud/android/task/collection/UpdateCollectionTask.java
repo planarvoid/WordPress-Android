@@ -1,0 +1,101 @@
+package com.soundcloud.android.task.collection;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TracklistItem;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.UserlistItem;
+import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+
+import android.os.AsyncTask;
+import android.os.Parcelable;
+import android.text.TextUtils;
+import android.util.Log;
+import android.widget.BaseAdapter;
+
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class UpdateCollectionTask extends AsyncTask<Map<Long, ? extends ScModel>, String, Boolean> {
+    protected SoundCloudApplication mApp;
+    protected Class<?> mLoadModel;
+    protected WeakReference<BaseAdapter> mAdapterReference;
+
+    public UpdateCollectionTask(SoundCloudApplication app, Class<?> loadModel) {
+        mApp = app;
+        mLoadModel = loadModel;
+        if (!(Track.class.equals(mLoadModel) || User.class.equals(mLoadModel))) {
+            throw new IllegalArgumentException("Collection updating only allowed for tracks, users and Friends");
+        }
+    }
+
+    public void setAdapter(BaseAdapter lazyEndlessAdapter) {
+        mAdapterReference = new WeakReference<BaseAdapter>(lazyEndlessAdapter);
+    }
+
+
+
+    @Override
+    protected void onProgressUpdate(String... values) {
+        final BaseAdapter adapter = mAdapterReference.get();
+        if (adapter != null){
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    protected void onPostExecute(Boolean success) {
+    }
+
+    @Override
+    protected Boolean doInBackground(Map<Long, ? extends ScModel>... params) {
+        Map<Long,? extends ScModel> itemsToUpdate = params[0];
+        Log.i(TAG,"Updating " + itemsToUpdate.size() + " items");
+        try {
+            HttpResponse resp = mApp.get(Request.to(Track.class.equals(mLoadModel) ? Endpoints.TRACKS : Endpoints.USERS)
+                    .add("linked_partitioning", "1").add("ids", TextUtils.join(",", itemsToUpdate.keySet())));
+
+            if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                throw new IOException("Invalid response: " + resp.getStatusLine());
+            }
+
+            CollectionHolder holder = null;
+            List<ScModel> objectsToWrite = new ArrayList<ScModel>();
+            if (Track.class.equals(mLoadModel)) {
+                holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScModel.TracklistItemHolder.class);
+                for (TracklistItem t : (ScModel.TracklistItemHolder) holder) {
+                    objectsToWrite.add(((Track) itemsToUpdate.get(t.id)).updateFrom(mApp, t));
+                }
+            } else if (User.class.equals(mLoadModel)) {
+                holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScModel.UserlistItemHolder.class);
+                for (UserlistItem u : (ScModel.UserlistItemHolder) holder) {
+                    objectsToWrite.add(((User) itemsToUpdate.get(u.id)).updateFrom(u));
+                }
+            }
+
+            for (Parcelable p : objectsToWrite) {
+                ((ScModel) p).resolve(mApp);
+            }
+
+            publishProgress();
+            SoundCloudDB.bulkInsertModels(mApp.getContentResolver(), objectsToWrite);
+
+            return true;
+
+        } catch (IOException e) {
+            Log.w(TAG, e);
+        }
+        return false;
+    }
+}

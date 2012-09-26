@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.sync;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -18,6 +19,8 @@ import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
@@ -25,14 +28,16 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncResult;
 import android.net.Uri;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -147,7 +152,6 @@ public class ApiSyncer {
 
     private Result syncContent(Content content, final long userId) throws IOException {
         Result result = new Result(content.uri);
-
         List<Long> local = content.getLocalIds(mResolver, userId);
         List<Long> remote = getCollectionIds(mApi, content.remoteUri);
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
@@ -169,19 +173,20 @@ public class ApiSyncer {
                         .getEntity().getContent();
 
                 // parse and add first items
-                List<Parcelable> firstUsers = new ArrayList<Parcelable>();
-                ScModel.getCollectionFromStream(is, mApi.getMapper(), User.class, firstUsers);
-                added = SoundCloudDB.bulkInsertParcelables(mResolver, firstUsers, content.uri, userId);
+                CollectionHolder<User> holder = ScModel.getCollectionFromStream(is, mApi.getMapper(), User.class);
+
+                added = SoundCloudDB.bulkInsertModels(mResolver, holder.collection, content.uri, userId);
+
 
                 // remove items from master remote list and adjust start index
-                for (Parcelable u : firstUsers) {
-                    remote.remove(((User) u).id);
+                for (ScModel m : holder) {
+                    remote.remove(((User) m).id);
                 }
-                startPosition = firstUsers.size();
+                startPosition = holder.size();
                 break;
             case ME_TRACKS:
                 // ensure the first couple of pages of items for quick loading
-                added = SoundCloudDB.bulkInsertParcelables(mResolver, getAdditionsFromIds(
+                added = SoundCloudDB.bulkInsertModels(mResolver, getMissingModelsById(
                         mApi,
                         mResolver,
                         remote,
@@ -191,7 +196,7 @@ public class ApiSyncer {
                 break;
             default:
                 // ensure the first couple of pages of items for quick loading
-                added = SoundCloudDB.bulkInsertParcelables(mResolver, getAdditionsFromIds(
+                added = SoundCloudDB.bulkInsertModels(mResolver, getMissingModelsById(
                         mApi,
                         mResolver,
                         new ArrayList<Long>(remote.subList(0, Math.min(remote.size(), MINIMUM_LOCAL_ITEMS_STORED))),
@@ -250,7 +255,7 @@ public class ApiSyncer {
             int i = 0;
             while (i < itemDeletions.size()) {
                 List<Long> batch = itemDeletions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, itemDeletions.size()));
-                mResolver.delete(content.uri, DBHelper.getWhereIds(DBHelper.CollectionItems.ITEM_ID, batch), longListToStringArr(batch));
+                mResolver.delete(content.uri, DBHelper.getWhereInClause(DBHelper.CollectionItems.ITEM_ID, batch), longListToStringArr(batch));
                 i += RESOLVER_BATCH_SIZE;
             }
         }
@@ -267,52 +272,67 @@ public class ApiSyncer {
         return result;
     }
 
-    public static List<Parcelable> getAdditionsFromIds(AndroidCloudAPI app,
-                                                       ContentResolver resolver,
-                                                       List<Long> additions,
-                                                       Content content,
-                                                       boolean ignoreStored) throws IOException {
-
-        if (additions == null || additions.isEmpty()) return new ArrayList<Parcelable>();
-
+    /**
+     * @param modelIds a list of model ids
+     * @param ignoreStored if it should ignore stored ids
+     * @return a list of models which are not stored in the database
+     * @throws IOException
+     */
+    public static List<ScModel> getMissingModelsById(AndroidCloudAPI api,
+                                                     ContentResolver resolver,
+                                                     List<Long> modelIds,
+                                                     Content content,
+                                                     boolean ignoreStored) throws IOException {
+        if (modelIds == null || modelIds.isEmpty()) {
+            return ScModel.EMPTY_LIST;
+        }
         // copy so we don't modify the original
-        additions = new ArrayList<Long>(additions);
+        List<Long> ids = new ArrayList<Long>(modelIds);
 
         if (!ignoreStored) {
-            // remove anything that is already in the DB
-            int i = 0;
-            List<Long> storedIds = new ArrayList<Long>();
-            while (i < additions.size()) {
-                List<Long> batch = additions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, additions.size()));
-                storedIds.addAll(SoundCloudDB.idCursorToList(resolver.query(content.uri, new String[]{DBHelper.Tracks._ID},
-                        DBHelper.getWhereIds(DBHelper.Tracks._ID, batch) + " AND " + DBHelper.Tracks.LAST_UPDATED + " > 0"
-                        , longListToStringArr(batch), null)));
-                i += RESOLVER_BATCH_SIZE;
-            }
-            additions.removeAll(storedIds);
+            ids.removeAll(getStoredIds(resolver, modelIds, content));
         }
+        return doBatchLookup(api, ids, content);
+    }
 
-        // add new items from batch lookups
-        List<Parcelable> items = new ArrayList<Parcelable>();
+    private static List<ScModel> doBatchLookup(AndroidCloudAPI api, List<Long> ids, Content content) throws IOException {
+        List<ScModel> models = new ArrayList<ScModel>();
         int i = 0;
-        while (i < additions.size()) {
-
-            List<Long> batch = additions.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, additions.size()));
+        while (i < ids.size()) {
+            List<Long> batch = ids.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, ids.size()));
             InputStream is = validateResponse(
-               app.get(
+               api.get(
                 Request.to(content.remoteUri)
                     .add("linked_partitioning", "1")
                     .add("limit", API_LOOKUP_BATCH_SIZE)
                     .add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
 
-            ScModel.getCollectionFromStream(is,
-                    app.getMapper(),
-                    content.resourceType,
-                    items
-            );
+            models.addAll(ScModel.getCollectionFromStream(is,
+                    api.getMapper(),
+                    content.resourceType
+            ).collection);
+
             i += API_LOOKUP_BATCH_SIZE;
         }
-        return items;
+        return models;
+    }
+
+    /**
+     * @return a list of all ids for which objects are store in the database
+     */
+    private static List<Long> getStoredIds(ContentResolver resolver, List<Long> ids, Content content) {
+        int i = 0;
+        List<Long> storedIds = new ArrayList<Long>();
+        while (i < ids.size()) {
+            List<Long> batch = ids.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, ids.size()));
+            storedIds.addAll(SoundCloudDB.idCursorToList(
+                    resolver.query(content.uri, new String[]{BaseColumns._ID},
+                        DBHelper.getWhereInClause(BaseColumns._ID, batch) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0"
+                        , longListToStringArr(batch), null)
+            ));
+            i += RESOLVER_BATCH_SIZE;
+        }
+        return storedIds;
     }
 
     private static List<Long> getCollectionIds(AndroidCloudAPI app, String endpoint) throws IOException {
@@ -342,7 +362,40 @@ public class ApiSyncer {
     }
 
 
-    public static class IdHolder extends CollectionHolder<Long> {}
+    public static class IdHolder {
+        @JsonProperty
+        public List<Long> collection;
+
+        @JsonProperty
+        public String next_href;
+
+        public IdHolder() {
+        }
+
+        public boolean hasMore() {
+            return !TextUtils.isEmpty(next_href);
+        }
+
+        public Request getNextRequest() {
+            if (!hasMore()) {
+                throw new IllegalStateException("next_href is null");
+            } else {
+                return new Request(URI.create(next_href));
+            }
+        }
+
+        public String getCursor() {
+            if (next_href != null) {
+                List<NameValuePair> params = URLEncodedUtils.parse(URI.create(next_href), "UTF-8");
+                for (NameValuePair param : params) {
+                    if (param.getName().equalsIgnoreCase("cursor")) {
+                        return param.getValue();
+                    }
+                }
+            }
+            return null;
+        }
+    }
 
     public static class Result {
         public static final int UNCHANGED = 0;
@@ -352,7 +405,7 @@ public class ApiSyncer {
         public final Uri uri;
         public final SyncResult syncResult = new SyncResult();
 
-        /** One of {@link UNCHANGED}, {@link REORDERED}, {@link CHANGED}. */
+        /** One of {@link #UNCHANGED}, {@link #REORDERED}, {@link #CHANGED}. */
         public int change;
 
         public boolean success;

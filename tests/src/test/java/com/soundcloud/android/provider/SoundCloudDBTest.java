@@ -2,7 +2,7 @@ package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.Friend;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -13,7 +13,6 @@ import org.junit.runner.RunWith;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -209,14 +208,14 @@ public class SoundCloudDBTest {
 
     @Test
     public void shouldBulkInsert() throws Exception {
-        List<Parcelable> items = createParcelables();
-        expect(SoundCloudDB.bulkInsertParcelables(resolver, items)).toEqual(3);
+        List<ScModel> items = createModels();
+        expect(SoundCloudDB.bulkInsertModels(resolver, items)).toEqual(3);
     }
 
     @Test
     public void shouldBulkInsertWithCollections() throws Exception {
-        List<Parcelable> items = createParcelables();
-        expect(SoundCloudDB.bulkInsertParcelables(resolver, items, Content.ME_FAVORITES.uri, USER_ID)).toEqual(3);
+        List<ScModel> items = createModels();
+        expect(SoundCloudDB.bulkInsertModels(resolver, items, Content.ME_FAVORITES.uri, USER_ID)).toEqual(3);
 
         Cursor c = resolver.query(Content.ME_FAVORITES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
@@ -224,11 +223,11 @@ public class SoundCloudDBTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotBulkInsertWithoutOwnerId() throws Exception {
-        SoundCloudDB.bulkInsertParcelables(resolver, createParcelables(), Content.ME_FAVORITES.uri, -1);
+        SoundCloudDB.bulkInsertModels(resolver, createModels(), Content.ME_FAVORITES.uri, -1);
     }
 
-    private List<Parcelable> createParcelables() {
-        List<Parcelable> items = new ArrayList<Parcelable>();
+    private List<ScModel> createModels() {
+        List<ScModel> items = new ArrayList<ScModel>();
 
         User u1 = new User();
         u1.permalink = "u1";
@@ -246,11 +245,7 @@ public class SoundCloudDBTest {
         u2_.permalink = "u2";
         u2_.id = 300L;
 
-        Friend f = new Friend();
-        f.user = u2;
-
         items.add(u1);
-        items.add(f);
         items.add(t);
         items.add(u2_);
         return items;

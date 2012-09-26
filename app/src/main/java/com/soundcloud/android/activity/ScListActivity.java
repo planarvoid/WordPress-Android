@@ -4,17 +4,14 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.track.TrackFavoriters;
-import com.soundcloud.android.adapter.EventsAdapterWrapper;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.task.FavoriteAddTask;
+import com.soundcloud.android.task.FavoriteRemoveTask;
+import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.ScListView;
 
@@ -66,14 +63,6 @@ public abstract class ScListActivity extends ScActivity {
         unregisterReceiver(mPlaybackStatusListener);
         unregisterReceiver(mGeneralIntentListener);
 
-        for (final ScListView l : mLists) {
-            if (l.getWrapper() != null) {
-                l.getWrapper().onDestroy();
-            }
-                if (l.getBaseAdapter() != null) {
-                l.getBaseAdapter().onDestroy();
-            }
-        }
         if (findViewById(R.id.container) != null){
             unbindDrawables(findViewById(R.id.container));
             System.gc();
@@ -93,17 +82,6 @@ public abstract class ScListActivity extends ScActivity {
     protected void onStop() {
         super.onStop();
         mIgnorePlaybackStatus = false;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (!isFinishing() && mLists != null) {
-            for (final ScListView lv : mLists) {
-                if (lv.getWrapper() != null) lv.getWrapper().onResume();
-            }
-        }
     }
 
     @Override
@@ -158,17 +136,6 @@ public abstract class ScListActivity extends ScActivity {
         }
     }
 
-    protected void onDataConnectionChanged(boolean isConnected) {
-        super.onDataConnectionChanged(isConnected);
-        if (isConnected) {
-            if (getApp().getAccount() != null){
-                for (ScListView lv : mLists) {
-                    if (lv.getWrapper() != null) lv.getWrapper().onConnected();
-                }
-            }
-        }
-    }
-
     public void playTrack(Playable.PlayInfo info) {
         playTrack(info, true, false);
     }
@@ -206,42 +173,6 @@ public abstract class ScListActivity extends ScActivity {
         mIgnorePlaybackStatus = true;
     }
 
-    public ScListView buildList() {
-        return configureList(new ScListView(this), false);
-    }
-
-    public ScListView buildList(boolean longClickable) {
-        return configureList(new ScListView(this), longClickable);
-    }
-
-    public ScListView configureList(ScListView lv) {
-        return configureList(lv,false, mLists.size());
-    }
-
-    public ScListView configureList(ScListView lv, boolean longClickable) {
-        return configureList(lv,longClickable, mLists.size());
-    }
-
-    public ScListView configureList(ScListView lv, boolean longClickable, int addAtPosition) {
-        lv.setLazyListListener(mLazyListListener);
-        lv.getRefreshableView().setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-        lv.getRefreshableView().setFastScrollEnabled(false);
-        lv.getRefreshableView().setDivider(getResources().getDrawable(R.drawable.list_separator));
-        lv.getRefreshableView().setDividerHeight(1);
-        lv.getRefreshableView().setCacheColorHint(Color.TRANSPARENT);
-        lv.getRefreshableView().setLongClickable(longClickable);
-        mLists.add(addAtPosition < 0 || addAtPosition > mLists.size() ? mLists.size() : addAtPosition,lv);
-        return lv;
-    }
-
-    public int removeList(ScListView lazyListView){
-        int index = mLists.indexOf(lazyListView);
-        if (index != -1) {
-            mLists.remove(index);
-        }
-        return index;
-    }
-
     public void addNewComment(final Comment comment) {
         getApp().pendingComment = comment;
         safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
@@ -253,11 +184,7 @@ public abstract class ScListActivity extends ScActivity {
             if (Actions.CONNECTION_ERROR.equals(intent.getAction())) {
                 safeShowDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
             } else if (Actions.LOGGING_OUT.equals(intent.getAction())) {
-                if (mLists != null) {
-                    for (final ScListView lv : mLists) {
-                        if (lv.getWrapper() != null) lv.getWrapper().onLogout();
-                    }
-                }
+                // alert lists?
             }
         }
     };
@@ -283,61 +210,37 @@ public abstract class ScListActivity extends ScActivity {
         if (mLists == null || mLists.isEmpty())
             return;
 
-        for (ScListView list : mLists) {
-            if (list.getBaseAdapter() instanceof TracklistAdapter) {
-                ((TracklistAdapter) list.getBaseAdapter()).setPlayingId(id, isPlaying);
-            }
-        }
+        // todo, notify lists
     }
+
+    public void addFavorite(Track track) {
+        FavoriteAddTask f = new FavoriteAddTask(getApp());
+        f.setOnFavoriteListener(mFavoriteListener);
+        f.execute(track);
+    }
+
+    public void removeFavorite(Track track) {
+        FavoriteRemoveTask f = new FavoriteRemoveTask(getApp());
+        f.setOnFavoriteListener(mFavoriteListener);
+        f.execute(track);
+    }
+
+
+    private FavoriteTask.FavoriteListener mFavoriteListener = new FavoriteTask.FavoriteListener() {
+        @Override
+        public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
+            // todo, notify lists
+        }
+
+        @Override
+        public void onException(long trackId, Exception e) {
+            // todo, notify lists
+        }
+    };
 
     protected void handleRecordingClick(Recording recording) {
     }
 
-    private ScListView.LazyListListener mLazyListListener = new ScListView.LazyListListener() {
-        @Override
-        public void onEventClick(EventsAdapterWrapper wrapper, int position) {
-            final Activity e = (Activity) wrapper.getItem(position);
-            if (e.type == Activity.Type.FAVORITING) {
-                SoundCloudApplication.TRACK_CACHE.put(e.getTrack(), false);
-                startActivity(new Intent(ScListActivity.this, TrackFavoriters.class)
-                    .putExtra("track_id", e.getTrack().id));
-            } else {
-                playTrack(wrapper.getPlayInfo(position));
-            }
-        }
 
-        @Override
-        public void onTrackClick(LazyEndlessAdapter wrapper, int position) {
-            if (wrapper.getItem(position) instanceof Track &&
-                    !((Track) wrapper.getItem(position)).isStreamable()){
-
-                showDialog(((Track) wrapper.getItem(position)).isFailed() ?
-                        Consts.Dialogs.DIALOG_TRANSCODING_FAILED :
-                        Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING);
-            } else {
-                playTrack(wrapper.getPlayInfo(position));
-            }
-
-        }
-
-        @Override
-        public void onUserClick(User user) {
-            Intent i = new Intent(ScListActivity.this, UserBrowser.class);
-            i.putExtra("user", user);
-            startActivity(i);
-        }
-
-        @Override
-        public void onCommentClick(Comment comment) {
-            Intent i = new Intent(ScListActivity.this, UserBrowser.class);
-            i.putExtra("user", comment.user);
-            startActivity(i);
-        }
-
-        @Override
-        public void onRecordingClick(final Recording recording) {
-            handleRecordingClick(recording);
-        }
-    };
 
 }

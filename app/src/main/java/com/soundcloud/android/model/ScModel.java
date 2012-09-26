@@ -1,6 +1,7 @@
 package com.soundcloud.android.model;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -14,12 +15,15 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.task.create.NewConnectionTask;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,7 +32,9 @@ import static com.soundcloud.android.SoundCloudApplication.TRACK_CACHE;
 import static com.soundcloud.android.SoundCloudApplication.USER_CACHE;
 
 public abstract class ScModel implements Parcelable {
+
     public static final int NOT_SET = -1;
+    public static final List<ScModel> EMPTY_LIST = new ArrayList<ScModel>();
 
     @JsonView(Views.Mini.class) public long id = NOT_SET;
     @JsonIgnore public long last_updated       = NOT_SET;
@@ -36,11 +42,11 @@ public abstract class ScModel implements Parcelable {
     public ScModel() {
     }
 
-    public static CollectionHolder getCollectionFromStream(InputStream is,
+    public static @NotNull <T extends ScModel> CollectionHolder<T> getCollectionFromStream(InputStream is,
                                                            ObjectMapper mapper,
-                                                           Class<?> loadModel,
-                                                           List<? super Parcelable> items) throws IOException {
+                                                           Class<T> loadModel) throws IOException {
         CollectionHolder holder = null;
+        List<ScModel> items = new ArrayList<ScModel>();
         if (Track.class.equals(loadModel)) {
             holder = mapper.readValue(is, TracklistItemHolder.class);
             for (TracklistItem t : (TracklistItemHolder) holder) {
@@ -56,17 +62,15 @@ public abstract class ScModel implements Parcelable {
             for (Activity e : (Activities) holder) {
                 items.add(e);
             }
-        } else if (Friend.class.equals(loadModel)) {
-            holder = mapper.readValue(is, FriendHolder.class);
-            for (Friend f : (FriendHolder) holder) {
-                items.add(f);
-            }
         } else if (Comment.class.equals(loadModel)) {
             holder = mapper.readValue(is, CommentHolder.class);
             for (Comment f : (CommentHolder) holder) {
                 items.add(f);
             }
+        } else {
+            throw new RuntimeException("Unknown moodel "+loadModel);
         }
+        holder.collection = items;
         return holder;
     }
 
@@ -189,7 +193,7 @@ public abstract class ScModel implements Parcelable {
         }
     }
 
-    public void resolve(SoundCloudApplication application) {
+    public void resolve(Context context) {
     }
 
     @Override
@@ -219,8 +223,8 @@ public abstract class ScModel implements Parcelable {
         return id > NOT_SET;
     }
 
+
     public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}
     public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}
-    public static class FriendHolder extends CollectionHolder<Friend> {}
     public static class CommentHolder extends CollectionHolder<Comment> {}
 }

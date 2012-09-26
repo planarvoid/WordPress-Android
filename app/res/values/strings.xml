@@ -4,6 +4,23 @@
     <string name="dialog_transcoding_failed_message">Ooops, something went wrong and your sound can\'t be played. You can remove the sound from your list via the website. For more information please contact our support.</string>
     <string name="visit_support">Visit Support</string>
 
+    <string name="waiting_for_sync">Waiting for sync...</string>
+
+    <string name="menu_my_sounds">My Sounds</string>
+    <string name="menu_my_likes">My Likes</string>
+    <string name="menu_my_followings">People I Follow</string>
+    <string name="menu_my_followers">My Followings</string>
+    <string name="menu_my_info">My Info</string>
+    <string name="menu_friend_finder">My Info</string>
+
+    <string name="tab_title_my_sound_stream">My Stream</string>
+    <string name="tab_title_my_likes">My Likes</string>
+
+    <string name="tab_title_user_sounds">Sounds</string>
+    <string name="tab_title_user_likes">Likes</string>
+    <string name="tab_title_user_followers">Followers</string>
+    <string name="tab_title_user_followings">Followings</string>
+
     <string name="dialog_transcoding_processing_title">Sound processing</string>
     <string name="dialog_transcoding_processing_message">Your sound is being processed and will be playable in few seconds.</string>
 

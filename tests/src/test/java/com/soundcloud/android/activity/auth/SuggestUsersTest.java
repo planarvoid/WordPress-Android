@@ -23,7 +23,7 @@ public class SuggestUsersTest {
         users.onCreate(null);
 
         addPendingHttpResponse(202, "{ \"authorize_url\": \"http://example.com\" }");
-        users.configureFacebook();
+        //users.configureFacebook();
 
         ShadowActivity shadow = shadowOf(users);
         ShadowActivity.IntentForResult intent = shadow.peekNextStartedActivityForResult();

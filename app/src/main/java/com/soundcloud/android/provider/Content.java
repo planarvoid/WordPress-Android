@@ -6,8 +6,8 @@ import android.util.SparseArray;
 
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.sync.SyncConfig;
@@ -46,7 +46,7 @@ public enum Content {
     ME_ACTIVITIES("me/activities/all/own", Endpoints.MY_NEWS, 142, Activity.class, -1, Table.ACTIVITIES),
     ME_ALL_ACTIVITIES("me/activities", null, 150, Activity.class, -1, Table.ACTIVITIES),
 
-    ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, Friend.class, FRIEND, null),
+    ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, User.class, FRIEND, null),
     SUGGESTED_USERS("users/suggested", null, 161, User.class, SUGGESTED_USER, null),
 
     TRACKS("tracks", Endpoints.TRACKS, 201, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
@@ -59,7 +59,7 @@ public enum Content {
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
     USER("users/#", null, 302, User.class, -1, Table.USERS),
     USER_TRACKS("users/#/tracks", null, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
-    USER_FAVORITES("users/#/favorites", null, 304, Track.class, FAVORITE, null),
+    USER_FAVORITES("users/#/favorites", Endpoints.USER_FAVORITES, 304, Track.class, FAVORITE, null),
     USER_FOLLOWERS("users/#/followers", null, 305, User.class, FOLLOWER, null),
     USER_FOLLOWINGS("users/#/followings", null, 306, User.class, FOLLOWING, null),
     USER_COMMENTS("users/#/comments", null, 307, Comment.class, -1, null),
@@ -114,7 +114,7 @@ public enum Content {
     UNKNOWN(null, null, -1, null, -1, null);
 
 
-    Content(String uri, String remoteUri, int id, Class<? extends Parcelable> resourceType,
+    Content(String uri, String remoteUri, int id, Class<? extends ScModel> resourceType,
             int collectionType,
             Table table) {
         this.uriPath = uri;
@@ -130,7 +130,7 @@ public enum Content {
     public final int id;
     public final
     @Nullable
-    Class<? extends Parcelable> resourceType;
+    Class<? extends ScModel> resourceType;
     public final Uri uri;
     public final String uriPath;
     public final String remoteUri;
@@ -199,6 +199,10 @@ public enum Content {
         } else {
             throw new IllegalArgumentException("no remoteuri defined for content" + this);
         }
+    }
+
+    public boolean hasRequest() {
+        return remoteUri != null;
     }
 
     @Override

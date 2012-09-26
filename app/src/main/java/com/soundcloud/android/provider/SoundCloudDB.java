@@ -13,7 +13,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Parcelable;
 import android.util.Log;
 
 import java.io.File;
@@ -135,15 +134,13 @@ public class SoundCloudDB {
         return user;
     }
 
-
-    public static int bulkInsertParcelables(ContentResolver resolver, List<Parcelable> items) {
-        return bulkInsertParcelables(resolver, items, null, -1);
-    }
-
-    public static int bulkInsertParcelables(ContentResolver resolver,
-                                            List<? extends Parcelable> items,
-                                            @Nullable Uri uri,
-                                            long ownerId) {
+    public static int bulkInsertModels(ContentResolver resolver, List<? extends ScModel> items) {
+            return bulkInsertModels(resolver, items, null, -1);
+        }
+    public static int bulkInsertModels(ContentResolver resolver,
+                                       List<? extends ScModel> items,
+                                       @Nullable Uri uri,
+                                       long ownerId) {
         if (uri != null && ownerId < 0) {
             throw new IllegalArgumentException("need valid ownerId for collection");
         }
@@ -155,8 +152,8 @@ public class SoundCloudDB {
         ContentValues[] bulkValues = uri == null ? null : new ContentValues[items.size()];
 
         for (int i=0; i <items.size(); i++) {
-            Parcelable p = items.get(i);
-            long id = ((ScModel) p).id;
+            ScModel p = items.get(i);
+            long id = p.id;
             if (p instanceof Origin) {
                 Origin origin = (Origin) p;
                 Track track = origin.getTrack();

@@ -9,13 +9,14 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.view.ViewStub;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
+
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.adapter.TrackInfoBar;
 
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -31,7 +32,7 @@ public class MyTracklistRow extends TrackInfoBar {
     private Drawable mPrivateBgDrawable;
     private Drawable mVeryPrivateBgDrawable;
 
-    public MyTracklistRow(Context activity, LazyBaseAdapter adapter) {
+    public MyTracklistRow(Context activity, ScBaseAdapter adapter) {
         super(activity, adapter);
         mTitle = (TextView) findViewById(R.id.track);
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
@@ -39,9 +40,14 @@ public class MyTracklistRow extends TrackInfoBar {
     }
 
     @Override
-    protected int getRowResourceId() {
-        return R.layout.record_list_item_row;
+    protected View addContent() {
+        return View.inflate(getContext(), R.layout.record_list_item_row, this);
     }
+
+    //    @Override
+//    protected int getRowResourceId() {
+//        return R.layout.record_list_item_row;
+//    }
 
     private Drawable getPrivateBgDrawable(){
           if (mPrivateBgDrawable == null) {

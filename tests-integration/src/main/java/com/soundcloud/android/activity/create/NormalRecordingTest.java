@@ -276,7 +276,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.enterTextId(R.id.what, title);
         solo.goBack();
 
-        solo.clickOnView(R.id.btn_you);
+//XXX        solo.clickOnView(R.id.btn_you);
 
         // delete wav file
         File wavFile = r.getFile();
@@ -299,7 +299,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     public void testShouldAutoSaveRecordingAndNavigateToYourSounds() throws Exception {
         record(RECORDING_TIME);
         solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
-        solo.clickOnView(R.id.btn_you);
+//XXX        solo.clickOnView(R.id.btn_you);
         solo.assertActivity(Main.class);
     }
 

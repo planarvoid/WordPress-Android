@@ -1,25 +1,19 @@
 package com.soundcloud.android.activity.track;
 
-import android.os.Bundle;
-import android.view.View;
-import android.view.ViewGroup;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScListActivity;
-import com.soundcloud.android.adapter.SectionedAdapter;
-import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.view.SectionedListView;
-import com.soundcloud.android.view.TrackInfoBar;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.view.adapter.TrackInfoBar;
 
-public abstract class TrackInfoCollection extends ScListActivity implements SectionedEndlessAdapter.SectionListener, FetchTrackTask.FetchTrackListener {
+import android.os.Bundle;
+import android.view.View;
+
+public abstract class TrackInfoCollection extends ScListActivity implements   FetchTrackTask.FetchTrackListener {
     Track mTrack;
     TrackInfoBar mTrackInfoBar;
-    SectionedListView mListView;
+    //SectionedListView mListView;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -36,6 +30,7 @@ public abstract class TrackInfoCollection extends ScListActivity implements Sect
             }
         });
 
+        /*
         SectionedAdapter adapter = createSectionedAdapter();
         SectionedEndlessAdapter adapterWrapper = new SectionedEndlessAdapter(this, adapter, true);
         adapterWrapper.addListener(this);
@@ -61,18 +56,20 @@ public abstract class TrackInfoCollection extends ScListActivity implements Sect
             }
         }
 
-        mPreviousState = (Object[]) getLastNonConfigurationInstance();
+        mPreviousState = (Object[]) getLastCustomNonConfigurationInstance();
         if (mPreviousState != null) {
             mListView.getWrapper().restoreState(mPreviousState);
         }
+        */
     }
 
+    /*
     protected abstract SectionedAdapter createSectionedAdapter();
 
     abstract protected SectionedAdapter.Section createSection();
 
     @Override
-    public Object onRetainNonConfigurationInstance() {
+    public Object onRetainCustomNonConfigurationInstance() {
         if (mListView != null) {
             return  mListView.getWrapper().saveState();
         }
@@ -81,7 +78,7 @@ public abstract class TrackInfoCollection extends ScListActivity implements Sect
 
     @Override
     public void onSectionLoaded(SectionedAdapter.Section section) {
-    }
+    }  */
 
     @Override
     public void onSuccess(Track track, String action) {
