@@ -1,6 +1,7 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -35,5 +36,7 @@ public class TrackAdapter extends ScBaseAdapter<Track> {
     @Override
     public void handleListItemClick(int position, long id) {
         mContext.startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(Track.EXTRA, getItem(position)));
+        mContext.startActivity(new Intent(mContext, ScPlayer.class));
+
     }
 }

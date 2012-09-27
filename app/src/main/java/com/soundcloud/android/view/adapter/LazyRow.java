@@ -8,6 +8,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Parcelable;
+import android.util.AttributeSet;
 import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
@@ -29,7 +30,11 @@ public abstract class LazyRow extends FrameLayout {
     protected ImageView mIcon;
 
     public LazyRow(Context context, @Nullable IScAdapter adapter) {
-        super(context);
+        this(context, null, adapter);
+    }
+
+    public LazyRow(Context context, @Nullable AttributeSet attributeSet, @Nullable IScAdapter adapter) {
+        super(context, attributeSet);
         mAdapter = adapter;
 
         if (mIconOptions == null) mIconOptions = new ImageLoader.Options();
