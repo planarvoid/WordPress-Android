@@ -115,6 +115,21 @@ public class Recording extends ScResource implements Comparable<Recording> {
         return TextUtils.isEmpty(title) ? sharingNote(r) : title;
     }
 
+    @Override
+    public Uri getBulkInsertUri() {
+        return Content.RECORDINGS.uri;
+    }
+
+    @Override
+    public User getUser() {
+        return null;
+    }
+
+    @Override
+    public Track getTrack() {
+        return null;
+    }
+
     public static interface Status {
         int NOT_YET_UPLOADED    = 0; // not yet uploaded, or canceled by user
         int UPLOADING           = 1; // currently uploading
@@ -325,7 +340,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     public Uri toUri() {
-        return id > 0 ? Content.RECORDING.forId(id) : Content.RECORDINGS.uri;
+        return id > 0 ? Content.RECORDING.forId(id) : getBulkInsertUri();
     }
 
     public boolean isLegacyRecording(){

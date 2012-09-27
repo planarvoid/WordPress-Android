@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.SoundCloudApplication.*;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.util.Log;
@@ -10,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Activity.Activities;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -35,7 +36,8 @@ public abstract class ScResource extends ScModel {
     public ScResource() {
     }
 
-    public static @NotNull Activities getActivitiesFromStream(InputStream is,
+    public static @NotNull
+    Activities getActivitiesFromStream(InputStream is,
                                                                     ObjectMapper mapper) throws IOException {
         return mapper.readValue(is, Activities.class);
     }
@@ -81,6 +83,11 @@ public abstract class ScResource extends ScModel {
     public boolean isSaved() {
         return id > NOT_SET;
     }
+
+    public abstract Uri getBulkInsertUri();
+
+    public abstract User getUser();
+    public abstract Track getTrack();
 
     public static class ScResourceHolder extends CollectionHolder<ScResource> {}
     public static class CommentHolder extends CollectionHolder<Comment> {}

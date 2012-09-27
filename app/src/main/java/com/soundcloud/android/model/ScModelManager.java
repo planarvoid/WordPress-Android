@@ -5,6 +5,14 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.cache.UserCache;
+import com.soundcloud.android.model.Activity.Activities;
+import com.soundcloud.android.model.Activity.Activity;
+import com.soundcloud.android.model.Activity.AffiliationActivity;
+import com.soundcloud.android.model.Activity.CommentActivity;
+import com.soundcloud.android.model.Activity.TrackActivity;
+import com.soundcloud.android.model.Activity.TrackLikeActivity;
+import com.soundcloud.android.model.Activity.TrackRepostActivity;
+import com.soundcloud.android.model.Activity.TrackSharingActivity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -59,64 +67,30 @@ public class ScModelManager {
 
     }
 
-    public Activities getActivitiesFromCursor(Cursor cursor) {
-
-        Activities activities = new Activities();
-        User loggedInUser = getLoggedInUser();
-        while (cursor != null && cursor.moveToNext()) {
-            final Activity a = new Activity(cursor);
-
-            Origin origin = null;
-            switch (a.type) {
-                case TRACK:
-                    origin = SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor, DBHelper.ActivityView.TRACK_ID);
-                    break;
-
-                case TRACK_SHARING:
-                    origin = new TrackSharing();
-                    Track track = SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor, DBHelper.ActivityView.TRACK_ID);
-                    origin.setCachedTrack(track);
-                    ((TrackSharing) origin).sharing_note = track.sharing_note;
-                    break;
-
-                case COMMENT:
-                case FAVORITING:
-                    origin = a.type == Activity.Type.COMMENT ? new Comment(cursor, true) : new Favoriting();
-                    final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor, DBHelper.ActivityView.TRACK_ID);
-                    cachedTrack.setCachedUser(loggedInUser);
-                    origin.setCachedTrack(cachedTrack);
-                    origin.setCachedUser(SoundCloudApplication.MODEL_MANAGER.getUserFromActivityCursor(cursor));
-                    break;
-            }
-            a.setOrigin(origin);
-            activities.add(a);
+    public Activity getActivityFromCursor(Cursor cursor){
+        Activity a = Activity.Type.values()[cursor.getInt(cursor.getColumnIndex(DBHelper.Activities.TYPE_ID))].fromCursor(cursor);
+        if (a != null) {
+            a.setCachedTrack(getTrackFromCursor(cursor, DBHelper.ActivityView.TRACK_ID));
+            a.setCachedUser(getUserFromActivityCursor(cursor));
         }
+        return a;
+    }
 
+    public Activities getActivitiesFromCursor(Cursor cursor) {
+        Activities activities = new Activities();
+        while (cursor != null && cursor.moveToNext()) {
+            final Activity activityFromCursor = getActivityFromCursor(cursor);
+            if (activityFromCursor != null) activities.add(activityFromCursor);
+        }
         if (cursor != null) cursor.close();
         return activities;
     }
 
     public Activities fromJSON(InputStream is) throws IOException {
         Activities activities = mMapper.readValue(is, Activities.class);
-        User loggedInUser = getLoggedInUser();
         for (Activity a : activities) {
-            switch (a.type) {
-                case TRACK:
-                    a.setCachedTrack(SoundCloudApplication.MODEL_MANAGER.cache((Track) a.origin, ScModel.CacheUpdateMode.MINI));
-                    break;
-
-                case TRACK_SHARING:
-                    a.origin.setCachedTrack(SoundCloudApplication.MODEL_MANAGER.cache(a.getTrack(), ScModel.CacheUpdateMode.MINI));
-                    break;
-
-                case COMMENT:
-                case FAVORITING:
-                    final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.cache(a.getTrack(), ScModel.CacheUpdateMode.MINI);
-                    cachedTrack.setCachedUser(loggedInUser);
-                    a.origin.setCachedTrack(cachedTrack);
-                    a.origin.setCachedUser((User) SoundCloudApplication.MODEL_MANAGER.cache(a.getUser(), ScModel.CacheUpdateMode.MINI));
-                    break;
-            }
+            a.setCachedTrack(SoundCloudApplication.MODEL_MANAGER.cache(a.getTrack(), ScModel.CacheUpdateMode.MINI));
+            a.setCachedUser(SoundCloudApplication.MODEL_MANAGER.cache(a.getUser(), ScModel.CacheUpdateMode.MINI));
         }
         return activities;
     }
@@ -158,6 +132,7 @@ public class ScModelManager {
         return getTrackFromCursor(cursor, DBHelper.Tracks._ID);
     }
 
+
     public Track getTrackFromCursor(Cursor cursor, String idCol) {
         final long id = cursor.getLong(cursor.getColumnIndex(idCol));
         Track track = TRACK_CACHE.get(id);
@@ -178,7 +153,6 @@ public class ScModelManager {
         }
         return track;
     }
-
 
     public <T extends ScModel> CollectionHolder<T> loadLocalContent(ContentResolver resolver, Class<T> resourceType, Uri localUri) {
         Cursor itemsCursor = resolver.query(localUri, null, null, null, null);
@@ -302,6 +276,8 @@ public class ScModelManager {
     }
 
     public Track cache(Track track, ScModel.CacheUpdateMode updateMode) {
+        if (track == null) return null;
+
         if (track.user != null) {
             track.user = cache(track.user, updateMode);
         }
@@ -324,6 +300,8 @@ public class ScModelManager {
     }
 
     public User cache(User user, ScModel.CacheUpdateMode updateMode) {
+        if (user == null) return null;
+
         if (USER_CACHE.containsKey(user.id)) {
             if (updateMode.shouldUpdate()) {
                 return USER_CACHE.get(user.id).updateFrom(user, updateMode);
@@ -467,6 +445,7 @@ public class ScModelManager {
         return getLocalIds(content, userId, -1, -1);
     }
 
+
     public List<Long> getLocalIds(Content content, long userId, int startIndex, int limit) {
         return SoundCloudDB.idCursorToList(mResolver.query(
                 SoundCloudDB.addPagingParams(Content.COLLECTION_ITEMS.uri, startIndex, limit),
@@ -475,6 +454,4 @@ public class ScModelManager {
                 new String[]{String.valueOf(content.collectionType), String.valueOf(userId)},
                 DBHelper.CollectionItems.SORT_ORDER));
     }
-
-
 }

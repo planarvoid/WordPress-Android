@@ -4,28 +4,26 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.provider.Content;
+
+import android.net.Uri;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Playlist extends ScResource implements Origin {
+public class Playlist extends ScResource {
     @JsonView(Views.Mini.class) public User user;
 
-    @Override @JsonIgnore
-    public Track getTrack() {
-        return null;
+    @Override
+    public Uri getBulkInsertUri() {
+        return Content.PLAYLISTS.uri;
     }
 
     @Override @JsonIgnore
     public User getUser() {
-        return user;
+        return null;
     }
 
-    @Override
-    public void setCachedTrack(Track track) {
-        // nop
-    }
-
-    @Override
-    public void setCachedUser(User user) {
-        this.user = user;
+    @Override @JsonIgnore
+    public Track getTrack() {
+        return null;
     }
 }

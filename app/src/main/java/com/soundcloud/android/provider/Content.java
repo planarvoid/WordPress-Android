@@ -4,11 +4,10 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 
 import android.util.SparseArray;
 
-import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.Activity.Activity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -18,13 +17,11 @@ import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.SearchManager;
-import android.content.ContentResolver;
 import android.content.UriMatcher;
 import android.net.Uri;
 
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public enum Content  {
@@ -84,6 +81,7 @@ public enum Content  {
     // LOCAL URIS
     COLLECTIONS("collections", null, 1000, null, -1, Table.COLLECTIONS),
     COLLECTION("collections/#", null, 1001, null, -1, Table.COLLECTIONS),
+
     COLLECTION_PAGES("collection_pages", null, 1002, null, -1, Table.COLLECTION_PAGES),
     COLLECTION_PAGE("collection_pages/#", null, 1003, null, -1, Table.COLLECTION_PAGES),
     COLLECTION_ITEMS("collection_items", null, 1004, null, -1, Table.COLLECTION_ITEMS),

@@ -1,10 +1,17 @@
-package com.soundcloud.android.model;
+package com.soundcloud.android.model.Activity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.api.CloudAPI;
@@ -74,9 +81,9 @@ public class Activities extends CollectionHolder<Activity> {
 
     public List<User> getUniqueUsers() {
         List<User> users = new ArrayList<User>();
-        for (Activity e : this) {
-            if (e.getUser() != null && !users.contains(e.getUser())) {
-                users.add(e.getUser());
+        for (Activity a : this) {
+            if (a.getUser() != null && !users.contains(a.getUser())) {
+                users.add(a.getUser());
             }
         }
         return users;
@@ -84,38 +91,48 @@ public class Activities extends CollectionHolder<Activity> {
 
     public List<Track> getUniqueTracks() {
         List<Track> tracks = new ArrayList<Track>();
-        for (Activity e : this) {
-            if (e.getTrack() != null && !tracks.contains(e.getTrack())) {
-                tracks.add(e.getTrack());
+        for (Activity a : this) {
+            if (a.getTrack() != null && !tracks.contains(a.getTrack())) {
+                tracks.add(a.getTrack());
             }
         }
         return tracks;
     }
 
-    public Activities selectType(Activity.Type type) {
+    public List<Comment> getUniqueComments() {
+            List<Comment> tracks = new ArrayList<Comment>();
+            for (Activity a : this) {
+                if (a instanceof CommentActivity && ((CommentActivity)a).comment != null && !tracks.contains(((CommentActivity)a).comment)) {
+                    tracks.add(((CommentActivity)a).comment);
+                }
+            }
+            return tracks;
+        }
+
+    public Activities selectType(Class type) {
         List<Activity> activities = new ArrayList<Activity>();
         for (Activity e : this) {
-            if (type.equals(e.type)) {
+            if (type.isAssignableFrom(e.getClass())) {
                 activities.add(e);
             }
         }
         return new Activities(activities);
     }
 
-    public Activities favoritings() {
-        return selectType(Activity.Type.FAVORITING);
+    public Activities trackLikes() {
+        return selectType(TrackLikeActivity.class);
     }
 
     public Activities comments() {
-        return selectType(Activity.Type.COMMENT);
+        return selectType(CommentActivity.class);
     }
 
     public Activities sharings() {
-        return selectType(Activity.Type.TRACK_SHARING);
+        return selectType(TrackSharingActivity.class);
     }
 
     public Activities tracks() {
-        return selectType(Activity.Type.TRACK);
+        return selectType(TrackActivity.class);
     }
 
     public Map<Track, Activities> groupedByTrack() {
@@ -271,7 +288,7 @@ public class Activities extends CollectionHolder<Activity> {
                     null,
                     DBHelper.ActivityView.CREATED_AT + " ASC LIMIT 1");
         if (c != null && c.moveToFirst()){
-            a = new Activity(c);
+            a = SoundCloudApplication.MODEL_MANAGER.getActivityFromCursor(c);
         }
         if (c != null) c.close();
         return a;
@@ -285,7 +302,7 @@ public class Activities extends CollectionHolder<Activity> {
                 null,
                 DBHelper.ActivityView.CREATED_AT + " DESC LIMIT 1");
         if (c != null && c.moveToFirst()) {
-            a = new Activity(c);
+            a = SoundCloudApplication.MODEL_MANAGER.getActivityFromCursor(c);
         }
         if (c != null) c.close();
         return a;
@@ -357,15 +374,15 @@ public class Activities extends CollectionHolder<Activity> {
         return cv;
     }
 
-    public List<ScResource> getScResources() {
-        final List<ScResource> resources = new ArrayList<ScResource>();
+    public Set<ScResource> getScResources() {
+        final Set<ScResource> resources = new HashSet<ScResource>();
         for (Activity a : this) {
             Track t = a.getTrack();
-            if (t != null && !resources.contains(t)) {
+            if (t != null ) {
                 resources.add(t);
             }
             User u = a.getUser();
-            if (u != null && !resources.contains(u)) {
+            if (u != null) {
                 resources.add(u);
             }
         }
@@ -374,10 +391,9 @@ public class Activities extends CollectionHolder<Activity> {
 
     public List<Comment> getComments() {
         final List<Comment> comments = new ArrayList<Comment>();
-        for (Activity a : selectType(Activity.Type.COMMENT)) {
-            Comment c = a.getComment();
-            if (c != null && !comments.contains(c)) {
-                comments.add(c);
+        for (Activity a : this) {
+            if (a instanceof CommentActivity){
+                comments.add(((CommentActivity) a).comment);
             }
         }
         return comments;
@@ -396,11 +412,27 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public int insert(Content content, ContentResolver resolver) {
-        SoundCloudApplication.MODEL_MANAGER.writeCollection(getScResources(), ScModel.CacheUpdateMode.MINI);
+//        SoundCloudApplication.MODEL_MANAGER.writeCollection(new ArrayList<ScResource>(getScResources()),
+//                ScModel.CacheUpdateMode.MINI);
 
-        if (content == Content.ME_ACTIVITIES || content == Content.ME_ALL_ACTIVITIES) {
-            resolver.bulkInsert(Content.COMMENTS.uri, getCommentContentValues());
+        Set<ScResource> models = new HashSet<ScResource>();
+        for (Activity a : this) {
+            models.addAll(a.getDependentModels());
         }
+
+        Map<Uri, List<ContentValues>> values = new HashMap<Uri, List<ContentValues>>();
+        for (ScResource m : models) {
+            final Uri uri = m.getBulkInsertUri();
+            if (values.get(uri) == null) {
+                values.put(uri, new ArrayList<ContentValues>());
+            }
+            values.get(uri).add(m.buildContentValues());
+        }
+
+        for (Map.Entry<Uri, List<ContentValues>> entry : values.entrySet()) {
+            resolver.bulkInsert(entry.getKey(), entry.getValue().toArray(new ContentValues[entry.getValue().size()]));
+        }
+
         return resolver.bulkInsert(content.uri, buildContentValues(content.id));
     }
 

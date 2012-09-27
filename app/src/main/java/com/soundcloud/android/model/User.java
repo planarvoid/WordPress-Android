@@ -10,6 +10,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.Activity.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
@@ -31,7 +32,7 @@ import java.util.EnumSet;
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Model
-public class User extends ScResource implements  Refreshable, Origin {
+public class User extends ScResource implements  Refreshable {
     @JsonView(Views.Mini.class) public String username;
     @JsonView(Views.Mini.class) public String uri;
     @JsonView(Views.Mini.class) public String avatar_url;
@@ -299,26 +300,6 @@ public class User extends ScResource implements  Refreshable, Origin {
         return this;
     }
 
-    @Override
-    public Track getTrack() {
-        return null;
-    }
-
-    @Override
-    public User getUser() {
-        return this;
-    }
-
-    @Override
-    public void setCachedTrack(Track track) {
-        // nop
-    }
-
-    @Override
-    public void setCachedUser(User user) {
-        // nop
-    }
-
     public void resolve(Context context) {
         refreshListAvatarUri(context);
     }
@@ -378,6 +359,21 @@ public class User extends ScResource implements  Refreshable, Origin {
         model.public_favorites_count = bundle.getInt("public_favorites_count");
         model.private_tracks_count = bundle.getInt("private_tracks_count");
         model.id = bundle.getLong("id");
+    }
+
+    @Override
+    public Uri getBulkInsertUri() {
+        return Content.USERS.uri;
+    }
+
+    @Override @JsonIgnore
+    public User getUser() {
+        return this;
+    }
+
+    @Override @JsonIgnore
+    public Track getTrack() {
+        return null;
     }
 
     @Override

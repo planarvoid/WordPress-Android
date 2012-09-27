@@ -9,9 +9,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.IScAdapter;
-import com.soundcloud.android.adapter.ScBaseAdapter;
+import com.soundcloud.android.model.Activity.CommentActivity;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.Activity.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -66,10 +66,6 @@ public abstract class ActivityRow extends LazyRow {
     // override these for non-dashboard activities to account for different parcelable structures
     protected Track getTrack() {
         return mActivity.getTrack();
-    }
-
-    protected Comment getComment() {
-        return (mActivity.origin instanceof Comment) ? (Comment) mActivity.origin : null;
     }
 
     protected User getOriginUser() {

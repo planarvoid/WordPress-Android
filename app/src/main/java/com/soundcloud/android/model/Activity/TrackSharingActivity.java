@@ -1,10 +1,11 @@
-package com.soundcloud.android.model;
+package com.soundcloud.android.model.Activity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 
 import android.database.Cursor;
 import android.os.Parcel;
@@ -13,30 +14,42 @@ import android.text.TextUtils;
 
 import java.util.Date;
 
-/*
-{
-      "type": "track-sharing",
-      "origin": {
-        "track": {
-          ... FULL TRACK ...
-        },
-        "sharing_note": {
-          "created_at": "2011/07/11 20:28:04 +0000",
-          "text": "I hope everyone is well. Here is the massive set that I promised. Enjoy, share, and dont be shy leave me your thoughts!"
-        }
-      },
-      "tags": "first",
-      "created_at": "2011/07/11 20:42:34 +0000"
-    }
- */
-
-public class TrackSharing implements Origin {
+public class TrackSharingActivity extends Activity {
     @JsonProperty @JsonView(Views.Mini.class) public Track track;
     @JsonProperty @JsonView(Views.Mini.class) public SharingNote sharing_note;
 
-    /* package */ TrackSharing() {
+    public TrackSharingActivity() {}
+
+    public TrackSharingActivity(Cursor cursor) {
+        super(cursor);
     }
 
+    @Override
+    public Type getType() {
+        return Type.TRACK_SHARING;
+    }
+
+    @Override
+    public Track getTrack() {
+        return track;
+    }
+
+    @Override
+    public User getUser() {
+        return track.user;
+    }
+
+    @JsonIgnore @Override
+    public void setCachedTrack(Track track) {
+            this.track = track;
+            this.sharing_note = track.sharing_note;
+        }
+
+    @JsonIgnore @Override
+    public void setCachedUser(User user) {
+    }
+
+    /*
     @Override  @JsonIgnore
     public Track getTrack() {
         // need to set sharing note on track since the API doesn't return the track
@@ -45,29 +58,14 @@ public class TrackSharing implements Origin {
             track.sharing_note = sharing_note;
         }
         return track;
-    }
-
-    @Override @JsonIgnore
-    public User getUser() {
-        return track.user;
-    }
-
-    @Override
-    public void setCachedTrack(Track track) {
-        this.track = track;
-    }
-
-    @Override
-    public void setCachedUser(User user) {
-        // nop
-    }
+    }*/
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        TrackSharing that = (TrackSharing) o;
+        TrackSharingActivity that = (TrackSharingActivity) o;
 
         return !(sharing_note != null ? !sharing_note.equals(that.sharing_note) : that.sharing_note != null)
             && !(track != null ? !track.equals(that.track) : that.track != null);
@@ -121,17 +119,18 @@ public class TrackSharing implements Origin {
         dest.writeLong(sharing_note.created_at.getTime());
     }
 
-    public static final Parcelable.Creator<TrackSharing> CREATOR = new Parcelable.Creator<TrackSharing>() {
-        public TrackSharing createFromParcel(Parcel in) {
-            TrackSharing ts = new TrackSharing();
+    public static final Parcelable.Creator<TrackSharingActivity> CREATOR = new Parcelable.Creator<TrackSharingActivity>() {
+        public TrackSharingActivity createFromParcel(Parcel in) {
+
+            TrackSharingActivity ts = new TrackSharingActivity();
             ts.track = in.readParcelable(Track.class.getClassLoader());
             ts.sharing_note = new SharingNote();
             ts.sharing_note.text = in.readString();
             ts.sharing_note.created_at = new Date(in.readLong());
             return ts;
         }
-        public TrackSharing[] newArray(int size) {
-            return new TrackSharing[size];
+        public TrackSharingActivity[] newArray(int size) {
+            return new TrackSharingActivity[size];
         }
     };
 }

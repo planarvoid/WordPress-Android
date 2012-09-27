@@ -12,6 +12,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.track.TracksByTag;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.Activity.TrackSharingActivity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Tracks;
@@ -45,7 +46,7 @@ import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends ScResource implements Origin, Playable, Refreshable {
+public class Track extends ScResource implements Playable, Refreshable {
     private static final String TAG = "Track";
     public static final String EXTRA = "track";
 
@@ -115,7 +116,7 @@ public class Track extends ScResource implements Origin, Playable, Refreshable {
 
     @JsonView(Views.Full.class)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-    public TrackSharing.SharingNote sharing_note;
+    public TrackSharingActivity.SharingNote sharing_note;
 
     @JsonView(Views.Full.class) public String attachments_uri;
 
@@ -166,6 +167,11 @@ public class Track extends ScResource implements Origin, Playable, Refreshable {
         return this;
     }
 
+    @Override @JsonIgnore
+    public User getUser() {
+        return user;
+    }
+
     @Override
     public CharSequence getTimeSinceCreated(Context context) {
         if (_elapsedTime == null) refreshTimeSinceCreated(context);
@@ -192,22 +198,6 @@ public class Track extends ScResource implements Origin, Playable, Refreshable {
     public String getPlayerArtworkUri(Context context){
         final String iconUrl = getArtwork();
         return TextUtils.isEmpty(iconUrl) ? null : Consts.GraphicSize.formatUriForPlayer(context, iconUrl);
-    }
-
-
-    @Override @JsonIgnore
-    public User getUser() {
-        return user;
-    }
-
-    @Override
-    public void setCachedTrack(Track track) {
-        // nop
-    }
-
-    @Override
-    public void setCachedUser(User user) {
-        this.user = user;
     }
 
     @JsonIgnore
@@ -255,6 +245,11 @@ public class Track extends ScResource implements Origin, Playable, Refreshable {
     public Track() {
     }
 
+    @Override
+    public Uri getBulkInsertUri() {
+        return Content.TRACKS.uri;
+    }
+
     public Track(Parcel in) {
         readFromParcel(in);
     }
@@ -291,7 +286,7 @@ public class Track extends ScResource implements Origin, Playable, Refreshable {
 
         final int sharingNoteIdx = cursor.getColumnIndex(DBHelper.TrackView.SHARING_NOTE_TEXT);
         if (sharingNoteIdx != -1) {
-            sharing_note = new TrackSharing.SharingNote();
+            sharing_note = new TrackSharingActivity.SharingNote();
             sharing_note.text = cursor.getString(sharingNoteIdx);
         }
 

@@ -1,6 +1,7 @@
 package com.soundcloud.android.provider;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Activity.Activity;
 import com.soundcloud.android.model.LocalCollection;
 
 import android.content.Context;
@@ -16,7 +17,7 @@ import java.util.List;
 public class DBHelper extends SQLiteOpenHelper {
     static final String TAG = "DBHelper";
 
-    public static final int DATABASE_VERSION = 15;
+    public static final int DATABASE_VERSION = 16;
     private static final String DATABASE_NAME = "SoundCloud";
 
     DBHelper(Context context) {
@@ -79,6 +80,9 @@ public class DBHelper extends SQLiteOpenHelper {
                             break;
                         case 15:
                             success = upgradeTo15(db, oldVersion);
+                            break;
+                        case 16:
+                            success = upgradeTo16(db, oldVersion);
                             break;
                         default:
                             break;
@@ -224,14 +228,15 @@ public class DBHelper extends SQLiteOpenHelper {
 
     static final String DATABASE_CREATE_ACTIVITIES = "("+
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "uuid VARCHAR(255)," +
             "user_id INTEGER," +
             "track_id INTEGER," +
             "comment_id INTEGER," +
-            "type VARCHAR(255)," +
+            "type_id INTEGER," +
             "tags VARCHAR(255)," +
             "created_at INTEGER," +
             "content_id INTEGER," +
-            "UNIQUE (created_at, type, content_id, track_id, user_id)" +
+            "UNIQUE (created_at, type_id, content_id, track_id, user_id)" +
             ");";
 
     static final String DATABASE_CREATE_SEARCHES = "("+
@@ -340,7 +345,8 @@ public class DBHelper extends SQLiteOpenHelper {
     /** A view which combines activity data + tracks/users/comments */
     static final String DATABASE_CREATE_ACTIVITY_VIEW = "AS SELECT " +
             "Activities." + Activities._ID + " as " + ActivityView._ID +
-            ",Activities." + Activities.TYPE + " as " + ActivityView.TYPE+
+            ",Activities." + Activities.UUID + " as " + ActivityView.UUID+
+            ",Activities." + Activities.TYPE_ID + " as " + ActivityView.TYPE_ID +
             ",Activities." + Activities.TAGS + " as " + ActivityView.TAGS+
             ",Activities." + Activities.CREATED_AT + " as " + ActivityView.CREATED_AT+
             ",Activities." + Activities.COMMENT_ID + " as " + ActivityView.COMMENT_ID+
@@ -363,12 +369,13 @@ public class DBHelper extends SQLiteOpenHelper {
             " FROM Activities" +
             " JOIN Users ON(" +
             "   Activities." + Activities.USER_ID + " = " + "Users." + Users._ID + ")" +
-            " JOIN TrackView ON(" +
+            " LEFT JOIN TrackView ON(" +
             "   Activities." + Activities.TRACK_ID + " = " + "TrackView." + TrackView._ID + ")" +
             " LEFT JOIN Comments ON(" +
             "   Activities." + Activities.COMMENT_ID + " = " + "Comments." + Comments._ID + ")" +
             " LEFT JOIN Activities dup ON(" +
-            "   dup.track_id = Activities.track_id AND dup.type='track-sharing' AND Activities.type = 'track')" +
+            "   dup.track_id = Activities.track_id AND dup.type_id = '"+ Activity.Type.TRACK.ordinal() + "'" +
+            "   AND Activities.type_id = '"+ Activity.Type.TRACK_SHARING.ordinal() + "')" +
             " WHERE dup._id IS NULL" +
             " ORDER BY " + ActivityView.CREATED_AT + " DESC"
             ;
@@ -529,7 +536,8 @@ public class DBHelper extends SQLiteOpenHelper {
      * {@link DBHelper#DATABASE_CREATE_ACTIVITIES}
      */
     public static class Activities implements BaseColumns {
-        public static final String TYPE = "type";
+        public static final String UUID = "uuid";
+        public static final String TYPE_ID = "type_id";
         public static final String TAGS = "tags";
         public static final String USER_ID = "user_id";
         public static final String TRACK_ID = "track_id";
@@ -784,7 +792,7 @@ public class DBHelper extends SQLiteOpenHelper {
             resetSyncState(db);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade13 " +
+            SoundCloudApplication.handleSilentException("error during upgrade14 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -795,7 +803,19 @@ public class DBHelper extends SQLiteOpenHelper {
             Table.RECORDINGS.alterColumns(db);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade13 " +
+            SoundCloudApplication.handleSilentException("error during upgrade15 " +
+                    "(from " + oldVersion + ")", e);
+        }
+        return false;
+    }
+
+    private static boolean upgradeTo16(SQLiteDatabase db, int oldVersion) {
+        try {
+            cleanActivities(db);
+            Table.ACTIVITY_VIEW.recreate(db);
+            return true;
+        } catch (SQLException e) {
+            SoundCloudApplication.handleSilentException("error during upgrade16 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;

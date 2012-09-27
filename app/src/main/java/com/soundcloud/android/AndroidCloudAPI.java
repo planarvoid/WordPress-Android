@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.soundcloud.android.json.ActivityDeserializer;
-import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.Activity.Activity;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.ApiWrapper;
@@ -76,8 +73,7 @@ public interface AndroidCloudAPI extends CloudAPI {
 
         static {
             Mapper = createMapper();
-            Mapper.registerModule(new SimpleModule("CustomDeserialization", new Version(1, 0, 0, null, null, null))
-                    .addDeserializer(Activity.class, new ActivityDeserializer(Mapper)));
+            Mapper.registerModule(new SimpleModule("CustomDeserialization", new Version(1, 0, 0, null, null, null)));
         }
 
         private Context mContext;

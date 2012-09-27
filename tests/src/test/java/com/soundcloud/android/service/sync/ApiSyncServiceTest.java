@@ -6,10 +6,11 @@ import static com.soundcloud.android.robolectric.TestHelper.*;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.Activity.Activities;
+import com.soundcloud.android.model.Activity.Activity;
+import com.soundcloud.android.model.Activity.TrackActivity;
+import com.soundcloud.android.model.Activity.TrackSharingActivity;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -379,9 +380,9 @@ public class ApiSyncServiceTest {
         Activity a1 = incoming.get(0);
         Activity a2 = incoming.get(1);
 
-        expect(a1.type).toBe(Activity.Type.TRACK);
+        expect(a1 instanceof TrackActivity).toBeTrue();
         expect(a1.getTrack().permalink).toEqual("bastard-amo1-edit");
-        expect(a2.type).toBe(Activity.Type.TRACK_SHARING);
+        expect(a2 instanceof TrackSharingActivity).toBeTrue();
         expect(a2.getTrack().permalink).toEqual("leotrax06-leo-zero-boom-bam");
     }
 

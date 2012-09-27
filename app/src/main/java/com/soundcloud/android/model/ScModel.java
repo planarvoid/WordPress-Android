@@ -8,6 +8,7 @@ import com.soundcloud.android.json.Views;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -19,6 +20,8 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ScModel implements Parcelable {
 
@@ -128,6 +131,8 @@ public class ScModel implements Parcelable {
         if (id != ScResource.NOT_SET) cv.put(BaseColumns._ID, id);
         return cv;
     }
+
+
 
     public void resolve(Context context) {
 

@@ -3,7 +3,7 @@ package com.soundcloud.android.task.collection;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.Activity.Activity;
 import com.soundcloud.android.model.ScModel;
 
 import android.os.AsyncTask;

@@ -13,6 +13,7 @@ import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.res.RobolectricPackageManager;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
+import com.xtremelabs.robolectric.util.SQLiteMap;
 import org.junit.runners.model.InitializationError;
 import org.mockito.MockitoAnnotations;
 
@@ -26,7 +27,14 @@ public class DefaultTestRunner extends RobolectricTestRunner {
     public static TestApplication application;
 
     public DefaultTestRunner(Class testClass) throws InitializationError {
-        super(testClass,  new RobolectricConfig(new File("../app")));
+        super(testClass,new RobolectricConfig(new File("../app")));
+
+        /*super(testClass,  new RobolectricConfig(new File("../app")), new SQLiteMap(){
+            @Override
+            public String getConnectionString() {
+                return "jdbc:sqlite:test.sql";
+            }
+        });*/
 
         // remove native calls + replace with shadows
         addClassOrPackageToInstrument("com.soundcloud.android.jni.VorbisEncoder");
