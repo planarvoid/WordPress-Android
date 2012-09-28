@@ -56,7 +56,7 @@ public class ScModelManagerTest {
     // TODO, one instance of every user. deserialize post processing
     @Test
     public void testUniqueUserMultipleTracks() throws IOException {
-        CollectionHolder<ScResource> holder = manager.getCollectionFromStream(getClass().getResourceAsStream("tracks.json"));
+        CollectionHolder<ScResource> holder = manager.getCollectionFromStream(SyncAdapterServiceTest.class.getResourceAsStream("tracks.json"));
         expect(holder.size()).toBe(3);
 
         Track t1 = (Track) holder.get(0);
@@ -322,68 +322,67 @@ public class ScModelManagerTest {
 
 
     @Test
-        public void shouldInsertActivitiesIntoDb() throws Exception {
-            Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
-                    SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
-            a.insert(Content.ME_SOUND_STREAM, resolver);
-            expect(Content.ME_SOUND_STREAM).toHaveCount(50);
-        }
+    public void shouldInsertActivitiesIntoDb() throws Exception {
+        Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
+                SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
+        a.insert(Content.ME_SOUND_STREAM, resolver);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
+    }
 
-        @Test
-        public void shouldGetActivitiesFromDB() throws Exception {
-            Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
-                    SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
-            a.insert(Content.ME_SOUND_STREAM, resolver);
-            expect(Content.ME_SOUND_STREAM).toHaveCount(50);
+    @Test
+    public void shouldGetActivitiesFromDB() throws Exception {
+        Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
+                SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
+        a.insert(Content.ME_SOUND_STREAM, resolver);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
-            expect(
-                Activities.getSince(Content.ME_SOUND_STREAM,
+        expect(Activities.getSince(Content.ME_SOUND_STREAM,
                         resolver, -1).size()
-            ).toEqual(50);
-        }
+        ).toEqual(22);
+    }
 
-        @Test
-        public void shouldGetActivitiesFromDBWithTimeFiltering() throws Exception {
-            Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
-                    SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
-            a.insert(Content.ME_SOUND_STREAM, resolver);
-            expect(Content.ME_SOUND_STREAM).toHaveCount(50);
+    @Test
+    public void shouldGetActivitiesFromDBWithTimeFiltering() throws Exception {
+        Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
+                SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
+        a.insert(Content.ME_SOUND_STREAM, resolver);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
-            expect(
-                    Activities.getSince(Content.ME_SOUND_STREAM,
-                            resolver,
-                            toTime("2011/07/12 09:13:36 +0000")).size()
-            ).toEqual(2);
-        }
+        expect(
+                Activities.getSince(Content.ME_SOUND_STREAM,
+                        resolver,
+                        toTime("2012/09/27 14:08:01 +0000")).size()
+        ).toEqual(2);
+    }
 
-        @Test
-        public void shouldGetLastActivity() throws Exception {
-            Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
-                    SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
-            a.insert(Content.ME_SOUND_STREAM, resolver);
-            expect(Content.ME_SOUND_STREAM).toHaveCount(50);
+    @Test
+    public void shouldGetLastActivity() throws Exception {
+        Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
+                SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
+        a.insert(Content.ME_SOUND_STREAM, resolver);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
-            expect(
-                    Activities.getLastActivity(Content.ME_SOUND_STREAM,
-                            resolver).created_at.getTime()
-            ).toEqual(toTime("2011/07/06 15:47:50 +0000"));
-        }
+        expect(
+                Activities.getLastActivity(Content.ME_SOUND_STREAM,
+                        resolver).created_at.getTime()
+        ).toEqual(toTime("2012/09/26 14:52:27 +0000"));
+    }
 
-        @Test
-        public void shouldClearAllActivities() throws Exception {
-            Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
-                    SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
+    @Test
+    public void shouldClearAllActivities() throws Exception {
+        Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
+                SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
 
-            a.insert(Content.ME_SOUND_STREAM, resolver);
-            expect(Content.ME_SOUND_STREAM).toHaveCount(50);
+        a.insert(Content.ME_SOUND_STREAM, resolver);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
-            LocalCollection.insertLocalCollection(Content.ME_SOUND_STREAM.uri,
-                    0, System.currentTimeMillis(), System.currentTimeMillis(), a.size(),a.future_href,
-                    resolver);
+        LocalCollection.insertLocalCollection(Content.ME_SOUND_STREAM.uri,
+                0, System.currentTimeMillis(), System.currentTimeMillis(), a.size(), a.future_href,
+                resolver);
 
-            Activities.clear(null, resolver);
+        Activities.clear(null, resolver);
 
-            expect(Content.ME_SOUND_STREAM).toHaveCount(0);
-            expect(Content.COLLECTIONS).toHaveCount(0);
-        }
+        expect(Content.ME_SOUND_STREAM).toHaveCount(0);
+        expect(Content.COLLECTIONS).toHaveCount(0);
+    }
 }

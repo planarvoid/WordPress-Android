@@ -175,7 +175,7 @@ public class TrackTest {
     @Test
     public void shouldGenerateShareIntentForPublicTrack() throws Exception {
         Track t = new Track();
-        t.sharing = Track.Sharing.PUBLIC;
+        t.sharing = Sharing.PUBLIC;
         t.title = "A track";
         t.permalink_url = "http://soundcloud.com/foo/bar";
         Intent intent = t.getShareIntent();

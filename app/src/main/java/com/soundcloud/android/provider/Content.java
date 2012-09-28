@@ -67,8 +67,11 @@ public enum Content  {
     COMMENTS("comments", null, 400, Comment.class, -1, Table.COMMENTS),
     COMMENT("comments/#", null, 401, Comment.class, -1, Table.COMMENTS),
 
-    PLAYLISTS("playlists", null, 501, null, -1, Table.PLAYLIST_ITEMS),
-    PLAYLIST("playlists/#", null, 502, null, -1, Table.PLAYLIST_ITEMS),
+    PLAYLISTS("playlists", null, 501, null, -1, Table.PLAYLISTS),
+    PLAYLIST("playlists/#", null, 502, null, -1, Table.PLAYLISTS),
+
+    PLAY_QUEUE("play_queue", null, 501, null, -1, Table.PLAY_QUEUE),
+    PLAY_QUEUE_ITEM("play_queue/#", null, 502, null, -1, Table.PLAY_QUEUE),
 
     GROUPS("groups", null, 600, null, -1, null),
     GROUP("groups/#", null, 602, null, -1, null),

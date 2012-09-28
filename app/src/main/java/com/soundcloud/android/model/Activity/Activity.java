@@ -134,9 +134,7 @@ public abstract class Activity extends ScModel implements Refreshable, Comparabl
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Activity activity = (Activity) o;
-        if (created_at != null ? !created_at.equals(activity.created_at) : activity.created_at != null) return false;
-        if (tags != null ? !tags.equals(activity.tags) : activity.tags != null) return false;
-        return true;
+        return activity.uuid == uuid;
     }
 
     @Override

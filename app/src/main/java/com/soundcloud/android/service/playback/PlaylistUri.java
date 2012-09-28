@@ -12,13 +12,10 @@ public class PlaylistUri {
     private static final String PARAM_SEEK_POS = "seekPos";
     private static final String PARAM_TRACK_ID = "trackId";
 
-    private static final int DEFAULT_PLAYLIST = 0;
-    public static final Uri DEFAULT = Content.PLAYLIST.forId(DEFAULT_PLAYLIST);
-
     public final Uri uri;
 
     public PlaylistUri() {
-        this(DEFAULT);
+        this(Content.PLAY_QUEUE.uri);
     }
 
     public PlaylistUri(String uri) {
@@ -26,7 +23,7 @@ public class PlaylistUri {
     }
 
     public PlaylistUri(Uri uri) {
-        this.uri = uri == null ? DEFAULT : uri;
+        this.uri = uri == null ? Content.PLAY_QUEUE.uri : uri;
     }
 
     public boolean isCollectionUri() {
@@ -67,9 +64,5 @@ public class PlaylistUri {
         } else {
             return defaultValue;
         }
-    }
-
-    public boolean isDefault() {
-        return uri.buildUpon().query(null).build().equals(DEFAULT);
     }
 }

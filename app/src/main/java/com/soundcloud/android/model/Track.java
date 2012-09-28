@@ -12,7 +12,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.track.TracksByTag;
 import com.soundcloud.android.json.Views;
-import com.soundcloud.android.model.Activity.TrackSharingActivity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Tracks;
@@ -116,7 +115,7 @@ public class Track extends ScResource implements Playable, Refreshable {
 
     @JsonView(Views.Full.class)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-    public TrackSharingActivity.SharingNote sharing_note;
+    public SharingNote sharing_note;
 
     @JsonView(Views.Full.class) public String attachments_uri;
 
@@ -286,7 +285,7 @@ public class Track extends ScResource implements Playable, Refreshable {
 
         final int sharingNoteIdx = cursor.getColumnIndex(DBHelper.TrackView.SHARING_NOTE_TEXT);
         if (sharingNoteIdx != -1) {
-            sharing_note = new TrackSharingActivity.SharingNote();
+            sharing_note = new SharingNote();
             sharing_note.text = cursor.getString(sharingNoteIdx);
         }
 
@@ -640,33 +639,4 @@ public class Track extends ScResource implements Playable, Refreshable {
         public boolean isFinished()   { return FINISHED == this; }
     }
 
-    public static enum Sharing {
-        UNDEFINED(""),
-        PUBLIC("public"),
-        PRIVATE("private");
-
-        private final String value;
-
-        private Sharing(String value) {
-            this.value = value;
-        }
-
-        @JsonValue
-        public String value() {
-            return value;
-        }
-
-        // don't use built in valueOf to create so we can handle nulls and unknowns ourself
-        @JsonCreator
-        public static Sharing fromString(String str) {
-            if (!TextUtils.isEmpty(str)) {
-                for (Sharing s : values()) {
-                    if (s.value.equalsIgnoreCase(str)) return s;
-                }
-            }
-            return UNDEFINED;
-        }
-
-        public boolean isPublic() { return PUBLIC == this; }
-    }
 }

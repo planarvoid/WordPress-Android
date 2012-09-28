@@ -191,24 +191,25 @@ public class ApiSyncServiceTest {
     public void shouldSyncActivitiesIncoming() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         sync(svc, Content.ME_SOUND_STREAM,
-                "incoming_1.json",
-                "incoming_2.json");
+                "e1_stream.json",
+                "e1_stream_next.json");
 
         expect(Content.COLLECTIONS).toHaveCount(1);
         LocalCollection collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver, false);
 
         expect(collection).not.toBeNull();
         expect(collection.last_sync_success).toBeGreaterThan(0L);
-        expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
+        expect(collection.extra).toEqual("https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(99);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(100);
         expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(0);
-        expect(Content.TRACKS).toHaveCount(99);
-        expect(Content.USERS).toHaveCount(52);
+        expect(Content.TRACKS).toHaveCount(89);
+        expect(Content.USERS).toHaveCount(22);
 
         Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
-        expect(incoming.size()).toEqual(99);
+        expect(incoming.size()).toEqual(100);
+        expect(incoming.getUniqueTracks().size()).toEqual(89);
         assertResolverNotified(Content.ME_SOUND_STREAM.uri, Content.TRACKS.uri, Content.USERS.uri);
     }
 

@@ -17,7 +17,7 @@ public class TrackSharingTest {
     public void shouldBeParcelable() throws Exception {
         TrackSharingActivity ts = new TrackSharingActivity();
         ts.track = new Track();
-        ts.sharing_note = new TrackSharingActivity.SharingNote();
+        ts.sharing_note = new SharingNote();
         ts.sharing_note.created_at = new Date();
         ts.sharing_note.text = "cool";
 
@@ -36,7 +36,7 @@ public class TrackSharingTest {
     public void shouldTestSharingNoteEmpty() throws Exception {
         TrackSharingActivity ts = new TrackSharingActivity();
         ts.track = new Track();
-        ts.sharing_note = new TrackSharingActivity.SharingNote();
+        ts.sharing_note = new SharingNote();
         expect(ts.sharing_note.isEmpty()).toBeTrue();
         ts.sharing_note.text = "cool";
         expect(ts.sharing_note.isEmpty()).toBeFalse();

@@ -3,7 +3,18 @@ package com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 
+import android.database.Cursor;
+
 public class PlaylistRepostActivity extends Activity{
+
+    // for deserialization
+    public PlaylistRepostActivity() {
+
+    }
+
+    public PlaylistRepostActivity(Cursor c) {
+        super(c);
+    }
 
     @Override
     public Type getType() {

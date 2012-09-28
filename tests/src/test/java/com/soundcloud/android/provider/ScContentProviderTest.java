@@ -10,12 +10,14 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activity.Activities;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackHolder;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.service.sync.ApiSyncServiceTest;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import org.junit.Before;
@@ -116,20 +118,20 @@ public class ScContentProviderTest {
     @Test
     public void shouldIncludeUserPermalinkInTrackView() throws Exception {
         Activities activities = SoundCloudApplication.MODEL_MANAGER.fromJSON(
-                SyncAdapterService.class.getResourceAsStream("incoming_1.json"));
+                ApiSyncServiceTest.class.getResourceAsStream("e1_stream_1.json"));
 
         for (Track t : activities.getUniqueTracks()) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
             expect(resolver.insert(Content.TRACK.uri, t.buildContentValues())).not.toBeNull();
         }
 
-        expect(Content.TRACK).toHaveCount(50);
-        expect(Content.USERS).toHaveCount(32);
-        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(18876167l);       // jwagener/grand-piano-keys
+        expect(Content.TRACK).toHaveCount(20);
+        expect(Content.USERS).toHaveCount(9);
+        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(61350393l);
 
         expect(t).not.toBeNull();
-        expect(t.user.permalink).toEqual("jwagener");
-        expect(t.permalink).toEqual("grand-piano-keys");
+        expect(t.user.permalink).toEqual("westafricademocracyradio");
+        expect(t.permalink).toEqual("info-chez-vous-2012-27-09");
     }
 
     @Test
@@ -343,7 +345,7 @@ public class ScContentProviderTest {
     public void shouldHaveStreamEndpointWhichReturnsRandomItems() throws Exception {
         // TODO: find easier way to populate stream
         ApiSyncService svc = new ApiSyncService();
-        TestHelper.addCannedResponses(SyncAdapterServiceTest.class,  "incoming_2.json");
+        TestHelper.addCannedResponses(ApiSyncServiceTest.class,  "e1_stream_2.json");
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
         expect(Content.ME_SOUND_STREAM).toHaveCount(49);
 
@@ -369,7 +371,7 @@ public class ScContentProviderTest {
     public void shouldHaveStreamEndpointWhichOnlyReturnsCachedItems() throws Exception {
         // TODO: find easier way to populate stream
         ApiSyncService svc = new ApiSyncService();
-        TestHelper.addCannedResponses(SyncAdapterServiceTest.class,  "incoming_2.json");
+        TestHelper.addCannedResponses(ApiSyncServiceTest.class,  "e1_stream_2.json");
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
         expect(Content.ME_SOUND_STREAM).toHaveCount(49);
 

@@ -162,11 +162,10 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldSaveCurrentTracksToDB() throws Exception {
-        expect(Content.PLAYLIST).toBeEmpty();
-        expect(PlaylistUri.DEFAULT).toBeEmpty();
+        expect(Content.PLAY_QUEUE).toBeEmpty();
+        expect(Content.PLAY_QUEUE.uri).toBeEmpty();
         pm.setPlaylist(createTracks(10, true, 0), 0);
-        expect(Content.PLAYLIST).toHaveCount(1);
-        expect(PlaylistUri.DEFAULT).toHaveCount(10);
+        expect(Content.PLAY_QUEUE.uri).toHaveCount(10);
     }
 
     @Test
@@ -219,7 +218,7 @@ public class PlaylistManagerTest {
         pm.setPlaylist(createTracks(10, true, 0), 5);
         expect(pm.getCurrentTrack().id).toEqual(5L);
         expect(pm.getPlaylistState(123L)).toEqual(
-            PlaylistUri.DEFAULT + "?trackId=5&playlistPos=5&seekPos=123"
+                Content.PLAY_QUEUE.uri + "?trackId=5&playlistPos=5&seekPos=123"
         );
     }
 

@@ -121,10 +121,10 @@ public class SoundCloudDB {
             if (uri != null) {
                 ContentValues cv = new ContentValues();
                 switch (Content.match(uri)) {
-                    case PLAYLIST:
-                        cv.put(DBHelper.PlaylistItems.USER_ID, ownerId);
-                        cv.put(DBHelper.PlaylistItems.POSITION, i);
-                        cv.put(DBHelper.PlaylistItems.TRACK_ID, id);
+                    case PLAY_QUEUE:
+                        cv.put(DBHelper.PlayQueue.USER_ID, ownerId);
+                        cv.put(DBHelper.PlayQueue.POSITION, i);
+                        cv.put(DBHelper.PlayQueue.TRACK_ID, id);
                         break;
 
                     default:

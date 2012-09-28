@@ -26,9 +26,10 @@ public enum Table {
     ACTIVITIES("Activities", false, DBHelper.DATABASE_CREATE_ACTIVITIES),
     RECORDINGS("Recordings", false, DBHelper.DATABASE_CREATE_RECORDINGS, DBHelper.Recordings.ALL_FIELDS),
     SEARCHES("Searches", false, DBHelper.DATABASE_CREATE_SEARCHES),
+    PLAYLISTS("Playlists", false, DBHelper.DATABASE_CREATE_PLAYLISTS),
+    PLAYLIST_TRACKS("PlaylistTracks", false, DBHelper.DATABASE_CREATE_PLAYLIST_TRACKS),
 
-    PLAYLIST("Playlist", false, DBHelper.DATABASE_CREATE_PLAYLIST),
-    PLAYLIST_ITEMS("PlaylistItems", false, DBHelper.DATABASE_CREATE_PLAYLIST_ITEMS),
+    PLAY_QUEUE("PlayQueue", false, DBHelper.DATABASE_CREATE_PLAY_QUEUE),
 
     COLLECTION_ITEMS("CollectionItems", false, DBHelper.DATABASE_CREATE_COLLECTION_ITEMS),
     COLLECTIONS("Collections", false, DBHelper.DATABASE_CREATE_COLLECTIONS),

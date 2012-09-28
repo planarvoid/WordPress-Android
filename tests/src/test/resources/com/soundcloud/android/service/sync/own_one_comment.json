@@ -4,7 +4,8 @@
       "created_at": "2011/05/29 11:53:09 +0000",
       "type": "comment",
       "tags": "own, affiliated",
-      "origin": {
+      "uuid": "b035de80-6dc9-11e1-84dc-e1bbf59e9e64",
+      "comment": {
         "created_at": "2011/05/29 11:51:16 +0000",
         "user": {
           "avatar_url": "http://i1.sndcdn.com/avatars-000003575192-wqnp00-large.jpg?8935bc4",

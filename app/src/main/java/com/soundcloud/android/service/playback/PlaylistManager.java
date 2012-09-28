@@ -5,8 +5,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -243,7 +241,7 @@ public class PlaylistManager {
         broadcastPlaylistChanged();
     }
 
-    private void persistPlaylist(final Uri playlistUri) {
+    private void persistPlaylist() {
         if (mUserId < 0) return;
 
         new AsyncTask<Void, Void, Void>() {
@@ -251,8 +249,9 @@ public class PlaylistManager {
             protected Void doInBackground(Void... params) {
                 List<Track> tracks = new ArrayList<Track>();
                 Collections.addAll(tracks, mPlaylist);
-                mContext.getContentResolver().delete(playlistUri, null, null);
-                SoundCloudApplication.MODEL_MANAGER.writeCollection(tracks, playlistUri, mUserId, ScModel.CacheUpdateMode.NONE);
+                mContext.getContentResolver().delete(Content.PLAY_QUEUE.uri, null, null);
+                SoundCloudApplication.MODEL_MANAGER.writeCollection(tracks, Content.PLAY_QUEUE.uri,
+                        mUserId, ScModel.CacheUpdateMode.NONE);
                 return null;
             }
         }.execute((Void[]) null);
@@ -272,7 +271,7 @@ public class PlaylistManager {
 
     public void saveQueue(long seekPos, boolean persistTracks) {
         if (SoundCloudApplication.getUserIdFromContext(mContext) >= 0) {
-            if (persistTracks) persistPlaylist(PlaylistUri.DEFAULT);
+            if (persistTracks) persistPlaylist();
             SharedPreferencesUtils.apply(PreferenceManager.getDefaultSharedPreferences(mContext).edit()
                     .putString(Consts.PrefKeys.SC_PLAYLIST_URI, getPlaylistState(seekPos).toString()));
         }
@@ -328,8 +327,7 @@ public class PlaylistManager {
 
 
     public static void clearState(Context context) {
-        context.getContentResolver().delete(Content.PLAYLISTS.uri, null, null);
-        context.getContentResolver().delete(PlaylistUri.DEFAULT, null, null);
+        context.getContentResolver().delete(Content.PLAY_QUEUE.uri, null, null);
         clearLastPlayed(context);
     }
 

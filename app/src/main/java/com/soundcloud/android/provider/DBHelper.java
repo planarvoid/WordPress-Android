@@ -141,6 +141,43 @@ public class DBHelper extends SQLiteOpenHelper {
             "user_id INTEGER" +
             ");";
 
+    static final String DATABASE_CREATE_PLAYLISTS = "("+
+                "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "tracks_uri VARCHAR(255)," +
+                "last_updated INTEGER," +
+                "permalink VARCHAR(255)," +
+                "duration INTEGER," +
+                "state VARCHAR(50)," +
+                "created_at INTEGER," +
+                "tag_list VARCHAR(255)," +
+                "track_type VARCHAR(255)," +
+                "title VARCHAR(255)," +
+                "permalink_url VARCHAR(255)," +
+                "artwork_url VARCHAR(255), " +
+                "waveform_url VARCHAR(255), " +
+                "downloadable BOOLEAN, " +
+                "commentable BOOLEAN, " +
+                "download_url VARCHAR(255), " +
+                "stream_url VARCHAR(255)," +
+                "streamable BOOLEAN DEFAULT 0, " +
+                "sharing VARCHAR(255)," +
+                "playback_count INTEGER," +
+                "download_count INTEGER," +
+                "comment_count INTEGER," +
+                "favoritings_count INTEGER," +
+                "shared_to_count INTEGER," +
+                "sharing_note_text VARCHAR(255),"+
+                "user_id INTEGER" +
+                ");";
+
+    static final String DATABASE_CREATE_PLAYLIST_TRACKS = "(" +
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "playlist_id INTEGER, " +
+            "track_id INTEGER," +
+            "position INTEGER," +
+            "UNIQUE (track_id, position, playlist_id) ON CONFLICT IGNORE" +
+            ");";
+
 
     static final String DATABASE_CREATE_TRACK_METADATA = "("+
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -248,17 +285,8 @@ public class DBHelper extends SQLiteOpenHelper {
             "UNIQUE (user_id, search_type, query) ON CONFLICT REPLACE"+
             ");";
 
-    static final String DATABASE_CREATE_PLAYLIST = "("+
+    static final String DATABASE_CREATE_PLAY_QUEUE = "("+
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            "created_at INTEGER," +
-            "position INTEGER," +
-            "seek_pos INTEGER," +
-            "user_id INTEGER"+
-            ");";
-
-    static final String DATABASE_CREATE_PLAYLIST_ITEMS = "("+
-            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            "playlist_id INTEGER," +
             "track_id INTEGER," +
             "position INTEGER," +
             "user_id INTEGER, "+
@@ -367,16 +395,12 @@ public class DBHelper extends SQLiteOpenHelper {
             ",Comments." + Comments.CREATED_AT + " as " + ActivityView.COMMENT_CREATED_AT +
             ",Comments." + Comments.TIMESTAMP + " as " +ActivityView.COMMENT_TIMESTAMP +
             " FROM Activities" +
-            " JOIN Users ON(" +
+            " LEFT JOIN Users ON(" +
             "   Activities." + Activities.USER_ID + " = " + "Users." + Users._ID + ")" +
             " LEFT JOIN TrackView ON(" +
             "   Activities." + Activities.TRACK_ID + " = " + "TrackView." + TrackView._ID + ")" +
             " LEFT JOIN Comments ON(" +
             "   Activities." + Activities.COMMENT_ID + " = " + "Comments." + Comments._ID + ")" +
-            " LEFT JOIN Activities dup ON(" +
-            "   dup.track_id = Activities.track_id AND dup.type_id = '"+ Activity.Type.TRACK.ordinal() + "'" +
-            "   AND Activities.type_id = '"+ Activity.Type.TRACK_SHARING.ordinal() + "')" +
-            " WHERE dup._id IS NULL" +
             " ORDER BY " + ActivityView.CREATED_AT + " DESC"
             ;
 
@@ -580,10 +604,9 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper#DATABASE_CREATE_PLAYLIST_ITEMS}
+     * {@link DBHelper#DATABASE_CREATE_PLAY_QUEUE_ITEMS}
      */
-    public final static class PlaylistItems implements BaseColumns{
-        public static final String PLAYLIST_ID = "playlist_id";
+    public final static class PlayQueue implements BaseColumns{
         public static final String TRACK_ID = "track_id";
         public static final String POSITION = "position";
         public static final String USER_ID = "user_id";
@@ -722,8 +745,7 @@ public class DBHelper extends SQLiteOpenHelper {
             Table.COLLECTIONS.create(db);
             Table.COLLECTION_PAGES.create(db);
             Table.COLLECTION_ITEMS.create(db);
-            Table.PLAYLIST.create(db);
-            Table.PLAYLIST_ITEMS.create(db);
+            Table.PLAY_QUEUE.create(db);
             return true;
 
         } catch (SQLException e) {
@@ -811,8 +833,16 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static boolean upgradeTo16(SQLiteDatabase db, int oldVersion) {
         try {
+            // legacy tables
+            db.execSQL("DROP TABLE IF EXISTS PlaylistItems");
+            db.execSQL("DROP TABLE IF EXISTS Playlist");
+
             cleanActivities(db);
             Table.ACTIVITY_VIEW.recreate(db);
+            Table.PLAYLISTS.create(db);
+            Table.PLAYLIST_TRACKS.create(db);
+            Table.PLAY_QUEUE.create(db);
+
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade16 " +

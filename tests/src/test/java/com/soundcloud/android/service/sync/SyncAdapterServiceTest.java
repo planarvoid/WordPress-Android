@@ -15,6 +15,7 @@ import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.model.Activity.Activities;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -81,37 +82,37 @@ public class SyncAdapterServiceTest {
 
     @Test
     public void testIncomingNotificationMessage() throws Exception {
-        Activities activities = SoundCloudApplication.MODEL_MANAGER.fromJSON(getClass().getResourceAsStream("incoming_2.json"));
+        Activities activities = SoundCloudApplication.MODEL_MANAGER.fromJSON(getClass().getResourceAsStream("e1_stream.json"));
         String message = Message.getIncomingNotificationMessage(
                 DefaultTestRunner.application, activities);
 
-        expect(message).toEqual("from All Tomorrows Parties, DominoRecordCo and others");
+        expect(message).toEqual("from The Takeaway, WADR and others");
     }
 
     @Test
     public void testExclusiveNotificationMessage() throws Exception {
-        Activities events = SoundCloudApplication.MODEL_MANAGER.fromJSON(getClass().getResourceAsStream("incoming_2.json"));
+        Activities events = SoundCloudApplication.MODEL_MANAGER.fromJSON(getClass().getResourceAsStream("e1_stream_1.json"));
         String message = Message.getExclusiveNotificationMessage(
                 DefaultTestRunner.application, events);
 
-        expect(message).toEqual("exclusives from All Tomorrows Parties, DominoRecordCo and others");
+        expect(message).toEqual("exclusives from Playback Media, The Takeaway and others");
     }
 
     @Test
     public void shouldNotifyIfSyncedBefore() throws Exception {
-        addCannedActivities("incoming_2.json", "empty_events.json", "empty_events.json");
+        addCannedActivities("e1_stream_1_oldest.json", "empty_events.json", "empty_events.json");
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, null);
 
         expect(result.getInfo().getContentText().toString()).toEqual(
-            "from All Tomorrows Parties, DominoRecordCo and others");
+            "from Playback Media, The Takeaway and others");
         expect(result.getInfo().getContentTitle().toString()).toEqual(
-            "49 new sounds");
+            "26 new sounds");
         expect(result.getIntent().getAction()).toEqual(Actions.STREAM);
     }
 
     @Test
     public void shouldNotRepeatNotification() throws Exception {
-        addCannedActivities("incoming_2.json", "empty_events.json", "own_2.json");
+        addCannedActivities("e1_stream_1_oldest.json", "empty_events.json", "e1_activities_1_oldest.json");
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, null);
 
         expect(result.notifications.size()).toEqual(2);
@@ -124,7 +125,7 @@ public class SyncAdapterServiceTest {
 
     @Test
     public void shouldNotifyAboutIncomingAndExclusives() throws Exception {
-        addCannedActivities("incoming_2.json", "exclusives_1.json", "empty_events.json");
+        addCannedActivities("e1_stream_1_oldest.json", "e1_stream_2_oldest.json", "empty_events.json");
 
         SoundCloudApplication app = DefaultTestRunner.application;
         List<NotificationInfo> notifications = doPerformSync(app, false, null).notifications;
@@ -132,33 +133,33 @@ public class SyncAdapterServiceTest {
         expect(notifications.size()).toEqual(1);
         NotificationInfo n = notifications.get(0);
         expect(n.info.getContentTitle().toString())
-                .toEqual("53 new sounds");
+                .toEqual("44 new sounds");
 
         expect(n.info.getContentText().toString())
-                .toEqual("exclusives from jberkel_testing, xla and others");
+                .toEqual("exclusives from The Takeaway, WADR and others");
 
         expect(n.getIntent().getAction()).toEqual(Actions.STREAM);
     }
 
     @Test
     public void shouldSendTwoSeparateNotifications() throws Exception {
-        addCannedActivities("incoming_2.json", "empty_events.json", "own_1.json", "own_2.json");
+        addCannedActivities("e1_stream_1_oldest.json", "empty_events.json", "e1_activities_2.json", "e1_activities_1_oldest.json");
 
         List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false, null).notifications;
         expect(notifications.size()).toEqual(2);
 
         expect(notifications.get(0).info.getContentTitle().toString())
-                .toEqual("49 new sounds");
+                .toEqual("26 new sounds");
         expect(notifications.get(0).info.getContentText().toString())
-                .toEqual("from All Tomorrows Parties, DominoRecordCo and others");
+                .toEqual("from Playback Media, The Takeaway and others");
 
         expect(notifications.get(0).getIntent().getAction())
                 .toEqual(Actions.STREAM);
 
         expect(notifications.get(1).info.getContentTitle().toString())
-                .toEqual("41 new activities");
+                .toEqual("17 new activities");
         expect(notifications.get(1).info.getContentText().toString())
-                .toEqual("Comments and likes from Paul Ko, jensnikolaus and others");
+                .toEqual("Comments and likes from Vicious Lobo, fewsel and others");
 
         expect(notifications.get(1).getIntent().getAction())
                 .toEqual(Actions.ACTIVITY);
@@ -248,8 +249,8 @@ public class SyncAdapterServiceTest {
     @Test
     public void shouldNotify99PlusItems() throws Exception {
         addCannedActivities(
-                "incoming_1.json",
-                "incoming_2.json",
+                "e1_stream_2.json",
+                "e1_stream_1.json",
                 "exclusives_1.json",
                 "empty_events.json");
 

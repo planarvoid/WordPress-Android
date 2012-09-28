@@ -6,6 +6,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.Activity.Activity;
 import com.soundcloud.android.model.Activity.CommentActivity;
 import com.soundcloud.android.model.Activity.TrackActivity;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,34 +18,6 @@ import java.util.UUID;
 
 @RunWith(DefaultTestRunner.class)
 public class ActivityTest {
-    @Test
-    public void testEquals() throws Exception {
-        TrackActivity a1 = new TrackActivity();
-        TrackActivity a2 = new TrackActivity();
-
-        a1.track = new Track() { { id = 10L; } };
-        a2.track = new Track() { { id = 10L; } };
-
-        expect(a1).toEqual(a2);
-
-        a1.id = 20;  // Activity is not id based
-        expect(a1).toEqual(a2);
-        expect(a1.hashCode()).toEqual(a2.hashCode());
-
-        Date d = new Date();
-        a1.created_at = d;
-        expect(a1).not.toEqual(a2);
-        a2.created_at = d;
-
-        expect(a1).toEqual(a2);
-
-        a1.tags = "foo";
-
-        expect(a1).not.toEqual(a2);
-        a2.tags = a1.tags;
-
-        expect(a1).toEqual(a2);
-    }
 
     @Test
     public void shouldGenerateAGuidBasedOnCreatedAt() throws Exception {
@@ -75,10 +48,10 @@ public class ActivityTest {
 
         ContentValues cv = a.buildContentValues();
 
-        expect(cv.getAsString("tags")).toEqual("foo");
-        expect(cv.getAsString("type")).toEqual("track");
-        expect(cv.getAsLong("track_id")).toEqual(10L);
-        expect(cv.getAsLong("created_at")).toEqual(date.getTime());
+        expect(cv.getAsString(DBHelper.Activities.TAGS)).toEqual("foo");
+        expect(cv.getAsInteger(DBHelper.Activities.TYPE_ID)).toEqual(Activity.Type.TRACK.ordinal());
+        expect(cv.getAsLong(DBHelper.Activities.TRACK_ID)).toEqual(10L);
+        expect(cv.getAsLong(DBHelper.Activities.CREATED_AT)).toEqual(date.getTime());
     }
 
     @Test
@@ -90,10 +63,10 @@ public class ActivityTest {
         a.comment = new Comment() { { id = 10L; } };
 
         ContentValues cv = a.buildContentValues();
-        expect(cv.getAsString("tags")).toEqual("foo");
-        expect(cv.getAsString("type")).toEqual("comment");
-        expect(cv.getAsLong("comment_id")).toEqual(10L);
-        expect(cv.getAsLong("created_at")).toEqual(date.getTime());
+        expect(cv.getAsString(DBHelper.Activities.TAGS)).toEqual("foo");
+        expect(cv.getAsInteger(DBHelper.Activities.TYPE_ID)).toEqual(Activity.Type.COMMENT.ordinal());
+        expect(cv.getAsLong(DBHelper.Activities.COMMENT_ID)).toEqual(10L);
+        expect(cv.getAsLong(DBHelper.Activities.CREATED_AT)).toEqual(date.getTime());
     }
 
     @Test

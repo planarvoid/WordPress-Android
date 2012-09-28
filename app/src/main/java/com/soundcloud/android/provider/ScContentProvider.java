@@ -239,17 +239,16 @@ public class ScContentProvider extends ContentProvider {
             case COMMENTS:
                 qb.setTables(content.table.name);
                 break;
-            case PLAYLISTS:
+            case PLAY_QUEUE_ITEM:
                 qb.setTables(content.table.name);
                 qb.appendWhere("_id = "+ userId);
                 break;
 
-            case PLAYLIST:
-                qb.setTables(Table.TRACK_VIEW + " INNER JOIN " + Table.PLAYLIST_ITEMS.name +
-                        " ON (" + Table.TRACK_VIEW.id + " = " + DBHelper.PlaylistItems.TRACK_ID + ")");
+            case PLAY_QUEUE:
+                qb.setTables(Table.TRACK_VIEW + " INNER JOIN " + Table.PLAY_QUEUE.name +
+                        " ON (" + Table.TRACK_VIEW.id + " = " + DBHelper.PlayQueue.TRACK_ID + ")");
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
-                qb.appendWhere(Table.PLAYLIST_ITEMS.name+"."+ DBHelper.PlaylistItems.USER_ID + " = " + userId);
-                qb.appendWhere(" AND "+DBHelper.PlaylistItems.PLAYLIST_ID + " = " + uri.getLastPathSegment());
+                qb.appendWhere(Table.PLAY_QUEUE.name+"."+ DBHelper.PlayQueue.USER_ID + " = " + userId);
                 _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
             case ANDROID_SEARCH_SUGGEST:
@@ -393,10 +392,6 @@ public class ScContentProvider extends ContentProvider {
                 break;
             case PLAYLISTS:
                 break;
-            case PLAYLIST:
-                where = TextUtils.isEmpty(where) ? DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment()
-                        : where + " AND " + DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment();
-                break;
             case ME_ALL_ACTIVITIES:
                 break;
             case ME_ACTIVITIES:
@@ -409,6 +404,8 @@ public class ScContentProvider extends ContentProvider {
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 break;
             case RECORDINGS:
+                break;
+            case PLAY_QUEUE:
                 break;
             case ME_TRACKS:
             case ME_FAVORITES:
@@ -483,7 +480,7 @@ public class ScContentProvider extends ContentProvider {
                                         + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
                                         + " AND  " + DBHelper.CollectionItems.ITEM_ID + " =  " + DBHelper.Tracks._ID
                                     + " UNION SELECT DISTINCT " + DBHelper.ActivityView.TRACK_ID + " FROM "+ Table.ACTIVITIES.name
-                                    + " UNION SELECT DISTINCT " + DBHelper.PlaylistItems.TRACK_ID + " FROM "+ Table.PLAYLIST_ITEMS.name
+                                    + " UNION SELECT DISTINCT " + DBHelper.PlayQueue.TRACK_ID + " FROM "+ Table.PLAY_QUEUE.name
                                     + ")"
                                 + ")";
 
@@ -542,6 +539,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_SOUND_STREAM:
             case ME_EXCLUSIVE_STREAM:
             case ME_ACTIVITIES:
+            case PLAY_QUEUE:
                 table = content.table;
                 break;
 
@@ -559,11 +557,6 @@ public class ScContentProvider extends ContentProvider {
             case SEARCHES_TRACK:
                 table = Table.COLLECTION_ITEMS;
                 extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(content.collectionType)};
-                break;
-
-            case PLAYLIST:
-                table = content.table;
-                extraCV = new String[]{DBHelper.PlaylistItems.PLAYLIST_ID, String.valueOf(uri.getLastPathSegment())};
                 break;
 
             default:

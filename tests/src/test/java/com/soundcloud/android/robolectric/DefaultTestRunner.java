@@ -29,12 +29,12 @@ public class DefaultTestRunner extends RobolectricTestRunner {
     public DefaultTestRunner(Class testClass) throws InitializationError {
         super(testClass,new RobolectricConfig(new File("../app")));
 
-        /*super(testClass,  new RobolectricConfig(new File("../app")), new SQLiteMap(){
-            @Override
-            public String getConnectionString() {
-                return "jdbc:sqlite:test.sql";
-            }
-        });*/
+//        super(testClass,  new RobolectricConfig(new File("../app")), new SQLiteMap(){
+//            @Override
+//            public String getConnectionString() {
+//                return "jdbc:sqlite:test.sqlite";
+//            }
+//        });
 
         // remove native calls + replace with shadows
         addClassOrPackageToInstrument("com.soundcloud.android.jni.VorbisEncoder");
