@@ -4,6 +4,7 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Activity.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.HttpUtils;
@@ -236,8 +237,10 @@ public class ScContentProvider extends ContentProvider {
             case ME_ACTIVITIES:
                 qb.setTables(Table.ACTIVITY_VIEW.name);
                 if (content != Content.ME_ALL_ACTIVITIES) {
-                    // TODO prepared query
-                    qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id);
+                    qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id + " AND " +
+                            DBHelper.ActivityView.TYPE_ID + " != " + Activity.Type.AFFILIATION.ordinal() + " AND (" + // remove affiliations
+                            DBHelper.ActivityView.TYPE_ID + " < " + Activity.Type.PLAYLIST.ordinal() +
+                            " OR " + DBHelper.ActivityView.TYPE_ID + " > " + Activity.Type.PLAYLIST_SHARING.ordinal() + ")"); // remove playlists
                 }
                 _sortOrder = makeActivitiesSort(uri, sortOrder);
                 break;

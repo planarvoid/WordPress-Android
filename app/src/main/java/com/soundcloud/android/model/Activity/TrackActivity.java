@@ -1,13 +1,14 @@
 package com.soundcloud.android.model.Activity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 
 import android.database.Cursor;
 
-public class TrackActivity extends Activity {
+public class TrackActivity extends Activity implements Playable {
     public Track track;
 
     // for deserialization

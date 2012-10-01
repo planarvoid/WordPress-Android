@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SharingNote;
 import com.soundcloud.android.model.Track;
@@ -15,7 +16,7 @@ import android.os.Parcelable;
 
 import java.util.Date;
 
-public class TrackSharingActivity extends Activity {
+public class TrackSharingActivity extends Activity implements Playable {
     @JsonProperty @JsonView(Views.Mini.class) public Track track;
     @JsonProperty @JsonView(Views.Mini.class) public SharingNote sharing_note;
 

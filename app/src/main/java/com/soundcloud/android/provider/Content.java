@@ -4,6 +4,7 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 
 import android.util.SparseArray;
 
+import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.Activity.Activity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Recording;
@@ -39,9 +40,9 @@ public enum Content  {
     ME_USERID("me/userid", null, 111, null, -1, null),
 
     // the ids of the following entries should not be changed, they are referenced in th db
-    ME_SOUND_STREAM("me/activities/tracks", Endpoints.MY_ACTIVITIES, 140, Activity.class, -1, Table.ACTIVITIES),
-    ME_EXCLUSIVE_STREAM("me/activities/tracks/exclusive", Endpoints.MY_EXCLUSIVE_TRACKS, 141, Activity.class, -1, Table.ACTIVITIES),
-    ME_ACTIVITIES("me/activities/all/own", Endpoints.MY_NEWS, 142, Activity.class, -1, Table.ACTIVITIES),
+    ME_SOUND_STREAM("me/activities/tracks", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),
+    ME_EXCLUSIVE_STREAM("me/activities/tracks/exclusive", TempEndpoints.e1.MY_EXCLUSIVE_STREAM, 141, Activity.class, -1, Table.ACTIVITIES),
+    ME_ACTIVITIES("me/activities/all/own", TempEndpoints.e1.MY_ACTIVITIES, 142, Activity.class, -1, Table.ACTIVITIES),
     ME_ALL_ACTIVITIES("me/activities", null, 150, Activity.class, -1, Table.ACTIVITIES),
 
     ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, User.class, FRIEND, null),

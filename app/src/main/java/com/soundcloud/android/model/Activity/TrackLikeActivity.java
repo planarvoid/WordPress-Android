@@ -1,6 +1,7 @@
 package com.soundcloud.android.model.Activity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -10,7 +11,7 @@ import android.database.Cursor;
 
 import java.util.List;
 
-public class TrackLikeActivity extends Activity {
+public class TrackLikeActivity extends Activity implements Playable {
     public User user;
     public Track track;
 

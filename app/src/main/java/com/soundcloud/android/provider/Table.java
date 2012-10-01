@@ -37,8 +37,7 @@ public enum Table {
 
     // views
     TRACK_VIEW("TrackView", true, DBHelper.DATABASE_CREATE_TRACK_VIEW),
-    ACTIVITY_VIEW("ActivityView", true, DBHelper.DATABASE_CREATE_ACTIVITY_VIEW),
-    ;
+    ACTIVITY_VIEW("ActivityView", true, DBHelper.DATABASE_CREATE_ACTIVITY_VIEW);
 
 
     public final String name;

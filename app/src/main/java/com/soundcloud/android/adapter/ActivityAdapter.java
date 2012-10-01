@@ -44,6 +44,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
+            case TRACK_REPOST:
                 return new TrackInfoBar(mContext, this);
 
             case COMMENT:
@@ -51,9 +52,9 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
 
             case TRACK_LIKE:
                 return new LikeRow(mContext, this);
-            case PLAYLIST:
+
             default:
-                throw new IllegalArgumentException("no view for playlists yet");
+                throw new IllegalArgumentException("no view for " + type + " yet");
         }
     }
 
