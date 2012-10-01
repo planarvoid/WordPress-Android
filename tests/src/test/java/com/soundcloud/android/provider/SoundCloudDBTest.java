@@ -253,6 +253,7 @@ public class SoundCloudDBTest {
         items.add(f);
         items.add(t);
         items.add(u2_);
+        items.add(null);
         return items;
     }
 }
