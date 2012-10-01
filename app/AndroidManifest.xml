@@ -161,13 +161,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.Dashboard" >
-            <intent-filter>
-                <!-- not used anymore, but there are still some shortcuts around -->
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-
         <activity android:name=".activity.ScPlayer"
                   android:label="SoundCloud Player"
                   android:windowSoftInputMode="adjustPan"
