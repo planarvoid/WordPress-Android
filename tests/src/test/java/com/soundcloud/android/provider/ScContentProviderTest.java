@@ -345,9 +345,9 @@ public class ScContentProviderTest {
     public void shouldHaveStreamEndpointWhichReturnsRandomItems() throws Exception {
         // TODO: find easier way to populate stream
         ApiSyncService svc = new ApiSyncService();
-        TestHelper.addCannedResponses(ApiSyncServiceTest.class,  "e1_stream_2.json");
+        TestHelper.addCannedResponses(ApiSyncServiceTest.class,  "e1_stream_2_oldest.json");
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(49);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(28);
 
         ContentValues cv = new ContentValues();
         final long firstId = 18508668l;
@@ -358,7 +358,7 @@ public class ScContentProviderTest {
         Uri uri = Content.ME_SOUND_STREAM.withQuery(RANDOM, "1", LIMIT, "5");
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(5);
-        long[] sorted = new long[] {18508668, 18508600, 18508493, 18028217, 18223729};
+        long[] sorted = new long[] {61467451, 61465333, 61454101, 61451011, 61065502};
         long[] result = new long[sorted.length];
         int i=0;
         while (c.moveToNext()) {
@@ -371,12 +371,12 @@ public class ScContentProviderTest {
     public void shouldHaveStreamEndpointWhichOnlyReturnsCachedItems() throws Exception {
         // TODO: find easier way to populate stream
         ApiSyncService svc = new ApiSyncService();
-        TestHelper.addCannedResponses(ApiSyncServiceTest.class,  "e1_stream_2.json");
+        TestHelper.addCannedResponses(ApiSyncServiceTest.class,  "e1_stream_2_oldest.json");
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(49);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(28);
 
         ContentValues cv = new ContentValues();
-        final long cachedId = 18508668l;
+        final long cachedId = 61467451l;
         cv.put(DBHelper.TrackMetadata._ID, cachedId);
         cv.put(DBHelper.TrackMetadata.CACHED, 1);
         resolver.insert(Content.TRACK_METADATA.uri, cv);

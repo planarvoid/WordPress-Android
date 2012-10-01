@@ -413,7 +413,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /**
      * {@link DBHelper#DATABASE_CREATE_TRACKS}
      */
-    public static final class Tracks extends ResourceTable  {
+    public static class Tracks extends ResourceTable  {
         public static final String DURATION = "duration";
         public static final String TAG_LIST = "tag_list";
         public static final String TRACK_TYPE = "track_type";
@@ -444,6 +444,21 @@ public class DBHelper extends SQLiteOpenHelper {
                 USER_ID, STATE, CREATED_AT, PERMALINK, LAST_UPDATED
         };
     }
+
+    /**
+        * {@link DBHelper#DATABASE_CREATE_TRACKS}
+        */
+       public static final class Playlists extends Tracks  {
+        public static final String TRACKS_URI = "tracks_uri";
+
+           public static final String[] ALL_FIELDS = {
+                   _ID, TRACKS_URI, DURATION, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL, ARTWORK_URL,
+                   WAVEFORM_URL, DOWNLOADABLE, DOWNLOAD_URL, STREAM_URL, STREAM_URL,
+                   STREAMABLE, COMMENTABLE, SHARING, PLAYBACK_COUNT, DOWNLOAD_COUNT,
+                   COMMENT_COUNT, FAVORITINGS_COUNT, SHARED_TO_COUNT, SHARING_NOTE_TEXT,
+                   USER_ID, STATE, CREATED_AT, PERMALINK, LAST_UPDATED
+           };
+       }
 
     /**
      * {@link DBHelper#DATABASE_CREATE_TRACK_METADATA}

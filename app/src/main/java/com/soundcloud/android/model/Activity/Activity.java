@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
@@ -177,6 +178,8 @@ public abstract class Activity extends ScModel implements Refreshable, Comparabl
 
     public abstract User getUser();
 
+    public abstract Playlist getPlaylist();
+
     public abstract void setCachedTrack(Track track);
 
     public abstract void setCachedUser(User user);
@@ -184,8 +187,25 @@ public abstract class Activity extends ScModel implements Refreshable, Comparabl
 
     public List<ScResource> getDependentModels() {
         List<ScResource> models = new ArrayList<ScResource>();
-        if (getTrack() != null) models.add(getTrack());
-        if (getUser() != null)  models.add(getUser());
+        final User user = getUser();
+        if (user != null)  models.add(user);
+
+        final Track track = getTrack();
+        if (track != null) {
+            models.add(track);
+            if (track.user != null && track.user != user){
+                models.add(track.user);
+            }
+        }
+
+        final Playlist playlist = getPlaylist();
+        if (playlist != null) {
+            models.add(playlist);
+            if (playlist.user != null && playlist.user != user) {
+                models.add(playlist.user);
+            }
+        }
+
         return models;
     }
 

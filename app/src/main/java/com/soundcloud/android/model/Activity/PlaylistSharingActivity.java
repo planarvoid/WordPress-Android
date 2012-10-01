@@ -1,9 +1,11 @@
 package com.soundcloud.android.model.Activity;
 
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 
 public class PlaylistSharingActivity extends Activity {
+    public Playlist playlist;
 
     @Override
     public Type getType() {
@@ -18,6 +20,11 @@ public class PlaylistSharingActivity extends Activity {
     @Override
     public User getUser() {
         return null;
+    }
+
+    @Override
+    public Playlist getPlaylist() {
+        return playlist;
     }
 
     @Override

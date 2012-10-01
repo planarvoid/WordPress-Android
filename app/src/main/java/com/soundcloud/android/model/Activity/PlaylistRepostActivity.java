@@ -1,11 +1,13 @@
 package com.soundcloud.android.model.Activity;
 
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 
 import android.database.Cursor;
 
 public class PlaylistRepostActivity extends Activity{
+    public Playlist playlist;
 
     // for deserialization
     public PlaylistRepostActivity() {
@@ -29,6 +31,11 @@ public class PlaylistRepostActivity extends Activity{
     @Override
     public User getUser() {
         return null;
+    }
+
+    @Override
+    public Playlist getPlaylist() {
+        return playlist;
     }
 
     @Override

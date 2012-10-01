@@ -1,5 +1,5 @@
 {
-  "next_href": "",
+  "next_href": "https://api.soundcloud.com/e1/me/stream?cursor=79fd0100-07e3423423064fb"
   "collection": [
     {
       "track": {
@@ -7,7 +7,7 @@
         "release_year": null,
         "id": 61239846,
         "playback_count": 1966,
-        "permalink_url": "http://soundcloud.com/robbabicz/robert-babicz-magen-1998",
+        "permalink_url": "http://3soundcloud.com/robbabicz/robert-babicz-magen-1998",
         "bpm": null,
         "tag_list": "",
         "commentable": true,

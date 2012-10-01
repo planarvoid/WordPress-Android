@@ -192,7 +192,7 @@ public class ApiSyncServiceTest {
         ApiSyncService svc = new ApiSyncService();
         sync(svc, Content.ME_SOUND_STREAM,
                 "e1_stream.json",
-                "e1_stream_next.json");
+                "e1_stream_oldest.json");
 
         expect(Content.COLLECTIONS).toHaveCount(1);
         LocalCollection collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver, false);
@@ -201,15 +201,16 @@ public class ApiSyncServiceTest {
         expect(collection.last_sync_success).toBeGreaterThan(0L);
         expect(collection.extra).toEqual("https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(100);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(120);
         expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(0);
-        expect(Content.TRACKS).toHaveCount(89);
-        expect(Content.USERS).toHaveCount(22);
+        expect(Content.TRACKS).toHaveCount(111);
+        expect(Content.USERS).toHaveCount(27);
+        expect(Content.PLAYLISTS).toHaveCount(8);
 
         Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
-        expect(incoming.size()).toEqual(100);
-        expect(incoming.getUniqueTracks().size()).toEqual(89);
+        expect(incoming.size()).toEqual(120);
+        expect(incoming.getUniqueTracks().size()).toEqual(111); // currently excluding playlists
         assertResolverNotified(Content.ME_SOUND_STREAM.uri, Content.TRACKS.uri, Content.USERS.uri);
     }
 
@@ -260,14 +261,14 @@ public class ApiSyncServiceTest {
         ApiSyncService svc = new ApiSyncService();
 
         sync(svc, Content.ME_ACTIVITIES,
-                "own_1.json",
-                "own_2.json");
+                "e1_activities_1.json",
+                "e1_activities_2.json");
 
-        expect(Content.ME_ACTIVITIES).toHaveCount(41);
-        expect(Content.COMMENTS).toHaveCount(15);
+        expect(Content.ME_ACTIVITIES).toHaveCount(17);
+        expect(Content.COMMENTS).toHaveCount(5);
 
         Activities own = Activities.getSince(Content.ME_ACTIVITIES, resolver, -1);
-        expect(own.size()).toEqual(41);
+        expect(own.size()).toEqual(17);
         assertResolverNotified(Content.TRACKS.uri,
                 Content.USERS.uri,
                 Content.COMMENTS.uri,
@@ -278,34 +279,34 @@ public class ApiSyncServiceTest {
     public void shouldSyncThenAppend() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         sync(svc, Content.ME_ACTIVITIES,
-                "own_1.json",
-                "own_2.json");
+                "e1_activities_1.json",
+                "e1_activities_2.json");
 
-        expect(Content.ME_ACTIVITIES).toHaveCount(41);
-        expect(Content.COMMENTS).toHaveCount(15);
+        expect(Content.ME_ACTIVITIES).toHaveCount(17);
+        expect(Content.COMMENTS).toHaveCount(5);
 
         append(svc, Content.ME_ACTIVITIES,
                 "own_append.json");
 
-        expect(Content.ME_ACTIVITIES).toHaveCount(42);
-        expect(Content.COMMENTS).toHaveCount(16);
+        expect(Content.ME_ACTIVITIES).toHaveCount(18);
+        expect(Content.COMMENTS).toHaveCount(6);
     }
 
     @Test
     public void shouldStopSyncingIfAppendReturnsSameResult() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         sync(svc, Content.ME_ACTIVITIES,
-                "own_1.json",
-                "own_2.json");
+                "e1_activities_1.json",
+                                "e1_activities_2.json");
 
-        expect(Content.ME_ACTIVITIES).toHaveCount(41);
+        expect(Content.ME_ACTIVITIES).toHaveCount(17);
 
         for (int i=0; i<3; i++)
             append(svc, Content.ME_ACTIVITIES,
                     "own_append.json");
 
-        expect(Content.ME_ACTIVITIES).toHaveCount(42);
-        expect(Content.COMMENTS).toHaveCount(16);
+        expect(Content.ME_ACTIVITIES).toHaveCount(18);
+        expect(Content.COMMENTS).toHaveCount(6);
     }
 
 
@@ -313,31 +314,31 @@ public class ApiSyncServiceTest {
     public void shouldSyncDifferentEndoints() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         sync(svc, Content.ME_ACTIVITIES,
-                "own_1.json",
-                "own_2.json");
+                "e1_activities_1.json",
+                "e1_activities_2.json");
 
         sync(svc, Content.ME_SOUND_STREAM,
-                "incoming_1.json",
-                "incoming_2.json");
+                "e1_stream.json",
+                "e1_stream_oldest.json");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(99);
-        expect(Content.ME_ACTIVITIES).toHaveCount(41);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(120);
+        expect(Content.ME_ACTIVITIES).toHaveCount(17);
         expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(0);
-        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(140);
+        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(137);
     }
 
     @Test
     public void shouldNotProduceDuplicatesWhenSyncing() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         sync(svc, Content.ME_SOUND_STREAM,
-                "exclusives_1.json");
+                "e1_stream_1_oldest.json");
 
         sync(svc, Content.ME_EXCLUSIVE_STREAM,
-                "exclusives_1.json");
+                "e1_stream_1_oldest.json");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(4);
-        expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(4);
-        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(8);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
+        expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(22);
+        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(44);
     }
 
     @Test
@@ -345,39 +346,42 @@ public class ApiSyncServiceTest {
         ApiSyncService svc = new ApiSyncService();
 
         sync(svc, Content.ME_SOUND_STREAM,
-                "incoming_1.json",
-                "incoming_2.json");
+                "e1_stream_1.json",
+                "e1_stream_2_oldest.json");
 
         expect(Content.COLLECTIONS).toHaveCount(1);
         LocalCollection collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver, false);
 
         expect(collection).not.toBeNull();
         expect(collection.last_sync_success).toBeGreaterThan(0L);
-        expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
+        expect(collection.extra).toEqual("https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde");
 
         addCannedResponse(SyncAdapterServiceTest.class,
-                "https://api.soundcloud.com/me/activities/tracks?uuid%5Bto%5D=future-href-incoming-1&limit=100"+ CollectionSyncRequestTest.NON_INTERACTIVE,
-                "empty_events.json");
+                "https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde&limit=100"+ CollectionSyncRequestTest.NON_INTERACTIVE,
+                "activities_empty.json");
 
         // next sync request should go this url
         sync(svc, Content.ME_SOUND_STREAM);
 
         expect(Content.COLLECTIONS).toHaveCount(1);
         collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver, false);
-        expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
+        expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
     }
 
     @Test
     public void shouldFilterOutDuplicateTrackAndSharingsAndKeepSharings() throws Exception {
+
+        // TODO, removed duplicate handling. Figure out how to handle with reposts now
+
         ApiSyncService svc = new ApiSyncService();
         //  1 unrelated track + 2 track-sharing/track with same id
         sync(svc, Content.ME_SOUND_STREAM,
                 "track_and_track_sharing.json");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(2);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(3);
         Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
-        expect(incoming.size()).toEqual(2);
+        expect(incoming.size()).toEqual(3); // this is with a duplicate
         Activity a1 = incoming.get(0);
         Activity a2 = incoming.get(1);
 

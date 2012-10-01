@@ -37,11 +37,17 @@ public class PlaylistActivity extends Activity {
     }
 
     @Override
+    public Playlist getPlaylist() {
+        return playlist;
+    }
+
+    @Override
     public void setCachedTrack(Track track) {
     }
 
     @Override
     public void setCachedUser(User user) {
     }
+
 
 }

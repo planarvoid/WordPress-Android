@@ -70,9 +70,6 @@ public enum Content  {
     PLAYLISTS("playlists", null, 501, null, -1, Table.PLAYLISTS),
     PLAYLIST("playlists/#", null, 502, null, -1, Table.PLAYLISTS),
 
-    PLAY_QUEUE("play_queue", null, 501, null, -1, Table.PLAY_QUEUE),
-    PLAY_QUEUE_ITEM("play_queue/#", null, 502, null, -1, Table.PLAY_QUEUE),
-
     GROUPS("groups", null, 600, null, -1, null),
     GROUP("groups/#", null, 602, null, -1, null),
     GROUP_USERS("groups/#/users", null, 603, User.class, -1, null),
@@ -105,6 +102,10 @@ public enum Content  {
     SEARCHES_USER("searches/users/*", null, 1405, User.class, ScContentProvider.CollectionItemTypes.SEARCH, null),
 
     SEARCH("search", null, 1500, ScResource.class, -1, null),
+
+    PLAY_QUEUE("play_queue", null, 2000, null, -1, Table.PLAY_QUEUE),
+    PLAY_QUEUE_ITEM("play_queue/#", null, 2001, null, -1, Table.PLAY_QUEUE),
+
 
     TRACK_CLEANUP("cleanup/tracks", null, 9998, null, -1, null),
     USERS_CLEANUP("cleanup/users", null, 9999, null, -1, null),

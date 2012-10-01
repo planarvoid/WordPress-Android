@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SharingNote;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -37,6 +38,11 @@ public class TrackSharingActivity extends Activity {
     @Override
     public User getUser() {
         return track.user;
+    }
+
+    @Override
+    public Playlist getPlaylist() {
+        return null;
     }
 
     @JsonIgnore @Override

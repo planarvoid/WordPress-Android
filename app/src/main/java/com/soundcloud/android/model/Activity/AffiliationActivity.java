@@ -1,6 +1,7 @@
 package com.soundcloud.android.model.Activity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DBHelper;
@@ -32,6 +33,11 @@ public class AffiliationActivity extends Activity {
     @Override
     public User getUser() {
         return user;
+    }
+
+    @Override
+    public Playlist getPlaylist() {
+        return null;
     }
 
     @Override @JsonIgnore

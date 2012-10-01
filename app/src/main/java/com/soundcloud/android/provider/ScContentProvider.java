@@ -156,6 +156,11 @@ public class ScContentProvider extends ContentProvider {
                 if (_columns == null) _columns = formatWithUser(fullUserColumns,userId);
                 break;
 
+            case PLAYLISTS:
+                // TODO, Make view, joined with user and tracks
+                qb.setTables(Table.PLAYLISTS.name);
+                break;
+
             case SEARCHES:
                 qb.setTables(content.table.name);
                 qb.appendWhere(DBHelper.Searches.USER_ID + " = "+ userId);
@@ -530,12 +535,12 @@ public class ScContentProvider extends ContentProvider {
             case TRACKS:
             case USERS:
             case RECORDINGS:
+            case PLAYLISTS:
                 content.table.upsert(db, values);
                 if (values.length != 0) getContext().getContentResolver().notifyChange(uri, null, false);
                 return values.length;
 
             case COMMENTS:
-            case PLAYLISTS:
             case ME_SOUND_STREAM:
             case ME_EXCLUSIVE_STREAM:
             case ME_ACTIVITIES:

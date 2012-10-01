@@ -1,10 +1,14 @@
 package com.soundcloud.android.model.Activity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 
 import android.database.Cursor;
+
+import java.util.List;
 
 public class TrackRepostActivity extends Activity {
     public Track track;
@@ -29,7 +33,12 @@ public class TrackRepostActivity extends Activity {
 
     @Override
     public User getUser() {
-        return user;
+        return track.user;
+    }
+
+    @Override
+    public Playlist getPlaylist() {
+        return null;
     }
 
     @Override @JsonIgnore

@@ -65,7 +65,7 @@ public class Playlist extends Track {
                 ", duration=" + duration +
                 ", state=" + state +
                 ", user=" + user +
-                ", track_count=" + tracks.size() +
+                ", track_count=" + (tracks != null ? tracks.size() : "0") +
                 ", tracks_uri='" + tracks_uri + '\'' +
                 '}';
     }
@@ -77,7 +77,7 @@ public class Playlist extends Track {
 
     @Override @JsonIgnore
     public User getUser() {
-        return null;
+        return user;
     }
 
     @Override @JsonIgnore

@@ -2,6 +2,7 @@ package com.soundcloud.android.model.Activity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -37,6 +38,12 @@ public class CommentActivity extends Activity {
     public User getUser() {
         return comment.user;
     }
+
+    @Override
+    public Playlist getPlaylist() {
+        return null;
+    }
+
 
     @Override @JsonIgnore
     public void setCachedTrack(Track track) {
