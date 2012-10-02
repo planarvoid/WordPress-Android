@@ -105,37 +105,41 @@ public class SoundCloudDB {
         Set<Track> tracksToInsert = new HashSet<Track>();
         ContentValues[] bulkValues = uri == null ? null : new ContentValues[items.size()];
 
+        int index = 0;
         for (int i=0; i <items.size(); i++) {
             ScResource p = items.get(i);
-            long id = p.id;
-            if (p instanceof Origin) {
-                Origin origin = (Origin) p;
-                Track track = origin.getTrack();
-                if (track != null) {
-                    tracksToInsert.add(track);
+            if (p != null) {
+                long id = p.id;
+                if (p instanceof Origin) {
+                    Origin origin = (Origin) p;
+                    Track track = origin.getTrack();
+                    if (track != null) {
+                        tracksToInsert.add(track);
+                    }
+                    User user = origin.getUser();
+                    if (user != null) {
+                        usersToInsert.add(user);
+                    }
                 }
-                User user = origin.getUser();
-                if (user != null) {
-                    usersToInsert.add(user);
-                }
-            }
 
-            if (uri != null) {
-                ContentValues cv = new ContentValues();
-                switch (Content.match(uri)) {
-                    case PLAYLIST:
-                        cv.put(DBHelper.PlaylistItems.USER_ID, ownerId);
-                        cv.put(DBHelper.PlaylistItems.POSITION, i);
-                        cv.put(DBHelper.PlaylistItems.TRACK_ID, id);
-                        break;
+                if (uri != null) {
+                    ContentValues cv = new ContentValues();
+                    switch (Content.match(uri)) {
+                        case PLAYLIST:
+                            cv.put(DBHelper.PlaylistItems.USER_ID, ownerId);
+                            cv.put(DBHelper.PlaylistItems.POSITION, i);
+                            cv.put(DBHelper.PlaylistItems.TRACK_ID, id);
+                            break;
 
-                    default:
-                        cv.put(DBHelper.CollectionItems.USER_ID, ownerId);
-                        cv.put(DBHelper.CollectionItems.POSITION, i);
-                        cv.put(DBHelper.CollectionItems.ITEM_ID, id);
-                        break;
+                        default:
+                            cv.put(DBHelper.CollectionItems.USER_ID, ownerId);
+                            cv.put(DBHelper.CollectionItems.POSITION, i);
+                            cv.put(DBHelper.CollectionItems.ITEM_ID, id);
+                            break;
+                    }
+                    bulkValues[index] = cv;
+                    index++;
                 }
-                bulkValues[i] = cv;
             }
         }
 
