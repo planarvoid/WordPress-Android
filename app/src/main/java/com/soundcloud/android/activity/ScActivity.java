@@ -1,5 +1,7 @@
 package com.soundcloud.android.activity;
 
+import android.graphics.Rect;
+import android.widget.ProgressBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -21,6 +23,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.MainMenu;
+import com.soundcloud.android.view.NowPlayingIndicator;
 import com.soundcloud.android.view.RootView;
 
 import android.app.AlertDialog;
