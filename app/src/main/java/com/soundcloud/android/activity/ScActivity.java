@@ -106,9 +106,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         getSupportActionBar().setHomeButtonEnabled(true);
 
         if (savedInstanceState == null) {
-            Fragment newFragment = new PlayerFragment();
+            /*Fragment newFragment = new PlayerFragment();
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.add(mRootView.getPlayerHolderId(), newFragment).commit();
+            ft.add(mRootView.getPlayerHolderId(), newFragment).commit();*/
 
             handleIntent(getIntent());
         }
