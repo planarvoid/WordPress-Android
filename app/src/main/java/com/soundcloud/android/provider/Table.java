@@ -185,6 +185,7 @@ public enum Table {
             throw new IllegalStateException("no fields defined");
         }
         db.beginTransaction();
+        int updated = 0;
         for (ContentValues v : values)  {
             if (v != null) {
                 long id = v.getAsLong(BaseColumns._ID);
@@ -210,11 +211,12 @@ public enum Table {
                 final String sql = sb.toString();
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "sql:" + sql);
                 db.execSQL(sql, bindArgs.toArray());
+                updated++;
             }
         }
         db.setTransactionSuccessful();
         db.endTransaction();
-        return values.length;
+        return updated;
     }
 
     public int upsertSingle(SQLiteDatabase db, ContentValues cv) {

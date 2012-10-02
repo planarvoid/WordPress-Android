@@ -2,6 +2,7 @@ package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -167,6 +168,27 @@ public class TableTest {
         String snapshot = Table.schemaSnapshot();
         expect(snapshot).toMatch("CREATE TABLE");
         expect(snapshot).toMatch("CREATE VIEW");
+    }
+
+    @Test
+    public void shouldUpsertContentValues() throws Exception {
+        SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
+
+        ContentValues[] values = new ContentValues[3];
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBHelper.Recordings._ID, 1l);
+        contentValues.put(DBHelper.Recordings.DURATION, 32);
+
+        values[1] = contentValues; //skip 0 to check null handling
+
+        contentValues = new ContentValues();
+        contentValues.put(DBHelper.Recordings._ID, 2l);
+        contentValues.put(DBHelper.Recordings.DURATION, 868726);
+
+        values[2] = contentValues;
+
+        expect(Table.RECORDINGS.upsert(db,values)).toBe(2);
     }
 
     @Test
