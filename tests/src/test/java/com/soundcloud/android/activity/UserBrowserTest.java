@@ -3,7 +3,6 @@ package com.soundcloud.android.activity;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -66,7 +65,7 @@ public class UserBrowserTest {
 
     @Test @DisableStrictI18n
     public void testOnCreateFetchYou() throws Exception {
-        Robolectric.addHttpResponseRule("/users/"+USER_ID, TestHelper.resource(getClass(), "user.json"));
+        TestHelper.addCannedResponse(getClass(), "/users/"+USER_ID, "user.json");
         Robolectric.getFakeHttpLayer().setDefaultHttpResponse(404, "");
 
         browser.setIntent(new Intent());
@@ -103,7 +102,7 @@ public class UserBrowserTest {
 
     @Test @DisableStrictI18n
     public void testOnCreateOtherIdFetch() throws Exception {
-        Robolectric.addHttpResponseRule("/users/"+USER_ID, TestHelper.resource(getClass(), "user.json"));
+        TestHelper.addCannedResponse(getClass(), "/users/"+USER_ID, "user.json");
         Robolectric.getFakeHttpLayer().setDefaultHttpResponse(404, "");
 
         browser.setIntent(new Intent().putExtra("userId",3135930l));
@@ -129,7 +128,7 @@ public class UserBrowserTest {
 
     @Test @DisableStrictI18n
     public void testOnCreateOtherModelFetch() throws Exception {
-        Robolectric.addHttpResponseRule("/users/"+USER_ID, TestHelper.resource(getClass(), "user.json"));
+        TestHelper.addCannedResponse(getClass(), "/users/"+USER_ID, "user.json");
         Robolectric.getFakeHttpLayer().setDefaultHttpResponse(404, "");
 
         browser.setIntent(new Intent().putExtra("user",getUser()));

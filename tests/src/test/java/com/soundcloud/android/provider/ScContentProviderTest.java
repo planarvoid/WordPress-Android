@@ -347,7 +347,7 @@ public class ScContentProviderTest {
         ApiSyncService svc = new ApiSyncService();
         TestHelper.addCannedResponses(ApiSyncServiceTest.class,  "e1_stream_2_oldest.json");
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(28);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(26);
 
         ContentValues cv = new ContentValues();
         final long firstId = 18508668l;
@@ -373,7 +373,7 @@ public class ScContentProviderTest {
         ApiSyncService svc = new ApiSyncService();
         TestHelper.addCannedResponses(ApiSyncServiceTest.class,  "e1_stream_2_oldest.json");
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(28);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(26);
 
         ContentValues cv = new ContentValues();
         final long cachedId = 61467451l;

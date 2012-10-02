@@ -58,8 +58,11 @@ public enum DeprecatedRecordingProfile {
                     ContentValues[] cv = new ContentValues[migrate.size()];
                     int i = 0;
                     for (Recording r : migrate) {
-                        cv[i] = migrate(r);
-                        i++;
+                        final ContentValues contentValues = migrate(r);
+                        if (cv != null) {
+                            cv[i] = contentValues;
+                            i++;
+                        }
                     }
                     int updated = resolver.bulkInsert(Content.RECORDINGS.uri, cv);
                     Log.i(SoundCloudApplication.TAG,"Finished migrating " + updated + " recordings");

@@ -91,6 +91,7 @@
       <keystore.alias>jons keystore</keystore.alias>
       <keystore.password></keystore.password>
       <keystore.keypass></keystore.keypass>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <!--

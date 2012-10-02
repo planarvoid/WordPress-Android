@@ -322,31 +322,24 @@ public class ScModelManagerTest {
 
 
     @Test
-    public void shouldInsertActivitiesIntoDb() throws Exception {
+    public void shouldPersistActivitiesInDb() throws Exception {
         Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
                 SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
-        a.insert(Content.ME_SOUND_STREAM, resolver);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
-    }
+        expect(a.insert(Content.ME_SOUND_STREAM, resolver)).toBe(22);
 
-    @Test
-    public void shouldGetActivitiesFromDB() throws Exception {
-        Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
-                SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
-        a.insert(Content.ME_SOUND_STREAM, resolver);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
-
+        // 2 of these are playlists and are not returned for now
+        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
         expect(Activities.getSince(Content.ME_SOUND_STREAM,
-                        resolver, -1).size()
-        ).toEqual(22);
+                                resolver, -1).size()).toEqual(20);
     }
+
 
     @Test
     public void shouldGetActivitiesFromDBWithTimeFiltering() throws Exception {
         Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
                 SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
         a.insert(Content.ME_SOUND_STREAM, resolver);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
 
         expect(
                 Activities.getSince(Content.ME_SOUND_STREAM,
@@ -360,7 +353,7 @@ public class ScModelManagerTest {
         Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
                 SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
         a.insert(Content.ME_SOUND_STREAM, resolver);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
 
         expect(
                 Activities.getLastActivity(Content.ME_SOUND_STREAM,
@@ -374,7 +367,7 @@ public class ScModelManagerTest {
                 SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
 
         a.insert(Content.ME_SOUND_STREAM, resolver);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
 
         LocalCollection.insertLocalCollection(Content.ME_SOUND_STREAM.uri,
                 0, System.currentTimeMillis(), System.currentTimeMillis(), a.size(), a.future_href,

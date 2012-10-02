@@ -62,8 +62,13 @@ public class TrackInfoBar extends LazyRow {
         init();
     }
 
+    public TrackInfoBar(Context context, AttributeSet attributeSet) {
+        super(context, attributeSet, null);
+        init();
+    }
+
     public TrackInfoBar(Context context) {
-        super(context,null);
+        super(context, null);
         init();
     }
 

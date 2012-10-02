@@ -164,7 +164,7 @@ public class ScContentProvider extends ContentProvider {
 
             case SEARCHES:
                 qb.setTables(content.table.name);
-                qb.appendWhere(DBHelper.Searches.USER_ID + " = "+ userId);
+                qb.appendWhere(DBHelper.Searches.USER_ID + " = " + userId);
                 break;
 
             case SEARCHES_USER:
@@ -249,7 +249,7 @@ public class ScContentProvider extends ContentProvider {
                 break;
             case PLAY_QUEUE_ITEM:
                 qb.setTables(content.table.name);
-                qb.appendWhere("_id = "+ userId);
+                qb.appendWhere("_id = " + userId);
                 break;
 
             case PLAY_QUEUE:
@@ -575,13 +575,15 @@ public class ScContentProvider extends ContentProvider {
             db.beginTransaction();
             boolean failed = false;
             for (ContentValues v : values) {
-                if (extraCV != null) v.put(extraCV[0], extraCV[1]);
-                log("bulkInsert: " + v);
+                if (v != null){
+                    if (extraCV != null) v.put(extraCV[0], extraCV[1]);
+                    log("bulkInsert: " + v);
 
-                if (db.replace(table.name, null, v) < 0) {
-                    Log.w(TAG, "replace returned failure");
-                    failed = true;
-                    break;
+                    if (db.replace(table.name, null, v) < 0) {
+                        Log.w(TAG, "replace returned failure");
+                        failed = true;
+                        break;
+                    }
                 }
             }
             if (!failed) db.setTransactionSuccessful();

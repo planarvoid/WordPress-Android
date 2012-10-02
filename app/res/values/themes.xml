@@ -32,9 +32,8 @@
     </style>
 
     <style name="Theme.ScPlayer" parent="Theme.ScDark">
-        <item name="android:windowBackground">@null</item>
+        <item name="android:windowBackground">@color/darkBg</item>
     </style>
-
 
     <style name="Widget.ScTabPageIndicator" parent="Widget.TabPageIndicator">
         <item name="android:background">@drawable/vpi__tab_indicator</item>

@@ -201,15 +201,15 @@ public class ApiSyncServiceTest {
         expect(collection.last_sync_success).toBeGreaterThan(0L);
         expect(collection.extra).toEqual("https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(120);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(112);
         expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(0);
         expect(Content.TRACKS).toHaveCount(111);
         expect(Content.USERS).toHaveCount(27);
-        expect(Content.PLAYLISTS).toHaveCount(8);
+        //expect(Content.PLAYLISTS).toHaveCount(8);
 
         Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
-        expect(incoming.size()).toEqual(120);
+        expect(incoming.size()).toEqual(112);
         expect(incoming.getUniqueTracks().size()).toEqual(111); // currently excluding playlists
         assertResolverNotified(Content.ME_SOUND_STREAM.uri, Content.TRACKS.uri, Content.USERS.uri);
     }
@@ -264,11 +264,11 @@ public class ApiSyncServiceTest {
                 "e1_activities_1.json",
                 "e1_activities_2.json");
 
-        expect(Content.ME_ACTIVITIES).toHaveCount(17);
+        expect(Content.ME_ACTIVITIES).toHaveCount(9);
         expect(Content.COMMENTS).toHaveCount(5);
 
         Activities own = Activities.getSince(Content.ME_ACTIVITIES, resolver, -1);
-        expect(own.size()).toEqual(17);
+        expect(own.size()).toEqual(9);
         assertResolverNotified(Content.TRACKS.uri,
                 Content.USERS.uri,
                 Content.COMMENTS.uri,
@@ -282,13 +282,13 @@ public class ApiSyncServiceTest {
                 "e1_activities_1.json",
                 "e1_activities_2.json");
 
-        expect(Content.ME_ACTIVITIES).toHaveCount(17);
+        expect(Content.ME_ACTIVITIES).toHaveCount(9);
         expect(Content.COMMENTS).toHaveCount(5);
 
         append(svc, Content.ME_ACTIVITIES,
                 "own_append.json");
 
-        expect(Content.ME_ACTIVITIES).toHaveCount(18);
+        expect(Content.ME_ACTIVITIES).toHaveCount(10);
         expect(Content.COMMENTS).toHaveCount(6);
     }
 
@@ -299,13 +299,13 @@ public class ApiSyncServiceTest {
                 "e1_activities_1.json",
                                 "e1_activities_2.json");
 
-        expect(Content.ME_ACTIVITIES).toHaveCount(17);
+        expect(Content.ME_ACTIVITIES).toHaveCount(9);
 
         for (int i=0; i<3; i++)
             append(svc, Content.ME_ACTIVITIES,
                     "own_append.json");
 
-        expect(Content.ME_ACTIVITIES).toHaveCount(18);
+        expect(Content.ME_ACTIVITIES).toHaveCount(10);
         expect(Content.COMMENTS).toHaveCount(6);
     }
 
@@ -321,8 +321,8 @@ public class ApiSyncServiceTest {
                 "e1_stream.json",
                 "e1_stream_oldest.json");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(120);
-        expect(Content.ME_ACTIVITIES).toHaveCount(17);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(112);
+        expect(Content.ME_ACTIVITIES).toHaveCount(9);
         expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(0);
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(137);
     }
@@ -336,8 +336,8 @@ public class ApiSyncServiceTest {
         sync(svc, Content.ME_EXCLUSIVE_STREAM,
                 "e1_stream_1_oldest.json");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
-        expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(22);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
+        expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(20);
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(44);
     }
 

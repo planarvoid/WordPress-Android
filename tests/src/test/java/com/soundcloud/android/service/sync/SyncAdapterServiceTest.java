@@ -157,9 +157,9 @@ public class SyncAdapterServiceTest {
                 .toEqual(Actions.STREAM);
 
         expect(notifications.get(1).info.getContentTitle().toString())
-                .toEqual("10 new activities");
+                .toEqual("2 new activities");
         expect(notifications.get(1).info.getContentText().toString())
-                .toEqual("Comments and likes from Vicious Lobo, fewsel and others");
+                .toEqual("Comments and likes from D∃SIGNATED∀VΞ and Liraz Axelrad");
 
         expect(notifications.get(1).getIntent().getAction())
                 .toEqual(Actions.ACTIVITY);
@@ -305,9 +305,9 @@ public class SyncAdapterServiceTest {
         addCannedActivities("empty_events.json", "empty_events.json", "e1_activities_2.json");
         SyncOutcome second = doPerformSync(DefaultTestRunner.application, false, null);
 
-        expect(second.getTicker()).toEqual("17 new activities");
-        expect(second.getInfo().getContentTitle().toString()).toEqual("17 new activities");
-        expect(second.getInfo().getContentText().toString()).toEqual("Comments and likes from Vicious Lobo, fewsel and others");
+        expect(second.getTicker()).toEqual("9 new activities");
+        expect(second.getInfo().getContentTitle().toString()).toEqual("9 new activities");
+        expect(second.getInfo().getContentText().toString()).toEqual("Comments and likes from D∃SIGNATED∀VΞ, Liraz Axelrad and others");
     }
 
     @Test
@@ -329,9 +329,9 @@ public class SyncAdapterServiceTest {
        );
         SyncOutcome second = doPerformSync(DefaultTestRunner.application, false, null);
 
-        expect(second.getTicker()).toEqual("17 new activities");
-        expect(second.getInfo().getContentTitle().toString()).toEqual("17 new activities");
-        expect(second.getInfo().getContentText().toString()).toEqual("Comments and likes from Vicious Lobo, fewsel and others");
+        expect(second.getTicker()).toEqual("9 new activities");
+        expect(second.getInfo().getContentTitle().toString()).toEqual("9 new activities");
+        expect(second.getInfo().getContentText().toString()).toEqual("Comments and likes from D∃SIGNATED∀VΞ, Liraz Axelrad and others");
     }
 
     @Test
