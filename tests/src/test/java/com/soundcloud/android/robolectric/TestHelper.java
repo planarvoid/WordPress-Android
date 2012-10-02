@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.*;
 
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
@@ -31,12 +32,14 @@ public class TestHelper {
     // TODO: rename to addPendingHttpResponse
     public static void addCannedResponses(Class klazz, String... resources) throws IOException {
         for (String r : resources) {
-            addPendingHttpResponse(200, resource(klazz, r));
+            Robolectric.getFakeHttpLayer().addPendingHttpResponse(
+                    new TestHttpResponse(200, resourceAsBytes(klazz, r)));
         }
     }
 
     public static void addCannedResponse(Class klazz, String url, String resource) throws IOException {
-        Robolectric.addHttpResponseRule(url, resource(klazz, resource));
+        Robolectric.getFakeHttpLayer().addHttpResponseRule(url,
+                new TestHttpResponse(200, resourceAsBytes(klazz, resource)));
     }
 
     public static void addResponseRule(String uri, int status) {
@@ -56,14 +59,16 @@ public class TestHelper {
                 new FakeHttpLayer.RequestMatcherResponseRule(builder, new IOException("boom")));
     }
 
-    public static String resource(Class klazz, String res) throws IOException {
-        StringBuilder sb = new StringBuilder(65536);
-        int n;
-        byte[] buffer = new byte[8192];
+    public static String resourceAsString(Class klazz, String res) throws IOException {
         InputStream is = klazz.getResourceAsStream(res);
         expect(is).not.toBeNull();
-        while ((n = is.read(buffer)) != -1) sb.append(new String(buffer, 0, n, "UTF-8"));
-        return sb.toString();
+        return IOUtils.readInputStream(is);
+    }
+
+    public static byte[] resourceAsBytes(Class klazz, String res) throws IOException {
+        InputStream is = klazz.getResourceAsStream(res);
+        expect(is).not.toBeNull();
+        return IOUtils.readInputStreamAsBytes(is);
     }
 
     public static void assertFirstIdToBe(Content content, long id) {

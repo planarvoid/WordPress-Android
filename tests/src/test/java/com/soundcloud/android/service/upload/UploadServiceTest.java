@@ -7,7 +7,6 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -314,21 +313,21 @@ public class UploadServiceTest {
     private void mockSuccessfullTrackCreation() throws IOException {
         // track upload
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201,
-                TestHelper.resource(getClass(), "track_processing.json")));
+                TestHelper.resourceAsBytes(getClass(), "track_processing.json")));
 
         // transcoding polling
         Robolectric.addHttpResponseRule("GET", "/tracks/12345", new TestHttpResponse(200,
-                TestHelper.resource(getClass(), "track_finished.json")));
+                TestHelper.resourceAsBytes(getClass(), "track_finished.json")));
     }
 
 
     private void mockFailedTrackCreation() throws IOException {
         // track upload
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201,
-                TestHelper.resource(getClass(), "track_processing.json")));
+                TestHelper.resourceAsBytes(getClass(), "track_processing.json")));
 
         // transcoding polling
         Robolectric.addHttpResponseRule("GET", "/tracks/12345", new TestHttpResponse(200,
-                TestHelper.resource(getClass(), "track_failed.json")));
+                TestHelper.resourceAsBytes(getClass(), "track_failed.json")));
     }
 }

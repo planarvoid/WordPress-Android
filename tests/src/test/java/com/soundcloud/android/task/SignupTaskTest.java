@@ -19,7 +19,7 @@ public class SignupTaskTest {
     @Test
     public void shouldReturnUser() throws Exception {
         TestHelper.addCannedResponses(getClass(), "signup_token.json");
-        Robolectric.addPendingHttpResponse(201, TestHelper.resource(getClass(), "me.json"));
+        Robolectric.addPendingHttpResponse(201, TestHelper.resourceAsString(getClass(), "me.json"));
         SignupTask task = new SignupTask(DefaultTestRunner.application);
         User u = task.doInBackground("email", "password");
         expect(u).not.toBeNull();
