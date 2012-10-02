@@ -120,7 +120,7 @@ public final class IOUtils {
         StringBuilder stream = new StringBuilder();
         byte[] b = new byte[BUFFER_SIZE];
         for (int n; (n = in.read(b)) != -1;) {
-            stream.append(new String(b, 0, n));
+            stream.append(new String(b, 0, n, "UTF-8"));
         }
         return stream.toString();
     }

@@ -62,7 +62,7 @@ public class TestHelper {
         byte[] buffer = new byte[8192];
         InputStream is = klazz.getResourceAsStream(res);
         expect(is).not.toBeNull();
-        while ((n = is.read(buffer)) != -1) sb.append(new String(buffer, 0, n));
+        while ((n = is.read(buffer)) != -1) sb.append(new String(buffer, 0, n, "UTF-8"));
         return sb.toString();
     }
 
