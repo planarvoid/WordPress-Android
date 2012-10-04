@@ -185,34 +185,38 @@ public enum Table {
             throw new IllegalStateException("no fields defined");
         }
         db.beginTransaction();
+        int updated = 0;
         for (ContentValues v : values)  {
-            long id = v.getAsLong(BaseColumns._ID);
-            List<Object> bindArgs = new ArrayList<Object>();
-            StringBuilder sb = new StringBuilder();
-            sb.append("INSERT OR REPLACE INTO ").append(name).append("(")
-                    .append(TextUtils.join(",", fields))
-                    .append(") VALUES (");
-            for (int i = 0; i < fields.length; i++) {
-                String f = fields[i];
-                if (v.containsKey(f)) {
-                    sb.append("?");
-                    bindArgs.add(v.get(f));
-                } else {
-                    sb.append("(SELECT ").append(f).append(" FROM ").append(name).append(" WHERE _id=?)");
-                    bindArgs.add(id);
+            if (v != null) {
+                long id = v.getAsLong(BaseColumns._ID);
+                List<Object> bindArgs = new ArrayList<Object>();
+                StringBuilder sb = new StringBuilder();
+                sb.append("INSERT OR REPLACE INTO ").append(name).append("(")
+                        .append(TextUtils.join(",", fields))
+                        .append(") VALUES (");
+                for (int i = 0; i < fields.length; i++) {
+                    String f = fields[i];
+                    if (v.containsKey(f)) {
+                        sb.append("?");
+                        bindArgs.add(v.get(f));
+                    } else {
+                        sb.append("(SELECT ").append(f).append(" FROM ").append(name).append(" WHERE _id=?)");
+                        bindArgs.add(id);
+                    }
+                    if (i < fields.length - 1) {
+                        sb.append(",");
+                    }
                 }
-                if (i < fields.length - 1) {
-                    sb.append(",");
-                }
+                sb.append(");");
+                final String sql = sb.toString();
+                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "sql:" + sql);
+                db.execSQL(sql, bindArgs.toArray());
+                updated++;
             }
-            sb.append(");");
-            final String sql = sb.toString();
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "sql:"+sql);
-            db.execSQL(sql, bindArgs.toArray());
         }
         db.setTransactionSuccessful();
         db.endTransaction();
-        return values.length;
+        return updated;
     }
 
     public int upsertSingle(SQLiteDatabase db, ContentValues cv) {

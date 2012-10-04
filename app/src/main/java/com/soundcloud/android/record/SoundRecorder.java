@@ -15,6 +15,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.record.RecordAppWidgetProvider;
 import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.tracking.Click;
@@ -281,11 +282,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             throw new IOException(mContext.getString(R.string.record_insert_sd_card));
         } else if (!mRemainingTimeCalculator.isDiskSpaceAvailable()) {
             throw new IOException(mContext.getString(R.string.record_storage_is_full));
-        }
-
-        // mute any playback during recording
-        if (!mAudioFocusManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
-            throw new IOException("Could not obtain music focus");
         }
 
         mRemainingTimeCalculator.reset();
@@ -760,7 +756,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 }
                 Log.d(TAG, "exiting reader loop, stopping recording (mState=" + mState + ")");
                 mAudioRecord.stop();
-                mAudioFocusManager.abandonMusicFocus(false);
 
                 if (mRecording != null) {
                     if (mState != SoundRecorder.State.ERROR) {
