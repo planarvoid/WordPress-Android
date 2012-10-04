@@ -171,6 +171,13 @@ public class RootView extends ViewGroup {
         setAlwaysDrawnWithCacheEnabled(false);
     }
 
+    public int getContentHolderId() {
+        if (mContent != null) {
+            return mContent.getId();
+        }
+        return -1;
+    }
+
     public int getPlayerHolderId(){
         if (mPlayer != null) {
             return mPlayer.getId();

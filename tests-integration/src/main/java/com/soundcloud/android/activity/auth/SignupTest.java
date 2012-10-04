@@ -1,7 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Main;
+import com.soundcloud.android.activity.News;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
@@ -13,11 +13,11 @@ import android.widget.EditText;
 import java.util.UUID;
 
 @Suppress
-public class SignupTest extends ActivityTestCase<Main> {
+public class SignupTest extends ActivityTestCase<News> {
 
 
     public SignupTest() {
-        super(Main.class);
+        super(News.class);
     }
 
     @Override

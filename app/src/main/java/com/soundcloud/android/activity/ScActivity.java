@@ -49,7 +49,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
 
-    private RootView mRootView;
+    protected RootView mRootView;
     private Boolean mIsConnected;
     private boolean mIsForeground;
 
@@ -70,8 +70,10 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             public void onMenuItemClicked(int id) {
                 switch (id) {
                     case R.id.nav_stream:
+                        startNavActivity(Stream.class);
                         break;
                     case R.id.nav_activity:
+                        startNavActivity(News.class);
                         break;
                     case R.id.nav_you:
                         startNavActivity(UserBrowser.class);
