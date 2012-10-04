@@ -60,6 +60,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static long getCurrentTrackId() { return currentTrack == null ? -1 : currentTrack.id; }
     public static Boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
 
+    private static CloudPlaybackService instance;
+    public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); };
+
     private static State state = STOPPED;
     public static State getState() { return state; }
 
@@ -203,10 +206,14 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         } catch (IOException e) {
             Log.e(TAG, "Unable to start service ", e);
         }
+
+        instance = this;
     }
 
     @Override
     public void onDestroy() {
+        instance = null;
+
         super.onDestroy();
         stop();
         // make sure there aren't any other messages coming
