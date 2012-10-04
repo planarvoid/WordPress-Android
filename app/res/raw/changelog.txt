@@ -5,6 +5,7 @@ $ 47
     * No longer stealing audio focus for recording
     * Connection fix for Froyo HttpClient
     * Honeycomb Styling fix
+    - Ship with x86 native code
 
 
 $ 46
