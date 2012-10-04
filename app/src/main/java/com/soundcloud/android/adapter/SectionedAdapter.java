@@ -120,7 +120,7 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
     }
 
     public List<Parcelable> getData(int index) {
-        return sections.size() == 0 ? null : sections.get(index).data;
+        return sections.size() <= index ? null : sections.get(index).data;
     }
 
     public void addItem(int index, Parcelable newItem) {
