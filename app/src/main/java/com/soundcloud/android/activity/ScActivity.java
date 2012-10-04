@@ -79,6 +79,11 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     case R.id.nav_record:
                         startNavActivity(ScCreate.class);
                         break;
+                    case R.id.nav_settings:
+                        startActivity(new Intent(ScActivity.this,Settings.class));
+                        mRootView.animateClose();
+                        break;
+
                 }
             }
 
@@ -304,12 +309,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             case R.id.menu_my_info:
                 startNavActivity(UserBrowser.class);
                 return true;
-            case R.id.menu_settings:
-                startNavActivity(Settings.class);
-                return true;
             case Consts.OptionsMenu.VIEW_CURRENT_TRACK:
                 startNavActivity(ScPlayer.class);
-                // TODO .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
