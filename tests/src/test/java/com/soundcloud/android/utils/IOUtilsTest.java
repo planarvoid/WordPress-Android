@@ -2,11 +2,18 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.Expect.expect;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 public class IOUtilsTest {
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder();
+
     @Test
     public void testMD5() throws Exception {
         expect(IOUtils.md5("foo")).toEqual("acbd18db4cc2f85cedef654fccc4a4d8");
@@ -54,12 +61,29 @@ public class IOUtilsTest {
         expect(IOUtils.extension(new File("foo"))).toBeNull();
     }
 
-
     @Test
     public void shouldChangeExtension() throws Exception {
         expect(IOUtils.changeExtension(new File("test.ogg"), "wav").getName()).toEqual("test.wav");
         expect(IOUtils.changeExtension(new File("test.ogg.baz"), "wav").getName()).toEqual("test.ogg.wav");
         expect(IOUtils.changeExtension(new File("test"), "wav").getName()).toEqual("test.wav");
+    }
+
+    @Test
+    public void shouldGetDirSize() throws Exception {
+        expect(IOUtils.getDirSize(new File("no-existo"))).toEqual(0l);
+        expect(IOUtils.getDirSize(tempFolder.getRoot())).toEqual(0l);
+        File f1 = tempFolder.newFile("aFile");
+        File dir = new File(tempFolder.getRoot(), "aDir");
+        expect(dir.mkdir()).toBeTrue();
+        File f2 = new File(dir, "nestedFile");
+        OutputStream os = new FileOutputStream(f1);
+        os.write(new byte[8192]);
+        os.close();
+        OutputStream os2 = new FileOutputStream(f2);
+        os2.write(new byte[1024]);
+        os2.close();
+        expect(IOUtils.getDirSize(tempFolder.getRoot())).toEqual(8192 + 1024l);
+        tempFolder.delete();
     }
 
     @Test

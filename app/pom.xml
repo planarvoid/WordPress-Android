@@ -26,6 +26,7 @@
                     <target>all</target>
                     <clearNativeArtifacts>false</clearNativeArtifacts>
                     <useHeaderArchives>false</useHeaderArchives>
+                    <ndkBuildAdditionalCommandline>NDK_TOOLCHAIN=""</ndkBuildAdditionalCommandline>
                  </configuration>
                  <extensions>true</extensions>
                  <executions>
