@@ -543,8 +543,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
     private class PlayerThread extends Thread {
-
-        Queue<TrimPreview> previewQueue = new ConcurrentLinkedQueue<TrimPreview>();
+        private final Queue<TrimPreview> previewQueue = new ConcurrentLinkedQueue<TrimPreview>();
 
         PlayerThread() {
             super("PlayerThread");
@@ -572,9 +571,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
 
         private void previewTrim(PlaybackStream playbackStream) throws IOException {
-
-            while (!previewQueue.isEmpty()) {
-                final TrimPreview preview = previewQueue.poll();
+            TrimPreview preview;
+            while ((preview = previewQueue.poll()) != null) {
                 final FadeFilter fadeFilter = preview.getFadeFilter();
                 final int byteRange = (int) preview.getByteRange(mConfig);
                 playbackStream.initializePlayback(preview.lowPos(mConfig));
