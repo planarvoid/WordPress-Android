@@ -274,7 +274,7 @@ public class PlayerAvatarBar extends View {
     };
 
     private void drawCommentOnCanvas(Comment comment, Canvas canvas, Paint linePaint, Paint imagePaint, Matrix matrix){
-        if (canvas != null){
+        if (canvas != null) {
             if (!comment.shouldLoadIcon() || comment.avatar == null || comment.avatar.isRecycled()) {
                 if (mLandscape) {
                     refreshDefaultAvatar();
