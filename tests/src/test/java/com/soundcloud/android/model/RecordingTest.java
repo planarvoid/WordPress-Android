@@ -301,6 +301,11 @@ public class RecordingTest {
     }
 
     @Test
+    public void shouldReturnNullFromGetRecordingFromIntentForNullIntent() throws Exception {
+        expect(Recording.fromIntent(null, null, 0)).toBeNull();
+    }
+
+    @Test
     public void shouldGenerateTagString() throws Exception {
         Recording r = createRecording();
         r.tags = new String[]{"foo baz", "bar", "baz"};
