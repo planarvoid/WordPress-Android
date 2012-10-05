@@ -15,10 +15,8 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.record.RecordAppWidgetProvider;
 import com.soundcloud.android.service.record.SoundRecorderService;
-import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -28,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.os.Build;
@@ -81,8 +78,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
       PLAYBACK_STARTED, PLAYBACK_STOPPED, PLAYBACK_COMPLETE, PLAYBACK_PROGRESS, PLAYBACK_PROGRESS, WAVEFORM_GENERATED
     };
     public static final int MAX_PLAYBACK_RATE = AudioTrack.getNativeOutputSampleRate(AudioTrack.MODE_STREAM);
-    private IAudioManager mFocus;
-    private AudioManager mAudioManager;
+    private final IAudioManager mAudioFocusManager;
 
 
     public enum State {
@@ -121,8 +117,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     final private ByteBuffer mRecBuffer;
     final private int mRecBufferReadSize;
-
-    private final IAudioManager mAudioFocusManager;
 
     final private ByteBuffer mPlayBuffer;
     final private int mPlayBufferReadSize;
@@ -172,10 +166,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 }
             }
         });
-
-        mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        mFocus = AudioManagerFactory.createAudioManager(context);
-
         mAudioTrack.setPositionNotificationPeriod(mConfig.sampleRate / 60);
         mBroadcastManager = LocalBroadcastManager.getInstance(context);
         mRemainingTimeCalculator = config.createCalculator();
@@ -316,8 +306,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
             broadcast(RECORD_STARTED);
 
-
-
             assert mRecording != null;
             return mRecording;
         } else throw new IllegalStateException("cannot record to file, in state " + mState);
@@ -367,7 +355,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     public void onDestroy() {
         stopPlayback();
         stopRecording();
-        mFocus.abandonMusicFocus(false);
         //release();
     }
 
