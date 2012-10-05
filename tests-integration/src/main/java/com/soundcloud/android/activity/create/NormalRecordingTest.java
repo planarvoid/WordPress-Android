@@ -6,7 +6,7 @@ import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_R
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.RECORD;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Main;
+import com.soundcloud.android.activity.News;
 import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
@@ -300,7 +300,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         record(RECORDING_TIME);
         solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
 //XXX        solo.clickOnView(R.id.btn_you);
-        solo.assertActivity(Main.class);
+        solo.assertActivity(News.class);
     }
 
     public void testShouldOnlyDisplayedSavedLocallyMessageOnce() throws Exception {

@@ -2,7 +2,7 @@ package com.soundcloud.android.activity.auth;
 
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Main;
+import com.soundcloud.android.activity.News;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
@@ -11,9 +11,9 @@ import android.webkit.WebView;
 import android.widget.EditText;
 
 
-public class LoginTest extends ActivityTestCase<Main> {
+public class LoginTest extends ActivityTestCase<News> {
     public LoginTest() {
-        super(Main.class);
+        super(News.class);
     }
 
     @Override

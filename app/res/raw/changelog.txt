@@ -1,5 +1,14 @@
-$ 45
+$ 47
   % v current
+  _ 2012-10-05
+  ! Maintenance
+    * No longer stealing audio focus for recording
+    * Connection fix for Froyo HttpClient
+    * Honeycomb Styling fix
+
+
+$ 46
+ % v 2.3
   _ 2012-09-20
   ! New Sound Creation Features
     * Recordings can now be paused and resumed
@@ -13,7 +22,7 @@ $ 45
 $ 45
   % v 2.2.10
   _ 2012-07-12
-  ! Maintentance
+  ! Maintenance
     * Fixed premature end of collection bug
     * Xhdpi list icon sizes
     * Various minor bug fixes

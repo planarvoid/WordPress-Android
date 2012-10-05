@@ -277,7 +277,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         if (CloudPlaybackService.getCurrentTrackId() == -1 && !mPlaybackService.configureLastPlaylist()) {
 
             // nothing to show, send them back to main
-            Intent intent = new Intent(this, Main.class);
+            Intent intent = new Intent(this, News.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
 

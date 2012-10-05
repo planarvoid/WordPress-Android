@@ -17,6 +17,8 @@ ks/
 *.iml
 out
 tmp
+gen
+lint_files
 
 #eclipse
 .classpath
@@ -40,3 +42,5 @@ target
 c2dm.credentials
 
 reg_ids.yaml
+
+.gradle

@@ -49,7 +49,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
 
-    private RootView mRootView;
+    protected RootView mRootView;
     private Boolean mIsConnected;
     private boolean mIsForeground;
 
@@ -70,8 +70,10 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             public void onMenuItemClicked(int id) {
                 switch (id) {
                     case R.id.nav_stream:
+                        startNavActivity(Stream.class);
                         break;
                     case R.id.nav_activity:
+                        startNavActivity(News.class);
                         break;
                     case R.id.nav_you:
                         startNavActivity(UserBrowser.class);
@@ -79,6 +81,11 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     case R.id.nav_record:
                         startNavActivity(ScCreate.class);
                         break;
+                    case R.id.nav_settings:
+                        startActivity(new Intent(ScActivity.this,Settings.class));
+                        mRootView.animateClose();
+                        break;
+
                 }
             }
 
@@ -106,9 +113,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         getSupportActionBar().setHomeButtonEnabled(true);
 
         if (savedInstanceState == null) {
-            Fragment newFragment = new PlayerFragment();
+            /*Fragment newFragment = new PlayerFragment();
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.add(mRootView.getPlayerHolderId(), newFragment).commit();
+            ft.add(mRootView.getPlayerHolderId(), newFragment).commit();*/
 
             handleIntent(getIntent());
         }
@@ -304,12 +311,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             case R.id.menu_my_info:
                 startNavActivity(UserBrowser.class);
                 return true;
-            case R.id.menu_settings:
-                startNavActivity(Settings.class);
-                return true;
             case Consts.OptionsMenu.VIEW_CURRENT_TRACK:
                 startNavActivity(ScPlayer.class);
-                // TODO .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
