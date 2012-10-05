@@ -180,4 +180,13 @@ public class MyTracksAdapter extends TracklistAdapter {
             onContentChanged();
         }
     }
+
+    @Override
+    public String toString() {
+        return "MyTracksAdapter{" +
+                "mDataValid=" + mDataValid +
+                ", mRecordingData=" + mRecordingData +
+                ", mData=" + mData +
+                '}';
+    }
 }
