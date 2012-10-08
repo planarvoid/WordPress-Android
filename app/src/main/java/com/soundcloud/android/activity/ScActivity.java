@@ -172,6 +172,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     protected void onStop() {
         super.onStop();
+
+        if (mNowPlaying != null) {
+            mNowPlaying.stopRefresh();
+            mNowPlaying = null;
+        }
+
         connectivityListener.stopListening();
     }
 
@@ -289,9 +295,14 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         MenuInflater inflater = getSupportMenuInflater();
         inflater.inflate(R.menu.main, menu);
 
+        if (mNowPlaying != null) {
+            mNowPlaying.stopRefresh();
+            mNowPlaying = null;
+        }
+
         MenuItem waveform = menu.findItem(R.id.menu_waveform);
-        NowPlayingIndicator indicator = (NowPlayingIndicator ) waveform.getActionView().findViewById(R.id.waveform_progress);
-        indicator.startRefresh();
+        mNowPlaying = (NowPlayingIndicator) waveform.getActionView().findViewById(R.id.waveform_progress);
+        mNowPlaying.startRefresh();
 
         if (this instanceof ScPlayer) {
             menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(

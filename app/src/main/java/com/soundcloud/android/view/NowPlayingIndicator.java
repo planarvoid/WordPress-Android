@@ -59,7 +59,7 @@ public class NowPlayingIndicator extends ProgressBar {
     }
 
     public void stopRefresh() {
-
+        mHandler.removeMessages(REFRESH);
     }
 
     private final Handler mHandler = new Handler() {
