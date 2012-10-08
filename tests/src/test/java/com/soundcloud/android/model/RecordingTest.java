@@ -10,6 +10,7 @@ import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.api.Params;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Rule;
@@ -24,13 +25,18 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
+import android.text.TextUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @SuppressWarnings({"ResultOfMethodCallIgnored"})
@@ -301,6 +307,11 @@ public class RecordingTest {
     }
 
     @Test
+    public void shouldReturnNullFromGetRecordingFromIntentForNullIntent() throws Exception {
+        expect(Recording.fromIntent(null, null, 0)).toBeNull();
+    }
+
+    @Test
     public void shouldGenerateTagString() throws Exception {
         Recording r = createRecording();
         r.tags = new String[]{"foo baz", "bar", "baz"};
@@ -338,6 +349,37 @@ public class RecordingTest {
         List<String> tags = r.getTags();
         expect(tags).toContain("geo:lon=0.1");
         expect(tags).toContain("geo:lat=0.2");
+    }
+
+    @Test
+    public void shouldProvideCorrectParams() throws Exception {
+        Recording r = createRecording();
+        Map<String, ?> params = r.toParamsMap(Robolectric.application);
+        final String title = r.sharingNote(Robolectric.application.getResources());
+        expect(params.get(Params.Track.TITLE)).toEqual(title);
+        expect(params.get(Params.Track.TYPE)).toBe(Recording.UPLOAD_TYPE);
+        expect(params.get(Params.Track.SHARING)).toBe(Params.Track.PRIVATE);
+        expect(params.get(Params.Track.DOWNLOADABLE)).toBe(false);
+        expect(params.get(Params.Track.TAG_LIST)).toEqual(r.tagString());
+        expect(params.get(Params.Track.DESCRIPTION)).toEqual(r.description);
+        expect(params.get(Params.Track.GENRE)).toEqual(r.genre);
+        expect(((ArrayList<String>)params.get(Params.Track.SHARED_EMAILS)).get(0)).toEqual("foo@example.com");
+        expect(params.get(Params.Track.SHARED_IDS)).toEqual(r.recipient_user_id);
+    }
+
+    @Test
+    public void shouldProvideCorrectPublicParams() throws Exception {
+        Recording r = createRecording();
+        r.recipient_user_id = -1;
+        expect(r.toParamsMap(Robolectric.application).get(Params.Track.SHARING)).toBe(Params.Track.PUBLIC);
+    }
+
+    @Test
+    public void shouldProvideCorrectPrivateParams() throws Exception {
+        Recording r = createRecording();
+        r.recipient_user_id = -1;
+        r.is_private = true;
+        expect(r.toParamsMap(Robolectric.application).get(Params.Track.SHARING)).toBe(Params.Track.PRIVATE);
     }
 
     @Test

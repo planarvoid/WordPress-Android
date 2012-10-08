@@ -83,6 +83,8 @@ public class MyTracksAdapter extends ScBaseAdapter {
             mCursor = null;
         }
 
+        notifyDataSetChanged();
+
         // updated recording functionality requires special handling of old recordings
         DeprecatedRecordingProfile.migrateRecordings(mRecordingData, mContext.getContentResolver());
     }
@@ -104,7 +106,7 @@ public class MyTracksAdapter extends ScBaseAdapter {
 
     @Override
     public int getCount() {
-        if (mDataValid && mRecordingData != null) {
+        if (mRecordingData != null) {
             return mRecordingData.size() + super.getCount();
         } else {
             return super.getCount();
@@ -112,7 +114,7 @@ public class MyTracksAdapter extends ScBaseAdapter {
     }
     @Override
     public ScModel getItem(int position) {
-        if (mDataValid && mRecordingData != null) {
+        if (mRecordingData != null) {
             if (position < mRecordingData.size()) {
                 return mRecordingData.get(position);
             } else {
@@ -125,7 +127,7 @@ public class MyTracksAdapter extends ScBaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        if (mDataValid && mRecordingData != null) {
+        if (mRecordingData != null) {
             if (position < mRecordingData.size()){
                 return mRecordingData.get(position).id;
             } else {
@@ -148,8 +150,8 @@ public class MyTracksAdapter extends ScBaseAdapter {
         mDataValid = false;
         if (mActivity.isForeground() && mCursor == null) {
             refreshCursor();
-            notifyDataSetChanged();
         }
+        notifyDataSetChanged();
     }
 
     public void onResume() {
@@ -181,5 +183,14 @@ public class MyTracksAdapter extends ScBaseAdapter {
         public void onChange(boolean selfChange) {
             onContentChanged();
         }
+    }
+
+    @Override
+    public String toString() {
+        return "MyTracksAdapter{" +
+                "mDataValid=" + mDataValid +
+                ", mRecordingData=" + mRecordingData +
+                ", mData=" + mData +
+                '}';
     }
 }

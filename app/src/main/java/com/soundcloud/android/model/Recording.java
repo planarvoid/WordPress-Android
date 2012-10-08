@@ -60,6 +60,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
     public static final File IMAGE_DIR = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
     public static final String EXTRA = "recording";
     public static final int MAX_WAVE_CACHE = 100 * 1024 * 1024; // 100 mb
+    public static final String UPLOAD_TYPE = "recording";
 
     // basic properties
     public long user_id;
@@ -399,13 +400,6 @@ public class Recording extends ScResource implements Comparable<Recording> {
         return getMonitorIntent().putExtra(UploadService.EXTRA_STAGE, uploadStage).putExtra(UploadService.EXTRA_PROGRESS, progress);
     }
 
-    public Intent getProcessIntent() {
-        return new Intent(Actions.RECORDING_PROCESS)
-                .setData(Uri.fromFile(getFile()))
-                .putExtra("com.soundcloud.android.pd.extra.out",
-                        getFile().getAbsolutePath()+"-processed.wav");
-    }
-
     public Intent getViewIntent() {
         if (recipient_user_id > 0) {
             return new Intent(Actions.MESSAGE).putExtra("recipient", recipient_user_id);
@@ -419,8 +413,8 @@ public class Recording extends ScResource implements Comparable<Recording> {
         title = sharingNote(context.getResources());
 
         data.put(Params.Track.TITLE, title);
-        data.put(Params.Track.TYPE, "recording");
-        data.put(Params.Track.SHARING, is_private ? Params.Track.PRIVATE : Params.Track.PUBLIC);
+        data.put(Params.Track.TYPE, UPLOAD_TYPE);
+        data.put(Params.Track.SHARING, isPublic() ? Params.Track.PUBLIC : Params.Track.PRIVATE);
         data.put(Params.Track.DOWNLOADABLE, false);
         data.put(Params.Track.STREAMABLE, true);
 
@@ -451,6 +445,10 @@ public class Recording extends ScResource implements Comparable<Recording> {
             data.put(Params.Track.SHARED_IDS, ids);
         }
         return data;
+    }
+
+    private boolean isPublic() {
+        return !is_private && recipient_user_id <= 0;
     }
 
 
@@ -640,7 +638,8 @@ public class Recording extends ScResource implements Comparable<Recording> {
         }
     }
 
-    public static Recording fromIntent(Intent intent, ContentResolver resolver, long userId) {
+    public static @Nullable Recording fromIntent(@Nullable Intent intent, ContentResolver resolver, long userId) {
+        if (intent == null) return null;
         final String action = intent.getAction();
 
         if (intent.hasExtra(EXTRA))  {

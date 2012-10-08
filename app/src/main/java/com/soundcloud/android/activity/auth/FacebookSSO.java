@@ -448,7 +448,7 @@ public class FacebookSSO extends AbstractLoginActivity {
             HttpGet me = new HttpGet("https://graph.facebook.com/me");
             me.setHeader("Authorization", "OAuth "+token.accessToken);
             try {
-                final HttpResponse resp = mApi.getHttpClient().execute(me);
+                final HttpResponse resp = mApi.safeExecute(null, me);
                 int status = resp.getStatusLine().getStatusCode();
                 if (status == HttpStatus.SC_OK) {
                     JSONObject o = Http.getJSON(resp);

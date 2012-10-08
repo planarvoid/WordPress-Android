@@ -120,6 +120,7 @@ public class SoundCloudDB {
                     if (user != null) {
                         usersToInsert.add(user);
                     }
+
                 }
 
                 if (uri != null) {

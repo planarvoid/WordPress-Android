@@ -784,7 +784,7 @@ public class DBHelper extends SQLiteOpenHelper {
             resetSyncState(db);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade13 " +
+            SoundCloudApplication.handleSilentException("error during upgrade14 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -795,7 +795,7 @@ public class DBHelper extends SQLiteOpenHelper {
             Table.RECORDINGS.alterColumns(db);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade13 " +
+            SoundCloudApplication.handleSilentException("error during upgrade15 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
