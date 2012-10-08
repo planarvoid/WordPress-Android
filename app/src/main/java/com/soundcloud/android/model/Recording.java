@@ -414,7 +414,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
         data.put(Params.Track.TITLE, title);
         data.put(Params.Track.TYPE, UPLOAD_TYPE);
-        data.put(Params.Track.SHARING, is_private || recipient_user_id > 0 ? Params.Track.PRIVATE : Params.Track.PUBLIC);
+        data.put(Params.Track.SHARING, isPublic() ? Params.Track.PUBLIC : Params.Track.PRIVATE);
         data.put(Params.Track.DOWNLOADABLE, false);
         data.put(Params.Track.STREAMABLE, true);
 
@@ -445,6 +445,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
             data.put(Params.Track.SHARED_IDS, ids);
         }
         return data;
+    }
+
+    private boolean isPublic() {
+        return !is_private && recipient_user_id <= 0;
     }
 
 

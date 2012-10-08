@@ -365,7 +365,21 @@ public class RecordingTest {
         expect(params.get(Params.Track.GENRE)).toEqual(r.genre);
         expect(((ArrayList<String>)params.get(Params.Track.SHARED_EMAILS)).get(0)).toEqual("foo@example.com");
         expect(params.get(Params.Track.SHARED_IDS)).toEqual(r.recipient_user_id);
+    }
 
+    @Test
+    public void shouldProvideCorrectPublicParams() throws Exception {
+        Recording r = createRecording();
+        r.recipient_user_id = -1;
+        expect(r.toParamsMap(Robolectric.application).get(Params.Track.SHARING)).toBe(Params.Track.PUBLIC);
+    }
+
+    @Test
+    public void shouldProvideCorrectPrivateParams() throws Exception {
+        Recording r = createRecording();
+        r.recipient_user_id = -1;
+        r.is_private = true;
+        expect(r.toParamsMap(Robolectric.application).get(Params.Track.SHARING)).toBe(Params.Track.PRIVATE);
     }
 
     @Test
