@@ -52,7 +52,10 @@ import java.io.IOException;
 
         ApiSyncer syncer = new ApiSyncer(context);
 
-        localCollection.updateSyncState(LocalCollection.SyncState.SYNCING, context.getContentResolver());
+        if (!localCollection.updateSyncState(LocalCollection.SyncState.SYNCING, context.getContentResolver())){
+            return this;
+        }
+
         try {
             result = syncer.syncContent(contentUri, action);
             localCollection.onSyncComplete(result, context.getContentResolver());
