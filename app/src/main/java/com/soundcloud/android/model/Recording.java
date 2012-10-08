@@ -60,6 +60,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public static final File IMAGE_DIR = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
     public static final String EXTRA = "recording";
     public static final int MAX_WAVE_CACHE = 100 * 1024 * 1024; // 100 mb
+    public static final String UPLOAD_TYPE = "recording";
 
     // basic properties
     public long user_id;
@@ -412,8 +413,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
         title = sharingNote(context.getResources());
 
         data.put(Params.Track.TITLE, title);
-        data.put(Params.Track.TYPE, "recording");
-        data.put(Params.Track.SHARING, is_private ? Params.Track.PRIVATE : Params.Track.PUBLIC);
+        data.put(Params.Track.TYPE, UPLOAD_TYPE);
+        data.put(Params.Track.SHARING, isPublic() ? Params.Track.PUBLIC : Params.Track.PRIVATE);
         data.put(Params.Track.DOWNLOADABLE, false);
         data.put(Params.Track.STREAMABLE, true);
 
@@ -444,6 +445,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
             data.put(Params.Track.SHARED_IDS, ids);
         }
         return data;
+    }
+
+    private boolean isPublic() {
+        return !is_private && recipient_user_id <= 0;
     }
 
 

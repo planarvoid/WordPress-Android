@@ -3,6 +3,7 @@ package com.soundcloud.android.activity.create;
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_PLAYBACK;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 
 import android.content.Intent;
@@ -42,5 +43,11 @@ public class PrivateRecordingTest extends AbstractRecordingTestCase {
 
         solo.clickOnText(R.string.private_message_btn_send);
         assertSoundUploaded();
+
+        Track t = assertSoundTranscoded();
+        if (t != null) {
+            assertFalse(t.isPublic());
+            assertEquals(t.shared_to_count,1);
+        }
     }
 }
