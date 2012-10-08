@@ -56,6 +56,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private Boolean mIsConnected;
     private boolean mIsForeground;
 
+    private NowPlayingIndicator mNowPlaying;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -286,6 +288,10 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getSupportMenuInflater();
         inflater.inflate(R.menu.main, menu);
+
+        MenuItem waveform = menu.findItem(R.id.menu_waveform);
+        NowPlayingIndicator indicator = (NowPlayingIndicator ) waveform.getActionView().findViewById(R.id.waveform_progress);
+        indicator.startRefresh();
 
         if (this instanceof ScPlayer) {
             menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
