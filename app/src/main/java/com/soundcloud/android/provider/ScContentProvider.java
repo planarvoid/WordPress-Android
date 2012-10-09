@@ -23,6 +23,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDiskIOException;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -56,10 +57,22 @@ public class ScContentProvider extends ContentProvider {
         return true;
     }
 
-
-
     @Override
     public Cursor query(final Uri uri,
+                        final String[] columns,
+                        final String selection,
+                        final String[] selectionArgs,
+                        final String sortOrder) {
+
+        return safeExecute(new DbOperation<Cursor>() {
+            @Override
+            public Cursor execute() {
+                return doQuery(uri, columns, selection, selectionArgs, sortOrder);
+            }
+        }, null);
+    }
+
+    private Cursor doQuery(final Uri uri,
                         final String[] columns,
                         final String selection,
                         final String[] selectionArgs,
@@ -285,6 +298,15 @@ public class ScContentProvider extends ContentProvider {
 
     @Override
     public Uri insert(final Uri uri, final ContentValues values) {
+        return safeExecute(new DbOperation<Uri>() {
+            @Override
+            public Uri execute() {
+                return doInsert(uri, values);
+            }
+        }, null);
+    }
+
+    private Uri doInsert(final Uri uri, final ContentValues values) {
         final long userId = SoundCloudApplication.getUserIdFromContext(getContext());
         long id;
         Uri result;
@@ -381,8 +403,17 @@ public class ScContentProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(Uri uri, String where, String[] whereArgs) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+    public int delete(final Uri uri, final String where, final String[] whereArgs) {
+        return safeExecute(new DbOperation<Integer>() {
+            @Override
+            public Integer execute() {
+                return doDelete(uri, where, whereArgs);
+            }
+        }, 0);
+    }
+
+    private int doDelete(Uri uri, String where, String[] whereArgs) {
+        final SQLiteDatabase db = dbHelper.getWritableDatabase();
         int count;
         final Content content = Content.match(uri);
 
@@ -439,7 +470,16 @@ public class ScContentProvider extends ContentProvider {
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
+    public int update(final Uri uri, final ContentValues values, final String where, final String[] whereArgs) {
+        return safeExecute(new DbOperation<Integer>() {
+            @Override
+            public Integer execute() {
+                return doUpdate(uri, values, where, whereArgs);
+            }
+        }, 0);
+    }
+
+    private int doUpdate(Uri uri, ContentValues values, String where, String[] whereArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int count;
         final Content content = Content.match(uri);
@@ -693,7 +733,7 @@ public class ScContentProvider extends ContentProvider {
      *     Building a suggestion table</a>
      */
     private Cursor suggest(Uri uri, String[] columns, String selection, String[] selectionArgs) {
-        log("suggest("+uri+","+ Arrays.toString(columns)+","+selection+","+Arrays.toString(selectionArgs)+")");
+        log("suggest(" + uri + "," + Arrays.toString(columns) + "," + selection + "," + Arrays.toString(selectionArgs) + ")");
         if (selectionArgs == null) {
             throw new IllegalArgumentException("selectionArgs must be provided for the Uri: " + uri);
         }
@@ -818,6 +858,22 @@ public class ScContentProvider extends ContentProvider {
     private static void log(String message) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, message);
+        }
+    }
+
+    private static interface DbOperation<V> {
+        V execute();
+    }
+
+    // don't die on disk i/o problems
+    private <V> V safeExecute(DbOperation<V> r, V def) {
+        try {
+            return r.execute();
+        } catch (SQLiteDiskIOException e) {
+            final String msg = "sqlite disk I/O:" + SQLiteErrors.convertToErrorMessage(e);
+            Log.w(TAG, msg, e);
+            SoundCloudApplication.handleSilentException(msg,  e);
+            return def;
         }
     }
 

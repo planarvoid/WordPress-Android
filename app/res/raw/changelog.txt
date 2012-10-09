@@ -5,6 +5,7 @@ $ 47
     * No longer stealing audio focus for recording
     * Connection fix for Froyo HttpClient
     * Honeycomb Styling fix
+    - Ship with x86 native code
 
 
 $ 46
@@ -30,6 +31,7 @@ $ 45
     - facebook offline fix (Jan)
     - non-interactive request tagging
     - signup spam prevention
+    - Refresh FB token
 
 $ 44
   % v 2.2.9

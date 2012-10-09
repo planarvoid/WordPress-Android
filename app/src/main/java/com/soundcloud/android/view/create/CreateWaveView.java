@@ -448,7 +448,7 @@ public class CreateWaveView extends View {
          */
         private int getAmplitudePoints(float[] points, int maxWaveHeight) {
             int ptIndex = 0;
-            for (int x = 0; x < lastDrawX; x++) {
+            for (int x = 0; x < lastDrawX && ptIndex < points.length+3; x++) {
                 final float a = size == lastDrawX ? get(x) : getInterpolatedValue(x, lastDrawX);
                 points[ptIndex] = x;
                 points[ptIndex + 1] = height / 2 - a * maxWaveHeight / 2;

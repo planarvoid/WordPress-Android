@@ -56,12 +56,11 @@ public final class IOUtils {
     public static long getDirSize(File dir) {
         long result = 0;
         File[] fileList = nullSafeListFiles(dir, null);
-        for (File aFileList : fileList) {
-            if (aFileList.isDirectory()) {
-                result += getDirSize(aFileList);
-            } else {
-                result += aFileList.length();
-            }
+        for (File file : fileList) {
+            if (file.isDirectory() &&
+                !dir.equals(file) /* check should not be necessary, but SO on some version of android */
+            ) result += getDirSize(file);
+            else result += file.length();
         }
         return result;
     }

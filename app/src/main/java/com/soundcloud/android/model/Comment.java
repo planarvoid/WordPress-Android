@@ -8,6 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -65,7 +66,7 @@ public class Comment extends ScResource {
     public String reply_to_username;
     public int xPos = -1;
     public boolean topLevelComment = false;
-    public Bitmap avatar;
+    public @Nullable Bitmap avatar;
 
     public Comment nextComment; //pointer to the next comment at this timestamp
 

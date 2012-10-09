@@ -29,6 +29,7 @@
                          android:layout_centerVertical="true"
                          android:layout_centerInParent="true"/>
             <TextView android:gravity="center"
+                      android:id="@+id/txt_sync"
                       android:text="@string/waiting_for_sync"
                       android:layout_width="wrap_content"
                       android:layout_height="fill_parent"

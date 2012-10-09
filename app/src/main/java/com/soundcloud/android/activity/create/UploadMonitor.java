@@ -1,5 +1,7 @@
 package com.soundcloud.android.activity.create;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -18,6 +20,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
@@ -88,15 +91,12 @@ public class UploadMonitor extends Activity {
         showUploading();
 
         final Intent intent = getIntent();
-        Recording intentRecording;
-        if (intent != null) {
-            if ((intentRecording = Recording.fromIntent(intent, getContentResolver(), SoundCloudApplication.getUserId())) != null) {
-                setRecording(intentRecording);
-            }
+        Recording recording;
+        if ((recording = Recording.fromIntent(intent, getContentResolver(), SoundCloudApplication.getUserId())) != null) {
+            setRecording(recording);
 
             // check for initial progress to display
-            if (intent.hasExtra(UploadService.EXTRA_STAGE)){
-
+            if (intent.hasExtra(UploadService.EXTRA_STAGE)) {
                 if (intent.getIntExtra(UploadService.EXTRA_STAGE,0) == UploadService.UPLOAD_STAGE_PROCESSING){
                     setProcessProgress(intent.getIntExtra(UploadService.EXTRA_PROGRESS,-1));
                 } else {
@@ -105,12 +105,22 @@ public class UploadMonitor extends Activity {
                 intent.removeExtra(UploadService.EXTRA_STAGE);
                 intent.removeExtra(UploadService.EXTRA_PROGRESS);
             }
+
+            LocalBroadcastManager.getInstance(this).registerReceiver(mUploadStatusListener,
+                    UploadService.getIntentFilter());
+        } else {
+            Log.d(TAG, "recording not found");
+            finish();
         }
-
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(mUploadStatusListener,
-                UploadService.getIntentFilter());
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ImageUtils.recycleImageViewBitmap((ImageView) findViewById(R.id.icon));
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mUploadStatusListener);
+    }
+
 
     @Override
     public void onSaveInstanceState(Bundle state) {
@@ -129,14 +139,7 @@ public class UploadMonitor extends Activity {
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        ImageUtils.recycleImageViewBitmap((ImageView) findViewById(R.id.icon));
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mUploadStatusListener);
-    }
-
-    protected void setRecording(final Recording recording) {
+    private void setRecording(final Recording recording) {
         mRecording = recording;
         mTrackTitle.setText(recording.sharingNote(getResources()));
 
@@ -174,6 +177,7 @@ public class UploadMonitor extends Activity {
         public void onReceive(Context context, Intent intent) {
             Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
             if (!mRecording.equals(recording)) return;
+
             // update with latest broadcasted attributes
             mRecording = recording;
 

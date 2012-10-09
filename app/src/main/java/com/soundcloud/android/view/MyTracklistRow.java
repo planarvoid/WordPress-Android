@@ -3,25 +3,23 @@ package com.soundcloud.android.view;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.os.Parcelable;
-import android.text.TextUtils;
-import android.view.ViewStub;
-import android.widget.BaseAdapter;
-
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 
+import android.content.Context;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewStub;
+import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -72,6 +70,12 @@ public class MyTracklistRow extends TrackInfoBar {
     }
     @Override
     public void display(int position, Parcelable p) {
+        if (!(p instanceof Recording)) {
+            SoundCloudApplication.handleSilentException("item "+p+" at position " +position + " is not a recording, "+
+                    "adapter="+mAdapter, null);
+            return;
+        }
+
         Recording recording = ((Recording) p);
 
         mTitle.setText(recording.sharingNote(getResources()));

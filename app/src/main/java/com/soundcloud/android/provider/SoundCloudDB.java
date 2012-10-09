@@ -110,7 +110,6 @@ public class SoundCloudDB {
             ScResource p = items.get(i);
             if (p != null) {
                 long id = p.id;
-
                 Track track = p.getTrack();
                 if (track != null) {
                     tracksToInsert.add(track);

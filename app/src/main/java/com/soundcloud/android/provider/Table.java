@@ -187,32 +187,31 @@ public enum Table {
         db.beginTransaction();
         int updated = 0;
         for (ContentValues v : values)  {
-            if (v != null) {
-                long id = v.getAsLong(BaseColumns._ID);
-                List<Object> bindArgs = new ArrayList<Object>();
-                StringBuilder sb = new StringBuilder();
-                sb.append("INSERT OR REPLACE INTO ").append(name).append("(")
-                        .append(TextUtils.join(",", fields))
-                        .append(") VALUES (");
-                for (int i = 0; i < fields.length; i++) {
-                    String f = fields[i];
-                    if (v.containsKey(f)) {
-                        sb.append("?");
-                        bindArgs.add(v.get(f));
-                    } else {
-                        sb.append("(SELECT ").append(f).append(" FROM ").append(name).append(" WHERE _id=?)");
-                        bindArgs.add(id);
-                    }
-                    if (i < fields.length - 1) {
-                        sb.append(",");
-                    }
+            if (v == null) continue;
+            long id = v.getAsLong(BaseColumns._ID);
+            List<Object> bindArgs = new ArrayList<Object>();
+            StringBuilder sb = new StringBuilder();
+            sb.append("INSERT OR REPLACE INTO ").append(name).append("(")
+                    .append(TextUtils.join(",", fields))
+                    .append(") VALUES (");
+            for (int i = 0; i < fields.length; i++) {
+                String f = fields[i];
+                if (v.containsKey(f)) {
+                    sb.append("?");
+                    bindArgs.add(v.get(f));
+                } else {
+                    sb.append("(SELECT ").append(f).append(" FROM ").append(name).append(" WHERE _id=?)");
+                    bindArgs.add(id);
                 }
-                sb.append(");");
-                final String sql = sb.toString();
-                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "sql:" + sql);
-                db.execSQL(sql, bindArgs.toArray());
-                updated++;
+                if (i < fields.length - 1) {
+                    sb.append(",");
+                }
             }
+            sb.append(");");
+            final String sql = sb.toString();
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "sql:" + sql);
+            db.execSQL(sql, bindArgs.toArray());
+            updated++;
         }
         db.setTransactionSuccessful();
         db.endTransaction();
