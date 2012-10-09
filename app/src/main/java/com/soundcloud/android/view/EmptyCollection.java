@@ -5,6 +5,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,11 @@ public class EmptyCollection extends FrameLayout {
     private ActionListener mButtonActionListener;
 
     private ActionListener mImageActionListener;
+    private Mode mMode;
+
+    public enum Mode {
+        WAITING_FOR_SYNC, WAITING_FOR_DATA, IDLE
+    }
 
     public EmptyCollection(Context context) {
         super(context);
@@ -63,15 +69,29 @@ public class EmptyCollection extends FrameLayout {
                 }
             }
         });
+        setMode(Mode.WAITING_FOR_DATA);
     }
 
-    public void setHasSyncedBefore(boolean hasSyncedBefore) {
-        if (hasSyncedBefore) {
-            mSyncLayout.setVisibility(View.GONE);
-            mEmptyLayout.setVisibility(View.VISIBLE);
-        } else {
-            mEmptyLayout.setVisibility(View.GONE);
-            mSyncLayout.setVisibility(View.VISIBLE);
+    public void setMode(Mode mode) {
+        if (mMode != mode) {
+            mMode = mode;
+            switch (mode) {
+                case WAITING_FOR_SYNC:
+                    mEmptyLayout.setVisibility(View.GONE);
+                    mSyncLayout.setVisibility(View.VISIBLE);
+                    findViewById(R.id.txt_sync).setVisibility(View.VISIBLE);
+                    break;
+                case WAITING_FOR_DATA:
+                    mEmptyLayout.setVisibility(View.GONE);
+                    mSyncLayout.setVisibility(View.VISIBLE);
+                    findViewById(R.id.txt_sync).setVisibility(View.GONE);
+                    break;
+                case IDLE:
+                    mEmptyLayout.setVisibility(View.VISIBLE);
+                    mSyncLayout.setVisibility(View.GONE);
+                    break;
+
+            }
         }
     }
 

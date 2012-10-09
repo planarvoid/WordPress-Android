@@ -166,10 +166,11 @@ public class ScListFragment extends SherlockListFragment
         mListView.setOnScrollListener(this);
 
         mEmptyCollection = EmptyCollection.fromContent(context, mContent);
-        mEmptyCollection.setHasSyncedBefore(mLocalCollection == null || mLocalCollection.hasSyncedBefore());
+        mEmptyCollection.setMode((mLocalCollection == null || mLocalCollection.hasSyncedBefore()) ?
+                EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.WAITING_FOR_SYNC);
         mListView.setEmptyView(mEmptyCollection);
 
-        if (isRefreshing()){
+        if (isRefreshing() || waitingOnInitialSync()){
             mListView.setRefreshing(false);
         }
 
@@ -181,7 +182,13 @@ public class ScListFragment extends SherlockListFragment
         root.setLayoutParams(new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
 
+
+
         return root;
+    }
+
+    private boolean waitingOnInitialSync() {
+        return (mLocalCollection != null && !mLocalCollection.hasSyncedBefore());
     }
 
     @Override
@@ -339,6 +346,8 @@ public class ScListFragment extends SherlockListFragment
             case ApiSyncService.STATUS_SYNC_ERROR: {
                 if (resultData != null && !resultData.getBoolean(mContentUri.toString()) && !isRefreshing()) {
                     doneRefreshing(); // nothing changed
+                } else if (mContentInvalid && !isRefreshTaskActive()) {
+                    executeRefreshTask();
                 }
                 break;
             }
@@ -379,6 +388,7 @@ public class ScListFragment extends SherlockListFragment
     }
 
     public void executeRefreshTask() {
+        mEmptyCollection.setMode(mLocalCollection.hasSyncedBefore() ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.WAITING_FOR_SYNC);
         mRefreshTask = buildTask();
         mRefreshTask.execute(getTaskParams(true));
     }
@@ -470,7 +480,6 @@ public class ScListFragment extends SherlockListFragment
     @Override
     public void onLocalCollectionChanged() {
         refreshSyncData();
-        mEmptyCollection.setHasSyncedBefore(mLocalCollection.hasSyncedBefore());
     }
 
     protected boolean handleResponseCode(int responseCode) {
@@ -514,15 +523,8 @@ public class ScListFragment extends SherlockListFragment
         mKeepGoing = data.keepGoing;
         getListAdapter().handleTaskReturnData(data);
 
-        if (data.wasRefresh) {
-            if (!isRefreshing()) {
-                doneRefreshing();
-            }
-            if (data.success ) {
-                setListLastUpdated();
-            }
-        }
-
+        if (data.wasRefresh && !waitingOnInitialSync()) doneRefreshing();
+        mEmptyCollection.setMode(waitingOnInitialSync() ? EmptyCollection.Mode.WAITING_FOR_SYNC : EmptyCollection.Mode.IDLE);
         handleResponseCode(data.responseCode);
     }
 
