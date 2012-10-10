@@ -34,7 +34,7 @@
 
     <application android:icon="@drawable/launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.ScLight"
+        android:theme="@style/Theme.Next"
         android:configChanges="orientation|keyboardHidden|keyboard"
         android:hardwareAccelerated="true"
         android:name="SoundCloudApplication">
@@ -170,7 +170,7 @@
         <activity android:name=".activity.ScPlayer"
                   android:label="SoundCloud Player"
                   android:windowSoftInputMode="adjustPan"
-                  android:theme="@style/Theme.ScPlayer" />
+                  android:theme="@style/Theme.ScDark" />
 
         <activity android:name=".activity.auth.Tour" android:screenOrientation="portrait" />
         <activity android:name=".activity.track.TrackFavoriters" />
