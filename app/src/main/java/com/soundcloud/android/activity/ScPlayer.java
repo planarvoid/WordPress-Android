@@ -1,7 +1,10 @@
 
 package com.soundcloud.android.activity;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.ShareActionProvider;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -135,6 +138,8 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
                     mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
         }
         mChangeTrackFast = false;
+
+        invalidateOptionsMenu();
 
         final long prevTrackId;
         final long nextTrackId;
@@ -542,7 +547,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
             mPlayingTrack = CloudPlaybackService.getCurrentTrack();
         }
 
-        setFavoriteStatus();
+        invalidateOptionsMenu();
         setPlaybackState();
     }
 
@@ -641,4 +646,47 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
 
          mTransportBar.setPlaybackState(showPlayState);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getSupportMenuInflater().inflate(R.menu.player, menu);
+
+        final MenuItem favoriteItem = menu.findItem(R.id.action_bar_like);
+        final MenuItem shareItem = menu.findItem(R.id.action_bar_share);
+
+        final PlayerTrackView currentTrackView = getCurrentTrackView();
+        final Track track = mPlaybackService == null || currentTrackView == null ? null :
+                mPlaybackService.getPlaylistManager().getTrackAt(currentTrackView.getPlayPosition());
+
+        getSupportActionBar().setTitle(track == null ? "" : track.title);
+
+        if (track != null && track.user_favorite) {
+            favoriteItem.setIcon(R.drawable.ic_liked_states);
+        } else {
+            favoriteItem.setIcon(R.drawable.ic_like_states);
+        }
+
+        if (track != null && track.isPublic()) {
+            shareItem.setEnabled(true);
+
+            ShareActionProvider shareActionProvider = (ShareActionProvider) shareItem.getActionProvider();
+
+            Intent shareIntent = track.getShareIntent();
+            shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT,
+                    track.title + (track.user != null ? " by " + track.user.username : "") + " on SoundCloud");
+            shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, track.permalink_url);
+
+            shareActionProvider.setShareIntent(shareIntent);
+        } else {
+            shareItem.setEnabled(false);
+
+            ShareActionProvider shareActionProvider = (ShareActionProvider) shareItem.getActionProvider();
+            shareActionProvider.setShareIntent(null);
+        }
+
+        return true;
+    }
+
 }
