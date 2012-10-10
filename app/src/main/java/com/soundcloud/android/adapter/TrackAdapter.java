@@ -3,10 +3,7 @@ package com.soundcloud.android.adapter;
 import android.os.Parcelable;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
@@ -16,14 +13,13 @@ import com.soundcloud.android.view.quickaction.QuickTrackMenu;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.soundcloud.android.service.playback.CloudPlaybackService.*;
 
-public class TrackAdapter extends ScBaseAdapter<Track> {
+public class TrackAdapter extends ScBaseAdapter {
     private QuickAction mQuickActionMenu;
 
     public TrackAdapter(Context context, Uri uri) {
@@ -43,38 +39,6 @@ public class TrackAdapter extends ScBaseAdapter<Track> {
 
     @Override
     public void handleListItemClick(int position, long id) {
-        Playable.PlayInfo info = new Playable.PlayInfo();
-        info.uri      = mContentUri;
-        info.position = position;
-
-        List<Playable> playables = new ArrayList<Playable>(mData.size());
-
-        for (Parcelable p : mData) {
-            if (p instanceof Playable) {
-                playables.add((Playable) p);
-            } else {
-                throw new AssertionError("No playable");
-            }
-        }
-
-        info.playables = playables;
-
-        Intent intent = new Intent(mContext, CloudPlaybackService.class).setAction(CloudPlaybackService.PLAY_ACTION);
-
-        if (mContentUri != null) {
-            SoundCloudApplication.MODEL_MANAGER.cache(info.getTrack());
-            intent.putExtra(PlayExtras.trackId,      info.getTrack().id)
-                  .putExtra(PlayExtras.playPosition, info.position)
-                  .setData(info.uri);
-        } else {
-            CloudPlaybackService.playlistXfer = info.playables;
-
-            intent.putExtra(PlayExtras.playPosition,      info.position)
-                  .putExtra(PlayExtras.playFromXferCache, true);
-        }
-
-        mContext.startService(intent);
-        mContext.startActivity(new Intent(mContext, ScPlayer.class));
-
+        playPosition(position,id);
     }
 }
