@@ -165,14 +165,14 @@ public class NowPlayingIndicator extends ProgressBar {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            ImageLoader.get(getContext()).getBitmap(
-                CloudPlaybackService.getCurrentTrack().waveform_url,
-                new ImageLoader.BitmapCallback() {
-                    public void onImageLoaded(Bitmap mBitmap, String uri) {
-                        setWaveform(mBitmap);
-                    }
+        ImageLoader.get(getContext()).getBitmap(
+            CloudPlaybackService.getCurrentTrack().waveform_url,
+            new ImageLoader.BitmapCallback() {
+                public void onImageLoaded(Bitmap mBitmap, String uri) {
+                    setWaveform(mBitmap);
                 }
-            );
+            }
+        );
         }
     };
 
