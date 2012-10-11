@@ -25,7 +25,6 @@ import static java.lang.Math.min;
 
 public class NowPlayingIndicator extends ProgressBar {
     private static final int REFRESH = 1;
-    private static final int REFRESH_DELAY = 50;
 
     private static final int BACKGROUND_COLORS[] = {
         0xFF1B1B1B,
@@ -128,18 +127,24 @@ public class NowPlayingIndicator extends ProgressBar {
         mHandler.sendMessageDelayed(msg, delay);
     }
 
+    private int getRefreshDelay() {
+        if (getWidth() == 0) return 1000;
+
+        return 1000 / getWidth();
+    }
+
     private long refreshNow() {
         Track track = CloudPlaybackService.getCurrentTrack();
 
-        if (track == null) return REFRESH_DELAY;
+        if (track == null) return getRefreshDelay();
 
         long progress  = CloudPlaybackService.getCurrentProgress();
-        long remaining = REFRESH_DELAY - (progress % REFRESH_DELAY);
+        long remaining = getRefreshDelay() - (progress % getRefreshDelay());
 
         setProgress((int) CloudPlaybackService.getCurrentProgress());
         setMax(CloudPlaybackService.getCurrentTrack().duration);
 
-        return !CloudPlaybackService.getState().isSupposedToBePlaying() ? REFRESH_DELAY  : remaining;
+        return !CloudPlaybackService.getState().isSupposedToBePlaying() ? getRefreshDelay() : remaining;
     }
 
     @Override
