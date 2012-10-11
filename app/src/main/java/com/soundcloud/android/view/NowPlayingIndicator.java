@@ -1,24 +1,21 @@
 package com.soundcloud.android.view;
 
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.*;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.view.play.PlayerTrackView;
+import org.jetbrains.annotations.Nullable;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -50,8 +47,8 @@ public class NowPlayingIndicator extends ProgressBar {
         1.0f
     };
 
-    private Bitmap mWaveform;
-    private Bitmap mWaveformMask;
+    private @Nullable Bitmap mWaveform;
+    private @Nullable Bitmap mWaveformMask;
 
     public NowPlayingIndicator(Context context) {
         super(context);
@@ -116,7 +113,6 @@ public class NowPlayingIndicator extends ProgressBar {
                 case REFRESH:
                     long next = refreshNow();
                     queueNextRefresh(next);
-                    return;
             }
         }
     };
@@ -186,8 +182,12 @@ public class NowPlayingIndicator extends ProgressBar {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+        Track track = CloudPlaybackService.getCurrentTrack();
+
+        if (track == null) return;
+
         ImageLoader.get(getContext()).getBitmap(
-            CloudPlaybackService.getCurrentTrack().waveform_url,
+            track.waveform_url,
             new ImageLoader.BitmapCallback() {
                 public void onImageLoaded(Bitmap mBitmap, String uri) {
                     setWaveform(mBitmap);
