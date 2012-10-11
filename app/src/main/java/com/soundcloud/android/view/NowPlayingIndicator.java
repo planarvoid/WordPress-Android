@@ -142,7 +142,7 @@ public class NowPlayingIndicator extends ProgressBar {
         long remaining = getRefreshDelay() - (progress % getRefreshDelay());
 
         setProgress((int) CloudPlaybackService.getCurrentProgress());
-        setMax(CloudPlaybackService.getCurrentTrack().duration);
+        setMax(track.duration);
 
         return !CloudPlaybackService.getState().isSupposedToBePlaying() ? getRefreshDelay() : remaining;
     }
