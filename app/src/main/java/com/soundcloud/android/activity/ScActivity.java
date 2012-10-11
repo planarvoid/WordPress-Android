@@ -141,9 +141,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     private void handleIntent(Intent intent) {
-        if (intent.hasExtra(RootView.EXTRA_MENU_STATE)) {
+        if (intent.hasExtra(RootView.EXTRA_ROOT_VIEW_STATE)) {
             overridePendingTransition(0, 0);
-            mRootView.restoreHierarchyState(intent.getExtras().getSparseParcelableArray(RootView.EXTRA_MENU_STATE));
+            mRootView.restoreStateFromExtra(intent.getExtras().getBundle(RootView.EXTRA_ROOT_VIEW_STATE));
         }
     }
 
@@ -155,7 +155,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         return new Intent(ScActivity.this, activity)
                 .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                .putExtras(mRootView.getMenuBundle());
+                .putExtra(RootView.EXTRA_ROOT_VIEW_STATE,mRootView.getMenuBundle());
     }
 
     @Override
