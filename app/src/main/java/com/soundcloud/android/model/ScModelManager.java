@@ -417,7 +417,7 @@ public class ScModelManager {
             ids.removeAll(getStoredIds(mResolver, modelIds, content));
         }
 
-        List<Long> fetchIds = (maxToFetch >= -1) ? new ArrayList<Long>(ids.subList(0, Math.min(ids.size(), maxToFetch)))
+        List<Long> fetchIds = (maxToFetch > -1) ? new ArrayList<Long>(ids.subList(0, Math.min(ids.size(), maxToFetch)))
                     : ids;
 
         return SoundCloudDB.bulkInsertModels(mResolver, doBatchLookup(api, fetchIds, content));
