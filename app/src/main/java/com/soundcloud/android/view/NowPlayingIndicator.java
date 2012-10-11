@@ -27,6 +27,30 @@ public class NowPlayingIndicator extends ProgressBar {
     private static final int REFRESH = 1;
     private static final int REFRESH_DELAY = 50;
 
+    private static final int BACKGROUND_COLORS[] = {
+        0xFF1B1B1B,
+        0xFF1B1B1B,
+        0xFF131313,
+        0xFF222222,
+        0xFF222222
+    };
+
+    private static final int FOREGROUND_COLORS[] = {
+        0xFFFF4400,
+        0xFFFF4400,
+        0xFFED2800,
+        0xFFA82400,
+        0xFFA82400
+    };
+
+    private static final float COLOR_STOPS[] = {
+        0.0f,
+        0.70f,
+        0.72f,
+        0.74f,
+        1.0f
+    };
+
     private Bitmap mWaveform;
     private Bitmap mWaveformMask;
 
@@ -122,39 +146,31 @@ public class NowPlayingIndicator extends ProgressBar {
     protected void onDraw(Canvas canvas) {
         if (mWaveformMask == null) return;
 
-        Bitmap waveform = mWaveformMask.copy(Bitmap.Config.ARGB_4444, true);
-        Canvas tmp      = new Canvas(waveform);
+        Canvas tmp = new Canvas(mWaveformMask);
+
+        // Grey background
+        LinearGradient backgroundGradient = new LinearGradient(0, 0, 0, getHeight(), BACKGROUND_COLORS, COLOR_STOPS, Shader.TileMode.MIRROR);
+
+        Paint background = new Paint();
+        background.setShader(backgroundGradient);
+        background.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+
+        tmp.drawRect(0, 0, getWidth(), getHeight(), background);
 
         // Orange foreground
-        float fraction = (float) getProgress() / (float) getMax();
-        fraction = min(max(fraction, 0), getMax());
-
-        int foregroundColors[] = {
-            0xFFFF4400,
-            0xFFFF4400,
-            0xFFED2800,
-            0xFFA82400,
-            0xFFA82400,
-        };
-
-        float foregroundPositions[] = {
-            0.0f,
-            0.70f,
-            0.72f,
-            0.74f,
-            1.0f
-        };
-
-        LinearGradient foregroundGradient = new LinearGradient(0, 0, 0, getHeight(), foregroundColors, foregroundPositions, Shader.TileMode.MIRROR);
+        LinearGradient foregroundGradient = new LinearGradient(0, 0, 0, getHeight(), FOREGROUND_COLORS, COLOR_STOPS, Shader.TileMode.MIRROR);
 
         Paint foreground = new Paint();
         foreground.setShader(foregroundGradient);
         foreground.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
 
+        float fraction = (float) getProgress() / (float) getMax();
+        fraction = min(max(fraction, 0), getMax());
+
         tmp.drawRect(0, 0, getWidth() * fraction, getHeight(), foreground);
 
         canvas.drawBitmap(
-            waveform,
+            mWaveformMask,
             new Rect(0, 0, getWidth(), getHeight()),
             new Rect(0, 0, getWidth(), getHeight()),
             null
@@ -190,29 +206,10 @@ public class NowPlayingIndicator extends ProgressBar {
         Canvas canvas = new Canvas(mask);
         float  ratio  = 0.75f;
 
-        // Grey background
-        int backgroundColors[] = {
-            0xFF1B1B1B,
-            0xFF1B1B1B,
-            0xFF131313,
-            0xFF222222,
-            0xFF222222
-        };
+        Paint black = new Paint();
+        black.setColor(Color.BLACK);
 
-        float backgoundPositions[] = {
-            0.0f,
-            0.70f,
-            0.72f,
-            0.74f,
-            1.0f
-        };
-
-        LinearGradient backgroundGradient = new LinearGradient(0, 0, 0, height, backgroundColors, backgoundPositions, Shader.TileMode.MIRROR);
-
-        Paint background = new Paint();
-        background.setShader(backgroundGradient);
-
-        canvas.drawRect(0, 0, width, height, background);
+        canvas.drawRect(0, 0, width, height, black);
 
         Paint xor = new Paint();
         xor.setColor(Color.BLACK);
