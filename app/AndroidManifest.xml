@@ -43,7 +43,7 @@
         <!-- activities -->
         <activity android:name=".activity.Launch"
                   android:noHistory="true"
-                  android:theme="@style/Theme.ScBaseNoActionBar"
+                  android:theme="@style/Theme.Next.NoActionBar"
                   android:label="@string/app_name"
                   android:launchMode="singleTask"
                   android:windowSoftInputMode="adjustPan">
