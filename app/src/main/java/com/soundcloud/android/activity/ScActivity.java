@@ -1,7 +1,5 @@
 package com.soundcloud.android.activity;
 
-import android.graphics.Rect;
-import android.widget.ProgressBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -15,7 +13,6 @@ import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.fragment.PlayerFragment;
 import com.soundcloud.android.model.Search;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
@@ -38,7 +35,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -172,11 +168,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     protected void onStop() {
         super.onStop();
-
-        if (mNowPlaying != null) {
-            mNowPlaying.stopRefresh();
-        }
-
         connectivityListener.stopListening();
     }
 
@@ -191,7 +182,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         }
 
         if (mNowPlaying != null) {
-            mNowPlaying.startRefresh();
+            mNowPlaying.resume();
+
         }
     }
 
@@ -201,7 +193,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         mIsForeground = false;
 
         if (mNowPlaying != null) {
-            mNowPlaying.stopRefresh();
+            mNowPlaying.pause();
         }
     }
 
@@ -303,13 +295,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         inflater.inflate(R.menu.main, menu);
 
         if (mNowPlaying != null) {
-            mNowPlaying.stopRefresh();
+            mNowPlaying.destroy();
             mNowPlaying = null;
         }
 
         MenuItem waveform = menu.findItem(R.id.menu_waveform);
         mNowPlaying = (NowPlayingIndicator) waveform.getActionView().findViewById(R.id.waveform_progress);
-        mNowPlaying.startRefresh();
 
         if (this instanceof ScPlayer) {
             menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
