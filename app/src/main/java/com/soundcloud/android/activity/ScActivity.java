@@ -175,7 +175,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         if (mNowPlaying != null) {
             mNowPlaying.stopRefresh();
-            mNowPlaying = null;
         }
 
         connectivityListener.stopListening();
@@ -190,12 +189,20 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             pausePlayback();
             finish();
         }
+
+        if (mNowPlaying != null) {
+            mNowPlaying.startRefresh();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mIsForeground = false;
+
+        if (mNowPlaying != null) {
+            mNowPlaying.stopRefresh();
+        }
     }
 
     @Override

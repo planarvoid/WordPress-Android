@@ -76,11 +76,6 @@ public class NowPlayingIndicator extends ProgressBar {
             }
         });
 
-
-
-        long next = refreshNow();
-        queueNextRefresh(next);
-
         IntentFilter f = new IntentFilter();
         f.addAction(CloudPlaybackService.PLAYLIST_CHANGED);
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
@@ -100,6 +95,8 @@ public class NowPlayingIndicator extends ProgressBar {
     }
 
     public void startRefresh() {
+        long next = refreshNow();
+        queueNextRefresh(next);
     }
 
     public void stopRefresh() {
