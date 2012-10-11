@@ -49,6 +49,7 @@ public class NowPlayingIndicator extends ProgressBar {
 
     private @Nullable Bitmap mWaveform;
     private @Nullable Bitmap mWaveformMask;
+    private @Nullable Track  mTrack;
 
     public NowPlayingIndicator(Context context) {
         super(context);
@@ -79,24 +80,30 @@ public class NowPlayingIndicator extends ProgressBar {
         IntentFilter f = new IntentFilter();
         f.addAction(CloudPlaybackService.PLAYLIST_CHANGED);
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
-        f.addAction(CloudPlaybackService.META_CHANGED);
-        f.addAction(CloudPlaybackService.PLAYBACK_ERROR);
-        f.addAction(CloudPlaybackService.TRACK_UNAVAILABLE);
-        f.addAction(CloudPlaybackService.STREAM_DIED);
-        f.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
-        f.addAction(CloudPlaybackService.BUFFERING);
-        f.addAction(CloudPlaybackService.BUFFERING_COMPLETE);
-        f.addAction(CloudPlaybackService.COMMENTS_LOADED);
-        f.addAction(CloudPlaybackService.SEEKING);
-        f.addAction(CloudPlaybackService.SEEK_COMPLETE);
-        f.addAction(CloudPlaybackService.FAVORITE_SET);
-        f.addAction(Actions.COMMENT_ADDED);
         context.registerReceiver(mStatusListener, new IntentFilter(f));
     }
 
     public void startRefresh() {
+        // Update the current track
+        setTrack(CloudPlaybackService.getCurrentTrack());
+
         long next = refreshNow();
         queueNextRefresh(next);
+    }
+
+    private void setTrack(Track track) {
+        mTrack = track;
+
+        if (track == null) return;
+
+        ImageLoader.get(getContext()).getBitmap(
+            track.waveform_url,
+            new ImageLoader.BitmapCallback() {
+                public void onImageLoaded(Bitmap mBitmap, String uri) {
+                    setWaveform(mBitmap);
+                }
+            }
+        );
     }
 
     public void stopRefresh() {
@@ -175,22 +182,18 @@ public class NowPlayingIndicator extends ProgressBar {
         );
     }
 
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        // Recreate the mask when the dimensions change
+        this.mWaveformMask = createWaveformMask(mWaveform, getWidth(), getHeight());
+    }
+
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-        Track track = CloudPlaybackService.getCurrentTrack();
-
-        if (track == null) return;
-
-        ImageLoader.get(getContext()).getBitmap(
-            track.waveform_url,
-            new ImageLoader.BitmapCallback() {
-                public void onImageLoaded(Bitmap mBitmap, String uri) {
-                    setWaveform(mBitmap);
-                }
-            }
-        );
+            setTrack(CloudPlaybackService.getCurrentTrack());
         }
     };
 
@@ -204,6 +207,8 @@ public class NowPlayingIndicator extends ProgressBar {
     }
 
     private static Bitmap createWaveformMask(Bitmap waveform, int width, int height) {
+        if (waveform == null || width == 0 || height == 0) return null;
+
         Bitmap mask   = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
         Canvas canvas = new Canvas(mask);
         float  ratio  = 0.75f;
