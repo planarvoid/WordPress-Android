@@ -36,4 +36,9 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
 
+    <string name="action_bar_like">Like</string>
+    <string name="action_bar_comment">Comment</string>
+    <string name="action_bar_share">Share</string>
+    <string name="action_bar_info">Info</string>
+
 </resources>
