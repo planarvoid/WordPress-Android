@@ -2,7 +2,6 @@
 package com.soundcloud.android.activity;
 
 import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.ShareActionProvider;
 import com.soundcloud.android.Actions;
@@ -14,6 +13,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlaylistManager;
+import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.WorkspaceView;
@@ -251,13 +251,38 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
+        final PlayerTrackView currentTrackView = getCurrentTrackView();
+        final Track displayedTrack = currentTrackView == null ? null : currentTrackView.getTrack();
+
         switch (item.getItemId()) {
             case Consts.OptionsMenu.REFRESH:
                 mPlayingTrack.full_track_info_loaded = false;
                 mPlayingTrack.comments = null;
-                final PlayerTrackView ptv = getCurrentTrackView();
-                if (ptv != null) ptv.onRefresh();
+                if (currentTrackView != null) currentTrackView.onRefresh();
                 return true;
+
+            case R.id.action_bar_comment:
+                if (displayedTrack != null){
+                    toggleCommentMode(currentTrackView.getPlayPosition());
+                    track(Click.Comment, displayedTrack);
+                    invalidateOptionsMenu();
+                }
+                return true;
+
+            case R.id.action_bar_like:
+                if (displayedTrack != null){
+                    toggleLike(displayedTrack);
+                    track(Click.Like, displayedTrack);
+                    invalidateOptionsMenu();
+                }
+                return true;
+
+            case R.id.action_bar_info:
+                if (currentTrackView != null) {
+                    currentTrackView.onTrackInfoFlip();
+                }
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -476,7 +501,15 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
                 for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
                     ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).handleIdBasedIntent(intent);
                 }
-                if (action.equals(CloudPlaybackService.FAVORITE_SET)) setFavoriteStatus();
+
+                if (action.equals(CloudPlaybackService.FAVORITE_SET)) {
+                    Track track = getCurrentDisplayedTrack();
+                    if (track != null && track.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
+                        mTransportBar.setFavoriteStatus(track.user_favorite);
+                        invalidateOptionsMenu();
+                    }
+                }
+
             } else {
                 if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
                     setPlaybackState();
@@ -610,12 +643,19 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
 
     }
 
-    private void setFavoriteStatus() {
-        if (mPlayingTrack != null) mTransportBar.setFavoriteStatus(mPlayingTrack.user_favorite);
-    }
-
+    /**
+     * Returns the currently displayed track view
+     */
     private @Nullable PlayerTrackView getCurrentTrackView() {
         return ((PlayerTrackView) mTrackWorkspace.getScreenAt(mTrackWorkspace.getCurrentScreen()));
+    }
+
+    /**
+     * Returns the track in the current track display (not necessarily the track that is currently playing)
+     */
+    private Track getCurrentDisplayedTrack() {
+        final PlayerTrackView currentTrackView = getCurrentTrackView();
+        return currentTrackView == null ? null : currentTrackView.getTrack();
     }
 
     private PlayerTrackView getTrackView(int playPos){
@@ -653,11 +693,9 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         getSupportMenuInflater().inflate(R.menu.player, menu);
 
         final MenuItem favoriteItem = menu.findItem(R.id.action_bar_like);
+        final MenuItem commentItem = menu.findItem(R.id.action_bar_comment);
         final MenuItem shareItem = menu.findItem(R.id.action_bar_share);
-
-        final PlayerTrackView currentTrackView = getCurrentTrackView();
-        final Track track = mPlaybackService == null || currentTrackView == null ? null :
-                mPlaybackService.getPlaylistManager().getTrackAt(currentTrackView.getPlayPosition());
+        final Track track = getCurrentDisplayedTrack();
 
         getSupportActionBar().setTitle(track == null ? "" : track.title);
 
@@ -665,6 +703,12 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
             favoriteItem.setIcon(R.drawable.ic_liked_states);
         } else {
             favoriteItem.setIcon(R.drawable.ic_like_states);
+        }
+
+        if (mIsCommenting){
+            commentItem.setIcon(R.drawable.ic_commenting_states);
+        } else {
+            commentItem.setIcon(R.drawable.ic_comment_states);
         }
 
         if (track != null && track.isPublic()) {
