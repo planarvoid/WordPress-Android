@@ -3,7 +3,7 @@
     <item android:id="@+id/action_bar_like"
           android:icon="@drawable/ic_like_states"
           android:title="@string/action_bar_like"
-          android:showAsAction="ifRoom" />
+          android:showAsAction="always" />
     <item android:id="@+id/action_bar_comment"
           android:icon="@drawable/ic_comment_states"
           android:title="@string/action_bar_comment"
