@@ -438,8 +438,7 @@ public class ScListFragment extends SherlockListFragment
     public void refresh(final boolean userRefresh) {
         if (userRefresh) {
             if (getListAdapter() instanceof FollowStatus.Listener) {
-                FollowStatus.get().requestUserFollowings(SoundCloudApplication.fromContext(getActivity()),
-                        (FollowStatus.Listener) getListAdapter(), true);
+                FollowStatus.get(getActivity()).requestUserFollowings((FollowStatus.Listener) getListAdapter());
             }
         } else {
             reset();

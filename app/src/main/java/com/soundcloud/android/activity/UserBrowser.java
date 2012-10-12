@@ -204,7 +204,7 @@ public class UserBrowser extends ScListActivity implements
 
             build();
 
-            if (!isMe()) FollowStatus.get().requestUserFollowings(getApp(), this, false);
+            if (!isMe()) FollowStatus.get(this).requestUserFollowings(this);
 
             /*
             if (intent.hasExtra(Tab.EXTRA)) {
@@ -571,32 +571,28 @@ public class UserBrowser extends ScListActivity implements
        return mUser != null && mUser.id == getCurrentUserId();
     }
 
-    private void toggleFollowing(User user) {
-        mFollowBtn.setEnabled(false);
-        mFollowingBtn.setEnabled(false);
+    private void toggleFollowing(User u) {
+            mFollowBtn.setEnabled(false);
+            mFollowingBtn.setEnabled(false);
 
-        FollowStatus.get().toggleFollowing(user.id, getApp(), new Handler() {
-            @Override public void handleMessage(Message msg) {
-                mFollowBtn.setEnabled(true);
-                mFollowingBtn.setEnabled(true);
+            FollowStatus.get(this).toggleFollowing(u, getApp(), new Handler() {
+                @Override public void handleMessage(Message msg) {
+                    mFollowBtn.setEnabled(true);
+                    mFollowingBtn.setEnabled(true);
 
-                if (msg.what != FollowStatus.FOLLOW_STATUS_SUCCESS) {
-                    setFollowingButton();
-
-                    if (msg.what == FollowStatus.FOLLOW_STATUS_SPAM) {
-                        AndroidUtils.showToast(UserBrowser.this, R.string.following_spam_warning);
-                    } else {
-                        AndroidUtils.showToast(UserBrowser.this, R.string.error_change_following_status);
+                    if (msg.arg1 == 0) {
+                        setFollowingButton();
+                        showToast(R.string.error_change_following_status);
                     }
                 }
-            }
-        });
-        setFollowingButton();
-    }
+            });
+            setFollowingButton();
+        }
+
 
     private void setFollowingButton() {
         if (isOtherUser()) {
-            if (FollowStatus.get().isFollowing(mUser)) {
+            if (FollowStatus.get(this).isFollowing(mUser)) {
                 mFollowingBtn.setVisibility(View.VISIBLE);
                 mFollowBtn.setVisibility(View.INVISIBLE);
             }  else {

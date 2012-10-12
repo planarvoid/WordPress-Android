@@ -2,71 +2,58 @@ package com.soundcloud.android.cache;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.task.AsyncApiTask;
-import com.soundcloud.android.task.LoadFollowingsTask;
-import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
-import org.jetbrains.annotations.Nullable;
 
+import android.content.AsyncQueryHandler;
 import android.content.Context;
+import android.database.ContentObserver;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcel;
-import android.os.ParcelFormatException;
-import android.os.Parcelable;
 import android.util.Log;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-// TODO replace with db lookups
-@Deprecated
-public class FollowStatus implements Parcelable {
-    public static  final int FOLLOW_STATUS_SUCCESS = 0;
-    public static  final int FOLLOW_STATUS_FAIL    = 1;
-    public static  final int FOLLOW_STATUS_SPAM    = 2;
-
-    private static final Request ENDPOINT = Request.to(Endpoints.MY_FOLLOWINGS + "/ids");
-    private static final int MAX_AGE = 5 * 60 * 1000;
-
+public class FollowStatus {
     private final Set<Long> followings = Collections.synchronizedSet(new HashSet<Long>());
-    private long lastUpdate;
     private static FollowStatus sInstance;
-    private LoadFollowingsTask mFollowingsTask;
     private WeakHashMap<Listener, Listener> listeners = new WeakHashMap<Listener, Listener>();
+    AsyncQueryHandler asyncQueryHandler;
+    private ContentObserver c;
+    private Context mContext;
 
-    public synchronized static FollowStatus get() {
+    public FollowStatus(final Context c) {
+        mContext = c;
+        c.getContentResolver().registerContentObserver(Content.ME_FOLLOWINGS.uri,true,new ChangeObserver());
+
+    }
+
+    public synchronized static FollowStatus get(Context c) {
         if (sInstance == null) {
-            sInstance = new FollowStatus();
+            sInstance = new FollowStatus(c);
         }
         return sInstance;
     }
 
-    public synchronized static void set(@Nullable FollowStatus status) {
+    public synchronized static void set(FollowStatus status) {
         sInstance = status;
     }
 
-    /* package */ FollowStatus() {
-    }
-
-    private FollowStatus(Parcel parcel) {
-        lastUpdate = parcel.readLong();
-        int size = parcel.readInt();
-        while (size-- > 0) followings.add(parcel.readLong());
+    private void onContentChanged() {
+        doQuery(null);
     }
 
     public boolean isFollowing(long id) {
@@ -74,32 +61,20 @@ public class FollowStatus implements Parcelable {
     }
 
     public boolean isFollowing(User user) {
-        return user != null && isFollowing(user.id);
+        return isFollowing(user.id);
     }
 
-    public synchronized void requestUserFollowings(AndroidCloudAPI api, final Listener listener, boolean force) {
+    public synchronized void requestUserFollowings(final Listener listener) {
         // add this listener with a weak reference
         listeners.put(listener, null);
-
-        if (AndroidUtils.isTaskFinished(mFollowingsTask) &&
-                (force || System.currentTimeMillis() - lastUpdate >= MAX_AGE)) {
-            mFollowingsTask = new LoadFollowingsTask(api) {
-                @Override
-                protected void onPostExecute(List<Long> ids) {
-                    lastUpdate = System.currentTimeMillis();
-                    if (ids != null) {
-                        synchronized (followings) {
-                            followings.clear();
-                            followings.addAll(ids);
-                        }
-                    }
-                    for (Listener l : listeners.keySet()) {
-                        l.onChange(ids != null, FollowStatus.this);
-                    }
-                }
-            };
-            mFollowingsTask.execute(ENDPOINT);
+        if (asyncQueryHandler == null) {
+            doQuery(listener);
         }
+    }
+
+    private void doQuery(final Listener listener){
+        asyncQueryHandler = new FollowingQueryHandler(mContext, this, listener);
+        asyncQueryHandler.startQuery(0, null, Content.ME_FOLLOWINGS.uri, new String[]{DBHelper.CollectionItems.ITEM_ID}, null, null, null);
     }
 
     public void addListener(Listener l) {
@@ -110,30 +85,23 @@ public class FollowStatus implements Parcelable {
         listeners.remove(l);
     }
 
-    public AsyncTask<Long,Void,Boolean> toggleFollowing(final long userid,
-                                final AndroidCloudAPI api,
+    public AsyncTask<User,Void,Boolean> toggleFollowing(final User user,
+                                final SoundCloudApplication app,
                                 final Handler handler) {
-        final boolean addFollowing = toggleFollowing(userid);
-        return new AsyncApiTask<Long,Void,Boolean>(api) {
-            int status;
+        final boolean addFollowing = toggleFollowing(user.id);
 
+        return new AsyncApiTask<User,Void,Boolean>(app) {
             @Override
-            protected Boolean doInBackground(Long... params) {
-                Long id = params[0];
-                final Request request = Request.to(Endpoints.MY_FOLLOWING, id);
+            protected Boolean doInBackground(User... params) {
+                User u = params[0];
+                final Request request = Request.to(Endpoints.MY_FOLLOWING, u.id);
                 try {
-                    status = (addFollowing ? api.put(request) : api.delete(request))
+                    final int status = (addFollowing ? app.put(request) : app.delete(request))
                                       .getStatusLine().getStatusCode();
-                    final boolean success;
-                    if (addFollowing) {
-                        success = status == HttpStatus.SC_CREATED;
-                    } else {
-                        success = status == HttpStatus.SC_OK || status == HttpStatus.SC_NOT_FOUND;
-                    }
-                    if (!success) {
-                        Log.w(TAG, "error changing following status, resp="+status);
-                    }
-                    return success;
+                    return (status == HttpStatus.SC_OK ||
+                           status == HttpStatus.SC_CREATED ||
+                           status == HttpStatus.SC_NOT_FOUND);
+
                 } catch (IOException e) {
                     Log.e(TAG, "error", e);
                     return false;
@@ -146,19 +114,18 @@ public class FollowStatus implements Parcelable {
                     for (Listener l : listeners.keySet()) {
                         l.onChange(true, FollowStatus.this);
                     }
-
-                    if (handler != null) {
-                        Message.obtain(handler, FOLLOW_STATUS_SUCCESS).sendToTarget();
-                    }
                 } else {
-                    updateFollowing(userid, !addFollowing); // revert state change
+                    updateFollowing(user.id, !addFollowing); // revert state change
+                }
 
-                    if (handler != null) {
-                        Message.obtain(handler, status == 429 ? FOLLOW_STATUS_SPAM : FOLLOW_STATUS_FAIL).sendToTarget();
-                    }
+                if (handler != null) {
+                    Message m = Message.obtain();
+                    if (m == null) m = new Message(); /* needed for robolectric */
+                    m.arg1 = success ? 1 : 0;
+                    handler.sendMessage(m);
                 }
             }
-        }.execute(userid);
+        }.execute(user);
     }
 
   /* package */ void updateFollowing(long userId, boolean follow) {
@@ -186,115 +153,50 @@ public class FollowStatus implements Parcelable {
         void onChange(boolean success, FollowStatus status);
     }
 
-    @Override
-    public String toString() {
-        return "FollowStatus{" +
-                "followingsSet=" + followings +
-                ", lastUpdate=" + lastUpdate +
-                '}';
-    }
 
-    static String getFilename(long userId) {
-        return "follow-status-cache-"+userId;
-    }
+    private class FollowingQueryHandler extends AsyncQueryHandler {
+        // Use weak reference to avoid memoey leak
+        private WeakReference<FollowStatus> followStatus;
+        private Listener listener;
 
-    // Google recommends not to use the filesystem to save parcelables (portability issues)
-    // since this is not important information we're going to do it anyway
-    // - it's fast (~ 10ms cache writes on a N1).
-    static FollowStatus fromInputStream(FileInputStream is) {
-        try {
-            byte[] b = new byte[8192];
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            int n;
-            while ((n = is.read(b)) != -1) {
-                bos.write(b, 0, n);
-            }
-            bos.close();
-            Parcel parcel = Parcel.obtain();
-            byte[] result = bos.toByteArray();
-
-            parcel.unmarshall(result, 0, result.length);
-            parcel.setDataPosition(0);
-            FollowStatus status = CREATOR.createFromParcel(parcel);
-            parcel.recycle();
-            return status;
-        } catch (ParcelFormatException ignored) {
-            Log.w(TAG, "error", ignored);
-            return null;
-        } catch (IOException ignored) {
-            Log.w(TAG, "error", ignored);
-            return null;
-        }
-    }
-
-    public static synchronized void initialize(final Context context, long userId) {
-        final String statusCache = getFilename(userId);
-        try {
-            FollowStatus status = fromInputStream(context.openFileInput(statusCache));
-            if (status != null) {
-                set(status);
-            } else {
-                context.deleteFile(statusCache);
-            }
-
-
-        } catch (FileNotFoundException ignored) {
-            // ignored
-        } catch (IOException ignored) {
-            Log.w(TAG, "error initializing FollowStatus", ignored);
+        public FollowingQueryHandler(Context context, FollowStatus followStatus, final Listener listener) {
+            super(context.getContentResolver());
+            this.followStatus = new WeakReference<FollowStatus>((FollowStatus) followStatus);
+            this.listener = listener;
         }
 
-        get().addListener(new FollowStatus.Listener() {
-            @Override
-            public void onChange(boolean success, FollowStatus status) {
-                if (success) {
-                    synchronized (FollowStatus.class) {
-                        try {
-                            // TODO : StrictMode policy violation; ~duration=39 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=23 violation=2
-                            // already ported to DB in another branch (cache-followstatus-rework)
+        @Override
+        protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
+            if (cursor != null) {
+                followings.clear();
+                if (cursor.moveToFirst()) {
+                    do {
+                        followings.add(cursor.getLong(0));
+                    } while (cursor.moveToNext());
+                }
+                cursor.close();
 
-                            FileOutputStream fos = context.openFileOutput(statusCache, 0);
-                            status.toFilesStream(fos);
-                            fos.close();
-                        } catch (IOException ignored) {
-                            Log.w(TAG, "error initializing FollowStatus", ignored);
-                        }
-                    }
+                for (Listener l : listeners.keySet()) {
+                    l.onChange(true, FollowStatus.this);
                 }
             }
-        });
+            this.listener = null;
+        }
     }
 
-    public static final Parcelable.Creator<FollowStatus> CREATOR = new Parcelable.Creator<FollowStatus>() {
-        public FollowStatus createFromParcel(Parcel in) {
-            return new FollowStatus(in);
+    private class ChangeObserver extends ContentObserver {
+        public ChangeObserver() {
+            super(new Handler());
         }
 
-        public FollowStatus[] newArray(int size) {
-            return new FollowStatus[size];
+        @Override
+        public boolean deliverSelfNotifications() {
+            return true;
         }
-    };
 
-    public void toFilesStream(OutputStream os) {
-        Parcel parcel = Parcel.obtain();
-        writeToParcel(parcel, 0);
-        try {
-            os.write(parcel.marshall());
-        } catch (IOException ignored) {
-            Log.w(TAG, "error", ignored);
+        @Override
+        public void onChange(boolean selfChange) {
+            onContentChanged();
         }
-        parcel.recycle();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(lastUpdate);
-        dest.writeInt(followings.size());
-        for (Long id : followings) dest.writeLong(id);
     }
 }
