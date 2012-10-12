@@ -323,7 +323,7 @@ public class PlayerTrackView extends LinearLayout implements
         }
     }
 
-    private void onTrackInfoFlip() {
+    public void onTrackInfoFlip() {
         if (mTrackFlipper.getDisplayedChild() == 0) {
             if (mTrack != null) {
                 mPlayer.track(Page.Sounds_info__main, mTrack);
@@ -689,5 +689,9 @@ public class PlayerTrackView extends LinearLayout implements
         if (mTrackInfo != null){
             mTrackInfo.onInfoLoadError();
         }
+    }
+
+    @Nullable public Track getTrack() {
+        return mTrack;
     }
 }
