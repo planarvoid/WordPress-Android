@@ -2,6 +2,7 @@ package com.soundcloud.android.activity;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
@@ -30,6 +31,7 @@ import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.FullImageDialog;
+import com.soundcloud.android.view.NowPlayingIndicator;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.viewpagerindicator.TitlePageIndicator;
@@ -78,7 +80,6 @@ public class UserBrowser extends ScListActivity implements
     boolean mDisplayedInfo, mInfoError;
 
     private FrameLayout mInfoView;
-    private Button mFollowBtn, mFollowingBtn;
     private FetchUserTask mLoadUserTask;
     private boolean mUpdateInfo;
 
@@ -158,21 +159,6 @@ public class UserBrowser extends ScListActivity implements
                     ).show();
                 }
 
-            }
-        });
-
-        mFollowBtn = (Button) findViewById(R.id.btn_followState);
-        mFollowingBtn = (Button) findViewById(R.id.btn_followingState);
-
-        mFollowBtn.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                follow(mUser);
-            }
-        });
-
-        mFollowingBtn.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                unfollow(mUser);
             }
         });
 
@@ -350,7 +336,7 @@ public class UserBrowser extends ScListActivity implements
     }
 
     public void onChange(boolean success, FollowStatus status) {
-        setFollowingButton();
+        invalidateOptionsMenu();
     }
 
     private void trackScreen() {
@@ -572,16 +558,11 @@ public class UserBrowser extends ScListActivity implements
     }
 
     private void toggleFollowing(User user) {
-        mFollowBtn.setEnabled(false);
-        mFollowingBtn.setEnabled(false);
-
         FollowStatus.get().toggleFollowing(user.id, getApp(), new Handler() {
-            @Override public void handleMessage(Message msg) {
-                mFollowBtn.setEnabled(true);
-                mFollowingBtn.setEnabled(true);
-
+            @Override
+            public void handleMessage(Message msg) {
                 if (msg.what != FollowStatus.FOLLOW_STATUS_SUCCESS) {
-                    setFollowingButton();
+                    invalidateOptionsMenu();
 
                     if (msg.what == FollowStatus.FOLLOW_STATUS_SPAM) {
                         AndroidUtils.showToast(UserBrowser.this, R.string.following_spam_warning);
@@ -591,23 +572,9 @@ public class UserBrowser extends ScListActivity implements
                 }
             }
         });
-        setFollowingButton();
+        invalidateOptionsMenu();
     }
 
-    private void setFollowingButton() {
-        if (isOtherUser()) {
-            if (FollowStatus.get().isFollowing(mUser)) {
-                mFollowingBtn.setVisibility(View.VISIBLE);
-                mFollowBtn.setVisibility(View.INVISIBLE);
-            }  else {
-                mFollowingBtn.setVisibility(View.INVISIBLE);
-                mFollowBtn.setVisibility(View.VISIBLE);
-            }
-        } else {
-            mFollowBtn.setVisibility(View.INVISIBLE);
-            mFollowingBtn.setVisibility(View.INVISIBLE);
-        }
-    }
 
     @Override
     public void onSuccess(User user, String action) {
@@ -651,7 +618,8 @@ public class UserBrowser extends ScListActivity implements
             mFollowerCount.setText(Integer.toString(user.followers_count));
         }
 
-        setFollowingButton();
+        invalidateOptionsMenu();
+
         if (user.shouldLoadIcon()) {
             if (mIconURL == null
                 || avatarResult == BindResult.ERROR
@@ -855,14 +823,31 @@ public class UserBrowser extends ScListActivity implements
         boolean infoError;
     }
 
+    private boolean isFollowing(){
+        return mUser != null && FollowStatus.get().isFollowing(mUser);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        MenuItem followItem = menu.findItem(R.id.action_bar_follow);
+
+        final boolean following = isFollowing();
+        followItem.setIcon(following ? R.drawable.ic_remove_user_white : R.drawable.ic_add_user_white);
+        followItem.setTitle(getResources().getString(following ? R.string.action_bar_unfollow : R.string.action_bar_follow));
+
         SoundRecorder soundRecorder = SoundRecorder.getInstance(this);
         if (!isMe() && (!soundRecorder.isRecording() || soundRecorder.getRecording().getRecipient() == mUser)) {
             menu.add(menu.size(), Consts.OptionsMenu.PRIVATE_MESSAGE,
-                menu.size(), R.string.menu_private_message).setIcon(R.drawable.ic_options_menu_rec);
+                    menu.size(), R.string.menu_private_message).setIcon(R.drawable.ic_options_menu_rec);
         }
-        return super.onCreateOptionsMenu(menu);
+        return true;
+    }
+
+    @Override
+    protected int getMenuResourceId() {
+        return R.menu.user_browser;
     }
 
     @Override
@@ -873,6 +858,12 @@ public class UserBrowser extends ScListActivity implements
                 intent.putExtra(ScCreate.EXTRA_PRIVATE_MESSAGE_RECIPIENT,mUser);
                 startActivity(intent);
                 return true;
+            case R.id.action_bar_follow:
+                if (mUser.user_following){
+                    follow(mUser);
+                } else {
+                    unfollow(mUser);
+                }
             default:
                 return super.onOptionsItemSelected(item);
         }

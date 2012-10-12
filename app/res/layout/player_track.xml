@@ -16,46 +16,6 @@
               android:background="?android:attr/listDivider"
               android:layout_marginRight="10dip"/>
     </RelativeLayout>
-    <LinearLayout android:stretchColumns="*"
-                  android:baselineAligned="false"
-                  android:background="@color/playerControlBackground"
-                  android:layout_height="wrap_content"
-                  android:layout_width="fill_parent"
-                  android:paddingTop="5dip"
-                  android:paddingBottom="5dip">
-        <RelativeLayout android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content">
-            <ImageButton android:id="@+id/btn_favorite"
-                         android:layout_centerHorizontal="true"
-                         style="@style/btn_sc_transparent"
-                         android:src="@drawable/ic_like_states_v1"/>
-        </RelativeLayout>
-        <RelativeLayout android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content">
-            <ImageButton android:id="@+id/btn_comment"
-                         android:layout_centerHorizontal="true"
-                         style="@style/btn_sc_transparent"
-                         android:src="@drawable/ic_comment_states_v1"/>
-        </RelativeLayout>
-        <RelativeLayout android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content">
-            <ImageButton android:id="@+id/btn_share"
-                         android:layout_centerHorizontal="true"
-                         style="@style/btn_sc_transparent"
-                         android:src="@drawable/ic_share_states"/>
-        </RelativeLayout>
-        <RelativeLayout android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content">
-            <ImageButton android:id="@+id/btn_info"
-                         android:layout_centerHorizontal="true"
-                         style="@style/btn_sc_transparent"
-                         android:src="@drawable/ic_info_states"/>
-        </RelativeLayout>
-    </LinearLayout>
     <com.soundcloud.android.view.SafeViewFlipper android:id="@+id/vfTrackInfo"
                                                  android:layout_weight="1"
                                                  android:layout_width="fill_parent"

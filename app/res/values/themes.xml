@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-
     <style name="Theme.Next" parent="@style/Theme.Sherlock.Light.DarkActionBar">
         <item name="actionBarItemBackground">@drawable/selectable_background_next</item>
         <item name="popupMenuStyle">@style/next_PopupMenu</item>
@@ -30,6 +29,12 @@
         <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
 
+        <item name="android:actionBarStyle">@style/Next.ActionBarStyle</item>
+
+    </style>
+
+    <style name="Next.ActionBarStyle" parent="@style/Widget.Sherlock.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@drawable/action_bar_background</item>
     </style>
 
     <style name="Theme.Next.NoActionBar" parent="Theme.Sherlock.NoActionBar"/>

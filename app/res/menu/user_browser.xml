@@ -4,4 +4,8 @@
           android:title="Now Playing"
           android:showAsAction="always"
           android:actionLayout="@layout/now_playing_view" />
+    <item android:id="@+id/action_bar_follow"
+              android:icon="@drawable/ic_add_user_white"
+              android:title="@string/action_bar_follow"
+              android:showAsAction="always"/>
 </menu>
