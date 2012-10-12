@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.toTime;
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.addCannedResponses;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
@@ -22,6 +23,7 @@ import android.net.Uri;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
@@ -71,183 +73,181 @@ public class ScModelManagerTest {
 
 
     @Test
-        public void shouldGetUserById() throws Exception {
-            User u = new User();
-            u.id = 100L;
-            u.permalink = "foo";
+    public void shouldGetUserById() throws Exception {
+        User u = new User();
+        u.id = 100L;
+        u.permalink = "foo";
 
-            Uri uri = manager.write(u, false);
+        Uri uri = manager.write(u, false);
 
-            expect(uri).not.toBeNull();
+        expect(uri).not.toBeNull();
 
-            User u2 = manager.getUser(100);
-            expect(u2).not.toBeNull();
-            expect(u2.id).toEqual(u.id);
-            expect(u2.permalink).toEqual(u.permalink);
-        }
+        User u2 = manager.getUser(100);
+        expect(u2).not.toBeNull();
+        expect(u2.id).toEqual(u.id);
+        expect(u2.permalink).toEqual(u.permalink);
+    }
 
-        @Test
-        public void shouldNotGetUserByIdNegative() throws Exception {
-            expect(manager.getUser(-1l)).toBeNull();
-        }
+    @Test
+    public void shouldNotGetUserByIdNegative() throws Exception {
+        expect(manager.getUser(-1l)).toBeNull();
+    }
 
-        @Test
-        public void shouldInsertTrack() throws Exception {
-            Track t1 = new Track();
-            t1.id = 100L;
-            t1.title = "testing";
-            t1.user = new User();
-            t1.user.id = 200L;
-            t1.user.username = "Testor";
+    @Test
+    public void shouldInsertTrack() throws Exception {
+        Track t1 = new Track();
+        t1.id = 100L;
+        t1.title = "testing";
+        t1.user = new User();
+        t1.user.id = 200L;
+        t1.user.username = "Testor";
 
-            Uri uri = manager.write(t1, false);
+        Uri uri = manager.write(t1, false);
 
-            expect(uri).not.toBeNull();
-            Track t2 = manager.getTrack(uri);
+        expect(uri).not.toBeNull();
+        Track t2 = manager.getTrack(uri);
 
-            expect(t2).not.toBeNull();
-            expect(t2.user).not.toBeNull();
-            expect(t2.user.username).toEqual("Testor");
-            expect(t1.title).toEqual(t2.title);
-        }
+        expect(t2).not.toBeNull();
+        expect(t2.user).not.toBeNull();
+        expect(t2.user.username).toEqual("Testor");
+        expect(t1.title).toEqual(t2.title);
+    }
 
-        @Test
-        public void shouldUpsertTrack() throws Exception {
-            Track t1 = new Track();
-            t1.id = 100L;
-            t1.title = "testing";
-            t1.user = new User();
-            t1.user.id = 200L;
-            t1.user.username = "Testor";
+    @Test
+    public void shouldUpsertTrack() throws Exception {
+        Track t1 = new Track();
+        t1.id = 100L;
+        t1.title = "testing";
+        t1.user = new User();
+        t1.user.id = 200L;
+        t1.user.username = "Testor";
 
-            Uri uri = manager.write(t1, false);
+        Uri uri = manager.write(t1, false);
 
-            expect(uri).not.toBeNull();
-            Track t2 = manager.getTrack(uri);
-            expect(t2).not.toBeNull();
-            t2.title = "not interesting";
+        expect(uri).not.toBeNull();
+        Track t2 = manager.getTrack(uri);
+        expect(t2).not.toBeNull();
+        t2.title = "not interesting";
 
-            manager.write(t2, false);
+        manager.write(t2, false);
 
-            Track t3 = manager.getTrack(uri);
-            expect(t3.title).toEqual("not interesting");
-        }
+        Track t3 = manager.getTrack(uri);
+        expect(t3.title).toEqual("not interesting");
+    }
 
-        @Test
-        public void shouldInsertUserAndReadBackUser() throws Exception {
-            User u = new User();
-            u.id = 100L;
-            u.full_name = "Bobby Fuller";
-            u.permalink = "foo";
-            u.description = "baz";
-            u.city = "Somewhere";
-            u.plan = "plan";
-            u.website = "http://foo.com";
-            u.website_title = "Site";
-            u.setPrimaryEmailConfirmed(true);
-            u.myspace_name = "myspace";
-            u.discogs_name = "discogs";
+    @Test
+    public void shouldInsertUserAndReadBackUser() throws Exception {
+        User u = new User();
+        u.id = 100L;
+        u.full_name = "Bobby Fuller";
+        u.permalink = "foo";
+        u.description = "baz";
+        u.city = "Somewhere";
+        u.plan = "plan";
+        u.website = "http://foo.com";
+        u.website_title = "Site";
+        u.setPrimaryEmailConfirmed(true);
+        u.myspace_name = "myspace";
+        u.discogs_name = "discogs";
 
-            int counter = 0;
-            u.track_count     = ++counter;
-            u.followers_count = ++counter;
-            u.followings_count = ++counter;
-            u.public_favorites_count = ++counter;
-            u.private_tracks_count = ++counter;
+        int counter = 0;
+        u.track_count = ++counter;
+        u.followers_count = ++counter;
+        u.followings_count = ++counter;
+        u.public_favorites_count = ++counter;
+        u.private_tracks_count = ++counter;
 
-            Uri uri = manager.write(u, false);
+        Uri uri = manager.write(u, false);
 
-            expect(uri).not.toBeNull();
+        expect(uri).not.toBeNull();
 
-            User u2 = manager.getUser(uri);
-            expect(u2).not.toBeNull();
-            expect(u2.full_name).toEqual(u.full_name);
-            expect(u2.permalink).toEqual(u.permalink);
-            expect(u2.city).toEqual(u.city);
-            expect(u2.plan).toEqual(u.plan);
-            expect(u2.website).toEqual(u.website);
-            expect(u2.website_title).toEqual(u.website_title);
-            expect(u2.isPrimaryEmailConfirmed()).toEqual(u.isPrimaryEmailConfirmed());
-            expect(u2.myspace_name).toEqual(u.myspace_name);
-            expect(u2.discogs_name).toEqual(u.discogs_name);
+        User u2 = manager.getUser(uri);
+        expect(u2).not.toBeNull();
+        expect(u2.full_name).toEqual(u.full_name);
+        expect(u2.permalink).toEqual(u.permalink);
+        expect(u2.city).toEqual(u.city);
+        expect(u2.plan).toEqual(u.plan);
+        expect(u2.website).toEqual(u.website);
+        expect(u2.website_title).toEqual(u.website_title);
+        expect(u2.isPrimaryEmailConfirmed()).toEqual(u.isPrimaryEmailConfirmed());
+        expect(u2.myspace_name).toEqual(u.myspace_name);
+        expect(u2.discogs_name).toEqual(u.discogs_name);
 
-            expect(u2.track_count).toEqual(u.track_count);
-            expect(u2.followers_count).toEqual(u.followers_count);
-            expect(u2.followings_count).toEqual(u.followings_count);
-            expect(u2.public_favorites_count).toEqual(u.public_favorites_count);
-            expect(u2.private_tracks_count).toEqual(u.private_tracks_count);
+        expect(u2.track_count).toEqual(u.track_count);
+        expect(u2.followers_count).toEqual(u.followers_count);
+        expect(u2.followings_count).toEqual(u.followings_count);
+        expect(u2.public_favorites_count).toEqual(u.public_favorites_count);
+        expect(u2.private_tracks_count).toEqual(u.private_tracks_count);
 
-            expect(u2.last_updated).not.toEqual(u.last_updated);
+        expect(u2.last_updated).not.toEqual(u.last_updated);
 
-            // description is not store
-            expect(u2.description).toBeNull();
-        }
+        // description is not store
+        expect(u2.description).toBeNull();
+    }
 
-        @Test
-        public void shouldInsertUserWithDescriptionIfCurrentUser() throws Exception {
-            User u = new User();
-            u.id = USER_ID;
-            u.description = "i make beatz";
+    @Test
+    public void shouldInsertUserWithDescriptionIfCurrentUser() throws Exception {
+        User u = new User();
+        u.id = USER_ID;
+        u.description = "i make beatz";
 
-            Uri uri = manager.write(u, false);
-            expect(uri).not.toBeNull();
+        Uri uri = manager.write(u, false);
+        expect(uri).not.toBeNull();
 
-            User u2 = manager.getUser(uri);
-            expect(u2).not.toBeNull();
-            expect(u2.description).toEqual("i make beatz");
-        }
+        User u2 = manager.getUser(uri);
+        expect(u2).not.toBeNull();
+        expect(u2.description).toEqual("i make beatz");
+    }
 
-        @Test
-        public void shouldUpsertUser() throws Exception {
-            User u = new User();
-            u.id = 100L;
-            u.permalink = "foo";
-            u.description = "baz";
+    @Test
+    public void shouldUpsertUser() throws Exception {
+        User u = new User();
+        u.id = 100L;
+        u.permalink = "foo";
+        u.description = "baz";
 
-            Uri uri = manager.write(u, false);
+        Uri uri = manager.write(u, false);
 
-            expect(uri).not.toBeNull();
+        expect(uri).not.toBeNull();
 
-            User u2 = manager.getUser(uri);
+        User u2 = manager.getUser(uri);
 
-            u2.permalink = "nomnom";
+        u2.permalink = "nomnom";
 
-            manager.write(u2, false);
+        manager.write(u2, false);
 
-            User u3 = manager.getUser(uri);
+        User u3 = manager.getUser(uri);
 
-            expect(u3).not.toBeNull();
-            expect(u3.permalink).toEqual("nomnom");
-            expect(u3.id).toEqual(100L);
-        }
+        expect(u3).not.toBeNull();
+        expect(u3.permalink).toEqual("nomnom");
+        expect(u3.id).toEqual(100L);
+    }
 
-        @Test
-        public void shouldMarkTrackAsPlayed() throws Exception {
-            Track track = new Track();
-            track.id = 100L;
-            track.title = "testing";
-            track.user = new User();
-            track.user.id = 200L;
-            Uri uri = manager.write(track, false);
-            expect(uri).not.toBeNull();
+    @Test
+    public void shouldMarkTrackAsPlayed() throws Exception {
+        Track track = new Track();
+        track.id = 100L;
+        track.title = "testing";
+        track.user = new User();
+        track.user.id = 200L;
+        Uri uri = manager.write(track, false);
+        expect(uri).not.toBeNull();
 
-            final int PLAYS = 3;
-            for (int i=0; i<PLAYS; i++)
-                expect(manager.markTrackAsPlayed(track)).toBeTrue();
+        final int PLAYS = 3;
+        for (int i = 0; i < PLAYS; i++)
+            expect(manager.markTrackAsPlayed(track)).toBeTrue();
 
-            Cursor c = resolver.query(Content.TRACK_PLAYS.uri, null, null, null, null);
-            expect(c.getCount()).toEqual(1);
-            expect(c.moveToFirst()).toBeTrue();
+        Cursor c = resolver.query(Content.TRACK_PLAYS.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(1);
+        expect(c.moveToFirst()).toBeTrue();
 
-            expect(c.getLong(c.getColumnIndex(DBHelper.TrackMetadata._ID))).toEqual(100L);
-            expect(c.getLong(c.getColumnIndex(DBHelper.TrackMetadata.USER_ID))).toEqual(USER_ID);
-            expect(c.getInt(c.getColumnIndex(DBHelper.TrackMetadata.PLAY_COUNT))).toEqual(PLAYS);
+        expect(c.getLong(c.getColumnIndex(DBHelper.TrackMetadata._ID))).toEqual(100L);
+        expect(c.getLong(c.getColumnIndex(DBHelper.TrackMetadata.USER_ID))).toEqual(USER_ID);
+        expect(c.getInt(c.getColumnIndex(DBHelper.TrackMetadata.PLAY_COUNT))).toEqual(PLAYS);
 
-            Track played = manager.getTrack(100L);
-            expect(played.local_user_playback_count).toEqual(PLAYS);
-        }
-
-
+        Track played = manager.getTrack(100L);
+        expect(played.local_user_playback_count).toEqual(PLAYS);
+    }
 
 
     @Test
@@ -276,49 +276,49 @@ public class ScModelManagerTest {
     }
 
     @Test
-        public void shouldBulkInsert() throws Exception {
-            List<ScResource> items = createModels();
-            expect(manager.writeCollection(items, ScModel.CacheUpdateMode.MINI)).toEqual(3);
-        }
+    public void shouldBulkInsert() throws Exception {
+        List<ScResource> items = createModels();
+        expect(manager.writeCollection(items, ScModel.CacheUpdateMode.MINI)).toEqual(3);
+    }
 
-        @Test
-        public void shouldBulkInsertWithCollections() throws Exception {
-            List<ScResource> items = createModels();
-            expect(manager.writeCollection( items, Content.ME_FAVORITES.uri, USER_ID, ScModel.CacheUpdateMode.MINI)).toEqual(3);
+    @Test
+    public void shouldBulkInsertWithCollections() throws Exception {
+        List<ScResource> items = createModels();
+        expect(manager.writeCollection(items, Content.ME_FAVORITES.uri, USER_ID, ScModel.CacheUpdateMode.MINI)).toEqual(3);
 
-            Cursor c = resolver.query(Content.ME_FAVORITES.uri, null, null, null, null);
-            expect(c.getCount()).toEqual(1);
-        }
+        Cursor c = resolver.query(Content.ME_FAVORITES.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(1);
+    }
 
-        @Test(expected = IllegalArgumentException.class)
-        public void shouldNotBulkInsertWithoutOwnerId() throws Exception {
-            manager.writeCollection(createModels(), Content.ME_FAVORITES.uri, -1, ScModel.CacheUpdateMode.NONE);
-        }
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotBulkInsertWithoutOwnerId() throws Exception {
+        manager.writeCollection(createModels(), Content.ME_FAVORITES.uri, -1, ScModel.CacheUpdateMode.NONE);
+    }
 
-        private List<ScResource> createModels() {
-            List<ScResource> items = new ArrayList<ScResource>();
+    private List<ScResource> createModels() {
+        List<ScResource> items = new ArrayList<ScResource>();
 
-            User u1 = new User();
-            u1.permalink = "u1";
-            u1.id = 100L;
+        User u1 = new User();
+        u1.permalink = "u1";
+        u1.id = 100L;
 
-            Track t = new Track();
-            t.id = 200L;
-            t.user = u1;
+        Track t = new Track();
+        t.id = 200L;
+        t.user = u1;
 
-            User u2 = new User();
-            u2.permalink = "u2";
-            u2.id = 300L;
+        User u2 = new User();
+        u2.permalink = "u2";
+        u2.id = 300L;
 
-            User u2_ = new User();
-            u2_.permalink = "u2";
-            u2_.id = 300L;
+        User u2_ = new User();
+        u2_.permalink = "u2";
+        u2_.id = 300L;
 
-            items.add(u1);
-            items.add(t);
-            items.add(u2_);
-            return items;
-        }
+        items.add(u1);
+        items.add(t);
+        items.add(u2_);
+        return items;
+    }
 
 
     @Test
@@ -364,7 +364,7 @@ public class ScModelManagerTest {
     @Test
     public void shouldClearAllActivities() throws Exception {
         Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
-                SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
+        SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
 
         a.insert(Content.ME_SOUND_STREAM, resolver);
         expect(Content.ME_SOUND_STREAM).toHaveCount(20);
@@ -377,5 +377,29 @@ public class ScModelManagerTest {
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(0);
         expect(Content.COLLECTIONS).toHaveCount(0);
+    }
+
+    @Test
+    public void shouldWriteMissingCollectionItems() throws Exception {
+        addCannedResponses(getClass(), "5_users.json");
+
+        List<ScResource> users = new ArrayList<ScResource>();
+        for (int i = 0; i < 2; i++){
+            users.add(createUserWithId(i));
+        }
+
+        ArrayList<Long> ids = new ArrayList<Long>();
+        for (long i = 0; i < 10; i++){
+            ids.add(i);
+        }
+
+        expect(manager.writeCollection(users, ScModel.CacheUpdateMode.MINI)).toEqual(2);
+        expect(manager.writeMissingCollectionItems((AndroidCloudAPI) Robolectric.application, ids,Content.USERS,false,5)).toEqual(5);
+    }
+
+    private User createUserWithId(long id){
+        User u = new User();
+        u.id = id;
+        return u;
     }
 }

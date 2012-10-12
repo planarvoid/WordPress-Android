@@ -13,7 +13,6 @@ import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.fragment.PlayerFragment;
 import com.soundcloud.android.model.Search;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
@@ -21,6 +20,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.MainMenu;
+import com.soundcloud.android.view.NowPlayingIndicator;
 import com.soundcloud.android.view.RootView;
 
 import android.app.AlertDialog;
@@ -35,7 +35,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -52,6 +51,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     protected RootView mRootView;
     private Boolean mIsConnected;
     private boolean mIsForeground;
+
+    private NowPlayingIndicator mNowPlaying;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,9 +142,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     private void handleIntent(Intent intent) {
-        if (intent.hasExtra(RootView.EXTRA_MENU_STATE)) {
+        if (intent.hasExtra(RootView.EXTRA_ROOT_VIEW_STATE)) {
             overridePendingTransition(0, 0);
-            mRootView.restoreHierarchyState(intent.getExtras().getSparseParcelableArray(RootView.EXTRA_MENU_STATE));
+            mRootView.restoreStateFromExtra(intent.getExtras().getBundle(RootView.EXTRA_ROOT_VIEW_STATE));
         }
     }
 
@@ -155,7 +156,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         return new Intent(ScActivity.this, activity)
                 .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                .putExtras(mRootView.getMenuBundle());
+                .putExtra(RootView.EXTRA_ROOT_VIEW_STATE,mRootView.getMenuBundle());
     }
 
     @Override
@@ -186,12 +187,21 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             pausePlayback();
             finish();
         }
+
+        if (mNowPlaying != null) {
+            mNowPlaying.resume();
+
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mIsForeground = false;
+
+        if (mNowPlaying != null) {
+            mNowPlaying.pause();
+        }
     }
 
     @Override
@@ -290,6 +300,14 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getSupportMenuInflater();
         inflater.inflate(R.menu.main, menu);
+
+        if (mNowPlaying != null) {
+            mNowPlaying.destroy();
+            mNowPlaying = null;
+        }
+
+        MenuItem waveform = menu.findItem(R.id.menu_waveform);
+        mNowPlaying = (NowPlayingIndicator) waveform.getActionView().findViewById(R.id.waveform_progress);
 
         if (this instanceof ScPlayer) {
             menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(

@@ -53,7 +53,9 @@ public class RootView extends ViewGroup {
 
     private static final float PARALLAX_SPEED_RATIO = 0.5f;
 
-    public static final String EXTRA_MENU_STATE = "fim_menuState";
+    public static final String EXTRA_ROOT_VIEW_STATE = "fim_menu_state";
+    private static final String KEY_MENU_STATE = "menuState_key";
+    private static final String STATE_KEY = "state_key";
 
     private MainMenu mMenu;
     private @Nullable View mPlayer;
@@ -87,7 +89,6 @@ public class RootView extends ViewGroup {
     private final int mOffsetLeft;
     private final int mDrowShadoWidth;
     private final int mBezelHitWidth;
-
 
     /**
      * Callback invoked when the menu is opened.
@@ -200,10 +201,26 @@ public class RootView extends ViewGroup {
     public Bundle getMenuBundle() {
         Bundle bundle = new Bundle();
         SparseArray<Parcelable> container = new SparseArray<Parcelable>();
-        saveHierarchyState(container);
-        bundle.putSparseParcelableArray(RootView.EXTRA_MENU_STATE, container);
+        mMenu.saveHierarchyState(container);
+        bundle.putSparseParcelableArray(RootView.KEY_MENU_STATE, container);
+        bundle.putInt(RootView.STATE_KEY,mExpandedState);
         return bundle;
     }
+
+    public void restoreStateFromExtra(Bundle state) {
+        mMenu.restoreHierarchyState(state.getSparseParcelableArray(KEY_MENU_STATE));
+        mExpandedState = state.getInt(STATE_KEY);
+
+        if (mExpandedState != COLLAPSED_FULL_CLOSED) {
+            postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    animateClose();
+                }
+            }, 100); // post on delay to avoid animation jank at start of activity
+        }
+    }
+
 
     /**
      * global expansion state may have changed in another activity. make sure we are showing the correct state
@@ -233,17 +250,6 @@ public class RootView extends ViewGroup {
     }
 
     @Override
-    public void saveHierarchyState(SparseArray<Parcelable> container) {
-        super.saveHierarchyState(container);
-
-    }
-
-    @Override
-    public void restoreHierarchyState(SparseArray<Parcelable> container) {
-        super.restoreHierarchyState(container);
-    }
-
-    @Override
     protected Parcelable onSaveInstanceState() {
         SavedState ss = new SavedState(super.onSaveInstanceState());
         ss.expanded = mExpandedState;
@@ -257,14 +263,6 @@ public class RootView extends ViewGroup {
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
         mExpandedState = ss.expanded;
-        if (mExpandedState != COLLAPSED_FULL_CLOSED) {
-            postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    animateClose();
-                }
-            }, 100); // post on delay to avoid animation jank at start of activity
-        }
     }
 
     @Override

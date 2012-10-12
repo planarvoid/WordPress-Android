@@ -98,7 +98,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
-                mContext.startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(Track.EXTRA, ((Playable) getItem(position)).getTrack()));
+                playPosition(position,id);
                 break;
             default:
                 Log.i(SoundCloudApplication.TAG, "Clicked on item " + id);

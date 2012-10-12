@@ -368,6 +368,13 @@ public class ScModelManager {
         return response;
     }
 
+    public int writeMissingCollectionItems(AndroidCloudAPI api,
+                                               List<Long> modelIds,
+                                               Content content,
+                                               boolean ignoreStored) throws IOException {
+        return writeMissingCollectionItems(api, modelIds, content, ignoreStored, -1);
+    }
+
     /**
      * @param modelIds     a list of model ids
      * @param ignoreStored if it should ignore stored ids
@@ -375,10 +382,9 @@ public class ScModelManager {
      * @throws java.io.IOException
      */
     public int writeMissingCollectionItems(AndroidCloudAPI api,
-
                                            List<Long> modelIds,
                                            Content content,
-                                           boolean ignoreStored) throws IOException {
+                                           boolean ignoreStored, int maxToFetch) throws IOException {
         if (modelIds == null || modelIds.isEmpty()) {
             return 0;
         }
@@ -388,7 +394,11 @@ public class ScModelManager {
         if (!ignoreStored) {
             ids.removeAll(getStoredIds(mResolver, modelIds, content));
         }
-        return SoundCloudDB.bulkInsertModels(mResolver, doBatchLookup(api, ids, content));
+
+        List<Long> fetchIds = (maxToFetch > -1) ? new ArrayList<Long>(ids.subList(0, Math.min(ids.size(), maxToFetch)))
+                    : ids;
+
+        return SoundCloudDB.bulkInsertModels(mResolver, doBatchLookup(api, fetchIds, content));
     }
 
     /**

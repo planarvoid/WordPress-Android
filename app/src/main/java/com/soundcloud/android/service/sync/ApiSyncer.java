@@ -43,7 +43,8 @@ import java.util.Set;
 public class ApiSyncer {
     public static final String TAG = ApiSyncService.LOG_TAG;
 
-    public static final int MINIMUM_LOCAL_ITEMS_STORED = 100;
+    public static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
+
     private final AndroidCloudAPI mApi;
     private final ContentResolver mResolver;
     private final Context mContext;
@@ -125,7 +126,7 @@ public class ApiSyncer {
         } else {
             String future_href = LocalCollection.getExtraFromUri(uri, mResolver);
             Request request = future_href == null ? c.request() : Request.to(future_href);
-            activities = Activities.fetchRecent(mApi, request, MINIMUM_LOCAL_ITEMS_STORED);
+            activities = Activities.fetchRecent(mApi, request, MAX_LOOKUP_COUNT);
 
             if (activities.hasMore()) {
                 // delete all activities to avoid gaps in the data
@@ -188,9 +189,10 @@ public class ApiSyncer {
                 // ensure the first couple of pages of items for quick loading
                 added = SoundCloudApplication.MODEL_MANAGER.writeMissingCollectionItems(
                         mApi,
-                        new ArrayList<Long>(remote.subList(0, Math.min(remote.size(), MINIMUM_LOCAL_ITEMS_STORED))),
+                        remote,
                         Track.class.equals(content.modelType) ? Content.TRACKS : Content.USERS,
-                        false
+                        false,
+                        MAX_LOOKUP_COUNT
                 );
                 break;
         }

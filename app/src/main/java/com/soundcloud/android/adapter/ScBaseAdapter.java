@@ -1,28 +1,32 @@
 
 package com.soundcloud.android.adapter;
 
-import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.task.collection.ReturnData;
 import com.soundcloud.android.task.collection.UpdateCollectionTask;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.quickaction.QuickAction;
+
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -270,4 +274,46 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     }
 
     public abstract void handleListItemClick(int position, long id);
+
+    protected void playPosition(int position, long id){
+        if (position > mData.size() || !(mData.get(position) instanceof Playable)) {
+            throw new AssertionError("Invalid item " + position);
+        }
+
+        Playable.PlayInfo info = new Playable.PlayInfo();
+        info.uri = mContentUri;
+
+
+        List<Playable> playables = new ArrayList<Playable>(mData.size());
+
+
+        int adjustedPosition = position;
+        for (int i = 0; i < mData.size(); i++){
+            if (mData.get(i) instanceof Playable) {
+                playables.add((Playable) mData.get(i));
+            } else if (i < position) {
+                adjustedPosition--;
+            }
+        }
+
+        info.position = adjustedPosition;
+        info.playables = playables;
+
+        Intent intent = new Intent(mContext, CloudPlaybackService.class).setAction(CloudPlaybackService.PLAY_ACTION);
+
+        if (mContentUri != null) {
+            SoundCloudApplication.MODEL_MANAGER.cache(info.getTrack());
+            intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.getTrack().id)
+                    .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
+                    .setData(info.uri);
+        } else {
+            CloudPlaybackService.playlistXfer = info.playables;
+
+            intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
+                    .putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true);
+        }
+
+        mContext.startService(intent);
+        mContext.startActivity(new Intent(mContext, ScPlayer.class));
+    }
 }
