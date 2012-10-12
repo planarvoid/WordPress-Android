@@ -700,16 +700,17 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         getSupportActionBar().setTitle(track == null ? "" : track.title);
 
         if (track != null && track.user_favorite) {
-            favoriteItem.setIcon(R.drawable.ic_liked_states);
+            favoriteItem.setIcon(R.drawable.ic_like_orange);
         } else {
-            favoriteItem.setIcon(R.drawable.ic_like_states);
+            favoriteItem.setIcon(R.drawable.ic_like_white);
         }
 
         if (mIsCommenting){
-            commentItem.setIcon(R.drawable.ic_commenting_states);
+            commentItem.setIcon(R.drawable.ic_comment_orange);
         } else {
-            commentItem.setIcon(R.drawable.ic_comment_states);
+            commentItem.setIcon(R.drawable.ic_comment_white);
         }
+
 
         if (track != null && track.isPublic()) {
             shareItem.setEnabled(true);

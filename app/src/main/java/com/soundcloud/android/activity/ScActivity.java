@@ -315,7 +315,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getSupportMenuInflater();
-        inflater.inflate(R.menu.main, menu);
+        inflater.inflate(getMenuResourceId(), menu);
 
         if (mNowPlaying != null) {
             mNowPlaying.destroy();
@@ -328,12 +328,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         if (this instanceof ScPlayer) {
             menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
                     R.drawable.ic_menu_refresh);
-        } else {
-            menu.add(menu.size(), Consts.OptionsMenu.VIEW_CURRENT_TRACK,
-                    menu.size(), R.string.menu_view_current_track).setIcon(R.drawable.ic_menu_player);
         }
-
         return true;
+    }
+
+    protected int getMenuResourceId(){
+        return R.menu.main;
     }
 
     @Override
@@ -341,12 +341,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         switch (item.getItemId()) {
             case android.R.id.home:
                 mRootView.animateToggleMenu();
-                return true;
-            case R.id.menu_my_info:
-                startNavActivity(UserBrowser.class);
-                return true;
-            case Consts.OptionsMenu.VIEW_CURRENT_TRACK:
-                startNavActivity(ScPlayer.class);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
