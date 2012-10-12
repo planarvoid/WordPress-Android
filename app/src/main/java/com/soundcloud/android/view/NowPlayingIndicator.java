@@ -92,11 +92,9 @@ public class NowPlayingIndicator extends ProgressBar {
         });
 
         mBackgroundPaint = new Paint();
-        mBackgroundPaint.setShader(new LinearGradient(0, 0, 0, getHeight(), BACKGROUND_COLORS, COLOR_STOPS, Shader.TileMode.MIRROR));
         mBackgroundPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
 
         mForegroundPaint = new Paint();
-        mForegroundPaint.setShader(new LinearGradient(0, 0, 0, getHeight(), FOREGROUND_COLORS, COLOR_STOPS, Shader.TileMode.MIRROR));
         mForegroundPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
 
         // because the action bar gets created on demand, we can start the foreground lifecycle
@@ -157,6 +155,8 @@ public class NowPlayingIndicator extends ProgressBar {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         mCanvasRect = new Rect(0, 0, getWidth(), getHeight());
+        mBackgroundPaint.setShader(new LinearGradient(0, 0, 0, getHeight(), BACKGROUND_COLORS, COLOR_STOPS, Shader.TileMode.MIRROR));
+        mForegroundPaint.setShader(new LinearGradient(0, 0, 0, getHeight(), FOREGROUND_COLORS, COLOR_STOPS, Shader.TileMode.MIRROR));
         setWaveformMask();
         startRefreshing();
     }
