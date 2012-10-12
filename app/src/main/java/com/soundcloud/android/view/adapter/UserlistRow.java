@@ -24,6 +24,7 @@ import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -34,8 +35,8 @@ public class UserlistRow extends LazyRow {
     private TextView mTracks;
     private TextView mFollowers;
     private View mVrStats;
-    private Button mFollowBtn;
-    private Button mFollowingBtn;
+    private ImageButton mFollowBtn;
+    private ImageButton mFollowingBtn;
 
 
     public UserlistRow(Context context, IScAdapter _adapter) {
@@ -45,8 +46,8 @@ public class UserlistRow extends LazyRow {
         mTracks = (TextView) findViewById(R.id.tracks);
         mFollowers = (TextView) findViewById(R.id.followers);
         mIcon = (ImageView) findViewById(R.id.icon);
-        mFollowingBtn = (Button) findViewById(R.id.toggleFollowing);
-        mFollowBtn = (Button) findViewById(R.id.toggleFollow);
+        mFollowingBtn = (ImageButton) findViewById(R.id.toggleFollowing);
+        mFollowBtn = (ImageButton) findViewById(R.id.toggleFollow);
         mVrStats = findViewById(R.id.vr_stats);
 
         // set proper follow back text and alignment to wider button
@@ -108,14 +109,14 @@ public class UserlistRow extends LazyRow {
     }
 
     private void setFollowingStatus(boolean enabled) {
-        boolean following = FollowStatus.get().isFollowing(mUser);
+
 
         if (mUser.id == getCurrentUserId()) {
             mFollowingBtn.setVisibility(View.INVISIBLE);
             mFollowBtn.setVisibility(View.INVISIBLE);
         } else {
-            mFollowingBtn.setVisibility(following ? View.VISIBLE : View.INVISIBLE);
-            mFollowBtn.setVisibility(following ? View.INVISIBLE : View.VISIBLE);
+            mFollowingBtn.setVisibility(mUser.user_following ? View.VISIBLE : View.INVISIBLE);
+            mFollowBtn.setVisibility(mUser.user_following ? View.INVISIBLE : View.VISIBLE);
             mFollowingBtn.setEnabled(enabled);
             mFollowBtn.setEnabled(enabled);
         }

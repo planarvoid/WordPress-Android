@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -35,10 +36,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
@@ -66,6 +70,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         mRootView = new RootView(this);
         super.setContentView(mRootView);
 
+
+
         mRootView.configureMenu(R.menu.main_nav, new MainMenu.OnMenuItemClickListener() {
             @Override
             public void onMenuItemClicked(int id) {
@@ -83,7 +89,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         startNavActivity(ScCreate.class);
                         break;
                     case R.id.nav_settings:
-                        startActivity(new Intent(ScActivity.this,Settings.class));
+                        startActivity(new Intent(ScActivity.this, Settings.class));
                         mRootView.animateClose();
                         break;
 
@@ -112,6 +118,16 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         });
 
         getSupportActionBar().setHomeButtonEnabled(true);
+
+        if (getApp().getLoggedInUser() != null) getSupportActionBar().setTitle(getApp().getLoggedInUser().username);
+
+        final ImageView homeImage = (ImageView) getWindow().getDecorView().findViewById(android.R.id.home);
+        if (homeImage != null) {
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams((int) getResources().getDimension(R.dimen.next_home_width), (int)getResources().getDimension(R.dimen.next_home_height));
+            lp.setMargins(0,0, (int) (getResources().getDisplayMetrics().density * 20),0);
+            homeImage.setLayoutParams(lp);
+            homeImage.setScaleType(ImageView.ScaleType.FIT_XY);
+        }
 
         if (savedInstanceState == null) {
             /*Fragment newFragment = new PlayerFragment();
@@ -156,7 +172,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         return new Intent(ScActivity.this, activity)
                 .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                .putExtra(RootView.EXTRA_ROOT_VIEW_STATE,mRootView.getMenuBundle());
+                .putExtra(RootView.EXTRA_ROOT_VIEW_STATE, mRootView.getMenuBundle());
     }
 
     @Override
