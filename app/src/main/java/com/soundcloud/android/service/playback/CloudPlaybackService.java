@@ -47,6 +47,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.List;
@@ -56,9 +57,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static List<Playable> playlistXfer;
 
     private static Track currentTrack;
-    public static Track getCurrentTrack()  { return currentTrack; }
+    public static @Nullable Track getCurrentTrack()  { return currentTrack; }
     public static long getCurrentTrackId() { return currentTrack == null ? -1 : currentTrack.id; }
-    public static Boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
+    public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
+
+    private static @Nullable CloudPlaybackService instance;
+    public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
 
     private static State state = STOPPED;
     public static State getState() { return state; }
@@ -203,10 +207,14 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         } catch (IOException e) {
             Log.e(TAG, "Unable to start service ", e);
         }
+
+        instance = this;
     }
 
     @Override
     public void onDestroy() {
+        instance = null;
+
         super.onDestroy();
         stop();
         // make sure there aren't any other messages coming
