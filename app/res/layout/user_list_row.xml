@@ -87,25 +87,21 @@
                     android:layout_width="wrap_content"
                     android:layout_height="0dp">
 
-        <Button android:id="@+id/toggleFollowing"
+        <ImageButton android:id="@+id/toggleFollowing"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:padding="10dp"
                 android:layout_centerVertical="true"
                 android:gravity="center"
-                android:textSize="@dimen/list_txt_main_size"
-                android:textColor="@drawable/txt_btn_light_states"
-                android:text="Unfollow"
-                android:background="?android:attr/selectableItemBackground"/>
+                android:src="@drawable/ic_remove_user_dark"
+                android:background="@drawable/selectable_background_next"/>
 
-        <Button android:id="@+id/toggleFollow"
+        <ImageButton android:id="@+id/toggleFollow"
                 android:padding="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:textSize="@dimen/list_txt_main_size"
                 android:gravity="center"
-                android:textColor="@drawable/txt_btn_light_states"
-                android:text="Follow"
-                android:background="?android:attr/selectableItemBackground"/>
+                android:src="@drawable/ic_add_user_dark"
+                android:background="@drawable/selectable_background_next"/>
     </RelativeLayout>
 </RelativeLayout>
