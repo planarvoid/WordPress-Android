@@ -60,11 +60,6 @@
         <item name="backgroundStacked">@drawable/ab_stacked_solid_next</item>
         <item name="backgroundSplit">@drawable/ab_bottom_solid_next</item>
         <item name="progressBarStyle">@style/next_ProgressBar</item>
-
-        <item name="android:background">@drawable/ab_solid_next</item>
-        <item name="android:backgroundStacked">@drawable/ab_stacked_solid_next</item>
-        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_next</item>
-        <item name="android:progressBarStyle">@style/next_ProgressBar</item>
     </style>
 
     <style name="next_transparent_ActionBar" parent="@style/Widget.Sherlock.ActionBar">
