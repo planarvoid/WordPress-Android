@@ -1,9 +1,19 @@
-$ 48
+$ 49
   % v current
+  _ 2012-??
+  ! ??
+    * added extra media button handling
+
+
+
+$ 48
+  % v 2.3.2
   _ 2012-10-08
   ! Maintenance
     * Fixed private messages
     * Fixed various crashes
+
+
 
 $ 47
   % v 2.3.1

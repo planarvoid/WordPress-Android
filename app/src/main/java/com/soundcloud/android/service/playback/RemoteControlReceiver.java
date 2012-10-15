@@ -3,6 +3,7 @@ package com.soundcloud.android.service.playback;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.KeyEvent;
 
 public class RemoteControlReceiver extends BroadcastReceiver {
@@ -15,6 +16,12 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                     case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
                     case KeyEvent.KEYCODE_HEADSETHOOK:
                         handleToggle(context);
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                        handlePause(context);
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_PLAY:
+                        handlePlay(context);
                         break;
                     case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
                         handlePreviousTrack(context);
@@ -36,6 +43,14 @@ public class RemoteControlReceiver extends BroadcastReceiver {
 
     private void handleToggle(Context context) {
         context.startService(new Intent(CloudPlaybackService.TOGGLEPAUSE_ACTION));
+    }
+
+    private void handlePause(Context context) {
+        context.startService(new Intent(CloudPlaybackService.PAUSE_ACTION));
+    }
+
+    private void handlePlay(Context context) {
+        context.startService(new Intent(CloudPlaybackService.PLAY_ACTION));
     }
 
     private void handleNextTrack(Context context) {
