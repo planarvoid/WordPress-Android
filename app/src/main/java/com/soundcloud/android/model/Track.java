@@ -108,6 +108,7 @@ public class Track extends ScResource implements Playable, Refreshable {
 
     @JsonView(Views.Full.class) public int user_playback_count;
     @JsonView(Views.Full.class) public boolean user_favorite;
+    @JsonView(Views.Full.class) public boolean user_repost;
 
     @JsonView(Views.Full.class)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
@@ -299,6 +300,11 @@ public class Track extends ScResource implements Playable, Refreshable {
         if (favIdx != -1) {
             user_favorite = cursor.getInt(favIdx) == 1;
         }
+        final int repostIdx = cursor.getColumnIndex(DBHelper.TrackView.USER_REPOST);
+        if (repostIdx != -1) {
+            user_repost = cursor.getInt(repostIdx) == 1;
+        }
+
         final int localPlayCountIdx = cursor.getColumnIndex(DBHelper.TrackView.USER_PLAY_COUNT);
         if (localPlayCountIdx != -1) {
             local_user_playback_count = cursor.getInt(localPlayCountIdx);
@@ -566,6 +572,7 @@ public class Track extends ScResource implements Playable, Refreshable {
             comment_count = updatedItem.comment_count;
             favoritings_count = updatedItem.favoritings_count;
             user_favorite = updatedItem.user_favorite;
+            user_repost = updatedItem.user_repost;
             shared_to_count = updatedItem.shared_to_count;
             created_at = updatedItem.created_at;
             //refreshListArtworkUri(c);

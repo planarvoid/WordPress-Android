@@ -658,6 +658,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         public static final String USER_AVATAR_URL = "track_user_avatar_url";
         public static final String USER_FAVORITE   = "track_user_favorite";
+        public static final String USER_REPOST     = "track_user_repost";
         public static final String USER_PLAY_COUNT = "track_user_play_count";
 
         public static final String CACHED          = "track_cached";

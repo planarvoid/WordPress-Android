@@ -10,20 +10,19 @@ import android.util.Log;
 
 import java.io.IOException;
 
-public class FavoriteAddTask extends FavoriteTask {
+public class AddAssociationTask extends AssociatedTrackTask {
 
-    public FavoriteAddTask(SoundCloudApplication scApp) {
-        super(scApp);
+    public AddAssociationTask(SoundCloudApplication scApp, Track track) {
+        super(scApp, track);
     }
-    
+
     @Override
-    protected int executeResponse(Track t) throws IOException{
-        return mScApp.put(Request.to(Endpoints.MY_FAVORITE, t.id)).getStatusLine().getStatusCode();
+    protected int executeResponse(Request request) throws IOException{
+        return mScApp.put(request).getStatusLine().getStatusCode();
     }
 
     @Override
     protected boolean processResponse(int responseCode){
-        Log.i("AddFavorite","process response " + responseCode);
         return (responseCode == 200 || responseCode == 201);
     }
     

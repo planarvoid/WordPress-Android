@@ -105,6 +105,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_TRACKS:
             case ME_FAVORITES:
+            case ME_REPOSTS:
                 qb.setTables(makeCollectionJoin(Table.TRACK_VIEW));
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
                 makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
@@ -130,6 +131,7 @@ public class ScContentProvider extends ContentProvider {
 
             case USER_TRACKS:
             case USER_FAVORITES:
+            case USER_REPOSTS:
                 qb.setTables(makeCollectionJoin(Table.TRACK_VIEW));
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
                 makeCollectionSelection(qb, uri.getPathSegments().get(1), content.collectionType);
@@ -376,12 +378,13 @@ public class ScContentProvider extends ContentProvider {
                 }
 
             case ME_FAVORITES:
+            case ME_REPOSTS:
                 id = Table.TRACKS.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, userId);
                     cv.put(DBHelper.CollectionItems.ITEM_ID, (Long) values.get(DBHelper.Tracks._ID));
-                    cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, FAVORITE);
+                    cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, content.collectionType);
                     id = Table.COLLECTION_ITEMS.insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_ABORT);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null, false);
@@ -448,10 +451,12 @@ public class ScContentProvider extends ContentProvider {
                 break;
             case ME_TRACKS:
             case ME_FAVORITES:
+            case ME_REPOSTS:
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
             case USER_TRACKS:
             case USER_FAVORITES:
+            case USER_REPOSTS:
             case USER_FOLLOWINGS:
             case USER_FOLLOWERS:
                 final String whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + SoundCloudApplication.getUserIdFromContext(getContext())
@@ -524,7 +529,8 @@ public class ScContentProvider extends ContentProvider {
                     where = "_id NOT IN ("
                                     + "SELECT _id FROM "+ Table.TRACKS.name + " WHERE EXISTS("
                                         + "SELECT 1 FROM CollectionItems WHERE "
-                                        + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.TRACK+ " ," + CollectionItemTypes.FAVORITE+ ") "
+                                        + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.TRACK+
+                                            " ," + CollectionItemTypes.FAVORITE+ " ," + CollectionItemTypes.REPOST+ ") "
                                         + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
                                         + " AND  " + DBHelper.CollectionItems.ITEM_ID + " =  " + DBHelper.Tracks._ID
                                     + " UNION SELECT DISTINCT " + DBHelper.ActivityView.TRACK_ID + " FROM "+ Table.ACTIVITIES.name
@@ -595,6 +601,8 @@ public class ScContentProvider extends ContentProvider {
             case USER_TRACKS:
             case ME_FAVORITES:
             case USER_FAVORITES:
+            case ME_REPOSTS:
+            case USER_REPOSTS:
             case ME_FOLLOWERS:
             case USER_FOLLOWERS:
             case ME_FOLLOWINGS:
@@ -822,6 +830,10 @@ public class ScContentProvider extends ContentProvider {
                     + " WHERE " + Table.TRACK_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID
                     + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FAVORITE
                     + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_FAVORITE,
+            "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
+                                + " WHERE " + Table.TRACK_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID
+                                + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + REPOST
+                                + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_REPOST
     };
 
     public static String[] fullActivityColumns = new String[]{
@@ -830,6 +842,10 @@ public class ScContentProvider extends ContentProvider {
                     + " WHERE " + DBHelper.ActivityView.TRACK_ID + " = " + DBHelper.CollectionItems.ITEM_ID
                     + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FAVORITE
                     + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_FAVORITE,
+            "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
+                    + " WHERE " + DBHelper.ActivityView.TRACK_ID + " = " + DBHelper.CollectionItems.ITEM_ID
+                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + REPOST
+                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_REPOST
     };
 
     public static String[] fullUserColumns = new String[]{
@@ -853,6 +869,7 @@ public class ScContentProvider extends ContentProvider {
         int FRIEND         = 4;
         int SUGGESTED_USER = 5;
         int SEARCH         = 6;
+        int REPOST         = 7;
     }
 
     private static void log(String message) {

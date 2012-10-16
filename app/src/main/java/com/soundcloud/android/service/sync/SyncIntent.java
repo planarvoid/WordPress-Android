@@ -6,6 +6,7 @@ import android.content.SyncResult;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashSet;

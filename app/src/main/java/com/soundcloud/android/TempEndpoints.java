@@ -7,6 +7,8 @@ public interface TempEndpoints {
         String MY_STREAM = "/e1/me/stream";
         String MY_EXCLUSIVE_STREAM = MY_STREAM;//"/me/activities/tracks/exclusive";
         String MY_ACTIVITIES = "/e1/me/activities/";
+        String MY_REPOSTS = "/e1/me/reposts/";
+        String USER_REPOSTS = "/e1/users/#/reposts/";
     }
     public interface i1 {
         String ME_FACEBOOK_TOKEN = "/i1/me/facebook_token";

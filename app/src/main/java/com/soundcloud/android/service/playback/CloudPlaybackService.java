@@ -7,6 +7,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
@@ -16,9 +17,9 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.streaming.StreamItem;
 import com.soundcloud.android.streaming.StreamProxy;
-import com.soundcloud.android.task.FavoriteAddTask;
-import com.soundcloud.android.task.FavoriteRemoveTask;
-import com.soundcloud.android.task.FavoriteTask;
+import com.soundcloud.android.task.AddAssociationTask;
+import com.soundcloud.android.task.AssociatedTrackTask;
+import com.soundcloud.android.task.RemoveAssociationTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Media;
@@ -29,6 +30,8 @@ import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.play.PlaybackRemoteViews;
+import com.soundcloud.api.Endpoints;
+import org.jetbrains.annotations.Nullable;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -47,7 +50,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.List;
@@ -92,6 +94,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static final String TRACK_UNAVAILABLE  = "com.soundcloud.android.trackunavailable";
     public static final String COMMENTS_LOADED    = "com.soundcloud.android.commentsloaded";
     public static final String FAVORITE_SET       = "com.soundcloud.android.favoriteset";
+    public static final String REPOST_SET         = "com.soundcloud.android.repostset";
     public static final String SEEKING            = "com.soundcloud.android.seeking";
     public static final String SEEK_COMPLETE      = "com.soundcloud.android.seekcomplete";
     public static final String BUFFERING          = "com.soundcloud.android.buffering";
@@ -865,38 +868,38 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private void addFavorite() {
         onFavoriteStatusSet(currentTrack.id, true);
-        FavoriteAddTask f = new FavoriteAddTask(getApp());
-        f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
+        AddAssociationTask addAssociationTask = new AddAssociationTask(getApp(), currentTrack);
+        addAssociationTask.setOnAssociatedListener(new AssociatedTrackTask.AssociatedListener() {
             @Override
-            public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
-                onFavoriteStatusSet(trackId, isFavorite);
+            public void onNewStatus(Track track, boolean isAssociated) {
+                onFavoriteStatusSet(track.id, isAssociated);
             }
 
             @Override
-            public void onException(long trackId, Exception e) {
-                onFavoriteStatusSet(trackId, false);
+            public void onException(Track track, Exception e) {
                 // failed, so it shouldn't be a favorite
+                onFavoriteStatusSet(track.id, false);
             }
         });
-        f.execute(currentTrack);
+        addAssociationTask.execute(Endpoints.MY_FAVORITES);
     }
 
     private void removeFavorite() {
         onFavoriteStatusSet(currentTrack.id, false);
-        FavoriteRemoveTask f = new FavoriteRemoveTask(getApp());
-        f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
+        RemoveAssociationTask removeAssociationTask = new RemoveAssociationTask(getApp(), currentTrack);
+        removeAssociationTask.setOnAssociatedListener(new AssociatedTrackTask.AssociatedListener() {
             @Override
-            public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
-                onFavoriteStatusSet(trackId, isFavorite);
+            public void onNewStatus(Track track, boolean isAssociated) {
+                onFavoriteStatusSet(track.id, isAssociated);
             }
 
             @Override
-            public void onException(long trackId, Exception e) {
-                onFavoriteStatusSet(trackId, true); // failed, so it should still be a favorite
+            public void onException(Track track, Exception e) {
+                // failed, so it is still a favorite
+                onFavoriteStatusSet(track.id, true);
             }
-
         });
-        f.execute(currentTrack);
+        removeAssociationTask.execute(Endpoints.MY_FAVORITES);
     }
 
     private void onFavoriteStatusSet(long trackId, boolean isFavorite) {
@@ -916,6 +919,61 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             sendBroadcast(intent
                 .putExtra("id", trackId)
                 .putExtra("isFavorite", isFavorite));
+            // Share this notification directly with our widgets
+            mAppWidgetProvider.notifyChange(this, intent);
+        }
+    }
+
+    private void addRepost() {
+        onRepostStatusSet(currentTrack.id, true);
+        AddAssociationTask addAssociationTask = new AddAssociationTask(getApp(), currentTrack);
+        addAssociationTask.setOnAssociatedListener(new AssociatedTrackTask.AssociatedListener() {
+            @Override
+            public void onNewStatus(Track track, boolean isAssociated) {
+                onRepostStatusSet(track.id, isAssociated);
+            }
+
+            @Override
+            public void onException(Track track, Exception e) {
+                // failed, so it shouldn't be a repost
+                onRepostStatusSet(track.id, false);
+            }
+        });
+        addAssociationTask.execute(TempEndpoints.e1.MY_REPOSTS);
+    }
+
+    private void removeRepost() {
+        onRepostStatusSet(currentTrack.id, false);
+        RemoveAssociationTask removeAssociationTask = new RemoveAssociationTask(getApp(), currentTrack);
+        removeAssociationTask.setOnAssociatedListener(new AssociatedTrackTask.AssociatedListener() {
+            @Override
+            public void onNewStatus(Track track, boolean isAssociated) {
+                onRepostStatusSet(track.id, isAssociated);
+            }
+
+            @Override
+            public void onException(Track track, Exception e) {
+                // failed, so it is still a repost
+                onRepostStatusSet(track.id, true);
+            }
+        });
+        removeAssociationTask.execute(TempEndpoints.e1.MY_REPOSTS);
+    }
+
+    private void onRepostStatusSet(long trackId, boolean isRepost) {
+        Track track = mModelManager.getTrack(trackId);
+
+        if (track != null) {
+            track.user_repost = isRepost;
+            mModelManager.write(track);
+        }
+
+        if (currentTrack.id == trackId && currentTrack.user_repost != isRepost) {
+            currentTrack.user_repost = isRepost;
+            notifyChange(FAVORITE_SET);
+        } else {
+            final Intent intent = new Intent(REPOST_SET);
+            sendBroadcast(intent.putExtra("id", trackId).putExtra("isRepost", isRepost));
             // Share this notification directly with our widgets
             mAppWidgetProvider.notifyChange(this, intent);
         }

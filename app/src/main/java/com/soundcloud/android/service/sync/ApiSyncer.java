@@ -80,6 +80,7 @@ public class ApiSyncer {
                 case ME_FAVORITES:
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
+                case ME_REPOSTS:
                     result = syncContent(c, SoundCloudApplication.getUserIdFromContext(mContext));
                     result.success = true;
                     break;

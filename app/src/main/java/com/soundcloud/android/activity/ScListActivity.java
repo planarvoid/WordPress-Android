@@ -9,12 +9,15 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.task.FavoriteAddTask;
-import com.soundcloud.android.task.FavoriteRemoveTask;
-import com.soundcloud.android.task.FavoriteTask;
+import com.soundcloud.android.service.sync.SyncConfig;
+import com.soundcloud.android.task.AddAssociationTask;
+import com.soundcloud.android.task.AssociatedTrackTask;
+import com.soundcloud.android.task.RemoveAssociationTask;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.ScListView;
+import com.soundcloud.api.Endpoints;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -214,26 +217,26 @@ public abstract class ScListActivity extends ScActivity {
     }
 
     public void addFavorite(Track track) {
-        FavoriteAddTask f = new FavoriteAddTask(getApp());
-        f.setOnFavoriteListener(mFavoriteListener);
-        f.execute(track);
+        AddAssociationTask t = new AddAssociationTask(getApp(),track);
+        t.setOnAssociatedListener(mFavoriteListener);
+        t.execute(Endpoints.MY_FAVORITES);
     }
 
     public void removeFavorite(Track track) {
-        FavoriteRemoveTask f = new FavoriteRemoveTask(getApp());
-        f.setOnFavoriteListener(mFavoriteListener);
-        f.execute(track);
+        RemoveAssociationTask t = new RemoveAssociationTask(getApp(), track);
+        t.setOnAssociatedListener(mFavoriteListener);
+        t.execute(Endpoints.MY_FAVORITES);
     }
 
 
-    private FavoriteTask.FavoriteListener mFavoriteListener = new FavoriteTask.FavoriteListener() {
+    private AssociatedTrackTask.AssociatedListener mFavoriteListener = new AssociatedTrackTask.AssociatedListener() {
         @Override
-        public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
+        public void onNewStatus(Track track, boolean isAssociated) {
             // todo, notify lists
         }
 
         @Override
-        public void onException(long trackId, Exception e) {
+        public void onException(Track trackId, Exception e) {
             // todo, notify lists
         }
     };
