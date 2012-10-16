@@ -168,8 +168,8 @@ public class NowPlayingIndicator extends ProgressBar {
 
     public void destroy(){
         pause();
-        ImageUtils.clearBitmap(mWaveform);
-        ImageUtils.clearBitmap(mWaveformMask);
+        mWaveform = null;
+        mWaveformMask = null;
     }
 
     private void stopRefreshing() {

@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -80,8 +81,6 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         mTransportBar.setOnPrevListener(mPrevListener);
         mTransportBar.setOnNextListener(mNextListener);
         mTransportBar.setOnPauseListener(mPauseListener);
-        mTransportBar.setOnCommentListener(mCommentListener);
-        mTransportBar.setOnFavoriteListener(mFavoriteListener);
 
         mShouldShowComments = getApp().getAccountDataBoolean(PLAYER_SHOWING_COMMENTS);
         final Object[] saved = (Object[]) getLastCustomNonConfigurationInstance();
@@ -99,11 +98,11 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
             ptv.setCommentMode(mIsCommenting);
         }
 
-        mTransportBar.setCommentMode(mIsCommenting);
-
         if (mPlaybackService != null) {
             mPlaybackService.setAutoAdvance(!mIsCommenting);
         }
+
+        invalidateOptionsMenu();
     }
 
     public ViewGroup getCommentHolder() {
@@ -355,22 +354,6 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         }
     };
 
-    private final View.OnClickListener mCommentListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            final PlayerTrackView playerTrackView = getCurrentTrackView();
-            if (playerTrackView != null) {
-                toggleCommentMode(playerTrackView.getPlayPosition());
-            }
-
-        }
-    };
-
-    private final View.OnClickListener mFavoriteListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            toggleLike(mPlayingTrack);
-        }
-    };
-
     private final View.OnClickListener mPrevListener = new View.OnClickListener() {
         public void onClick(View v) {
             if (mPlaybackService != null) {
@@ -502,12 +485,9 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
                     ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).handleIdBasedIntent(intent);
                 }
 
-                if (action.equals(CloudPlaybackService.FAVORITE_SET)) {
-                    Track track = getCurrentDisplayedTrack();
-                    if (track != null && track.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
-                        mTransportBar.setFavoriteStatus(track.user_favorite);
-                        invalidateOptionsMenu();
-                    }
+                if (action.equals(CloudPlaybackService.FAVORITE_SET) || action.equals(Actions.COMMENT_ADDED)) {
+                    invalidateOptionsMenu();
+
                 }
 
             } else {
@@ -695,6 +675,10 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         final MenuItem favoriteItem = menu.findItem(R.id.action_bar_like);
         final MenuItem commentItem = menu.findItem(R.id.action_bar_comment);
         final MenuItem shareItem = menu.findItem(R.id.action_bar_share);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+            menu.removeItem(R.id.action_bar_info);
+        }
+
         final Track track = getCurrentDisplayedTrack();
 
         getSupportActionBar().setTitle(track == null ? "" : track.title);
