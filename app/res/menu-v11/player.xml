@@ -13,7 +13,7 @@
           android:title="@string/action_bar_comment"
           android:showAsAction="always"/>
     <item android:id="@+id/action_bar_share"
-          android:icon="@android:drawable/ic_menu_share"
+          android:icon="@drawable/ic_share_white"
           android:title="@string/action_bar_share"
           android:actionProviderClass="com.actionbarsherlock.widget.ShareActionProvider"
           android:showAsAction="ifRoom"/>

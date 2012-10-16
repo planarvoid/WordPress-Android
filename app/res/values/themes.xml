@@ -14,8 +14,9 @@
         <item name="android:dropDownListViewStyle">@style/next_DropDownListView</item>
         <item name="android:actionBarTabStyle">@style/next_ActionBarTabStyle</item>
         <item name="android:actionDropDownStyle">@style/next_DropDownNav</item>
-        <item name="android:actionBarStyle">@style/next_solid_ActionBar</item>
-        <item name="android:panelBackground">@drawable/menu_hardkey_panel_next</item>
+
+        <!-- Compatibility issues when this is set. Check on more devices -->
+            <!--<item name="android:panelBackground">@drawable/menu_hardkey_panel_next</item>-->
 
         <!-- Light.DarkActionBar specific -->
         <item name="actionBarWidgetTheme">@style/Theme.next.widget</item>
@@ -29,13 +30,9 @@
         <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
 
-        <item name="android:actionBarStyle">@style/Next.ActionBarStyle</item>
-
     </style>
 
-    <style name="Next.ActionBarStyle" parent="@style/Widget.Sherlock.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">@drawable/action_bar_background</item>
-    </style>
+
 
     <style name="Theme.Next.NoActionBar" parent="Theme.Sherlock.NoActionBar"/>
     <style name="Theme.ScDialog" parent="android:Theme.Dialog"/>
@@ -59,15 +56,10 @@
     </style>
 
     <style name="next_solid_ActionBar" parent="@style/Widget.Sherlock.Light.ActionBar.Solid.Inverse">
-        <item name="background">@drawable/ab_solid_next</item>
+        <item name="android:background">@drawable/action_bar_background</item>
         <item name="backgroundStacked">@drawable/ab_stacked_solid_next</item>
         <item name="backgroundSplit">@drawable/ab_bottom_solid_next</item>
         <item name="progressBarStyle">@style/next_ProgressBar</item>
-
-        <item name="android:background">@drawable/ab_solid_next</item>
-        <item name="android:backgroundStacked">@drawable/ab_stacked_solid_next</item>
-        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_next</item>
-        <item name="android:progressBarStyle">@style/next_ProgressBar</item>
     </style>
 
     <style name="next_transparent_ActionBar" parent="@style/Widget.Sherlock.ActionBar">
