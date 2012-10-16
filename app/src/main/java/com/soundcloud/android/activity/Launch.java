@@ -42,7 +42,7 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
     private ResolveFetchTask mResolveTask;
     private FetchUserTask mFetchUserTask;
     private long mStartTime;
-    private static final long SPLASH_DELAY = 1200;
+    private static final long SPLASH_DELAY = 800;
 
     private Intent launchIntent;
 
