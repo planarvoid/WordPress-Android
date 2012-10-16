@@ -42,6 +42,7 @@
     <string name="action_bar_comment">Comment</string>
     <string name="action_bar_share">Share</string>
     <string name="action_bar_info">Info</string>
+    <string name="tab_likes">Your Likes</string>
 
     <string name="action_bar_follow">Follow</string>
     <string name="action_bar_unfollow">Unfollow</string>
