@@ -7,7 +7,7 @@
             android:paddingBottom="@dimen/slm_item_padding_topbottom"
             android:paddingLeft="@dimen/slm_item_padding_leftright"
             android:paddingRight="@dimen/slm_item_padding_leftright"
-            android:background="#FF0000">
+            android:background="@drawable/menu_item_background">
 
     <ImageView android:id="@+id/slm_item_icon"
                android:layout_height="wrap_content"
