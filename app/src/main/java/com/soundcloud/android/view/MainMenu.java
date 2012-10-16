@@ -107,7 +107,7 @@ public class MainMenu extends LinearLayout {
             }
         });
 
-        mList.setSelector(getContext().getResources().getDrawable(R.drawable.selectable_background_next));
+        mList.setSelector(getContext().getResources().getDrawable(R.drawable.sidebar_item_background));
 
         mQueryText = (EditText) findViewById(R.id.root_menu_query);
         mQueryText.setOnFocusChangeListener(new OnFocusChangeListener() {
