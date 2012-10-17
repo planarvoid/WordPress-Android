@@ -208,9 +208,9 @@ public class MainMenu extends LinearLayout {
         int layoutId;
 
         public SimpleListMenuItem(TypedArray a) {
-            this.id = a.getResourceId(R.styleable.SimpleMenu_android_id, 0);
-            this.text = a.getText(R.styleable.SimpleMenu_android_text);
-            this.icon = a.getDrawable(R.styleable.SimpleMenu_android_icon);
+            this.id       = a.getResourceId(R.styleable.SimpleMenu_android_id, 0);
+            this.text     = a.getText(R.styleable.SimpleMenu_android_text);
+            this.icon     = a.getDrawable(R.styleable.SimpleMenu_android_icon);
             this.layoutId = a.getResourceId(R.styleable.SimpleMenu_android_layout, 0);
         }
     }
