@@ -89,4 +89,8 @@
     <color name="search_item_selected_color">#ffffff</color>
     <color name="search_item_pressed_color">#ff6600</color>
 
+    <color name="pressed_next">#CCff6600</color>
+
+    <color name="pressed_home_next">#99ff6600</color>
+
 </resources>

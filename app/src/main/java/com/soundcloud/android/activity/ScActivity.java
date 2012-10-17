@@ -28,6 +28,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
@@ -40,9 +41,11 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
@@ -117,17 +120,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             }
         });
 
-        getSupportActionBar().setHomeButtonEnabled(true);
-
-        if (getApp().getLoggedInUser() != null) getSupportActionBar().setTitle(getApp().getLoggedInUser().username);
-
-        final ImageView homeImage = (ImageView) getWindow().getDecorView().findViewById(android.R.id.home);
-        if (homeImage != null) {
-            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams((int) getResources().getDimension(R.dimen.next_home_width), (int)getResources().getDimension(R.dimen.next_home_height));
-            lp.setMargins(0,0, (int) (getResources().getDisplayMetrics().density * 20),0);
-            homeImage.setLayoutParams(lp);
-            homeImage.setScaleType(ImageView.ScaleType.FIT_XY);
-        }
+        configureActionBar();
 
         if (savedInstanceState == null) {
             /*Fragment newFragment = new PlayerFragment();
@@ -135,6 +128,46 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             ft.add(mRootView.getPlayerHolderId(), newFragment).commit();*/
 
             handleIntent(getIntent());
+        }
+    }
+
+    /**
+     * Basically, hack the action bar to make it look like next
+     */
+    private void configureActionBar() {
+
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        if (getApp().getLoggedInUser() != null) getSupportActionBar().setTitle(getApp().getLoggedInUser().username);
+
+        // configure home image to fill vertically
+        final float density = getResources().getDisplayMetrics().density;
+        ImageView homeImage = (ImageView) getWindow().getDecorView().findViewById(android.R.id.home);
+        if (homeImage == null){ // sherlock compatibility id
+            homeImage = (ImageView) getWindow().getDecorView().findViewById(R.id.abs__home);
+        }
+        if (homeImage != null) {
+
+            ViewGroup parent = (ViewGroup) homeImage.getParent();
+            parent.setBackgroundDrawable(getResources().getDrawable(R.drawable.logo_states));
+
+            final int paddingVert = (int) (13 * density);
+            final int paddingHor = (int) (5 * density);
+            homeImage.setPadding(paddingHor, paddingVert, paddingHor, paddingVert);
+            homeImage.setLayoutParams(new FrameLayout.LayoutParams((int) getResources().getDimension(R.dimen.next_home_width), ViewGroup.LayoutParams.MATCH_PARENT));
+            homeImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        }
+
+        // configure title for extra spacing
+        int titleId = Resources.getSystem().getIdentifier("action_bar_title", "id", "android");
+        View title = getWindow().getDecorView().findViewById(titleId);
+        if (title == null){ // sherlock compatibility id
+            title = getWindow().getDecorView().findViewById(R.id.abs__action_bar_title);
+        }
+        if (title != null){
+            ViewGroup parent = (ViewGroup) title.getParent();
+            parent.setPadding((int) (parent.getPaddingLeft() + density * 10),
+                    parent.getPaddingTop(), parent.getPaddingRight(), parent.getPaddingBottom());
         }
     }
 
