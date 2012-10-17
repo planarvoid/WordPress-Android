@@ -72,7 +72,6 @@ public interface AndroidCloudAPI extends CloudAPI {
 
         static {
             Mapper = createMapper();
-            Mapper.registerModule(new SimpleModule("CustomDeserialization", new Version(1, 0, 0, null, null, null)));
         }
 
         private Context mContext;

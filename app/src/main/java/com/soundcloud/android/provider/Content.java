@@ -38,8 +38,8 @@ public enum Content  {
     ME_GROUPS("me/groups", null, 109, null, -1, null),
     ME_PLAYLISTS("me/playlists", null, 110, null, -1, null),
     ME_USERID("me/userid", null, 111, null, -1, null),
-    ME_REPOSTS("me/reposts", TempEndpoints.e1.MY_REPOSTS, 112, Track.class, FAVORITE, Table.COLLECTION_ITEMS),
-    ME_REPOST("me/reposts/#",null, 113, Track.class, FAVORITE, null),
+    ME_REPOSTS("me/reposts", TempEndpoints.e1.MY_REPOSTS, 112, Track.class, REPOST, Table.COLLECTION_ITEMS),
+    ME_REPOST("me/reposts/#",null, 113, Track.class, REPOST, null),
 
     // the ids of the following entries should not be changed, they are referenced in th db
     ME_SOUND_STREAM("me/activities/tracks", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),

@@ -2,6 +2,7 @@ package com.soundcloud.android;
 
 import com.soundcloud.api.Endpoints;
 
+@Deprecated
 public interface TempEndpoints {
     public interface e1 {
         String MY_STREAM = "/e1/me/stream";

@@ -80,7 +80,7 @@ public class ScModelManager {
         return activities;
     }
 
-    public Activities fromJSON(InputStream is) throws IOException {
+    public Activities getActivitiesFromJson(InputStream is) throws IOException {
         Activities activities = mMapper.readValue(is, Activities.class);
         for (Activity a : activities) {
             a.setCachedTrack(SoundCloudApplication.MODEL_MANAGER.cache(a.getTrack(), ScModel.CacheUpdateMode.MINI));
@@ -251,11 +251,11 @@ public class ScModelManager {
         return USER_CACHE.get(id);
     }
 
-    public ScResource cache(ScResource resource) {
+    public ScResource cache(@Nullable ScResource resource) {
         return cache(resource, ScModel.CacheUpdateMode.NONE);
     }
 
-    public ScResource cache(ScResource resource, ScModel.CacheUpdateMode updateMode) {
+    public ScResource cache(@Nullable ScResource resource, ScModel.CacheUpdateMode updateMode) {
         if (resource instanceof Track) {
             return cache((Track) resource, updateMode);
         } else if (resource instanceof User) {
@@ -265,11 +265,11 @@ public class ScModelManager {
         }
     }
 
-    public Track cache(Track track) {
+    public Track cache(@Nullable Track track) {
         return cache(track, ScModel.CacheUpdateMode.NONE);
     }
 
-    public Track cache(Track track, ScModel.CacheUpdateMode updateMode) {
+    public Track cache(@Nullable Track track, ScModel.CacheUpdateMode updateMode) {
         if (track == null) return null;
 
         if (track.user != null) {
@@ -289,11 +289,11 @@ public class ScModelManager {
         }
     }
 
-    public ScResource cache(User user) {
+    public ScResource cache(@Nullable User user) {
         return cache(user, ScModel.CacheUpdateMode.NONE);
     }
 
-    public User cache(User user, ScModel.CacheUpdateMode updateMode) {
+    public User cache(@Nullable User user, ScModel.CacheUpdateMode updateMode) {
         if (user == null) return null;
 
         if (USER_CACHE.containsKey(user.id)) {

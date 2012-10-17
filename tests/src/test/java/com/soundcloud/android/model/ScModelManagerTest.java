@@ -322,7 +322,7 @@ public class ScModelManagerTest {
 
     @Test
     public void shouldPersistActivitiesInDb() throws Exception {
-        Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
+        Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(
                 SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
         expect(a.insert(Content.ME_SOUND_STREAM, resolver)).toBe(22);
 
@@ -335,7 +335,7 @@ public class ScModelManagerTest {
 
     @Test
     public void shouldGetActivitiesFromDBWithTimeFiltering() throws Exception {
-        Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
+        Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(
                 SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
         a.insert(Content.ME_SOUND_STREAM, resolver);
         expect(Content.ME_SOUND_STREAM).toHaveCount(20);
@@ -349,7 +349,7 @@ public class ScModelManagerTest {
 
     @Test
     public void shouldGetLastActivity() throws Exception {
-        Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
+        Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(
                 SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
         a.insert(Content.ME_SOUND_STREAM, resolver);
         expect(Content.ME_SOUND_STREAM).toHaveCount(20);
@@ -362,8 +362,8 @@ public class ScModelManagerTest {
 
     @Test
     public void shouldClearAllActivities() throws Exception {
-        Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
-        SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
+        Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(
+                SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
 
         a.insert(Content.ME_SOUND_STREAM, resolver);
         expect(Content.ME_SOUND_STREAM).toHaveCount(20);

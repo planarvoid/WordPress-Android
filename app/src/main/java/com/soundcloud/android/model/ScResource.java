@@ -37,12 +37,6 @@ public abstract class ScResource extends ScModel {
     public ScResource() {
     }
 
-    public static @NotNull
-    Activities getActivitiesFromStream(InputStream is,
-                                                                    ObjectMapper mapper) throws IOException {
-        return mapper.readValue(is, Activities.class);
-    }
-
     @Deprecated // XXX this is slow (reflection)
     protected void readFromParcel(Parcel in) {
         Bundle data = in.readBundle(getClass().getClassLoader());

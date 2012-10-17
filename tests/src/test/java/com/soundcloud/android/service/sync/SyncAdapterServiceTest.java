@@ -81,7 +81,7 @@ public class SyncAdapterServiceTest {
 
     @Test
     public void testIncomingNotificationMessage() throws Exception {
-        Activities activities = SoundCloudApplication.MODEL_MANAGER.fromJSON(getClass().getResourceAsStream("e1_stream.json"));
+        Activities activities = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(getClass().getResourceAsStream("e1_stream.json"));
         String message = Message.getIncomingNotificationMessage(
                 DefaultTestRunner.application, activities);
 
@@ -90,7 +90,7 @@ public class SyncAdapterServiceTest {
 
     @Test
     public void testExclusiveNotificationMessage() throws Exception {
-        Activities events = SoundCloudApplication.MODEL_MANAGER.fromJSON(getClass().getResourceAsStream("e1_stream_1.json"));
+        Activities events = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(getClass().getResourceAsStream("e1_stream_1.json"));
         String message = Message.getExclusiveNotificationMessage(
                 DefaultTestRunner.application, events);
 

@@ -55,7 +55,7 @@ public class ActivitiesTest {
 
     @Test
     public void testIsEmptyParsed() throws Exception {
-        Activities a = manager.fromJSON(ApiSyncServiceTest.class.getResourceAsStream("activities_empty.json"));
+        Activities a = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("activities_empty.json"));
         expect(a.isEmpty()).toBeTrue();
     }
 
@@ -138,14 +138,14 @@ public class ActivitiesTest {
     }
 
     private Activities getActivities() throws IOException {
-        return manager.fromJSON(ApiSyncServiceTest.class.getResourceAsStream("e1_activities.json"));
+        return manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities.json"));
     }
 
     @Test
     public void testMerge() throws Exception {
-        Activities a1 = manager.fromJSON(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_1.json"));
-        Activities a2 = manager.fromJSON(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_2.json"));
-        Activities all = manager.fromJSON(ApiSyncServiceTest.class.getResourceAsStream("e1_activities.json"));
+        Activities a1 = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_1.json"));
+        Activities a2 = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_2.json"));
+        Activities all = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities.json"));
 
         Activities merged = a2.merge(a1);
         expect(merged.size()).toEqual(all.size());
@@ -157,13 +157,13 @@ public class ActivitiesTest {
 
     @Test
     public void testMergeWithEmpty() throws Exception {
-        Activities a1 = manager.fromJSON(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_1.json"));
+        Activities a1 = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_1.json"));
         expect(a1.merge(Activities.EMPTY)).toBe(a1);
     }
 
     @Test
     public void testFilter() throws Exception {
-        Activities a2 = manager.fromJSON(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_2.json"));
+        Activities a2 = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_2.json"));
         Date start = fromString("2012/05/10 12:39:28 +0000");
 
         Activities filtered = a2.filter(start);
@@ -173,7 +173,7 @@ public class ActivitiesTest {
 
     @Test
     public void testGetNextRequest() throws Exception {
-        Activities a1 = manager.fromJSON(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_1.json"));
+        Activities a1 = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_1.json"));
         expect(a1.hasMore()).toBeTrue();
         expect(a1.getNextRequest().toUrl()).toEqual("/e1/me/activities?cursor=79fd0100-07e7-11e2-8aa5-5d4327b064fb");
     }
@@ -216,7 +216,7 @@ public class ActivitiesTest {
 
     @Test
     public void shouldBuildContentValues() throws Exception {
-        Activities a = manager.fromJSON(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_1.json"));
+        Activities a = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_1.json"));
         ContentValues[] cv = a.buildContentValues(-1);
         expect(cv.length).toEqual(a.size());
     }
@@ -235,7 +235,7 @@ public class ActivitiesTest {
         cv.put(DBHelper.Users.USERNAME, "Foo Bar");
         expect(resolver.insert(Content.USERS.uri, cv)).not.toBeNull();
 
-        Activities a = manager.fromJSON(ApiSyncServiceTest.class.getResourceAsStream("e1_one_of_each_activity.json"));
+        Activities a = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_one_of_each_activity.json"));
         expect(a.insert(Content.ME_ACTIVITIES, resolver)).toBe(7);
 
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(7);
@@ -305,7 +305,7 @@ public class ActivitiesTest {
 
     @Test
     public void shouldGetArtworkUrls() throws Exception {
-        Activities a = manager.fromJSON(
+        Activities a = manager.getActivitiesFromJson(
                 ApiSyncServiceTest.class.getResourceAsStream("e1_one_of_each_activity.json"));
 
         Set<String> urls = a.artworkUrls();
@@ -354,7 +354,7 @@ public class ActivitiesTest {
     @Ignore
     public void shouldNotCreateNewUserObjectsIfObjectIdIsTheSame() throws Exception {
 
-        Activities a = manager.fromJSON(
+        Activities a = manager.getActivitiesFromJson(
                 ApiSyncServiceTest.class.getResourceAsStream("two_activities_by_same_user.json"));
 
         // fronx favorites + comments

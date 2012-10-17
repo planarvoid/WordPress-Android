@@ -222,7 +222,7 @@ public class Activities extends CollectionHolder<Activity> {
         final int status = response.getStatusLine().getStatusCode();
         switch (status) {
             case HttpStatus.SC_OK: {
-                Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(response.getEntity().getContent());
+                Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(response.getEntity().getContent());
                 if (a.size() < max && a.hasMore() && !a.isEmpty() && requestNumber < MAX_REQUESTS) {
                     /* should not happen in theory, but backend might limit max number per requests */
                     return a.merge(fetchRecent(api, a.getNextRequest(), max - a.size(), requestNumber+1));
@@ -246,7 +246,7 @@ public class Activities extends CollectionHolder<Activity> {
                                    final Request request) throws IOException {
         HttpResponse response = api.get(request);
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            return SoundCloudApplication.MODEL_MANAGER.fromJSON(response.getEntity().getContent());
+            return SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(response.getEntity().getContent());
         } else {
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Got no content response (204)");

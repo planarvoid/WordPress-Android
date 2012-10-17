@@ -114,7 +114,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldIncludeUserPermalinkInTrackView() throws Exception {
-        Activities activities = SoundCloudApplication.MODEL_MANAGER.fromJSON(
+        Activities activities = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(
                 ApiSyncServiceTest.class.getResourceAsStream("e1_stream_1.json"));
 
         for (Track t : activities.getUniqueTracks()) {
