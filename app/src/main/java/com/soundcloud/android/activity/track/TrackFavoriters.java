@@ -14,6 +14,6 @@ public class TrackFavoriters extends TrackInfoCollection {
 
     @Override
     protected int getSelectedMenuId() {
-        return R.id.nav_likes;
+        return -1;
     }
 }
