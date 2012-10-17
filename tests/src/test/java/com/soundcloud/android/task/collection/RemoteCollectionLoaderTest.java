@@ -32,13 +32,14 @@ public class RemoteCollectionLoaderTest {
     @Test
     public void shouldLoadTrackCollection() throws Exception {
 
-        TestHelper.addCannedResponse(getClass(), "/users/123/favorites?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "me_favorites.json");
+        final String url = "/users/123/favorites?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE;
+        TestHelper.addCannedResponse(getClass(), url, "me_favorites.json");
 
         final Uri contentUri1 = Content.USER_FAVORITES.forId(123l);
         ReturnData<ScResource> returnData = new RemoteCollectionLoader<ScResource>().load((AndroidCloudAPI) Robolectric.application,new CollectionParams<ScResource>(){
             {
                 contentUri = contentUri1;
-                request = buildRequest(contentUri1);
+                request = new Request(url);
                 loadModel = ScResource.class;
             }
         });

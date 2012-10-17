@@ -86,7 +86,7 @@ public class SyncContentTest {
                 resolver);
 
         List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
-        expect(urisToSync.size()).toEqual(4);
+        expect(urisToSync.size()).toEqual(3);
     }
 
     @Test
@@ -108,6 +108,6 @@ public class SyncContentTest {
         SyncContent.updateCollections(Robolectric.application, syncResult);
 
         urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
-        expect(urisToSync.size()).toEqual(2);
+        expect(urisToSync.size()).toEqual(3);
     }
 }
