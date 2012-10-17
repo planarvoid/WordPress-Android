@@ -162,6 +162,8 @@ public class RootView extends ViewGroup {
         mOffsetLeft = (int) (OFFSET_LEFT * density + 0.5f);
         mBezelHitWidth = (int) (BEZEL_HIT_WIDTH * density + 0.5f);
 
+        mMenu.setOffsetRight(mOffsetRight);
+
         mOverlayPaint = new Paint();
         mOverlayPaint.setColor(Color.BLACK);
 
@@ -285,7 +287,7 @@ public class RootView extends ViewGroup {
         }
 
         if (mMenu != null){
-            int width = widthSpecSize - mOffsetRight;
+            int width = widthSpecSize;
             mMenu.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(heightSpecSize, MeasureSpec.EXACTLY));
         }
@@ -382,9 +384,12 @@ public class RootView extends ViewGroup {
         if (mTracking) {
             return;
         }
-        mMenu.layout(0, 0, getWidth() - mOffsetRight, getHeight());
-        mContent.layout(mContent.getLeft(), 0, mContent.getLeft() + getWidth(), getHeight());
-        if (mPlayer != null) mPlayer.layout(0, 0, getWidth() - mOffsetLeft, getHeight());
+
+        final int width = getWidth();
+        final int height = getHeight();
+        mMenu.layout(0, 0, width, height);
+        mContent.layout(mContent.getLeft(), 0, mContent.getLeft() + width, height);
+        if (mPlayer != null) mPlayer.layout(0, 0, width - mOffsetLeft, height);
     }
 
 

@@ -32,6 +32,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -142,6 +143,10 @@ public class MainMenu extends LinearLayout {
         mSearchHistoryAdapter = new SearchHistoryAdapter(getContext(), R.layout.search_history_row_dark);
         mSuggestionsAdapter = new SearchSuggestionsAdapter(getContext(),null);
         mFocusCatcher = findViewById(R.id.root_menu_focus_catcher);
+    }
+
+    public void setOffsetRight(int mOffsetRight) {
+        ((RelativeLayout.LayoutParams) mQueryText.getLayoutParams()).rightMargin = mOffsetRight;
     }
 
     private void closeKeyboard() {
