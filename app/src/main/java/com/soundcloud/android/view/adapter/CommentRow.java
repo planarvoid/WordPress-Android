@@ -3,7 +3,7 @@ package com.soundcloud.android.view.adapter;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.ScBaseAdapter;
-import com.soundcloud.android.model.Activity.CommentActivity;
+import com.soundcloud.android.model.act.CommentActivity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;

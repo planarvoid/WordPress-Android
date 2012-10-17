@@ -1,11 +1,8 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Activity.Activity;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.view.adapter.CommentRow;
 import com.soundcloud.android.view.adapter.LazyRow;
@@ -13,7 +10,6 @@ import com.soundcloud.android.view.adapter.LikeRow;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 

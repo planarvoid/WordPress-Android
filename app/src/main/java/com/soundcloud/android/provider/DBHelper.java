@@ -1,7 +1,6 @@
 package com.soundcloud.android.provider;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Activity.Activity;
 import com.soundcloud.android.model.LocalCollection;
 
 import android.content.Context;

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soundcloud.android.model.Activity.Activities;
+import com.soundcloud.android.model.act.Activities;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

@@ -4,7 +4,7 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Activity.Activity;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.HttpUtils;

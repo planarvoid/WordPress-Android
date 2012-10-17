@@ -6,10 +6,10 @@ import static com.soundcloud.android.robolectric.TestHelper.*;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Activity.Activities;
-import com.soundcloud.android.model.Activity.Activity;
-import com.soundcloud.android.model.Activity.TrackActivity;
-import com.soundcloud.android.model.Activity.TrackSharingActivity;
+import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.model.act.Activity;
+import com.soundcloud.android.model.act.TrackActivity;
+import com.soundcloud.android.model.act.TrackSharingActivity;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;

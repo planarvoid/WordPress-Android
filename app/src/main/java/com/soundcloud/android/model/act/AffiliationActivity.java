@@ -1,12 +1,10 @@
-package com.soundcloud.android.model.Activity;
+package com.soundcloud.android.model.act;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.DBHelper;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 
 public class AffiliationActivity extends Activity {

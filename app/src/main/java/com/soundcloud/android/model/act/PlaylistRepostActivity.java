@@ -1,4 +1,4 @@
-package com.soundcloud.android.model.Activity;
+package com.soundcloud.android.model.act;
 
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;

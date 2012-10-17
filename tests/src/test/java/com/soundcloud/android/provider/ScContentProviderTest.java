@@ -7,10 +7,9 @@ import static com.soundcloud.android.provider.ScContentProvider.Parameter.RANDOM
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Activity.Activities;
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackHolder;
 import com.soundcloud.android.model.User;
@@ -18,8 +17,6 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
-import com.soundcloud.android.service.sync.SyncAdapterService;
-import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

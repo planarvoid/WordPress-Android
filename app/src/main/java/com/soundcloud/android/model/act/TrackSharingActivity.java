@@ -1,4 +1,4 @@
-package com.soundcloud.android.model.Activity;
+package com.soundcloud.android.model.act;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

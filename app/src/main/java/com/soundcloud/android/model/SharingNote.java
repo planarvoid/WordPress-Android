@@ -3,7 +3,6 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
-import com.soundcloud.android.model.Activity.TrackSharingActivity;
 
 import android.text.TextUtils;
 

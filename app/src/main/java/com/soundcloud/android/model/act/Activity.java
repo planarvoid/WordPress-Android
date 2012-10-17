@@ -1,5 +1,5 @@
 
-package com.soundcloud.android.model.Activity;
+package com.soundcloud.android.model.act;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,14 +18,11 @@ import com.soundcloud.android.utils.ScTextUtils;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Parcel;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @JsonTypeInfo(

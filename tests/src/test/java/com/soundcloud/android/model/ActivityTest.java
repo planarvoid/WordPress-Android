@@ -3,9 +3,9 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.model.Activity.Activity;
-import com.soundcloud.android.model.Activity.CommentActivity;
-import com.soundcloud.android.model.Activity.TrackActivity;
+import com.soundcloud.android.model.act.Activity;
+import com.soundcloud.android.model.act.CommentActivity;
+import com.soundcloud.android.model.act.TrackActivity;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;

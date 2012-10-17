@@ -8,7 +8,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.text.TextUtils;
 
-import com.soundcloud.android.model.Activity.Activity;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncer;

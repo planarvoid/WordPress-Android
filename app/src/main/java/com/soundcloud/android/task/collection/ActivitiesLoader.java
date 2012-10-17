@@ -1,8 +1,8 @@
 package com.soundcloud.android.task.collection;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.model.Activity.Activities;
-import com.soundcloud.android.model.Activity.Activity;
+import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ApiSyncer;
 

@@ -5,7 +5,7 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 import android.util.SparseArray;
 
 import com.soundcloud.android.TempEndpoints;
-import com.soundcloud.android.model.Activity.Activity;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
