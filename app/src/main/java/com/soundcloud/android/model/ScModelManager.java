@@ -62,7 +62,7 @@ public class ScModelManager {
     }
 
     public Activity getActivityFromCursor(Cursor cursor){
-        Activity a = Activity.Type.values()[cursor.getInt(cursor.getColumnIndex(DBHelper.Activities.TYPE_ID))].fromCursor(cursor);
+        Activity a = Activity.Type.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE))).fromCursor(cursor);
         if (a != null) {
             a.setCachedTrack(getTrackFromCursor(cursor, DBHelper.ActivityView.TRACK_ID));
             a.setCachedUser(getUserFromActivityCursor(cursor));

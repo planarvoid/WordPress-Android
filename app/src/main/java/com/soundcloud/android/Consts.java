@@ -213,7 +213,7 @@ public final class Consts {
 
     public interface PrefKeys {
         String EXCLUSIVE_ONLY_KEY                   = "incoming_exclusive_only";
-        String SC_PLAYLIST_URI                      = "sc_playlist_uri";
+        String SC_PLAYQUEUE_URI = "sc_playlist_uri";
         String STREAMING_WRITES_SINCE_CLEANUP       = "streamingWritesSinceCleanup";
         String C2DM_DEVICE_URL                      = "c2dm.device_url";
         String C2DM_REG_TO_DELETE                   = "c2dm.to_delete";

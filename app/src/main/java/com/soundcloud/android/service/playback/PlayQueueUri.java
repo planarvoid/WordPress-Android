@@ -6,7 +6,7 @@ import com.soundcloud.android.provider.Content;
 import android.net.Uri;
 import android.text.TextUtils;
 
-public class PlaylistUri {
+public class PlayQueueUri {
     // these will be stored as uri parameters
     private static final String PARAM_PLAYLIST_POS = "playlistPos";
     private static final String PARAM_SEEK_POS = "seekPos";
@@ -14,15 +14,15 @@ public class PlaylistUri {
 
     public final Uri uri;
 
-    public PlaylistUri() {
+    public PlayQueueUri() {
         this(Content.PLAY_QUEUE.uri);
     }
 
-    public PlaylistUri(String uri) {
+    public PlayQueueUri(String uri) {
         this(Uri.parse(uri));
     }
 
-    public PlaylistUri(Uri uri) {
+    public PlayQueueUri(Uri uri) {
         this.uri = uri == null ? Content.PLAY_QUEUE.uri : uri;
     }
 

@@ -12,7 +12,7 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.PlaylistManager;
+import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -143,11 +143,11 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         final long prevTrackId;
         final long nextTrackId;
 
-        final PlaylistManager playlistManager = mPlaybackService.getPlaylistManager();
+        final PlayQueueManager playQueueManager = mPlaybackService.getPlaylistManager();
         prevTrackId = newQueuePos > 0
-                ? playlistManager.getTrackIdAt(newQueuePos - 1) : -1;
-        nextTrackId =  newQueuePos < playlistManager.length() - 1
-                ? playlistManager.getTrackIdAt(newQueuePos + 1) : -1;
+                ? playQueueManager.getTrackIdAt(newQueuePos - 1) : -1;
+        nextTrackId =  newQueuePos < playQueueManager.length() - 1
+                ? playQueueManager.getTrackIdAt(newQueuePos + 1) : -1;
 
         final PlayerTrackView ptv;
         if (newScreenIndex == 0 && prevTrackId != -1) {
@@ -446,7 +446,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
             final int queuePos = intent.getIntExtra(CloudPlaybackService.BroadcastExtras.queuePosition, -1);
             String action = intent.getAction();
 
-            if (action.equals(CloudPlaybackService.PLAYLIST_CHANGED)) {
+            if (action.equals(CloudPlaybackService.PLAYQUEUE_CHANGED)) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
                 setTrackDisplayFromService();
             } else if (action.equals(CloudPlaybackService.META_CHANGED)) {
@@ -509,7 +509,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         AndroidUtils.bindToService(this, CloudPlaybackService.class, osc);
 
         IntentFilter f = new IntentFilter();
-        f.addAction(CloudPlaybackService.PLAYLIST_CHANGED);
+        f.addAction(CloudPlaybackService.PLAYQUEUE_CHANGED);
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
         f.addAction(CloudPlaybackService.META_CHANGED);
         f.addAction(CloudPlaybackService.PLAYBACK_ERROR);

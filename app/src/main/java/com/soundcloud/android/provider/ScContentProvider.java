@@ -4,8 +4,8 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -253,9 +253,11 @@ public class ScContentProvider extends ContentProvider {
                 qb.setTables(Table.ACTIVITY_VIEW.name);
                 if (content != Content.ME_ALL_ACTIVITIES) {
                     qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id + " AND " +
-                            DBHelper.ActivityView.TYPE_ID + " != " + Activity.Type.AFFILIATION.ordinal() + " AND (" + // remove affiliations
-                            DBHelper.ActivityView.TYPE_ID + " < " + Activity.Type.PLAYLIST.ordinal() +
-                            " OR " + DBHelper.ActivityView.TYPE_ID + " > " + Activity.Type.PLAYLIST_SHARING.ordinal() + ")"); // remove playlists
+                            DBHelper.ActivityView.TYPE + " != '" + Activity.Type.AFFILIATION.type + "' AND (" + // remove affiliations
+                            DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST.type +
+                            "' OR " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_LIKE.type +
+                            "' OR " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_REPOST.type +
+                            "' OR " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_SHARING.type + "')"); // remove playlists
                 }
                 _sortOrder = makeActivitiesSort(uri, sortOrder);
                 break;

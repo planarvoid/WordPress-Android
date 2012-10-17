@@ -14,7 +14,7 @@ import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
-import com.soundcloud.android.service.playback.PlaylistManager;
+import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.ContentResolver;
@@ -329,7 +329,7 @@ public class User extends ScResource implements  Refreshable {
                 DBHelper.Collections.URI + " = ?", new String[]{ c.uri.toString() });
         }
         Activities.clear(null, resolver);
-        PlaylistManager.clearState(context);
+        PlayQueueManager.clearState(context);
         FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
         Search.clearState(resolver, SoundCloudApplication.getUserId());
     }

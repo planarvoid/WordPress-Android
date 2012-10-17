@@ -1,9 +1,9 @@
 
 package com.soundcloud.android.task;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
 import android.os.AsyncTask;
@@ -11,14 +11,14 @@ import android.os.AsyncTask;
 import java.io.IOException;
 
 public abstract class AssociatedTrackTask extends AsyncTask<String, String, Boolean> {
-    protected  SoundCloudApplication mScApp;
+    protected AndroidCloudAPI mApi;
     private AssociatedListener mAssociatedListener;
     private Exception mException;
 
     protected Track track;
 
-    public AssociatedTrackTask(SoundCloudApplication scApp, Track track) {
-        this.mScApp = scApp;
+    public AssociatedTrackTask(AndroidCloudAPI api, Track track) {
+        this.mApi = api;
         this.track = track;
     }
 
@@ -47,9 +47,9 @@ public abstract class AssociatedTrackTask extends AsyncTask<String, String, Bool
     }
 
     @Override
-    protected void onPostExecute(Boolean favorite) {
+    protected void onPostExecute(Boolean associated) {
         if (mAssociatedListener != null) {
-            mAssociatedListener.onNewStatus(track, favorite);
+            mAssociatedListener.onNewStatus(track, associated);
         }
 
         if (mException != null && mAssociatedListener != null){

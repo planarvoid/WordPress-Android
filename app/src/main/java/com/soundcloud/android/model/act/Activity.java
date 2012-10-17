@@ -115,7 +115,7 @@ public abstract class Activity extends ScModel implements Refreshable, Comparabl
         ContentValues cv = super.buildContentValues();
         cv.put(DBHelper.Activities.UUID, uuid);
         cv.put(DBHelper.Activities.TAGS, tags);
-        cv.put(DBHelper.Activities.TYPE_ID, getType().ordinal());
+        cv.put(DBHelper.Activities.TYPE, getType().type);
 
         if (created_at != null) {
             cv.put(DBHelper.Activities.CREATED_AT, created_at.getTime());

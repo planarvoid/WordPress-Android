@@ -170,11 +170,10 @@ public class DBHelper extends SQLiteOpenHelper {
                 ");";
 
     static final String DATABASE_CREATE_PLAYLIST_TRACKS = "(" +
-            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "playlist_id INTEGER, " +
             "track_id INTEGER," +
             "position INTEGER," +
-            "UNIQUE (track_id, position, playlist_id) ON CONFLICT IGNORE" +
+            "PRIMARY KEY (track_id, position, playlist_id) ON CONFLICT IGNORE" +
             ");";
 
 
@@ -268,11 +267,11 @@ public class DBHelper extends SQLiteOpenHelper {
             "user_id INTEGER," +
             "track_id INTEGER," +
             "comment_id INTEGER," +
-            "type_id INTEGER," +
+            "type String," +
             "tags VARCHAR(255)," +
             "created_at INTEGER," +
             "content_id INTEGER," +
-            "UNIQUE (created_at, type_id, content_id, track_id, user_id)" +
+            "UNIQUE (created_at, type, content_id, track_id, user_id)" +
             ");";
 
     static final String DATABASE_CREATE_SEARCHES = "("+
@@ -373,7 +372,7 @@ public class DBHelper extends SQLiteOpenHelper {
     static final String DATABASE_CREATE_ACTIVITY_VIEW = "AS SELECT " +
             "Activities." + Activities._ID + " as " + ActivityView._ID +
             ",Activities." + Activities.UUID + " as " + ActivityView.UUID+
-            ",Activities." + Activities.TYPE_ID + " as " + ActivityView.TYPE_ID +
+            ",Activities." + Activities.TYPE + " as " + ActivityView.TYPE +
             ",Activities." + Activities.TAGS + " as " + ActivityView.TAGS+
             ",Activities." + Activities.CREATED_AT + " as " + ActivityView.CREATED_AT+
             ",Activities." + Activities.COMMENT_ID + " as " + ActivityView.COMMENT_ID+
@@ -575,7 +574,7 @@ public class DBHelper extends SQLiteOpenHelper {
      */
     public static class Activities implements BaseColumns {
         public static final String UUID = "uuid";
-        public static final String TYPE_ID = "type_id";
+        public static final String TYPE = "type";
         public static final String TAGS = "tags";
         public static final String USER_ID = "user_id";
         public static final String TRACK_ID = "track_id";
@@ -618,7 +617,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper#DATABASE_CREATE_PLAY_QUEUE_ITEMS}
+     * {@link DBHelper#DATABASE_CREATE_PLAY_QUEUE}
      */
     public final static class PlayQueue implements BaseColumns{
         public static final String TRACK_ID = "track_id";

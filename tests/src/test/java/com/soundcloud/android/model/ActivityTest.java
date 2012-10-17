@@ -49,7 +49,7 @@ public class ActivityTest {
         ContentValues cv = a.buildContentValues();
 
         expect(cv.getAsString(DBHelper.Activities.TAGS)).toEqual("foo");
-        expect(cv.getAsInteger(DBHelper.Activities.TYPE_ID)).toEqual(Activity.Type.TRACK.ordinal());
+        expect(cv.getAsString(DBHelper.Activities.TYPE)).toEqual(Activity.Type.TRACK.type);
         expect(cv.getAsLong(DBHelper.Activities.TRACK_ID)).toEqual(10L);
         expect(cv.getAsLong(DBHelper.Activities.CREATED_AT)).toEqual(date.getTime());
     }
@@ -64,7 +64,7 @@ public class ActivityTest {
 
         ContentValues cv = a.buildContentValues();
         expect(cv.getAsString(DBHelper.Activities.TAGS)).toEqual("foo");
-        expect(cv.getAsInteger(DBHelper.Activities.TYPE_ID)).toEqual(Activity.Type.COMMENT.ordinal());
+        expect(cv.getAsString(DBHelper.Activities.TYPE)).toEqual(Activity.Type.COMMENT.type);
         expect(cv.getAsLong(DBHelper.Activities.COMMENT_ID)).toEqual(10L);
         expect(cv.getAsLong(DBHelper.Activities.CREATED_AT)).toEqual(date.getTime());
     }
