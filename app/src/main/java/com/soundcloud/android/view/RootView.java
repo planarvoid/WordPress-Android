@@ -26,6 +26,9 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Scroller;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 public class RootView extends ViewGroup {
     static String TAG = RootView.class.getSimpleName();
 
@@ -56,6 +59,7 @@ public class RootView extends ViewGroup {
     public static final String EXTRA_ROOT_VIEW_STATE = "fim_menu_state";
     private static final String KEY_MENU_STATE = "menuState_key";
     private static final String STATE_KEY = "state_key";
+    public static final int MENU_TARGET_WIDTH = 400;
 
     private MainMenu mMenu;
     private @Nullable View mPlayer;
@@ -85,7 +89,7 @@ public class RootView extends ViewGroup {
     private final int mMaximumAcceleration;
     private final int mVelocityUnits;
 
-    private final int mOffsetRight;
+    private int mOffsetRight;
     private final int mOffsetLeft;
     private final int mDrowShadoWidth;
     private final int mBezelHitWidth;
@@ -300,6 +304,9 @@ public class RootView extends ViewGroup {
         mShadowRightDrawable.setBounds(0, 0, mDrowShadoWidth, getHeight());
 
         setMeasuredDimension(widthSpecSize, heightSpecSize);
+
+        final float density = getResources().getDisplayMetrics().density;
+        mOffsetRight = (int) max(widthSpecSize - MENU_TARGET_WIDTH, OFFSET_RIGHT * density + 0.5f);
 
         // since we are measured we can now find a proper expanded position if necessary
         setExpandedState();
@@ -623,9 +630,9 @@ public class RootView extends ViewGroup {
             mHandler.sendMessageAtTime(mHandler.obtainMessage(MSG_ANIMATE), SystemClock.uptimeMillis() + ANIMATION_FRAME_DURATION);
         } else {
             if (mAnimating && mScroller.isFinished()) {
-                if (mContent.getLeft() >= getWidth() / 2) {
+                if (mContent.getLeft() >= (getWidth() - mOffsetRight) / 2) {
                     openLeft();
-                } else if (mContent.getRight() < getWidth() / 2 && canOpenRight()) {
+                } else if (mContent.getRight() < (getWidth() - mOffsetLeft) / 2 && canOpenRight()) {
                     openRight();
                 } else {
                     setClosed();
