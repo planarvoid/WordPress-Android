@@ -686,8 +686,6 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
 
         final Track track = getCurrentDisplayedTrack();
 
-        getSupportActionBar().setTitle(track == null ? "" : track.title);
-
         if (track != null && track.user_favorite) {
             favoriteItem.setIcon(R.drawable.ic_like_orange);
         } else {
