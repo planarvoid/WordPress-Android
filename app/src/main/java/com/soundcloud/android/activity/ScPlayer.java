@@ -90,6 +90,11 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
+    @Override
+    protected int getSelectedMenuId() {
+        return -1;
+    }
+
     public void toggleCommentMode(int playPos) {
         mIsCommenting = !mIsCommenting;
 

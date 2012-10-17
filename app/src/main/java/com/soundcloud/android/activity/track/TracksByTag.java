@@ -50,4 +50,9 @@ public class TracksByTag extends ScListActivity {
         */
     }
 
+    @Override
+    protected int getSelectedMenuId() {
+        return -1;
+    }
+
 }

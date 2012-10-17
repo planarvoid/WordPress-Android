@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity.track;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.tracking.Page;
 
 public class TrackComments extends TrackInfoCollection {
@@ -9,5 +10,10 @@ public class TrackComments extends TrackInfoCollection {
         if (mTrack != null) {
             track(Page.Sounds_info__comment, mTrack);
         }
+    }
+
+    @Override
+    protected int getSelectedMenuId() {
+        return -1;
     }
 }

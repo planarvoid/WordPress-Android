@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainMenu extends LinearLayout {
+    private int mSelectedMenuId = -1;
+
     private ListView mList;
     private MenuAdapter mMenuAdapter;
     private OnMenuItemClickListener mClickListener;
@@ -107,7 +109,7 @@ public class MainMenu extends LinearLayout {
             }
         });
 
-        mList.setSelector(getContext().getResources().getDrawable(R.drawable.selectable_background_next));
+        mList.setSelector(getContext().getResources().getDrawable(R.drawable.sidebar_item_background));
 
         mQueryText = (EditText) findViewById(R.id.root_menu_query);
         mQueryText.setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -171,6 +173,9 @@ public class MainMenu extends LinearLayout {
         mClickListener = onMenuItemClickListener;
     }
 
+    public void setSelectedMenuId(int mSelectedMenuId) {
+        this.mSelectedMenuId = mSelectedMenuId;
+    }
 
     public void setMenuItems(int menu) {
         mMenuAdapter.clear();
@@ -206,12 +211,14 @@ public class MainMenu extends LinearLayout {
         CharSequence text;
         Drawable icon;
         int layoutId;
+        boolean selected;
 
         public SimpleListMenuItem(TypedArray a) {
-            this.id = a.getResourceId(R.styleable.SimpleMenu_android_id, 0);
-            this.text = a.getText(R.styleable.SimpleMenu_android_text);
-            this.icon = a.getDrawable(R.styleable.SimpleMenu_android_icon);
+            this.id       = a.getResourceId(R.styleable.SimpleMenu_android_id, 0);
+            this.text     = a.getText(R.styleable.SimpleMenu_android_text);
+            this.icon     = a.getDrawable(R.styleable.SimpleMenu_android_icon);
             this.layoutId = a.getResourceId(R.styleable.SimpleMenu_android_layout, 0);
+            this.selected = this.id == mSelectedMenuId;
         }
     }
 
@@ -266,8 +273,9 @@ public class MainMenu extends LinearLayout {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-
+            final SimpleListMenuItem menuItem = mMenuItems.get(position);
             final ViewHolder holder;
+
             if (convertView == null) {
                 final int layout_id = mMenuItems.get(position).layoutId;
                 convertView = inflater.inflate(layout_id == 0 ? R.layout.main_menu_item : layout_id, null);
@@ -278,13 +286,22 @@ public class MainMenu extends LinearLayout {
 
                 convertView.setTag(holder);
 
+                if (menuItem.selected) {
+                    convertView.setBackgroundResource(R.drawable.sidebar_item_background_selected);
+                } else {
+                    convertView.setBackgroundResource(R.drawable.sidebar_item_background);
+                }
+
+                int paddingTopBottom = (int) getResources().getDimension(R.dimen.search_header_padding_topbottom);
+                int paddingLeftRight = (int) getResources().getDimension(R.dimen.search_header_padding_leftright);
+                convertView.setPadding(paddingLeftRight, paddingTopBottom, paddingLeftRight, paddingTopBottom);
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
 
-            final SimpleListMenuItem menuItem = mMenuItems.get(position);
             if (holder.image != null) holder.image.setImageDrawable(menuItem.icon);
             if (holder.text != null) holder.text.setText(menuItem.text);
+
             return convertView;
         }
 

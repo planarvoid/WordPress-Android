@@ -217,6 +217,10 @@ public class UserBrowser extends ScListActivity implements
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
+    @Override
+    protected int getSelectedMenuId() {
+        return R.id.nav_you;
+    }
 
 
     class UserFragmentAdapter extends FragmentPagerAdapter {
