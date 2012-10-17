@@ -306,7 +306,8 @@ public class RootView extends ViewGroup {
         setMeasuredDimension(widthSpecSize, heightSpecSize);
 
         final float density = getResources().getDisplayMetrics().density;
-        mOffsetRight = (int) max(widthSpecSize - MENU_TARGET_WIDTH, OFFSET_RIGHT * density + 0.5f);
+        mOffsetRight = (int) max(widthSpecSize - MENU_TARGET_WIDTH * density + 0.5f,
+                                 OFFSET_RIGHT * density + 0.5f);
 
         // since we are measured we can now find a proper expanded position if necessary
         setExpandedState();
