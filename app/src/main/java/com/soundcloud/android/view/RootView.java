@@ -171,7 +171,7 @@ public class RootView extends ViewGroup {
 
         mExpandedState = COLLAPSED_FULL_CLOSED;
 
-        setBackgroundColor(getContext().getResources().getColor(android.R.color.background_dark));
+        setBackgroundColor(getResources().getColor(R.color.main_menu_bg));
         setAlwaysDrawnWithCacheEnabled(false);
     }
 
@@ -328,7 +328,8 @@ public class RootView extends ViewGroup {
             if (mContent.getLeft() > 0){
 
                 // menu
-                final int offset = (int) (-closedRatio * mMenu.getWidth() * PARALLAX_SPEED_RATIO) - mMenu.getLeft();
+                final int left = mMenu.getLeft();
+                final int offset = Math.min(-left, (int) (-closedRatio * mMenu.getWidth() * PARALLAX_SPEED_RATIO) - left);
                 mMenu.offsetLeftAndRight(offset);
                 drawChild(canvas, mMenu, drawingTime);
 

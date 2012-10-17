@@ -93,4 +93,7 @@
 
     <color name="pressed_home_next">#99ff6600</color>
 
+    <color name="main_menu_bg">#FF222222</color>
+
+
 </resources>
