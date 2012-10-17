@@ -133,8 +133,9 @@ public class RootView extends ViewGroup {
      * and ideas credited to http://android.cyrilmottier.com/?p=658
      *
      * @param context
+     * @param selectedMenuId
      */
-    public RootView(Context context) {
+    public RootView(Context context, int selectedMenuId) {
         super(context, null, 0);
 
         View.inflate(context, R.layout.root_view, this);
@@ -144,6 +145,8 @@ public class RootView extends ViewGroup {
         setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
         mMenu = (MainMenu) findViewById(R.id.root_menu);
+        mMenu.setSelectedMenuId(selectedMenuId);
+
         mContent = (ViewGroup) findViewById(R.id.content_frame);
         //mPlayer = findViewById(R.id.player_frame);
 
