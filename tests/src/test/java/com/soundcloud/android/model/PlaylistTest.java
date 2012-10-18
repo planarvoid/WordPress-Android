@@ -26,9 +26,25 @@ public class PlaylistTest {
                 getClass().getResourceAsStream("e1_playlist.json"),
                 Playlist.class);
 
-        System.out.print(p);
+        expect(p.title).toEqual("PA600QT Demos");
+        expect(p.description).toEqual("blah blah blah");
+        expect(p.release_year).toEqual(1992);
+        expect(p.user_id).toEqual(1196047l);
+        expect(p.tracks.size()).toEqual(14);
     }
 
+    @Test
+    public void shouldParcelAndUnparcelCorrectly() throws Exception {
+        Playlist playlist = AndroidCloudAPI.Mapper.readValue(
+                getClass().getResourceAsStream("e1_playlist.json"),
+                Playlist.class);
+
+        Parcel p = Parcel.obtain();
+        playlist.writeToParcel(p, 0);
+
+        Playlist playlist2 = new Playlist(p);
+        comparePlaylists(playlist, playlist2);
+    }
 
     private void comparePlaylists(Playlist playlist, Playlist playlist1) {
         expect(playlist1.id).toEqual(playlist.id);
@@ -38,20 +54,10 @@ public class PlaylistTest {
         expect(playlist1.duration).toEqual(playlist.duration);
         expect(playlist1.created_at).toEqual(playlist.created_at);
         expect(playlist1.tag_list).toEqual(playlist.tag_list);
-        expect(playlist1.track_type).toEqual(playlist.track_type);
         expect(playlist1.permalink_url).toEqual(playlist.permalink_url);
         expect(playlist1.artwork_url).toEqual(playlist.artwork_url);
-        expect(playlist1.waveform_url).toEqual(playlist.waveform_url);
         expect(playlist1.downloadable).toEqual(playlist.downloadable);
-        expect(playlist1.download_url).toEqual(playlist.download_url);
         expect(playlist1.streamable).toEqual(playlist.streamable);
-        expect(playlist1.stream_url).toEqual(playlist.stream_url);
-        expect(playlist1.playback_count).toEqual(playlist.playback_count);
-        expect(playlist1.download_count).toEqual(playlist.download_count);
-        expect(playlist1.comment_count).toEqual(playlist.comment_count);
-        expect(playlist1.favoritings_count).toEqual(playlist.favoritings_count);
-        expect(playlist1.shared_to_count).toEqual(playlist.shared_to_count);
         expect(playlist1.user_id).toEqual(playlist.user_id);
-        expect(playlist1.commentable).toEqual(playlist.commentable);
     }
 }

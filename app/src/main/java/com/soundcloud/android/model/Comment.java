@@ -2,6 +2,7 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
@@ -52,14 +53,14 @@ import java.util.Date;
 
 
 public class Comment extends ScResource {
-    @JsonView(Views.Mini.class) public Date created_at;
-    @JsonView(Views.Mini.class) public long user_id;
-    @JsonView(Views.Mini.class) public long track_id;
-    @JsonView(Views.Mini.class) public long timestamp; // should be null (non-timed comment)
-    @JsonView(Views.Mini.class) public Track track;
-    @JsonView(Views.Mini.class) public String body;
-    @JsonView(Views.Mini.class) public String uri;
-    @JsonView(Views.Mini.class) public User user;
+    @JsonProperty @JsonView(Views.Mini.class) public Date created_at;
+    @JsonProperty @JsonView(Views.Mini.class) public long user_id;
+    @JsonProperty @JsonView(Views.Mini.class) public long track_id;
+    @JsonProperty @JsonView(Views.Mini.class) public long timestamp; // should be null (non-timed comment)
+    @JsonProperty @JsonView(Views.Mini.class) public Track track;
+    @JsonProperty @JsonView(Views.Mini.class) public String body;
+    @JsonProperty @JsonView(Views.Mini.class) public String uri;
+    @JsonProperty @JsonView(Views.Mini.class) public User user;
 
     // non-API related fields
     public long reply_to_id;
@@ -163,6 +164,11 @@ public class Comment extends ScResource {
         comment.reply_to_id = replyToId;
         comment.reply_to_username = replyToUsername;
         return comment;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     @Override

@@ -32,7 +32,7 @@ import java.util.EnumSet;
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Model
-public class User extends ScResource implements  Refreshable {
+public class User extends ScResource implements Refreshable {
     @JsonView(Views.Mini.class) public String username;
     @JsonView(Views.Mini.class) public String uri;
     @JsonView(Views.Mini.class) public String avatar_url;
@@ -71,7 +71,29 @@ public class User extends ScResource implements  Refreshable {
     }
 
     public User(Parcel in) {
-        readFromParcel(in);
+        // TODO replace with generated file
+        User model = this;
+        Bundle bundle = in.readBundle(model.getClass().getClassLoader());
+        model.username = bundle.getString("username");
+        model.uri = bundle.getString("uri");
+        model.avatar_url = bundle.getString("avatar_url");
+        model.permalink = bundle.getString("permalink");
+        model.permalink_url = bundle.getString("permalink_url");
+        model.full_name = bundle.getString("full_name");
+        model.description = bundle.getString("description");
+        model.city = bundle.getString("city");
+        model.country = bundle.getString("country");
+        model.plan = bundle.getString("plan");
+        model.website = bundle.getString("website");
+        model.website_title = bundle.getString("website_title");
+        model.myspace_name = bundle.getString("myspace_name");
+        model.discogs_name = bundle.getString("discogs_name");
+        model.track_count = bundle.getInt("track_count");
+        model.followers_count = bundle.getInt("followers_count");
+        model.followings_count = bundle.getInt("followings_count");
+        model.public_favorites_count = bundle.getInt("public_favorites_count");
+        model.private_tracks_count = bundle.getInt("private_tracks_count");
+        model.id = bundle.getLong("id");
     }
 
     public User(Cursor cursor) {
@@ -335,33 +357,6 @@ public class User extends ScResource implements  Refreshable {
     }
 
     @Override
-    protected void readFromParcel(Parcel in) {
-        // TODO replace with generated file
-        User model = this;
-        Bundle bundle = in.readBundle(model.getClass().getClassLoader());
-        model.username = bundle.getString("username");
-        model.uri = bundle.getString("uri");
-        model.avatar_url = bundle.getString("avatar_url");
-        model.permalink = bundle.getString("permalink");
-        model.permalink_url = bundle.getString("permalink_url");
-        model.full_name = bundle.getString("full_name");
-        model.description = bundle.getString("description");
-        model.city = bundle.getString("city");
-        model.country = bundle.getString("country");
-        model.plan = bundle.getString("plan");
-        model.website = bundle.getString("website");
-        model.website_title = bundle.getString("website_title");
-        model.myspace_name = bundle.getString("myspace_name");
-        model.discogs_name = bundle.getString("discogs_name");
-        model.track_count = bundle.getInt("track_count");
-        model.followers_count = bundle.getInt("followers_count");
-        model.followings_count = bundle.getInt("followings_count");
-        model.public_favorites_count = bundle.getInt("public_favorites_count");
-        model.private_tracks_count = bundle.getInt("private_tracks_count");
-        model.id = bundle.getLong("id");
-    }
-
-    @Override
     public Uri getBulkInsertUri() {
         return Content.USERS.uri;
     }
@@ -374,6 +369,11 @@ public class User extends ScResource implements  Refreshable {
     @Override @JsonIgnore
     public Track getTrack() {
         return null;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     @Override
@@ -401,7 +401,6 @@ public class User extends ScResource implements  Refreshable {
         bundle.putInt("public_favorites_count", model.public_favorites_count);
         bundle.putInt("private_tracks_count", model.private_tracks_count);
         bundle.putLong("id", model.id);
-
         out.writeBundle(bundle);
     }
 }

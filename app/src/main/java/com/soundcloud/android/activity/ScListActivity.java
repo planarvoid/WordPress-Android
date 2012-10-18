@@ -5,9 +5,11 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -139,18 +141,18 @@ public abstract class ScListActivity extends ScActivity {
         }
     }
 
-    public void playTrack(Playable.PlayInfo info) {
+    public void playTrack(PlayInfo info) {
         playTrack(info, true, false);
     }
 
-    public void playTrack(Playable.PlayInfo info, boolean goToPlayer, boolean commentMode) {
+    public void playTrack(PlayInfo info, boolean goToPlayer, boolean commentMode) {
         final Track t = info.getTrack();
         Intent intent = new Intent(this, CloudPlaybackService.class).setAction(CloudPlaybackService.PLAY_ACTION);
         if (CloudPlaybackService.getCurrentTrackId() != t.id) {
             // changing tracks
             intent.putExtra(CloudPlaybackService.PlayExtras.trackId, t.id);
             if (info.uri != null) {
-                SoundCloudApplication.MODEL_MANAGER.cache(info.getTrack(), ScModel.CacheUpdateMode.NONE);
+                SoundCloudApplication.MODEL_MANAGER.cache(info.getTrack(), ScResource.CacheUpdateMode.NONE);
                 intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.getTrack().id)
                       .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                       .setData(info.uri);

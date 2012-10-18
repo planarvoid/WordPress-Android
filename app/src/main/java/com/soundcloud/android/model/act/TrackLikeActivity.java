@@ -1,6 +1,7 @@
 package com.soundcloud.android.model.act;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
@@ -9,11 +10,12 @@ import com.soundcloud.android.model.User;
 import android.database.Cursor;
 
 public class TrackLikeActivity extends Activity implements Playable {
-    public User user;
-    public Track track;
+    @JsonProperty public User user;
+    @JsonProperty public Track track;
 
     // for deserialization
     public TrackLikeActivity() {
+        super();
     }
 
     public TrackLikeActivity(Cursor cursor) {

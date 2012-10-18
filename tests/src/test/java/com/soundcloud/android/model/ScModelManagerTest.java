@@ -43,12 +43,12 @@ public class ScModelManagerTest {
         Track track = new Track();
         track.id = 1234;
         track.bpm = 120f;
-        manager.cache(track, ScModel.CacheUpdateMode.FULL);
+        manager.cache(track, ScResource.CacheUpdateMode.FULL);
 
         Track track2 = new Track();
         track2.id = 1234;
         track2.duration = 9876;
-        Track t = manager.cache(track2, ScModel.CacheUpdateMode.FULL);
+        Track t = manager.cache(track2, ScResource.CacheUpdateMode.FULL);
 
         expect(t.bpm).toEqual(track.bpm);
         expect(t.duration).toEqual(track.duration);
@@ -277,13 +277,13 @@ public class ScModelManagerTest {
     @Test
     public void shouldBulkInsert() throws Exception {
         List<ScResource> items = createModels();
-        expect(manager.writeCollection(items, ScModel.CacheUpdateMode.MINI)).toEqual(3);
+        expect(manager.writeCollection(items, ScResource.CacheUpdateMode.MINI)).toEqual(3);
     }
 
     @Test
     public void shouldBulkInsertWithCollections() throws Exception {
         List<ScResource> items = createModels();
-        expect(manager.writeCollection(items, Content.ME_FAVORITES.uri, USER_ID, ScModel.CacheUpdateMode.MINI)).toEqual(3);
+        expect(manager.writeCollection(items, Content.ME_FAVORITES.uri, USER_ID, ScResource.CacheUpdateMode.MINI)).toEqual(3);
 
         Cursor c = resolver.query(Content.ME_FAVORITES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
@@ -291,7 +291,7 @@ public class ScModelManagerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotBulkInsertWithoutOwnerId() throws Exception {
-        manager.writeCollection(createModels(), Content.ME_FAVORITES.uri, -1, ScModel.CacheUpdateMode.NONE);
+        manager.writeCollection(createModels(), Content.ME_FAVORITES.uri, -1, ScResource.CacheUpdateMode.NONE);
     }
 
     private List<ScResource> createModels() {
@@ -392,7 +392,7 @@ public class ScModelManagerTest {
             ids.add(i);
         }
 
-        expect(manager.writeCollection(users, ScModel.CacheUpdateMode.MINI)).toEqual(2);
+        expect(manager.writeCollection(users, ScResource.CacheUpdateMode.MINI)).toEqual(2);
         expect(manager.writeMissingCollectionItems((AndroidCloudAPI) Robolectric.application, ids,Content.USERS,false,5)).toEqual(5);
     }
 

@@ -19,6 +19,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -44,7 +45,7 @@ import java.util.UUID;
 })
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class Activity extends ScModel implements Refreshable, Comparable<Activity> {
+public abstract class Activity extends ScModel implements Parcelable, Refreshable, Comparable<Activity> {
     @JsonProperty public String uuid;
     @JsonProperty public Date created_at;
     @JsonProperty public String tags;
@@ -255,5 +256,10 @@ public abstract class Activity extends ScModel implements Refreshable, Comparabl
         public String toString() {
             return type;
         }
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 }

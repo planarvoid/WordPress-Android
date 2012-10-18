@@ -1,6 +1,7 @@
 package com.soundcloud.android.model.act;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -8,10 +9,11 @@ import com.soundcloud.android.model.User;
 import android.database.Cursor;
 
 public class AffiliationActivity extends Activity {
-    public User user;
+    @JsonProperty public User user;
 
     // for deserialization
     public AffiliationActivity() {
+        super();
     }
 
     public AffiliationActivity(Cursor cursor) {
@@ -47,4 +49,5 @@ public class AffiliationActivity extends Activity {
     public void setCachedUser(User user) {
         this.user = user;
     }
+
 }

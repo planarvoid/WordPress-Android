@@ -83,8 +83,8 @@ public class ScModelManager {
     public Activities getActivitiesFromJson(InputStream is) throws IOException {
         Activities activities = mMapper.readValue(is, Activities.class);
         for (Activity a : activities) {
-            a.setCachedTrack(SoundCloudApplication.MODEL_MANAGER.cache(a.getTrack(), ScModel.CacheUpdateMode.MINI));
-            a.setCachedUser(SoundCloudApplication.MODEL_MANAGER.cache(a.getUser(), ScModel.CacheUpdateMode.MINI));
+            a.setCachedTrack(SoundCloudApplication.MODEL_MANAGER.cache(a.getTrack(), ScResource.CacheUpdateMode.MINI));
+            a.setCachedUser(SoundCloudApplication.MODEL_MANAGER.cache(a.getUser(), ScResource.CacheUpdateMode.MINI));
         }
         return activities;
     }
@@ -103,7 +103,7 @@ public class ScModelManager {
         List<ScResource> items = new ArrayList<ScResource>();
         CollectionHolder holder = mMapper.readValue(is, ScResource.ScResourceHolder.class);
         for (ScResource m : (ScResource.ScResourceHolder) holder) {
-            items.add(cache(m, ScModel.CacheUpdateMode.FULL));
+            items.add(cache(m, ScResource.CacheUpdateMode.FULL));
         }
         holder.collection = items;
         holder.resolve(mContext);
@@ -252,10 +252,10 @@ public class ScModelManager {
     }
 
     public ScResource cache(@Nullable ScResource resource) {
-        return cache(resource, ScModel.CacheUpdateMode.NONE);
+        return cache(resource, ScResource.CacheUpdateMode.NONE);
     }
 
-    public ScResource cache(@Nullable ScResource resource, ScModel.CacheUpdateMode updateMode) {
+    public ScResource cache(@Nullable ScResource resource, ScResource.CacheUpdateMode updateMode) {
         if (resource instanceof Track) {
             return cache((Track) resource, updateMode);
         } else if (resource instanceof User) {
@@ -266,10 +266,10 @@ public class ScModelManager {
     }
 
     public Track cache(@Nullable Track track) {
-        return cache(track, ScModel.CacheUpdateMode.NONE);
+        return cache(track, ScResource.CacheUpdateMode.NONE);
     }
 
-    public Track cache(@Nullable Track track, ScModel.CacheUpdateMode updateMode) {
+    public Track cache(@Nullable Track track, ScResource.CacheUpdateMode updateMode) {
         if (track == null) return null;
 
         if (track.user != null) {
@@ -290,10 +290,10 @@ public class ScModelManager {
     }
 
     public ScResource cache(@Nullable User user) {
-        return cache(user, ScModel.CacheUpdateMode.NONE);
+        return cache(user, ScResource.CacheUpdateMode.NONE);
     }
 
-    public User cache(@Nullable User user, ScModel.CacheUpdateMode updateMode) {
+    public User cache(@Nullable User user, ScResource.CacheUpdateMode updateMode) {
         if (user == null) return null;
 
         if (USER_CACHE.containsKey(user.id)) {
@@ -423,19 +423,19 @@ public class ScModelManager {
         return idList;
     }
 
-    public int writeCollectionFromStream(InputStream is, ScModel.CacheUpdateMode updateMode) throws IOException {
+    public int writeCollectionFromStream(InputStream is, ScResource.CacheUpdateMode updateMode) throws IOException {
         return writeCollectionFromStream(is, null, -1, updateMode);
     }
 
-    public int writeCollectionFromStream(InputStream is, Uri uri, long userId, ScModel.CacheUpdateMode updateMode) throws IOException {
+    public int writeCollectionFromStream(InputStream is, Uri uri, long userId, ScResource.CacheUpdateMode updateMode) throws IOException {
         return writeCollection(getCollectionFromStream(is).collection, uri, userId, updateMode);
     }
 
-    public Object writeCollection(List<ScResource> items, ScModel.CacheUpdateMode updateMode) {
+    public Object writeCollection(List<ScResource> items, ScResource.CacheUpdateMode updateMode) {
         return writeCollection(items, null, -1l, updateMode);
     }
 
-    public <T extends ScResource> int writeCollection(List<T> items, Uri localUri, long userId, ScModel.CacheUpdateMode updateMode) {
+    public <T extends ScResource> int writeCollection(List<T> items, Uri localUri, long userId, ScResource.CacheUpdateMode updateMode) {
         if (items.isEmpty()) return 0;
 
         for (T item : items) {

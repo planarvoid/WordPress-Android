@@ -2,9 +2,11 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.SoundCloudApplication.*;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -20,9 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    property = "kind")
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "kind")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Track.class, name = "track"),
         @JsonSubTypes.Type(value = Comment.class, name = "comment"),
@@ -32,30 +34,18 @@ public abstract class ScResource extends ScModel {
 
 
     public static final List<ScResource> EMPTY_LIST = new ArrayList<ScResource>();
-    @JsonIgnore public long last_updated       = NOT_SET;
+    @JsonIgnore
+    public long last_updated = NOT_SET;
 
     public ScResource() {
     }
 
-    @Deprecated // XXX this is slow (reflection)
-    protected void readFromParcel(Parcel in) {
-        Bundle data = in.readBundle(getClass().getClassLoader());
-        for (String key : data.keySet()) {
-            try {
-                setFieldFromBundle(this, getClass().getDeclaredField(key), data, key);
-            } catch (SecurityException e) {
-                Log.e(TAG, "error ", e);
-            } catch (IllegalArgumentException e) {
-                Log.e(TAG, "error ", e);
-            } catch (NoSuchFieldException e) {
-                try {
-                    setFieldFromBundle(this, getClass().getField(key), data, key);
-                } catch (NoSuchFieldException ignored) {
-                    Log.e(TAG, "error ", ignored);
-                }
-            }
+    public enum CacheUpdateMode {
+        NONE, MINI, FULL;
+
+        public boolean shouldUpdate() {
+            return this != NONE;
         }
-        this.id = data.getLong("id");
     }
 
     @Override
@@ -82,8 +72,12 @@ public abstract class ScResource extends ScModel {
     public abstract Uri getBulkInsertUri();
 
     public abstract User getUser();
+
     public abstract Track getTrack();
 
-    public static class ScResourceHolder extends CollectionHolder<ScResource> {}
-    public static class CommentHolder extends CollectionHolder<Comment> {}
+    public static class ScResourceHolder extends CollectionHolder<ScResource> {
+    }
+
+    public static class CommentHolder extends CollectionHolder<Comment> {
+    }
 }

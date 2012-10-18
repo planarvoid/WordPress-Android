@@ -19,7 +19,6 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.FlowLayout;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -45,28 +45,14 @@ import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends ScResource implements Playable, Refreshable {
+public class Track extends PlayableResource implements Playable {
     private static final String TAG = "Track";
     public static final String EXTRA = "track";
 
     // API fields
-    @JsonView(Views.Full.class) public Date created_at;
-    @JsonView(Views.Mini.class) public long user_id;
-    @JsonView(Views.Full.class) public int duration = NOT_SET;
     @JsonView(Views.Full.class) @Nullable public State state;
     @JsonView(Views.Full.class) public boolean commentable;
-    @JsonView(Views.Full.class) public Sharing sharing;  //  public | private
-    @JsonView(Views.Full.class) public String tag_list;
-    @JsonView(Views.Mini.class) public String permalink;
-    @JsonView(Views.Full.class) public String description;
-    @JsonView(Views.Full.class) public boolean streamable;
-    @JsonView(Views.Full.class) public boolean downloadable;
-    @JsonView(Views.Full.class) public String genre;
-    @JsonView(Views.Full.class) public String release;
-    @JsonView(Views.Full.class) public String purchase_url;
-    @JsonView(Views.Full.class) public Integer label_id;
     @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL) public User label;
-    @JsonView(Views.Full.class) public String label_name;
     @JsonView(Views.Full.class) public String isrc;
     @JsonView(Views.Full.class) public String video_url;
     @JsonView(Views.Full.class) public String track_type;
@@ -81,28 +67,13 @@ public class Track extends ScResource implements Playable, Refreshable {
     @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
     public int shared_to_count;
 
-    @JsonView(Views.Mini.class) public String title;
-
-    @JsonView(Views.Full.class)
-    public Integer release_year;
-    @JsonView(Views.Full.class)
-    public Integer release_month;
-    @JsonView(Views.Full.class)
-    public Integer release_day;
-
     @JsonView(Views.Full.class) public String original_format;
-    @JsonView(Views.Full.class) public String license;
 
-    @JsonView(Views.Mini.class) public String uri;
     @JsonView(Views.Mini.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public String user_uri;
-    @JsonView(Views.Mini.class) public String permalink_url;
-    @JsonView(Views.Mini.class)
-    public String artwork_url;
 
     @JsonView(Views.Full.class) public String waveform_url;
 
-    @JsonView(Views.Full.class) public User user;
 
     @JsonView(Views.Mini.class) public String stream_url;
 
@@ -144,8 +115,6 @@ public class Track extends ScResource implements Playable, Refreshable {
     @JsonIgnore public LoadCommentsTask load_comments_task;
     @JsonIgnore public boolean full_track_info_loaded;
     @JsonIgnore public int last_playback_error = -1;
-    @JsonIgnore private CharSequence _elapsedTime;
-    @JsonIgnore private String _list_artwork_uri;
 
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
@@ -167,38 +136,17 @@ public class Track extends ScResource implements Playable, Refreshable {
         return this;
     }
 
+    @Override
+    public Date getCreatedAt() {
+        return created_at;
+    }
+
     @Override @JsonIgnore
     public User getUser() {
         return user;
     }
 
-    @Override
-    public CharSequence getTimeSinceCreated(Context context) {
-        if (_elapsedTime == null) refreshTimeSinceCreated(context);
-        return _elapsedTime;
-    }
 
-    @Override
-    public void refreshTimeSinceCreated(Context context) {
-        if (created_at != null){
-            _elapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
-        }
-    }
-
-    public void refreshListArtworkUri(Context context) {
-        final String iconUrl = getArtwork();
-        _list_artwork_uri = TextUtils.isEmpty(iconUrl) ? null : Consts.GraphicSize.formatUriForList(context, iconUrl);
-    }
-
-    public String getListArtworkUrl(Context context){
-        if (TextUtils.isEmpty(_list_artwork_uri)) refreshListArtworkUri(context);
-        return _list_artwork_uri;
-    }
-
-    public String getPlayerArtworkUri(Context context){
-        final String iconUrl = getArtwork();
-        return TextUtils.isEmpty(iconUrl) ? null : Consts.GraphicSize.formatUriForPlayer(context, iconUrl);
-    }
 
     @JsonIgnore
     public boolean isStreamable() {
@@ -229,29 +177,136 @@ public class Track extends ScResource implements Playable, Refreshable {
         }
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        Bundle b = super.getBundle();
+        b.putString("state", state.value());
+        b.putBoolean("commentable", commentable);
+        b.putParcelable("label", label);
+        b.putString("isrc", isrc);
+        b.putString("video_url", video_url);
+        b.putString("track_type", track_type);
+        b.putString("key_signature", key_signature);
+        b.putFloat("bpm", bpm);
+        b.putInt("playback_count", playback_count);
+        b.putInt("download_count", download_count);
+        b.putInt("comment_count", comment_count);
+        b.putInt("favoritings_count", favoritings_count);
+        b.putInt("shared_to_count", shared_to_count);
+        b.putString("original_format", original_format);
+        b.putString("user_uri", user_uri);
+        b.putString("waveform_url", waveform_url);
+        b.putString("stream_url", stream_url);
+        b.putInt("user_playback_count", user_playback_count);
+        b.putBoolean("user_favorite", user_favorite);
+        b.putBoolean("user_repost", user_repost);
+        b.putParcelable("created_with", created_with);
+        b.putParcelable("sharing_note", sharing_note);
+        b.putString("attachments_uri", attachments_uri);
+        b.putString("download_url", download_url);
+        b.putInt("downloads_remaining", downloads_remaining);
+        b.putString("secret_token", secret_token);
+        b.putString("secret_uri", secret_uri);
+
+        b.putInt("local_user_playback_count", local_user_playback_count);
+        b.putBoolean("local_cached", local_cached);
+        b.putBoolean("full_track_info_loaded", full_track_info_loaded);
+        b.putInt("last_playback_error", last_playback_error);
+
+        /* the following fields are left out because they are too expensive or complex
+        public List<Comment> comments;
+        public FetchModelTask<Track> load_info_task;
+        public LoadCommentsTask load_comments_task;
+        */
+
+        dest.writeBundle(b);
+    }
+
     @JsonIgnoreProperties(ignoreUnknown=true)
-    public static class CreatedWith {
+    public static class CreatedWith implements Parcelable {
         @JsonView(Views.Full.class) public long id;
         @JsonView(Views.Full.class) public String name;
         @JsonView(Views.Full.class) public String uri;
         @JsonView(Views.Full.class) public String permalink_url;
         @JsonView(Views.Full.class) public String external_url;
 
+        public CreatedWith() {
+            super();
+        }
+
+        public CreatedWith(Parcel in) {
+            id = in.readLong();
+            name = in.readString();
+            uri = in.readString();
+            permalink_url = in.readString();
+            external_url = in.readString();
+
+        }
+
         public boolean isEmpty() {
             return TextUtils.isEmpty(name) || TextUtils.isEmpty(permalink_url);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeLong(id);
+            dest.writeString(name);
+            dest.writeString(uri);
+            dest.writeString(permalink_url);
+            dest.writeString(external_url);
         }
     }
 
     public Track() {
-    }
-
-    @Override
-    public Uri getBulkInsertUri() {
-        return Content.TRACKS.uri;
+        super();
     }
 
     public Track(Parcel in) {
-        readFromParcel(in);
+        Bundle b = in.readBundle();
+        super.readFromBundle(b);
+
+        state = State.fromString(b.getString("state"));
+        commentable = b.getBoolean("commentable");
+        label = b.getParcelable("label");
+        isrc = b.getString("isrc");
+        video_url = b.getString("video_url");
+        track_type = b.getString("track_type");
+        key_signature = b.getString("key_signature");
+        bpm = b.getFloat("bpm");
+        playback_count = b.getInt("playback_count");
+        download_count = b.getInt("download_count");
+        comment_count = b.getInt("comment_count");
+        favoritings_count = b.getInt("favoritings_count");
+        shared_to_count = b.getInt("shared_to_count");
+        original_format = b.getString("original_format");
+        user_uri = b.getString("user_uri");
+        waveform_url = b.getString("waveform_url");
+        stream_url = b.getString("stream_url");
+        user_playback_count = b.getInt("user_playback_count");
+        user_favorite = b.getBoolean("user_favorite");
+        user_repost = b.getBoolean("user_repost");
+        created_with = b.getParcelable("created_with");
+        sharing_note = b.getParcelable("sharing_note");
+        attachments_uri = b.getString("attachments_uri");
+        download_url = b.getString("download_url");
+        downloads_remaining = b.getInt("downloads_remaining");
+        secret_token = b.getString("secret_token");
+        secret_uri = b.getString("secret_uri");
+
+        local_user_playback_count = b.getInt("local_user_playback_count");
+        local_cached = b.getBoolean("local_cached");
+        full_track_info_loaded = b.getBoolean("full_track_info_loaded");
+        last_playback_error = b.getInt("last_playback_error");
     }
 
     Track(Cursor cursor) {
@@ -313,6 +368,11 @@ public class Track extends ScResource implements Playable, Refreshable {
         if (cachedIdx != -1) {
             local_cached = cursor.getInt(cachedIdx) == 1;
         }
+    }
+
+    @Override
+    public Uri getBulkInsertUri() {
+        return Content.TRACKS.uri;
     }
 
     @Override
@@ -438,7 +498,7 @@ public class Track extends ScResource implements Playable, Refreshable {
             str.append("<b>Released By</b><br/>")
                .append(label_name).append("<br/>");
 
-            if (release_day != null &&  release_day != 0) {
+            if (release_day > 0) {
                 str.append(release_year).append("<br/>");
             }
             str.append("<br />");

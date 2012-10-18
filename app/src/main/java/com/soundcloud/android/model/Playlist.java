@@ -1,60 +1,51 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
-import org.jetbrains.annotations.Nullable;
 
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Playlist extends Track {
+public class Playlist extends PlayableResource {
+    @JsonView(Views.Full.class) public String playlist_type;
     @JsonView(Views.Full.class) public String tracks_uri;
     @JsonView(Views.Full.class) public List<Track> tracks;
 
-    /*
-    @JsonView(Views.Mini.class) public String title;
-    @JsonView(Views.Mini.class) public User user;
-    @JsonView(Views.Mini.class) public String uri;
-    @JsonView(Views.Mini.class) public long user_id;
-    @JsonView(Views.Mini.class) public String artwork_url;
-    @JsonView(Views.Mini.class) public String permalink;
-    @JsonView(Views.Mini.class) public String permalink_url;
+    public Playlist() {
+        super();
+    }
 
-    @JsonView(Views.Full.class) public int duration = NOT_SET;
-    @JsonView(Views.Full.class) public Date created_at;
+    public Playlist(Parcel in) {
+        Bundle b = in.readBundle();
+        super.readFromBundle(b);
 
-    @JsonView(Views.Full.class) public boolean streamable;
-    @JsonView(Views.Full.class) public boolean downloadable;
-    @JsonView(Views.Full.class) public String license;
-    @JsonView(Views.Full.class) public Integer label_id;
-    @JsonView(Views.Full.class) public String purchase_url;
-    @JsonView(Views.Full.class) public String label_name;
-    @JsonView(Views.Full.class) public String ean;
-    @JsonView(Views.Full.class) public String release;
-    @JsonView(Views.Full.class) public String description;
+        playlist_type = b.getString("playlist_type");
+        tracks_uri = b.getString("tracks_uri");
+        tracks = b.getParcelableArrayList("tracks");
+    }
 
-    @JsonView(Views.Full.class) public String genre;
-    @JsonView(Views.Full.class) public String playlist_type;
-    @JsonView(Views.Full.class) public String type;
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
-    @JsonView(Views.Full.class) public Integer release_day;
-    @JsonView(Views.Full.class) public Integer release_year;
-    @JsonView(Views.Full.class) public Integer release_month;
-
-    @JsonView(Views.Full.class) public String purchase_title;
-    @JsonView(Views.Full.class) public String embeddable_by;
-
-    @JsonView(Views.Full.class) public int likes_count;
-    @JsonView(Views.Full.class) public int reposts_count;
-    @JsonView(Views.Full.class) public String tag_list;
-    @JsonView(Views.Full.class) public Sharing sharing;  //  public | private
-    */
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        Bundle b = super.getBundle();
+        b.putString("playlist_type", playlist_type);
+        b.putString("tracks_uri", tracks_uri);
+        b.putParcelableArrayList("tracks", (ArrayList<Track>) tracks);
+        dest.writeBundle(b);
+    }
 
     @Override
     public String toString() {
@@ -63,7 +54,6 @@ public class Playlist extends Track {
                 ", title='" + title + "'" +
                 ", permalink_url='" + permalink_url + "'" +
                 ", duration=" + duration +
-                ", state=" + state +
                 ", user=" + user +
                 ", track_count=" + (tracks != null ? tracks.size() : "0") +
                 ", tracks_uri='" + tracks_uri + '\'' +
@@ -84,4 +74,31 @@ public class Playlist extends Track {
     public Track getTrack() {
         return null;
     }
+
+    @Override
+    public Date getCreatedAt() {
+        return null;
+    }
+
+    @Override
+    public String getArtwork() {
+        return null;
+    }
+
+    @Override
+    public long getRefreshableId() {
+        return 0;
+    }
+
+    @Override
+    public ScResource getRefreshableResource() {
+        return null;
+    }
+
+    @Override
+    public boolean isStale() {
+        return false;
+    }
+
+
 }

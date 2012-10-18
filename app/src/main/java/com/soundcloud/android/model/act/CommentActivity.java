@@ -1,6 +1,7 @@
 package com.soundcloud.android.model.act;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
@@ -14,10 +15,12 @@ import android.database.Cursor;
 import java.util.List;
 
 public class CommentActivity extends Activity {
-    public Comment comment;
+    @JsonProperty public Comment comment;
 
     // for deserialization
-    public CommentActivity() { }
+    public CommentActivity() {
+        super();
+    }
 
     public CommentActivity(Cursor cursor) {
         super(cursor);

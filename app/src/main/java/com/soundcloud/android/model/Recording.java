@@ -805,6 +805,11 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
     public void writeToParcel(Parcel out, int flags) {
         Bundle data = new Bundle();
         data.putLong("id", id);

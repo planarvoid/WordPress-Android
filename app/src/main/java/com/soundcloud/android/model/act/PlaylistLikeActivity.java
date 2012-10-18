@@ -1,11 +1,16 @@
 package com.soundcloud.android.model.act;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 
 public class PlaylistLikeActivity extends Activity {
-    public Playlist playlist;
+    @JsonProperty public Playlist playlist;
+
+    public PlaylistLikeActivity() {
+        super();
+    }
 
     @Override
     public Type getType() {

@@ -5,6 +5,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -145,7 +146,7 @@ public class PlayQueueManager {
     }
 
     public void setTrack(Track toBePlayed) {
-        SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScModel.CacheUpdateMode.NONE);
+        SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScResource.CacheUpdateMode.NONE);
         mPlayQueue = new Track[] { toBePlayed };
         mPlayQueueUri = new PlayQueueUri();
         mPlayPos = 0;
@@ -250,7 +251,7 @@ public class PlayQueueManager {
                 Collections.addAll(tracks, mPlayQueue);
                 mContext.getContentResolver().delete(Content.PLAY_QUEUE.uri, null, null);
                 SoundCloudApplication.MODEL_MANAGER.writeCollection(tracks, Content.PLAY_QUEUE.uri,
-                        mUserId, ScModel.CacheUpdateMode.NONE);
+                        mUserId, ScResource.CacheUpdateMode.NONE);
                 return null;
             }
         }.execute((Void[]) null);

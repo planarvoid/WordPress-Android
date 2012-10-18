@@ -20,7 +20,9 @@ public class TrackSharingActivity extends Activity implements Playable {
     @JsonProperty @JsonView(Views.Mini.class) public Track track;
     @JsonProperty @JsonView(Views.Mini.class) public SharingNote sharing_note;
 
-    public TrackSharingActivity() {}
+    public TrackSharingActivity() {
+        super();
+    }
 
     public TrackSharingActivity(Cursor cursor) {
         super(cursor);
@@ -83,11 +85,6 @@ public class TrackSharingActivity extends Activity implements Playable {
         int result = track != null ? track.hashCode() : 0;
         result = 31 * result + (sharing_note != null ? sharing_note.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 
     @Override
