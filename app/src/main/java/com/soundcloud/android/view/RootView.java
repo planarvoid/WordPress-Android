@@ -312,6 +312,8 @@ public class RootView extends ViewGroup {
         mOffsetRight = (int) max(widthSpecSize - MENU_TARGET_WIDTH * density + 0.5f,
                                  OFFSET_RIGHT * density + 0.5f);
 
+        mMenu.setOffsetRight(mOffsetRight);
+
         // since we are measured we can now find a proper expanded position if necessary
         setExpandedState();
     }
