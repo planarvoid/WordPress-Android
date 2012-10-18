@@ -19,7 +19,7 @@ public class AddAssociationTask extends AssociatedTrackTask {
     }
 
     @Override
-    protected boolean processResponse(int responseCode){
+    protected boolean isAssociated(int responseCode){
         return (responseCode == 200 || responseCode == 201);
     }
     

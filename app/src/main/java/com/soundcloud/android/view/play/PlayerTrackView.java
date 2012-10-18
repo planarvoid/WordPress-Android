@@ -142,8 +142,9 @@ public class PlayerTrackView extends LinearLayout implements
     public void setTrack(@Nullable Track track, int queuePosition, boolean forceUpdate, boolean priority) {
         mPlayPos = queuePosition;
 
-        if (!forceUpdate && (mTrack != null && track != null && track.id == mTrack.id)) return;
-        final boolean changed = mTrack == null ? track != null : !mTrack.equals(track);
+        final boolean changed = mTrack != track;
+        if (!(forceUpdate || changed)) return;
+
         mTrack = track;
         if (mTrack == null) {
             mWaveformController.clearTrackComments();
@@ -520,7 +521,7 @@ public class PlayerTrackView extends LinearLayout implements
             } else {
                 mWaveformController.setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
             }
-        } else if (action.equals(CloudPlaybackService.LIKE_SET)) {
+        } else if (action.equals(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED)) {
             if (mTrack != null && mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
                 mTrack.user_like = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false);
                 setLikeStatus();

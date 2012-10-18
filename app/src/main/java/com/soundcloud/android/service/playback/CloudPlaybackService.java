@@ -7,19 +7,14 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.streaming.StreamItem;
 import com.soundcloud.android.streaming.StreamProxy;
-import com.soundcloud.android.task.AddAssociationTask;
-import com.soundcloud.android.task.AssociatedTrackTask;
-import com.soundcloud.android.task.RemoveAssociationTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Media;
@@ -30,7 +25,6 @@ import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.play.PlaybackRemoteViews;
-import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Notification;
@@ -93,8 +87,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static final String STREAM_DIED        = "com.soundcloud.android.streamdied";
     public static final String TRACK_UNAVAILABLE  = "com.soundcloud.android.trackunavailable";
     public static final String COMMENTS_LOADED    = "com.soundcloud.android.commentsloaded";
-    public static final String LIKE_SET           = "com.soundcloud.android.likeset";
-    public static final String REPOST_SET         = "com.soundcloud.android.repostset";
+    public static final String TRACK_ASSOCIATION_CHANGED = "com.soundcloud.android.likeset";
     public static final String SEEKING            = "com.soundcloud.android.seeking";
     public static final String SEEK_COMPLETE      = "com.soundcloud.android.seekcomplete";
     public static final String BUFFERING          = "com.soundcloud.android.buffering";
@@ -125,6 +118,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private boolean mAutoPause = true;  // used when svc is first created and playlist is resumed on start
     private boolean mAutoAdvance = true;// automatically skip to next track
     /* package */ PlayQueueManager mPlayQueueManager;
+    /* package */ AssociationManager mAssociationManager;
+
     private AudioManager mAudioManager;
 
     private long mResumeTime = -1;      // time of played track
@@ -143,8 +138,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private boolean mWaitingForSeek;
 
     private StreamProxy mProxy;
-
-    private ScModelManager mModelManager;
 
     // audio focus related
     private IRemoteAudioManager mFocus;
@@ -176,14 +169,16 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         String position = "position";
         String queuePosition = "queuePosition";
         String isLike = "isLike";
+        String isRepost = "isRepost";
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
         mPlayQueueManager = new PlayQueueManager(this, SoundCloudApplication.getUserId());
+        mAssociationManager = new AssociationManager(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        mModelManager = SoundCloudApplication.MODEL_MANAGER;
+
 
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(TOGGLEPAUSE_ACTION);
@@ -346,7 +341,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             .putExtra(BroadcastExtras.isBuffering, isBuffering())
             .putExtra(BroadcastExtras.position, getProgress())
             .putExtra(BroadcastExtras.queuePosition, mPlayQueueManager.getPosition())
-            .putExtra(BroadcastExtras.isLike, getIsLike());
+            .putExtra(BroadcastExtras.isLike, getIsLike())
+            .putExtra(BroadcastExtras.isRepost, getIsRepost());
 
         sendBroadcast(i);
 
@@ -711,13 +707,22 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    /* package */
     public void setLikeStatus(long trackId, boolean like) {
         if (currentTrack != null && currentTrack.id == trackId) {
             if (like) {
-                addLike();
+                mAssociationManager.addLike(currentTrack);
             } else {
-                removeLike();
+                mAssociationManager.removeLike(currentTrack);
+            }
+        }
+    }
+
+    public void setRepostStatus(long trackId, boolean repost) {
+        if (currentTrack != null && currentTrack.id == trackId) {
+            if (repost) {
+                mAssociationManager.addRepost(currentTrack);
+            } else {
+                mAssociationManager.removeRepost(currentTrack);
             }
         }
     }
@@ -852,6 +857,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         return currentTrack != null && currentTrack.user_like;
     }
 
+    private boolean getIsRepost() {
+        return currentTrack != null && currentTrack.user_repost;
+    }
+
     private boolean isPastBuffer(long pos) {
         return (pos / (double) currentTrack.duration) * 100 > mLoadPercent;
     }
@@ -866,122 +875,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    private void addLike() {
-        if (currentTrack == null) return;
-        onLikeStatusSet(currentTrack.id, true);
-        AddAssociationTask addAssociationTask = new AddAssociationTask(getApp(), currentTrack);
-        addAssociationTask.setOnAssociatedListener(new AssociatedTrackTask.AssociatedListener() {
-            @Override
-            public void onNewStatus(Track track, boolean isAssociated) {
-                onLikeStatusSet(track.id, isAssociated);
-            }
 
-            @Override
-            public void onException(Track track, Exception e) {
-                // failed, so it shouldn't be a favorite
-                onLikeStatusSet(track.id, false);
-            }
-        });
-        addAssociationTask.execute(Endpoints.MY_FAVORITES);
-    }
-
-    private void removeLike() {
-        if (currentTrack == null) return;
-        onLikeStatusSet(currentTrack.id, false);
-        RemoveAssociationTask removeAssociationTask = new RemoveAssociationTask(getApp(), currentTrack);
-        removeAssociationTask.setOnAssociatedListener(new AssociatedTrackTask.AssociatedListener() {
-            @Override
-            public void onNewStatus(Track track, boolean isAssociated) {
-                onLikeStatusSet(track.id, isAssociated);
-            }
-
-            @Override
-            public void onException(Track track, Exception e) {
-                // failed, so it is still a favorite
-                onLikeStatusSet(track.id, true);
-            }
-        });
-        removeAssociationTask.execute(Endpoints.MY_FAVORITES);
-    }
-
-    private void onLikeStatusSet(long trackId, boolean isLike) {
-        Track track = mModelManager.getTrack(trackId);
-
-        if (track != null) {
-            track.user_like = isLike;
-            mModelManager.write(track);
-
-        }
-
-        if (currentTrack.id == trackId && currentTrack.user_like != isLike) {
-            currentTrack.user_like = isLike;
-            notifyChange(LIKE_SET);
-        } else {
-            final Intent intent = new Intent(LIKE_SET);
-            sendBroadcast(intent
-                .putExtra("id", trackId)
-                .putExtra("isLike", isLike));
-            // Share this notification directly with our widgets
-            mAppWidgetProvider.notifyChange(this, intent);
-        }
-    }
-
-    private void addRepost() {
-        if (currentTrack == null) return;
-        onRepostStatusSet(currentTrack.id, true);
-        AddAssociationTask addAssociationTask = new AddAssociationTask(getApp(), currentTrack);
-        addAssociationTask.setOnAssociatedListener(new AssociatedTrackTask.AssociatedListener() {
-            @Override
-            public void onNewStatus(Track track, boolean isAssociated) {
-                onRepostStatusSet(track.id, isAssociated);
-            }
-
-            @Override
-            public void onException(Track track, Exception e) {
-                // failed, so it shouldn't be a repost
-                onRepostStatusSet(track.id, false);
-            }
-        });
-        addAssociationTask.execute(TempEndpoints.e1.MY_REPOSTS);
-    }
-
-    private void removeRepost() {
-        if (currentTrack == null) return;
-        onRepostStatusSet(currentTrack.id, false);
-        RemoveAssociationTask removeAssociationTask = new RemoveAssociationTask(getApp(), currentTrack);
-        removeAssociationTask.setOnAssociatedListener(new AssociatedTrackTask.AssociatedListener() {
-            @Override
-            public void onNewStatus(Track track, boolean isAssociated) {
-                onRepostStatusSet(track.id, isAssociated);
-            }
-
-            @Override
-            public void onException(Track track, Exception e) {
-                // failed, so it is still a repost
-                onRepostStatusSet(track.id, true);
-            }
-        });
-        removeAssociationTask.execute(TempEndpoints.e1.MY_REPOSTS);
-    }
-
-    private void onRepostStatusSet(long trackId, boolean isRepost) {
-        Track track = mModelManager.getTrack(trackId);
-
-        if (track != null) {
-            track.user_repost = isRepost;
-            mModelManager.write(track);
-        }
-
-        if (currentTrack.id == trackId && currentTrack.user_repost != isRepost) {
-            currentTrack.user_repost = isRepost;
-            notifyChange(REPOST_SET);
-        } else {
-            final Intent intent = new Intent(REPOST_SET);
-            sendBroadcast(intent.putExtra("id", trackId).putExtra("isRepost", isRepost));
-            // Share this notification directly with our widgets
-            mAppWidgetProvider.notifyChange(this, intent);
-        }
-    }
 
     private SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();

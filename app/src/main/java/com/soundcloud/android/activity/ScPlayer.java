@@ -227,6 +227,12 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         return true;
     }
 
+    public boolean toggleRepost(Track track) {
+        if (track == null) return false;
+        mPlaybackService.setRepostStatus(track.id, !track.user_repost);
+        return true;
+    }
+
     public void onNewComment(Comment comment) {
         final PlayerTrackView ptv = getTrackViewById(comment.track_id);
         if (ptv != null){
@@ -277,6 +283,13 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
                 if (displayedTrack != null){
                     toggleLike(displayedTrack);
                     track(Click.Like, displayedTrack);
+                }
+                return true;
+
+            case R.id.action_bar_repost:
+                if (displayedTrack != null) {
+                    toggleRepost(displayedTrack);
+                    track(Click.Repost, displayedTrack);
                     invalidateOptionsMenu();
                 }
                 return true;
@@ -483,14 +496,14 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
                     getTrackView(queuePos).setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
                 }
 
-            } else if (action.equals(CloudPlaybackService.LIKE_SET) ||
+            } else if (action.equals(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED) ||
                         action.equals(CloudPlaybackService.COMMENTS_LOADED) ||
                         action.equals(Actions.COMMENT_ADDED)) {
                 for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
                     ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).handleIdBasedIntent(intent);
                 }
 
-                if (action.equals(CloudPlaybackService.LIKE_SET) || action.equals(Actions.COMMENT_ADDED)) {
+                if (action.equals(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED) || action.equals(Actions.COMMENT_ADDED)) {
                     invalidateOptionsMenu();
 
                 }
@@ -526,7 +539,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
         f.addAction(CloudPlaybackService.SEEKING);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
-        f.addAction(CloudPlaybackService.LIKE_SET);
+        f.addAction(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED);
         f.addAction(Actions.COMMENT_ADDED);
         registerReceiver(mStatusListener, new IntentFilter(f));
     }
@@ -678,18 +691,28 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         getSupportMenuInflater().inflate(R.menu.player, menu);
 
         final MenuItem likeItem = menu.findItem(R.id.action_bar_like);
+        final MenuItem repostItem = menu.findItem(R.id.action_bar_repost);
         final MenuItem commentItem = menu.findItem(R.id.action_bar_comment);
         final MenuItem shareItem = menu.findItem(R.id.action_bar_share);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             menu.removeItem(R.id.action_bar_info);
         }
 
-        final Track track = getCurrentDisplayedTrack();
+        Track track = getCurrentDisplayedTrack();
+        if (track == null){ // possibly before layout
+            track = mPlayingTrack;
+        }
 
         if (track != null && track.user_like) {
             likeItem.setIcon(R.drawable.ic_like_orange);
         } else {
             likeItem.setIcon(R.drawable.ic_like_white);
+        }
+
+        if (track != null && track.user_repost) {
+            repostItem.setIcon(R.drawable.ic_repost_orange);
+        } else {
+            repostItem.setIcon(R.drawable.ic_repost_white);
         }
 
         if (mIsCommenting){

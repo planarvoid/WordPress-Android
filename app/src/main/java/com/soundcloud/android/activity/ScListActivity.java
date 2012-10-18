@@ -232,11 +232,6 @@ public abstract class ScListActivity extends ScActivity {
         public void onNewStatus(Track track, boolean isAssociated) {
             // todo, notify lists
         }
-
-        @Override
-        public void onException(Track trackId, Exception e) {
-            // todo, notify lists
-        }
     };
 
     protected void handleRecordingClick(Recording recording) {

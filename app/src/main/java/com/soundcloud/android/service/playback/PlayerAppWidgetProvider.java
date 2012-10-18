@@ -71,6 +71,9 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
     }
 
     /* package */ void notifyChange(Context context, Intent intent) {
+
+        // TODO, move to ScModelManager to get data
+
         String action = intent.getAction();
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "notify change " + intent);
         if (hasInstances(context)) {
@@ -80,7 +83,8 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
                     action.equals(CloudPlaybackService.BUFFERING) ||
                     action.equals(CloudPlaybackService.BUFFERING_COMPLETE) ||
                     action.equals(CloudPlaybackService.PLAYBACK_ERROR) ||
-                    action.equals(CloudPlaybackService.LIKE_SET)) {
+                    action.equals(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED)
+                            && intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1) == mCurrentTrackId) {
 
                 performUpdate(context, null, intent);
             }
