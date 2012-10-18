@@ -100,6 +100,11 @@ public class ScSearch extends ScListActivity {
 
     }
 
+    @Override
+    protected int getSelectedMenuId() {
+        return -1;
+    }
+
 
     @Override
     public Object[] getLastCustomNonConfigurationInstance() {

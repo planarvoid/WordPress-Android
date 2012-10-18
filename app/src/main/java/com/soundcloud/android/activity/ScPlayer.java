@@ -90,6 +90,11 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
+    @Override
+    protected int getSelectedMenuId() {
+        return -1;
+    }
+
     public void toggleCommentMode(int playPos) {
         mIsCommenting = !mIsCommenting;
 
@@ -680,8 +685,6 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         }
 
         final Track track = getCurrentDisplayedTrack();
-
-        getSupportActionBar().setTitle(track == null ? "" : track.title);
 
         if (track != null && track.user_favorite) {
             favoriteItem.setIcon(R.drawable.ic_like_orange);

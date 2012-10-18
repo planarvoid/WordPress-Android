@@ -1,6 +1,5 @@
 package com.soundcloud.android.activity;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -12,7 +11,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.settings.Settings;
-import com.soundcloud.android.fragment.PlayerFragment;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
@@ -35,17 +33,12 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
@@ -70,7 +63,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         // Volume mode should always be music in this app
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-        mRootView = new RootView(this);
+        mRootView = new RootView(this, getSelectedMenuId());
         super.setContentView(mRootView);
 
 
@@ -82,7 +75,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     case R.id.nav_stream:
                         startNavActivity(Stream.class);
                         break;
-                    case R.id.nav_activity:
+                    case R.id.nav_news:
                         startNavActivity(News.class);
                         break;
                     case R.id.nav_you:
@@ -130,6 +123,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             handleIntent(getIntent());
         }
     }
+
+    protected abstract int getSelectedMenuId();
 
     /**
      * Basically, hack the action bar to make it look like next

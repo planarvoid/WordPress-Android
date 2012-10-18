@@ -71,4 +71,9 @@ public class SuggestedUsers extends ScListActivity {
         startActivity(new Intent(this, Tour.class));
     }
 
+    @Override
+    protected int getSelectedMenuId() {
+        return -1;
+    }
+
 }
