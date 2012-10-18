@@ -157,13 +157,14 @@ public class RootView extends ViewGroup {
         mScroller = new Scroller(context,new DecelerateInterpolator());
 
         final float density = getResources().getDisplayMetrics().density;
+
         mMaximumMinorVelocity = (int) (MAXIMUM_MINOR_VELOCITY * density + 0.5f);
         mMaximumMajorVelocity = (int) (MAXIMUM_MAJOR_VELOCITY * density + 0.5f);
-        mMaximumAcceleration = (int) (MAXIMUM_ACCELERATION * density + 0.5f);
-        mVelocityUnits = (int) (VELOCITY_UNITS * density + 0.5f);
+        mMaximumAcceleration  = (int) (MAXIMUM_ACCELERATION * density + 0.5f);
+        mVelocityUnits        = (int) (VELOCITY_UNITS * density + 0.5f);
 
-        mOffsetRight = (int) (OFFSET_RIGHT * density + 0.5f);
-        mOffsetLeft = (int) (OFFSET_LEFT * density + 0.5f);
+        mOffsetRight   = (int) (OFFSET_RIGHT * density + 0.5f);
+        mOffsetLeft    = (int) (OFFSET_LEFT * density + 0.5f);
         mBezelHitWidth = (int) (BEZEL_HIT_WIDTH * density + 0.5f);
 
         mMenu.setOffsetRight(mOffsetRight);
