@@ -255,9 +255,9 @@ public class ScContentProvider extends ContentProvider {
                     qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id + " AND " +
                             DBHelper.ActivityView.TYPE + " != '" + Activity.Type.AFFILIATION.type + "' AND (" + // remove affiliations
                             DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST.type +
-                            "' OR " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_LIKE.type +
-                            "' OR " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_REPOST.type +
-                            "' OR " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_SHARING.type + "')"); // remove playlists
+                            "' AND " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_LIKE.type +
+                            "' AND " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_REPOST.type +
+                            "' AND " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_SHARING.type + "')"); // remove playlists
                 }
                 _sortOrder = makeActivitiesSort(uri, sortOrder);
                 break;
