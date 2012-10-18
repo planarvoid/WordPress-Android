@@ -89,7 +89,7 @@ public class UserTest {
         user.track_count = 1;
         user.followers_count = 2;
         user.followings_count = 3;
-        user.public_favorites_count = 4;
+        user.public_likes_count = 4;
         user.private_tracks_count = 5;
 
 
@@ -116,7 +116,7 @@ public class UserTest {
         expect(u.track_count).toEqual(user.track_count);
         expect(u.followers_count).toEqual(user.followers_count);
         expect(u.followings_count).toEqual(user.followings_count);
-        expect(u.public_favorites_count).toEqual(user.public_favorites_count);
+        expect(u.public_likes_count).toEqual(user.public_likes_count);
         expect(u.private_tracks_count).toEqual(user.private_tracks_count);
     }
 
@@ -144,7 +144,7 @@ public class UserTest {
         expect(u.track_count).not.toBeNull();
         expect(u.followers_count).not.toBeNull();
         expect(u.followings_count).not.toBeNull();
-        expect(u.public_favorites_count).not.toBeNull();
+        expect(u.public_likes_count).not.toBeNull();
         expect(u.private_tracks_count).not.toBeNull();  */
 
     }

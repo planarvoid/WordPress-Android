@@ -8,7 +8,6 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -78,7 +77,7 @@ public class ApiSyncer {
                     break;
 
                 case ME_TRACKS:
-                case ME_FAVORITES:
+                case ME_LIKES:
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
                 case ME_REPOSTS:

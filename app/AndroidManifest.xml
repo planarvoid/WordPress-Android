@@ -172,7 +172,7 @@
                   android:theme="@style/Theme.ScDark" />
 
         <activity android:name=".activity.auth.Tour" android:screenOrientation="portrait" />
-        <activity android:name=".activity.track.TrackFavoriters" />
+        <activity android:name=".activity.track.TrackLikers" />
         <activity android:name=".activity.track.TrackComments" />
         <activity android:name=".activity.track.TracksByTag" />
         <activity android:name=".activity.ScSearch" />

@@ -5,7 +5,7 @@ import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.track.TrackComments;
-import com.soundcloud.android.activity.track.TrackFavoriters;
+import com.soundcloud.android.activity.track.TrackLikers;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.FlowLayout;
@@ -26,8 +26,8 @@ public class PlayerTrackInfo extends RelativeLayout{
 
     private final ScPlayer mPlayer;
     private final FlowLayout mTrackTags;
-    private final TextView mFavoritersTxt;
-    private final View mFavoritersHr;
+    private final TextView mLikersText;
+    private final View mLikersHr;
     private final TextView mCommentersTxt;
     private final View mCommentersHr;
     private Track mPlayingTrack;
@@ -46,15 +46,15 @@ public class PlayerTrackInfo extends RelativeLayout{
         mPlayer = player;
 
         mTrackTags = (FlowLayout) findViewById(R.id.tags_holder);
-        mFavoritersTxt = (TextView) findViewById(R.id.favoriters_txt);
-        mFavoritersHr = findViewById(R.id.favoriters_hr);
-        mFavoritersTxt.setVisibility(View.GONE);
-        mFavoritersHr.setVisibility(View.GONE);
-        mFavoritersTxt.setOnClickListener(new OnClickListener() {
+        mLikersText = (TextView) findViewById(R.id.likers_txt);
+        mLikersHr = findViewById(R.id.likers_hr);
+        mLikersText.setVisibility(View.GONE);
+        mLikersHr.setVisibility(View.GONE);
+        mLikersText.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mPlayingTrack != null) {
-                    Intent i = new Intent(mPlayer, TrackFavoriters.class);
+                    Intent i = new Intent(mPlayer, TrackLikers.class);
                     i.putExtra("track_id", mPlayingTrack.id);
                     mPlayer.startActivity(i);
                 }
@@ -114,13 +114,13 @@ public class PlayerTrackInfo extends RelativeLayout{
         } else {
 
             if (mPlayingTrack.favoritings_count == 0) {
-                mFavoritersTxt.setVisibility(View.GONE);
-                mFavoritersHr.setVisibility(View.GONE);
+                mLikersText.setVisibility(View.GONE);
+                mLikersHr.setVisibility(View.GONE);
             } else {
-                mFavoritersTxt.setVisibility(View.VISIBLE);
-                mFavoritersHr.setVisibility(View.VISIBLE);
-                mFavoritersTxt.setText(getResources().getQuantityString(R.plurals.track_info_favoriters,
-                        mPlayingTrack.favoritings_count,mPlayingTrack.favoritings_count));
+                mLikersText.setVisibility(View.VISIBLE);
+                mLikersHr.setVisibility(View.VISIBLE);
+                mLikersText.setText(getResources().getQuantityString(R.plurals.track_info_likers,
+                        mPlayingTrack.favoritings_count, mPlayingTrack.favoritings_count));
             }
 
             if (mPlayingTrack.comment_count == 0) {

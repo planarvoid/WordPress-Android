@@ -6,14 +6,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.PlayInfo;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.sync.SyncConfig;
 import com.soundcloud.android.task.AddAssociationTask;
 import com.soundcloud.android.task.AssociatedTrackTask;
 import com.soundcloud.android.task.RemoveAssociationTask;
@@ -218,20 +214,20 @@ public abstract class ScListActivity extends ScActivity {
         // todo, notify lists
     }
 
-    public void addFavorite(Track track) {
+    public void addLike(Track track) {
         AddAssociationTask t = new AddAssociationTask(getApp(),track);
-        t.setOnAssociatedListener(mFavoriteListener);
+        t.setOnAssociatedListener(mLikeListener);
         t.execute(Endpoints.MY_FAVORITES);
     }
 
-    public void removeFavorite(Track track) {
+    public void removeLike(Track track) {
         RemoveAssociationTask t = new RemoveAssociationTask(getApp(), track);
-        t.setOnAssociatedListener(mFavoriteListener);
+        t.setOnAssociatedListener(mLikeListener);
         t.execute(Endpoints.MY_FAVORITES);
     }
 
 
-    private AssociatedTrackTask.AssociatedListener mFavoriteListener = new AssociatedTrackTask.AssociatedListener() {
+    private AssociatedTrackTask.AssociatedListener mLikeListener = new AssociatedTrackTask.AssociatedListener() {
         @Override
         public void onNewStatus(Track track, boolean isAssociated) {
             // todo, notify lists

@@ -169,8 +169,8 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldLoadFavoritesAsPlaylist() throws Exception {
-        insertTracksAsUri(Content.ME_FAVORITE.uri);
-        pm.loadUri(Content.ME_FAVORITES.uri, 1, 10696200l);
+        insertTracksAsUri(Content.ME_LIKE.uri);
+        pm.loadUri(Content.ME_LIKES.uri, 1, 10696200l);
         expect(pm.getCurrentTrack().id).toEqual(10696200l);
         expect(pm.next()).toBeTrue();
         expect(pm.getCurrentTrack().id).toEqual(10602324l);
@@ -178,8 +178,8 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldSaveAndRestoreFavoritesAsPlaylist() throws Exception {
-        insertTracksAsUri(Content.ME_FAVORITE.uri);
-        pm.loadUri(Content.ME_FAVORITES.uri, 1, 10853436l);
+        insertTracksAsUri(Content.ME_LIKE.uri);
+        pm.loadUri(Content.ME_LIKES.uri, 1, 10853436l);
         expect(pm.getCurrentTrack().id).toEqual(10853436l);
         pm.saveQueue(1000l);
         expect(pm.reloadQueue()).toEqual(1000l);
@@ -189,8 +189,8 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldSaveAndRestoreFavoritesAsPlaylistWithMovedTrack() throws Exception {
-        insertTracksAsUri(Content.ME_FAVORITE.uri);
-        pm.loadUri(Content.ME_FAVORITES.uri, 1, 10696200l);
+        insertTracksAsUri(Content.ME_LIKE.uri);
+        pm.loadUri(Content.ME_LIKES.uri, 1, 10696200l);
         expect(pm.getCurrentTrack().id).toEqual(10696200l);
         expect(pm.next()).toBeTrue();
 
@@ -203,12 +203,12 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldSavePlaylistStateInUri() throws Exception {
-        insertTracksAsUri(Content.ME_FAVORITE.uri);
-        pm.loadUri(Content.ME_FAVORITES.uri, 1, 10696200l);
+        insertTracksAsUri(Content.ME_LIKE.uri);
+        pm.loadUri(Content.ME_LIKES.uri, 1, 10696200l);
         expect(pm.getCurrentTrack().id).toEqual(10696200l);
         expect(pm.next()).toBeTrue();
         expect(pm.getPlayQueueState(123L)).toEqual(
-          Content.ME_FAVORITES.uri + "?trackId=10602324&playlistPos=2&seekPos=123"
+          Content.ME_LIKES.uri + "?trackId=10602324&playlistPos=2&seekPos=123"
         );
     }
 

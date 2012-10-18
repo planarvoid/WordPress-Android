@@ -5,7 +5,6 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -156,7 +155,7 @@ public class EmptyCollection extends FrameLayout {
 
     public static EmptyCollection fromContent(Context context, Content content) {
         switch (content) {
-            case ME_FAVORITES:
+            case ME_LIKES:
                 return new EmptyCollection(context).setMessageText(R.string.list_empty_user_following_message)
                         .setActionText(R.string.list_empty_user_following_action)
                         .setImage(R.drawable.empty_follow_3row)

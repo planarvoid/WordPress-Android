@@ -78,8 +78,7 @@ public class Track extends PlayableResource implements Playable {
     @JsonView(Views.Mini.class) public String stream_url;
 
     @JsonView(Views.Full.class) public int user_playback_count;
-    @JsonView(Views.Full.class) public boolean user_favorite;
-    @JsonView(Views.Full.class) public boolean user_repost;
+
 
     @JsonView(Views.Full.class)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
@@ -203,7 +202,7 @@ public class Track extends PlayableResource implements Playable {
         b.putString("waveform_url", waveform_url);
         b.putString("stream_url", stream_url);
         b.putInt("user_playback_count", user_playback_count);
-        b.putBoolean("user_favorite", user_favorite);
+        b.putBoolean("user_like", user_like);
         b.putBoolean("user_repost", user_repost);
         b.putParcelable("created_with", created_with);
         b.putParcelable("sharing_note", sharing_note);
@@ -293,7 +292,7 @@ public class Track extends PlayableResource implements Playable {
         waveform_url = b.getString("waveform_url");
         stream_url = b.getString("stream_url");
         user_playback_count = b.getInt("user_playback_count");
-        user_favorite = b.getBoolean("user_favorite");
+        user_like = b.getBoolean("user_like");
         user_repost = b.getBoolean("user_repost");
         created_with = b.getParcelable("created_with");
         sharing_note = b.getParcelable("sharing_note");
@@ -351,9 +350,9 @@ public class Track extends PlayableResource implements Playable {
         }
 
         // gets joined in
-        final int favIdx = cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE);
+        final int favIdx = cursor.getColumnIndex(DBHelper.TrackView.USER_LIKE);
         if (favIdx != -1) {
-            user_favorite = cursor.getInt(favIdx) == 1;
+            user_like = cursor.getInt(favIdx) == 1;
         }
         final int repostIdx = cursor.getColumnIndex(DBHelper.TrackView.USER_REPOST);
         if (repostIdx != -1) {
@@ -631,7 +630,7 @@ public class Track extends PlayableResource implements Playable {
             playback_count = updatedItem.playback_count;
             comment_count = updatedItem.comment_count;
             favoritings_count = updatedItem.favoritings_count;
-            user_favorite = updatedItem.user_favorite;
+            user_like = updatedItem.user_like;
             user_repost = updatedItem.user_repost;
             shared_to_count = updatedItem.shared_to_count;
             created_at = updatedItem.created_at;

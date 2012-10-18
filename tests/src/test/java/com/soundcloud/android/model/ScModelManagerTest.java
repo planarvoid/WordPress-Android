@@ -153,7 +153,7 @@ public class ScModelManagerTest {
         u.track_count = ++counter;
         u.followers_count = ++counter;
         u.followings_count = ++counter;
-        u.public_favorites_count = ++counter;
+        u.public_likes_count = ++counter;
         u.private_tracks_count = ++counter;
 
         Uri uri = manager.write(u, false);
@@ -175,7 +175,7 @@ public class ScModelManagerTest {
         expect(u2.track_count).toEqual(u.track_count);
         expect(u2.followers_count).toEqual(u.followers_count);
         expect(u2.followings_count).toEqual(u.followings_count);
-        expect(u2.public_favorites_count).toEqual(u.public_favorites_count);
+        expect(u2.public_likes_count).toEqual(u.public_likes_count);
         expect(u2.private_tracks_count).toEqual(u.private_tracks_count);
 
         expect(u2.last_updated).not.toEqual(u.last_updated);
@@ -261,15 +261,15 @@ public class ScModelManagerTest {
             cv[i].put(DBHelper.CollectionItems.USER_ID, USER_ID);
         }
 
-        resolver.bulkInsert(Content.ME_FAVORITES.uri, cv);
+        resolver.bulkInsert(Content.ME_LIKES.uri, cv);
 
-        expect(manager.getLocalIds(Content.ME_FAVORITES, USER_ID).size()).toEqual(107);
-        List<Long> localIds = manager.getLocalIds(Content.ME_FAVORITES, USER_ID, 50, -1);
+        expect(manager.getLocalIds(Content.ME_LIKES, USER_ID).size()).toEqual(107);
+        List<Long> localIds = manager.getLocalIds(Content.ME_LIKES, USER_ID, 50, -1);
 
         expect(localIds.size()).toEqual(57);
         expect(localIds.get(0)).toEqual(50L);
 
-        localIds = manager.getLocalIds(Content.ME_FAVORITES, USER_ID, 100, 50);
+        localIds = manager.getLocalIds(Content.ME_LIKES, USER_ID, 100, 50);
         expect(localIds.size()).toEqual(7);
         expect(localIds.get(0)).toEqual(100L);
     }
@@ -283,15 +283,15 @@ public class ScModelManagerTest {
     @Test
     public void shouldBulkInsertWithCollections() throws Exception {
         List<ScResource> items = createModels();
-        expect(manager.writeCollection(items, Content.ME_FAVORITES.uri, USER_ID, ScResource.CacheUpdateMode.MINI)).toEqual(3);
+        expect(manager.writeCollection(items, Content.ME_LIKES.uri, USER_ID, ScResource.CacheUpdateMode.MINI)).toEqual(3);
 
-        Cursor c = resolver.query(Content.ME_FAVORITES.uri, null, null, null, null);
+        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotBulkInsertWithoutOwnerId() throws Exception {
-        manager.writeCollection(createModels(), Content.ME_FAVORITES.uri, -1, ScResource.CacheUpdateMode.NONE);
+        manager.writeCollection(createModels(), Content.ME_LIKES.uri, -1, ScResource.CacheUpdateMode.NONE);
     }
 
     private List<ScResource> createModels() {

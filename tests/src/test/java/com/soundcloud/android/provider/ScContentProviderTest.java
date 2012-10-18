@@ -65,16 +65,16 @@ public class ScContentProviderTest {
                 TrackHolder.class);
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();
         }
 
-        Cursor c = resolver.query(Content.ME_FAVORITES.uri, null, null, null, null);
+        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(15);
 
-        resolver.delete(Content.ME_FAVORITES.uri, DBHelper.CollectionItems.ITEM_ID + " = ?",
+        resolver.delete(Content.ME_LIKES.uri, DBHelper.CollectionItems.ITEM_ID + " = ?",
                 new String[]{String.valueOf(tracks.get(0).id)});
 
-        c = resolver.query(Content.ME_FAVORITES.uri, null, null, null, null);
+        c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(14);
     }
 
@@ -86,7 +86,7 @@ public class ScContentProviderTest {
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();
         }
 
         expect(resolver.query(Content.TRACKS.uri, null, null, null, null).getCount()).toEqual(15);
@@ -251,7 +251,7 @@ public class ScContentProviderTest {
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();
         }
         Cursor c = resolver.query(Content.TRACK.withQuery(RANDOM, "0"), null, null, null, null);
         expect(c.getCount()).toEqual(15);
@@ -276,7 +276,7 @@ public class ScContentProviderTest {
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();
         }
 
         ContentValues cv = new ContentValues();
@@ -298,7 +298,7 @@ public class ScContentProviderTest {
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();
         }
 
         ContentValues cv = new ContentValues();
@@ -307,7 +307,7 @@ public class ScContentProviderTest {
         cv.put(DBHelper.TrackMetadata.CACHED, 1);
         resolver.insert(Content.TRACK_METADATA.uri, cv);
 
-        Uri uri = Content.ME_FAVORITES.withQuery(CACHED, "1");
+        Uri uri = Content.ME_LIKES.withQuery(CACHED, "1");
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
         expect(c.moveToNext()).toBeTrue();
@@ -322,10 +322,10 @@ public class ScContentProviderTest {
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();
         }
 
-        Uri uri = Content.ME_FAVORITES.withQuery(RANDOM, "1", LIMIT, "5");
+        Uri uri = Content.ME_LIKES.withQuery(RANDOM, "1", LIMIT, "5");
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(5);
 

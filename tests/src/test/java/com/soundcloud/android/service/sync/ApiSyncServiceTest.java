@@ -101,12 +101,12 @@ public class ApiSyncServiceTest {
         Intent intent = new Intent(Intent.ACTION_SYNC);
         ArrayList<Uri> urisToSync = new ArrayList<Uri>();
         urisToSync.add(Content.ME_TRACKS.uri);
-        urisToSync.add(Content.ME_FAVORITES.uri);
+        urisToSync.add(Content.ME_LIKES.uri);
         urisToSync.add(Content.ME_FOLLOWERS.uri);
 
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
         SyncIntent request1 = new SyncIntent(context, intent);
-        SyncIntent request2 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
+        SyncIntent request2 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_LIKES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
         SyncIntent request3 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri));
 
         svc.enqueueRequest(request1);
@@ -119,7 +119,7 @@ public class ApiSyncServiceTest {
         expect(svc.mPendingRequests.size()).toBe(4);
 
         // make sure favorites is queued on front
-        expect(svc.mPendingRequests.peek().contentUri).toBe(Content.ME_FAVORITES.uri);
+        expect(svc.mPendingRequests.peek().contentUri).toBe(Content.ME_LIKES.uri);
         expect(svc.mPendingRequests.get(1).contentUri).toBe(Content.ME_TRACKS.uri);
 
         SyncIntent request4 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
@@ -137,13 +137,13 @@ public class ApiSyncServiceTest {
 
         Context context = DefaultTestRunner.application;
 
-        svc.mRunningRequests.add(new CollectionSyncRequest(context, Content.ME_FAVORITES.uri, null, false));
+        svc.mRunningRequests.add(new CollectionSyncRequest(context, Content.ME_LIKES.uri, null, false));
         svc.mRunningRequests.add(new CollectionSyncRequest(context, Content.ME_FOLLOWINGS.uri, null, false));
 
-        ApiSyncer.Result result = new ApiSyncer.Result(Content.ME_FAVORITES.uri);
+        ApiSyncer.Result result = new ApiSyncer.Result(Content.ME_LIKES.uri);
         result.success = true;
 
-        svc.onUriSyncResult(new CollectionSyncRequest(context, Content.ME_FAVORITES.uri, null, false));
+        svc.onUriSyncResult(new CollectionSyncRequest(context, Content.ME_LIKES.uri, null, false));
         expect(svc.mRunningRequests.size()).toBe(1);
     }
 

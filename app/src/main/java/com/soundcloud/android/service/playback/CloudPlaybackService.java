@@ -81,19 +81,19 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static final String STOP_ACTION          = "com.soundcloud.android.playback.stop"; // from the notification
     public static final String UPDATE_WIDGET_ACTION = "com.soundcloud.android.playback.updatewidgetaction";
 
-    public static final String ADD_FAVORITE_ACTION    = "com.soundcloud.android.favorite.add";
-    public static final String REMOVE_FAVORITE_ACTION = "com.soundcloud.android.favorite.remove";
+    public static final String ADD_LIKE_ACTION      = "com.soundcloud.android.favorite.add";
+    public static final String REMOVE_LIKE_ACTION   = "com.soundcloud.android.favorite.remove";
 
     // broadcast notifications
     public static final String PLAYSTATE_CHANGED  = "com.soundcloud.android.playstatechanged";
     public static final String META_CHANGED       = "com.soundcloud.android.metachanged";
-    public static final String PLAYQUEUE_CHANGED = "com.soundcloud.android.playlistchanged";
+    public static final String PLAYQUEUE_CHANGED  = "com.soundcloud.android.playlistchanged";
     public static final String PLAYBACK_COMPLETE  = "com.soundcloud.android.playbackcomplete";
     public static final String PLAYBACK_ERROR     = "com.soundcloud.android.trackerror";
     public static final String STREAM_DIED        = "com.soundcloud.android.streamdied";
     public static final String TRACK_UNAVAILABLE  = "com.soundcloud.android.trackunavailable";
     public static final String COMMENTS_LOADED    = "com.soundcloud.android.commentsloaded";
-    public static final String FAVORITE_SET       = "com.soundcloud.android.favoriteset";
+    public static final String LIKE_SET           = "com.soundcloud.android.likeset";
     public static final String REPOST_SET         = "com.soundcloud.android.repostset";
     public static final String SEEKING            = "com.soundcloud.android.seeking";
     public static final String SEEK_COMPLETE      = "com.soundcloud.android.seekcomplete";
@@ -175,7 +175,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         String isBuffering = "isBuffering";
         String position = "position";
         String queuePosition = "queuePosition";
-        String isFavorite = "isFavorite";
+        String isLike = "isLike";
     }
 
     @Override
@@ -190,8 +190,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         commandFilter.addAction(PAUSE_ACTION);
         commandFilter.addAction(NEXT_ACTION);
         commandFilter.addAction(PREVIOUS_ACTION);
-        commandFilter.addAction(ADD_FAVORITE_ACTION);
-        commandFilter.addAction(REMOVE_FAVORITE_ACTION);
+        commandFilter.addAction(ADD_LIKE_ACTION);
+        commandFilter.addAction(REMOVE_LIKE_ACTION);
         commandFilter.addAction(RESET_ALL);
         commandFilter.addAction(STOP_ACTION);
         commandFilter.addAction(PLAYQUEUE_CHANGED);
@@ -346,7 +346,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             .putExtra(BroadcastExtras.isBuffering, isBuffering())
             .putExtra(BroadcastExtras.position, getProgress())
             .putExtra(BroadcastExtras.queuePosition, mPlayQueueManager.getPosition())
-            .putExtra(BroadcastExtras.isFavorite, getIsFavorite());
+            .putExtra(BroadcastExtras.isLike, getIsLike());
 
         sendBroadcast(i);
 
@@ -712,12 +712,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     /* package */
-    public void setFavoriteStatus(long trackId, boolean favoriteStatus) {
+    public void setLikeStatus(long trackId, boolean like) {
         if (currentTrack != null && currentTrack.id == trackId) {
-            if (favoriteStatus) {
-                addFavorite();
+            if (like) {
+                addLike();
             } else {
-                removeFavorite();
+                removeLike();
             }
         }
     }
@@ -848,8 +848,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         return currentTrack == null ? null : currentTrack.title;
     }
 
-    private boolean getIsFavorite() {
-        return currentTrack != null && currentTrack.user_favorite;
+    private boolean getIsLike() {
+        return currentTrack != null && currentTrack.user_like;
     }
 
     private boolean isPastBuffer(long pos) {
@@ -866,61 +866,61 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    private void addFavorite() {
+    private void addLike() {
         if (currentTrack == null) return;
-        onFavoriteStatusSet(currentTrack.id, true);
+        onLikeStatusSet(currentTrack.id, true);
         AddAssociationTask addAssociationTask = new AddAssociationTask(getApp(), currentTrack);
         addAssociationTask.setOnAssociatedListener(new AssociatedTrackTask.AssociatedListener() {
             @Override
             public void onNewStatus(Track track, boolean isAssociated) {
-                onFavoriteStatusSet(track.id, isAssociated);
+                onLikeStatusSet(track.id, isAssociated);
             }
 
             @Override
             public void onException(Track track, Exception e) {
                 // failed, so it shouldn't be a favorite
-                onFavoriteStatusSet(track.id, false);
+                onLikeStatusSet(track.id, false);
             }
         });
         addAssociationTask.execute(Endpoints.MY_FAVORITES);
     }
 
-    private void removeFavorite() {
+    private void removeLike() {
         if (currentTrack == null) return;
-        onFavoriteStatusSet(currentTrack.id, false);
+        onLikeStatusSet(currentTrack.id, false);
         RemoveAssociationTask removeAssociationTask = new RemoveAssociationTask(getApp(), currentTrack);
         removeAssociationTask.setOnAssociatedListener(new AssociatedTrackTask.AssociatedListener() {
             @Override
             public void onNewStatus(Track track, boolean isAssociated) {
-                onFavoriteStatusSet(track.id, isAssociated);
+                onLikeStatusSet(track.id, isAssociated);
             }
 
             @Override
             public void onException(Track track, Exception e) {
                 // failed, so it is still a favorite
-                onFavoriteStatusSet(track.id, true);
+                onLikeStatusSet(track.id, true);
             }
         });
         removeAssociationTask.execute(Endpoints.MY_FAVORITES);
     }
 
-    private void onFavoriteStatusSet(long trackId, boolean isFavorite) {
+    private void onLikeStatusSet(long trackId, boolean isLike) {
         Track track = mModelManager.getTrack(trackId);
 
         if (track != null) {
-            track.user_favorite = isFavorite;
+            track.user_like = isLike;
             mModelManager.write(track);
 
         }
 
-        if (currentTrack.id == trackId && currentTrack.user_favorite != isFavorite) {
-            currentTrack.user_favorite = isFavorite;
-            notifyChange(FAVORITE_SET);
+        if (currentTrack.id == trackId && currentTrack.user_like != isLike) {
+            currentTrack.user_like = isLike;
+            notifyChange(LIKE_SET);
         } else {
-            final Intent intent = new Intent(FAVORITE_SET);
+            final Intent intent = new Intent(LIKE_SET);
             sendBroadcast(intent
                 .putExtra("id", trackId)
-                .putExtra("isFavorite", isFavorite));
+                .putExtra("isLike", isLike));
             // Share this notification directly with our widgets
             mAppWidgetProvider.notifyChange(this, intent);
         }
@@ -1040,10 +1040,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 mAppWidgetProvider.performUpdate(CloudPlaybackService.this, appWidgetIds,
                         new Intent(PLAYSTATE_CHANGED));
 
-            } else if (ADD_FAVORITE_ACTION.equals(action)) {
-                setFavoriteStatus(intent.getLongExtra(EXTRA_TRACK_ID, -1), true);
-            } else if (REMOVE_FAVORITE_ACTION.equals(action)) {
-                setFavoriteStatus(intent.getLongExtra(EXTRA_TRACK_ID, -1), false);
+            } else if (ADD_LIKE_ACTION.equals(action)) {
+                setLikeStatus(intent.getLongExtra(EXTRA_TRACK_ID, -1), true);
+            } else if (REMOVE_LIKE_ACTION.equals(action)) {
+                setLikeStatus(intent.getLongExtra(EXTRA_TRACK_ID, -1), false);
             } else if (PLAY_ACTION.equals(action)) {
                 handlePlayAction(intent);
             } else if (RESET_ALL.equals(action)) {

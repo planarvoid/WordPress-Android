@@ -3,7 +3,7 @@ package com.soundcloud.android.activity.track;
 import com.soundcloud.android.R;
 import com.soundcloud.android.tracking.Page;
 
-public class TrackFavoriters extends TrackInfoCollection {
+public class TrackLikers extends TrackInfoCollection {
     @Override
     public void onResume() {
         super.onResume();

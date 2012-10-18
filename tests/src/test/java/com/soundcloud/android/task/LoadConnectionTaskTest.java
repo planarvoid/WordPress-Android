@@ -32,7 +32,7 @@ public class LoadConnectionTaskTest {
         assertEquals(Connection.Service.Twitter, conn.service());
         assertEquals("twitter", conn.service);
         assertEquals(true, conn.post_publish);
-        assertEquals(false, conn.post_favorite);
+        assertEquals(false, conn.post_like);
         assertEquals("foo", conn.display_name);
         assertEquals(41335, conn.id);
         assertEquals("https://api.sandbox-soundcloud.com/connections/41335", conn.uri.toString());

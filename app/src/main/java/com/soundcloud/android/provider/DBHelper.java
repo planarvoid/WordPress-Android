@@ -510,7 +510,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String PERMALINK_URL = "permalink_url";
 
         public static final String PRIMARY_EMAIL_CONFIRMED = "primary_email_confirmed";
-        public static final String PUBLIC_FAVORITES_COUNT = "public_favorites_count";
+        public static final String PUBLIC_LIKES_COUNT = "public_favorites_count";
         public static final String PRIVATE_TRACKS_COUNT = "private_tracks_count";
 
         public static final String PLAN = "plan";
@@ -519,7 +519,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 _ID, USERNAME, AVATAR_URL, CITY, COUNTRY, DISCOGS_NAME,
                 FOLLOWERS_COUNT, FOLLOWINGS_COUNT, FULL_NAME, MYSPACE_NAME,
                 TRACK_COUNT, WEBSITE, WEBSITE_TITLE, DESCRIPTION, PERMALINK,
-                LAST_UPDATED, PERMALINK_URL, PRIMARY_EMAIL_CONFIRMED, PUBLIC_FAVORITES_COUNT,
+                LAST_UPDATED, PERMALINK_URL, PRIMARY_EMAIL_CONFIRMED, PUBLIC_LIKES_COUNT,
                 PRIVATE_TRACKS_COUNT, PLAN
         };
     }
@@ -655,7 +655,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String USER_PERMALINK  = "track_user_permalink";
 
         public static final String USER_AVATAR_URL = "track_user_avatar_url";
-        public static final String USER_FAVORITE   = "track_user_favorite";
+        public static final String USER_LIKE       = "track_user_like";
         public static final String USER_REPOST     = "track_user_repost";
         public static final String USER_PLAY_COUNT = "track_user_play_count";
 

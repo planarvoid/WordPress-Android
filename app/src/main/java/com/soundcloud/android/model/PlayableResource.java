@@ -1,6 +1,7 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.json.Views;
@@ -25,6 +26,9 @@ abstract class PlayableResource extends ScResource implements Playable, Refresha
     @JsonView(Views.Mini.class) public String artwork_url;
     @JsonView(Views.Mini.class) public String permalink;
     @JsonView(Views.Mini.class) public String permalink_url;
+
+    @JsonView(Views.Full.class) @JsonProperty("user_like") public boolean user_like;
+    @JsonView(Views.Full.class) public boolean user_repost;
 
     @JsonView(Views.Full.class) public int duration = NOT_SET;
     @JsonView(Views.Full.class) public Date created_at;
@@ -95,6 +99,8 @@ abstract class PlayableResource extends ScResource implements Playable, Refresha
         b.putString("artwork_url", artwork_url);
         b.putString("permalink", permalink);
         b.putString("permalink_url", permalink_url);
+        b.putBoolean("user_like", user_like);
+        b.putBoolean("user_repost", user_repost);
         b.putInt("duration", duration);
         b.putLong("created_at", created_at.getTime());
         b.putBoolean("streamable", streamable);
@@ -131,6 +137,8 @@ abstract class PlayableResource extends ScResource implements Playable, Refresha
         artwork_url = b.getString("artwork_url");
         permalink = b.getString("permalink");
         permalink_url = b.getString("permalink_url");
+        user_like = b.getBoolean("user_like");
+        user_repost = b.getBoolean("user_repost");
         duration = b.getInt("duration");
         created_at = new Date(b.getLong("created_at"));
         streamable = b.getBoolean("streamable");

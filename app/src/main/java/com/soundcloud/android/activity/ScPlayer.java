@@ -223,7 +223,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
 
     public boolean toggleLike(Track track) {
         if (track == null) return false;
-        mPlaybackService.setFavoriteStatus(track.id, !track.user_favorite);
+        mPlaybackService.setLikeStatus(track.id, !track.user_like);
         return true;
     }
 
@@ -483,14 +483,14 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
                     getTrackView(queuePos).setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
                 }
 
-            } else if (action.equals(CloudPlaybackService.FAVORITE_SET) ||
+            } else if (action.equals(CloudPlaybackService.LIKE_SET) ||
                         action.equals(CloudPlaybackService.COMMENTS_LOADED) ||
                         action.equals(Actions.COMMENT_ADDED)) {
                 for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
                     ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).handleIdBasedIntent(intent);
                 }
 
-                if (action.equals(CloudPlaybackService.FAVORITE_SET) || action.equals(Actions.COMMENT_ADDED)) {
+                if (action.equals(CloudPlaybackService.LIKE_SET) || action.equals(Actions.COMMENT_ADDED)) {
                     invalidateOptionsMenu();
 
                 }
@@ -526,7 +526,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
         f.addAction(CloudPlaybackService.SEEKING);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
-        f.addAction(CloudPlaybackService.FAVORITE_SET);
+        f.addAction(CloudPlaybackService.LIKE_SET);
         f.addAction(Actions.COMMENT_ADDED);
         registerReceiver(mStatusListener, new IntentFilter(f));
     }
@@ -677,7 +677,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
 
         getSupportMenuInflater().inflate(R.menu.player, menu);
 
-        final MenuItem favoriteItem = menu.findItem(R.id.action_bar_like);
+        final MenuItem likeItem = menu.findItem(R.id.action_bar_like);
         final MenuItem commentItem = menu.findItem(R.id.action_bar_comment);
         final MenuItem shareItem = menu.findItem(R.id.action_bar_share);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
@@ -686,10 +686,10 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
 
         final Track track = getCurrentDisplayedTrack();
 
-        if (track != null && track.user_favorite) {
-            favoriteItem.setIcon(R.drawable.ic_like_orange);
+        if (track != null && track.user_like) {
+            likeItem.setIcon(R.drawable.ic_like_orange);
         } else {
-            favoriteItem.setIcon(R.drawable.ic_like_white);
+            likeItem.setIcon(R.drawable.ic_like_white);
         }
 
         if (mIsCommenting){

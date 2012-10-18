@@ -127,9 +127,9 @@ public class ScListFragment extends SherlockListFragment
                     adapter = new UserAdapter(getActivity(), mContentUri);
                     break;
 
-                case ME_FAVORITES:
+                case ME_LIKES:
                 case ME_TRACKS:
-                case USER_FAVORITES:
+                case USER_LIKES:
                     adapter = new TrackAdapter(getActivity(), mContentUri);
                     break;
 
@@ -211,7 +211,7 @@ public class ScListFragment extends SherlockListFragment
 //                                final Activity e = (Activity) wrapper.getItem(position);
 //                                if (e.type == Activity.Type.FAVORITING) {
 //                                    SoundCloudApplication.TRACK_CACHE.put(e.getTrack(), false);
-//                                    startActivity(new Intent(ScListActivity.this, TrackFavoriters.class)
+//                                    startActivity(new Intent(ScListActivity.this, TrackLikers.class)
 //                                        .putExtra("track_id", e.getTrack().id));
 //                                } else {
 //                                    playTrack(wrapper.getPlayInfo(position));
@@ -570,7 +570,7 @@ public class ScListFragment extends SherlockListFragment
                         final Activity e = (Activity) wrapper.getItem(position);
                         if (e.type == Activity.Type.FAVORITING) {
                             SoundCloudApplication.TRACK_CACHE.put(e.getTrack(), false);
-                            startActivity(new Intent(ScListActivity.this, TrackFavoriters.class)
+                            startActivity(new Intent(ScListActivity.this, TrackLikers.class)
                                 .putExtra("track_id", e.getTrack().id));
                         } else {
                             playTrack(wrapper.getPlayInfo(position));

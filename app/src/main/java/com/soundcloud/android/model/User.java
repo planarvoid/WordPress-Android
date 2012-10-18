@@ -56,8 +56,9 @@ public class User extends ScResource implements Refreshable {
     public int    track_count            = NOT_SET;
     public int    followers_count        = NOT_SET;
     public int    followings_count       = NOT_SET;
-    public int    public_favorites_count = NOT_SET;
     public int    private_tracks_count   = NOT_SET;
+    @JsonProperty("public_likes_count")
+    public int public_likes_count = NOT_SET;
 
     // internal fields
     @JsonIgnore public String _list_avatar_uri;
@@ -91,7 +92,7 @@ public class User extends ScResource implements Refreshable {
         model.track_count = bundle.getInt("track_count");
         model.followers_count = bundle.getInt("followers_count");
         model.followings_count = bundle.getInt("followings_count");
-        model.public_favorites_count = bundle.getInt("public_favorites_count");
+        model.public_likes_count = bundle.getInt("public_likes_count");
         model.private_tracks_count = bundle.getInt("private_tracks_count");
         model.id = bundle.getLong("id");
     }
@@ -121,7 +122,7 @@ public class User extends ScResource implements Refreshable {
         website = cursor.getString(cursor.getColumnIndex(Users.WEBSITE));
         website_title = cursor.getString(cursor.getColumnIndex(Users.WEBSITE_TITLE));
         primary_email_confirmed = cursor.getInt(cursor.getColumnIndex(Users.PRIMARY_EMAIL_CONFIRMED)) == 1;
-        public_favorites_count = cursor.getInt(cursor.getColumnIndex(Users.PUBLIC_FAVORITES_COUNT));
+        public_likes_count = cursor.getInt(cursor.getColumnIndex(Users.PUBLIC_LIKES_COUNT));
         private_tracks_count = cursor.getInt(cursor.getColumnIndex(Users.PRIVATE_TRACKS_COUNT));
 
         final String tempDesc = cursor.getString(cursor.getColumnIndex(Users.DESCRIPTION));
@@ -160,7 +161,7 @@ public class User extends ScResource implements Refreshable {
         if (avatar_url != null) cv.put(Users.AVATAR_URL, avatar_url);
         if (permalink_url != null) cv.put(Users.PERMALINK_URL, permalink_url);
         if (track_count != NOT_SET) cv.put(Users.TRACK_COUNT, track_count);
-        if (public_favorites_count != NOT_SET) cv.put(Users.PUBLIC_FAVORITES_COUNT, public_favorites_count);
+        if (public_likes_count != NOT_SET) cv.put(Users.PUBLIC_LIKES_COUNT, public_likes_count);
         if (city != null) cv.put(Users.CITY, city);
         if (country != null) cv.put(Users.COUNTRY, country);
         if (discogs_name != null) cv.put(Users.DISCOGS_NAME, discogs_name);
@@ -200,7 +201,7 @@ public class User extends ScResource implements Refreshable {
                 ", full_name='" + full_name + '\'' +
                 ", followers_count='" + followers_count + '\'' +
                 ", followings_count='" + followings_count + '\'' +
-                ", public_favorites_count='" + public_favorites_count + '\'' +
+                ", public_likes_count='" + public_likes_count + '\'' +
                 ", private_tracks_count='" + private_tracks_count + '\'' +
                 ", myspace_name='" + myspace_name + '\'' +
                 ", country='" + country + '\'' +
@@ -313,7 +314,7 @@ public class User extends ScResource implements Refreshable {
         if (user.track_count != -1) this.track_count = user.track_count;
         if (user.followers_count != -1) this.followers_count = user.followers_count;
         if (user.followings_count != -1)this.followings_count = user.followings_count;
-        if (user.public_favorites_count != -1) this.public_favorites_count = user.public_favorites_count;
+        if (user.public_likes_count != -1) this.public_likes_count = user.public_likes_count;
         if (user.private_tracks_count != -1) this.private_tracks_count = user.private_tracks_count;
         if (user.discogs_name != null) this.discogs_name = user.discogs_name;
         if (user.myspace_name != null) this.myspace_name = user.myspace_name;
@@ -344,7 +345,7 @@ public class User extends ScResource implements Refreshable {
         // TODO move to model
         for (Content c : EnumSet.of(
                 Content.ME_TRACKS,
-                Content.ME_FAVORITES,
+                Content.ME_LIKES,
                 Content.ME_FOLLOWINGS,
                 Content.ME_FOLLOWERS)) {
             resolver.delete(Content.COLLECTIONS.uri,
@@ -398,7 +399,7 @@ public class User extends ScResource implements Refreshable {
         bundle.putInt("track_count", model.track_count);
         bundle.putInt("followers_count", model.followers_count);
         bundle.putInt("followings_count", model.followings_count);
-        bundle.putInt("public_favorites_count", model.public_favorites_count);
+        bundle.putInt("public_likes_count", model.public_likes_count);
         bundle.putInt("private_tracks_count", model.private_tracks_count);
         bundle.putLong("id", model.id);
         out.writeBundle(bundle);

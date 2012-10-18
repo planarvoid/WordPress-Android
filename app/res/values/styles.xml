@@ -425,7 +425,7 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
-    <style name="btn_sc_widget_favorite" parent="btn_sc_widget">
+    <style name="btn_sc_widget_like" parent="btn_sc_widget">
         <item name="android:layout_width">40dip</item>
         <item name="android:layout_height">40dip</item>
     </style>

@@ -22,8 +22,8 @@ public abstract class AssociatedTrackTask extends AsyncTask<String, String, Bool
         this.track = track;
     }
 
-    public void setOnAssociatedListener(AssociatedListener favoriteListener){
-        mAssociatedListener = favoriteListener;
+    public void setOnAssociatedListener(AssociatedListener likeListener){
+        mAssociatedListener = likeListener;
     }
 
     @Override

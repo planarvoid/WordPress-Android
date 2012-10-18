@@ -104,7 +104,7 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_TRACKS:
-            case ME_FAVORITES:
+            case ME_LIKES:
             case ME_REPOSTS:
                 qb.setTables(makeCollectionJoin(Table.TRACK_VIEW));
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
@@ -130,7 +130,7 @@ public class ScContentProvider extends ContentProvider {
                 return c;
 
             case USER_TRACKS:
-            case USER_FAVORITES:
+            case USER_LIKES:
             case USER_REPOSTS:
                 qb.setTables(makeCollectionJoin(Table.TRACK_VIEW));
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
@@ -379,7 +379,7 @@ public class ScContentProvider extends ContentProvider {
                     return null;
                 }
 
-            case ME_FAVORITES:
+            case ME_LIKES:
             case ME_REPOSTS:
                 id = Table.TRACKS.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id >= 0) {
@@ -452,12 +452,12 @@ public class ScContentProvider extends ContentProvider {
             case PLAY_QUEUE:
                 break;
             case ME_TRACKS:
-            case ME_FAVORITES:
+            case ME_LIKES:
             case ME_REPOSTS:
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
             case USER_TRACKS:
-            case USER_FAVORITES:
+            case USER_LIKES:
             case USER_REPOSTS:
             case USER_FOLLOWINGS:
             case USER_FOLLOWERS:
@@ -532,7 +532,7 @@ public class ScContentProvider extends ContentProvider {
                                     + "SELECT _id FROM "+ Table.TRACKS.name + " WHERE EXISTS("
                                         + "SELECT 1 FROM CollectionItems WHERE "
                                         + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.TRACK+
-                                            " ," + CollectionItemTypes.FAVORITE+ " ," + CollectionItemTypes.REPOST+ ") "
+                                            " ," + CollectionItemTypes.LIKE + " ," + CollectionItemTypes.REPOST+ ") "
                                         + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
                                         + " AND  " + DBHelper.CollectionItems.ITEM_ID + " =  " + DBHelper.Tracks._ID
                                     + " UNION SELECT DISTINCT " + DBHelper.ActivityView.TRACK_ID + " FROM "+ Table.ACTIVITIES.name
@@ -601,8 +601,8 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_TRACKS:
             case USER_TRACKS:
-            case ME_FAVORITES:
-            case USER_FAVORITES:
+            case ME_LIKES:
+            case USER_LIKES:
             case ME_REPOSTS:
             case USER_REPOSTS:
             case ME_FOLLOWERS:
@@ -830,8 +830,8 @@ public class ScContentProvider extends ContentProvider {
             Table.TRACK_VIEW + ".*",
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                     + " WHERE " + Table.TRACK_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FAVORITE
-                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_FAVORITE,
+                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + LIKE
+                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_LIKE,
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                                 + " WHERE " + Table.TRACK_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID
                                 + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + REPOST
@@ -842,8 +842,8 @@ public class ScContentProvider extends ContentProvider {
             Table.ACTIVITY_VIEW + ".*",
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                     + " WHERE " + DBHelper.ActivityView.TRACK_ID + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FAVORITE
-                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_FAVORITE,
+                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + LIKE
+                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_LIKE,
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                     + " WHERE " + DBHelper.ActivityView.TRACK_ID + " = " + DBHelper.CollectionItems.ITEM_ID
                     + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + REPOST
@@ -865,7 +865,7 @@ public class ScContentProvider extends ContentProvider {
 
     public interface CollectionItemTypes {
         int TRACK          = 0;
-        int FAVORITE       = 1;
+        int LIKE = 1;
         int FOLLOWING      = 2;
         int FOLLOWER       = 3;
         int FRIEND         = 4;

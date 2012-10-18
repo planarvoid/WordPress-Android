@@ -182,16 +182,6 @@ public final class Consts {
 
     }
 
-    public interface ListId {
-        int LIST_STREAM          = 1001;
-        int LIST_ACTIVITY        = 1002;
-        int LIST_USER_TRACKS     = 1003;
-        int LIST_USER_FAVORITES  = 1004;
-        int LIST_USER_FOLLOWINGS = 1006;
-        int LIST_USER_FOLLOWERS  = 1007;
-        int LIST_USER_SUGGESTED  = 1008;
-    }
-
     // these need to be unique across app
     public interface Notifications {
         int RECORD_NOTIFY_ID    = 0;
