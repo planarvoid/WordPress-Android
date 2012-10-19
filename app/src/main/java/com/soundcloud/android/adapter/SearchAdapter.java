@@ -53,11 +53,18 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> {
         int type = getItemViewType(position);
         switch (type) {
             case TYPE_TRACK:
-                mContext.startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(Track.EXTRA, ((Playable) getItem(position)).getTrack()));
+                playPosition(position, id);
+                break;
             case TYPE_USER:
                 mContext.startActivity(new Intent(mContext, UserBrowser.class).putExtra(UserBrowser.EXTRA_USER, getItem(position)));
+                break;
             default:
                 throw new IllegalArgumentException("no view for playlists yet");
         }
+    }
+
+    @Override
+    protected Uri getPlayableUri() {
+        return null;
     }
 }
