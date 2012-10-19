@@ -2,7 +2,6 @@ package com.soundcloud.android.activity;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
@@ -17,7 +16,6 @@ import com.soundcloud.android.cache.ParcelCache;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.record.SoundRecorder;
@@ -31,13 +29,15 @@ import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.FullImageDialog;
-import com.soundcloud.android.view.NowPlayingIndicator;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.viewpagerindicator.TitlePageIndicator;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -45,13 +45,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -216,6 +217,26 @@ public class UserBrowser extends ScListActivity implements
         loadDetails();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // update action bar record option based on recorder status
+        invalidateOptionsMenu();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(SoundRecorder.RECORD_STARTED);
+        filter.addAction(SoundRecorder.RECORD_ERROR);
+        filter.addAction(SoundRecorder.RECORD_FINISHED);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRecordListener, filter);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRecordListener);
+    }
+
 
     @Override
     protected int getSelectedMenuId() {
@@ -835,16 +856,21 @@ public class UserBrowser extends ScListActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        MenuItem followItem = menu.findItem(R.id.action_bar_follow);
+        if (!isMe()){
+            MenuItem followItem = menu.findItem(R.id.action_bar_follow);
+            final boolean following = isFollowing();
+            followItem.setIcon(following ? R.drawable.ic_remove_user_white : R.drawable.ic_add_user_white);
+            followItem.setTitle(getResources().getString(following ? R.string.action_bar_unfollow : R.string.action_bar_follow));
 
-        final boolean following = isFollowing();
-        followItem.setIcon(following ? R.drawable.ic_remove_user_white : R.drawable.ic_add_user_white);
-        followItem.setTitle(getResources().getString(following ? R.string.action_bar_unfollow : R.string.action_bar_follow));
+            SoundRecorder soundRecorder = SoundRecorder.getInstance(this);
+            Log.i("asdf","IS RECORDING?? " + soundRecorder.isRecording());
+            if (soundRecorder.isRecording() && !(soundRecorder.getRecording().getRecipient() == mUser)) {
+                menu.removeItem(R.id.action_bar_private_message);
+            }
+        } else {
+            menu.removeItem(R.id.action_bar_follow);
+            menu.removeItem(R.id.action_bar_private_message);
 
-        SoundRecorder soundRecorder = SoundRecorder.getInstance(this);
-        if (!isMe() && (!soundRecorder.isRecording() || soundRecorder.getRecording().getRecipient() == mUser)) {
-            menu.add(menu.size(), Consts.OptionsMenu.PRIVATE_MESSAGE,
-                    menu.size(), R.string.menu_private_message).setIcon(R.drawable.ic_options_menu_rec);
         }
         return true;
     }
@@ -857,7 +883,7 @@ public class UserBrowser extends ScListActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case Consts.OptionsMenu.PRIVATE_MESSAGE:
+            case R.id.action_bar_private_message:
                 Intent intent = new Intent(this, ScCreate.class);
                 intent.putExtra(ScCreate.EXTRA_PRIVATE_MESSAGE_RECIPIENT,mUser);
                 startActivity(intent);
@@ -872,4 +898,12 @@ public class UserBrowser extends ScListActivity implements
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    private final BroadcastReceiver mRecordListener = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.i("asdf","FFFFAAAAAAAAAA");
+                invalidateOptionsMenu();
+            }
+    };
 }

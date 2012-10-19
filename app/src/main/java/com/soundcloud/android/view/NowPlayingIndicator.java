@@ -65,6 +65,8 @@ public class NowPlayingIndicator extends ProgressBar {
     private Paint mForegroundPaint;
     private Rect mCanvasRect;
 
+    private Boolean mListening;
+
     private int mSideOffset;
     private int mAdjustedWidth;
 
@@ -108,6 +110,7 @@ public class NowPlayingIndicator extends ProgressBar {
     }
 
     void startListening(){
+        mListening = true;
         IntentFilter f = new IntentFilter();
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
         f.addAction(CloudPlaybackService.META_CHANGED);
@@ -117,7 +120,10 @@ public class NowPlayingIndicator extends ProgressBar {
     }
 
     void stopListening(){
-        getContext().unregisterReceiver(mStatusListener);
+        if (mListening){
+            getContext().unregisterReceiver(mStatusListener);
+        }
+        mListening = false;
     }
 
     public void resume() {
