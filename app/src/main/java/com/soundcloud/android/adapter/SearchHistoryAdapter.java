@@ -75,7 +75,7 @@ public class SearchHistoryAdapter extends BaseAdapter {
                 holder.iv_search_type.setImageResource(R.drawable.ic_search_sound);
                 break;
             case Search.USERS:
-                holder.iv_search_type.setImageResource(R.drawable.ic_search_people);
+                holder.iv_search_type.setImageResource(R.drawable.ic_search_user);
                 break;
         }
         return row;
