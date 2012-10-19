@@ -165,6 +165,11 @@ public class MyTracksAdapter extends ScBaseAdapter {
         Log.i(SoundCloudApplication.TAG, "Clicked on item " + id);
     }
 
+    @Override
+    protected Uri getPlayableUri() {
+        return mContentUri;
+    }
+
     public void onDestroy(){
         mContext.getContentResolver().unregisterContentObserver(mChangeObserver);
     }

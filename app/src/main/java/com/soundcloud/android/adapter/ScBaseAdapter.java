@@ -282,8 +282,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         }
 
         PlayInfo info = new PlayInfo();
-        info.uri = mContentUri;
-
+        info.uri = getPlayableUri();
 
         List<Playable> playables = new ArrayList<Playable>(mData.size());
 
@@ -302,7 +301,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
         Intent intent = new Intent(mContext, CloudPlaybackService.class).setAction(CloudPlaybackService.PLAY_ACTION);
 
-        if (mContentUri != null) {
+        if (info.uri != null) {
             SoundCloudApplication.MODEL_MANAGER.cache(info.getTrack());
             intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.getTrack().id)
                     .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
@@ -317,4 +316,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         mContext.startService(intent);
         mContext.startActivity(new Intent(mContext, ScPlayer.class));
     }
+
+    protected abstract Uri getPlayableUri();
 }

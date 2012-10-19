@@ -32,4 +32,9 @@ public class TrackAdapter extends ScBaseAdapter<Track> {
     public void handleListItemClick(int position, long id) {
         playPosition(position,id);
     }
+
+    @Override
+    protected Uri getPlayableUri() {
+        return mContentUri;
+    }
 }

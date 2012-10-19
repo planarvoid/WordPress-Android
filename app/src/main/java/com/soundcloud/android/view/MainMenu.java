@@ -126,7 +126,7 @@ public class MainMenu extends LinearLayout {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH && mClickListener != null) {
-                    mClickListener.onSearchQuery(new Search(mQueryText.getText().toString(), Search.SOUNDS));
+                    mClickListener.onSearchQuery(new Search(mQueryText.getText().toString(), Search.ALL));
                     toggleSearchMode();
                     mQueryText.setText("");
                     closeKeyboard();

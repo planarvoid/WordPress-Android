@@ -1,6 +1,5 @@
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.api.Endpoints;
@@ -8,10 +7,8 @@ import com.soundcloud.api.Request;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Parcelable;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -20,8 +17,9 @@ import java.util.List;
 public class Search {
     static final Content CONTENT  = Content.SEARCHES;
 
-    public static final int SOUNDS = 0;
-    public static final int USERS  = 1;
+    public static final int ALL = 0;
+    public static final int SOUNDS = 1;
+    public static final int USERS  = 2;
 
     public int id;
     public int search_type;
@@ -41,6 +39,10 @@ public class Search {
         this.created_at = this.id = -1;
     }
 
+    public static Search forAll(String query) {
+            return new Search(query, ALL);
+    }
+
     public static Search forSounds(String query) {
         return new Search(query, SOUNDS);
     }
@@ -54,8 +56,14 @@ public class Search {
     }
 
     public Request request() {
-        return Request.to(search_type == USERS ? Endpoints.USERS : Endpoints.TRACKS)
-                      .with("q", query);
+        switch (search_type){
+            case USERS:
+                return Request.to(Endpoints.USERS).with("q", query);
+            case SOUNDS:
+                return Request.to(Endpoints.TRACKS).with("q", query);
+            default:
+                return Request.to("/e1/search").with("q", query);
+        }
     }
 
 

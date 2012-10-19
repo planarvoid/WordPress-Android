@@ -100,4 +100,9 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
                 Log.i(SoundCloudApplication.TAG, "Clicked on item " + id);
         }
     }
+
+    @Override
+    protected Uri getPlayableUri() {
+        return mContentUri;
+    }
 }

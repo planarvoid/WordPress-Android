@@ -36,8 +36,8 @@ public class NowPlayingIndicator extends ProgressBar {
         0xFF1B1B1B,
         0xFF1B1B1B,
         0xFF131313,
-        0xFF222222,
-        0xFF222222
+        0xFF020202,
+        0xFF020202
     };
 
     private static final int FOREGROUND_COLORS[] = {
@@ -65,6 +65,9 @@ public class NowPlayingIndicator extends ProgressBar {
     private Paint mForegroundPaint;
     private Rect mCanvasRect;
 
+    private int mSideOffset;
+    private int mAdjustedWidth;
+
     public NowPlayingIndicator(Context context) {
         super(context);
         init(context);
@@ -81,6 +84,9 @@ public class NowPlayingIndicator extends ProgressBar {
     }
 
     private void init(final Context context) {
+
+        mSideOffset = (int) (context.getResources().getDisplayMetrics().density * 5);
+
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -154,7 +160,8 @@ public class NowPlayingIndicator extends ProgressBar {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        mCanvasRect = new Rect(0, 0, getWidth(), getHeight());
+        mAdjustedWidth = getWidth() - mSideOffset * 2;
+        mCanvasRect = new Rect(mSideOffset, 0, mAdjustedWidth, getHeight());
         mBackgroundPaint.setShader(new LinearGradient(0, 0, 0, getHeight(), BACKGROUND_COLORS, COLOR_STOPS, Shader.TileMode.MIRROR));
         mForegroundPaint.setShader(new LinearGradient(0, 0, 0, getHeight(), FOREGROUND_COLORS, COLOR_STOPS, Shader.TileMode.MIRROR));
         setWaveformMask();
@@ -205,12 +212,13 @@ public class NowPlayingIndicator extends ProgressBar {
         if (mWaveformMask == null) return;
 
         Canvas tmp = new Canvas(mWaveformMask);
-        tmp.drawRect(0, 0, getWidth(), getHeight(), mBackgroundPaint);
+
+        tmp.drawRect(mSideOffset, 0, mAdjustedWidth, getHeight(), mBackgroundPaint);
 
         float fraction = (float) getProgress() / (float) getMax();
         fraction = min(max(fraction, 0), getMax());
 
-        tmp.drawRect(0, 0, getWidth() * fraction, getHeight(), mForegroundPaint);
+        tmp.drawRect(mSideOffset, 0, mAdjustedWidth * fraction, getHeight(), mForegroundPaint);
 
         canvas.drawBitmap(
                 mWaveformMask,
@@ -221,7 +229,7 @@ public class NowPlayingIndicator extends ProgressBar {
     }
 
     private void setWaveformMask() {
-        this.mWaveformMask = createWaveformMask(mWaveform, getWidth(), getHeight());
+        this.mWaveformMask = createWaveformMask(mWaveform, mAdjustedWidth, getHeight());
     }
 
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {

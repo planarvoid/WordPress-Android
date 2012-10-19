@@ -152,6 +152,7 @@ public class RootView extends ViewGroup {
         mMenu.setSelectedMenuId(selectedMenuId);
 
         mContent = (ViewGroup) findViewById(R.id.content_frame);
+        mContent.setBackgroundColor(Color.WHITE);
         //mPlayer = findViewById(R.id.player_frame);
 
         mScroller = new Scroller(context,new DecelerateInterpolator());
@@ -385,7 +386,6 @@ public class RootView extends ViewGroup {
             }
 
         } else {
-            canvas.drawColor(Color.WHITE);
             drawChild(canvas, mContent, drawingTime);
         }
     }

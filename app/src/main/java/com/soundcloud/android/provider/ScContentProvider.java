@@ -347,7 +347,8 @@ public class ScContentProvider extends ContentProvider {
                     values.put(DBHelper.TrackMetadata.USER_ID, userId);
                 }
                 String trackId = values.getAsString(DBHelper.TrackMetadata._ID);
-                db.insert(content.table.name, null, values);
+                content.table.insertWithOnConflict(db,values,SQLiteDatabase.CONFLICT_IGNORE);
+
                 String counter = DBHelper.TrackMetadata.PLAY_COUNT;
                 db.execSQL("UPDATE "+content.table.name+
                         " SET "+counter+"="+counter+" + 1 WHERE "+content.table.id +"= ?",

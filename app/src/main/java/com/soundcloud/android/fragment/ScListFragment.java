@@ -57,7 +57,7 @@ public class ScListFragment extends SherlockListFragment
     private @NotNull EmptyCollection mEmptyCollection;
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
-    private @NotNull Content mContent;
+    private @Nullable Content mContent;
     private @NotNull Uri mContentUri;
 
     private NetworkConnectivityListener connectivityListener;
@@ -113,7 +113,7 @@ public class ScListFragment extends SherlockListFragment
         super.onActivityCreated(savedInstanceState);
 
         ScBaseAdapter<?> adapter;
-        if (getListAdapter() == null) {
+        if (getListAdapter() == null && mContent != null) {
             switch (mContent) {
                 case ME_SOUND_STREAM:
                 case ME_EXCLUSIVE_STREAM:
@@ -296,10 +296,6 @@ public class ScListFragment extends SherlockListFragment
         }
     }
 
-    public Uri getPlayableUri() {
-        return mContentInvalid ? null : mContentUri;
-    }
-
     protected void requestSync() {
         Intent intent = new Intent(getActivity(), ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
@@ -388,7 +384,7 @@ public class ScListFragment extends SherlockListFragment
     }
 
     public void executeRefreshTask() {
-        mEmptyCollection.setMode(mLocalCollection.hasSyncedBefore() ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.WAITING_FOR_SYNC);
+        mEmptyCollection.setMode(mLocalCollection == null || mLocalCollection.hasSyncedBefore() ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.WAITING_FOR_SYNC);
         mRefreshTask = buildTask();
         mRefreshTask.execute(getTaskParams(true));
     }
@@ -417,7 +413,7 @@ public class ScListFragment extends SherlockListFragment
 
 
     protected Request getRequest(boolean isRefresh) {
-        if (!mContent.hasRequest()) return null;
+        if (mContent == null || !mContent.hasRequest()) return null;
         return !(isRefresh) && !TextUtils.isEmpty(mNextHref) ? new Request(mNextHref) : mContent.request(mContentUri);
     }
 
