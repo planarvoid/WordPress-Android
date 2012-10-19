@@ -18,15 +18,17 @@
         <item name="android:actionDropDownStyle">@style/next_DropDownNav</item>
 
         <!-- Compatibility issues when this is set. Check on more devices -->
-            <!--<item name="android:panelBackground">@drawable/menu_hardkey_panel_next</item>-->
+        <!--<item name="android:panelBackground">@drawable/menu_hardkey_panel_next</item>-->
 
         <!-- Light.DarkActionBar specific -->
         <item name="actionBarWidgetTheme">@style/Theme.next.widget</item>
         <item name="android:actionBarWidgetTheme">@style/Theme.next.widget</item>
-        <item name="spinnerDropDownItemStyle">@style/next_DropDownItem</item>
+
+        <!-- Using these spinners overrides all app spinners. Use default spinners for now, come back to this -->
+        <!--<item name="spinnerDropDownItemStyle">@style/next_DropDownItem</item>
         <item name="android:spinnerDropDownItemStyle">@style/next_DropDownItem</item>
         <item name="spinnerItemStyle">@style/next_SpinnerItem</item>
-        <item name="android:spinnerItemStyle">@style/next_SpinnerItem</item>
+        <item name="android:spinnerItemStyle">@style/next_SpinnerItem</item>-->
 
         <item name="ptrLoadingProgressStyle">@style/ScProgressBarHolo</item>
         <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
