@@ -147,7 +147,7 @@ public class SearchSuggestionsAdapter extends CursorAdapter{
 
             setIcon(holder, cursor.getString(cursor.getColumnIndex(DBHelper.Users.AVATAR_URL)));
             holder.tv_main.setText(cursor.getString(cursor.getColumnIndex(DBHelper.Users.USERNAME)));
-            holder.iv_search_type.setImageResource(R.drawable.ic_search_people);
+            holder.iv_search_type.setImageResource(R.drawable.ic_search_user);
         }
         return view;
     }
