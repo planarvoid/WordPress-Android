@@ -31,6 +31,7 @@ import android.media.AudioTrack;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -741,7 +742,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 }
                 Log.d(TAG, "exiting reader loop, stopping recording (mState=" + mState + ")");
                 mAudioRecord.stop();
-
+                String message = null;
                 if (mRecording != null) {
                     if (mState != SoundRecorder.State.ERROR) {
                         try {
@@ -753,20 +754,21 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                                 mPlaybackStream.resetBounds();
                             }
                             saveState();
-                            broadcast(RECORD_FINISHED);
+                            message = RECORD_FINISHED;
                         } catch (IOException e) {
                             mState = SoundRecorder.State.ERROR;
-                            broadcast(RECORD_ERROR);
+                            message = RECORD_ERROR;
                             Log.w(TAG,e);
                         }
 
                     } else {
                         mPlaybackStream = null;
-                        broadcast(RECORD_ERROR);
+                        message = RECORD_ERROR;
                     }
                 }
                 mState = SoundRecorder.State.IDLE;
                 mReaderThread = null;
+                if (!TextUtils.isEmpty(message)) broadcast(message);
             }
         }
     }
