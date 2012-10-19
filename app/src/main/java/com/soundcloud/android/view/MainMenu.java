@@ -147,6 +147,7 @@ public class MainMenu extends LinearLayout {
 
     public void setOffsetRight(int mOffsetRight) {
         ((RelativeLayout.LayoutParams) mQueryText.getLayoutParams()).rightMargin = mOffsetRight;
+        mSuggestionsAdapter.setOffsetRight(mOffsetRight);
         requestLayout();
     }
 

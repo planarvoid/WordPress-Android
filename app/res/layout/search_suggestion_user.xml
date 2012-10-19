@@ -18,14 +18,15 @@
 
     <TextView android:id="@+id/username"
               android:text="@string/track"
-              android:layout_width="wrap_content"
+              android:layout_width="0dp"
               android:layout_height="wrap_content"
               android:textSize="@dimen/slm_item_text_size"
               android:textColor="@color/fim_item_text_color"
               android:paddingLeft="@dimen/slm_item_text_padding_left"
               android:layout_gravity="center_vertical"
               android:singleLine="true"
-              android:ellipsize="end" />
+              android:ellipsize="end"
+              android:layout_weight="1" />
 
     <ImageView android:id="@+id/iv_search_type"
                android:layout_width="32dp"
