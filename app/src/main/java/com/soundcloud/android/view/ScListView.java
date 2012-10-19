@@ -47,7 +47,6 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
         getRefreshableView().setSelector(R.drawable.list_selector_background);
         getRefreshableView().setLongClickable(false);
         getRefreshableView().setScrollingCacheEnabled(false);
-        getRefreshableView().setBackgroundColor(Color.WHITE);
         getRefreshableView().setCacheColorHint(Color.WHITE);
         setOnFlingListener(this);
         setOnConfigureHeaderListener(this);
