@@ -411,6 +411,7 @@ public class ScListFragment extends SherlockListFragment
             setListAdapter(adp);
             adp.notifyDataSetChanged();
         }
+        mNextHref = "";
         mKeepGoing = true;
         clearRefreshTask();
         clearUpdateTask();
@@ -472,6 +473,7 @@ public class ScListFragment extends SherlockListFragment
     @Override
     public void onPostTaskExecute(ReturnData data) {
         mKeepGoing = data.keepGoing;
+        if (data.success) mNextHref = data.nextHref;
         getListAdapter().handleTaskReturnData(data);
 
         if (data.wasRefresh && !waitingOnInitialSync()) doneRefreshing();
