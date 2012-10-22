@@ -1,10 +1,8 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 import com.soundcloud.android.view.adapter.UserlistRow;
@@ -32,7 +30,7 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> {
         int type = super.getItemViewType(position);
         if (type == IGNORE_ITEM_VIEW_TYPE) return type;
 
-        return getItem(position) instanceof Playable ? TYPE_TRACK : TYPE_USER;
+        return getItem(position) instanceof User ? TYPE_USER : TYPE_TRACK;
     }
 
     @Override
