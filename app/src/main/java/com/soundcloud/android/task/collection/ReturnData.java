@@ -2,12 +2,13 @@ package com.soundcloud.android.task.collection;
 
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScModel;
+import org.apache.http.HttpStatus;
 
 public class ReturnData<T extends ScModel> {
 
     public CollectionHolder<T> newItems;
     public String nextHref;
-    public int responseCode;
+    public int responseCode = HttpStatus.SC_CONTINUE;
     public boolean keepGoing;
     public boolean success;
     public boolean wasRefresh;

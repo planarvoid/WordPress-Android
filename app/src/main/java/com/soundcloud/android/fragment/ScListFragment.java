@@ -202,52 +202,6 @@ public class ScListFragment extends SherlockListFragment
         getListAdapter().handleListItemClick(position - getListView().getHeaderViewsCount(), id);
     }
 
-    //    @Override
-//    public void onListItemClick(ListView l, View v, int position, long id) {
-//        super.onListItemClick(l, v, position, id);
-//
-//
-//
-//                                final Activity e = (Activity) wrapper.getItem(position);
-//                                if (e.type == Activity.Type.FAVORITING) {
-//                                    SoundCloudApplication.TRACK_CACHE.put(e.getTrack(), false);
-//                                    startActivity(new Intent(ScListActivity.this, TrackFavoriters.class)
-//                                        .putExtra("track_id", e.getTrack().id));
-//                                } else {
-//                                    playTrack(wrapper.getPlayInfo(position));
-//                                }
-//                            }
-//                                if (wrapper.getItem(position) instanceof Track &&
-//                                        !((Track) wrapper.getItem(position)).state.isStreamable()){
-//
-//                                    showDialog(((Track) wrapper.getItem(position)).state.isFailed() ?
-//                                            Consts.Dialogs.DIALOG_TRANSCODING_FAILED :
-//                                            Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING);
-//                                } else {
-//                                    playTrack(wrapper.getPlayInfo(position));
-//                                }
-//
-//                    public void onUserClick(User user) {
-//                        Intent i = new Intent(ScListActivity.this, UserBrowser.class);
-//                        i.putExtra("user", user);
-//                        startActivity(i);
-//                    }
-//
-//                    @Override
-//                    public void onCommentClick(Comment comment) {
-//                        Intent i = new Intent(ScListActivity.this, UserBrowser.class);
-//                        i.putExtra("user", comment.user);
-//                        startActivity(i);
-//                    }
-//
-//                    @Override
-//                    public void onRecordingClick(final Recording recording) {
-//                        handleRecordingClick(recording);
-//                    }
-//
-//
-//    }
-
     public ScActivity getScActivity() {
         return (ScActivity) getActivity();
     }
@@ -480,6 +434,7 @@ public class ScListFragment extends SherlockListFragment
 
     protected boolean handleResponseCode(int responseCode) {
         switch (responseCode) {
+            case HttpStatus.SC_CONTINUE: // do nothing
             case HttpStatus.SC_OK: // do nothing
             case HttpStatus.SC_NOT_MODIFIED:
                 return true;
