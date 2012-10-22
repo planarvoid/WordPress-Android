@@ -787,7 +787,7 @@ public class WaveformController extends TouchLayout {
 
                 case UI_ADD_COMMENT:
                     mPlayer.addNewComment(mAddComment);
-                    mPlayerTrackView.toggleCommentMode();
+                    mPlayerTrackView.setCommentMode(false);
                     break;
 
                 case UI_UPDATE_COMMENT:

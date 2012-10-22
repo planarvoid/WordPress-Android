@@ -1,5 +1,6 @@
 package com.soundcloud.android.view.play;
 
+import android.view.animation.Animation;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -48,6 +49,9 @@ import android.widget.ViewFlipper;
 
 import java.util.List;
 
+import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
+import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
+
 public class PlayerTrackView extends LinearLayout implements
         View.OnTouchListener,
         FetchModelTask.FetchModelListener<Track>,
@@ -80,6 +84,10 @@ public class PlayerTrackView extends LinearLayout implements
     private int mPlayPos;
     private long mDuration;
     private boolean mLandscape, mOnScreen;
+    private boolean mIsCommenting;
+
+    private View mTrackInfoOverlay;
+    private View mArtworkOverlay;
 
     public PlayerTrackView(ScPlayer player) {
         super(player);
@@ -103,6 +111,9 @@ public class PlayerTrackView extends LinearLayout implements
         } else {
             mLandscape = true;
         }
+
+        mTrackInfoOverlay = findViewById(R.id.track_info_overlay);
+        mArtworkOverlay   = findViewById(R.id.artwork_overlay);
 
         mAvatar = (ImageView) findViewById(R.id.icon);
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
@@ -134,10 +145,6 @@ public class PlayerTrackView extends LinearLayout implements
     public void setOnScreen(boolean onScreen){
         mOnScreen = onScreen;
         mWaveformController.setOnScreen(onScreen);
-    }
-
-    protected void toggleCommentMode() {
-        mPlayer.toggleCommentMode(mPlayPos);
     }
 
     public void setTrack(@Nullable Track track, int queuePosition, boolean forceUpdate, boolean priority) {
@@ -430,6 +437,7 @@ public class PlayerTrackView extends LinearLayout implements
 
     public void setCommentMode(boolean mIsCommenting) {
         getWaveformController().setCommentMode(mIsCommenting);
+
         if (mCommentButton != null) {
             if (mIsCommenting) {
                 mCommentButton.setImageResource(R.drawable.ic_commenting_states_v1);
@@ -437,7 +445,36 @@ public class PlayerTrackView extends LinearLayout implements
                 mCommentButton.setImageResource(R.drawable.ic_comment_states_v1);
             }
         }
+
+        if (mIsCommenting) {
+            mTrackInfoOverlay.setVisibility(VISIBLE);
+            runFadeInAnimationOn(mPlayer, mTrackInfoOverlay);
+
+            mArtworkOverlay.setVisibility(VISIBLE);
+            runFadeInAnimationOn(mPlayer, mArtworkOverlay);
+        } else {
+            runFadeOutAnimationOn(mPlayer, mTrackInfoOverlay);
+            attachVisibilityListener(mTrackInfoOverlay, GONE);
+
+            runFadeOutAnimationOn(mPlayer, mArtworkOverlay);
+            attachVisibilityListener(mArtworkOverlay, GONE);
+        }
     }
+
+    private static void attachVisibilityListener(final View target, final int visibility) {
+        target.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+            @Override public void onAnimationStart(Animation animation) {}
+            @Override public void onAnimationRepeat(Animation animation) {}
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                if (target.getAnimation() == animation){
+                    target.setVisibility(visibility);
+                    target.setEnabled(true);
+                }
+            }
+        });
+    }
+
 
     public int getPlayPosition() {
         return mPlayPos;
