@@ -143,6 +143,11 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         }
         mChangeTrackFast = false;
 
+        PlayerTrackView previous = (PlayerTrackView) mTrackWorkspace.getLastScreen();
+        previous.setCommentMode(false, false);
+        PlayerTrackView nex = (PlayerTrackView) mTrackWorkspace.getLastScreen();
+        previous.setCommentMode(false, false);
+
         invalidateOptionsMenu();
 
         final long prevTrackId;

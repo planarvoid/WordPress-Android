@@ -205,13 +205,28 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
     }
 
     void handleScreenChangeCompletion(int currentScreen) {
+        View oldScreen = getScreenAt(mCurrentScreen);
+        if (oldScreen != null && oldScreen instanceof WorkspaceContentView) {
+            WorkspaceContentView view = (WorkspaceContentView) oldScreen;
+            view.onDisappear();
+        }
+
         mCurrentScreen = currentScreen;
-        View screen = getScreenAt(mCurrentScreen);
-        if (screen != null) {
-            screen.requestFocus();
+
+        View newScreen = getScreenAt(mCurrentScreen);
+
+        if (oldScreen != null && newScreen instanceof WorkspaceContentView) {
+            WorkspaceContentView view = (WorkspaceContentView) newScreen;
+            view.onDisappear();
+        }
+
+        if (newScreen != null) {
+            newScreen.requestFocus();
             try {
-                ReflectionUtils.tryInvoke(screen, "dispatchDisplayHint",
-                        new Class[]{int.class}, View.VISIBLE);
+                ReflectionUtils.tryInvoke(newScreen,
+                                          "dispatchDisplayHint",
+                                          new Class[]{int.class},
+                                          View.VISIBLE);
                 invalidate();
             } catch (NullPointerException e) {
                 Log.e(TAG, "Caught NullPointerException", e);
