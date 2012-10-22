@@ -92,6 +92,8 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
     private int mPagingTouchSlop;
     private int mMaximumVelocity;
 
+    private int mCombinedWidth;
+
     private int initialSlop;
 
     private static final int INVALID_POINTER = -1;
@@ -376,6 +378,8 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
                 childLeft += childWidth;
             }
         }
+
+        mCombinedWidth = childLeft;
 
         mHasLaidOut = true;
         if (mDeferredScreenChange >= 0) {
@@ -675,7 +679,7 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
 
                     final View lastChild = getChildAt(getChildCount() - 1);
                     if (lastChild != null){
-                        final int maxScrollX = lastChild.getRight() - getWidth();
+                        final int maxScrollX = mCombinedWidth - getWidth();
                         scrollTo(Math.max(0, Math.min(maxScrollX,
                                 (int) (mDownScrollX + mDownMotionX - (x + initialSlop)))), 0);
                     }
@@ -787,11 +791,12 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
     }
 
     private void setImageLoaderState(){
+        /*
         if (mTouchState != TOUCH_STATE_SCROLLING){
             ImageLoader.get(getContext()).unblock(this);
         } else {
             ImageLoader.get(getContext()).block(this);
-        }
+        }*/
 
     }
 
@@ -1189,13 +1194,12 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
         final int screenWidth = getScrollWidth();
 
         if (mActivePointerId != INVALID_POINTER){
-            mDownMotionX = mDownMotionX + screenWidth;
             mDownScrollX = mDownScrollX + screenWidth;
         }
 
-        setCurrentScreenNow(mCurrentScreen+1);
         removeViewFromBack();
         addViewToFront(v);
+        setCurrentScreenNow(mCurrentScreen,false);
 
         return v;
     }
@@ -1208,13 +1212,12 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
         final int screenWidth = getScrollWidth();
 
         if (mActivePointerId != INVALID_POINTER){
-            mDownMotionX = mDownMotionX - screenWidth;
             mDownScrollX = mDownScrollX - screenWidth;
         }
 
-        setCurrentScreenNow(mCurrentScreen-1);
         removeViewFromFront();
         addViewToBack(v);
+        setCurrentScreenNow(mCurrentScreen,false);
 
         return v;
     }

@@ -236,9 +236,9 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     private void updateArtwork(boolean postAtFront) {
+        ImageLoader.get(getContext()).unbind(mArtwork);
         if (TextUtils.isEmpty(mTrack.getArtwork())) {
             // no artwork
-            ImageLoader.get(getContext()).unbind(mArtwork);
             mArtwork.setVisibility(View.INVISIBLE);
         } else {
             // executeAppendTask artwork as necessary

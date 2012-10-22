@@ -863,7 +863,6 @@ public class UserBrowser extends ScListActivity implements
             followItem.setTitle(getResources().getString(following ? R.string.action_bar_unfollow : R.string.action_bar_follow));
 
             SoundRecorder soundRecorder = SoundRecorder.getInstance(this);
-            Log.i("asdf","IS RECORDING?? " + soundRecorder.isRecording());
             if (soundRecorder.isRecording() && !(soundRecorder.getRecording().getRecipient() == mUser)) {
                 menu.removeItem(R.id.action_bar_private_message);
             }
@@ -902,7 +901,6 @@ public class UserBrowser extends ScListActivity implements
     private final BroadcastReceiver mRecordListener = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.i("asdf","FFFFAAAAAAAAAA");
                 invalidateOptionsMenu();
             }
     };
