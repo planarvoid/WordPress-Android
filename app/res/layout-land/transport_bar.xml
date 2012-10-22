@@ -26,26 +26,4 @@
                      style="@style/btn_sc_transparent"
                      android:src="@drawable/ic_next_states"/>
     </RelativeLayout>
-    <RelativeLayout android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content">
-        <View android:background="?android:attr/listDivider"
-              android:layout_marginTop="5dip"
-              android:layout_marginBottom="5dip"
-              android:layout_alignParentLeft="true"
-              android:layout_height="fill_parent"
-              android:layout_width="1px" />
-        <ImageButton android:id="@+id/btn_favorite"
-                     android:layout_centerInParent="true"
-                     style="@style/btn_sc_transparent"
-                     android:src="@drawable/ic_like_states"/>
-    </RelativeLayout>
-    <RelativeLayout android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content">
-        <ImageButton android:id="@+id/btn_comment"
-                     android:layout_centerInParent="true"
-                     style="@style/btn_sc_transparent"
-                     android:src="@drawable/ic_comment_states"/>
-    </RelativeLayout>
 </merge>

@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.provider.Content;
 
@@ -15,5 +16,10 @@ public class Stream extends ScListActivity {
             getSupportFragmentManager().beginTransaction()
                     .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_SOUND_STREAM)).commit();
         }
+    }
+
+    @Override
+    protected int getSelectedMenuId() {
+        return R.id.nav_stream;
     }
 }

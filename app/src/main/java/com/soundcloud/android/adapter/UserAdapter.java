@@ -29,6 +29,11 @@ public class UserAdapter extends ScBaseAdapter<User> implements FollowStatus.Lis
     }
 
     @Override
+    protected Uri getPlayableUri() {
+        return null;
+    }
+
+    @Override
     public void onChange(boolean success, FollowStatus status) {
         notifyDataSetChanged();
     }

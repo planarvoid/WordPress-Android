@@ -1,14 +1,11 @@
 package com.soundcloud.android.activity;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.fragment.ScSearchFragment;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.view.ClearText;
-import com.soundcloud.android.view.ScListView;
 
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +14,6 @@ import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -39,8 +35,8 @@ public class ScSearch extends ScListActivity {
     private Search mCurrentSearch;
     private ScSearchFragment mSearchFragment;
 
-    public static String EXTRA_SEARCH_TYPE = "search_type";
-    public static String EXTRA_QUERY = "query";
+    public static final String EXTRA_SEARCH_TYPE = "search_type";
+    public static final String EXTRA_QUERY = "query";
 
     @Override
     public void onCreate(Bundle state) {
@@ -93,11 +89,14 @@ public class ScSearch extends ScListActivity {
 
             final Intent intent = getIntent();
             if (intent.hasExtra(EXTRA_QUERY)) {
-                perform(new Search(intent.getCharSequenceExtra(EXTRA_QUERY).toString(), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.SOUNDS)));
+                perform(new Search(intent.getCharSequenceExtra(EXTRA_QUERY).toString(), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL)));
             }
         }
+    }
 
-
+    @Override
+    protected int getSelectedMenuId() {
+        return -1;
     }
 
 
@@ -113,8 +112,14 @@ public class ScSearch extends ScListActivity {
     }
 
     private Search getSearch() {
-        return new Search(mTxtQuery.getText().toString(), mSpinner.getSelectedItemId() < 2 ?
-                Search.SOUNDS : Search.USERS);
+        switch (mSpinner.getSelectedItemPosition()) {
+            case 1:
+                return new Search(mTxtQuery.getText().toString(), Search.SOUNDS);
+            case 2:
+                return new Search(mTxtQuery.getText().toString(), Search.USERS);
+            default:
+                return new Search(mTxtQuery.getText().toString(), Search.ALL);
+        }
     }
 
     boolean perform(final Search search) {
@@ -125,18 +130,17 @@ public class ScSearch extends ScListActivity {
         switch (search.search_type) {
             case Search.SOUNDS:
                 mSpinner.setSelection(1);
-                //configureAdapter(mSoundAdpWrapper, search);
                 track(Page.Search_results__sounds__keyword, search.query);
                 break;
 
             case Search.USERS:
                 mSpinner.setSelection(2);
-                //configureAdapter(mUserAdpWrapper, search);
                 track(Page.Search_results__people__keyword, search.query);
                 break;
             default:
-                Log.w(TAG, "unknown search type " + search.search_type);
-                return false;
+                mSpinner.setSelection(0);
+                track(Page.Search_results__all__keyword, search.query);
+                break;
         }
 
         mSearchFragment.setCurrentSearch(search);

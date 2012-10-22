@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-
     <style name="Theme.Next" parent="@style/Theme.Sherlock.Light.DarkActionBar">
+        <item name="android:background">@null</item>
+
         <item name="actionBarItemBackground">@drawable/selectable_background_next</item>
         <item name="popupMenuStyle">@style/next_PopupMenu</item>
         <item name="dropDownListViewStyle">@style/next_DropDownListView</item>
@@ -15,22 +16,27 @@
         <item name="android:dropDownListViewStyle">@style/next_DropDownListView</item>
         <item name="android:actionBarTabStyle">@style/next_ActionBarTabStyle</item>
         <item name="android:actionDropDownStyle">@style/next_DropDownNav</item>
-        <item name="android:actionBarStyle">@style/next_solid_ActionBar</item>
-        <item name="android:panelBackground">@drawable/menu_hardkey_panel_next</item>
+
+        <!-- Compatibility issues when this is set. Check on more devices -->
+        <!--<item name="android:panelBackground">@drawable/menu_hardkey_panel_next</item>-->
 
         <!-- Light.DarkActionBar specific -->
         <item name="actionBarWidgetTheme">@style/Theme.next.widget</item>
         <item name="android:actionBarWidgetTheme">@style/Theme.next.widget</item>
-        <item name="spinnerDropDownItemStyle">@style/next_DropDownItem</item>
+
+        <!-- Using these spinners overrides all app spinners. Use default spinners for now, come back to this -->
+        <!--<item name="spinnerDropDownItemStyle">@style/next_DropDownItem</item>
         <item name="android:spinnerDropDownItemStyle">@style/next_DropDownItem</item>
         <item name="spinnerItemStyle">@style/next_SpinnerItem</item>
-        <item name="android:spinnerItemStyle">@style/next_SpinnerItem</item>
+        <item name="android:spinnerItemStyle">@style/next_SpinnerItem</item>-->
 
         <item name="ptrLoadingProgressStyle">@style/ScProgressBarHolo</item>
         <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
 
     </style>
+
+
 
     <style name="Theme.Next.NoActionBar" parent="Theme.Sherlock.NoActionBar"/>
     <style name="Theme.ScDialog" parent="android:Theme.Dialog"/>
@@ -54,15 +60,10 @@
     </style>
 
     <style name="next_solid_ActionBar" parent="@style/Widget.Sherlock.Light.ActionBar.Solid.Inverse">
-        <item name="background">@drawable/ab_solid_next</item>
+        <item name="android:background">@drawable/action_bar_background</item>
         <item name="backgroundStacked">@drawable/ab_stacked_solid_next</item>
         <item name="backgroundSplit">@drawable/ab_bottom_solid_next</item>
         <item name="progressBarStyle">@style/next_ProgressBar</item>
-
-        <item name="android:background">@drawable/ab_solid_next</item>
-        <item name="android:backgroundStacked">@drawable/ab_stacked_solid_next</item>
-        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_next</item>
-        <item name="android:progressBarStyle">@style/next_ProgressBar</item>
     </style>
 
     <style name="next_transparent_ActionBar" parent="@style/Widget.Sherlock.ActionBar">

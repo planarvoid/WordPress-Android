@@ -57,7 +57,7 @@ public class ScListFragment extends SherlockListFragment
     private @NotNull EmptyCollection mEmptyCollection;
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
-    private @NotNull Content mContent;
+    private @Nullable Content mContent;
     private @NotNull Uri mContentUri;
 
     private NetworkConnectivityListener connectivityListener;
@@ -113,7 +113,7 @@ public class ScListFragment extends SherlockListFragment
         super.onActivityCreated(savedInstanceState);
 
         ScBaseAdapter<?> adapter;
-        if (getListAdapter() == null) {
+        if (getListAdapter() == null && mContent != null) {
             switch (mContent) {
                 case ME_SOUND_STREAM:
                 case ME_EXCLUSIVE_STREAM:
@@ -202,52 +202,6 @@ public class ScListFragment extends SherlockListFragment
         getListAdapter().handleListItemClick(position - getListView().getHeaderViewsCount(), id);
     }
 
-    //    @Override
-//    public void onListItemClick(ListView l, View v, int position, long id) {
-//        super.onListItemClick(l, v, position, id);
-//
-//
-//
-//                                final Activity e = (Activity) wrapper.getItem(position);
-//                                if (e.type == Activity.Type.FAVORITING) {
-//                                    SoundCloudApplication.TRACK_CACHE.put(e.getTrack(), false);
-//                                    startActivity(new Intent(ScListActivity.this, TrackFavoriters.class)
-//                                        .putExtra("track_id", e.getTrack().id));
-//                                } else {
-//                                    playTrack(wrapper.getPlayInfo(position));
-//                                }
-//                            }
-//                                if (wrapper.getItem(position) instanceof Track &&
-//                                        !((Track) wrapper.getItem(position)).state.isStreamable()){
-//
-//                                    showDialog(((Track) wrapper.getItem(position)).state.isFailed() ?
-//                                            Consts.Dialogs.DIALOG_TRANSCODING_FAILED :
-//                                            Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING);
-//                                } else {
-//                                    playTrack(wrapper.getPlayInfo(position));
-//                                }
-//
-//                    public void onUserClick(User user) {
-//                        Intent i = new Intent(ScListActivity.this, UserBrowser.class);
-//                        i.putExtra("user", user);
-//                        startActivity(i);
-//                    }
-//
-//                    @Override
-//                    public void onCommentClick(Comment comment) {
-//                        Intent i = new Intent(ScListActivity.this, UserBrowser.class);
-//                        i.putExtra("user", comment.user);
-//                        startActivity(i);
-//                    }
-//
-//                    @Override
-//                    public void onRecordingClick(final Recording recording) {
-//                        handleRecordingClick(recording);
-//                    }
-//
-//
-//    }
-
     public ScActivity getScActivity() {
         return (ScActivity) getActivity();
     }
@@ -294,10 +248,6 @@ public class ScListFragment extends SherlockListFragment
                 refresh(false);
             }
         }
-    }
-
-    public Uri getPlayableUri() {
-        return mContentInvalid ? null : mContentUri;
     }
 
     protected void requestSync() {
@@ -388,7 +338,7 @@ public class ScListFragment extends SherlockListFragment
     }
 
     public void executeRefreshTask() {
-        mEmptyCollection.setMode(mLocalCollection.hasSyncedBefore() ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.WAITING_FOR_SYNC);
+        mEmptyCollection.setMode(mLocalCollection == null || mLocalCollection.hasSyncedBefore() ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.WAITING_FOR_SYNC);
         mRefreshTask = buildTask();
         mRefreshTask.execute(getTaskParams(true));
     }
@@ -417,7 +367,7 @@ public class ScListFragment extends SherlockListFragment
 
 
     protected Request getRequest(boolean isRefresh) {
-        if (!mContent.hasRequest()) return null;
+        if (mContent == null || !mContent.hasRequest()) return null;
         return !(isRefresh) && !TextUtils.isEmpty(mNextHref) ? new Request(mNextHref) : mContent.request(mContentUri);
     }
 
@@ -460,6 +410,7 @@ public class ScListFragment extends SherlockListFragment
             setListAdapter(adp);
             adp.notifyDataSetChanged();
         }
+        mNextHref = "";
         mKeepGoing = true;
         clearRefreshTask();
         clearUpdateTask();
@@ -483,6 +434,7 @@ public class ScListFragment extends SherlockListFragment
 
     protected boolean handleResponseCode(int responseCode) {
         switch (responseCode) {
+            case HttpStatus.SC_CONTINUE: // do nothing
             case HttpStatus.SC_OK: // do nothing
             case HttpStatus.SC_NOT_MODIFIED:
                 return true;
@@ -520,6 +472,7 @@ public class ScListFragment extends SherlockListFragment
     @Override
     public void onPostTaskExecute(ReturnData data) {
         mKeepGoing = data.keepGoing;
+        if (data.success) mNextHref = data.nextHref;
         getListAdapter().handleTaskReturnData(data);
 
         if (data.wasRefresh && !waitingOnInitialSync()) doneRefreshing();

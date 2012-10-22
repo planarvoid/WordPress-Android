@@ -123,53 +123,6 @@ public class PlayerTrackView extends LinearLayout implements
 
         findViewById(R.id.private_indicator).setVisibility(View.GONE);
 
-        if (findViewById(R.id.btn_info) != null) {
-            findViewById(R.id.btn_info).setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    onTrackInfoFlip();
-                }
-            });
-        }
-
-        if (findViewById(R.id.btn_share) != null) {
-            findViewById(R.id.btn_share).setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    if (mTrack != null) {
-                        mPlayer.track(Click.Share_main, mTrack);
-
-                        Intent intent = mTrack.getShareIntent();
-                        if (intent != null) {
-                            mPlayer.track(Page.Sounds_share, mTrack);
-
-                            getContext().startActivity(Intent.createChooser(intent,
-                                getContext().getString(R.string.share_track, mTrack.title)));
-                        }
-                    }
-                }
-            });
-        }
-
-        mCommentButton = (ImageButton) findViewById(R.id.btn_comment);
-        if (mCommentButton != null) {
-            mCommentButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    toggleCommentMode();
-                    mPlayer.track(Click.Comment, mTrack);
-
-                }
-            });
-
-            mLikeButton = (ImageButton) findViewById(R.id.btn_favorite);
-            mLikeButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    if (mTrack != null) {
-                        mPlayer.toggleLike(mTrack);
-                        mPlayer.track(Click.Like, mTrack);
-                    }
-                }
-            });
-        }
-
         ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
         mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
         mWaveformController.setPlayerTrackView(this);

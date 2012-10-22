@@ -87,6 +87,7 @@ public class EmptyCollection extends FrameLayout {
                     findViewById(R.id.txt_sync).setVisibility(View.GONE);
                     break;
                 case IDLE:
+
                     mEmptyLayout.setVisibility(View.VISIBLE);
                     mSyncLayout.setVisibility(View.GONE);
                     break;

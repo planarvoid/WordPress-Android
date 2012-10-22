@@ -84,6 +84,11 @@ public class ScUpload extends ScActivity {
     }
 
     @Override
+    protected int getSelectedMenuId() {
+        return -1;
+    }
+
+    @Override
     public void setContentView(int layoutId) {
         super.setContentView(layoutId);
         mRecordingMetadata = (RecordingMetaData) findViewById(R.id.metadata_layout);

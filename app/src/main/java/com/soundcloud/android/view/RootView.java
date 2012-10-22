@@ -26,6 +26,9 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Scroller;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 public class RootView extends ViewGroup {
     static String TAG = RootView.class.getSimpleName();
 
@@ -56,6 +59,7 @@ public class RootView extends ViewGroup {
     public static final String EXTRA_ROOT_VIEW_STATE = "fim_menu_state";
     private static final String KEY_MENU_STATE = "menuState_key";
     private static final String STATE_KEY = "state_key";
+    public static final int MENU_TARGET_WIDTH = 400;
 
     private MainMenu mMenu;
     private @Nullable View mPlayer;
@@ -85,7 +89,7 @@ public class RootView extends ViewGroup {
     private final int mMaximumAcceleration;
     private final int mVelocityUnits;
 
-    private final int mOffsetRight;
+    private int mOffsetRight;
     private final int mOffsetLeft;
     private final int mDrowShadoWidth;
     private final int mBezelHitWidth;
@@ -133,8 +137,9 @@ public class RootView extends ViewGroup {
      * and ideas credited to http://android.cyrilmottier.com/?p=658
      *
      * @param context
+     * @param selectedMenuId
      */
-    public RootView(Context context) {
+    public RootView(Context context, int selectedMenuId) {
         super(context, null, 0);
 
         View.inflate(context, R.layout.root_view, this);
@@ -144,20 +149,26 @@ public class RootView extends ViewGroup {
         setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
         mMenu = (MainMenu) findViewById(R.id.root_menu);
+        mMenu.setSelectedMenuId(selectedMenuId);
+
         mContent = (ViewGroup) findViewById(R.id.content_frame);
+        mContent.setBackgroundColor(Color.WHITE);
         //mPlayer = findViewById(R.id.player_frame);
 
         mScroller = new Scroller(context,new DecelerateInterpolator());
 
         final float density = getResources().getDisplayMetrics().density;
+
         mMaximumMinorVelocity = (int) (MAXIMUM_MINOR_VELOCITY * density + 0.5f);
         mMaximumMajorVelocity = (int) (MAXIMUM_MAJOR_VELOCITY * density + 0.5f);
-        mMaximumAcceleration = (int) (MAXIMUM_ACCELERATION * density + 0.5f);
-        mVelocityUnits = (int) (VELOCITY_UNITS * density + 0.5f);
+        mMaximumAcceleration  = (int) (MAXIMUM_ACCELERATION * density + 0.5f);
+        mVelocityUnits        = (int) (VELOCITY_UNITS * density + 0.5f);
 
-        mOffsetRight = (int) (OFFSET_RIGHT * density + 0.5f);
-        mOffsetLeft = (int) (OFFSET_LEFT * density + 0.5f);
+        mOffsetRight   = (int) (OFFSET_RIGHT * density + 0.5f);
+        mOffsetLeft    = (int) (OFFSET_LEFT * density + 0.5f);
         mBezelHitWidth = (int) (BEZEL_HIT_WIDTH * density + 0.5f);
+
+        mMenu.setOffsetRight(mOffsetRight);
 
         mOverlayPaint = new Paint();
         mOverlayPaint.setColor(Color.BLACK);
@@ -168,7 +179,7 @@ public class RootView extends ViewGroup {
 
         mExpandedState = COLLAPSED_FULL_CLOSED;
 
-        setBackgroundColor(getContext().getResources().getColor(android.R.color.background_dark));
+        setBackgroundColor(getResources().getColor(R.color.main_menu_bg));
         setAlwaysDrawnWithCacheEnabled(false);
     }
 
@@ -282,7 +293,7 @@ public class RootView extends ViewGroup {
         }
 
         if (mMenu != null){
-            int width = widthSpecSize - mOffsetRight;
+            int width = widthSpecSize;
             mMenu.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(heightSpecSize, MeasureSpec.EXACTLY));
         }
@@ -297,6 +308,12 @@ public class RootView extends ViewGroup {
         mShadowRightDrawable.setBounds(0, 0, mDrowShadoWidth, getHeight());
 
         setMeasuredDimension(widthSpecSize, heightSpecSize);
+
+        final float density = getResources().getDisplayMetrics().density;
+        mOffsetRight = (int) max(widthSpecSize - MENU_TARGET_WIDTH * density + 0.5f,
+                                 OFFSET_RIGHT * density + 0.5f);
+
+        mMenu.setOffsetRight(mOffsetRight);
 
         // since we are measured we can now find a proper expanded position if necessary
         setExpandedState();
@@ -325,7 +342,8 @@ public class RootView extends ViewGroup {
             if (mContent.getLeft() > 0){
 
                 // menu
-                final int offset = (int) (-closedRatio * mMenu.getWidth() * PARALLAX_SPEED_RATIO) - mMenu.getLeft();
+                final int left = mMenu.getLeft();
+                final int offset = Math.min(-left, (int) (-closedRatio * mMenu.getWidth() * PARALLAX_SPEED_RATIO) - left);
                 mMenu.offsetLeftAndRight(offset);
                 drawChild(canvas, mMenu, drawingTime);
 
@@ -368,7 +386,6 @@ public class RootView extends ViewGroup {
             }
 
         } else {
-            canvas.drawColor(Color.WHITE);
             drawChild(canvas, mContent, drawingTime);
         }
     }
@@ -378,9 +395,12 @@ public class RootView extends ViewGroup {
         if (mTracking) {
             return;
         }
-        mMenu.layout(0, 0, getWidth() - mOffsetRight, getHeight());
-        mContent.layout(mContent.getLeft(), 0, mContent.getLeft() + getWidth(), getHeight());
-        if (mPlayer != null) mPlayer.layout(0, 0, getWidth() - mOffsetLeft, getHeight());
+
+        final int width = getWidth();
+        final int height = getHeight();
+        mMenu.layout(0, 0, width, height);
+        mContent.layout(mContent.getLeft(), 0, mContent.getLeft() + width, height);
+        if (mPlayer != null) mPlayer.layout(0, 0, width - mOffsetLeft, height);
     }
 
 
@@ -620,9 +640,9 @@ public class RootView extends ViewGroup {
             mHandler.sendMessageAtTime(mHandler.obtainMessage(MSG_ANIMATE), SystemClock.uptimeMillis() + ANIMATION_FRAME_DURATION);
         } else {
             if (mAnimating && mScroller.isFinished()) {
-                if (mContent.getLeft() >= getWidth() / 2) {
+                if (mContent.getLeft() >= (getWidth() - mOffsetRight) / 2) {
                     openLeft();
-                } else if (mContent.getRight() < getWidth() / 2 && canOpenRight()) {
+                } else if (mContent.getRight() < (getWidth() - mOffsetLeft) / 2 && canOpenRight()) {
                     openRight();
                 } else {
                     setClosed();

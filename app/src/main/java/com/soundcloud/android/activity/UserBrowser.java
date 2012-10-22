@@ -16,7 +16,6 @@ import com.soundcloud.android.cache.ParcelCache;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.record.SoundRecorder;
@@ -35,7 +34,10 @@ import com.soundcloud.api.Request;
 import com.viewpagerindicator.TitlePageIndicator;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -43,13 +45,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -78,7 +81,6 @@ public class UserBrowser extends ScListActivity implements
     boolean mDisplayedInfo, mInfoError;
 
     private FrameLayout mInfoView;
-    private Button mFollowBtn, mFollowingBtn;
     private FetchUserTask mLoadUserTask;
     private boolean mUpdateInfo;
 
@@ -161,21 +163,6 @@ public class UserBrowser extends ScListActivity implements
             }
         });
 
-        mFollowBtn = (Button) findViewById(R.id.btn_followState);
-        mFollowingBtn = (Button) findViewById(R.id.btn_followingState);
-
-        mFollowBtn.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                follow(mUser);
-            }
-        });
-
-        mFollowingBtn.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                unfollow(mUser);
-            }
-        });
-
         mAdapter = new UserFragmentAdapter(getSupportFragmentManager());
 
                 mPager = (ViewPager) findViewById(R.id.pager);
@@ -231,6 +218,30 @@ public class UserBrowser extends ScListActivity implements
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // update action bar record option based on recorder status
+        invalidateOptionsMenu();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(SoundRecorder.RECORD_STARTED);
+        filter.addAction(SoundRecorder.RECORD_ERROR);
+        filter.addAction(SoundRecorder.RECORD_FINISHED);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRecordListener, filter);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRecordListener);
+    }
+
+
+    @Override
+    protected int getSelectedMenuId() {
+        return R.id.nav_you;
+    }
 
 
     class UserFragmentAdapter extends FragmentPagerAdapter {
@@ -350,7 +361,7 @@ public class UserBrowser extends ScListActivity implements
     }
 
     public void onChange(boolean success, FollowStatus status) {
-        setFollowingButton();
+        invalidateOptionsMenu();
     }
 
     private void trackScreen() {
@@ -571,38 +582,22 @@ public class UserBrowser extends ScListActivity implements
        return mUser != null && mUser.id == getCurrentUserId();
     }
 
-    private void toggleFollowing(User u) {
-            mFollowBtn.setEnabled(false);
-            mFollowingBtn.setEnabled(false);
+    private void toggleFollowing(User user) {
+        FollowStatus.get(this).toggleFollowing(user, getApp(), new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what != FollowStatus.FOLLOW_STATUS_SUCCESS) {
+                    invalidateOptionsMenu();
 
-            FollowStatus.get(this).toggleFollowing(u, getApp(), new Handler() {
-                @Override public void handleMessage(Message msg) {
-                    mFollowBtn.setEnabled(true);
-                    mFollowingBtn.setEnabled(true);
-
-                    if (msg.arg1 == 0) {
-                        setFollowingButton();
-                        showToast(R.string.error_change_following_status);
+                    if (msg.what == FollowStatus.FOLLOW_STATUS_SPAM) {
+                        AndroidUtils.showToast(UserBrowser.this, R.string.following_spam_warning);
+                    } else {
+                        AndroidUtils.showToast(UserBrowser.this, R.string.error_change_following_status);
                     }
                 }
-            });
-            setFollowingButton();
-        }
-
-
-    private void setFollowingButton() {
-        if (isOtherUser()) {
-            if (FollowStatus.get(this).isFollowing(mUser)) {
-                mFollowingBtn.setVisibility(View.VISIBLE);
-                mFollowBtn.setVisibility(View.INVISIBLE);
-            }  else {
-                mFollowingBtn.setVisibility(View.INVISIBLE);
-                mFollowBtn.setVisibility(View.VISIBLE);
             }
-        } else {
-            mFollowBtn.setVisibility(View.INVISIBLE);
-            mFollowingBtn.setVisibility(View.INVISIBLE);
-        }
+        });
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -647,7 +642,8 @@ public class UserBrowser extends ScListActivity implements
             mFollowerCount.setText(Integer.toString(user.followers_count));
         }
 
-        setFollowingButton();
+        invalidateOptionsMenu();
+
         if (user.shouldLoadIcon()) {
             if (mIconURL == null
                 || avatarResult == BindResult.ERROR
@@ -851,26 +847,62 @@ public class UserBrowser extends ScListActivity implements
         boolean infoError;
     }
 
+    private boolean isFollowing(){
+        return mUser != null && FollowStatus.get(this).isFollowing(mUser);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        SoundRecorder soundRecorder = SoundRecorder.getInstance(this);
-        if (!isMe() && (!soundRecorder.isRecording() || soundRecorder.getRecording().getRecipient() == mUser)) {
-            menu.add(menu.size(), Consts.OptionsMenu.PRIVATE_MESSAGE,
-                menu.size(), R.string.menu_private_message).setIcon(R.drawable.ic_options_menu_rec);
+        super.onCreateOptionsMenu(menu);
+
+        if (!isMe()){
+            MenuItem followItem = menu.findItem(R.id.action_bar_follow);
+            final boolean following = isFollowing();
+            followItem.setIcon(following ? R.drawable.ic_remove_user_white : R.drawable.ic_add_user_white);
+            followItem.setTitle(getResources().getString(following ? R.string.action_bar_unfollow : R.string.action_bar_follow));
+
+            SoundRecorder soundRecorder = SoundRecorder.getInstance(this);
+            Log.i("asdf","IS RECORDING?? " + soundRecorder.isRecording());
+            if (soundRecorder.isRecording() && !(soundRecorder.getRecording().getRecipient() == mUser)) {
+                menu.removeItem(R.id.action_bar_private_message);
+            }
+        } else {
+            menu.removeItem(R.id.action_bar_follow);
+            menu.removeItem(R.id.action_bar_private_message);
+
         }
-        return super.onCreateOptionsMenu(menu);
+        return true;
+    }
+
+    @Override
+    protected int getMenuResourceId() {
+        return R.menu.user_browser;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case Consts.OptionsMenu.PRIVATE_MESSAGE:
+            case R.id.action_bar_private_message:
                 Intent intent = new Intent(this, ScCreate.class);
                 intent.putExtra(ScCreate.EXTRA_PRIVATE_MESSAGE_RECIPIENT,mUser);
                 startActivity(intent);
                 return true;
+            case R.id.action_bar_follow:
+                if (mUser.user_following){
+                    follow(mUser);
+                } else {
+                    unfollow(mUser);
+                }
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    private final BroadcastReceiver mRecordListener = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.i("asdf","FFFFAAAAAAAAAA");
+                invalidateOptionsMenu();
+            }
+    };
 }

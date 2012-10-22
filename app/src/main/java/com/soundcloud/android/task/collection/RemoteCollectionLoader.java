@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import org.apache.http.HttpResponse;
@@ -14,6 +15,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RemoteCollectionLoader<T extends ScResource> extends CollectionLoader<T> {
 
@@ -31,6 +34,13 @@ public class RemoteCollectionLoader<T extends ScResource> extends CollectionLoad
 
             final String nextHref = TextUtils.isEmpty(holder.next_href) ? null : holder.next_href;
             holder.resolve(app.getContext());
+
+            // suppress playlists for now
+            List<ScResource> toRemove = new ArrayList<ScResource>();
+            for (ScResource resource : holder){
+                if (resource instanceof Playlist) toRemove.add(resource);
+            }
+            holder.collection.removeAll(toRemove);
 
             return new ReturnData<T>(holder, params, nextHref, responseCode, !TextUtils.isEmpty(nextHref), true);
         } catch (IOException e) {

@@ -3,6 +3,7 @@ package com.soundcloud.android.cache;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -28,6 +29,10 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 public class FollowStatus {
+    public static  final int FOLLOW_STATUS_SUCCESS = 0;
+    public static  final int FOLLOW_STATUS_FAIL    = 1;
+    public static  final int FOLLOW_STATUS_SPAM    = 2;
+
     private final Set<Long> followings = Collections.synchronizedSet(new HashSet<Long>());
     private static FollowStatus sInstance;
     private WeakHashMap<Listener, Listener> listeners = new WeakHashMap<Listener, Listener>();
@@ -91,16 +96,26 @@ public class FollowStatus {
         final boolean addFollowing = toggleFollowing(user.id);
 
         return new AsyncApiTask<User,Void,Boolean>(app) {
+
+            int status;
+
             @Override
             protected Boolean doInBackground(User... params) {
                 User u = params[0];
                 final Request request = Request.to(Endpoints.MY_FOLLOWING, u.id);
                 try {
-                    final int status = (addFollowing ? app.put(request) : app.delete(request))
-                                      .getStatusLine().getStatusCode();
-                    return (status == HttpStatus.SC_OK ||
-                           status == HttpStatus.SC_CREATED ||
-                           status == HttpStatus.SC_NOT_FOUND);
+
+                    status = (addFollowing ? app.put(request) : app.delete(request)).getStatusLine().getStatusCode();
+                    final boolean success;
+                    if (addFollowing) {
+                        success = status == HttpStatus.SC_CREATED;
+                    } else {
+                        success = status == HttpStatus.SC_OK || status == HttpStatus.SC_NOT_FOUND;
+                    }
+                    if (!success) {
+                        Log.w(TAG, "error changing following status, resp=" + status);
+                    }
+                    return success;
 
                 } catch (IOException e) {
                     Log.e(TAG, "error", e);
@@ -111,18 +126,19 @@ public class FollowStatus {
             @Override
             protected void onPostExecute(Boolean success) {
                 if (success) {
+                    LocalCollection.forceToStale(Content.ME_FOLLOWINGS.uri, mContext.getContentResolver());
                     for (Listener l : listeners.keySet()) {
                         l.onChange(true, FollowStatus.this);
                     }
+                    if (handler != null) {
+                        Message.obtain(handler, FOLLOW_STATUS_SUCCESS).sendToTarget();
+                    }
                 } else {
                     updateFollowing(user.id, !addFollowing); // revert state change
-                }
 
-                if (handler != null) {
-                    Message m = Message.obtain();
-                    if (m == null) m = new Message(); /* needed for robolectric */
-                    m.arg1 = success ? 1 : 0;
-                    handler.sendMessage(m);
+                    if (handler != null) {
+                        Message.obtain(handler, status == 429 ? FOLLOW_STATUS_SPAM : FOLLOW_STATUS_FAIL).sendToTarget();
+                    }
                 }
             }
         }.execute(user);

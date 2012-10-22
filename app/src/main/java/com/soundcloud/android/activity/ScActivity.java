@@ -1,6 +1,5 @@
 package com.soundcloud.android.activity;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -12,7 +11,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.settings.Settings;
-import com.soundcloud.android.fragment.PlayerFragment;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
@@ -28,15 +26,13 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,7 +63,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         // Volume mode should always be music in this app
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-        mRootView = new RootView(this);
+        mRootView = new RootView(this, getSelectedMenuId());
         super.setContentView(mRootView);
 
 
@@ -79,7 +75,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     case R.id.nav_stream:
                         startNavActivity(Stream.class);
                         break;
-                    case R.id.nav_activity:
+                    case R.id.nav_news:
                         startNavActivity(News.class);
                         break;
                     case R.id.nav_you:
@@ -117,17 +113,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             }
         });
 
-        getSupportActionBar().setHomeButtonEnabled(true);
-
-        if (getApp().getLoggedInUser() != null) getSupportActionBar().setTitle(getApp().getLoggedInUser().username);
-
-        final ImageView homeImage = (ImageView) getWindow().getDecorView().findViewById(android.R.id.home);
-        if (homeImage != null) {
-            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams((int) getResources().getDimension(R.dimen.next_home_width), (int)getResources().getDimension(R.dimen.next_home_height));
-            lp.setMargins(0,0, (int) (getResources().getDisplayMetrics().density * 20),0);
-            homeImage.setLayoutParams(lp);
-            homeImage.setScaleType(ImageView.ScaleType.FIT_XY);
-        }
+        configureActionBar();
 
         if (savedInstanceState == null) {
             /*Fragment newFragment = new PlayerFragment();
@@ -135,6 +121,48 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             ft.add(mRootView.getPlayerHolderId(), newFragment).commit();*/
 
             handleIntent(getIntent());
+        }
+    }
+
+    protected abstract int getSelectedMenuId();
+
+    /**
+     * Basically, hack the action bar to make it look like next
+     */
+    private void configureActionBar() {
+
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        if (getApp().getLoggedInUser() != null) getSupportActionBar().setTitle(getApp().getLoggedInUser().username);
+
+        // configure home image to fill vertically
+        final float density = getResources().getDisplayMetrics().density;
+        ImageView homeImage = (ImageView) getWindow().getDecorView().findViewById(android.R.id.home);
+        if (homeImage == null){ // sherlock compatibility id
+            homeImage = (ImageView) getWindow().getDecorView().findViewById(R.id.abs__home);
+        }
+        if (homeImage != null) {
+
+            ViewGroup parent = (ViewGroup) homeImage.getParent();
+            parent.setBackgroundDrawable(getResources().getDrawable(R.drawable.logo_states));
+
+            final int paddingVert = (int) (13 * density);
+            final int paddingHor = (int) (5 * density);
+            homeImage.setPadding(paddingHor, paddingVert, paddingHor, paddingVert);
+            homeImage.setLayoutParams(new FrameLayout.LayoutParams((int) getResources().getDimension(R.dimen.next_home_width), ViewGroup.LayoutParams.MATCH_PARENT));
+            homeImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        }
+
+        // configure title for extra spacing
+        int titleId = Resources.getSystem().getIdentifier("action_bar_title", "id", "android");
+        View title = getWindow().getDecorView().findViewById(titleId);
+        if (title == null){ // sherlock compatibility id
+            title = getWindow().getDecorView().findViewById(R.id.abs__action_bar_title);
+        }
+        if (title != null){
+            ViewGroup parent = (ViewGroup) title.getParent();
+            parent.setPadding((int) (parent.getPaddingLeft() + density * 10),
+                    parent.getPaddingTop(), parent.getPaddingRight(), parent.getPaddingBottom());
         }
     }
 
@@ -315,7 +343,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getSupportMenuInflater();
-        inflater.inflate(R.menu.main, menu);
+        inflater.inflate(getMenuResourceId(), menu);
 
         if (mNowPlaying != null) {
             mNowPlaying.destroy();
@@ -328,12 +356,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         if (this instanceof ScPlayer) {
             menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
                     R.drawable.ic_menu_refresh);
-        } else {
-            menu.add(menu.size(), Consts.OptionsMenu.VIEW_CURRENT_TRACK,
-                    menu.size(), R.string.menu_view_current_track).setIcon(R.drawable.ic_menu_player);
         }
-
         return true;
+    }
+
+    protected int getMenuResourceId(){
+        return R.menu.main;
     }
 
     @Override
@@ -341,12 +369,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         switch (item.getItemId()) {
             case android.R.id.home:
                 mRootView.animateToggleMenu();
-                return true;
-            case R.id.menu_my_info:
-                startNavActivity(UserBrowser.class);
-                return true;
-            case Consts.OptionsMenu.VIEW_CURRENT_TRACK:
-                startNavActivity(ScPlayer.class);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
