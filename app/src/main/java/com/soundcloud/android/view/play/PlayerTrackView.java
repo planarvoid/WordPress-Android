@@ -433,8 +433,6 @@ public class PlayerTrackView extends LinearLayout implements
         return null;
     }
 
-
-
     public void setCommentMode(boolean mIsCommenting) {
         getWaveformController().setCommentMode(mIsCommenting);
 

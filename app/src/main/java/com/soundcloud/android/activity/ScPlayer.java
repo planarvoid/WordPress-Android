@@ -192,7 +192,6 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         return mShouldShowComments;
     }
 
-
     public long setSeekMarker(float seekPercent) {
         if (mPlaybackService != null) {
             if (!mPlaybackService.isSeekable()) {
