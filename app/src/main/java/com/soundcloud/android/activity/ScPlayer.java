@@ -131,8 +131,8 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
 
     @Override
     public void onScreenChanged(View newScreen, int newScreenIndex) {
-
         if (newScreen == null) return;
+
         final int newQueuePos = ((PlayerTrackView) newScreen).getPlayPosition();
 
         mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
