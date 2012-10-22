@@ -433,7 +433,11 @@ public class PlayerTrackView extends LinearLayout implements
         return null;
     }
 
-    public void setCommentMode(boolean mIsCommenting) {
+    public void setCommentMode(boolean  mIsCommenting) {
+        setCommentMode(mIsCommenting, true);
+    }
+
+    public void setCommentMode(boolean mIsCommenting, boolean animated) {
         getWaveformController().setCommentMode(mIsCommenting);
 
         if (mCommentButton != null) {
@@ -444,18 +448,24 @@ public class PlayerTrackView extends LinearLayout implements
             }
         }
 
-        if (mIsCommenting) {
-            mTrackInfoOverlay.setVisibility(VISIBLE);
-            runFadeInAnimationOn(mPlayer, mTrackInfoOverlay);
+        if (animated) {
+            if (mIsCommenting) {
+                mTrackInfoOverlay.setVisibility(VISIBLE);
+                runFadeInAnimationOn(mPlayer, mTrackInfoOverlay);
 
-            mArtworkOverlay.setVisibility(VISIBLE);
-            runFadeInAnimationOn(mPlayer, mArtworkOverlay);
+                mArtworkOverlay.setVisibility(VISIBLE);
+                runFadeInAnimationOn(mPlayer, mArtworkOverlay);
+            } else {
+                runFadeOutAnimationOn(mPlayer, mTrackInfoOverlay);
+                attachVisibilityListener(mTrackInfoOverlay, GONE);
+
+                runFadeOutAnimationOn(mPlayer, mArtworkOverlay);
+                attachVisibilityListener(mArtworkOverlay, GONE);
+            }
         } else {
-            runFadeOutAnimationOn(mPlayer, mTrackInfoOverlay);
-            attachVisibilityListener(mTrackInfoOverlay, GONE);
-
-            runFadeOutAnimationOn(mPlayer, mArtworkOverlay);
-            attachVisibilityListener(mArtworkOverlay, GONE);
+            int visibility = mIsCommenting ? VISIBLE : GONE;
+            mTrackInfoOverlay.setVisibility(visibility);
+            mArtworkOverlay.setVisibility(visibility);
         }
     }
 
