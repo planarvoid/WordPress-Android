@@ -16,10 +16,12 @@
 
 package com.soundcloud.android.view;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -204,17 +206,29 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
         return w;
     }
 
+    @TargetApi(8)
     void handleScreenChangeCompletion(int currentScreen) {
+        View oldScreen = getScreenAt(mCurrentScreen);
+        if (oldScreen != null && oldScreen instanceof WorkspaceContentView) {
+            WorkspaceContentView view = (WorkspaceContentView) oldScreen;
+            view.onDisappear();
+        }
+
         mCurrentScreen = currentScreen;
-        View screen = getScreenAt(mCurrentScreen);
-        if (screen != null) {
-            screen.requestFocus();
-            try {
-                ReflectionUtils.tryInvoke(screen, "dispatchDisplayHint",
-                        new Class[]{int.class}, View.VISIBLE);
-                invalidate();
-            } catch (NullPointerException e) {
-                Log.e(TAG, "Caught NullPointerException", e);
+
+        View newScreen = getScreenAt(mCurrentScreen);
+
+        if (oldScreen != null && newScreen instanceof WorkspaceContentView) {
+            WorkspaceContentView view = (WorkspaceContentView) newScreen;
+            view.onDisappear();
+        }
+
+        if (newScreen != null) {
+            newScreen.requestFocus();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO && newScreen instanceof ViewGroup) {
+                ViewGroup group = (ViewGroup) newScreen;
+                group.dispatchDisplayHint(View.VISIBLE);
             }
         }
         notifyScreenChangeListener(mCurrentScreen, true);
