@@ -8,7 +8,8 @@
                     android:paddingTop="@dimen/search_header_padding_topbottom"
                     android:paddingBottom="@dimen/search_header_padding_topbottom"
                     android:paddingLeft="@dimen/search_header_padding_leftright"
-                    android:paddingRight="@dimen/search_header_padding_leftright">
+                    android:paddingRight="@dimen/search_header_padding_leftright"
+                    android:background="@drawable/menu_item_background">
 
         <LinearLayout android:id="@+id/root_menu_focus_catcher"
                       android:focusable="true"
