@@ -16,10 +16,12 @@
 
 package com.soundcloud.android.view;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -204,6 +206,7 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
         return w;
     }
 
+    @TargetApi(8)
     void handleScreenChangeCompletion(int currentScreen) {
         View oldScreen = getScreenAt(mCurrentScreen);
         if (oldScreen != null && oldScreen instanceof WorkspaceContentView) {
@@ -222,14 +225,10 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
 
         if (newScreen != null) {
             newScreen.requestFocus();
-            try {
-                ReflectionUtils.tryInvoke(newScreen,
-                                          "dispatchDisplayHint",
-                                          new Class[]{int.class},
-                                          View.VISIBLE);
-                invalidate();
-            } catch (NullPointerException e) {
-                Log.e(TAG, "Caught NullPointerException", e);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO && newScreen instanceof ViewGroup) {
+                ViewGroup group = (ViewGroup) newScreen;
+                group.dispatchDisplayHint(View.VISIBLE);
             }
         }
         notifyScreenChangeListener(mCurrentScreen, true);
