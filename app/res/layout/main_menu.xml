@@ -38,6 +38,6 @@
     <ListView android:id="@+id/root_menu_list"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:cacheColorHint="@color/main_menu_bg"
-              android:background="@color/main_menu_bg"/>
+              android:cacheColorHint="#222222"
+              android:background="#222222"/>
 </merge>
