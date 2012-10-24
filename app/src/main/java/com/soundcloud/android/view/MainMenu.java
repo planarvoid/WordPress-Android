@@ -299,8 +299,8 @@ public class MainMenu extends LinearLayout {
                     convertView.setBackgroundResource(R.drawable.sidebar_item_background);
                 }
 
-                int paddingTopBottom = (int) getResources().getDimension(R.dimen.search_header_padding_topbottom);
-                int paddingLeftRight = (int) getResources().getDimension(R.dimen.search_header_padding_leftright);
+                int paddingTopBottom = (int) getResources().getDimension(R.dimen.slm_item_padding_topbottom);
+                int paddingLeftRight = (int) getResources().getDimension(R.dimen.slm_item_padding_leftright);
                 convertView.setPadding(paddingLeftRight, paddingTopBottom, paddingLeftRight, paddingTopBottom);
             } else {
                 holder = (ViewHolder) convertView.getTag();

@@ -9,7 +9,7 @@
                     android:paddingBottom="@dimen/search_header_padding_topbottom"
                     android:paddingLeft="@dimen/search_header_padding_leftright"
                     android:paddingRight="@dimen/search_header_padding_leftright"
-                    android:background="@drawable/menu_item_background">
+                    android:background="@drawable/search_background">
 
         <LinearLayout android:id="@+id/root_menu_focus_catcher"
                       android:focusable="true"
@@ -40,5 +40,9 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:cacheColorHint="#222222"
-              android:background="#222222"/>
+              android:background="#222222"
+              android:headerDividersEnabled="true"
+              android:footerDividersEnabled="true"
+              android:dividerHeight="1px"
+              android:divider="#333333"/>
 </merge>
