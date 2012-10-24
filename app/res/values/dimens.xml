@@ -91,7 +91,7 @@
     <dimen name="slm_search_item_text_padding_right">30dp</dimen>
     <dimen name="slm_search_item_icon_padding_right">5dp</dimen>
 
-    <dimen name="search_header_padding_topbottom">16dp</dimen>
+    <dimen name="search_header_padding_topbottom">10dp</dimen>
     <dimen name="search_header_padding_leftright">8dp</dimen>
 
 </resources>
