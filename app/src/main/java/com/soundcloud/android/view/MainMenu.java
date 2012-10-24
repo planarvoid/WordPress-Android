@@ -92,7 +92,10 @@ public class MainMenu extends LinearLayout {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (mClickListener != null) {
                     if (!mInSearchMode) {
-                        mClickListener.onMenuItemClicked(((SimpleListMenuItem) mMenuAdapter.getItem(position - mList.getHeaderViewsCount())).id);
+                        final int itemId = ((SimpleListMenuItem) mMenuAdapter.getItem(position - mList.getHeaderViewsCount())).id;
+                        if (mSelectedMenuId != itemId) {
+                            mClickListener.onMenuItemClicked(itemId);
+                        }
                     } else if (parent.getAdapter() == mSuggestionsAdapter){
                         switch (mSuggestionsAdapter.getItemViewType(position)){
                             case SearchSuggestionsAdapter.TYPE_TRACK:
