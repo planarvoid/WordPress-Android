@@ -6,13 +6,13 @@
         </shape>
     </item>
 
-    <item android:bottom="1dp">
+    <item android:bottom="1px">
         <shape android:shape="rectangle">
             <solid android:color="#101010" />
         </shape>
     </item>
 
-    <item android:bottom="3dp">
+    <item android:bottom="3px">
         <shape android:shape="rectangle">
             <solid android:color="#222222" />
         </shape>
