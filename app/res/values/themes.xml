@@ -19,6 +19,8 @@
         <item name="actionBarTabStyle">@style/next_ActionBarTabStyle</item>
         <item name="android:actionDropDownStyle">@style/next_DropDownNav</item>
 
+        <item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>
+
         <!-- Compatibility issues when this is set. Check on more devices -->
         <!--<item name="android:panelBackground">@drawable/menu_hardkey_panel_next</item>-->
 
