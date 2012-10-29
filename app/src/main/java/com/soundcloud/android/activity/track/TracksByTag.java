@@ -1,18 +1,18 @@
 package com.soundcloud.android.activity.track;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScListActivity;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.view.ScListView;
 
 import android.os.Bundle;
 
-public class TracksByTag extends ScListActivity {
+public class TracksByTag extends ScActivity {
     private ScListView mListView;
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.tracks_by_tag);
-
+        // TODO, put this back in
         /*
         SectionedAdapter adp = new SectionedAdapter(this);
         SectionedEndlessAdapter adpWrap = new SectionedEndlessAdapter(this, adp, true);

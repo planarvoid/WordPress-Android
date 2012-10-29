@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Tracking(page = Page.Search_main)
-public class ScSearch extends ScListActivity {
+public class ScSearch extends ScActivity {
 
     private static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
 

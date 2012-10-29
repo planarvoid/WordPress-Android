@@ -4,10 +4,12 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ActivityAdapter;
+import com.soundcloud.android.adapter.PlayableAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.adapter.SearchAdapter;
 import com.soundcloud.android.adapter.TrackAdapter;
@@ -15,6 +17,7 @@ import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.task.collection.CollectionTask;
@@ -30,9 +33,11 @@ import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -66,9 +71,8 @@ public class ScListFragment extends SherlockListFragment
     protected @Nullable LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
 
-    private boolean mContentInvalid, mObservingContent;
+    private boolean mContentInvalid, mObservingContent, mIgnorePlaybackStatus, mKeepGoing;
     protected String mNextHref;
-    private boolean mKeepGoing;
 
 
     public static ScListFragment newInstance(Content content) {
@@ -234,6 +238,17 @@ public class ScListFragment extends SherlockListFragment
         connectivityListener = new NetworkConnectivityListener();
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
 
+        IntentFilter playbackFilter = new IntentFilter();
+        playbackFilter.addAction(CloudPlaybackService.META_CHANGED);
+        playbackFilter.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
+        playbackFilter.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
+        getActivity().registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
+
+        IntentFilter generalIntentFilter = new IntentFilter();
+        generalIntentFilter.addAction(Actions.CONNECTION_ERROR);
+        generalIntentFilter.addAction(Actions.LOGGING_OUT);
+        getActivity().registerReceiver(mGeneralIntentListener, generalIntentFilter);
+
         /*
         final LazyBaseAdapter wrapped = getWrappedAdapter();
                 if (wrapped != null){
@@ -242,6 +257,13 @@ public class ScListFragment extends SherlockListFragment
         */
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        getActivity().unregisterReceiver(mPlaybackStatusListener);
+        getActivity().unregisterReceiver(mGeneralIntentListener);
+        mIgnorePlaybackStatus = false;
+    }
 
     protected void onDataConnectionUpdated(boolean isConnected) {
         if (isConnected) {
@@ -516,51 +538,28 @@ public class ScListFragment extends SherlockListFragment
         }
     }
 
-    /*
-    private ScListView.LazyListListener mLazyListListener = new ScListView.LazyListListener() {
-            @Override
-                    public void onEventClick(EventsAdapterWrapper wrapper, int position) {
-                        final Activity e = (Activity) wrapper.getItem(position);
-                        if (e.type == Activity.Type.FAVORITING) {
-                            SoundCloudApplication.TRACK_CACHE.put(e.getTrack(), false);
-                            startActivity(new Intent(ScListActivity.this, TrackLikers.class)
-                                .putExtra("track_id", e.getTrack().id));
-                        } else {
-                            playTrack(wrapper.getPlayInfo(position));
-                        }
-                    }
 
-                    @Override
-                    public void onTrackClick(LazyEndlessAdapter wrapper, int position) {
-                        if (wrapper.getItem(position) instanceof Track &&
-                                !((Track) wrapper.getItem(position)).state.isStreamable()){
+    private BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (mIgnorePlaybackStatus || !(getListAdapter() instanceof PlayableAdapter)) return;
 
-                            showDialog(((Track) wrapper.getItem(position)).state.isFailed() ?
-                                    Consts.Dialogs.DIALOG_TRANSCODING_FAILED :
-                                    Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING);
-                        } else {
-                            playTrack(wrapper.getPlayInfo(position));
-                        }
-
-                    }
-            @Override
-            public void onUserClick(User user) {
-                Intent i = new Intent(ScListActivity.this, UserBrowser.class);
-                i.putExtra("user", user);
-                startActivity(i);
+            final String action = intent.getAction();
+            if (CloudPlaybackService.META_CHANGED.equals(action)
+                    || CloudPlaybackService.PLAYBACK_COMPLETE.equals(action)
+                    || CloudPlaybackService.PLAYSTATE_CHANGED.equals(action)) {
+                getListAdapter().notifyDataSetChanged();
             }
+        }
+    };
 
-            @Override
-            public void onCommentClick(Comment comment) {
-                Intent i = new Intent(ScListActivity.this, UserBrowser.class);
-                i.putExtra("user", comment.user);
-                startActivity(i);
+
+    private BroadcastReceiver mGeneralIntentListener = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Actions.LOGGING_OUT.equals(intent.getAction())) {
+                // alert lists?
             }
-
-            @Override
-            public void onRecordingClick(final Recording recording) {
-                handleRecordingClick(recording);
-            }
-        }; */
-
+        }
+    };
 }

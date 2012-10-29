@@ -1254,5 +1254,4 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         getApp().track(klazz, args);
     }
 
-
 }

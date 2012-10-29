@@ -23,11 +23,6 @@ public class ScBaseAdapterTest {
             @Override
             public void handleListItemClick(int position, long id) {
             }
-
-            @Override
-            protected Uri getPlayableUri() {
-                return null;
-            }
         };
     }
 }

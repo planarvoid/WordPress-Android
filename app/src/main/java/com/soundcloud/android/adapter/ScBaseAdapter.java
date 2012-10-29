@@ -18,6 +18,7 @@ import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.task.collection.ReturnData;
 import com.soundcloud.android.task.collection.UpdateCollectionTask;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.quickaction.QuickAction;
 
@@ -276,46 +277,4 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     public abstract void handleListItemClick(int position, long id);
 
-    protected void playPosition(int position, long id){
-        if (position > mData.size() || !(mData.get(position) instanceof Playable)) {
-            throw new AssertionError("Invalid item " + position);
-        }
-
-        PlayInfo info = new PlayInfo();
-        info.uri = getPlayableUri();
-
-        List<Playable> playables = new ArrayList<Playable>(mData.size());
-
-
-        int adjustedPosition = position;
-        for (int i = 0; i < mData.size(); i++){
-            if (mData.get(i) instanceof Playable) {
-                playables.add((Playable) mData.get(i));
-            } else if (i < position) {
-                adjustedPosition--;
-            }
-        }
-
-        info.position = adjustedPosition;
-        info.playables = playables;
-
-        Intent intent = new Intent(mContext, CloudPlaybackService.class).setAction(CloudPlaybackService.PLAY_ACTION);
-
-        if (info.uri != null) {
-            SoundCloudApplication.MODEL_MANAGER.cache(info.getTrack());
-            intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.getTrack().id)
-                    .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
-                    .setData(info.uri);
-        } else {
-            CloudPlaybackService.playlistXfer = info.playables;
-
-            intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
-                    .putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true);
-        }
-
-        mContext.startService(intent);
-        mContext.startActivity(new Intent(mContext, ScPlayer.class));
-    }
-
-    protected abstract Uri getPlayableUri();
 }

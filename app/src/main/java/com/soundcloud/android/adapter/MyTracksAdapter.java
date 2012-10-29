@@ -2,11 +2,10 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScListActivity;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.view.MyTracklistRow;
@@ -22,17 +21,17 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyTracksAdapter extends ScBaseAdapter {
+public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
     private Cursor mCursor;
     private boolean mDataValid;
     private List<Recording> mRecordingData;
-    private ScListActivity mActivity;
+    private ScActivity mActivity;
 
     private static final int TYPE_PENDING_RECORDING = 0;
     private static final int TYPE_TRACK = 1;
     private ChangeObserver mChangeObserver;
 
-    public MyTracksAdapter(ScListActivity activity, Uri uri) {
+    public MyTracksAdapter(ScActivity activity, Uri uri) {
         super(activity, uri);
         mActivity = activity;
         refreshCursor();
@@ -166,7 +165,7 @@ public class MyTracksAdapter extends ScBaseAdapter {
     }
 
     @Override
-    protected Uri getPlayableUri() {
+    public Uri getPlayableUri() {
         return mContentUri;
     }
 

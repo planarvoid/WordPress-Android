@@ -11,13 +11,17 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Search;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
+import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.MainMenu;
 import com.soundcloud.android.view.NowPlayingIndicator;
 import com.soundcloud.android.view.RootView;
@@ -30,9 +34,11 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -339,6 +345,36 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             case Consts.Dialogs.DIALOG_LOGOUT:
                 return Settings.createLogoutDialog(this);
 
+            case Consts.Dialogs.DIALOG_ADD_COMMENT:
+                final AddCommentDialog dialog = new AddCommentDialog(this);
+                dialog.getWindow().setGravity(Gravity.TOP);
+                return dialog;
+
+            case Consts.Dialogs.DIALOG_TRANSCODING_FAILED:
+                return new AlertDialog.Builder(this).setTitle(R.string.dialog_transcoding_failed_title)
+                        .setMessage(R.string.dialog_transcoding_failed_message).setPositiveButton(
+                                android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_FAILED);
+                            }
+                        }).setNegativeButton(
+                                R.string.visit_support, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                startActivity(
+                                        new Intent(Intent.ACTION_VIEW,
+                                                Uri.parse(getString(R.string.authentication_support_uri))));
+                                removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_FAILED);
+                            }
+                        }).create();
+            case Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING:
+                return new AlertDialog.Builder(this).setTitle(R.string.dialog_transcoding_processing_title)
+                        .setMessage(R.string.dialog_transcoding_processing_message).setPositiveButton(
+                                android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING);
+                            }
+                        }).create();
+
             default:
                 return super.onCreateDialog(which);
         }
@@ -372,12 +408,16 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                mRootView.animateToggleMenu();
+                onHomeButtonPressed();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    private void onHomeButtonPressed() {
+        mRootView.animateToggleMenu();
     }
 
     public long getCurrentUserId() {
@@ -429,5 +469,10 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         } else {
             return super.onKeyDown(keyCode, event);
         }
+    }
+
+    public void addNewComment(final Comment comment) {
+        getApp().pendingComment = comment;
+        safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
     }
 }

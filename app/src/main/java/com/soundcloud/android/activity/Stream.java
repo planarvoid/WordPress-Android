@@ -6,7 +6,7 @@ import com.soundcloud.android.provider.Content;
 
 import android.os.Bundle;
 
-public class Stream extends ScListActivity {
+public class Stream extends ScActivity {
 
     @Override
     protected void onCreate(Bundle state) {

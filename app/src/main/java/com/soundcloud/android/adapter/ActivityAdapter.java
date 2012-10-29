@@ -4,6 +4,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.task.collection.CollectionParams;
+import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.adapter.CommentRow;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.adapter.LikeRow;
@@ -15,7 +16,7 @@ import android.util.Log;
 
 import java.util.Collections;
 
-public class ActivityAdapter extends ScBaseAdapter<Activity> {
+public class ActivityAdapter extends ScBaseAdapter<Activity> implements PlayableAdapter {
 
     public ActivityAdapter(Context context, Uri uri) {
         super(context, uri);
@@ -94,7 +95,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
-                playPosition(position,id);
+                PlayUtils.playFromAdapter(mContext, this, mData, position, id);
                 break;
             default:
                 Log.i(SoundCloudApplication.TAG, "Clicked on item " + id);
@@ -102,7 +103,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
     }
 
     @Override
-    protected Uri getPlayableUri() {
+    public Uri getPlayableUri() {
         return mContentUri;
     }
 }

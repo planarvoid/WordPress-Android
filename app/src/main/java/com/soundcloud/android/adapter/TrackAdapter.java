@@ -2,6 +2,7 @@ package com.soundcloud.android.adapter;
 
 
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 import com.soundcloud.android.view.quickaction.QuickAction;
@@ -10,7 +11,7 @@ import com.soundcloud.android.view.quickaction.QuickTrackMenu;
 import android.content.Context;
 import android.net.Uri;
 
-public class TrackAdapter extends ScBaseAdapter<Track> {
+public class TrackAdapter extends ScBaseAdapter<Track> implements PlayableAdapter{
     private QuickAction mQuickActionMenu;
 
     public TrackAdapter(Context context, Uri uri) {
@@ -30,11 +31,11 @@ public class TrackAdapter extends ScBaseAdapter<Track> {
 
     @Override
     public void handleListItemClick(int position, long id) {
-        playPosition(position,id);
+        PlayUtils.playFromAdapter(mContext, this, mData, position, id);
     }
 
     @Override
-    protected Uri getPlayableUri() {
+    public Uri getPlayableUri() {
         return mContentUri;
     }
 }

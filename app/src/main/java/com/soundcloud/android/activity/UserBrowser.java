@@ -61,7 +61,7 @@ import android.widget.Toast;
 
 import java.util.List;
 
-public class UserBrowser extends ScListActivity implements
+public class UserBrowser extends ScActivity implements
         ParcelCache.Listener<Connection>,
         FollowStatus.Listener,
         FetchUserTask.FetchUserListener,
@@ -585,18 +585,6 @@ public class UserBrowser extends ScListActivity implements
             }, null)) != BindResult.OK) {
                 mIcon.setImageDrawable(getResources().getDrawable(R.drawable.avatar_badge_large));
             }
-        }
-    }
-
-    @Override
-    protected void handleRecordingClick(final Recording recording) {
-        if (recording.upload_status == Recording.Status.UPLOADING) {
-            startActivity(recording.getMonitorIntent());
-        } else {
-            startActivity(new Intent(UserBrowser.this,
-                    (recording.external_upload ? ScUpload.class : ScCreate.class)).
-                    setData(recording.toUri()));
-
         }
     }
 
