@@ -53,7 +53,7 @@ import android.widget.ImageView;
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class ScActivity extends SherlockFragmentActivity implements Tracker {
+public abstract class ScActivity extends SherlockFragmentActivity implements Tracker, RootView.OnMenuOpenListener, RootView.OnMenuCloseListener {
     protected static final int CONNECTIVITY_MSG = 0;
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
@@ -77,6 +77,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         super.setContentView(mRootView);
 
 
+        mRootView.setOnMenuOpenListener(this);
+        mRootView.setOnMenuCloseListener(this);
 
         mRootView.configureMenu(R.menu.main_nav, new MainMenu.OnMenuItemClickListener() {
             @Override
@@ -144,10 +146,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
      * Basically, hack the action bar to make it look like next
      */
     private void configureActionBar() {
-
+        getSupportActionBar().setTitle(null);
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(!(this instanceof ScLandingPage));
-        if (getApp().getLoggedInUser() != null) getSupportActionBar().setTitle(getApp().getLoggedInUser().username);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // configure home image to fill vertically
         final float density = getResources().getDisplayMetrics().density;
@@ -491,5 +492,19 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     public void addNewComment(final Comment comment) {
         getApp().pendingComment = comment;
         safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
+    }
+
+    @Override
+    public void onMenuOpenLeft() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+    }
+
+    @Override
+    public void onMenuOpenRight() {
+    }
+
+    @Override
+    public void onMenuClosed() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 }

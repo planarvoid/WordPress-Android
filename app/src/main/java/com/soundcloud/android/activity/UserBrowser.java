@@ -186,8 +186,6 @@ public class UserBrowser extends ScActivity implements
                 loadYou();
             }
 
-            build();
-
             if (!isYou()) FollowStatus.get(this).requestUserFollowings(this);
 
             /*
@@ -369,10 +367,6 @@ public class UserBrowser extends ScActivity implements
         //Tab current = Tab.valueOf(mUserlistBrowser.getCurrentTag());
         //return isYou() ? current.you : current.user;
         return Page.Users_sounds;
-    }
-
-    private void build() {
-        getSupportActionBar().setTitle(mUser.username);
     }
 
     private boolean isOtherUser() {
@@ -619,7 +613,6 @@ public class UserBrowser extends ScActivity implements
     private void fromConfiguration(Configuration c){
         mInfoError = c.infoError;
         setUser(c.user);
-        build(); //build here because the rest of the state needs a constructed userlist browser
 
         if (c.loadUserTask != null) {
             mLoadUserTask = c.loadUserTask;
