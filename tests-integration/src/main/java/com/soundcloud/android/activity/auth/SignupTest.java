@@ -1,7 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.News;
+import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 

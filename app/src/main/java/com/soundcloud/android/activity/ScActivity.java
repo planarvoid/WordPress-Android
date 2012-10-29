@@ -10,11 +10,15 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.ScCreate;
+import com.soundcloud.android.activity.landing.ScLandingPage;
+import com.soundcloud.android.activity.landing.News;
+import com.soundcloud.android.activity.landing.ScSearch;
+import com.soundcloud.android.activity.landing.Stream;
+import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Search;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
@@ -85,7 +89,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         startNavActivity(News.class);
                         break;
                     case R.id.nav_you:
-                        startNavActivity(UserBrowser.class);
+                        startNavActivity(You.class);
                         break;
                     case R.id.nav_record:
                         startNavActivity(ScCreate.class);
@@ -121,6 +125,10 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         configureActionBar();
 
+        if (this instanceof ScLandingPage){
+            getApp().setAccountData(User.DataKeys.LAST_LANDING_PAGE_IDX, ((ScLandingPage) this).getPageValue().key);
+        }
+
         if (savedInstanceState == null) {
             /*Fragment newFragment = new PlayerFragment();
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -138,7 +146,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private void configureActionBar() {
 
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(!(this instanceof ScLandingPage));
         if (getApp().getLoggedInUser() != null) getSupportActionBar().setTitle(getApp().getLoggedInUser().username);
 
         // configure home image to fill vertically
@@ -203,7 +211,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     private void startNavActivity(Class activity) {
-        startActivity(getNavIntent(activity));
+        if (ScLandingPage.class.isAssignableFrom(activity)){
+            startActivity(getNavIntent(activity).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        } else {
+            startActivity(getNavIntent(activity));
+        }
+
     }
 
     private Intent getNavIntent(Class activity) {
@@ -416,8 +429,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     }
 
-    private void onHomeButtonPressed() {
-        mRootView.animateToggleMenu();
+    protected void onHomeButtonPressed() {
+        if (this instanceof ScLandingPage) {
+            mRootView.animateToggleMenu();
+        } else {
+            onBackPressed();
+        }
     }
 
     public long getCurrentUserId() {

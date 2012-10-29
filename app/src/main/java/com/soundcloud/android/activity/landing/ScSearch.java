@@ -1,6 +1,7 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.landing;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.ScSearchFragment;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.tracking.Page;
@@ -26,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Tracking(page = Page.Search_main)
-public class ScSearch extends ScActivity {
+public class ScSearch extends ScActivity implements ScLandingPage {
 
     private static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
 
@@ -185,4 +186,8 @@ public class ScSearch extends ScActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    public LandingPage getPageValue() {
+        return LandingPage.Search;
+    }
 }

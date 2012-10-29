@@ -1,12 +1,13 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.landing;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.provider.Content;
 
 import android.os.Bundle;
 
-public class News extends ScActivity {
+public class News extends ScActivity implements ScLandingPage {
 
     @Override
     protected void onCreate(Bundle state) {
@@ -21,5 +22,10 @@ public class News extends ScActivity {
     @Override
     protected int getSelectedMenuId() {
         return R.id.nav_news;
+    }
+
+    @Override
+    public LandingPage getPageValue() {
+        return LandingPage.News;
     }
 }

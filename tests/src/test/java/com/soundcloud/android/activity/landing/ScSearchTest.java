@@ -1,4 +1,4 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.landing;
 
 import static com.soundcloud.android.Expect.expect;
 
