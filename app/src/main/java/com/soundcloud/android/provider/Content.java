@@ -4,11 +4,11 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 
 import android.util.SparseArray;
 
-import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -18,13 +18,11 @@ import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.SearchManager;
-import android.content.ContentResolver;
 import android.content.UriMatcher;
 import android.net.Uri;
 
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public enum Content  {
@@ -35,16 +33,18 @@ public enum Content  {
     ME_FOLLOWING("me/followings/#", null, 104, User.class, -1, null),
     ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, User.class, FOLLOWER, Table.COLLECTION_ITEMS),
     ME_FOLLOWER("me/followers/#", null, 106, User.class, -1, null),
-    ME_FAVORITES("me/favorites", Endpoints.MY_FAVORITES, 107, Track.class, FAVORITE, Table.COLLECTION_ITEMS),
-    ME_FAVORITE("me/favorites/#", null, 108, Track.class, FAVORITE, null),
+    ME_LIKES("me/likes", Endpoints.MY_FAVORITES, 107, Track.class, LIKE, Table.COLLECTION_ITEMS),
+    ME_LIKE("me/likes/#", null, 108, Track.class, LIKE, null),
     ME_GROUPS("me/groups", null, 109, null, -1, null),
     ME_PLAYLISTS("me/playlists", null, 110, null, -1, null),
     ME_USERID("me/userid", null, 111, null, -1, null),
+    ME_REPOSTS("me/reposts", TempEndpoints.e1.MY_REPOSTS, 112, Track.class, REPOST, Table.COLLECTION_ITEMS),
+    ME_REPOST("me/reposts/#",null, 113, Track.class, REPOST, null),
 
     // the ids of the following entries should not be changed, they are referenced in th db
-    ME_SOUND_STREAM("me/activities/tracks", Endpoints.MY_ACTIVITIES, 140, Activity.class, -1, Table.ACTIVITIES),
-    ME_EXCLUSIVE_STREAM("me/activities/tracks/exclusive", Endpoints.MY_EXCLUSIVE_TRACKS, 141, Activity.class, -1, Table.ACTIVITIES),
-    ME_ACTIVITIES("me/activities/all/own", Endpoints.MY_NEWS, 142, Activity.class, -1, Table.ACTIVITIES),
+    ME_SOUND_STREAM("me/activities/tracks", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),
+    ME_EXCLUSIVE_STREAM("me/activities/tracks/exclusive", TempEndpoints.e1.MY_EXCLUSIVE_STREAM, 141, Activity.class, -1, Table.ACTIVITIES),
+    ME_ACTIVITIES("me/activities/all/own", TempEndpoints.e1.MY_ACTIVITIES, 142, Activity.class, -1, Table.ACTIVITIES),
     ME_ALL_ACTIVITIES("me/activities", null, 150, Activity.class, -1, Table.ACTIVITIES),
 
     ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, User.class, FRIEND, null),
@@ -60,7 +60,8 @@ public enum Content  {
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
     USER("users/#", null, 302, User.class, -1, Table.USERS),
     USER_TRACKS("users/#/tracks", Endpoints.USER_TRACKS, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
-    USER_FAVORITES("users/#/favorites", Endpoints.USER_FAVORITES, 304, Track.class, FAVORITE, null),
+    USER_LIKES("users/#/likes", Endpoints.USER_FAVORITES, 304, Track.class, LIKE, null),
+    USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 304, Track.class, REPOST, null),
     USER_FOLLOWERS("users/#/followers", Endpoints.USER_FOLLOWERS, 305, User.class, FOLLOWER, null),
     USER_FOLLOWINGS("users/#/followings", Endpoints.USER_FOLLOWINGS, 306, User.class, FOLLOWING, null),
     USER_COMMENTS("users/#/comments", null, 307, Comment.class, -1, null),
@@ -70,8 +71,8 @@ public enum Content  {
     COMMENTS("comments", null, 400, Comment.class, -1, Table.COMMENTS),
     COMMENT("comments/#", null, 401, Comment.class, -1, Table.COMMENTS),
 
-    PLAYLISTS("playlists", null, 501, null, -1, Table.PLAYLIST_ITEMS),
-    PLAYLIST("playlists/#", null, 502, null, -1, Table.PLAYLIST_ITEMS),
+    PLAYLISTS("playlists", null, 501, null, -1, Table.PLAYLISTS),
+    PLAYLIST("playlists/#", null, 502, null, -1, Table.PLAYLISTS),
 
     GROUPS("groups", null, 600, null, -1, null),
     GROUP("groups/#", null, 602, null, -1, null),
@@ -84,6 +85,7 @@ public enum Content  {
     // LOCAL URIS
     COLLECTIONS("collections", null, 1000, null, -1, Table.COLLECTIONS),
     COLLECTION("collections/#", null, 1001, null, -1, Table.COLLECTIONS),
+
     COLLECTION_PAGES("collection_pages", null, 1002, null, -1, Table.COLLECTION_PAGES),
     COLLECTION_PAGE("collection_pages/#", null, 1003, null, -1, Table.COLLECTION_PAGES),
     COLLECTION_ITEMS("collection_items", null, 1004, null, -1, Table.COLLECTION_ITEMS),
@@ -104,6 +106,10 @@ public enum Content  {
     SEARCHES_USER("searches/users/*", null, 1405, User.class, ScContentProvider.CollectionItemTypes.SEARCH, null),
 
     SEARCH("search", null, 1500, ScResource.class, -1, null),
+
+    PLAY_QUEUE("play_queue", null, 2000, null, -1, Table.PLAY_QUEUE),
+    PLAY_QUEUE_ITEM("play_queue/#", null, 2001, null, -1, Table.PLAY_QUEUE),
+
 
     TRACK_CLEANUP("cleanup/tracks", null, 9998, null, -1, null),
     USERS_CLEANUP("cleanup/users", null, 9999, null, -1, null),

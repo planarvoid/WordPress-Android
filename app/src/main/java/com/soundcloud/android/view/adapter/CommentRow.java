@@ -3,6 +3,7 @@ package com.soundcloud.android.view.adapter;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.ScBaseAdapter;
+import com.soundcloud.android.model.act.CommentActivity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -35,11 +36,6 @@ public class CommentRow extends ActivityRow {
     }
 
     @Override
-    protected Comment getComment() {
-        return mComment;
-    }
-
-    @Override
     protected User getOriginUser() {
         return mComment.user;
     }
@@ -65,7 +61,7 @@ public class CommentRow extends ActivityRow {
 
     @Override
     protected boolean fillParcelable(Parcelable p) {
-        mComment = mActivity.getComment();
+        mComment = ((CommentActivity) mActivity).comment;
         return mComment != null;
     }
 
@@ -73,6 +69,6 @@ public class CommentRow extends ActivityRow {
     protected void addSpan(SpannableStringBuilder builder) {
         builder.append(": ");
         builder.setSpan(new StyleSpan(Typeface.BOLD), 1, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        builder.append("\"").append(getComment().body).append("\"");
+        builder.append("\"").append(mComment.body).append("\"");
     }
 }

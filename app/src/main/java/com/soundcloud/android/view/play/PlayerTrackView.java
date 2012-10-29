@@ -1,5 +1,6 @@
 package com.soundcloud.android.view.play;
 
+import android.view.animation.Animation;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -7,17 +8,17 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
-import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.WorkspaceContentView;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -48,7 +49,11 @@ import android.widget.ViewFlipper;
 
 import java.util.List;
 
+import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
+import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
+
 public class PlayerTrackView extends LinearLayout implements
+        WorkspaceContentView,
         View.OnTouchListener,
         FetchModelTask.FetchModelListener<Track>,
         LoadCommentsTask.LoadCommentsListener {
@@ -80,6 +85,10 @@ public class PlayerTrackView extends LinearLayout implements
     private int mPlayPos;
     private long mDuration;
     private boolean mLandscape, mOnScreen;
+    private boolean mIsCommenting;
+
+    private View mTrackInfoOverlay;
+    private View mArtworkOverlay;
 
     public PlayerTrackView(ScPlayer player) {
         super(player);
@@ -104,6 +113,9 @@ public class PlayerTrackView extends LinearLayout implements
             mLandscape = true;
         }
 
+        mTrackInfoOverlay = findViewById(R.id.track_info_overlay);
+        mArtworkOverlay   = findViewById(R.id.artwork_overlay);
+
         mAvatar = (ImageView) findViewById(R.id.icon);
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
         mAvatar.setOnClickListener(new View.OnClickListener() {
@@ -113,7 +125,7 @@ public class PlayerTrackView extends LinearLayout implements
                     final long userId = mTrack.user != null ? mTrack.user.id : mTrack.user_id;
                     if (userId == -1) return;
 
-                    if (mTrack.user != null) SoundCloudApplication.MODEL_MANAGER.cache(mTrack.user, ScModel.CacheUpdateMode.NONE);
+                    if (mTrack.user != null) SoundCloudApplication.MODEL_MANAGER.cache(mTrack.user, ScResource.CacheUpdateMode.NONE);
                     Intent intent = new Intent(getContext(), UserBrowser.class);
                     intent.putExtra("userId", mTrack.user_id);
                     getContext().startActivity(intent);
@@ -136,15 +148,20 @@ public class PlayerTrackView extends LinearLayout implements
         mWaveformController.setOnScreen(onScreen);
     }
 
-    protected void toggleCommentMode() {
-        mPlayer.toggleCommentMode(mPlayPos);
+    public void onAppear() {
+        setCommentMode(false, false);
+    }
+
+    public void onDisappear() {
+        setCommentMode(false, false);
     }
 
     public void setTrack(@Nullable Track track, int queuePosition, boolean forceUpdate, boolean priority) {
         mPlayPos = queuePosition;
 
-        if (!forceUpdate && (mTrack != null && track != null && track.id == mTrack.id)) return;
-        final boolean changed = mTrack == null ? track != null : !mTrack.equals(track);
+        final boolean changed = mTrack != track;
+        if (!(forceUpdate || changed)) return;
+
         mTrack = track;
         if (mTrack == null) {
             mWaveformController.clearTrackComments();
@@ -219,9 +236,9 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     private void updateArtwork(boolean postAtFront) {
+        ImageLoader.get(getContext()).unbind(mArtwork);
         if (TextUtils.isEmpty(mTrack.getArtwork())) {
             // no artwork
-            ImageLoader.get(getContext()).unbind(mArtwork);
             mArtwork.setVisibility(View.INVISIBLE);
         } else {
             // executeAppendTask artwork as necessary
@@ -319,7 +336,7 @@ public class PlayerTrackView extends LinearLayout implements
             return;
         }
 
-        if (mTrack.user_favorite) {
+        if (mTrack.user_like) {
             if (mLikedDrawable == null) mLikedDrawable = getResources().getDrawable(R.drawable.ic_liked_states_v1);
             mLikeButton.setImageDrawable(mLikedDrawable);
         } else {
@@ -426,10 +443,13 @@ public class PlayerTrackView extends LinearLayout implements
         return null;
     }
 
+    public void setCommentMode(boolean  mIsCommenting) {
+        setCommentMode(mIsCommenting, true);
+    }
 
-
-    public void setCommentMode(boolean mIsCommenting) {
+    public void setCommentMode(boolean mIsCommenting, boolean animated) {
         getWaveformController().setCommentMode(mIsCommenting);
+
         if (mCommentButton != null) {
             if (mIsCommenting) {
                 mCommentButton.setImageResource(R.drawable.ic_commenting_states_v1);
@@ -437,7 +457,42 @@ public class PlayerTrackView extends LinearLayout implements
                 mCommentButton.setImageResource(R.drawable.ic_comment_states_v1);
             }
         }
+
+        if (animated) {
+            if (mIsCommenting) {
+                mTrackInfoOverlay.setVisibility(VISIBLE);
+                runFadeInAnimationOn(mPlayer, mTrackInfoOverlay);
+
+                mArtworkOverlay.setVisibility(VISIBLE);
+                runFadeInAnimationOn(mPlayer, mArtworkOverlay);
+            } else {
+                runFadeOutAnimationOn(mPlayer, mTrackInfoOverlay);
+                attachVisibilityListener(mTrackInfoOverlay, GONE);
+
+                runFadeOutAnimationOn(mPlayer, mArtworkOverlay);
+                attachVisibilityListener(mArtworkOverlay, GONE);
+            }
+        } else {
+            int visibility = mIsCommenting ? VISIBLE : GONE;
+            mTrackInfoOverlay.setVisibility(visibility);
+            mArtworkOverlay.setVisibility(visibility);
+        }
     }
+
+    private static void attachVisibilityListener(final View target, final int visibility) {
+        target.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+            @Override public void onAnimationStart(Animation animation) {}
+            @Override public void onAnimationRepeat(Animation animation) {}
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                if (target.getAnimation() == animation){
+                    target.setVisibility(visibility);
+                    target.setEnabled(true);
+                }
+            }
+        });
+    }
+
 
     public int getPlayPosition() {
         return mPlayPos;
@@ -521,9 +576,9 @@ public class PlayerTrackView extends LinearLayout implements
             } else {
                 mWaveformController.setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
             }
-        } else if (action.equals(CloudPlaybackService.FAVORITE_SET)) {
+        } else if (action.equals(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED)) {
             if (mTrack != null && mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
-                mTrack.user_favorite = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isFavorite, false);
+                mTrack.user_like = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false);
                 setLikeStatus();
             }
         } else if (action.equals(CloudPlaybackService.BUFFERING)) {

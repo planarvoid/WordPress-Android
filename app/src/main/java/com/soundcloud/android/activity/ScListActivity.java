@@ -1,21 +1,21 @@
 package com.soundcloud.android.activity;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.task.FavoriteAddTask;
-import com.soundcloud.android.task.FavoriteRemoveTask;
-import com.soundcloud.android.task.FavoriteTask;
+import com.soundcloud.android.task.AddAssociationTask;
+import com.soundcloud.android.task.AssociatedTrackTask;
+import com.soundcloud.android.task.RemoveAssociationTask;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.ScListView;
+import com.soundcloud.api.Endpoints;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -137,18 +137,18 @@ public abstract class ScListActivity extends ScActivity {
         }
     }
 
-    public void playTrack(Playable.PlayInfo info) {
+    public void playTrack(PlayInfo info) {
         playTrack(info, true, false);
     }
 
-    public void playTrack(Playable.PlayInfo info, boolean goToPlayer, boolean commentMode) {
+    public void playTrack(PlayInfo info, boolean goToPlayer, boolean commentMode) {
         final Track t = info.getTrack();
         Intent intent = new Intent(this, CloudPlaybackService.class).setAction(CloudPlaybackService.PLAY_ACTION);
         if (CloudPlaybackService.getCurrentTrackId() != t.id) {
             // changing tracks
             intent.putExtra(CloudPlaybackService.PlayExtras.trackId, t.id);
             if (info.uri != null) {
-                SoundCloudApplication.MODEL_MANAGER.cache(info.getTrack(), ScModel.CacheUpdateMode.NONE);
+                SoundCloudApplication.MODEL_MANAGER.cache(info.getTrack(), ScResource.CacheUpdateMode.NONE);
                 intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.getTrack().id)
                       .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                       .setData(info.uri);
@@ -214,27 +214,22 @@ public abstract class ScListActivity extends ScActivity {
         // todo, notify lists
     }
 
-    public void addFavorite(Track track) {
-        FavoriteAddTask f = new FavoriteAddTask(getApp());
-        f.setOnFavoriteListener(mFavoriteListener);
-        f.execute(track);
+    public void addLike(Track track) {
+        AddAssociationTask t = new AddAssociationTask(getApp(),track);
+        t.setOnAssociatedListener(mLikeListener);
+        t.execute(Endpoints.MY_FAVORITES);
     }
 
-    public void removeFavorite(Track track) {
-        FavoriteRemoveTask f = new FavoriteRemoveTask(getApp());
-        f.setOnFavoriteListener(mFavoriteListener);
-        f.execute(track);
+    public void removeLike(Track track) {
+        RemoveAssociationTask t = new RemoveAssociationTask(getApp(), track);
+        t.setOnAssociatedListener(mLikeListener);
+        t.execute(Endpoints.MY_FAVORITES);
     }
 
 
-    private FavoriteTask.FavoriteListener mFavoriteListener = new FavoriteTask.FavoriteListener() {
+    private AssociatedTrackTask.AssociatedListener mLikeListener = new AssociatedTrackTask.AssociatedListener() {
         @Override
-        public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
-            // todo, notify lists
-        }
-
-        @Override
-        public void onException(long trackId, Exception e) {
+        public void onNewStatus(Track track, boolean isAssociated) {
             // todo, notify lists
         }
     };

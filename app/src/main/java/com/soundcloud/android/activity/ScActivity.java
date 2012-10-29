@@ -144,12 +144,16 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         if (homeImage != null) {
 
             ViewGroup parent = (ViewGroup) homeImage.getParent();
-            parent.setBackgroundDrawable(getResources().getDrawable(R.drawable.logo_states));
+            parent.setBackgroundColor(0x00000000);
+            homeImage.setBackgroundDrawable(getResources().getDrawable(R.drawable.logo_states));
 
             final int paddingVert = (int) (13 * density);
             final int paddingHor = (int) (5 * density);
             homeImage.setPadding(paddingHor, paddingVert, paddingHor, paddingVert);
-            homeImage.setLayoutParams(new FrameLayout.LayoutParams((int) getResources().getDimension(R.dimen.next_home_width), ViewGroup.LayoutParams.MATCH_PARENT));
+            homeImage.setDuplicateParentStateEnabled(true);
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) homeImage.getLayoutParams();
+            lp.topMargin = lp.bottomMargin = 0;
+            //homeImage.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
             homeImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         }
 

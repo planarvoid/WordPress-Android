@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.R;
 
 
@@ -25,7 +26,7 @@ public class Connection implements Comparable<Connection>, Parcelable {
     public Date created_at;
     public String display_name;
     public boolean post_publish;
-    public boolean post_favorite;
+    @JsonProperty("post_favorite") public boolean post_like;
     public String service;
     public URI uri;
 
@@ -60,7 +61,7 @@ public class Connection implements Comparable<Connection>, Parcelable {
         dest.writeLong(created_at == null ? 0 : created_at.getTime());
         dest.writeString(display_name);
         dest.writeInt(post_publish ? 1 : 0);
-        dest.writeInt(post_favorite ? 1 : 0);
+        dest.writeInt(post_like ? 1 : 0);
         dest.writeString(service);
         dest.writeString(uri == null ? null : uri.toString());
     }
@@ -73,7 +74,7 @@ public class Connection implements Comparable<Connection>, Parcelable {
             connection.created_at = new Date(source.readLong());
             connection.display_name = source.readString();
             connection.post_publish = source.readInt() == 1;
-            connection.post_favorite = source.readInt() == 1;
+            connection.post_like = source.readInt() == 1;
             connection.service = source.readString();
             String uri = source.readString();
             connection.uri = uri == null ? null : URI.create(uri);
@@ -94,7 +95,7 @@ public class Connection implements Comparable<Connection>, Parcelable {
                 ", created_at=" + created_at +
                 ", display_name='" + display_name + '\'' +
                 ", post_publish=" + post_publish +
-                ", post_favorite=" + post_favorite +
+                ", post_like=" + post_like +
                 ", service='" + service + '\'' +
                 ", uri=" + uri +
                 '}';

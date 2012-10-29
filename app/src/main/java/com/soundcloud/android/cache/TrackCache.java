@@ -1,15 +1,10 @@
 package com.soundcloud.android.cache;
 
 import android.database.Cursor;
-import android.os.Parcelable;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DBHelper;
-
-import java.util.ArrayList;
 
 public class TrackCache extends LruCache<Long, Track> {
     public TrackCache() {

@@ -12,7 +12,6 @@ import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
-import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,15 +36,15 @@ public class SoundCloudDBTest {
     @Test
     public void shouldBulkInsertWithCollections() throws Exception {
         List<ScResource> items = createParcelables();
-        expect(SoundCloudDB.bulkInsertModels(resolver, items, Content.ME_FAVORITES.uri, USER_ID)).toEqual(3);
+        expect(SoundCloudDB.bulkInsertModels(resolver, items, Content.ME_LIKES.uri, USER_ID)).toEqual(3);
 
-        Cursor c = resolver.query(Content.ME_FAVORITES.uri, null, null, null, null);
+        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotBulkInsertWithoutOwnerId() throws Exception {
-        SoundCloudDB.bulkInsertModels(resolver, createParcelables(), Content.ME_FAVORITES.uri, -1);
+        SoundCloudDB.bulkInsertModels(resolver, createParcelables(), Content.ME_LIKES.uri, -1);
     }
 
     private List<ScResource> createParcelables() {

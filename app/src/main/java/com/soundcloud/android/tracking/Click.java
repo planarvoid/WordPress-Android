@@ -50,6 +50,7 @@ public enum Click implements Event {
     Log_out_box_cancel("Log_out_box", "cancel",     Type.action, Level2.Settings),
 
     Like      ("Like",       "user_permalink::track_permalink", Type.action, Level2.Sounds),
+    Repost    ("Repost",     "user_permalink::track_permalink", Type.action, Level2.Sounds),
     Comment   ("Comment",    "user_permalink::track_permalink", Type.action, Level2.Sounds),
     Share_main("Share_main", "user_permalink::track_permalink", Type.action, Level2.Sounds),
     /* NOT USED */ Share_fb  ("Share_fb",   "user_permalink::track_permalink", Type.action, Level2.Sounds),

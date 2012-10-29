@@ -5,6 +5,7 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -103,7 +104,8 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_TRACKS:
-            case ME_FAVORITES:
+            case ME_LIKES:
+            case ME_REPOSTS:
                 qb.setTables(makeCollectionJoin(Table.TRACK_VIEW));
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
                 makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
@@ -128,7 +130,8 @@ public class ScContentProvider extends ContentProvider {
                 return c;
 
             case USER_TRACKS:
-            case USER_FAVORITES:
+            case USER_LIKES:
+            case USER_REPOSTS:
                 qb.setTables(makeCollectionJoin(Table.TRACK_VIEW));
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
                 makeCollectionSelection(qb, uri.getPathSegments().get(1), content.collectionType);
@@ -167,6 +170,11 @@ public class ScContentProvider extends ContentProvider {
                 qb.setTables(content.table.name);
                 qb.appendWhere(Table.USERS.id + " = " + uri.getLastPathSegment());
                 if (_columns == null) _columns = formatWithUser(fullUserColumns,userId);
+                break;
+
+            case PLAYLISTS:
+                // TODO, Make view, joined with user and tracks
+                qb.setTables(Table.PLAYLISTS.name);
                 break;
 
             case SEARCHES:
@@ -244,25 +252,28 @@ public class ScContentProvider extends ContentProvider {
             case ME_ACTIVITIES:
                 qb.setTables(Table.ACTIVITY_VIEW.name);
                 if (content != Content.ME_ALL_ACTIVITIES) {
-                    // TODO prepared query
-                    qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id);
+                    qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id + " AND " +
+                            DBHelper.ActivityView.TYPE + " != '" + Activity.Type.AFFILIATION.type + "' AND (" + // remove affiliations
+                            DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST.type +
+                            "' AND " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_LIKE.type +
+                            "' AND " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_REPOST.type +
+                            "' AND " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_SHARING.type + "')"); // remove playlists
                 }
                 _sortOrder = makeActivitiesSort(uri, sortOrder);
                 break;
             case COMMENTS:
                 qb.setTables(content.table.name);
                 break;
-            case PLAYLISTS:
+            case PLAY_QUEUE_ITEM:
                 qb.setTables(content.table.name);
                 qb.appendWhere("_id = " + userId);
                 break;
 
-            case PLAYLIST:
-                qb.setTables(Table.TRACK_VIEW + " INNER JOIN " + Table.PLAYLIST_ITEMS.name +
-                        " ON (" + Table.TRACK_VIEW.id + " = " + DBHelper.PlaylistItems.TRACK_ID + ")");
+            case PLAY_QUEUE:
+                qb.setTables(Table.TRACK_VIEW + " INNER JOIN " + Table.PLAY_QUEUE.name +
+                        " ON (" + Table.TRACK_VIEW.id + " = " + DBHelper.PlayQueue.TRACK_ID + ")");
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
-                qb.appendWhere(Table.PLAYLIST_ITEMS.name+"."+ DBHelper.PlaylistItems.USER_ID + " = " + userId);
-                qb.appendWhere(" AND "+DBHelper.PlaylistItems.PLAYLIST_ID + " = " + uri.getLastPathSegment());
+                qb.appendWhere(Table.PLAY_QUEUE.name+"."+ DBHelper.PlayQueue.USER_ID + " = " + userId);
                 _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
             case ANDROID_SEARCH_SUGGEST:
@@ -369,13 +380,14 @@ public class ScContentProvider extends ContentProvider {
                     return null;
                 }
 
-            case ME_FAVORITES:
+            case ME_LIKES:
+            case ME_REPOSTS:
                 id = Table.TRACKS.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, userId);
                     cv.put(DBHelper.CollectionItems.ITEM_ID, (Long) values.get(DBHelper.Tracks._ID));
-                    cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, FAVORITE);
+                    cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, content.collectionType);
                     id = Table.COLLECTION_ITEMS.insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_ABORT);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null, false);
@@ -425,10 +437,6 @@ public class ScContentProvider extends ContentProvider {
                 break;
             case PLAYLISTS:
                 break;
-            case PLAYLIST:
-                where = TextUtils.isEmpty(where) ? DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment()
-                        : where + " AND " + DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment();
-                break;
             case ME_ALL_ACTIVITIES:
                 break;
             case ME_ACTIVITIES:
@@ -442,12 +450,16 @@ public class ScContentProvider extends ContentProvider {
                 break;
             case RECORDINGS:
                 break;
+            case PLAY_QUEUE:
+                break;
             case ME_TRACKS:
-            case ME_FAVORITES:
+            case ME_LIKES:
+            case ME_REPOSTS:
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
             case USER_TRACKS:
-            case USER_FAVORITES:
+            case USER_LIKES:
+            case USER_REPOSTS:
             case USER_FOLLOWINGS:
             case USER_FOLLOWERS:
                 final String whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + SoundCloudApplication.getUserIdFromContext(getContext())
@@ -520,11 +532,12 @@ public class ScContentProvider extends ContentProvider {
                     where = "_id NOT IN ("
                                     + "SELECT _id FROM "+ Table.TRACKS.name + " WHERE EXISTS("
                                         + "SELECT 1 FROM CollectionItems WHERE "
-                                        + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.TRACK+ " ," + CollectionItemTypes.FAVORITE+ ") "
+                                        + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.TRACK+
+                                            " ," + CollectionItemTypes.LIKE + " ," + CollectionItemTypes.REPOST+ ") "
                                         + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
                                         + " AND  " + DBHelper.CollectionItems.ITEM_ID + " =  " + DBHelper.Tracks._ID
                                     + " UNION SELECT DISTINCT " + DBHelper.ActivityView.TRACK_ID + " FROM "+ Table.ACTIVITIES.name
-                                    + " UNION SELECT DISTINCT " + DBHelper.PlaylistItems.TRACK_ID + " FROM "+ Table.PLAYLIST_ITEMS.name
+                                    + " UNION SELECT DISTINCT " + DBHelper.PlayQueue.TRACK_ID + " FROM "+ Table.PLAY_QUEUE.name
                                     + ")"
                                 + ")";
 
@@ -574,22 +587,25 @@ public class ScContentProvider extends ContentProvider {
             case TRACKS:
             case USERS:
             case RECORDINGS:
+            case PLAYLISTS:
                 content.table.upsert(db, values);
                 if (values.length != 0) getContext().getContentResolver().notifyChange(uri, null, false);
                 return values.length;
 
             case COMMENTS:
-            case PLAYLISTS:
             case ME_SOUND_STREAM:
             case ME_EXCLUSIVE_STREAM:
             case ME_ACTIVITIES:
+            case PLAY_QUEUE:
                 table = content.table;
                 break;
 
             case ME_TRACKS:
             case USER_TRACKS:
-            case ME_FAVORITES:
-            case USER_FAVORITES:
+            case ME_LIKES:
+            case USER_LIKES:
+            case ME_REPOSTS:
+            case USER_REPOSTS:
             case ME_FOLLOWERS:
             case USER_FOLLOWERS:
             case ME_FOLLOWINGS:
@@ -600,11 +616,6 @@ public class ScContentProvider extends ContentProvider {
             case SEARCHES_TRACK:
                 table = Table.COLLECTION_ITEMS;
                 extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(content.collectionType)};
-                break;
-
-            case PLAYLIST:
-                table = content.table;
-                extraCV = new String[]{DBHelper.PlaylistItems.PLAYLIST_ID, String.valueOf(uri.getLastPathSegment())};
                 break;
 
             default:
@@ -820,16 +831,24 @@ public class ScContentProvider extends ContentProvider {
             Table.TRACK_VIEW + ".*",
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                     + " WHERE " + Table.TRACK_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FAVORITE
-                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_FAVORITE,
+                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + LIKE
+                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_LIKE,
+            "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
+                                + " WHERE " + Table.TRACK_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID
+                                + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + REPOST
+                                + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_REPOST
     };
 
     public static String[] fullActivityColumns = new String[]{
             Table.ACTIVITY_VIEW + ".*",
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                     + " WHERE " + DBHelper.ActivityView.TRACK_ID + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FAVORITE
-                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_FAVORITE,
+                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + LIKE
+                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_LIKE,
+            "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
+                    + " WHERE " + DBHelper.ActivityView.TRACK_ID + " = " + DBHelper.CollectionItems.ITEM_ID
+                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + REPOST
+                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_REPOST
     };
 
     public static String[] fullUserColumns = new String[]{
@@ -847,12 +866,13 @@ public class ScContentProvider extends ContentProvider {
 
     public interface CollectionItemTypes {
         int TRACK          = 0;
-        int FAVORITE       = 1;
+        int LIKE = 1;
         int FOLLOWING      = 2;
         int FOLLOWER       = 3;
         int FRIEND         = 4;
         int SUGGESTED_USER = 5;
         int SEARCH         = 6;
+        int REPOST         = 7;
     }
 
     private static void log(String message) {

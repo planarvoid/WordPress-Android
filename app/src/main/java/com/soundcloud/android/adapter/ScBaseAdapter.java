@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
@@ -280,9 +281,8 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
             throw new AssertionError("Invalid item " + position);
         }
 
-        Playable.PlayInfo info = new Playable.PlayInfo();
+        PlayInfo info = new PlayInfo();
         info.uri = getPlayableUri();
-
 
         List<Playable> playables = new ArrayList<Playable>(mData.size());
 

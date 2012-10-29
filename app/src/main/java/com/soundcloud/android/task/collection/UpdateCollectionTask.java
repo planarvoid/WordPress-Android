@@ -67,7 +67,7 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, ? extends ScResour
                 throw new IOException("Invalid response: " + resp.getStatusLine());
             }
 
-            SoundCloudApplication.MODEL_MANAGER.writeCollectionFromStream(resp.getEntity().getContent(), ScModel.CacheUpdateMode.FULL);
+            SoundCloudApplication.MODEL_MANAGER.writeCollectionFromStream(resp.getEntity().getContent(), ScResource.CacheUpdateMode.FULL);
             publishProgress();
             return true;
 

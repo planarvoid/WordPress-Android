@@ -3,7 +3,7 @@
   "collection": [
     {
       "created_at": "2012/02/08 07:26:40 +0000",
-      "origin": {
+      "track": {
         "id": 35930095,
         "video_url": null,
         "bpm": null,
@@ -61,11 +61,11 @@
         "license": "all-rights-reserved"
       },
       "type": "track",
+      "uuid": "23452342",
       "tags": "affiliated"
     },
     {
       "created_at": "2012/02/08 07:18:27 +0000",
-      "origin": {
         "track": {
           "id": 35927322,
           "video_url": null,
@@ -122,14 +122,14 @@
         "sharing_note": {
           "created_at": "2012/02/08 07:04:27 +0000",
           "text": "LEOTRAX06 Leo Zero 'Boom Bam' - 24hour download .wav file"
-        }
       },
+      "uuid": "12312412321312",
       "type": "track-sharing",
       "tags": "affiliated"
     },
     {
       "created_at": "2012/02/08 07:05:03 +0000",
-      "origin": {
+      "track": {
         "id": 35927322,
         "video_url": null,
         "bpm": null,
@@ -186,6 +186,7 @@
         "release_day": null,
         "license": "all-rights-reserved"
       },
+      "uuid": "6345323",
       "type": "track",
       "tags": "affiliated"
     }

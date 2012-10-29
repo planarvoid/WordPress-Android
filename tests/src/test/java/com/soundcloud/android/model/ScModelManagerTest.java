@@ -6,6 +6,7 @@ import static com.soundcloud.android.robolectric.TestHelper.addCannedResponses;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -22,7 +23,6 @@ import android.net.Uri;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
@@ -43,12 +43,12 @@ public class ScModelManagerTest {
         Track track = new Track();
         track.id = 1234;
         track.bpm = 120f;
-        manager.cache(track, ScModel.CacheUpdateMode.FULL);
+        manager.cache(track, ScResource.CacheUpdateMode.FULL);
 
         Track track2 = new Track();
         track2.id = 1234;
         track2.duration = 9876;
-        Track t = manager.cache(track2, ScModel.CacheUpdateMode.FULL);
+        Track t = manager.cache(track2, ScResource.CacheUpdateMode.FULL);
 
         expect(t.bpm).toEqual(track.bpm);
         expect(t.duration).toEqual(track.duration);
@@ -57,7 +57,7 @@ public class ScModelManagerTest {
     // TODO, one instance of every user. deserialize post processing
     @Test
     public void testUniqueUserMultipleTracks() throws IOException {
-        CollectionHolder<ScResource> holder = manager.getCollectionFromStream(getClass().getResourceAsStream("tracks.json"));
+        CollectionHolder<ScResource> holder = manager.getCollectionFromStream(SyncAdapterServiceTest.class.getResourceAsStream("tracks.json"));
         expect(holder.size()).toBe(3);
 
         Track t1 = (Track) holder.get(0);
@@ -153,7 +153,7 @@ public class ScModelManagerTest {
         u.track_count = ++counter;
         u.followers_count = ++counter;
         u.followings_count = ++counter;
-        u.public_favorites_count = ++counter;
+        u.public_likes_count = ++counter;
         u.private_tracks_count = ++counter;
 
         Uri uri = manager.write(u, false);
@@ -175,7 +175,7 @@ public class ScModelManagerTest {
         expect(u2.track_count).toEqual(u.track_count);
         expect(u2.followers_count).toEqual(u.followers_count);
         expect(u2.followings_count).toEqual(u.followings_count);
-        expect(u2.public_favorites_count).toEqual(u.public_favorites_count);
+        expect(u2.public_likes_count).toEqual(u.public_likes_count);
         expect(u2.private_tracks_count).toEqual(u.private_tracks_count);
 
         expect(u2.last_updated).not.toEqual(u.last_updated);
@@ -261,15 +261,15 @@ public class ScModelManagerTest {
             cv[i].put(DBHelper.CollectionItems.USER_ID, USER_ID);
         }
 
-        resolver.bulkInsert(Content.ME_FAVORITES.uri, cv);
+        resolver.bulkInsert(Content.ME_LIKES.uri, cv);
 
-        expect(manager.getLocalIds(Content.ME_FAVORITES, USER_ID).size()).toEqual(107);
-        List<Long> localIds = manager.getLocalIds(Content.ME_FAVORITES, USER_ID, 50, -1);
+        expect(manager.getLocalIds(Content.ME_LIKES, USER_ID).size()).toEqual(107);
+        List<Long> localIds = manager.getLocalIds(Content.ME_LIKES, USER_ID, 50, -1);
 
         expect(localIds.size()).toEqual(57);
         expect(localIds.get(0)).toEqual(50L);
 
-        localIds = manager.getLocalIds(Content.ME_FAVORITES, USER_ID, 100, 50);
+        localIds = manager.getLocalIds(Content.ME_LIKES, USER_ID, 100, 50);
         expect(localIds.size()).toEqual(7);
         expect(localIds.get(0)).toEqual(100L);
     }
@@ -277,21 +277,21 @@ public class ScModelManagerTest {
     @Test
     public void shouldBulkInsert() throws Exception {
         List<ScResource> items = createModels();
-        expect(manager.writeCollection(items, ScModel.CacheUpdateMode.MINI)).toEqual(3);
+        expect(manager.writeCollection(items, ScResource.CacheUpdateMode.MINI)).toEqual(3);
     }
 
     @Test
     public void shouldBulkInsertWithCollections() throws Exception {
         List<ScResource> items = createModels();
-        expect(manager.writeCollection(items, Content.ME_FAVORITES.uri, USER_ID, ScModel.CacheUpdateMode.MINI)).toEqual(3);
+        expect(manager.writeCollection(items, Content.ME_LIKES.uri, USER_ID, ScResource.CacheUpdateMode.MINI)).toEqual(3);
 
-        Cursor c = resolver.query(Content.ME_FAVORITES.uri, null, null, null, null);
+        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotBulkInsertWithoutOwnerId() throws Exception {
-        manager.writeCollection(createModels(), Content.ME_FAVORITES.uri, -1, ScModel.CacheUpdateMode.NONE);
+        manager.writeCollection(createModels(), Content.ME_LIKES.uri, -1, ScResource.CacheUpdateMode.NONE);
     }
 
     private List<ScResource> createModels() {
@@ -321,60 +321,52 @@ public class ScModelManagerTest {
 
 
     @Test
-    public void shouldInsertActivitiesIntoDb() throws Exception {
-        Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
-                SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
-        a.insert(Content.ME_SOUND_STREAM, resolver);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
+    public void shouldPersistActivitiesInDb() throws Exception {
+        Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(
+                SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
+        expect(a.insert(Content.ME_SOUND_STREAM, resolver)).toBe(22);
+
+        // 2 of these are playlists and are not returned for now
+        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
+        expect(Activities.getSince(Content.ME_SOUND_STREAM,
+                                resolver, -1).size()).toEqual(20);
     }
 
-    @Test
-    public void shouldGetActivitiesFromDB() throws Exception {
-        Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
-                SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
-        a.insert(Content.ME_SOUND_STREAM, resolver);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
-
-        expect(
-                Activities.getSince(Content.ME_SOUND_STREAM,
-                        resolver, -1).size()
-        ).toEqual(50);
-    }
 
     @Test
     public void shouldGetActivitiesFromDBWithTimeFiltering() throws Exception {
-        Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
-                SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
+        Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(
+                SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
         a.insert(Content.ME_SOUND_STREAM, resolver);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
 
         expect(
                 Activities.getSince(Content.ME_SOUND_STREAM,
                         resolver,
-                        toTime("2011/07/12 09:13:36 +0000")).size()
+                        toTime("2012/09/27 14:08:01 +0000")).size()
         ).toEqual(2);
     }
 
     @Test
     public void shouldGetLastActivity() throws Exception {
-        Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
-                SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
+        Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(
+                SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
         a.insert(Content.ME_SOUND_STREAM, resolver);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
 
         expect(
                 Activities.getLastActivity(Content.ME_SOUND_STREAM,
                         resolver).created_at.getTime()
-        ).toEqual(toTime("2011/07/06 15:47:50 +0000"));
+        ).toEqual(toTime("2012/09/26 14:52:27 +0000"));
     }
 
     @Test
     public void shouldClearAllActivities() throws Exception {
-        Activities a = SoundCloudApplication.MODEL_MANAGER.fromJSON(
-                SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
+        Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(
+                SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
 
         a.insert(Content.ME_SOUND_STREAM, resolver);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
 
         LocalCollection.insertLocalCollection(Content.ME_SOUND_STREAM.uri,
                 0, System.currentTimeMillis(), System.currentTimeMillis(), a.size(), a.future_href,
@@ -400,7 +392,7 @@ public class ScModelManagerTest {
             ids.add(i);
         }
 
-        expect(manager.writeCollection(users, ScModel.CacheUpdateMode.MINI)).toEqual(2);
+        expect(manager.writeCollection(users, ScResource.CacheUpdateMode.MINI)).toEqual(2);
         expect(manager.writeMissingCollectionItems((AndroidCloudAPI) Robolectric.application, ids,Content.USERS,false,5)).toEqual(5);
     }
 

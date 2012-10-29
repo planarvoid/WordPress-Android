@@ -65,7 +65,7 @@ public class Media implements Event {
     }
 
     /* package */ static String getMediaName(Track track) {
-        User user = track.getUser();
+        User user = track.user;
         String userTrack = track.userTrackPermalink();
         return user == null ? userTrack  : user.permalink + "::" + userTrack;
     }

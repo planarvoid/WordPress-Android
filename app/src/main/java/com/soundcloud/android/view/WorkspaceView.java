@@ -16,10 +16,12 @@
 
 package com.soundcloud.android.view;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -89,6 +91,8 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
     private int mTouchSlop;
     private int mPagingTouchSlop;
     private int mMaximumVelocity;
+
+    private int mCombinedWidth;
 
     private int initialSlop;
 
@@ -204,17 +208,29 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
         return w;
     }
 
+    @TargetApi(8)
     void handleScreenChangeCompletion(int currentScreen) {
+        View oldScreen = getScreenAt(mCurrentScreen);
+        if (oldScreen != null && oldScreen instanceof WorkspaceContentView) {
+            WorkspaceContentView view = (WorkspaceContentView) oldScreen;
+            view.onDisappear();
+        }
+
         mCurrentScreen = currentScreen;
-        View screen = getScreenAt(mCurrentScreen);
-        if (screen != null) {
-            screen.requestFocus();
-            try {
-                ReflectionUtils.tryInvoke(screen, "dispatchDisplayHint",
-                        new Class[]{int.class}, View.VISIBLE);
-                invalidate();
-            } catch (NullPointerException e) {
-                Log.e(TAG, "Caught NullPointerException", e);
+
+        View newScreen = getScreenAt(mCurrentScreen);
+
+        if (oldScreen != null && newScreen instanceof WorkspaceContentView) {
+            WorkspaceContentView view = (WorkspaceContentView) newScreen;
+            view.onDisappear();
+        }
+
+        if (newScreen != null) {
+            newScreen.requestFocus();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO && newScreen instanceof ViewGroup) {
+                ViewGroup group = (ViewGroup) newScreen;
+                group.dispatchDisplayHint(View.VISIBLE);
             }
         }
         notifyScreenChangeListener(mCurrentScreen, true);
@@ -362,6 +378,8 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
                 childLeft += childWidth;
             }
         }
+
+        mCombinedWidth = childLeft;
 
         mHasLaidOut = true;
         if (mDeferredScreenChange >= 0) {
@@ -661,7 +679,7 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
 
                     final View lastChild = getChildAt(getChildCount() - 1);
                     if (lastChild != null){
-                        final int maxScrollX = lastChild.getRight() - getWidth();
+                        final int maxScrollX = mCombinedWidth - getWidth();
                         scrollTo(Math.max(0, Math.min(maxScrollX,
                                 (int) (mDownScrollX + mDownMotionX - (x + initialSlop)))), 0);
                     }
@@ -773,11 +791,12 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
     }
 
     private void setImageLoaderState(){
+        /*
         if (mTouchState != TOUCH_STATE_SCROLLING){
             ImageLoader.get(getContext()).unblock(this);
         } else {
             ImageLoader.get(getContext()).block(this);
-        }
+        }*/
 
     }
 
@@ -1175,13 +1194,12 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
         final int screenWidth = getScrollWidth();
 
         if (mActivePointerId != INVALID_POINTER){
-            mDownMotionX = mDownMotionX + screenWidth;
             mDownScrollX = mDownScrollX + screenWidth;
         }
 
-        setCurrentScreenNow(mCurrentScreen+1);
         removeViewFromBack();
         addViewToFront(v);
+        setCurrentScreenNow(mCurrentScreen,false);
 
         return v;
     }
@@ -1194,13 +1212,12 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
         final int screenWidth = getScrollWidth();
 
         if (mActivePointerId != INVALID_POINTER){
-            mDownMotionX = mDownMotionX - screenWidth;
             mDownScrollX = mDownScrollX - screenWidth;
         }
 
-        setCurrentScreenNow(mCurrentScreen-1);
         removeViewFromFront();
         addViewToBack(v);
+        setCurrentScreenNow(mCurrentScreen,false);
 
         return v;
     }

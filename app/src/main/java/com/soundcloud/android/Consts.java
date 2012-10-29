@@ -181,16 +181,6 @@ public final class Consts {
 
     }
 
-    public interface ListId {
-        int LIST_STREAM          = 1001;
-        int LIST_ACTIVITY        = 1002;
-        int LIST_USER_TRACKS     = 1003;
-        int LIST_USER_FAVORITES  = 1004;
-        int LIST_USER_FOLLOWINGS = 1006;
-        int LIST_USER_FOLLOWERS  = 1007;
-        int LIST_USER_SUGGESTED  = 1008;
-    }
-
     // these need to be unique across app
     public interface Notifications {
         int RECORD_NOTIFY_ID    = 0;
@@ -212,7 +202,7 @@ public final class Consts {
 
     public interface PrefKeys {
         String EXCLUSIVE_ONLY_KEY                   = "incoming_exclusive_only";
-        String SC_PLAYLIST_URI                      = "sc_playlist_uri";
+        String SC_PLAYQUEUE_URI = "sc_playlist_uri";
         String STREAMING_WRITES_SINCE_CLEANUP       = "streamingWritesSinceCleanup";
         String C2DM_DEVICE_URL                      = "c2dm.device_url";
         String C2DM_REG_TO_DELETE                   = "c2dm.to_delete";

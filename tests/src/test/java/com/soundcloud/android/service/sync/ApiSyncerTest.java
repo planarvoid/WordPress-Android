@@ -45,7 +45,7 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncActivities() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "own_2.json");
+        TestHelper.addCannedResponses(getClass(), "e1_activities_1_oldest.json");
         ApiSyncer syncer = new ApiSyncer(Robolectric.application);
         ApiSyncer.Result result = syncer.syncContent(Content.ME_ACTIVITIES.uri, Intent.ACTION_SYNC);
         expect(result.success).toBe(true);
@@ -53,11 +53,11 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSetSyncResultData() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "own_2.json");
+        TestHelper.addCannedResponses(getClass(), "e1_activities_1_oldest.json");
         ApiSyncer syncer = new ApiSyncer(Robolectric.application);
         ApiSyncer.Result result = syncer.syncContent(Content.ME_ACTIVITIES.uri, Intent.ACTION_SYNC);
         expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
-        expect(result.new_size).toEqual(32);
+        expect(result.new_size).toEqual(7);
         expect(result.synced_at).not.toEqual(0l);
     }
 

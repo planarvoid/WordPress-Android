@@ -17,8 +17,8 @@
                 android:defaultValue="true"/>
 
         <CheckBoxPreference
-                android:title="@string/pref_sync_my_favorites"
-                android:summary="@string/pref_sync_my_favorites_description"
+                android:title="@string/pref_sync_my_likes"
+                android:summary="@string/pref_sync_my_likes_description"
                 android:key="syncMyFavorites"
                 android:defaultValue="true"/>
         <CheckBoxPreference

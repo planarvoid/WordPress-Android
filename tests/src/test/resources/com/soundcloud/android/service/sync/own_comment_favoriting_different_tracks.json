@@ -1,7 +1,7 @@
 {
   "collection": [
     {
-      "origin": {
+      "comment": {
         "uri": "https://api.soundcloud.com/comments/17485296",
         "timestamp": null,
         "track_id": 16110503,
@@ -32,11 +32,12 @@
         }
       },
       "created_at": "2011/05/29 11:53:09 +0000",
+      "uuid": "b897sdf-6dc9-11e1-84dc-e1bbf59e9e64",
       "type": "comment",
       "tags": "own, affiliated"
     },
     {
-      "origin": {
+      "comment": {
         "uri": "https://api.soundcloud.com/comments/17485296",
         "timestamp": null,
         "track_id": 16110503,
@@ -67,11 +68,11 @@
         }
       },
       "created_at": "2011/05/29 11:53:09 +0000",
+      "uuid": "b089s0d8f-6dc9-11e1-84dc-e1bbf59e9e64",
       "type": "comment",
       "tags": "own, affiliated"
     },
     {
-      "origin": {
         "user": {
           "uri": "https://api.soundcloud.com/users/6311652",
           "permalink_url": "http://soundcloud.com/paulko",
@@ -91,14 +92,13 @@
           "id": 13090155,
           "user_uri": "https://api.soundcloud.com/users/133201",
           "permalink": "p-watzlawick-anleitung-zum"
-        }
       },
       "created_at": "2011/07/29 22:30:59 +0000",
-      "type": "favoriting",
+      "uuid": "b035de80-89s7df-11e1-84dc-e1bbf59e9e64",
+      "type": "track-like",
       "tags": "own"
     },
     {
-      "origin": {
         "user": {
           "uri": "https://api.soundcloud.com/users/4462218",
           "permalink_url": "http://soundcloud.com/changmangoo",
@@ -118,14 +118,13 @@
           "id": 5848128,
           "user_uri": "https://api.soundcloud.com/users/133201",
           "permalink": "william-gibson-cory-doctorow-on-zero-history"
-        }
       },
       "created_at": "2011/07/22 17:12:46 +0000",
-      "type": "favoriting",
+      "uuid": "b035de80-6dc9-11e1-84dc-f78d9s7f64",
+      "type": "track-like",
       "tags": "own"
     },
     {
-      "origin": {
         "user": {
           "uri": "https://api.soundcloud.com/users/3498080",
           "permalink_url": "http://soundcloud.com/freenerd",
@@ -146,10 +145,10 @@
           "id": 16111648,
           "user_uri": "https://api.soundcloud.com/users/133201",
           "permalink": "sleeping-at-mtv"
-        }
       },
       "created_at": "2011/06/10 22:42:16 +0000",
-      "type": "favoriting",
+      "uuid": "b035de80-6dc9-11e1-84dc-897sdf8s",
+      "type": "track-like",
       "tags": "own"
     }
   ]
