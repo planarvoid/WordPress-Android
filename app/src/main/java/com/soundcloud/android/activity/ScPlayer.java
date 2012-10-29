@@ -96,7 +96,11 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     }
 
     public void toggleCommentMode(int playPos) {
-        mIsCommenting = !mIsCommenting;
+        setCommentMode(!mIsCommenting, playPos);
+    }
+
+    public void setCommentMode(boolean mIsCommenting, int playPos) {
+        this.mIsCommenting = mIsCommenting;
 
         final PlayerTrackView ptv = getTrackView(playPos);
         if (ptv != null) {
@@ -131,8 +135,12 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
 
     @Override
     public void onScreenChanged(View newScreen, int newScreenIndex) {
-
         if (newScreen == null) return;
+
+        if (mCurrentQueuePosition != newScreenIndex) {
+            setCommentMode(false, newScreenIndex);
+        }
+
         final int newQueuePos = ((PlayerTrackView) newScreen).getPlayPosition();
 
         mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
@@ -142,8 +150,6 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
                     mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
         }
         mChangeTrackFast = false;
-
-        invalidateOptionsMenu();
 
         final long prevTrackId;
         final long nextTrackId;
@@ -181,6 +187,8 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
                 ptv.setTrack(nextTrack, newQueuePos + 1, false, false);
             }
         }
+
+        invalidateOptionsMenu();
     }
 
     public void toggleShowingComments() {
@@ -191,7 +199,6 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     public boolean shouldShowComments() {
         return mShouldShowComments;
     }
-
 
     public long setSeekMarker(float seekPercent) {
         if (mPlaybackService != null) {

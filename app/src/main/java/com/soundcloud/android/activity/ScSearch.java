@@ -138,7 +138,7 @@ public class ScSearch extends ScListActivity {
                 track(Page.Search_results__people__keyword, search.query);
                 break;
             default:
-                mSpinner.setSelection(1);
+                mSpinner.setSelection(0);
                 track(Page.Search_results__all__keyword, search.query);
                 break;
         }

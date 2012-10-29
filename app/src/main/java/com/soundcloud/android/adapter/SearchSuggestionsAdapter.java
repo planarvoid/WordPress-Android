@@ -45,6 +45,7 @@ public class SearchSuggestionsAdapter extends CursorAdapter{
 
     public final static int TYPE_TRACK = 0;
     public final static int TYPE_USER = 1;
+    private int mOffsetRight;
 
     public SearchSuggestionsAdapter(Context context, Cursor c) {
         super(context, c, false);
@@ -124,6 +125,8 @@ public class SearchSuggestionsAdapter extends CursorAdapter{
                 holder.iv_search_type = (ImageView) view.findViewById(R.id.iv_search_type);
                 holder.tv_main = (TextView) view.findViewById(R.id.title);
                 view.setTag(holder);
+
+                fixRowPadding(view);
             }else{
                 holder = (SearchHolder)view.getTag();
             }
@@ -141,15 +144,24 @@ public class SearchSuggestionsAdapter extends CursorAdapter{
                 holder.iv_search_type = (ImageView) view.findViewById(R.id.iv_search_type);
                 holder.tv_main = (TextView) view.findViewById(R.id.username);
                 view.setTag(holder);
+
+                fixRowPadding(view);
             } else {
                 holder = (SearchHolder) view.getTag();
             }
 
             setIcon(holder, cursor.getString(cursor.getColumnIndex(DBHelper.Users.AVATAR_URL)));
             holder.tv_main.setText(cursor.getString(cursor.getColumnIndex(DBHelper.Users.USERNAME)));
-            holder.iv_search_type.setImageResource(R.drawable.ic_search_people);
+            holder.iv_search_type.setImageResource(R.drawable.ic_search_user);
         }
         return view;
+    }
+
+    private void fixRowPadding(View view) {
+        view.setPadding(view.getPaddingLeft(),
+                        view.getPaddingTop(),
+                        view.getPaddingRight() + mOffsetRight,
+                        view.getPaddingBottom());
     }
 
     private void setIcon(SearchHolder holder, String iconUri) {
@@ -164,6 +176,10 @@ public class SearchSuggestionsAdapter extends CursorAdapter{
             mImageLoader.unbind(holder.iv_icon);
             holder.iv_icon.setImageResource(R.drawable.cloud_no_logo_sm);
         }
+    }
+
+    public void setOffsetRight(int mOffsetRight) {
+        this.mOffsetRight = mOffsetRight;
     }
 
     static class SearchHolder {

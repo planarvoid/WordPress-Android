@@ -92,7 +92,10 @@ public class MainMenu extends LinearLayout {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (mClickListener != null) {
                     if (!mInSearchMode) {
-                        mClickListener.onMenuItemClicked(((SimpleListMenuItem) mMenuAdapter.getItem(position - mList.getHeaderViewsCount())).id);
+                        final int itemId = ((SimpleListMenuItem) mMenuAdapter.getItem(position - mList.getHeaderViewsCount())).id;
+                        if (mSelectedMenuId != itemId) {
+                            mClickListener.onMenuItemClicked(itemId);
+                        }
                     } else if (parent.getAdapter() == mSuggestionsAdapter){
                         switch (mSuggestionsAdapter.getItemViewType(position)){
                             case SearchSuggestionsAdapter.TYPE_TRACK:
@@ -147,6 +150,7 @@ public class MainMenu extends LinearLayout {
 
     public void setOffsetRight(int mOffsetRight) {
         ((RelativeLayout.LayoutParams) mQueryText.getLayoutParams()).rightMargin = mOffsetRight;
+        mSuggestionsAdapter.setOffsetRight(mOffsetRight);
         requestLayout();
     }
 
@@ -298,8 +302,8 @@ public class MainMenu extends LinearLayout {
                     convertView.setBackgroundResource(R.drawable.sidebar_item_background);
                 }
 
-                int paddingTopBottom = (int) getResources().getDimension(R.dimen.search_header_padding_topbottom);
-                int paddingLeftRight = (int) getResources().getDimension(R.dimen.search_header_padding_leftright);
+                int paddingTopBottom = (int) getResources().getDimension(R.dimen.slm_item_padding_topbottom);
+                int paddingLeftRight = (int) getResources().getDimension(R.dimen.slm_item_padding_leftright);
                 convertView.setPadding(paddingLeftRight, paddingTopBottom, paddingLeftRight, paddingTopBottom);
             } else {
                 holder = (ViewHolder) convertView.getTag();

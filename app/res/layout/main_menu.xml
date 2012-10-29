@@ -8,20 +8,22 @@
                     android:paddingTop="@dimen/search_header_padding_topbottom"
                     android:paddingBottom="@dimen/search_header_padding_topbottom"
                     android:paddingLeft="@dimen/search_header_padding_leftright"
-                    android:paddingRight="@dimen/search_header_padding_leftright">
+                    android:paddingRight="@dimen/search_header_padding_leftright"
+                    android:background="@drawable/search_background">
 
         <LinearLayout android:id="@+id/root_menu_focus_catcher"
                       android:focusable="true"
                       android:focusableInTouchMode="true"
                       android:layout_width="0px"
-                      android:layout_height="0px"/>
+                      android:layout_height="0px"
+                      android:background="#222222"/>
 
         <com.soundcloud.android.view.ClearText
                 android:id="@+id/root_menu_query"
                 android:nextFocusUp="@id/root_menu_query"
                 android:nextFocusLeft="@id/root_menu_query"
                 style="@style/txt_search_menu"
-                android:textColor="@drawable/txt_light_states"
+                android:textColor="#333333"
                 android:imeOptions="actionSearch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -37,6 +39,10 @@
     <ListView android:id="@+id/root_menu_list"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:cacheColorHint="@color/main_menu_bg"
-              android:background="@color/main_menu_bg"/>
+              android:cacheColorHint="#222222"
+              android:background="#222222"
+              android:headerDividersEnabled="true"
+              android:footerDividersEnabled="true"
+              android:dividerHeight="1px"
+              android:divider="#333333"/>
 </merge>

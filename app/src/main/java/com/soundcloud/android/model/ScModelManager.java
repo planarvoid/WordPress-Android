@@ -392,7 +392,7 @@ public class ScModelManager {
         List<Long> fetchIds = (maxToFetch > -1) ? new ArrayList<Long>(ids.subList(0, Math.min(ids.size(), maxToFetch)))
                     : ids;
 
-        return SoundCloudDB.bulkInsertModels(mResolver, doBatchLookup(api, fetchIds, content));
+        return SoundCloudDB.bulkInsertModels(mResolver, doBatchLookup(api, fetchIds, Track.class.equals(content.modelType) ? Content.TRACKS : Content.USERS));
     }
 
     /**

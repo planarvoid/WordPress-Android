@@ -10,6 +10,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +28,7 @@ import java.util.List;
         property = "kind")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Track.class, name = "track"),
+        @JsonSubTypes.Type(value = Playlist.class, name = "playlist"),
         @JsonSubTypes.Type(value = Comment.class, name = "comment"),
         @JsonSubTypes.Type(value = User.class, name = "user"),
         @JsonSubTypes.Type(value = Playlist.class, name = "playlist")})
