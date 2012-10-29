@@ -142,8 +142,10 @@
                        android:resource="@xml/searchable" />
         </activity>
 
-        <activity android:name=".activity.Stream" />
-        <activity android:name=".activity.News" />
+        <activity android:name=".activity.landing.Stream" android:launchMode="singleTask" />
+        <activity android:name=".activity.landing.News" android:launchMode="singleTask" />
+        <activity android:name=".activity.landing.You" android:launchMode="singleTask" />
+        <activity android:name=".activity.landing.ScSearch" android:launchMode="singleTask" />
 
         <activity android:name=".activity.auth.Start" android:label="@string/app_name" android:exported="true" android:theme="@style/Theme.ScAuth" />
         <activity android:name=".activity.auth.Login" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScAuth"  />
@@ -175,7 +177,7 @@
         <activity android:name=".activity.track.TrackLikers" />
         <activity android:name=".activity.track.TrackComments" />
         <activity android:name=".activity.track.TracksByTag" />
-        <activity android:name=".activity.ScSearch" />
+
         <activity android:name=".activity.settings.Settings" android:label="Settings"/>
         <activity android:name=".activity.settings.AccountSettings" />
         <activity android:name=".activity.settings.NotificationSettings" android:label="Notifications Settings" />

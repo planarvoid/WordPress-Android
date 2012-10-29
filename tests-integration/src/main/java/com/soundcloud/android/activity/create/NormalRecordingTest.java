@@ -6,7 +6,7 @@ import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_R
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.RECORD;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.News;
+import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;

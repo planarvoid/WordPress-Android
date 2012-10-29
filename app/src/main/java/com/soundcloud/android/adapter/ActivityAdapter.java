@@ -95,6 +95,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
+            case TRACK_REPOST:
                 PlayUtils.playFromAdapter(mContext, this, mData, position, id);
                 break;
             default:

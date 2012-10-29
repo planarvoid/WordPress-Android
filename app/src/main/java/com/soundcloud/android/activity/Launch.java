@@ -2,12 +2,12 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.EmailConfirm;
 import com.soundcloud.android.activity.auth.FacebookSSO;
-import com.soundcloud.android.activity.settings.AccountSettings;
+import com.soundcloud.android.activity.landing.ScLandingPage;
+import com.soundcloud.android.activity.landing.Stream;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -42,7 +42,7 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
     private ResolveFetchTask mResolveTask;
     private FetchUserTask mFetchUserTask;
     private long mStartTime;
-    private static final long SPLASH_DELAY = 800;
+    private static final long SPLASH_DELAY = 500;
 
     private Intent launchIntent;
 
@@ -81,7 +81,8 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
         }
 
         handleViewUrl(getIntent());
-        launchIntent = new Intent(Launch.this, Stream.class);
+
+        launchIntent = ScLandingPage.LandingPage.fromString(app.getAccountData(User.DataKeys.LAST_LANDING_PAGE_IDX)).getIntent(this);
 
     }
 

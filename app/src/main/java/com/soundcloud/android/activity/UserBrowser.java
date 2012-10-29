@@ -9,13 +9,11 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.ScCreate;
-import com.soundcloud.android.activity.create.ScUpload;
 import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.cache.ParcelCache;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.Connection;
-import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.record.SoundRecorder;
@@ -49,7 +47,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -189,14 +186,12 @@ public class UserBrowser extends ScActivity implements
                 loadYou();
             }
 
-            build();
-
-            if (!isMe()) FollowStatus.get(this).requestUserFollowings(this);
+            if (!isYou()) FollowStatus.get(this).requestUserFollowings(this);
 
             /*
             if (intent.hasExtra(Tab.EXTRA)) {
                 mUserlistBrowser.initByTag(intent.getStringExtra(Tab.EXTRA));
-            } else if (isMe()) {
+            } else if (isYou()) {
                 final int initialTab = getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX);
                 if (initialTab == -1) {
                     mUserlistBrowser.initWorkspace(1);//tracks tab
@@ -207,7 +202,7 @@ public class UserBrowser extends ScActivity implements
                 mUserlistBrowser.initWorkspace(1);//tracks tab
             }
                           */
-            if (isMe()) {
+            if (isYou()) {
                 mConnections = Connections.get().getObjectsOrNull();
                 //mFriendFinderView.onConnections(mConnections, true);
                 Connections.get().requestUpdate(getApp(), false, this);
@@ -257,18 +252,18 @@ public class UserBrowser extends ScActivity implements
 
             @Override
             public ScListFragment getItem(int position) {
-                return ScListFragment.newInstance(isMe() ? my_contents[position].uri : user_contents[position].forId(mUser.id));
+                return ScListFragment.newInstance(isYou() ? my_contents[position].uri : user_contents[position].forId(mUser.id));
 
             }
 
             @Override
             public int getCount() {
-                return isMe() ? my_contents.length : user_contents.length;
+                return isYou() ? my_contents.length : user_contents.length;
             }
 
             @Override
             public CharSequence getPageTitle(int position) {
-                return getResources().getString(isMe() ? myTitleIds[position] : userTitleIds[position]);
+                return getResources().getString(isYou() ? myTitleIds[position] : userTitleIds[position]);
             }
         }
 
@@ -314,7 +309,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     public void refreshConnections(){
-        if (isMe()) {
+        if (isYou()) {
             Connections.get().requestUpdate(getApp(), true, this);
             //if (mFriendFinderView != null) mFriendFinderView.setState(FriendFinderView.States.LOADING, true);
         }
@@ -370,20 +365,15 @@ public class UserBrowser extends ScActivity implements
 
     public Page getEvent() {
         //Tab current = Tab.valueOf(mUserlistBrowser.getCurrentTag());
-        //return isMe() ? current.you : current.user;
+        //return isYou() ? current.you : current.user;
         return Page.Users_sounds;
     }
 
-    private void build() {
-        final boolean isMe = isMe();
-        getSupportActionBar().setTitle(mUser.username);
-    }
-
     private boolean isOtherUser() {
-        return !isMe();
+        return !isYou();
     }
 
-    private boolean isMe() {
+    protected boolean isYou() {
        return mUser != null && mUser.id == getCurrentUserId();
     }
 
@@ -601,7 +591,7 @@ public class UserBrowser extends ScActivity implements
                     toast.setGravity(Gravity.BOTTOM, 0, 0);
                     toast.show();
 
-                    if (success && isMe()) {
+                    if (success && isYou()) {
                         Connections.get().requestUpdate(getApp(), true, this);
                     }
                 }
@@ -623,12 +613,11 @@ public class UserBrowser extends ScActivity implements
     private void fromConfiguration(Configuration c){
         mInfoError = c.infoError;
         setUser(c.user);
-        build(); //build here because the rest of the state needs a constructed userlist browser
 
         if (c.loadUserTask != null) {
             mLoadUserTask = c.loadUserTask;
         }
-        if (isMe()) mConnections = c.connections;
+        if (isYou()) mConnections = c.connections;
         //mUserlistBrowser.initWorkspace(c.workspaceIndex);
     }
 
@@ -648,7 +637,7 @@ public class UserBrowser extends ScActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        if (!isMe()){
+        if (!isYou()){
             MenuItem followItem = menu.findItem(R.id.action_bar_follow);
             final boolean following = isFollowing();
             followItem.setIcon(following ? R.drawable.ic_remove_user_white : R.drawable.ic_add_user_white);

@@ -10,11 +10,15 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.ScCreate;
+import com.soundcloud.android.activity.landing.ScLandingPage;
+import com.soundcloud.android.activity.landing.News;
+import com.soundcloud.android.activity.landing.ScSearch;
+import com.soundcloud.android.activity.landing.Stream;
+import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Search;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
@@ -49,7 +53,7 @@ import android.widget.ImageView;
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class ScActivity extends SherlockFragmentActivity implements Tracker {
+public abstract class ScActivity extends SherlockFragmentActivity implements Tracker, RootView.OnMenuOpenListener, RootView.OnMenuCloseListener {
     protected static final int CONNECTIVITY_MSG = 0;
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
@@ -73,6 +77,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         super.setContentView(mRootView);
 
 
+        mRootView.setOnMenuOpenListener(this);
+        mRootView.setOnMenuCloseListener(this);
 
         mRootView.configureMenu(R.menu.main_nav, new MainMenu.OnMenuItemClickListener() {
             @Override
@@ -85,7 +91,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         startNavActivity(News.class);
                         break;
                     case R.id.nav_you:
-                        startNavActivity(UserBrowser.class);
+                        startNavActivity(You.class);
                         break;
                     case R.id.nav_record:
                         startNavActivity(ScCreate.class);
@@ -121,6 +127,10 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         configureActionBar();
 
+        if (this instanceof ScLandingPage){
+            getApp().setAccountData(User.DataKeys.LAST_LANDING_PAGE_IDX, ((ScLandingPage) this).getPageValue().key);
+        }
+
         if (savedInstanceState == null) {
             /*Fragment newFragment = new PlayerFragment();
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -136,10 +146,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
      * Basically, hack the action bar to make it look like next
      */
     private void configureActionBar() {
-
+        getSupportActionBar().setTitle(null);
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        if (getApp().getLoggedInUser() != null) getSupportActionBar().setTitle(getApp().getLoggedInUser().username);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // configure home image to fill vertically
         final float density = getResources().getDisplayMetrics().density;
@@ -203,7 +212,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     private void startNavActivity(Class activity) {
-        startActivity(getNavIntent(activity));
+        if (ScLandingPage.class.isAssignableFrom(activity)){
+            startActivity(getNavIntent(activity).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        } else {
+            startActivity(getNavIntent(activity));
+        }
+
     }
 
     private Intent getNavIntent(Class activity) {
@@ -416,8 +430,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     }
 
-    private void onHomeButtonPressed() {
-        mRootView.animateToggleMenu();
+    protected void onHomeButtonPressed() {
+        if (this instanceof ScLandingPage) {
+            mRootView.animateToggleMenu();
+        } else {
+            onBackPressed();
+        }
     }
 
     public long getCurrentUserId() {
@@ -474,5 +492,19 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     public void addNewComment(final Comment comment) {
         getApp().pendingComment = comment;
         safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
+    }
+
+    @Override
+    public void onMenuOpenLeft() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+    }
+
+    @Override
+    public void onMenuOpenRight() {
+    }
+
+    @Override
+    public void onMenuClosed() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 }
