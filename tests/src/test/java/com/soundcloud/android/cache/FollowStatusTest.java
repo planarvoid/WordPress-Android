@@ -39,7 +39,7 @@ public class FollowStatusTest  {
             cv[i].put(DBHelper.CollectionItems.USER_ID, USER_ID);
         }
 
-        Robolectric.application.getContentResolver().bulkInsert(Content.ME_FAVORITES.uri, cv);
+        Robolectric.application.getContentResolver().bulkInsert(Content.ME_LIKES.uri, cv);
 
 
         final boolean[] called = new boolean[1];
