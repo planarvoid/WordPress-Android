@@ -61,12 +61,12 @@ public enum Content  {
     USER("users/#", null, 302, User.class, -1, Table.USERS),
     USER_TRACKS("users/#/tracks", Endpoints.USER_TRACKS, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
     USER_LIKES("users/#/likes", Endpoints.USER_FAVORITES, 304, Track.class, LIKE, null),
-    USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 304, Track.class, REPOST, null),
     USER_FOLLOWERS("users/#/followers", Endpoints.USER_FOLLOWERS, 305, User.class, FOLLOWER, null),
     USER_FOLLOWINGS("users/#/followings", Endpoints.USER_FOLLOWINGS, 306, User.class, FOLLOWING, null),
     USER_COMMENTS("users/#/comments", null, 307, Comment.class, -1, null),
     USER_GROUPS("users/#/groups", null, 308, null, -1, null),
     USER_PLAYLISTS("users/#/playlists", null, 309, null, -1, null),
+    USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Track.class, REPOST, null),
 
     COMMENTS("comments", null, 400, Comment.class, -1, Table.COMMENTS),
     COMMENT("comments/#", null, 401, Comment.class, -1, Table.COMMENTS),
