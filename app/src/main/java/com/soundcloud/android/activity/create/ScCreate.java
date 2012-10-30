@@ -1026,7 +1026,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_bar_local_recordings:
-                startActivity(new Intent(this, UserBrowser.class));
+                startActivity(new Intent(this, UserBrowser.class).putExtra(UserBrowser.Tab.EXTRA,UserBrowser.Tab.tracks));
             default:
                 return super.onOptionsItemSelected(item);
         }

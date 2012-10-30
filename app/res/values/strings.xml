@@ -16,11 +16,13 @@
     <string name="menu_friend_finder">My Info</string>
 
     <string name="tab_title_my_sound_stream">My Stream</string>
+    <string name="tab_title_my_info">My Info</string>
     <string name="tab_title_my_sounds">My Sounds</string>
     <string name="tab_title_my_likes">My Likes</string>
     <string name="tab_title_my_followers">My Followers</string>
     <string name="tab_title_my_followings">My Followings</string>
 
+    <string name="tab_title_user_info">Info</string>
     <string name="tab_title_user_sounds">Sounds</string>
     <string name="tab_title_user_likes">Likes</string>
     <string name="tab_title_user_followers">Followers</string>

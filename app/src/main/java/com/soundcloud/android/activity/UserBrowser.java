@@ -9,9 +9,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.ScCreate;
-import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.cache.ParcelCache;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.User;
@@ -47,19 +45,16 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
 public class UserBrowser extends ScActivity implements
-        ParcelCache.Listener<Connection>,
         FollowStatus.Listener,
         FetchUserTask.FetchUserListener,
         EventAware, ActionBar.OnNavigationListener {
@@ -95,22 +90,35 @@ public class UserBrowser extends ScActivity implements
     }
 
     public enum Tab {
-        tracks(Page.Users_sounds, Page.You_sounds),
-        likes(Page.Users_likes, Page.You_likes),
-        details(Page.Users_info, Page.You_info),
-        followings(Page.Users_following, Page.You_following),
-        followers(Page.Users_followers, Page.You_followers),
-        friend_finder(null, Page.You_find_friends);
+        //details(Page.Users_info, Page.You_info, Content.USER, Content.ME, R.string.tab_title_user_info, R.string.tab_title_my_info),
+        tracks(Page.Users_sounds, Page.You_sounds, Content.USER_TRACKS, Content.ME_TRACKS, R.string.tab_title_user_sounds, R.string.tab_title_my_sounds),
+        likes(Page.Users_likes, Page.You_likes, Content.USER_LIKES, Content.ME_LIKES, R.string.tab_title_user_likes, R.string.tab_title_my_likes),
+        followings(Page.Users_following, Page.You_following, Content.USER_FOLLOWINGS, Content.ME_FOLLOWINGS, R.string.tab_title_user_followings, R.string.tab_title_my_followings),
+        followers(Page.Users_followers, Page.You_followers, Content.USER_FOLLOWERS, Content.ME_FOLLOWERS, R.string.tab_title_user_followers, R.string.tab_title_my_followers);
 
         public static final String EXTRA = "userBrowserTag";
 
-        public final Page user, you;
+        public final Page userPage, youPage;
+        public final Content userContent, youContent;
+        public final int userTitle, youTitle;
         public final String tag;
 
-        Tab(Page user, Page you) {
-            this.user = user;
-            this.you = you;
+        Tab(Page userPage, Page youPage, Content userContent, Content youContent, int userTitle, int youTitle) {
+            this.userPage = userPage;
+            this.youPage = youPage;
+            this.userContent = userContent;
+            this.youContent = youContent;
+            this.userTitle = userTitle;
+            this.youTitle = youTitle;
             this.tag = this.name();
+        }
+
+        public static int indexOf(String tag) {
+            for (int i = 0; i < values().length; i++)
+                if (values()[i].tag.equalsIgnoreCase(tag)) {
+                    return i;
+                }
+            return -1;
         }
     }
 
@@ -162,12 +170,12 @@ public class UserBrowser extends ScActivity implements
 
         mAdapter = new UserFragmentAdapter(getSupportFragmentManager());
 
-                mPager = (ViewPager) findViewById(R.id.pager);
-                mPager.setAdapter(mAdapter);
-                mPager.setBackgroundColor(Color.WHITE);
+        mPager = (ViewPager) findViewById(R.id.pager);
+        mPager.setAdapter(mAdapter);
+        mPager.setBackgroundColor(Color.WHITE);
 
-                mIndicator = (TitlePageIndicator) findViewById(R.id.indicator);
-                mIndicator.setViewPager(mPager);
+        mIndicator = (TitlePageIndicator) findViewById(R.id.indicator);
+        mIndicator.setViewPager(mPager);
 
 
         Intent intent = getIntent();
@@ -188,24 +196,10 @@ public class UserBrowser extends ScActivity implements
 
             if (!isYou()) FollowStatus.get(this).requestUserFollowings(this);
 
-            /*
             if (intent.hasExtra(Tab.EXTRA)) {
-                mUserlistBrowser.initByTag(intent.getStringExtra(Tab.EXTRA));
+                mPager.setCurrentItem(Tab.indexOf(intent.getStringExtra(Tab.EXTRA)));
             } else if (isYou()) {
-                final int initialTab = getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX);
-                if (initialTab == -1) {
-                    mUserlistBrowser.initWorkspace(1);//tracks tab
-                } else {
-                    mUserlistBrowser.initWorkspace(initialTab);
-                }
-            } else {
-                mUserlistBrowser.initWorkspace(1);//tracks tab
-            }
-                          */
-            if (isYou()) {
-                mConnections = Connections.get().getObjectsOrNull();
-                //mFriendFinderView.onConnections(mConnections, true);
-                Connections.get().requestUpdate(getApp(), false, this);
+                mPager.setCurrentItem(getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX));
             }
         }
 
@@ -240,34 +234,26 @@ public class UserBrowser extends ScActivity implements
 
 
     class UserFragmentAdapter extends FragmentPagerAdapter {
-        protected final Content[] my_contents = new Content[]{Content.ME_TRACKS, Content.ME_LIKES, Content.ME_FOLLOWERS, Content.ME_FOLLOWINGS};
-        protected final int[] myTitleIds = new int[]{R.string.tab_title_my_sounds, R.string.tab_title_my_likes, R.string.tab_title_my_followers, R.string.tab_title_my_followings};
-
-        protected final Content[] user_contents = new Content[]{Content.USER_TRACKS, Content.USER_LIKES, Content.USER_FOLLOWERS, Content.USER_FOLLOWINGS};
-        protected final int[] userTitleIds = new int[]{R.string.tab_title_user_sounds, R.string.tab_title_user_likes, R.string.tab_title_user_followers, R.string.tab_title_user_followings};
-
-            public UserFragmentAdapter(FragmentManager fm) {
-                super(fm);
-            }
-
-            @Override
-            public ScListFragment getItem(int position) {
-                return ScListFragment.newInstance(isYou() ? my_contents[position].uri : user_contents[position].forId(mUser.id));
-
-            }
-
-            @Override
-            public int getCount() {
-                return isYou() ? my_contents.length : user_contents.length;
-            }
-
-            @Override
-            public CharSequence getPageTitle(int position) {
-                return getResources().getString(isYou() ? myTitleIds[position] : userTitleIds[position]);
-            }
+        public UserFragmentAdapter(FragmentManager fm) {
+            super(fm);
         }
 
+        @Override
+        public ScListFragment getItem(int position) {
+            return ScListFragment.newInstance(isYou() ? Tab.values()[position].youContent.uri : Tab.values()[position].userContent.forId(mUser.id));
 
+        }
+
+        @Override
+        public int getCount() {
+            return Tab.values().length;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return getResources().getString(isYou() ? Tab.values()[position].youTitle : Tab.values()[position].userTitle);
+        }
+    }
 
     private void follow(User user) {
         getApp().track(Click.Follow, user, Level2.Users);
@@ -279,23 +265,11 @@ public class UserBrowser extends ScActivity implements
         toggleFollowing(user);
     }
 
-    public void setTab(String tag) {
-        //mUserlistBrowser.setCurrentScreenByTag(tag);
-    }
-
-    public boolean isShowingTab(Tab tab) {
-        return false;
-        //return mUserlistBrowser.getCurrentTag().equals(tab.tag);
-    }
-
-
     @Override
     protected void onResume() {
         trackScreen();
         super.onResume();
     }
-
-
 
     @Override
     public Configuration onRetainCustomNonConfigurationInstance() {
@@ -306,18 +280,6 @@ public class UserBrowser extends ScActivity implements
      protected void onDataConnectionChanged(boolean isConnected) {
         super.onDataConnectionChanged(isConnected);
         if (isConnected && avatarResult == BindResult.ERROR) reloadAvatar();
-    }
-
-    public void refreshConnections(){
-        if (isYou()) {
-            Connections.get().requestUpdate(getApp(), true, this);
-            //if (mFriendFinderView != null) mFriendFinderView.setState(FriendFinderView.States.LOADING, true);
-        }
-    }
-
-    public void onChanged(List<Connection> connections, ParcelCache<Connection> cache) {
-        mConnections = connections;
-        //mFriendFinderView.onConnections(connections, true);
     }
 
     private void loadYou() {
@@ -578,34 +540,12 @@ public class UserBrowser extends ScActivity implements
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent result) {
-        switch (requestCode) {
-            case Consts.RequestCodes.MAKE_CONNECTION:
-                if (resultCode == RESULT_OK) {
-                    boolean success = result.getBooleanExtra("success", false);
-                    String msg = getString(
-                            success ? R.string.connect_success : R.string.connect_failure,
-                            result.getStringExtra("service"));
-                    Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.BOTTOM, 0, 0);
-                    toast.show();
-
-                    if (success && isYou()) {
-                        Connections.get().requestUpdate(getApp(), true, this);
-                    }
-                }
-            //noinspection fallthrough
-            default:
-        }
-    }
-
     private Configuration toConfiguration() {
         Configuration c = new Configuration();
         c.loadUserTask = mLoadUserTask;
         c.user = mUser;
         c.connections = mConnections;
-        //c.workspaceIndex = mUserlistBrowser.getCurrentWorkspaceIndex();
+        c.pagerIndex = mPager.getCurrentItem();
         c.infoError = mInfoError;
         return c;
     }
@@ -618,14 +558,14 @@ public class UserBrowser extends ScActivity implements
             mLoadUserTask = c.loadUserTask;
         }
         if (isYou()) mConnections = c.connections;
-        //mUserlistBrowser.initWorkspace(c.workspaceIndex);
+        mPager.setCurrentItem(c.pagerIndex);
     }
 
     private static class Configuration {
         FetchUserTask loadUserTask;
         User user;
         List<Connection> connections;
-        int workspaceIndex;
+        int pagerIndex;
         boolean infoError;
     }
 
