@@ -58,6 +58,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
 
     private static @Nullable CloudPlaybackService instance;
+    public static @Nullable CloudPlaybackService getInstance(){ return instance; };
+    public static @Nullable PlayQueueManager getPlayQueueManager() { return instance == null ? null : instance.getPlaylistManager(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
 
     private static State state = STOPPED;
@@ -768,6 +770,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     /* package */ boolean isNotSeekablePastBuffer() {
         // Some phones on 2.2 ship with broken opencore
         return Build.VERSION.SDK_INT <= Build.VERSION_CODES.FROYO && StreamProxy.isOpenCore();
+    }
+
+    public long seek(float percent, boolean performSeek) {
+        return seek((long) (getDuration() * percent), performSeek);
     }
 
     /* package */

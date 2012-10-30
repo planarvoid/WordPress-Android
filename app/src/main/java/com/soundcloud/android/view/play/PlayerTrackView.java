@@ -82,7 +82,7 @@ public class PlayerTrackView extends LinearLayout implements
     private Drawable mLikeDrawable, mLikedDrawable;
 
     public Track mTrack;
-    private int mPlayPos;
+    private int mQueuePosition;
     private long mDuration;
     private boolean mLandscape, mOnScreen;
     private boolean mIsCommenting;
@@ -157,7 +157,7 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public void setTrack(@Nullable Track track, int queuePosition, boolean forceUpdate, boolean priority) {
-        mPlayPos = queuePosition;
+        mQueuePosition = queuePosition;
 
         final boolean changed = mTrack != track;
         if (!(forceUpdate || changed)) return;
@@ -169,7 +169,7 @@ public class PlayerTrackView extends LinearLayout implements
         }
 
         if (changed && !mLandscape) updateArtwork(priority);
-        mWaveformController.updateTrack(mTrack, priority);
+        mWaveformController.updateTrack(mTrack, queuePosition, priority);
 
         mTrackInfoBar.display(mTrack, false, -1, true, mPlayer.getCurrentUserId());
         if (mTrackInfo != null) mTrackInfo.setPlayingTrack(mTrack);
@@ -321,7 +321,7 @@ public class PlayerTrackView extends LinearLayout implements
 
     public void onDataConnected() {
         if (mWaveformController.waveformResult == ImageLoader.BindResult.ERROR) {
-            mWaveformController.updateTrack(mTrack, mOnScreen);
+            mWaveformController.updateTrack(mTrack, mQueuePosition, mOnScreen);
         }
         if (!mLandscape && mCurrentArtBindResult == ImageLoader.BindResult.ERROR) {
             updateArtwork(mOnScreen);
@@ -495,7 +495,7 @@ public class PlayerTrackView extends LinearLayout implements
 
 
     public int getPlayPosition() {
-        return mPlayPos;
+        return mQueuePosition;
     }
 
     public void onDestroy() {
@@ -685,7 +685,7 @@ public class PlayerTrackView extends LinearLayout implements
     public void onSuccess(Track t, String action) {
         if (t.id != mTrack.id) return;
 
-        setTrack(t, mPlayPos, true, mOnScreen);
+        setTrack(t, mQueuePosition, true, mOnScreen);
         if (mTrackInfo != null) {
             mTrackInfo.onInfoLoadSuccess();
         }
