@@ -2,10 +2,12 @@ package com.soundcloud.android.activity.create;
 
 
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.landing.ScLandingPage;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
@@ -657,6 +659,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
         mLastState = mCurrentState;
         mActionButton.setEnabled(true);
 
+        invalidateOptionsMenu(); // adjusts color of you button
+
         if (mCurrentState != CreateState.GENERATING_WAVEFORM && mGeneratingWaveformProgressBar != null) {
             if (mGeneratingWaveformProgressBar.getParent() == mGaugeHolder) mGaugeHolder.removeView(mGeneratingWaveformProgressBar);
             mGeneratingWaveformProgressBar = null;
@@ -995,10 +999,37 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
         }
     }
 
-    @Override public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(menu.size(), Consts.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
-             .setIcon(android.R.drawable.ic_menu_preferences);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuItem followItem = menu.findItem(R.id.action_bar_local_recordings);
+        switch (mCurrentState) {
+            case GENERATING_WAVEFORM:
+            case IDLE_RECORD:
+            case RECORD:
+                followItem.setIcon(R.drawable.ic_rec_you_dark);
+                break;
+            default:
+                followItem.setIcon(R.drawable.ic_rec_you);
+                break;
+        }
         return true;
+    }
+
+
+    @Override
+    protected int getMenuResourceId() {
+        return R.menu.sc_create;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_bar_local_recordings:
+                startActivity(new Intent(this, UserBrowser.class));
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     /* package, for testing */ CreateState getState() { return mCurrentState; }

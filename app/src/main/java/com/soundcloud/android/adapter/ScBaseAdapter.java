@@ -45,7 +45,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     protected int mPage = 1;
     protected Map<Long, Drawable> mIconAnimations = new HashMap<Long, Drawable>();
     protected Set<Long> mLoadingIcons = new HashSet<Long>();
-    private boolean mIsLoadingData;
+    protected boolean mIsLoadingData;
     private View mProgressView;
     private String mNextHref;
 
@@ -116,7 +116,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         return 0;
     }
 
-    private boolean isPositionOfProgressElement(int position) {
+    protected boolean isPositionOfProgressElement(int position) {
         return mIsLoadingData && position == mData.size();
     }
 
@@ -131,6 +131,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     @Override
     public View getView(int index, View row, ViewGroup parent) {
+
         if (isPositionOfProgressElement(index)) {
             return mProgressView;
         }

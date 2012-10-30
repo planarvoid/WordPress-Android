@@ -6,6 +6,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.view.MyTracklistRow;
@@ -43,17 +44,31 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
 
     @Override
     public int getItemViewType(int position) {
+        int type = super.getItemViewType(position);
+        if (type == IGNORE_ITEM_VIEW_TYPE) return type;
+
         return (position < getPendingRecordingsCount()) ? TYPE_PENDING_RECORDING : TYPE_TRACK;
     }
 
     @Override
     public int getViewTypeCount() {
-        return 1;
+        return 2;
     }
 
     @Override
     protected LazyRow createRow(int position) {
-        return getItemViewType(position) == TYPE_PENDING_RECORDING ? new MyTracklistRow(mContext, this) : new TrackInfoBar(mContext,this);
+        return getItemViewType(position) == TYPE_PENDING_RECORDING ?
+                new MyTracklistRow(mContext, this) : new TrackInfoBar(mContext,this);
+    }
+
+    @Override
+    protected boolean isPositionOfProgressElement(int position) {
+        return mIsLoadingData && (position == getItemCount());
+    }
+
+    @Override
+    public int getItemCount() {
+        return mRecordingData == null ? super.getItemCount() : mRecordingData.size() + super.getItemCount();
     }
 
     public boolean needsItems() {
