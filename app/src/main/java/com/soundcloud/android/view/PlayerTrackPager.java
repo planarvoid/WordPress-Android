@@ -12,8 +12,6 @@ import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.util.FloatMath;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -55,7 +53,10 @@ public class PlayerTrackPager extends ViewPager {
 
         // setup initial workspace, reusing them if possible
         int workspaceIndex = 0;
-        for (int pos = Math.max(0, playPosition - 1); pos < Math.min(playPosition + 2, queueLength); pos++) {
+
+        final boolean onLastTrack = playPosition == queueLength - 1;
+        final int start = onLastTrack ? Math.max(0, playPosition - 2) : Math.max(0, playPosition - 1);
+        for (int pos = start; pos < Math.min(start + 3, queueLength); pos++) {
             final PlayerTrackView ptv;
             if (mViews.size() > workspaceIndex) {
                 ptv = ((PlayerTrackView) mViews.get(workspaceIndex).getChildAt(0));
@@ -85,7 +86,7 @@ public class PlayerTrackPager extends ViewPager {
         mPageViewAdapter.notifyDataSetChanged();
 
         setCurrentItem(playPosition == 0 ? 0 : // beginning
-                playPosition == queueLength -1 ? mViews.size() - 1 : // end
+                onLastTrack ? mViews.size() - 1 : // end
                 1); // middle
     }
 
@@ -171,6 +172,7 @@ public class PlayerTrackPager extends ViewPager {
    					case LEFT:
                            currentView = (PlayerTrackView) mViews.getFirst().getChildAt(0);
                            if (currentView.getPlayPosition() > 0){
+                               // move the last trackview to the beginning
                                PlayerTrackView lastView = (PlayerTrackView) mViews.getLast().getChildAt(0);
                                mViews.getLast().removeAllViews();
                                for (int i = mViews.size() - 1; i > 0; i--) {
@@ -179,9 +181,10 @@ public class PlayerTrackPager extends ViewPager {
                                    mViews.get(i).addView(view);
                                }
                                mViews.getFirst().addView(lastView);
+
                                final int pos = currentView.getPlayPosition() - 1;
                                lastView.setOnScreen(false);
-                               lastView.setTrack(playQueueManager.getTrackAt(pos), pos,true,false);
+                               lastView.setTrack(playQueueManager == null ? null : playQueueManager.getTrackAt(pos), pos,true,false);
                                mPlayerTrackViews.add(0, mPlayerTrackViews.remove(mPlayerTrackViews.size()-1));
                                PlayerTrackPager.this.setCurrentItem(1, false);
                            }
@@ -190,6 +193,7 @@ public class PlayerTrackPager extends ViewPager {
    					case RIGHT:
                            currentView = (PlayerTrackView) mViews.getLast().getChildAt(0);
                            if (currentView.getPlayPosition() < queueLength -1) {
+                               // move the first trackview to the end
                                PlayerTrackView firstView = (PlayerTrackView) mViews.getFirst().getChildAt(0);
                                mViews.getFirst().removeAllViews();
                                for (int i = 0; i < mViews.size() - 1; i++) {
@@ -198,9 +202,10 @@ public class PlayerTrackPager extends ViewPager {
                                    mViews.get(i).addView(view);
                                }
                                mViews.getLast().addView(firstView);
+
                                final int pos = currentView.getPlayPosition() + 1;
                                firstView.setOnScreen(false);
-                               firstView.setTrack(playQueueManager.getTrackAt(pos), pos, true, false);
+                               firstView.setTrack(playQueueManager == null ? null : playQueueManager.getTrackAt(pos), pos, true, false);
                                mPlayerTrackViews.add(mPlayerTrackViews.remove(0));
                                PlayerTrackPager.this.setCurrentItem(1, false);
                            }
@@ -212,36 +217,38 @@ public class PlayerTrackPager extends ViewPager {
    	};
 
 
-   	private PagerAdapter mPageViewAdapter = new PagerAdapter() {
+    private PagerAdapter mPageViewAdapter = new PagerAdapter() {
 
-   		@Override public int getCount() {
-               return mViews.size();
-   		}
+        @Override
+        public int getCount() {
+            return mViews.size();
+        }
 
-   		@Override public Object instantiateItem(View collection, int position) {
-   			if (mViews.size() == 0) return null;
-   			((ViewPager) collection).addView(mViews.get(position));
-   			return mViews.get(position);
-   		}
+        @Override
+        public Object instantiateItem(View collection, int position) {
+            if (mViews.size() == 0) return null;
+            ((ViewPager) collection).addView(mViews.get(position));
+            return mViews.get(position);
+        }
 
-   		@Override public void destroyItem(View collection, int position, Object view) {
-   			((ViewPager) collection).removeView((FrameLayout) view);
-   		}
+        @Override
+        public void destroyItem(View collection, int position, Object view) {
+            ((ViewPager) collection).removeView((FrameLayout) view);
+        }
 
-   		@Override public boolean isViewFromObject(View view, Object object) {
-   			return view == ((FrameLayout) object);
-   		}
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view == object;
+        }
 
-   		@Override public void finishUpdate(View arg0) {}
+        @Override
+        public void restoreState(Parcelable arg0, ClassLoader arg1) {
+        }
 
-   		@Override public void restoreState(Parcelable arg0, ClassLoader arg1) {}
-
-   		@Override public Parcelable saveState() {
-   			return null;
-   		}
-
-   		@Override public void startUpdate(View arg0) {}
-
-   	};
+        @Override
+        public Parcelable saveState() {
+            return null;
+        }
+    };
 
    }
