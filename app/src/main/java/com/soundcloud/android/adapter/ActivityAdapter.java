@@ -89,7 +89,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
     }
 
     @Override
-    public void handleListItemClick(int position, long id) {
+    public int handleListItemClick(int position, long id) {
 
         Activity.Type type = Activity.Type.values()[getItemViewType(position)];
         switch (type) {
@@ -97,10 +97,11 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
             case TRACK_SHARING:
             case TRACK_REPOST:
                 PlayUtils.playFromAdapter(mContext, this, mData, position, id);
-                break;
+                return ItemClickResults.LEAVING;
             default:
                 Log.i(SoundCloudApplication.TAG, "Clicked on item " + id);
         }
+        return ItemClickResults.IGNORE;
     }
 
     @Override

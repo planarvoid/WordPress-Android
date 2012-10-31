@@ -1,6 +1,5 @@
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.view.adapter.LazyRow;
@@ -20,6 +19,7 @@ public class SearchAdapterTest {
 
             @Override
             public void handleListItemClick(int position, long id) {
+                return position;
             }
         };
     }

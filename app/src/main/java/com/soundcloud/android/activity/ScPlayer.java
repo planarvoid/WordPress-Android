@@ -407,8 +407,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             final int queuePos = intent.getIntExtra(CloudPlaybackService.BroadcastExtras.queuePosition, -1);
             String action = intent.getAction();
 
-            Log.i("asdf","Got intent " + intent);
-
             if (action.equals(CloudPlaybackService.PLAYQUEUE_CHANGED)) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
                 setTrackDisplayFromService();

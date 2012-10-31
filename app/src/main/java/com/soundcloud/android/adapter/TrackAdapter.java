@@ -30,8 +30,9 @@ public class TrackAdapter extends ScBaseAdapter<Track> implements PlayableAdapte
     }
 
     @Override
-    public void handleListItemClick(int position, long id) {
+    public int handleListItemClick(int position, long id) {
         PlayUtils.playFromAdapter(mContext, this, mData, position, id);
+        return ItemClickResults.LEAVING;
     }
 
     @Override
