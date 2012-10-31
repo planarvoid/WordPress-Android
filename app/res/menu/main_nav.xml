@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/nav_stream"   android:text="@string/tab_stream"    android:icon="@drawable/sidebar_activity" />
-    <item android:id="@+id/nav_news"     android:text="@string/tab_activity"  android:icon="@drawable/sidebar_stream"/>
     <item android:id="@+id/nav_you"      android:text="@string/tab_you"       android:icon="@drawable/sidebar_you"/>
+    <item android:id="@+id/nav_stream"   android:text="@string/tab_stream"    android:icon="@drawable/sidebar_stream"/>
+    <item android:id="@+id/nav_news"     android:text="@string/tab_activity"  android:icon="@drawable/sidebar_activity" />
     <item android:id="@+id/nav_record"   android:text="@string/tab_record"    android:icon="@drawable/sidebar_record"/>
     <item android:id="@+id/nav_settings" android:text="@string/menu_settings" android:icon="@android:drawable/ic_menu_preferences" />
 </menu>

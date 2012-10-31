@@ -1,7 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScListActivity;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.view.ScListView;
@@ -12,7 +12,7 @@ import android.widget.Button;
 
 
 @Tracking(page = Page.Entry_signup__find_friends)
-public class SuggestedUsers extends ScListActivity {
+public class SuggestedUsers extends ScActivity {
     private ScListView mListView;
     private Button facebookBtn;
     private boolean resumedBefore;

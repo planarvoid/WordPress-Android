@@ -5,7 +5,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ImageUtils;
@@ -25,7 +25,7 @@ class Message {
     public final CharSequence title, message, ticker;
     public Message(Resources res, Activities activities, Activities favoritings, Activities comments) {
         if (!favoritings.isEmpty() && comments.isEmpty()) {
-            // only favoritings
+            // only trackLikes
             List<Track> tracks = favoritings.getUniqueTracks();
             ticker = res.getQuantityString(
                     R.plurals.dashboard_notifications_activity_ticker_like,
@@ -77,7 +77,7 @@ class Message {
                                 (users.size() > 1 ? users.get(1).username : null));
             }
         } else {
-           // mix of favoritings and comments
+           // mix of trackLikes and comments
             List<Track> tracks = activities.getUniqueTracks();
             List<User> users = activities.getUniqueUsers();
             ticker = res.getQuantityString(R.plurals.dashboard_notifications_activity_ticker_activity,

@@ -6,7 +6,6 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackHolder;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -32,13 +31,14 @@ public class RemoteCollectionLoaderTest {
     @Test
     public void shouldLoadTrackCollection() throws Exception {
 
-        TestHelper.addCannedResponse(getClass(), "/users/123/favorites?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "me_favorites.json");
+        final String url = "/users/123/favorites?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE;
+        TestHelper.addCannedResponse(getClass(), url, "me_favorites.json");
 
-        final Uri contentUri1 = Content.USER_FAVORITES.forId(123l);
+        final Uri contentUri1 = Content.USER_LIKES.forId(123l);
         ReturnData<ScResource> returnData = new RemoteCollectionLoader<ScResource>().load((AndroidCloudAPI) Robolectric.application,new CollectionParams<ScResource>(){
             {
                 contentUri = contentUri1;
-                request = buildRequest(contentUri1);
+                request = new Request(url);
                 loadModel = ScResource.class;
             }
         });

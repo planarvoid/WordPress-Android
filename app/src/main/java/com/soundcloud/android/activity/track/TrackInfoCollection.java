@@ -1,16 +1,18 @@
 package com.soundcloud.android.activity.track;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScListActivity;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
+import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 
 import android.os.Bundle;
 import android.view.View;
 
-public abstract class TrackInfoCollection extends ScListActivity implements   FetchTrackTask.FetchTrackListener {
+public abstract class TrackInfoCollection extends ScActivity implements   FetchTrackTask.FetchTrackListener {
     Track mTrack;
     TrackInfoBar mTrackInfoBar;
     //SectionedListView mListView;
@@ -26,7 +28,7 @@ public abstract class TrackInfoCollection extends ScListActivity implements   Fe
         mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playTrack(Playable.PlayInfo.forTracks(mTrack), true, false);
+                PlayUtils.playTrack(TrackInfoCollection.this, PlayInfo.forTracks(mTrack));
             }
         });
 

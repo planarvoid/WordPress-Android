@@ -7,18 +7,16 @@ import static com.soundcloud.android.provider.ScContentProvider.Parameter.RANDOM
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackHolder;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.service.sync.SyncAdapterService;
-import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
+import com.soundcloud.android.service.sync.ApiSyncServiceTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,16 +65,16 @@ public class ScContentProviderTest {
                 TrackHolder.class);
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();
         }
 
-        Cursor c = resolver.query(Content.ME_FAVORITES.uri, null, null, null, null);
+        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(15);
 
-        resolver.delete(Content.ME_FAVORITES.uri, DBHelper.CollectionItems.ITEM_ID + " = ?",
+        resolver.delete(Content.ME_LIKES.uri, DBHelper.CollectionItems.ITEM_ID + " = ?",
                 new String[]{String.valueOf(tracks.get(0).id)});
 
-        c = resolver.query(Content.ME_FAVORITES.uri, null, null, null, null);
+        c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(14);
     }
 
@@ -88,7 +86,7 @@ public class ScContentProviderTest {
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();
         }
 
         expect(resolver.query(Content.TRACKS.uri, null, null, null, null).getCount()).toEqual(15);
@@ -116,21 +114,21 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldIncludeUserPermalinkInTrackView() throws Exception {
-        Activities activities = SoundCloudApplication.MODEL_MANAGER.fromJSON(
-                SyncAdapterService.class.getResourceAsStream("incoming_1.json"));
+        Activities activities = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(
+                ApiSyncServiceTest.class.getResourceAsStream("e1_stream_1.json"));
 
         for (Track t : activities.getUniqueTracks()) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
             expect(resolver.insert(Content.TRACK.uri, t.buildContentValues())).not.toBeNull();
         }
 
-        expect(Content.TRACK).toHaveCount(50);
-        expect(Content.USERS).toHaveCount(32);
-        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(18876167l);       // jwagener/grand-piano-keys
+        expect(Content.TRACK).toHaveCount(20);
+        expect(Content.USERS).toHaveCount(9);
+        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(61350393l);
 
         expect(t).not.toBeNull();
-        expect(t.user.permalink).toEqual("jwagener");
-        expect(t.permalink).toEqual("grand-piano-keys");
+        expect(t.user.permalink).toEqual("westafricademocracyradio");
+        expect(t.permalink).toEqual("info-chez-vous-2012-27-09");
     }
 
     @Test
@@ -253,7 +251,7 @@ public class ScContentProviderTest {
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();
         }
         Cursor c = resolver.query(Content.TRACK.withQuery(RANDOM, "0"), null, null, null, null);
         expect(c.getCount()).toEqual(15);
@@ -278,7 +276,7 @@ public class ScContentProviderTest {
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();
         }
 
         ContentValues cv = new ContentValues();
@@ -300,7 +298,7 @@ public class ScContentProviderTest {
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();
         }
 
         ContentValues cv = new ContentValues();
@@ -309,7 +307,7 @@ public class ScContentProviderTest {
         cv.put(DBHelper.TrackMetadata.CACHED, 1);
         resolver.insert(Content.TRACK_METADATA.uri, cv);
 
-        Uri uri = Content.ME_FAVORITES.withQuery(CACHED, "1");
+        Uri uri = Content.ME_LIKES.withQuery(CACHED, "1");
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
         expect(c.moveToNext()).toBeTrue();
@@ -324,10 +322,10 @@ public class ScContentProviderTest {
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();
         }
 
-        Uri uri = Content.ME_FAVORITES.withQuery(RANDOM, "1", LIMIT, "5");
+        Uri uri = Content.ME_LIKES.withQuery(RANDOM, "1", LIMIT, "5");
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(5);
 
@@ -344,9 +342,9 @@ public class ScContentProviderTest {
     public void shouldHaveStreamEndpointWhichReturnsRandomItems() throws Exception {
         // TODO: find easier way to populate stream
         ApiSyncService svc = new ApiSyncService();
-        TestHelper.addCannedResponses(SyncAdapterServiceTest.class,  "incoming_2.json");
+        TestHelper.addCannedResponses(ApiSyncServiceTest.class,  "e1_stream_2_oldest.json");
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(49);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(26);
 
         ContentValues cv = new ContentValues();
         final long firstId = 18508668l;
@@ -357,7 +355,7 @@ public class ScContentProviderTest {
         Uri uri = Content.ME_SOUND_STREAM.withQuery(RANDOM, "1", LIMIT, "5");
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(5);
-        long[] sorted = new long[] {18508668, 18508600, 18508493, 18028217, 18223729};
+        long[] sorted = new long[] {61467451, 61465333, 61454101, 61451011, 61065502};
         long[] result = new long[sorted.length];
         int i=0;
         while (c.moveToNext()) {
@@ -370,12 +368,12 @@ public class ScContentProviderTest {
     public void shouldHaveStreamEndpointWhichOnlyReturnsCachedItems() throws Exception {
         // TODO: find easier way to populate stream
         ApiSyncService svc = new ApiSyncService();
-        TestHelper.addCannedResponses(SyncAdapterServiceTest.class,  "incoming_2.json");
+        TestHelper.addCannedResponses(ApiSyncServiceTest.class,  "e1_stream_2_oldest.json");
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(49);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(26);
 
         ContentValues cv = new ContentValues();
-        final long cachedId = 18508668l;
+        final long cachedId = 61467451l;
         cv.put(DBHelper.TrackMetadata._ID, cachedId);
         cv.put(DBHelper.TrackMetadata.CACHED, 1);
         resolver.insert(Content.TRACK_METADATA.uri, cv);

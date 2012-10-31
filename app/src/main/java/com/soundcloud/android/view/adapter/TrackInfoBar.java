@@ -5,12 +5,10 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.IScAdapter;
-import com.soundcloud.android.adapter.SearchSuggestionsAdapter;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.quickaction.QuickTrackMenu;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,15 +37,15 @@ public class TrackInfoBar extends LazyRow {
     private TextView mCreatedAt;
     private TextView mPrivateIndicator;
 
-    private TextView mFavoriteCount;
+    private TextView mLikeCount;
     private TextView mPlayCount;
     private TextView mCommentCount;
 
     private View mPlayCountSeparator;
     private View mCommentCountSeparator;
 
-    private Drawable mFavoritesDrawable;
-    private Drawable mFavoritedDrawable;
+    private Drawable mLikesDrawable;
+    private Drawable mLikedDrawable;
     private Drawable mPrivateBgDrawable;
     private Drawable mVeryPrivateBgDrawable;
     private Drawable mPlayingDrawable;
@@ -84,7 +82,7 @@ public class TrackInfoBar extends LazyRow {
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
 
         mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
-        mFavoriteCount = (TextView) findViewById(R.id.favorite_count);
+        mLikeCount = (TextView) findViewById(R.id.like_count);
         mPlayCount = (TextView) findViewById(R.id.play_count);
         mCommentCount = (TextView) findViewById(R.id.comment_count);
 
@@ -115,7 +113,7 @@ public class TrackInfoBar extends LazyRow {
         AndroidUtils.setTextShadowForGrayBg(mTitle);
         AndroidUtils.setTextShadowForGrayBg(mUser);
         AndroidUtils.setTextShadowForGrayBg(mCreatedAt);
-        AndroidUtils.setTextShadowForGrayBg(mFavoriteCount);
+        AndroidUtils.setTextShadowForGrayBg(mLikeCount);
         AndroidUtils.setTextShadowForGrayBg(mPlayCount);
         AndroidUtils.setTextShadowForGrayBg(mCommentCount);
     }
@@ -128,20 +126,20 @@ public class TrackInfoBar extends LazyRow {
         return mPlayingDrawable;
     }
 
-    private Drawable getFavoritedDrawable(){
-          if (mFavoritedDrawable == null) {
-              mFavoritedDrawable = getResources().getDrawable(R.drawable.ic_stats_favorited_states);
-              mFavoritedDrawable.setBounds(0, 0, mFavoritedDrawable.getIntrinsicWidth(), mFavoritedDrawable.getIntrinsicHeight());
+    private Drawable getLikedDrawable(){
+          if (mLikedDrawable == null) {
+              mLikedDrawable = getResources().getDrawable(R.drawable.ic_stats_liked_states);
+              mLikedDrawable.setBounds(0, 0, mLikedDrawable.getIntrinsicWidth(), mLikedDrawable.getIntrinsicHeight());
           }
-        return mFavoritedDrawable;
+        return mLikedDrawable;
     }
 
-    private Drawable getFavoritesDrawable(){
-          if (mFavoritesDrawable == null) {
-              mFavoritesDrawable = getResources().getDrawable(R.drawable.ic_stats_favorites_states);
-              mFavoritesDrawable.setBounds(0, 0, mFavoritesDrawable.getIntrinsicWidth(), mFavoritesDrawable.getIntrinsicHeight());
+    private Drawable getLikesDrawable(){
+          if (mLikesDrawable == null) {
+              mLikesDrawable = getResources().getDrawable(R.drawable.ic_stats_likes_states);
+              mLikesDrawable.setBounds(0, 0, mLikesDrawable.getIntrinsicWidth(), mLikesDrawable.getIntrinsicHeight());
           }
-        return mFavoritesDrawable;
+        return mLikesDrawable;
     }
 
     private Drawable getPrivateBgDrawable(){
@@ -198,13 +196,13 @@ public class TrackInfoBar extends LazyRow {
                 mPlayCountSeparator,
                 track.comment_count, mCommentCount,
                 mCommentCountSeparator,
-                track.favoritings_count, mFavoriteCount,
+                track.favoritings_count, mLikeCount,
                 keepHeight);
 
-        if (track.user_favorite) {
-            mFavoriteCount.setCompoundDrawablesWithIntrinsicBounds(getFavoritedDrawable(),null, null, null);
+        if (track.user_like) {
+            mLikeCount.setCompoundDrawablesWithIntrinsicBounds(getLikedDrawable(), null, null, null);
         } else {
-            mFavoriteCount.setCompoundDrawables(getFavoritesDrawable(),null, null, null);
+            mLikeCount.setCompoundDrawables(getLikesDrawable(), null, null, null);
         }
 
 

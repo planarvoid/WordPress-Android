@@ -117,7 +117,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         MODEL_MANAGER = new ScModelManager(this, mCloudApi.getMapper());
 
         if (account != null) {
-            FollowStatus.initialize(this, getCurrentUserId());
             Connections.initialize(this, "connections-"+getCurrentUserId());
 
             if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
@@ -256,7 +255,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (account != null) {
             mLoggedInUser = user;
             // move this when we can't guarantee we will only have 1 account active at a time
-            FollowStatus.initialize(this, user.id);
             enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
             return true;
         } else {

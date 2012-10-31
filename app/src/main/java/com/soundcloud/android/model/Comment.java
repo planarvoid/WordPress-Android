@@ -2,10 +2,12 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,6 +15,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Parcel;
 
 import java.util.Comparator;
@@ -49,15 +52,15 @@ import java.util.Date;
  */
 
 
-public class Comment extends ScResource implements Origin {
-    @JsonView(Views.Mini.class) public Date created_at;
-    @JsonView(Views.Mini.class) public long user_id;
-    @JsonView(Views.Mini.class) public long track_id;
-    @JsonView(Views.Mini.class) public long timestamp; // should be null (non-timed comment)
-    @JsonView(Views.Mini.class) public Track track;
-    @JsonView(Views.Mini.class) public String body;
-    @JsonView(Views.Mini.class) public String uri;
-    @JsonView(Views.Mini.class) public User user;
+public class Comment extends ScResource {
+    @JsonProperty @JsonView(Views.Mini.class) public Date created_at;
+    @JsonProperty @JsonView(Views.Mini.class) public long user_id;
+    @JsonProperty @JsonView(Views.Mini.class) public long track_id;
+    @JsonProperty @JsonView(Views.Mini.class) public long timestamp; // should be null (non-timed comment)
+    @JsonProperty @JsonView(Views.Mini.class) public Track track;
+    @JsonProperty @JsonView(Views.Mini.class) public String body;
+    @JsonProperty @JsonView(Views.Mini.class) public String uri;
+    @JsonProperty @JsonView(Views.Mini.class) public User user;
 
     // non-API related fields
     public long reply_to_id;
@@ -69,6 +72,11 @@ public class Comment extends ScResource implements Origin {
     public Comment nextComment; //pointer to the next comment at this timestamp
 
     public Comment() {
+    }
+
+    @Override
+    public Uri getBulkInsertUri() {
+        return Content.COMMENTS.uri;
     }
 
     public Comment(Cursor c, boolean view) {
@@ -94,26 +102,6 @@ public class Comment extends ScResource implements Origin {
         }
     }
 
-    @Override @JsonIgnore
-    public Track getTrack() {
-        return track;
-    }
-
-    @Override @JsonIgnore
-    public User getUser() {
-        return user;
-    }
-
-    @Override
-    public void setCachedTrack(Track track) {
-        this.track = track;
-    }
-
-    @Override
-    public void setCachedUser(User user) {
-        this.user = user;
-    }
-
     public void prefetchAvatar(Context c) {
         if (shouldLoadIcon()) {
             ImageLoader.get(c).prefetch(Consts.GraphicSize.formatUriForList(c, user.avatar_url));
@@ -133,6 +121,16 @@ public class Comment extends ScResource implements Origin {
 
     public boolean shouldLoadIcon() {
         return user != null && user.shouldLoadIcon();
+    }
+
+    @Override @JsonIgnore
+    public User getUser() {
+        return user;
+    }
+
+    @Override @JsonIgnore
+    public Track getTrack() {
+        return track;
     }
 
     public static class CompareTimestamp implements Comparator<Comment> {
@@ -166,6 +164,11 @@ public class Comment extends ScResource implements Origin {
         comment.reply_to_id = replyToId;
         comment.reply_to_username = replyToUsername;
         return comment;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     @Override

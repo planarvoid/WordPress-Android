@@ -46,7 +46,7 @@ public class AppTest {
             NamedNodeMap attributes = n.getAttributes();
             if (attributes != null) {
                 Node name = attributes.getNamedItem("android:name");
-                if (name != null && "android.intent.category.LAUNCHER".equals(name.getTextContent())) {
+                if (name != null && "android.intent.category.LAUNCHER".equals(name.getNodeValue())) {
                     launchers++;
                 }
             }

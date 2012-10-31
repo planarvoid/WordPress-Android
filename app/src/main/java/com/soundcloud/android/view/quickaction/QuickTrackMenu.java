@@ -6,7 +6,6 @@ import android.view.View;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.model.Track;
@@ -19,7 +18,7 @@ public class QuickTrackMenu extends QuickAction {
     ActionItem mProfileActionItem;
     ActionItem mShareActionItem;
     ActionItem mCommentActionItem;
-    ActionItem mFavoriteActionItem;
+    ActionItem mLikeActionItem;
 
     private Drawable mLikeDrawable;
     private Drawable mlikedDrawable;
@@ -38,8 +37,8 @@ public class QuickTrackMenu extends QuickAction {
 
         mPlayActionItem = new ActionItem(mContext, mContext.getResources().getDrawable(R.drawable.bg_submenu_left_states), getPlayDrawable());
         //mPlayActionItem.setTitle("Play");
-        mFavoriteActionItem = new ActionItem(mContext, mContext.getResources().getDrawable(R.drawable.bg_submenu_states), getLikeDrawable());
-        //mFavoriteActionItem.setTitle("Favorite");
+        mLikeActionItem = new ActionItem(mContext, mContext.getResources().getDrawable(R.drawable.bg_submenu_states), getLikeDrawable());
+        //mLikeActionItem.setTitle("Like");
         mCommentActionItem = new ActionItem(mContext, mContext.getResources().getDrawable(R.drawable.bg_submenu_states), mContext.getResources().getDrawable(R.drawable.ic_submenu_comment_states));
         //mCommentActionItem.setTitle("Comment");
         mShareActionItem = new ActionItem(mContext, mContext.getResources().getDrawable(R.drawable.bg_submenu_states), mContext.getResources().getDrawable(R.drawable.ic_submenu_share_states));
@@ -48,7 +47,7 @@ public class QuickTrackMenu extends QuickAction {
         //mProfileActionItem.setTitle("Profile");
 
         addActionItem(mPlayActionItem);
-        addActionItem(mFavoriteActionItem);
+        addActionItem(mLikeActionItem);
         addActionItem(mCommentActionItem);
         addActionItem(mShareActionItem);
         addActionItem(mProfileActionItem);
@@ -62,7 +61,7 @@ public class QuickTrackMenu extends QuickAction {
         mPlayActionItem.setIcon(CloudPlaybackService.isTrackPlaying(track.id) ? getPauseDrawable() : getPlayDrawable());
 
         mShareActionItem.setVisibility(track.isPublic() ? View.VISIBLE : View.GONE);
-        mFavoriteActionItem.setIcon(track.user_favorite ? getLikedDrawable() : getLikeDrawable());
+        mLikeActionItem.setIcon(track.user_like ? getLikedDrawable() : getLikeDrawable());
 
         if (!track.hasAvatar() ||
                 ImageUtils.loadImageSubstitute(mContext, mProfileActionItem.getIconView(), track.user.avatar_url,
@@ -84,12 +83,12 @@ public class QuickTrackMenu extends QuickAction {
 //                        break;
 //
 //                    case 1:
-//                        if (track.user_favorite) {
-//                            track.user_favorite = false;
-//                            mAdapter.removeFavorite(track);
+//                        if (track.user_like) {
+//                            track.user_like = false;
+//                            mAdapter.removeLike(track);
 //                        } else {
-//                            track.user_favorite = true;
-//                            mAdapter.addFavorite(track);
+//                            track.user_like = true;
+//                            mAdapter.addLike(track);
 //                        }
 //                        break;
 //

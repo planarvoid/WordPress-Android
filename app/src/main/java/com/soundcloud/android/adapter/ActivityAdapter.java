@@ -1,41 +1,39 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.collection.CollectionParams;
+import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.adapter.CommentRow;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.adapter.LikeRow;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
 import java.util.Collections;
 
-public class ActivityAdapter extends ScBaseAdapter<Activity> {
+public class ActivityAdapter extends ScBaseAdapter<Activity> implements PlayableAdapter {
 
     public ActivityAdapter(Context context, Uri uri) {
         super(context, uri);
     }
 
     @Override
-        public int getViewTypeCount() {
-            return super.getViewTypeCount() + Activity.Type.values().length;
-        }
+    public int getViewTypeCount() {
+        return super.getViewTypeCount() + Activity.Type.values().length;
+    }
 
-        @Override
-        public int getItemViewType(int position) {
-            int type = super.getItemViewType(position);
-            if (type == IGNORE_ITEM_VIEW_TYPE) return type;
+    @Override
+    public int getItemViewType(int position) {
+        int type = super.getItemViewType(position);
+        if (type == IGNORE_ITEM_VIEW_TYPE) return type;
 
-            return getItem(position).type.ordinal();
-        }
+        return getItem(position).getType().ordinal();
+    }
 
     @Override
     protected LazyRow createRow(int position) {
@@ -43,15 +41,17 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
+            case TRACK_REPOST:
                 return new TrackInfoBar(mContext, this);
 
             case COMMENT:
                 return new CommentRow(mContext, this);
-            case FAVORITING:
+
+            case TRACK_LIKE:
                 return new LikeRow(mContext, this);
-            case PLAYLIST:
+
             default:
-                throw new IllegalArgumentException("no view for playlists yet");
+                throw new IllegalArgumentException("no view for " + type + " yet");
         }
     }
 
@@ -95,7 +95,8 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
-                playPosition(position,id);
+            case TRACK_REPOST:
+                PlayUtils.playFromAdapter(mContext, this, mData, position, id);
                 break;
             default:
                 Log.i(SoundCloudApplication.TAG, "Clicked on item " + id);
@@ -103,7 +104,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
     }
 
     @Override
-    protected Uri getPlayableUri() {
+    public Uri getPlayableUri() {
         return mContentUri;
     }
 }

@@ -8,11 +8,12 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.PlaylistManager;
+import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -40,7 +41,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
-public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenChangeListener, WorkspaceView.OnScrollListener {
+public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChangeListener, WorkspaceView.OnScrollListener {
     public static final String PLAYER_SHOWING_COMMENTS = "playerShowingComments";
     public static final int REFRESH_DELAY = 1000;
 
@@ -154,11 +155,11 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         final long prevTrackId;
         final long nextTrackId;
 
-        final PlaylistManager playlistManager = mPlaybackService.getPlaylistManager();
+        final PlayQueueManager playQueueManager = mPlaybackService.getPlaylistManager();
         prevTrackId = newQueuePos > 0
-                ? playlistManager.getTrackIdAt(newQueuePos - 1) : -1;
-        nextTrackId =  newQueuePos < playlistManager.length() - 1
-                ? playlistManager.getTrackIdAt(newQueuePos + 1) : -1;
+                ? playQueueManager.getTrackIdAt(newQueuePos - 1) : -1;
+        nextTrackId =  newQueuePos < playQueueManager.length() - 1
+                ? playQueueManager.getTrackIdAt(newQueuePos + 1) : -1;
 
         final PlayerTrackView ptv;
         if (newScreenIndex == 0 && prevTrackId != -1) {
@@ -230,7 +231,13 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
 
     public boolean toggleLike(Track track) {
         if (track == null) return false;
-        mPlaybackService.setFavoriteStatus(track.id, !track.user_favorite);
+        mPlaybackService.setLikeStatus(track.id, !track.user_like);
+        return true;
+    }
+
+    public boolean toggleRepost(Track track) {
+        if (track == null) return false;
+        mPlaybackService.setRepostStatus(track.id, !track.user_repost);
         return true;
     }
 
@@ -284,6 +291,13 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
                 if (displayedTrack != null){
                     toggleLike(displayedTrack);
                     track(Click.Like, displayedTrack);
+                }
+                return true;
+
+            case R.id.action_bar_repost:
+                if (displayedTrack != null) {
+                    toggleRepost(displayedTrack);
+                    track(Click.Repost, displayedTrack);
                     invalidateOptionsMenu();
                 }
                 return true;
@@ -458,7 +472,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
             final int queuePos = intent.getIntExtra(CloudPlaybackService.BroadcastExtras.queuePosition, -1);
             String action = intent.getAction();
 
-            if (action.equals(CloudPlaybackService.PLAYLIST_CHANGED)) {
+            if (action.equals(CloudPlaybackService.PLAYQUEUE_CHANGED)) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
                 setTrackDisplayFromService();
             } else if (action.equals(CloudPlaybackService.META_CHANGED)) {
@@ -490,14 +504,14 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
                     getTrackView(queuePos).setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
                 }
 
-            } else if (action.equals(CloudPlaybackService.FAVORITE_SET) ||
+            } else if (action.equals(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED) ||
                         action.equals(CloudPlaybackService.COMMENTS_LOADED) ||
                         action.equals(Actions.COMMENT_ADDED)) {
                 for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
                     ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).handleIdBasedIntent(intent);
                 }
 
-                if (action.equals(CloudPlaybackService.FAVORITE_SET) || action.equals(Actions.COMMENT_ADDED)) {
+                if (action.equals(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED) || action.equals(Actions.COMMENT_ADDED)) {
                     invalidateOptionsMenu();
 
                 }
@@ -521,7 +535,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         AndroidUtils.bindToService(this, CloudPlaybackService.class, osc);
 
         IntentFilter f = new IntentFilter();
-        f.addAction(CloudPlaybackService.PLAYLIST_CHANGED);
+        f.addAction(CloudPlaybackService.PLAYQUEUE_CHANGED);
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
         f.addAction(CloudPlaybackService.META_CHANGED);
         f.addAction(CloudPlaybackService.PLAYBACK_ERROR);
@@ -533,7 +547,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
         f.addAction(CloudPlaybackService.SEEKING);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
-        f.addAction(CloudPlaybackService.FAVORITE_SET);
+        f.addAction(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED);
         f.addAction(Actions.COMMENT_ADDED);
         registerReceiver(mStatusListener, new IntentFilter(f));
     }
@@ -684,19 +698,29 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
 
         getSupportMenuInflater().inflate(R.menu.player, menu);
 
-        final MenuItem favoriteItem = menu.findItem(R.id.action_bar_like);
+        final MenuItem likeItem = menu.findItem(R.id.action_bar_like);
+        final MenuItem repostItem = menu.findItem(R.id.action_bar_repost);
         final MenuItem commentItem = menu.findItem(R.id.action_bar_comment);
         final MenuItem shareItem = menu.findItem(R.id.action_bar_share);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             menu.removeItem(R.id.action_bar_info);
         }
 
-        final Track track = getCurrentDisplayedTrack();
+        Track track = getCurrentDisplayedTrack();
+        if (track == null){ // possibly before layout
+            track = mPlayingTrack;
+        }
 
-        if (track != null && track.user_favorite) {
-            favoriteItem.setIcon(R.drawable.ic_like_orange);
+        if (track != null && track.user_like) {
+            likeItem.setIcon(R.drawable.ic_like_orange);
         } else {
-            favoriteItem.setIcon(R.drawable.ic_like_white);
+            likeItem.setIcon(R.drawable.ic_like_white);
+        }
+
+        if (track != null && track.user_repost) {
+            repostItem.setIcon(R.drawable.ic_repost_orange);
+        } else {
+            repostItem.setIcon(R.drawable.ic_repost_white);
         }
 
         if (mIsCommenting){

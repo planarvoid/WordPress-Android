@@ -8,13 +8,12 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
-import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
@@ -126,7 +125,7 @@ public class PlayerTrackView extends LinearLayout implements
                     final long userId = mTrack.user != null ? mTrack.user.id : mTrack.user_id;
                     if (userId == -1) return;
 
-                    if (mTrack.user != null) SoundCloudApplication.MODEL_MANAGER.cache(mTrack.user, ScModel.CacheUpdateMode.NONE);
+                    if (mTrack.user != null) SoundCloudApplication.MODEL_MANAGER.cache(mTrack.user, ScResource.CacheUpdateMode.NONE);
                     Intent intent = new Intent(getContext(), UserBrowser.class);
                     intent.putExtra("userId", mTrack.user_id);
                     getContext().startActivity(intent);
@@ -160,8 +159,9 @@ public class PlayerTrackView extends LinearLayout implements
     public void setTrack(@Nullable Track track, int queuePosition, boolean forceUpdate, boolean priority) {
         mPlayPos = queuePosition;
 
-        if (!forceUpdate && (mTrack != null && track != null && track.id == mTrack.id)) return;
-        final boolean changed = mTrack == null ? track != null : !mTrack.equals(track);
+        final boolean changed = mTrack != track;
+        if (!(forceUpdate || changed)) return;
+
         mTrack = track;
         if (mTrack == null) {
             mWaveformController.clearTrackComments();
@@ -336,7 +336,7 @@ public class PlayerTrackView extends LinearLayout implements
             return;
         }
 
-        if (mTrack.user_favorite) {
+        if (mTrack.user_like) {
             if (mLikedDrawable == null) mLikedDrawable = getResources().getDrawable(R.drawable.ic_liked_states_v1);
             mLikeButton.setImageDrawable(mLikedDrawable);
         } else {
@@ -576,9 +576,9 @@ public class PlayerTrackView extends LinearLayout implements
             } else {
                 mWaveformController.setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
             }
-        } else if (action.equals(CloudPlaybackService.FAVORITE_SET)) {
+        } else if (action.equals(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED)) {
             if (mTrack != null && mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
-                mTrack.user_favorite = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isFavorite, false);
+                mTrack.user_like = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false);
                 setLikeStatus();
             }
         } else if (action.equals(CloudPlaybackService.BUFFERING)) {

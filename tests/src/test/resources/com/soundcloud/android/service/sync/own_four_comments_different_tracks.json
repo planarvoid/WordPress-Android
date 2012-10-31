@@ -2,7 +2,8 @@
   "collection": [
     {
       "created_at": "2011/05/29 11:53:09 +0000",
-      "origin": {
+      "uuid": "b035de80-78dfs-11e1-84dc-e1bbf59e9e64",
+      "comment": {
         "user_id": 375367,
         "id": 17485296,
         "created_at": "2011/05/29 11:51:16 +0000",
@@ -37,7 +38,8 @@
     },
     {
       "created_at": "2011/05/29 11:53:09 +0000",
-      "origin": {
+      "uuid": "a879sd-6dc9-11e1-84dc-e1bbf59e9e64",
+      "comment": {
         "user_id": 375367,
         "id": 17485297,
         "created_at": "2011/05/29 11:51:16 +0000",
@@ -72,7 +74,8 @@
     },
     {
       "created_at": "2011/04/05 16:29:52 +0000",
-      "origin": {
+      "uuid": "g8udf-6dc9-11e1-84dc-e1bbf59e9e64",
+      "comment": {
         "user_id": 515350,
         "id": 13620507,
         "created_at": "2011/04/05 15:03:05 +0000",
@@ -107,7 +110,8 @@
     },
     {
       "created_at": "2011/03/18 13:11:55 +0000",
-      "origin": {
+      "uuid": "b035de80-6dc9-11e1-84dc-f87sdfs",
+      "comment": {
         "user_id": 476254,
         "id": 12547518,
         "created_at": "2011/03/18 13:11:54 +0000",

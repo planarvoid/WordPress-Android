@@ -5,7 +5,6 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.service.sync.SyncConfig;
-import com.soundcloud.android.service.sync.SyncContentTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -126,7 +125,7 @@ public class LocalCollectionTest {
     @Test
     public void shouldAutoRefreshFavorites() throws Exception {
         LocalCollection lc = new LocalCollection(1,
-                Content.ME_FAVORITES.uri,
+                Content.ME_LIKES.uri,
                 System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY,
                 0,
                 100, 0, null);
@@ -136,7 +135,7 @@ public class LocalCollectionTest {
     @Test
     public void shouldNotAutoRefreshFavorites() throws Exception {
         LocalCollection lc = new LocalCollection(1,
-                Content.ME_FAVORITES.uri,
+                Content.ME_LIKES.uri,
                 System.currentTimeMillis(),
                 0,
                 100, 0, null);
@@ -146,7 +145,7 @@ public class LocalCollectionTest {
     @Test
     public void shouldNotAutoRefreshFavorites2() throws Exception {
         LocalCollection lc = new LocalCollection(1,
-                Content.ME_FAVORITES.uri,
+                Content.ME_LIKES.uri,
                 System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY,
                 System.currentTimeMillis() - SyncConfig.TRACK_STALE_TIME + 10000,
                 100, 0, null);
@@ -168,7 +167,7 @@ public class LocalCollectionTest {
 
     @Test
     public void shouldChangeAutoRefresh() throws Exception {
-        Uri uri = Content.ME_FAVORITES.uri;
+        Uri uri = Content.ME_LIKES.uri;
         LocalCollection lc = LocalCollection.insertLocalCollection(uri, 1, 1, 100, 0, null, resolver);
         expect(lc.shouldAutoRefresh()).toBeTrue();
         lc.updateSyncState(LocalCollection.SyncState.SYNCING,resolver);

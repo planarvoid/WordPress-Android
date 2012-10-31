@@ -1,7 +1,7 @@
 {
   "collection": [
     {
-      "origin": {
+      "comment": {
         "user_id": 375367,
         "user": {
           "username": "fronx",
@@ -32,11 +32,12 @@
         "created_at": "2011/05/29 11:51:16 +0000"
       },
       "type": "comment",
+      "uuid": "b035de80-6dc9-11e1-84dc-f897sd8f",
       "tags": "own, affiliated",
       "created_at": "2011/05/29 11:53:09 +0000"
     },
     {
-      "origin": {
+      "comment": {
         "user_id": 375367,
         "user": {
           "username": "bronx",
@@ -68,10 +69,10 @@
       },
       "type": "comment",
       "tags": "own, affiliated",
+      "uuid": "b035de80-6dc9-11e1-84dc-89s7df987sdf",
       "created_at": "2011/05/29 11:54:09 +0000"
     },
     {
-      "origin": {
         "user": {
           "username": "bronx",
           "permalink": "bronx",
@@ -91,14 +92,13 @@
           "id": 13090155,
           "uri": "https://api.soundcloud.com/tracks/13090155",
           "permalink_url": "http://soundcloud.com/jberkel/p-watzlawick-anleitung-zum"
-        }
       },
-      "type": "favoriting",
+      "type": "track-like",
       "tags": "own",
+      "uuid": "b035de80-6dc9-11e1-84dc-89s7f98ds",
       "created_at": "2011/07/29 22:30:59 +0000"
     },
     {
-      "origin": {
         "user": {
           "username": "bronx",
           "permalink": "bronx",
@@ -118,14 +118,13 @@
           "id": 5848128,
           "uri": "https://api.soundcloud.com/tracks/5848128",
           "permalink_url": "http://soundcloud.com/jberkel/william-gibson-cory-doctorow-on-zero-history"
-        }
       },
-      "type": "favoriting",
+      "type": "track-like",
+      "uuid": "a8979s8d-6dc9-11e1-84dc-e1bbf59e9e64",
       "tags": "own",
       "created_at": "2011/07/22 17:12:46 +0000"
     },
     {
-      "origin": {
         "user": {
           "username": "bronx",
           "permalink": "bronx",
@@ -146,9 +145,9 @@
           "id": 16111648,
           "uri": "https://api.soundcloud.com/tracks/16111648",
           "permalink_url": "http://soundcloud.com/jberkel/sleeping-at-mtv"
-        }
       },
-      "type": "favoriting",
+      "type": "track-like",
+      "uuid": "b035de80-6dc9-11e1-84dc-fff897sdf",
       "tags": "own",
       "created_at": "2011/06/10 22:42:16 +0000"
     }

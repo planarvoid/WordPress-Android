@@ -2,11 +2,11 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScListActivity;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.view.MyTracklistRow;
@@ -22,17 +22,17 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyTracksAdapter extends ScBaseAdapter {
+public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
     private Cursor mCursor;
     private boolean mDataValid;
     private List<Recording> mRecordingData;
-    private ScListActivity mActivity;
+    private ScActivity mActivity;
 
     private static final int TYPE_PENDING_RECORDING = 0;
     private static final int TYPE_TRACK = 1;
     private ChangeObserver mChangeObserver;
 
-    public MyTracksAdapter(ScListActivity activity, Uri uri) {
+    public MyTracksAdapter(ScActivity activity, Uri uri) {
         super(activity, uri);
         mActivity = activity;
         refreshCursor();
@@ -44,17 +44,31 @@ public class MyTracksAdapter extends ScBaseAdapter {
 
     @Override
     public int getItemViewType(int position) {
+        int type = super.getItemViewType(position);
+        if (type == IGNORE_ITEM_VIEW_TYPE) return type;
+
         return (position < getPendingRecordingsCount()) ? TYPE_PENDING_RECORDING : TYPE_TRACK;
     }
 
     @Override
     public int getViewTypeCount() {
-        return 1;
+        return 2;
     }
 
     @Override
     protected LazyRow createRow(int position) {
-        return getItemViewType(position) == TYPE_PENDING_RECORDING ? new MyTracklistRow(mContext, this) : new TrackInfoBar(mContext,this);
+        return getItemViewType(position) == TYPE_PENDING_RECORDING ?
+                new MyTracklistRow(mContext, this) : new TrackInfoBar(mContext,this);
+    }
+
+    @Override
+    protected boolean isPositionOfProgressElement(int position) {
+        return mIsLoadingData && (position == getItemCount());
+    }
+
+    @Override
+    public int getItemCount() {
+        return mRecordingData == null ? super.getItemCount() : mRecordingData.size() + super.getItemCount();
     }
 
     public boolean needsItems() {
@@ -166,7 +180,7 @@ public class MyTracksAdapter extends ScBaseAdapter {
     }
 
     @Override
-    protected Uri getPlayableUri() {
+    public Uri getPlayableUri() {
         return mContentUri;
     }
 

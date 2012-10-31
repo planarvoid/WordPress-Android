@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
@@ -17,6 +18,7 @@ import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.task.collection.ReturnData;
 import com.soundcloud.android.task.collection.UpdateCollectionTask;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.quickaction.QuickAction;
 
@@ -43,7 +45,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     protected int mPage = 1;
     protected Map<Long, Drawable> mIconAnimations = new HashMap<Long, Drawable>();
     protected Set<Long> mLoadingIcons = new HashSet<Long>();
-    private boolean mIsLoadingData;
+    protected boolean mIsLoadingData;
     private View mProgressView;
     private String mNextHref;
 
@@ -114,7 +116,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         return 0;
     }
 
-    private boolean isPositionOfProgressElement(int position) {
+    protected boolean isPositionOfProgressElement(int position) {
         return mIsLoadingData && position == mData.size();
     }
 
@@ -129,6 +131,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     @Override
     public View getView(int index, View row, ViewGroup parent) {
+
         if (isPositionOfProgressElement(index)) {
             return mProgressView;
         }
@@ -275,47 +278,4 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     public abstract void handleListItemClick(int position, long id);
 
-    protected void playPosition(int position, long id){
-        if (position > mData.size() || !(mData.get(position) instanceof Playable)) {
-            throw new AssertionError("Invalid item " + position);
-        }
-
-        Playable.PlayInfo info = new Playable.PlayInfo();
-        info.uri = getPlayableUri();
-
-
-        List<Playable> playables = new ArrayList<Playable>(mData.size());
-
-
-        int adjustedPosition = position;
-        for (int i = 0; i < mData.size(); i++){
-            if (mData.get(i) instanceof Playable) {
-                playables.add((Playable) mData.get(i));
-            } else if (i < position) {
-                adjustedPosition--;
-            }
-        }
-
-        info.position = adjustedPosition;
-        info.playables = playables;
-
-        Intent intent = new Intent(mContext, CloudPlaybackService.class).setAction(CloudPlaybackService.PLAY_ACTION);
-
-        if (info.uri != null) {
-            SoundCloudApplication.MODEL_MANAGER.cache(info.getTrack());
-            intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.getTrack().id)
-                    .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
-                    .setData(info.uri);
-        } else {
-            CloudPlaybackService.playlistXfer = info.playables;
-
-            intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
-                    .putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true);
-        }
-
-        mContext.startService(intent);
-        mContext.startActivity(new Intent(mContext, ScPlayer.class));
-    }
-
-    protected abstract Uri getPlayableUri();
 }

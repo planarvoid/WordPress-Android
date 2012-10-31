@@ -46,7 +46,7 @@ public class PlaybackRemoteViews extends RemoteViews{
                 0 /* requestCode */, close, 0 /* flags */));
     }
 
-    public void linkButtonsWidget(Context context, long trackId, long userId, boolean userFavorite) {
+    public void linkButtonsWidget(Context context, long trackId, long userId, boolean userLike) {
         linkButtons(context);
 
         final ComponentName name = new ComponentName(context, CloudPlaybackService.class);
@@ -60,14 +60,14 @@ public class PlaybackRemoteViews extends RemoteViews{
                     PendingIntent.getActivity(context, 0, browser, PendingIntent.FLAG_UPDATE_CURRENT));
 
             final Intent toggleLike = new Intent(
-                    userFavorite ?
-                            CloudPlaybackService.REMOVE_FAVORITE_ACTION :
-                            CloudPlaybackService.ADD_FAVORITE_ACTION)
+                    userLike ?
+                            CloudPlaybackService.REMOVE_LIKE_ACTION :
+                            CloudPlaybackService.ADD_LIKE_ACTION)
                     .setComponent(name)
                     .putExtra(CloudPlaybackService.EXTRA_TRACK_ID, trackId);
 
             // toggle like
-            setOnClickPendingIntent(R.id.btn_favorite, PendingIntent.getService(context,
+            setOnClickPendingIntent(R.id.btn_like, PendingIntent.getService(context,
                     0 /* requestCode */, toggleLike, PendingIntent.FLAG_UPDATE_CURRENT));
         }
     }

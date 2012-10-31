@@ -6,7 +6,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.adapter.ScBaseAdapter;
+import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
@@ -31,11 +31,12 @@ public class MyTracklistRow extends TrackInfoBar {
     private Drawable mPrivateBgDrawable;
     private Drawable mVeryPrivateBgDrawable;
 
-    public MyTracklistRow(Context activity, ScBaseAdapter adapter) {
+    public MyTracklistRow(Context activity, IScAdapter adapter) {
         super(activity, adapter);
         mTitle = (TextView) findViewById(R.id.track);
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
         mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
+
     }
 
     @Override

@@ -15,8 +15,7 @@ import android.util.Log;
 public class UserAdapter extends ScBaseAdapter<User> implements FollowStatus.Listener {
     public UserAdapter(Context context, Uri uri) {
         super(context, uri);
-
-        FollowStatus.get().requestUserFollowings(SoundCloudApplication.fromContext(context),this, false);
+        FollowStatus.get(context).requestUserFollowings(this);
     }
 
     @Override
@@ -27,11 +26,6 @@ public class UserAdapter extends ScBaseAdapter<User> implements FollowStatus.Lis
     @Override
     public void handleListItemClick(int position, long id) {
         mContext.startActivity(new Intent(mContext, UserBrowser.class).putExtra(UserBrowser.EXTRA_USER,getItem(position)));
-    }
-
-    @Override
-    protected Uri getPlayableUri() {
-        return null;
     }
 
     @Override

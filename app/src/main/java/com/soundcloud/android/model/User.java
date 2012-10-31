@@ -10,10 +10,11 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
-import com.soundcloud.android.service.playback.PlaylistManager;
+import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.ContentResolver;
@@ -31,7 +32,7 @@ import java.util.EnumSet;
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Model
-public class User extends ScResource implements  Refreshable, Origin {
+public class User extends ScResource implements Refreshable {
     @JsonView(Views.Mini.class) public String username;
     @JsonView(Views.Mini.class) public String uri;
     @JsonView(Views.Mini.class) public String avatar_url;
@@ -55,8 +56,9 @@ public class User extends ScResource implements  Refreshable, Origin {
     public int    track_count            = NOT_SET;
     public int    followers_count        = NOT_SET;
     public int    followings_count       = NOT_SET;
-    public int    public_favorites_count = NOT_SET;
     public int    private_tracks_count   = NOT_SET;
+    @JsonProperty("public_likes_count")
+    public int public_likes_count = NOT_SET;
 
     // internal fields
     @JsonIgnore public String _list_avatar_uri;
@@ -70,7 +72,29 @@ public class User extends ScResource implements  Refreshable, Origin {
     }
 
     public User(Parcel in) {
-        readFromParcel(in);
+        // TODO replace with generated file
+        User model = this;
+        Bundle bundle = in.readBundle(model.getClass().getClassLoader());
+        model.username = bundle.getString("username");
+        model.uri = bundle.getString("uri");
+        model.avatar_url = bundle.getString("avatar_url");
+        model.permalink = bundle.getString("permalink");
+        model.permalink_url = bundle.getString("permalink_url");
+        model.full_name = bundle.getString("full_name");
+        model.description = bundle.getString("description");
+        model.city = bundle.getString("city");
+        model.country = bundle.getString("country");
+        model.plan = bundle.getString("plan");
+        model.website = bundle.getString("website");
+        model.website_title = bundle.getString("website_title");
+        model.myspace_name = bundle.getString("myspace_name");
+        model.discogs_name = bundle.getString("discogs_name");
+        model.track_count = bundle.getInt("track_count");
+        model.followers_count = bundle.getInt("followers_count");
+        model.followings_count = bundle.getInt("followings_count");
+        model.public_likes_count = bundle.getInt("public_likes_count");
+        model.private_tracks_count = bundle.getInt("private_tracks_count");
+        model.id = bundle.getLong("id");
     }
 
     public User(Cursor cursor) {
@@ -98,7 +122,7 @@ public class User extends ScResource implements  Refreshable, Origin {
         website = cursor.getString(cursor.getColumnIndex(Users.WEBSITE));
         website_title = cursor.getString(cursor.getColumnIndex(Users.WEBSITE_TITLE));
         primary_email_confirmed = cursor.getInt(cursor.getColumnIndex(Users.PRIMARY_EMAIL_CONFIRMED)) == 1;
-        public_favorites_count = cursor.getInt(cursor.getColumnIndex(Users.PUBLIC_FAVORITES_COUNT));
+        public_likes_count = cursor.getInt(cursor.getColumnIndex(Users.PUBLIC_LIKES_COUNT));
         private_tracks_count = cursor.getInt(cursor.getColumnIndex(Users.PRIVATE_TRACKS_COUNT));
 
         final String tempDesc = cursor.getString(cursor.getColumnIndex(Users.DESCRIPTION));
@@ -137,7 +161,7 @@ public class User extends ScResource implements  Refreshable, Origin {
         if (avatar_url != null) cv.put(Users.AVATAR_URL, avatar_url);
         if (permalink_url != null) cv.put(Users.PERMALINK_URL, permalink_url);
         if (track_count != NOT_SET) cv.put(Users.TRACK_COUNT, track_count);
-        if (public_favorites_count != NOT_SET) cv.put(Users.PUBLIC_FAVORITES_COUNT, public_favorites_count);
+        if (public_likes_count != NOT_SET) cv.put(Users.PUBLIC_LIKES_COUNT, public_likes_count);
         if (city != null) cv.put(Users.CITY, city);
         if (country != null) cv.put(Users.COUNTRY, country);
         if (discogs_name != null) cv.put(Users.DISCOGS_NAME, discogs_name);
@@ -177,7 +201,7 @@ public class User extends ScResource implements  Refreshable, Origin {
                 ", full_name='" + full_name + '\'' +
                 ", followers_count='" + followers_count + '\'' +
                 ", followings_count='" + followings_count + '\'' +
-                ", public_favorites_count='" + public_favorites_count + '\'' +
+                ", public_likes_count='" + public_likes_count + '\'' +
                 ", private_tracks_count='" + private_tracks_count + '\'' +
                 ", myspace_name='" + myspace_name + '\'' +
                 ", country='" + country + '\'' +
@@ -237,7 +261,7 @@ public class User extends ScResource implements  Refreshable, Origin {
         String USERNAME        = "currentUsername";
         String USER_ID         = "currentUserId";
         String USER_PERMALINK  = "currentUserPermalink";
-        String DASHBOARD_IDX   = "lastDashboardIndex";
+        String LAST_LANDING_PAGE_IDX = "lastLandingPageIndex";
         String PROFILE_IDX     = "lastProfileIndex";
         String SIGNUP          = "signup";
 
@@ -290,33 +314,13 @@ public class User extends ScResource implements  Refreshable, Origin {
         if (user.track_count != -1) this.track_count = user.track_count;
         if (user.followers_count != -1) this.followers_count = user.followers_count;
         if (user.followings_count != -1)this.followings_count = user.followings_count;
-        if (user.public_favorites_count != -1) this.public_favorites_count = user.public_favorites_count;
+        if (user.public_likes_count != -1) this.public_likes_count = user.public_likes_count;
         if (user.private_tracks_count != -1) this.private_tracks_count = user.private_tracks_count;
         if (user.discogs_name != null) this.discogs_name = user.discogs_name;
         if (user.myspace_name != null) this.myspace_name = user.myspace_name;
         if (user.description != null) this.description = user.description;
         if (user.primary_email_confirmed != null) this.primary_email_confirmed = user.primary_email_confirmed;
         return this;
-    }
-
-    @Override
-    public Track getTrack() {
-        return null;
-    }
-
-    @Override
-    public User getUser() {
-        return this;
-    }
-
-    @Override
-    public void setCachedTrack(Track track) {
-        // nop
-    }
-
-    @Override
-    public void setCachedUser(User user) {
-        // nop
     }
 
     public void resolve(Context context) {
@@ -341,43 +345,36 @@ public class User extends ScResource implements  Refreshable, Origin {
         // TODO move to model
         for (Content c : EnumSet.of(
                 Content.ME_TRACKS,
-                Content.ME_FAVORITES,
+                Content.ME_LIKES,
                 Content.ME_FOLLOWINGS,
                 Content.ME_FOLLOWERS)) {
             resolver.delete(Content.COLLECTIONS.uri,
                 DBHelper.Collections.URI + " = ?", new String[]{ c.uri.toString() });
         }
         Activities.clear(null, resolver);
-        PlaylistManager.clearState(context);
+        PlayQueueManager.clearState(context);
         FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
         Search.clearState(resolver, SoundCloudApplication.getUserId());
     }
 
     @Override
-    protected void readFromParcel(Parcel in) {
-        // TODO replace with generated file
-        User model = this;
-        Bundle bundle = in.readBundle(model.getClass().getClassLoader());
-        model.username = bundle.getString("username");
-        model.uri = bundle.getString("uri");
-        model.avatar_url = bundle.getString("avatar_url");
-        model.permalink = bundle.getString("permalink");
-        model.permalink_url = bundle.getString("permalink_url");
-        model.full_name = bundle.getString("full_name");
-        model.description = bundle.getString("description");
-        model.city = bundle.getString("city");
-        model.country = bundle.getString("country");
-        model.plan = bundle.getString("plan");
-        model.website = bundle.getString("website");
-        model.website_title = bundle.getString("website_title");
-        model.myspace_name = bundle.getString("myspace_name");
-        model.discogs_name = bundle.getString("discogs_name");
-        model.track_count = bundle.getInt("track_count");
-        model.followers_count = bundle.getInt("followers_count");
-        model.followings_count = bundle.getInt("followings_count");
-        model.public_favorites_count = bundle.getInt("public_favorites_count");
-        model.private_tracks_count = bundle.getInt("private_tracks_count");
-        model.id = bundle.getLong("id");
+    public Uri getBulkInsertUri() {
+        return Content.USERS.uri;
+    }
+
+    @Override @JsonIgnore
+    public User getUser() {
+        return this;
+    }
+
+    @Override @JsonIgnore
+    public Track getTrack() {
+        return null;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     @Override
@@ -402,10 +399,9 @@ public class User extends ScResource implements  Refreshable, Origin {
         bundle.putInt("track_count", model.track_count);
         bundle.putInt("followers_count", model.followers_count);
         bundle.putInt("followings_count", model.followings_count);
-        bundle.putInt("public_favorites_count", model.public_favorites_count);
+        bundle.putInt("public_likes_count", model.public_likes_count);
         bundle.putInt("private_tracks_count", model.private_tracks_count);
         bundle.putLong("id", model.id);
-
         out.writeBundle(bundle);
     }
 }

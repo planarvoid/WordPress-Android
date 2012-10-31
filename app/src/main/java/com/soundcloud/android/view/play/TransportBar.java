@@ -15,7 +15,7 @@ import android.widget.LinearLayout;
 
 public class TransportBar extends LinearLayout{
     private ImageButton mPauseButton, mPrevButton, mNextButton;
-    private Drawable mFavoriteDrawable, mFavoritedDrawable, mPlayState, mPauseState;
+    private Drawable mPlayState, mPauseState;
     private ViewParent mPrevHolder;
     private ViewParent mNextHolder;
 

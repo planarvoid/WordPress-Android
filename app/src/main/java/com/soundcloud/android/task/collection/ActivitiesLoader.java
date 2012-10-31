@@ -1,13 +1,12 @@
 package com.soundcloud.android.task.collection;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ApiSyncer;
 
 import android.content.ContentResolver;
-import android.util.Log;
 
 import java.io.IOException;
 

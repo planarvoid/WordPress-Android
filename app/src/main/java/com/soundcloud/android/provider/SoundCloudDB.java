@@ -1,6 +1,5 @@
 package com.soundcloud.android.provider;
 
-import com.soundcloud.android.model.Origin;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -107,29 +106,27 @@ public class SoundCloudDB {
 
         int index = 0;
         for (int i=0; i <items.size(); i++) {
+
             ScResource p = items.get(i);
             if (p != null) {
                 long id = p.id;
-                if (p instanceof Origin) {
-                    Origin origin = (Origin) p;
-                    Track track = origin.getTrack();
-                    if (track != null) {
-                        tracksToInsert.add(track);
-                    }
-                    User user = origin.getUser();
-                    if (user != null) {
-                        usersToInsert.add(user);
-                    }
+                Track track = p.getTrack();
+                if (track != null) {
+                    tracksToInsert.add(track);
+                }
 
+                User user = p.getUser();
+                if (user != null) {
+                    usersToInsert.add(user);
                 }
 
                 if (uri != null) {
                     ContentValues cv = new ContentValues();
                     switch (Content.match(uri)) {
-                        case PLAYLIST:
-                            cv.put(DBHelper.PlaylistItems.USER_ID, ownerId);
-                            cv.put(DBHelper.PlaylistItems.POSITION, i);
-                            cv.put(DBHelper.PlaylistItems.TRACK_ID, id);
+                        case PLAY_QUEUE:
+                            cv.put(DBHelper.PlayQueue.USER_ID, ownerId);
+                            cv.put(DBHelper.PlayQueue.POSITION, i);
+                            cv.put(DBHelper.PlayQueue.TRACK_ID, id);
                             break;
 
                         default:
@@ -137,6 +134,7 @@ public class SoundCloudDB {
                             cv.put(DBHelper.CollectionItems.POSITION, i);
                             cv.put(DBHelper.CollectionItems.ITEM_ID, id);
                             break;
+
                     }
                     bulkValues[index] = cv;
                     index++;

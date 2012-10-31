@@ -5,7 +5,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
@@ -134,7 +134,7 @@ class ServiceResultReceiver extends ResultReceiver {
 
     private boolean maybeNotifyOwn(SoundCloudApplication app, Activities activities, Bundle extras) {
         if (!activities.isEmpty()) {
-            Activities favoritings = SyncConfig.isLikeEnabled(app, extras) ? activities.favoritings() : Activities.EMPTY;
+            Activities favoritings = SyncConfig.isLikeEnabled(app, extras) ? activities.trackLikes() : Activities.EMPTY;
             Activities comments    = SyncConfig.isCommentsEnabled(app, extras) ? activities.comments() : Activities.EMPTY;
 
             Message msg = new Message(app.getResources(), activities, favoritings, comments);

@@ -3,7 +3,8 @@
     {
       "type": "comment",
       "tags": "own, affiliated",
-      "origin": {
+      "uuid": "12cefcew80-6dc9-11e1-84dc-e1bbf59e9e64",
+      "comment": {
         "user_id": 375367,
         "timestamp": null,
         "body": "heh :)",
@@ -38,7 +39,8 @@
     {
       "type": "comment",
       "tags": "own, affiliated",
-      "origin": {
+      "uuid": "b0v24fe0-6dc9-11e1-84dc-e1bbf59e9e64",
+      "comment": {
         "user_id": 375367,
         "timestamp": null,
         "body": "heh :)",

@@ -109,14 +109,14 @@ public class UserlistRow extends LazyRow {
     }
 
     private void setFollowingStatus(boolean enabled) {
-
+        final boolean following = FollowStatus.get(getContext()).isFollowing(mUser);
 
         if (mUser.id == getCurrentUserId()) {
             mFollowingBtn.setVisibility(View.INVISIBLE);
             mFollowBtn.setVisibility(View.INVISIBLE);
         } else {
-            mFollowingBtn.setVisibility(mUser.user_following ? View.VISIBLE : View.INVISIBLE);
-            mFollowBtn.setVisibility(mUser.user_following ? View.INVISIBLE : View.VISIBLE);
+            mFollowingBtn.setVisibility(following ? View.VISIBLE : View.INVISIBLE);
+            mFollowBtn.setVisibility(following ? View.INVISIBLE : View.VISIBLE);
             mFollowingBtn.setEnabled(enabled);
             mFollowBtn.setEnabled(enabled);
         }
@@ -153,7 +153,7 @@ public class UserlistRow extends LazyRow {
     private void toggleFollowing(final User user) {
         SoundCloudApplication app = SoundCloudApplication.fromContext(getContext());
         if (app != null) {
-            FollowStatus.get().toggleFollowing(user.id, app, new Handler() {
+            FollowStatus.get(getContext()).toggleFollowing(user, app, new Handler() {
                 @Override
                 public void handleMessage(Message msg) {
                     if (msg.what == 1) {

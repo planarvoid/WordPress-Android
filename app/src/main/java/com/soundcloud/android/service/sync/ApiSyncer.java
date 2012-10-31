@@ -4,12 +4,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.model.act.Activity;
+import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -78,9 +77,10 @@ public class ApiSyncer {
                     break;
 
                 case ME_TRACKS:
-                case ME_FAVORITES:
+                case ME_LIKES:
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
+                case ME_REPOSTS:
                     result = syncContent(c, SoundCloudApplication.getUserIdFromContext(mContext));
                     result.success = true;
                     break;
@@ -173,7 +173,7 @@ public class ApiSyncer {
                         .getEntity().getContent();
 
                 // parse and add first items
-                added = SoundCloudApplication.MODEL_MANAGER.writeCollectionFromStream(is, content.uri, userId, ScModel.CacheUpdateMode.FULL);
+                added = SoundCloudApplication.MODEL_MANAGER.writeCollectionFromStream(is, content.uri, userId, ScResource.CacheUpdateMode.FULL);
                 break;
 
             case ME_TRACKS:

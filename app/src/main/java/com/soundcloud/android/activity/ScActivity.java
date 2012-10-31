@@ -10,14 +10,22 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.ScCreate;
+import com.soundcloud.android.activity.landing.ScLandingPage;
+import com.soundcloud.android.activity.landing.News;
+import com.soundcloud.android.activity.landing.ScSearch;
+import com.soundcloud.android.activity.landing.Stream;
+import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Search;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
+import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.MainMenu;
 import com.soundcloud.android.view.NowPlayingIndicator;
 import com.soundcloud.android.view.RootView;
@@ -30,9 +38,11 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +53,7 @@ import android.widget.ImageView;
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class ScActivity extends SherlockFragmentActivity implements Tracker {
+public abstract class ScActivity extends SherlockFragmentActivity implements Tracker, RootView.OnMenuOpenListener, RootView.OnMenuCloseListener {
     protected static final int CONNECTIVITY_MSG = 0;
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
@@ -67,6 +77,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         super.setContentView(mRootView);
 
 
+        mRootView.setOnMenuOpenListener(this);
+        mRootView.setOnMenuCloseListener(this);
 
         mRootView.configureMenu(R.menu.main_nav, new MainMenu.OnMenuItemClickListener() {
             @Override
@@ -79,7 +91,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         startNavActivity(News.class);
                         break;
                     case R.id.nav_you:
-                        startNavActivity(UserBrowser.class);
+                        startNavActivity(You.class);
                         break;
                     case R.id.nav_record:
                         startNavActivity(ScCreate.class);
@@ -115,6 +127,10 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         configureActionBar();
 
+        if (this instanceof ScLandingPage){
+            getApp().setAccountData(User.DataKeys.LAST_LANDING_PAGE_IDX, ((ScLandingPage) this).getPageValue().key);
+        }
+
         if (savedInstanceState == null) {
             /*Fragment newFragment = new PlayerFragment();
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -130,10 +146,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
      * Basically, hack the action bar to make it look like next
      */
     private void configureActionBar() {
-
+        getSupportActionBar().setTitle(null);
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        if (getApp().getLoggedInUser() != null) getSupportActionBar().setTitle(getApp().getLoggedInUser().username);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // configure home image to fill vertically
         final float density = getResources().getDisplayMetrics().density;
@@ -144,12 +159,16 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         if (homeImage != null) {
 
             ViewGroup parent = (ViewGroup) homeImage.getParent();
-            parent.setBackgroundDrawable(getResources().getDrawable(R.drawable.logo_states));
+            parent.setBackgroundColor(0x00000000);
+            homeImage.setBackgroundDrawable(getResources().getDrawable(R.drawable.logo_states));
 
             final int paddingVert = (int) (13 * density);
             final int paddingHor = (int) (5 * density);
             homeImage.setPadding(paddingHor, paddingVert, paddingHor, paddingVert);
-            homeImage.setLayoutParams(new FrameLayout.LayoutParams((int) getResources().getDimension(R.dimen.next_home_width), ViewGroup.LayoutParams.MATCH_PARENT));
+            homeImage.setDuplicateParentStateEnabled(true);
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) homeImage.getLayoutParams();
+            lp.topMargin = lp.bottomMargin = 0;
+            //homeImage.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
             homeImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         }
 
@@ -193,7 +212,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     private void startNavActivity(Class activity) {
-        startActivity(getNavIntent(activity));
+        if (ScLandingPage.class.isAssignableFrom(activity)){
+            startActivity(getNavIntent(activity).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        } else {
+            startActivity(getNavIntent(activity));
+        }
+
     }
 
     private Intent getNavIntent(Class activity) {
@@ -335,6 +359,36 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             case Consts.Dialogs.DIALOG_LOGOUT:
                 return Settings.createLogoutDialog(this);
 
+            case Consts.Dialogs.DIALOG_ADD_COMMENT:
+                final AddCommentDialog dialog = new AddCommentDialog(this);
+                dialog.getWindow().setGravity(Gravity.TOP);
+                return dialog;
+
+            case Consts.Dialogs.DIALOG_TRANSCODING_FAILED:
+                return new AlertDialog.Builder(this).setTitle(R.string.dialog_transcoding_failed_title)
+                        .setMessage(R.string.dialog_transcoding_failed_message).setPositiveButton(
+                                android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_FAILED);
+                            }
+                        }).setNegativeButton(
+                                R.string.visit_support, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                startActivity(
+                                        new Intent(Intent.ACTION_VIEW,
+                                                Uri.parse(getString(R.string.authentication_support_uri))));
+                                removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_FAILED);
+                            }
+                        }).create();
+            case Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING:
+                return new AlertDialog.Builder(this).setTitle(R.string.dialog_transcoding_processing_title)
+                        .setMessage(R.string.dialog_transcoding_processing_message).setPositiveButton(
+                                android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING);
+                            }
+                        }).create();
+
             default:
                 return super.onCreateDialog(which);
         }
@@ -368,12 +422,20 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                mRootView.animateToggleMenu();
+                onHomeButtonPressed();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    protected void onHomeButtonPressed() {
+        if (this instanceof ScLandingPage) {
+            mRootView.animateToggleMenu();
+        } else {
+            onBackPressed();
+        }
     }
 
     public long getCurrentUserId() {
@@ -425,5 +487,24 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         } else {
             return super.onKeyDown(keyCode, event);
         }
+    }
+
+    public void addNewComment(final Comment comment) {
+        getApp().pendingComment = comment;
+        safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
+    }
+
+    @Override
+    public void onMenuOpenLeft() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+    }
+
+    @Override
+    public void onMenuOpenRight() {
+    }
+
+    @Override
+    public void onMenuClosed() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 }

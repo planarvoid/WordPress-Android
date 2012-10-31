@@ -214,7 +214,7 @@
   <string name="email_confirmation_you_need_to_confirm">Para sacar el máximo provecho de SoundCloud, necesitas confirmar dirección de correo electrónico.</string>
   <string name="email_picker_clear">Borrar</string>
   <string name="empty_list">No se encuentran resultados</string>
-  <string name="empty_user_favorites_text">%1$s no tiene aún ningún favorito.</string>
+  <string name="empty_user_likes_text">%1$s no tiene aún ningún favorito.</string>
   <string name="empty_user_followers_text">Nadie está siguiendo aún a %1$s.</string>
   <string name="empty_user_followings_text">%1$s todavía no está siguiendo a nadie.</string>
   <string name="empty_user_tracks_text">%1$s aún no ha subido ningún sonido público.</string>
@@ -266,7 +266,7 @@
   <string name="list_header_fb_friends">Sus amigos de Facebook</string>
   <string name="list_header_suggested_users">Personas sugeridas</string>
   <string name="list_header_track_comments">Comentarios sobre este sonido</string>
-  <string name="list_header_track_favoriters">Gente a la que le gusta este sonido</string>
+  <string name="list_header_track_likers">Gente a la que le gusta este sonido</string>
   <string name="list_header_track_results_for">Resultados de sonidos para %s</string>
   <string name="list_header_tracks_by_genre">Otras pistas de audio con el género %s</string>
   <string name="list_header_tracks_by_tag">Otras pistas de audio con %s</string>
@@ -328,8 +328,8 @@
   <string name="pref_record_quality_desc">Elija la calidad de grabación preferida</string>
   <string name="pref_revoke_access">Desconectar</string>
   <string name="pref_revoke_desc">Desconectarse de su actual cuenta</string>
-  <string name="pref_sync_my_favorites">Mis favoritos</string>
-  <string name="pref_sync_my_favorites_description">Mantener a mis favoritos actualizados localmente</string>
+  <string name="pref_sync_my_likes">Mis favoritos</string>
+  <string name="pref_sync_my_likes_description">Mantener a mis favoritos actualizados localmente</string>
   <string name="pref_sync_my_followers">Mis seguidores</string>
   <string name="pref_sync_my_followers_description">Mantener a las personas que me siguen actualizadas localmente</string>
   <string name="pref_sync_my_following">Seguidos por mí</string>
@@ -423,7 +423,7 @@
     <item quantity="one">1 comentario sobre este sonido</item>
     <item quantity="other">%d comentarios sobre este sonido</item>
   </plurals>
-  <plurals name="track_info_favoriters">
+  <plurals name="track_info_likers">
     <item quantity="one">A 1 persona le gustó su sonido</item>
     <item quantity="other">Le ha gustado a %d personas</item>
   </plurals>

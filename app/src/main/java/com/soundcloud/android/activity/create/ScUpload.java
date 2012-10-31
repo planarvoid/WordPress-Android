@@ -59,6 +59,8 @@ public class ScUpload extends ScActivity {
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
+        getSupportActionBar().setTitle(R.string.share);
+
         final Intent intent = getIntent();
         if (intent != null && (mRecording = Recording.fromIntent(intent, getContentResolver(), getCurrentUserId())) != null) {
             setContentView(mRecording.isPrivateMessage() ? R.layout.sc_message_upload : R.layout.sc_upload);
@@ -68,7 +70,6 @@ public class ScUpload extends ScActivity {
                 // 3rd party upload, disable "record another sound button"
                 ((ViewGroup) findViewById(R.id.share_user_layout)).addView(
                         new ShareUserHeader(this, getApp().getLoggedInUser()));
-                findViewById(R.id.txt_title).setVisibility(View.GONE);
             }
 
             if (mRecording.exists()) {

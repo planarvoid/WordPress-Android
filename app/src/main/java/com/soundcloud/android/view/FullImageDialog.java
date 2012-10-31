@@ -3,7 +3,7 @@ package com.soundcloud.android.view;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScListActivity;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.utils.MotionEventUtils;
 
 import android.app.Dialog;
@@ -17,17 +17,17 @@ import java.lang.ref.WeakReference;
 
 public class FullImageDialog extends Dialog {
 
-    private WeakReference<ScListActivity> mActivityRef;
+    private WeakReference<ScActivity> mActivityRef;
     private Handler mHandler = new Handler();
 
-    public FullImageDialog(ScListActivity context, final String imageUri) {
+    public FullImageDialog(ScActivity context, final String imageUri) {
         super(context, R.style.Theme_FullImageDialog);
 
         setCancelable(true);
         setCanceledOnTouchOutside(true);
         setContentView(R.layout.full_image_dialog);
 
-        mActivityRef = new WeakReference<ScListActivity>(context);
+        mActivityRef = new WeakReference<ScActivity>(context);
 
         final ImageView image = (ImageView) this.findViewById(R.id.image);
         final ProgressBar progress = (ProgressBar) this.findViewById(R.id.progress);
@@ -36,7 +36,7 @@ public class FullImageDialog extends Dialog {
             @Override
             public void onImageLoaded(ImageView view, String url) {
                 if (!isShowing()) return;
-                ScListActivity activity = mActivityRef.get();
+                ScActivity activity = mActivityRef.get();
                 if (activity != null) {
                     activity.safeShowDialog(new FullImageDialog(activity, imageUri));
                 }
@@ -64,7 +64,7 @@ public class FullImageDialog extends Dialog {
 
     private Runnable mImageError = new Runnable() {
         public void run() {
-            ScListActivity activity = mActivityRef.get();
+            ScActivity activity = mActivityRef.get();
             if (activity != null) {
                 activity.showToast(R.string.image_load_error);
             }

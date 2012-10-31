@@ -115,7 +115,7 @@
               style="@style/stat_pipe"
               android:layout_width="1dip"/>
 
-        <TextView android:id="@+id/favorite_count"
+        <TextView android:id="@+id/like_count"
                   android:layout_width="wrap_content"
                   android:layout_alignWithParentIfMissing="true"
                   android:drawablePadding="3dip"

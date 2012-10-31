@@ -1,16 +1,21 @@
 package com.soundcloud.android.view;
 
 
+import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.SearchHistoryAdapter;
 import com.soundcloud.android.adapter.SearchSuggestionsAdapter;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Search;
+import com.soundcloud.android.model.User;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -36,6 +41,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,10 +65,14 @@ public class MainMenu extends LinearLayout {
     public static interface OnMenuItemClickListener {
 
         public void onMenuItemClicked(int id);
+
         public void onSearchQuery(Search query);
+
         public void onSearchSuggestedTrackClicked(long id);
+
         public void onSearchSuggestedUserClicked(long id);
     }
+
     public MainMenu(Context context) {
         super(context);
         init();
@@ -74,7 +84,7 @@ public class MainMenu extends LinearLayout {
     }
 
     public boolean gotoMenu() {
-        if (mInSearchMode){
+        if (mInSearchMode) {
             toggleSearchMode();
             return true;
         } else {
@@ -92,9 +102,12 @@ public class MainMenu extends LinearLayout {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (mClickListener != null) {
                     if (!mInSearchMode) {
-                        mClickListener.onMenuItemClicked(((SimpleListMenuItem) mMenuAdapter.getItem(position - mList.getHeaderViewsCount())).id);
-                    } else if (parent.getAdapter() == mSuggestionsAdapter){
-                        switch (mSuggestionsAdapter.getItemViewType(position)){
+                        final int itemId = ((SimpleListMenuItem) mMenuAdapter.getItem(position - mList.getHeaderViewsCount())).id;
+                        if (mSelectedMenuId != itemId) {
+                            mClickListener.onMenuItemClicked(itemId);
+                        }
+                    } else if (parent.getAdapter() == mSuggestionsAdapter) {
+                        switch (mSuggestionsAdapter.getItemViewType(position)) {
                             case SearchSuggestionsAdapter.TYPE_TRACK:
                                 mClickListener.onSearchSuggestedTrackClicked(id);
                                 break;
@@ -141,7 +154,7 @@ public class MainMenu extends LinearLayout {
 
         mMenuAdapter = new MenuAdapter();
         mSearchHistoryAdapter = new SearchHistoryAdapter(getContext(), R.layout.search_history_row_dark);
-        mSuggestionsAdapter = new SearchSuggestionsAdapter(getContext(),null);
+        mSuggestionsAdapter = new SearchSuggestionsAdapter(getContext(), null);
         mFocusCatcher = findViewById(R.id.root_menu_focus_catcher);
     }
 
@@ -156,10 +169,10 @@ public class MainMenu extends LinearLayout {
         imm.hideSoftInputFromWindow(mQueryText.getWindowToken(), 0);
     }
 
-    private void toggleSearchMode(){
-        if (!mInSearchMode){
+    private void toggleSearchMode() {
+        if (!mInSearchMode) {
             mInSearchMode = true;
-            if (mQueryText.length() > 0){
+            if (mQueryText.length() > 0) {
                 mList.setAdapter(mSuggestionsAdapter);
                 mSuggestionsAdapter.notifyDataSetChanged();
             } else {
@@ -176,7 +189,7 @@ public class MainMenu extends LinearLayout {
         }
     }
 
-    public void setOnItemClickListener(OnMenuItemClickListener onMenuItemClickListener){
+    public void setOnItemClickListener(OnMenuItemClickListener onMenuItemClickListener) {
         mClickListener = onMenuItemClickListener;
     }
 
@@ -221,11 +234,11 @@ public class MainMenu extends LinearLayout {
         boolean selected;
 
         public SimpleListMenuItem(TypedArray a) {
-            this.id       = a.getResourceId(R.styleable.SimpleMenu_android_id, 0);
-            this.text     = a.getText(R.styleable.SimpleMenu_android_text);
-            this.icon     = a.getDrawable(R.styleable.SimpleMenu_android_icon);
-            this.layoutId = a.getResourceId(R.styleable.SimpleMenu_android_layout, 0);
-            this.selected = this.id == mSelectedMenuId;
+            this.id         = a.getResourceId(R.styleable.SimpleMenu_android_id, 0);
+            this.text       = a.getText(R.styleable.SimpleMenu_android_text);
+            this.icon       = a.getDrawable(R.styleable.SimpleMenu_android_icon);
+            this.layoutId   = a.getResourceId(R.styleable.SimpleMenu_android_layout, 0);
+            this.selected   = this.id == mSelectedMenuId;
         }
     }
 
@@ -241,11 +254,11 @@ public class MainMenu extends LinearLayout {
             mLayouts.put(R.layout.main_menu_item, 0);
         }
 
-        void clear(){
+        void clear() {
             mMenuItems.clear();
         }
 
-        void addItem(SimpleListMenuItem item){
+        void addItem(SimpleListMenuItem item) {
             mMenuItems.add(item);
             if (mLayouts.get(item.layoutId, -1) == -1) {
                 mLayouts.put(item.layoutId, mLayouts.size());
@@ -306,8 +319,23 @@ public class MainMenu extends LinearLayout {
                 holder = (ViewHolder) convertView.getTag();
             }
 
-            if (holder.image != null) holder.image.setImageDrawable(menuItem.icon);
-            if (holder.text != null) holder.text.setText(menuItem.text);
+            boolean setDefaultImage = true;
+            if (menuItem.id == R.id.nav_you) {
+                final User u = SoundCloudApplication.fromContext(getContext()).getLoggedInUser();
+                if (u != null) {
+                    holder.text.setText(u.username);
+                    setDefaultImage = ImageLoader.get(getContext()).bind(this, holder.image, u.getListAvatarUri(getContext())) != ImageLoader.BindResult.OK;
+                } else {
+                    holder.text.setText(menuItem.text);
+                }
+            } else {
+                holder.text.setText(menuItem.text);
+            }
+
+            if (setDefaultImage) {
+                holder.image.setImageDrawable(menuItem.icon);
+            }
+
 
             return convertView;
         }
@@ -327,7 +355,7 @@ public class MainMenu extends LinearLayout {
         }
 
         public void onTextChanged(CharSequence seq, int start, int before, int count) {
-            if (count == 0){
+            if (count == 0) {
                 mList.setAdapter(mSearchHistoryAdapter);
             } else {
                 final String s = seq.toString();
@@ -336,7 +364,7 @@ public class MainMenu extends LinearLayout {
                                 s.subSequence(s.lastIndexOf(",") + 1, s.length()).toString().trim() :
                                 s.trim());
 
-                if (mList.getAdapter() != mSuggestionsAdapter) mList.setAdapter( mSuggestionsAdapter);
+                if (mList.getAdapter() != mSuggestionsAdapter) mList.setAdapter(mSuggestionsAdapter);
             }
 
         }
