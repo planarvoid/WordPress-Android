@@ -458,24 +458,26 @@ public class PlayerTrackView extends LinearLayout implements
             }
         }
 
-        if (animated) {
-            if (mIsCommenting) {
-                mTrackInfoOverlay.setVisibility(VISIBLE);
-                runFadeInAnimationOn(mPlayer, mTrackInfoOverlay);
+        if (!mLandscape){
+            if (animated) {
+                if (mIsCommenting) {
+                    mTrackInfoOverlay.setVisibility(VISIBLE);
+                    runFadeInAnimationOn(mPlayer, mTrackInfoOverlay);
 
-                mArtworkOverlay.setVisibility(VISIBLE);
-                runFadeInAnimationOn(mPlayer, mArtworkOverlay);
+                    mArtworkOverlay.setVisibility(VISIBLE);
+                    runFadeInAnimationOn(mPlayer, mArtworkOverlay);
+                } else {
+                    runFadeOutAnimationOn(mPlayer, mTrackInfoOverlay);
+                    attachVisibilityListener(mTrackInfoOverlay, GONE);
+
+                    runFadeOutAnimationOn(mPlayer, mArtworkOverlay);
+                    attachVisibilityListener(mArtworkOverlay, GONE);
+                }
             } else {
-                runFadeOutAnimationOn(mPlayer, mTrackInfoOverlay);
-                attachVisibilityListener(mTrackInfoOverlay, GONE);
-
-                runFadeOutAnimationOn(mPlayer, mArtworkOverlay);
-                attachVisibilityListener(mArtworkOverlay, GONE);
+                int visibility = mIsCommenting ? VISIBLE : GONE;
+                mTrackInfoOverlay.setVisibility(visibility);
+                mArtworkOverlay.setVisibility(visibility);
             }
-        } else {
-            int visibility = mIsCommenting ? VISIBLE : GONE;
-            mTrackInfoOverlay.setVisibility(visibility);
-            mArtworkOverlay.setVisibility(visibility);
         }
     }
 
