@@ -18,7 +18,6 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.WorkspaceContentView;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -53,7 +52,6 @@ import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
 public class PlayerTrackView extends LinearLayout implements
-        WorkspaceContentView,
         View.OnTouchListener,
         FetchModelTask.FetchModelListener<Track>,
         LoadCommentsTask.LoadCommentsListener {
@@ -146,14 +144,6 @@ public class PlayerTrackView extends LinearLayout implements
     public void setOnScreen(boolean onScreen){
         mOnScreen = onScreen;
         mWaveformController.setOnScreen(onScreen);
-    }
-
-    public void onAppear() {
-        setCommentMode(false, false);
-    }
-
-    public void onDisappear() {
-        setCommentMode(false, false);
     }
 
     public void setTrack(@Nullable Track track, int queuePosition, boolean forceUpdate, boolean priority) {
