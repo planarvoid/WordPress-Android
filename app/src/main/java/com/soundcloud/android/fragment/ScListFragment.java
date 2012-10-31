@@ -9,6 +9,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ActivityAdapter;
+import com.soundcloud.android.adapter.CommentAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.PlayableAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
@@ -130,6 +131,7 @@ public class ScListFragment extends SherlockListFragment
                 case ME_FOLLOWINGS:
                 case USER_FOLLOWINGS:
                 case USER_FOLLOWERS:
+                case TRACK_LIKERS:
                     adapter = new UserAdapter(getActivity(), mContentUri);
                     break;
 
@@ -144,6 +146,10 @@ public class ScListFragment extends SherlockListFragment
 
                 case SEARCH:
                     adapter = new SearchAdapter(getActivity(), Content.SEARCH.uri);
+                    break;
+
+                case TRACK_COMMENTS:
+                    adapter = new CommentAdapter(getActivity(), mContentUri);
                     break;
 
                  default:

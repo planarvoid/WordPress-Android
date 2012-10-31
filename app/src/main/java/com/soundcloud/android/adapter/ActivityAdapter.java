@@ -5,9 +5,9 @@ import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.utils.PlayUtils;
-import com.soundcloud.android.view.adapter.CommentRow;
+import com.soundcloud.android.view.adapter.CommentActivityRow;
 import com.soundcloud.android.view.adapter.LazyRow;
-import com.soundcloud.android.view.adapter.LikeRow;
+import com.soundcloud.android.view.adapter.LikeActivityRow;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 
 import android.content.Context;
@@ -45,10 +45,10 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
                 return new TrackInfoBar(mContext, this);
 
             case COMMENT:
-                return new CommentRow(mContext, this);
+                return new CommentActivityRow(mContext, this);
 
             case TRACK_LIKE:
-                return new LikeRow(mContext, this);
+                return new LikeActivityRow(mContext, this);
 
             default:
                 throw new IllegalArgumentException("no view for " + type + " yet");

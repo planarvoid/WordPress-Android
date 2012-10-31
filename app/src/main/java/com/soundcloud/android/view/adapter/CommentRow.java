@@ -2,73 +2,54 @@ package com.soundcloud.android.view.adapter;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.ScBaseAdapter;
-import com.soundcloud.android.model.act.CommentActivity;
+import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
+import android.database.Cursor;
 import android.os.Parcelable;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.style.StyleSpan;
+import android.view.View;
+import android.widget.TextView;
 
-import java.util.Date;
-
-public class CommentRow extends ActivityRow {
+public class CommentRow extends LazyRow {
+    private final TextView mUser;
+    private final TextView mTitle;
+    private final TextView mCreatedAt;
     private Comment mComment;
 
-    public CommentRow(Context context, ScBaseAdapter adapter) {
+    public CommentRow(Context context, IScAdapter adapter) {
         super(context, adapter);
+
+        mTitle = (TextView) findViewById(R.id.title);
+        mUser = (TextView) findViewById(R.id.user);
+        mCreatedAt = (TextView) findViewById(R.id.created_at);
     }
 
     @Override
-    protected void init() {
-        // do nothing
+    protected View addContent() {
+        return View.inflate(getContext(), R.layout.activity_list_row, this);
     }
 
     @Override
-    protected Track getTrack() {
-        return mComment.track;
+    public void display(Cursor cursor) {
     }
 
     @Override
-    protected User getOriginUser() {
-        return mComment.user;
-    }
+    public void display(int position, Parcelable p) {
+        mComment = (Comment) p;
+        if (mComment == null) return;
 
-    @Override
-    protected Date getOriginCreatedAt() {
-        return mComment.created_at;
-    }
+        super.display(position);
 
-    @Override
-    protected Drawable doGetDrawable(boolean pressed) {
-        Drawable drawable =
-                getResources().getDrawable(pressed ? R.drawable.stats_comments_white_50 : R.drawable.stats_comments);
-        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-        return drawable;
+        mTitle.setText(mComment.body);
+        if (mComment.getUser() != null) mUser.setText(mComment.getUser().username);
+        mCreatedAt.setText(ScTextUtils.getTimeElapsed(getContext().getResources(), mComment.created_at.getTime()));
     }
 
     @Override
     public String getIconRemoteUri() {
         if (mComment == null || mComment.getUser() == null || mComment.getUser().avatar_url == null) return "";
         return Consts.GraphicSize.formatUriForList(getContext(), mComment.getUser().avatar_url);
-    }
-
-    @Override
-    protected boolean fillParcelable(Parcelable p) {
-        mComment = ((CommentActivity) mActivity).comment;
-        return mComment != null;
-    }
-
-    @Override
-    protected void addSpan(SpannableStringBuilder builder) {
-        builder.append(": ");
-        builder.setSpan(new StyleSpan(Typeface.BOLD), 1, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        builder.append("\"").append(mComment.body).append("\"");
     }
 }
