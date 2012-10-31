@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
@@ -42,7 +43,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     protected Content mContent;
     protected Uri mContentUri;
     protected List<T> mData;
-    protected int mPage = 1;
+    protected int mPage = 0;
     protected Map<Long, Drawable> mIconAnimations = new HashMap<Long, Drawable>();
     protected Set<Long> mLoadingIcons = new HashSet<Long>();
     protected boolean mIsLoadingData;
@@ -151,7 +152,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     public void clearData() {
         clearIcons();
         mData.clear();
-        mPage = 1;
+        mPage = 0;
     }
 
     public void onDestroy(){}
@@ -221,7 +222,8 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         CollectionParams params = new CollectionParams();
         params.loadModel = mContent.modelType;
         params.isRefresh = refresh;
-        params.startIndex = refresh ? 0 : getItemCount();
+        params.maxToLoad = Consts.COLLECTION_PAGE_SIZE;
+        params.startIndex = refresh ? 0 : mPage * Consts.COLLECTION_PAGE_SIZE;
         params.contentUri = mContentUri;
         return params;
     }
@@ -232,6 +234,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
                 onSuccessfulRefresh();
             }
             mNextHref = data.nextHref;
+            mPage++;
 
             addItems(data.newItems);
             checkForStaleItems();

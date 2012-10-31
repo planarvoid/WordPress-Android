@@ -374,7 +374,6 @@ public class ScListFragment extends SherlockListFragment
         CollectionParams params = getListAdapter().getParams(refresh);
         params.request = buildRequest(refresh);
         params.refreshPageItems = !isSyncable();
-        params.maxToLoad = Consts.COLLECTION_PAGE_SIZE;
         return params;
     }
 

@@ -3,15 +3,20 @@ package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.activity.create.ScCreate;
+import com.soundcloud.android.activity.create.ScUpload;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
+import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.MyTracklistRow;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -175,8 +180,17 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
 
     @Override
     public int handleListItemClick(int position, long id) {
-        Log.i(SoundCloudApplication.TAG, "Clicked on item " + id);
-        return ItemClickResults.IGNORE;
+        if (getItemViewType(position) == TYPE_PENDING_RECORDING){
+            final Recording r = (Recording) getItem(position);
+            if (r.upload_status == Recording.Status.UPLOADING) {
+                mContext.startActivity(r.getMonitorIntent());
+            } else {
+                mContext.startActivity(new Intent(mContext,(r.external_upload ? ScUpload.class : ScCreate.class)).setData(r.toUri()));
+            }
+        } else {
+            PlayUtils.playFromAdapter(mContext, this, mData, position - mRecordingData.size(), getItem(position).id);
+        }
+        return ItemClickResults.LEAVING;
     }
 
     @Override
