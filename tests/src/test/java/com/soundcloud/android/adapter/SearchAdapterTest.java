@@ -18,8 +18,8 @@ public class SearchAdapterTest {
             }
 
             @Override
-            public void handleListItemClick(int position, long id) {
-                return position;
+            public int handleListItemClick(int position, long id) {
+                return ItemClickResults.IGNORE;
             }
         };
     }
