@@ -630,14 +630,6 @@ public class PlayerTrackView extends LinearLayout implements
         }
     }
 
-    public void onRefresh() {
-        if (mTrackInfo != null) {
-            mTrackInfo.clearIsTrackInfoFilled();
-            mTrackInfo.fillTrackDetails();
-        }
-        refreshComments();
-    }
-
     public void onStop(boolean killLoading) {
         mWaveformController.onStop(killLoading);
     }

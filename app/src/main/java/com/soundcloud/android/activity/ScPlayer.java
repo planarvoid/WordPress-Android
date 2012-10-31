@@ -66,7 +66,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         setContentView(R.layout.sc_player);
 
         mContainer = (RelativeLayout) findViewById(R.id.container);
-
         mTrackPager = (PlayerTrackPager) findViewById(R.id.track_view);
         mTrackPager.setListener(this);
 
@@ -76,7 +75,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         mTransportBar.setOnPauseListener(mPauseListener);
 
         mShouldShowComments = getApp().getAccountDataBoolean(PLAYER_SHOWING_COMMENTS);
-        final Object[] saved = (Object[]) getLastCustomNonConfigurationInstance();
 
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -304,26 +302,29 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             if (mPlaybackService != null) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
-                final int playPosition = CloudPlaybackService.getPlayQueueManager().getPosition();
-                if (mPlaybackService.getProgress() < 2000 && playPosition > 0) {
+                final PlayQueueManager playQueueManager = CloudPlaybackService.getPlayQueueManager();
+                if (playQueueManager != null) {
+                    final int playPosition = playQueueManager.getPosition();
+                    if (mPlaybackService.getProgress() < 2000 && playPosition > 0) {
 
-                    final Track currentTrack = CloudPlaybackService.getCurrentTrack();
-                    if (currentTrack != null) {
-                        track(Media.fromTrack(currentTrack), Media.Action.Backward);
-                    }
+                        final Track currentTrack = CloudPlaybackService.getCurrentTrack();
+                        if (currentTrack != null) {
+                            track(Media.fromTrack(currentTrack), Media.Action.Backward);
+                        }
 
-                    if (getCurrentDisplayedTrackPosition() == playPosition){
-                        mChangeTrackFast = true;
-                        mTrackPager.prev();
+                        if (getCurrentDisplayedTrackPosition() == playPosition) {
+                            mChangeTrackFast = true;
+                            mTrackPager.prev();
+                        } else {
+                            setTrackDisplayFromService();
+                        }
+
+                    } else if (isSeekable()) {
+                        mPlaybackService.seek(0, true);
+
                     } else {
-                        setTrackDisplayFromService();
+                        mPlaybackService.restartTrack();
                     }
-
-                } else if (isSeekable()) {
-                    mPlaybackService.seek(0, true);
-
-                } else {
-                    mPlaybackService.restartTrack();
                 }
             }
         }
@@ -338,14 +339,16 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 if (currentTrack != null) {
                     track(Media.fromTrack(currentTrack), Media.Action.Forward);
                 }
-
-                final int playPosition = CloudPlaybackService.getPlayQueueManager().getPosition();
-                if (mPlaybackService.getPlaylistManager().length() > playPosition + 1) {
-                    if (getCurrentDisplayedTrackPosition() == playPosition) {
-                        mChangeTrackFast = true;
-                        mTrackPager.next();
-                    } else {
-                        setTrackDisplayFromService();
+                final PlayQueueManager playQueueManager = CloudPlaybackService.getPlayQueueManager();
+                if (playQueueManager != null) {
+                    final int playPosition = playQueueManager.getPosition();
+                    if (mPlaybackService.getPlaylistManager().length() > playPosition + 1) {
+                        if (getCurrentDisplayedTrackPosition() == playPosition) {
+                            mChangeTrackFast = true;
+                            mTrackPager.next();
+                        } else {
+                            setTrackDisplayFromService();
+                        }
                     }
                 }
             }
@@ -430,7 +433,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                     }
                 }
 
-                setTrackDataById(intent.getLongExtra("id",-1));
+                refreshCurrentViewedTrackData();
                 long next = refreshNow();
                 queueNextRefresh(next);
 
@@ -513,12 +516,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         mPlaybackService = null;
     }
 
-    private void setTrackData() {
-        setTrackDataById(CloudPlaybackService.getCurrentTrackId());
-    }
-
-    private void setTrackDataById(long id) {
-
+    private void refreshCurrentViewedTrackData() {
         invalidateOptionsMenu();
         setPlaybackState();
     }
@@ -532,7 +530,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
         if (mIsCommenting) toggleCommentMode(0);
         mTransportBar.setNavEnabled(queueLength > 1);
-        setTrackData();
+        refreshCurrentViewedTrackData();
 
     }
 
