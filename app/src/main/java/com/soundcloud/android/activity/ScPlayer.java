@@ -114,7 +114,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     @Override
-    public void onPageChanged(PlayerTrackView newTrackView) {
+    public void onTrackPageChanged(PlayerTrackView newTrackView) {
         final PlayQueueManager playQueueManager = CloudPlaybackService.getPlayQueueManager();
         if (playQueueManager != null) {
             int currentQueuePosition = playQueueManager.getPosition();

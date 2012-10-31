@@ -31,7 +31,7 @@ public class PlayerTrackPager extends ViewPager {
 
     public interface OnTrackPageListener {
         public abstract void onPageBeingDragged();
-    	public abstract void onPageChanged(PlayerTrackView newTrackView);
+    	public abstract void onTrackPageChanged(PlayerTrackView newTrackView);
     }
 
    	public PlayerTrackPager(Context context, AttributeSet attrs) {
@@ -139,7 +139,7 @@ public class PlayerTrackPager extends ViewPager {
            public void onPageSelected(int position) {
                mDirection = position;
                if (mTrackPageListener != null) {
-                   mTrackPageListener.onPageChanged((PlayerTrackView) mViews.get(position).getChildAt(0));
+                   mTrackPageListener.onTrackPageChanged((PlayerTrackView) mViews.get(position).getChildAt(0));
                }
            }
 
