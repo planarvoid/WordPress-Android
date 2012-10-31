@@ -79,10 +79,7 @@
     <dimen name="rec_toggle_fade_margin_top">15dp</dimen>
 
     <dimen name="slm_item_padding_topbottom">10dp</dimen>
-    <dimen name="slm_item_padding_leftright">8dp</dimen>
-
-    <dimen name="slm_item_image_height">24dp</dimen>
-    <dimen name="slm_item_image_width">24dp</dimen>
+    <dimen name="slm_item_padding_leftright">14dp</dimen>
 
     <dimen name="slm_item_text_size">16sp</dimen>
     <dimen name="slm_item_text_padding_left">10dp</dimen>
