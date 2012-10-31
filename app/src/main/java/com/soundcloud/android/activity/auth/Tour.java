@@ -2,6 +2,7 @@ package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.view.tour.Comment;
 import com.soundcloud.android.view.tour.Finish;
@@ -23,7 +24,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 
-public class Tour extends Activity {
+public class Tour extends ScActivity {
     private ViewPager mViewPager;
     private View[] mViews;
 
@@ -101,6 +102,11 @@ public class Tour extends Activity {
             public void onPageScrollStateChanged(int i) {
             }
         });
+    }
+
+    @Override
+    protected int getSelectedMenuId() {
+        return -1;
     }
 
     /* package */ String getMessage() {

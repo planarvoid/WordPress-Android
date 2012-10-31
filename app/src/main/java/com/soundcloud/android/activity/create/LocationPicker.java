@@ -2,6 +2,9 @@ package com.soundcloud.android.activity.create;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -28,8 +31,6 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -44,7 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class LocationPicker extends ListActivity {
+public class LocationPicker extends SherlockListActivity {
 
     public static final String EXTRA_LATITUDE  = "latitude";
     public static final String EXTRA_LONGITUDE = "longitude";
