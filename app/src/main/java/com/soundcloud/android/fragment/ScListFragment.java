@@ -146,8 +146,6 @@ public class ScListFragment extends SherlockListFragment
                     adapter = new SearchAdapter(getActivity(), Content.SEARCH.uri);
                     break;
 
-
-
                  default:
                      adapter = new TrackAdapter(getActivity(), mContentUri);
 
@@ -156,12 +154,6 @@ public class ScListFragment extends SherlockListFragment
             append();
         }
     }
-
-//    @Override
-//    public void setListAdapter(ListAdapter adapter) {
-//        ScEndlessAdapter mEndlessAdapter = new ScEndlessAdapter(getActivity(), adapter, R.layout.list_loading_item);
-//        super.setListAdapter(mEndlessAdapter);
-//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -208,7 +200,13 @@ public class ScListFragment extends SherlockListFragment
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-        getListAdapter().handleListItemClick(position - getListView().getHeaderViewsCount(), id);
+
+        switch (getListAdapter().handleListItemClick(position - getListView().getHeaderViewsCount(), id)){
+            case ScBaseAdapter.ItemClickResults.LEAVING:
+                mIgnorePlaybackStatus = true;
+                break;
+            default:
+        }
     }
 
 
@@ -254,12 +252,8 @@ public class ScListFragment extends SherlockListFragment
         generalIntentFilter.addAction(Actions.LOGGING_OUT);
         getActivity().registerReceiver(mGeneralIntentListener, generalIntentFilter);
 
-        /*
-        final LazyBaseAdapter wrapped = getWrappedAdapter();
-                if (wrapped != null){
-                    wrapped.onResume();
-                }
-        */
+        final ScBaseAdapter listAdapter = getListAdapter();
+        if (listAdapter instanceof PlayableAdapter) listAdapter.notifyDataSetChanged();
     }
 
     @Override

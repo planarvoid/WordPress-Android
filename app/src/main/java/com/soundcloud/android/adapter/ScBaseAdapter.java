@@ -276,6 +276,11 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         }
     }
 
-    public abstract void handleListItemClick(int position, long id);
+    public abstract int handleListItemClick(int position, long id);
+
+    public interface ItemClickResults{
+        int IGNORE = 0;
+        int LEAVING = 1;
+    }
 
 }

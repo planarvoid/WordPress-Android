@@ -6,7 +6,6 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.view.MyTracklistRow;
@@ -175,8 +174,9 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
     }
 
     @Override
-    public void handleListItemClick(int position, long id) {
+    public int handleListItemClick(int position, long id) {
         Log.i(SoundCloudApplication.TAG, "Clicked on item " + id);
+        return ItemClickResults.IGNORE;
     }
 
     @Override
