@@ -270,6 +270,12 @@ public class ScListFragment extends SherlockListFragment
         mIgnorePlaybackStatus = false;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getListAdapter() != null) getListAdapter().onResume();
+    }
+
     protected void onDataConnectionUpdated(boolean isConnected) {
         if (isConnected) {
             if (getListAdapter().needsItems() && getScActivity().getApp().getAccount() != null) {
