@@ -91,8 +91,9 @@ public class PlayerTrackPager extends ViewPager {
     }
 
     public PlayerTrackView getCurrentTrackView() {
-        if (getCurrentItem() < 0 || getCurrentItem() > mPlayerTrackViews.size()) return null;
-        return mPlayerTrackViews.get(getCurrentItem());
+        final int currentItem = getCurrentItem();
+        if (currentItem < 0 || currentItem >= mPlayerTrackViews.size()) return null;
+        return mPlayerTrackViews.get(currentItem);
     }
 
     public void prev() {

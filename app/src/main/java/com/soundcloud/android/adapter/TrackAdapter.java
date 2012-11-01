@@ -42,6 +42,6 @@ public class TrackAdapter extends ScBaseAdapter<Track> implements PlayableAdapte
 
     @Override
     public Uri getPlayableUri() {
-        return mContentUri;
+        return mContent.isMine() ? mContentUri : null;
     }
 }
