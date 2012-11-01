@@ -730,8 +730,8 @@
 
         <item name="android:paddingTop">@dimen/slm_item_padding_topbottom</item>
         <item name="android:paddingBottom">@dimen/slm_item_padding_topbottom</item>
-        <item name="android:paddingLeft">@dimen/slm_item_padding_leftright</item>
-        <item name="android:paddingRight">@dimen/slm_item_padding_leftright</item>
+        <item name="android:paddingLeft">@dimen/slm_item_padding_left</item>
+        <item name="android:paddingRight">@dimen/slm_item_padding_right</item>
 
         <item name="android:orientation">horizontal</item>
 

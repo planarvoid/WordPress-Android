@@ -313,8 +313,9 @@ public class MainMenu extends LinearLayout {
                 }
 
                 int paddingTopBottom = (int) getResources().getDimension(R.dimen.slm_item_padding_topbottom);
-                int paddingLeftRight = (int) getResources().getDimension(R.dimen.slm_item_padding_leftright);
-                convertView.setPadding(paddingLeftRight, paddingTopBottom, paddingLeftRight, paddingTopBottom);
+                int paddingLeft      = (int) getResources().getDimension(R.dimen.slm_item_padding_left);
+                int paddingRight     = (int) getResources().getDimension(R.dimen.slm_item_padding_right);
+                convertView.setPadding(paddingLeft, paddingTopBottom, paddingRight, paddingTopBottom);
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
