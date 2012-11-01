@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.create.NewConnectionTask;
 
 import android.annotation.TargetApi;
@@ -21,7 +22,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class Connect extends Activity {
+public class Connect extends ScActivity {
 
     private WebView mWebView;
 
@@ -94,6 +95,11 @@ public class Connect extends Activity {
 
         removeAllCookies();
         mWebView.loadUrl(url);
+    }
+
+    @Override
+    protected int getSelectedMenuId() {
+        return -1;
     }
 
     private void removeAllCookies() {

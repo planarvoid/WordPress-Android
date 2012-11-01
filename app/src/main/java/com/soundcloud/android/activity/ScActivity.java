@@ -405,11 +405,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         }
 
         MenuItem waveform = menu.findItem(R.id.menu_waveform);
-        mNowPlaying = (NowPlayingIndicator) waveform.getActionView().findViewById(R.id.waveform_progress);
-
-        if (this instanceof ScPlayer) {
-            menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
-                    R.drawable.ic_menu_refresh);
+        if (waveform != null){
+            mNowPlaying = (NowPlayingIndicator) waveform.getActionView().findViewById(R.id.waveform_progress);
         }
         return true;
     }

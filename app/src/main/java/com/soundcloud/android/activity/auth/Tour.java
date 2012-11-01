@@ -1,7 +1,9 @@
 package com.soundcloud.android.activity.auth;
 
+import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.view.tour.Comment;
 import com.soundcloud.android.view.tour.Finish;
@@ -23,7 +25,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 
-public class Tour extends Activity {
+public class Tour extends ScActivity {
     private ViewPager mViewPager;
     private View[] mViews;
 
@@ -62,23 +64,6 @@ public class Tour extends Activity {
 
 
         mViewPager.setCurrentItem(0);
-
-        final Button btnDone = (Button) findViewById(R.id.btn_done);
-        final Button btnSkip = (Button) findViewById(R.id.btn_done_dark);
-
-        final View.OnClickListener done = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //noinspection ObjectEquality
-                ((SoundCloudApplication) getApplication()).track(
-                        view == btnDone ? Click.Tour_Tour_done : Click.Tour_Tour_skip);
-                finish();
-            }
-        };
-
-        btnDone.setOnClickListener(done);
-        btnSkip.setOnClickListener(done);
-
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
@@ -88,11 +73,11 @@ public class Tour extends Activity {
             public void onPageSelected(int i) {
                 ((RadioButton) ((RadioGroup) findViewById(R.id.rdo_tour_step)).getChildAt(i)).setChecked(true);
                 if (i < mViews.length - 1) {
-                    btnDone.setVisibility(View.GONE);
-                    btnSkip.setVisibility(View.VISIBLE);
+//                    btnDone.setVisibility(View.GONE);
+//                    btnSkip.setVisibility(View.VISIBLE);
                 } else {
-                    btnDone.setVisibility(View.VISIBLE);
-                    btnSkip.setVisibility(View.GONE);
+//                    btnDone.setVisibility(View.VISIBLE);
+//                    btnSkip.setVisibility(View.GONE);
                 }
                 ((SoundCloudApplication) getApplication()).track(mViews[mViewPager.getCurrentItem()].getClass());
             }
@@ -101,6 +86,29 @@ public class Tour extends Activity {
             public void onPageScrollStateChanged(int i) {
             }
         });
+
+        getSupportActionBar().setHomeButtonEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_bar_close:
+                ((SoundCloudApplication) getApplication()).track(mViewPager.getCurrentItem() == mViews.length - 1 ? Click.Tour_Tour_done : Click.Tour_Tour_skip);
+                finish();
+                return true;
+        }
+        return false;
+    }
+
+    protected int getMenuResourceId() {
+        return R.menu.tour;
+    }
+
+    @Override
+    protected int getSelectedMenuId() {
+        return -1;
     }
 
     /* package */ String getMessage() {
