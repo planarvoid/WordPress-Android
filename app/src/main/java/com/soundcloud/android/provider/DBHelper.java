@@ -362,7 +362,7 @@ public class DBHelper extends SQLiteOpenHelper {
             ",COALESCE(TrackMetadata." + TrackMetadata.CACHED + ", 0) as " + TrackView.CACHED +
             ",COALESCE(TrackMetadata." + TrackMetadata.TYPE + ", 0) as " + TrackView.TYPE +
             " FROM Tracks" +
-            " JOIN Users ON(" +
+            " LEFT JOIN Users ON(" +
             "   Tracks." + Tracks.USER_ID + " = " + "Users." + Users._ID + ")" +
             " LEFT OUTER JOIN TrackMetadata ON(" +
             "   TrackMetadata." + TrackMetadata._ID + " = " + "Tracks." + TrackView._ID + ")"
@@ -852,6 +852,7 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS Playlist");
 
             cleanActivities(db);
+            Table.TRACK_VIEW.recreate(db);
             Table.ACTIVITY_VIEW.recreate(db);
             Table.PLAYLISTS.create(db);
             Table.PLAYLIST_TRACKS.create(db);

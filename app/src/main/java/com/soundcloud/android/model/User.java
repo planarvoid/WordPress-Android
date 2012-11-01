@@ -16,6 +16,7 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
 import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.utils.ImageUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -33,24 +34,24 @@ import java.util.EnumSet;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Model
 public class User extends ScResource implements Refreshable {
-    @JsonView(Views.Mini.class) public String username;
-    @JsonView(Views.Mini.class) public String uri;
-    @JsonView(Views.Mini.class) public String avatar_url;
-    @JsonView(Views.Mini.class) public String permalink;
-    @JsonView(Views.Mini.class) public String permalink_url;
-    public String full_name;
-    public String description;
-    public String city;
-    public String country;
+    @Nullable @JsonView(Views.Mini.class) public String username;
+    @Nullable @JsonView(Views.Mini.class) public String uri;
+    @Nullable @JsonView(Views.Mini.class) public String avatar_url;
+    @Nullable @JsonView(Views.Mini.class) public String permalink;
+    @Nullable @JsonView(Views.Mini.class) public String permalink_url;
+    @Nullable public String full_name;
+    @Nullable public String description;
+    @Nullable public String city;
+    @Nullable public String country;
 
 
 
-    public String plan;      // free|lite|solo|pro|pro plus
+    @Nullable public String plan;      // free|lite|solo|pro|pro plus
 
-    public String website;
-    public String website_title;
-    public String myspace_name;
-    public String discogs_name;
+    @Nullable public String website;
+    @Nullable public String website_title;
+    @Nullable public String myspace_name;
+    @Nullable public String discogs_name;
 
     // counts
     public int    track_count            = NOT_SET;
@@ -61,12 +62,12 @@ public class User extends ScResource implements Refreshable {
     public int public_likes_count = NOT_SET;
 
     // internal fields
-    @JsonIgnore public String _list_avatar_uri;
+    @Nullable @JsonIgnore public String _list_avatar_uri;
     @JsonIgnore public boolean user_follower;  // is the user following the logged in user
     @JsonIgnore public boolean user_following; // is the user being followed by the logged in user
-    @JsonIgnore public SignupVia via;          // used for tracking
+    @Nullable @JsonIgnore public SignupVia via;          // used for tracking
 
-    private Boolean primary_email_confirmed;
+    @Nullable private Boolean primary_email_confirmed;
 
     public User() {
     }
