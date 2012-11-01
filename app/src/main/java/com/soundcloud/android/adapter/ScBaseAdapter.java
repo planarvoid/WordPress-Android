@@ -78,7 +78,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     @Override
     public int getCount() {
-        int count = mData == null ?: mData.size();
+        int count = mData == null ? 0 : mData.size();
         return mIsLoadingData ? count + 1 : count;
     }
 
