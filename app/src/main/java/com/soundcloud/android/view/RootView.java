@@ -17,6 +17,7 @@ import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -180,7 +181,7 @@ public class RootView extends ViewGroup {
         mExpandedState = COLLAPSED_FULL_CLOSED;
 
         setBackgroundColor(getResources().getColor(R.color.main_menu_bg));
-        setAlwaysDrawnWithCacheEnabled(false);
+        //setAlwaysDrawnWithCacheEnabled(false);
     }
 
     public int getContentHolderId() {
@@ -345,10 +346,18 @@ public class RootView extends ViewGroup {
                 final int left = mMenu.getLeft();
                 final int offset = Math.min(-left, (int) (-closedRatio * mMenu.getWidth() * PARALLAX_SPEED_RATIO) - left);
                 mMenu.offsetLeftAndRight(offset);
-                drawChild(canvas, mMenu, drawingTime);
+
+                final Bitmap menuCache = mMenu.getDrawingCache();
+                if (menuCache != null) {
+                    canvas.drawBitmap(menuCache, mMenu.getLeft(), 0, null);
+                } else {
+                    canvas.save();
+                    drawChild(canvas, mMenu, drawingTime);
+                    canvas.restore();
+                }
+
 
                 // menuOverlay
-
                 if (alpha > 0) canvas.drawRect(0, 0, mMenu.getRight(), getHeight(), mOverlayPaint);
 
                 // gradient
@@ -363,7 +372,15 @@ public class RootView extends ViewGroup {
                 // player
                 final int offset = mOffsetLeft + (int) (closedRatio * mPlayer.getWidth() * PARALLAX_SPEED_RATIO) - mPlayer.getLeft();
                 mPlayer.offsetLeftAndRight(offset);
-                drawChild(canvas, mPlayer, drawingTime);
+
+                final Bitmap playerCache = mPlayer.getDrawingCache();
+                if (playerCache != null) {
+                    canvas.drawBitmap(playerCache, mPlayer.getLeft(), 0, null);
+                } else {
+                    canvas.save();
+                    drawChild(canvas, mPlayer, drawingTime);
+                    canvas.restore();
+                }
 
                 // playerOverlay
                 if (alpha > 0) canvas.drawRect(mPlayer.getLeft(), 0, getWidth() , getHeight(), mOverlayPaint);
@@ -376,9 +393,9 @@ public class RootView extends ViewGroup {
             }
 
             // content
-            final Bitmap cache = mContent.getDrawingCache();
-            if (cache != null) {
-                canvas.drawBitmap(cache, mContent.getLeft(), 0, null);
+            final Bitmap contentCache = mContent.getDrawingCache();
+            if (contentCache != null) {
+                canvas.drawBitmap(contentCache, mContent.getLeft(), 0, null);
             } else {
                 canvas.save();
                 drawChild(canvas, mContent, drawingTime);
