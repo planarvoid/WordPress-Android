@@ -259,6 +259,8 @@ public class ApiSyncer {
         User user = new FetchUserTask(mApi, SoundCloudApplication.getUserIdFromContext(mContext))
                 .doInBackground(c.request());
 
+        SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
+
         result.change = Result.CHANGED;
         result.success = user != null;
         return result;
