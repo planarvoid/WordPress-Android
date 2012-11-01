@@ -80,7 +80,7 @@
 
     <dimen name="slm_item_padding_topbottom">10dp</dimen>
     <dimen name="slm_item_padding_left">14dp</dimen>
-    <dimen name="slm_item_padding_right">18dp</dimen>
+    <dimen name="slm_item_padding_right">16dp</dimen>
 
     <dimen name="slm_item_text_size">16sp</dimen>
     <dimen name="slm_item_text_padding_left">10dp</dimen>
