@@ -123,6 +123,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 setCommentMode(false, currentQueuePosition);
             }
 
+            refreshCurrentViewedTrackData();
+
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
             mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
                     mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);

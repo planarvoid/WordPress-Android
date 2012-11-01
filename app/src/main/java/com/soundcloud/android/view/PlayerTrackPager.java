@@ -124,7 +124,7 @@ public class PlayerTrackPager extends ViewPager {
     }
 
     private PlayerTrackView getTrackViewAt(int i){
-        return mViews.size() > i ? (PlayerTrackView) mViews.get(i).getChildAt(0) : null;
+        return mViews.size() > i && i >= 0 ? (PlayerTrackView) mViews.get(i).getChildAt(0) : null;
     }
 
    	private ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
