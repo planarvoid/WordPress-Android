@@ -1,7 +1,9 @@
 package com.soundcloud.android.activity.landing;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.User;
+import com.viewpagerindicator.TitlePageIndicator;
 
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
@@ -12,7 +14,7 @@ public class You extends UserBrowser implements ScLandingPage {
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
-        mPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        ((TitlePageIndicator) findViewById(R.id.indicator)).setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
             }
