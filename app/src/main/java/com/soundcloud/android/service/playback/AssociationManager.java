@@ -36,7 +36,7 @@ public class AssociationManager {
                 onLikeStatusSet(track, isAssociated);
             }
         });
-        addAssociationTask.execute(Endpoints.MY_FAVORITES);
+        addAssociationTask.execute(Endpoints.MY_FAVORITE);
     }
 
 
@@ -53,7 +53,7 @@ public class AssociationManager {
 
             }
         });
-        removeAssociationTask.execute(Endpoints.MY_FAVORITES);
+        removeAssociationTask.execute(Endpoints.MY_FAVORITE);
     }
 
     private void onLikeStatusSet(Track track, boolean isLike) {
@@ -71,7 +71,7 @@ public class AssociationManager {
                 onRepostStatusSet(track, isAssociated);
             }
         });
-        addAssociationTask.execute(TempEndpoints.e1.MY_REPOSTS);
+        addAssociationTask.execute(TempEndpoints.e1.MY_REPOST);
     }
 
     void removeRepost(Track track) {
@@ -84,7 +84,7 @@ public class AssociationManager {
                 onRepostStatusSet(track, isAssociated);
             }
         });
-        removeAssociationTask.execute(TempEndpoints.e1.MY_REPOSTS);
+        removeAssociationTask.execute(TempEndpoints.e1.MY_REPOST);
     }
 
     private void onRepostStatusSet(Track track, boolean isRepost) {

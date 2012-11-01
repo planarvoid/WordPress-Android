@@ -8,7 +8,8 @@ public interface TempEndpoints {
         String MY_STREAM = "/e1/me/stream";
         String MY_EXCLUSIVE_STREAM = MY_STREAM;//"/me/activities/tracks/exclusive";
         String MY_ACTIVITIES = "/e1/me/activities/";
-        String MY_REPOSTS = "/e1/me/reposts/";
+        String MY_REPOSTS = "/e1/me/track_reposts/";
+        String MY_REPOST = "/e1/me/track_reposts/%d";
         String USER_REPOSTS = "/e1/users/#/reposts/";
     }
     public interface i1 {
