@@ -78,13 +78,14 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     @Override
     public int getCount() {
-        int count = mData == null ? 0 : mData.size();
+        int count = mData == null ?: mData.size();
         return mIsLoadingData ? count + 1 : count;
     }
 
     @Override
     public boolean isEmpty() {
-        return getCount() == 0 && !mIsLoadingData;
+        final int count = getCount();
+        return count == 0 || (count == 1 && mIsLoadingData);
     }
 
     @Override
