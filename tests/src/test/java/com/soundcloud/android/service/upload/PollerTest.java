@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -105,8 +106,8 @@ public class PollerTest {
         t.id = id;
         t.state = Track.State.PROCESSING;
         t.setUpdated();
-        Uri newUri = SoundCloudApplication.MODEL_MANAGER.write(t);
-        expect(newUri).not.toBeNull();
+        SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(t, ScResource.CacheUpdateMode.FULL);
+
 
         HandlerThread ht = new HandlerThread("poll");
         ht.start();

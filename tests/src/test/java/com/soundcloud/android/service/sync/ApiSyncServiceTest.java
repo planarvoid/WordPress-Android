@@ -40,7 +40,6 @@ public class ApiSyncServiceTest {
     ContentResolver resolver;
     static final long USER_ID = 100L;
 
-
     @Before public void before() {
         resolver = Robolectric.application.getContentResolver();
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
