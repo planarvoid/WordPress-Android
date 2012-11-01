@@ -37,8 +37,7 @@ public class AssociationManagerTest {
         Track t = createTrack();
         modelManager.write(t);
 
-        Request r = Request.to(Endpoints.MY_FAVORITES, t.id);
-        Robolectric.addHttpResponseRule("PUT", Endpoints.MY_FAVORITES, new TestHttpResponse(200, "OK"));
+        Robolectric.addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
 
         associationManager.addLike(t);
         expect(modelManager.getTrack(t.id).user_like).toBeTrue();
@@ -49,8 +48,7 @@ public class AssociationManagerTest {
         Track t = createTrack();
         modelManager.write(t);
 
-        Request r = Request.to(Endpoints.MY_FAVORITES, t.id);
-        Robolectric.addHttpResponseRule("PUT", Endpoints.MY_FAVORITES, new TestHttpResponse(404, "FAIL"));
+        Robolectric.addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(404, "FAIL"));
 
         associationManager.addLike(t);
         expect(modelManager.getTrack(t.id).user_like).toBeFalse();
@@ -62,8 +60,7 @@ public class AssociationManagerTest {
         t.user_like = true;
         modelManager.write(t);
 
-        Request r = Request.to(Endpoints.MY_FAVORITES, t.id);
-        Robolectric.addHttpResponseRule("DELETE", Endpoints.MY_FAVORITES, new TestHttpResponse(200, "OK"));
+        Robolectric.addHttpResponseRule("DELETE", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
 
         associationManager.removeLike(t);
         expect(modelManager.getTrack(t.id).user_like).toBeFalse();
@@ -74,7 +71,7 @@ public class AssociationManagerTest {
         Track t = createTrack();
         t.user_like = true;
         modelManager.write(t);
-        Robolectric.addHttpResponseRule("DELETE", Endpoints.MY_FAVORITES, new TestHttpResponse(400, "FAIL"));
+        Robolectric.addHttpResponseRule("DELETE", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(400, "FAIL"));
 
         associationManager.removeLike(t);
         expect(t.user_like).toBeTrue();
@@ -87,13 +84,12 @@ public class AssociationManagerTest {
         Track t = createTrack();
         modelManager.write(t);
 
-        Request r = Request.to(TempEndpoints.e1.MY_REPOSTS, t.id);
-        Robolectric.addHttpResponseRule("PUT", TempEndpoints.e1.MY_REPOSTS, new TestHttpResponse(200, "OK"));
+        Robolectric.addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_REPOST, t.id).toUrl(), new TestHttpResponse(200, "OK"));
 
         associationManager.addRepost(t);
         expect(modelManager.getTrack(t.id).user_repost).toBeTrue();
 
-        Robolectric.addHttpResponseRule("DELETE", TempEndpoints.e1.MY_REPOSTS, new TestHttpResponse(200, "OK"));
+        Robolectric.addHttpResponseRule("DELETE",  Request.to(TempEndpoints.e1.MY_REPOST, t.id).toUrl(), new TestHttpResponse(200, "OK"));
 
         associationManager.removeRepost(t);
         expect(modelManager.getTrack(t.id).user_repost).toBeFalse();

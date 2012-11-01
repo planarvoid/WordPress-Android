@@ -6,6 +6,7 @@ import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Endpoints;
@@ -52,6 +53,7 @@ public class FetchUserTaskTest {
         expect(user[0].username).toEqual("SoundCloud Android @ MWC");
         expect(user[0].isPrimaryEmailConfirmed()).toBeFalse();
 
+        SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user[0], ScResource.CacheUpdateMode.FULL);
 
         u = SoundCloudApplication.MODEL_MANAGER.getUser(3135930);
         expect(u).not.toBeNull();
