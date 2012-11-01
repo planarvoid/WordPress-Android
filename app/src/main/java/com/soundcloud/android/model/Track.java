@@ -603,10 +603,9 @@ public class Track extends PlayableResource implements Playable {
         return new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(EXTRA, this);
     }
 
-    public Uri commitLocally() {
+    public void setUpdated() {
         last_updated = System.currentTimeMillis();
         full_track_info_loaded = true;
-        return SoundCloudApplication.MODEL_MANAGER.write(this);
     }
 
     public Track updateFrom(Track updatedItem, CacheUpdateMode cacheUpdateMode) {
@@ -631,11 +630,13 @@ public class Track extends PlayableResource implements Playable {
             comment_count = updatedItem.comment_count;
             favoritings_count = updatedItem.favoritings_count;
             user_like = updatedItem.user_like;
-            user_repost = updatedItem.user_repost;
             shared_to_count = updatedItem.shared_to_count;
             created_at = updatedItem.created_at;
-            //refreshListArtworkUri(c);
-            //refreshTimeSinceCreated(c);
+            //user_repost = updatedItem.user_repost; THIS DOES NOT COME FROM THE API, ONLY UPDATE FROM DB
+
+            // these will get refreshed
+            mElapsedTime = null;
+            mArtworkUri = null;
         }
 
         return this;

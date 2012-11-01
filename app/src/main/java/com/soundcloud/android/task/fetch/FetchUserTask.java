@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 
 public class FetchUserTask extends FetchModelTask<User> {
@@ -15,9 +16,9 @@ public class FetchUserTask extends FetchModelTask<User> {
         super(app, User.class, userId);
     }
 
-    protected void updateLocally(ContentResolver resolver, User user) {
+    protected User updateLocally(ContentResolver resolver, User user) {
         user.last_updated = System.currentTimeMillis();
-        SoundCloudApplication.MODEL_MANAGER.write(user);
+        return SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
     }
 
     public interface FetchUserListener extends FetchModelListener<User> {}

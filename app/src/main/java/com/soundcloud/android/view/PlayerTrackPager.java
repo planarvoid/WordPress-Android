@@ -123,9 +123,8 @@ public class PlayerTrackPager extends ViewPager {
         return frameLayout;
     }
 
-
     private PlayerTrackView getTrackViewAt(int i){
-        return (PlayerTrackView) mViews.get(i).getChildAt(0);
+        return mViews.size() > i ? (PlayerTrackView) mViews.get(i).getChildAt(0) : null;
     }
 
    	private ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
@@ -145,14 +144,16 @@ public class PlayerTrackPager extends ViewPager {
 
    		@Override public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
-               if (position == getCurrentItem() && positionOffset > 0 && mPartialScreen != position + 1){
-                   mPartialScreen = position + 1;
-                   getTrackViewAt(mPartialScreen).setOnScreen(true);
-               } else if (position == getCurrentItem() - 1 && mPartialScreen != position){
-                   mPartialScreen = position;
-                   getTrackViewAt(mPartialScreen).setOnScreen(true);
+               final PlayerTrackView trackView = getTrackViewAt(mPartialScreen);
+               if (trackView != null){
+                   if (position == getCurrentItem() && positionOffset > 0 && mPartialScreen != position + 1){
+                       mPartialScreen = position + 1;
+                       trackView.setOnScreen(true);
+                   } else if (position == getCurrentItem() - 1 && mPartialScreen != position){
+                       mPartialScreen = position;
+                       trackView.setOnScreen(true);
+                   }
                }
-
            }
 
    		@Override public void onPageScrollStateChanged(int state) {

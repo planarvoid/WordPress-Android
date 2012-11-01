@@ -65,11 +65,7 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
 
             switch (resp.getStatusLine().getStatusCode()) {
                 case HttpStatus.SC_OK: {
-                    Model model = mApi.getMapper().readValue(resp.getEntity().getContent(), mModel);
-                    if (model != null) {
-                        updateLocally(mApi.getContext().getContentResolver(), model);
-                    }
-                    return model;
+                    return mApi.getMapper().readValue(resp.getEntity().getContent(), mModel);
                 }
 
                 case HttpStatus.SC_NOT_FOUND: // gone
@@ -89,6 +85,4 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
         void onSuccess(Model m, @Nullable String action);
         void onError(long modelId);
     }
-
-    abstract protected void updateLocally(ContentResolver resolver, Model model);
 }

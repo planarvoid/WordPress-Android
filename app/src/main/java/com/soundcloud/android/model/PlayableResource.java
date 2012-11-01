@@ -27,7 +27,7 @@ abstract class PlayableResource extends ScResource implements Playable, Refresha
     @JsonView(Views.Mini.class) public String permalink;
     @JsonView(Views.Mini.class) public String permalink_url;
 
-    @JsonView(Views.Full.class) @JsonProperty("user_like") public boolean user_like;
+    @JsonView(Views.Full.class) @JsonProperty("user_favorite") public boolean user_like;
     @JsonView(Views.Full.class) public boolean user_repost;
 
     @JsonView(Views.Full.class) public int duration = NOT_SET;
@@ -59,8 +59,8 @@ abstract class PlayableResource extends ScResource implements Playable, Refresha
     @JsonView(Views.Full.class) public Sharing sharing;  //  public | private
 
     // app fields
-    @JsonIgnore private CharSequence mElapsedTime;
-    @JsonIgnore private String mArtworkUri;
+    @JsonIgnore protected CharSequence mElapsedTime;
+    @JsonIgnore protected String mArtworkUri;
 
     public CharSequence getTimeSinceCreated(Context context) {
         if (mElapsedTime == null) refreshTimeSinceCreated(context);

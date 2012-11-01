@@ -77,7 +77,7 @@ public class ScModelManagerTest {
         u.id = 100L;
         u.permalink = "foo";
 
-        Uri uri = manager.write(u, false);
+        Uri uri = manager.write(u);
 
         expect(uri).not.toBeNull();
 
@@ -101,7 +101,7 @@ public class ScModelManagerTest {
         t1.user.id = 200L;
         t1.user.username = "Testor";
 
-        Uri uri = manager.write(t1, false);
+        Uri uri = manager.write(t1);
 
         expect(uri).not.toBeNull();
         Track t2 = manager.getTrack(uri);
@@ -121,14 +121,14 @@ public class ScModelManagerTest {
         t1.user.id = 200L;
         t1.user.username = "Testor";
 
-        Uri uri = manager.write(t1, false);
+        Uri uri = manager.write(t1);
 
         expect(uri).not.toBeNull();
         Track t2 = manager.getTrack(uri);
         expect(t2).not.toBeNull();
         t2.title = "not interesting";
 
-        manager.write(t2, false);
+        manager.write(t2);
 
         Track t3 = manager.getTrack(uri);
         expect(t3.title).toEqual("not interesting");
@@ -156,7 +156,7 @@ public class ScModelManagerTest {
         u.public_likes_count = ++counter;
         u.private_tracks_count = ++counter;
 
-        Uri uri = manager.write(u, false);
+        Uri uri = manager.write(u);
 
         expect(uri).not.toBeNull();
 
@@ -190,7 +190,7 @@ public class ScModelManagerTest {
         u.id = USER_ID;
         u.description = "i make beatz";
 
-        Uri uri = manager.write(u, false);
+        Uri uri = manager.write(u);
         expect(uri).not.toBeNull();
 
         User u2 = manager.getUser(uri);
@@ -205,7 +205,7 @@ public class ScModelManagerTest {
         u.permalink = "foo";
         u.description = "baz";
 
-        Uri uri = manager.write(u, false);
+        Uri uri = manager.write(u);
 
         expect(uri).not.toBeNull();
 
@@ -213,7 +213,7 @@ public class ScModelManagerTest {
 
         u2.permalink = "nomnom";
 
-        manager.write(u2, false);
+        manager.write(u2);
 
         User u3 = manager.getUser(uri);
 
@@ -229,7 +229,7 @@ public class ScModelManagerTest {
         track.title = "testing";
         track.user = new User();
         track.user.id = 200L;
-        Uri uri = manager.write(track, false);
+        Uri uri = manager.write(track);
         expect(uri).not.toBeNull();
 
         final int PLAYS = 3;

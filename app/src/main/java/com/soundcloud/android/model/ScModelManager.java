@@ -315,21 +315,33 @@ public class ScModelManager {
     }
 
     public Uri write(Track track) {
-        return write(track, true);
-    }
-
-    public Uri write(Track track, boolean cache) {
-        if (cache) TRACK_CACHE.putWithLocalFields(track);
         return SoundCloudDB.upsertTrack(mResolver, track);
     }
 
-    public Uri write(User user) {
-        return write(user, true);
+    public ScResource cacheAndWrite(ScResource resource, ScResource.CacheUpdateMode mode) {
+        if (resource instanceof Track){
+            return cacheAndWrite(((Track) resource),mode);
+        } else if (resource instanceof User){
+            return cacheAndWrite(((User) resource),mode);
+        }
+        return resource;
     }
 
-    public Uri write(User user, boolean cache) {
-        if (cache) USER_CACHE.putWithLocalFields(user);
+    public Track cacheAndWrite(Track track, ScResource.CacheUpdateMode mode) {
+        if (mode == ScResource.CacheUpdateMode.FULL) track.setUpdated();
+        track = cache(track, mode);
+        write(track);
+        return track;
+    }
+
+    public Uri write(User user) {
         return SoundCloudDB.upsertUser(mResolver, user);
+    }
+
+    public User cacheAndWrite(User user, ScResource.CacheUpdateMode mode) {
+        user = cache(user, mode);
+        write(user);
+        return user;
     }
 
     private static List<ScResource> doBatchLookup(AndroidCloudAPI api, List<Long> ids, Content content) throws IOException {

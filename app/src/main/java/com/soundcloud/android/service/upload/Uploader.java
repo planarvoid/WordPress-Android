@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.api.Request;
@@ -139,7 +140,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     private void onUploadSuccess(HttpResponse response) {
         try {
             Track track = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(response.getEntity().getContent(), Track.class);
-            SoundCloudApplication.MODEL_MANAGER.write(track);
+            SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(track, ScResource.CacheUpdateMode.FULL);
 
             //request to update my collection
             LocalCollection.forceToStale(Content.ME_TRACKS.uri, api.getContext().getContentResolver());
