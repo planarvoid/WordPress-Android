@@ -326,7 +326,8 @@ public class MainMenu extends LinearLayout {
                 final User u = SoundCloudApplication.fromContext(getContext()).getLoggedInUser();
                 if (u != null) {
                     holder.text.setText(u.username);
-                    setDefaultImage = TextUtils.isEmpty(u.getListAvatarUri(getContext())) || ImageLoader.get(getContext()).bind(this, holder.image, u.getListAvatarUri(getContext())) != ImageLoader.BindResult.OK;
+                    final String listAvatarUri = u.getListAvatarUri(getContext());
+                    setDefaultImage = TextUtils.isEmpty(listAvatarUri) || ImageLoader.get(getContext()).bind(this, holder.image, listAvatarUri) != ImageLoader.BindResult.OK;
                 } else {
                     holder.text.setText(menuItem.text);
                 }

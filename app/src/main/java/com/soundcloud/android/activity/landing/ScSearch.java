@@ -35,6 +35,7 @@ public class ScSearch extends ScActivity implements ScLandingPage {
     private Spinner mSpinner;
     private Search mCurrentSearch;
     private ScSearchFragment mSearchFragment;
+    private Search pendingSearch;
 
     public static final String EXTRA_SEARCH_TYPE = "search_type";
     public static final String EXTRA_QUERY = "query";
@@ -101,9 +102,11 @@ public class ScSearch extends ScActivity implements ScLandingPage {
     private void handleIntent() {
         final Intent intent = getIntent();
         if (intent.hasExtra(EXTRA_QUERY)) {
-            perform(new Search(intent.getCharSequenceExtra(EXTRA_QUERY).toString(), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL)));
+            pendingSearch = new Search(intent.getCharSequenceExtra(EXTRA_QUERY).toString(), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
         }
     }
+
+
 
     @Override
     protected int getSelectedMenuId() {
@@ -120,6 +123,11 @@ public class ScSearch extends ScActivity implements ScLandingPage {
     protected void onResume() {
         super.onResume();
         track(getClass());
+
+        if (pendingSearch != null){
+            perform(pendingSearch);
+            pendingSearch = null;
+        }
     }
 
     private Search getSearch() {

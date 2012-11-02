@@ -431,11 +431,12 @@ public class ScListFragment extends SherlockListFragment
     }
 
     public void reset() {
-        resetEmptyCollection();
+
         mNextHref = "";
         mKeepGoing = true;
         clearRefreshTask();
         clearUpdateTask();
+        resetEmptyCollection();
 
         final ScBaseAdapter adp = getListAdapter();
         if (adp != null) {
@@ -446,9 +447,11 @@ public class ScListFragment extends SherlockListFragment
     }
 
     private void resetEmptyCollection() {
-        mEmptyCollection.setMode((mLocalCollection == null || mLocalCollection.hasSyncedBefore()) ?
-                (canAppend() ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.IDLE)
-                : EmptyCollection.Mode.WAITING_FOR_SYNC);
+        if (mEmptyCollection != null){
+            mEmptyCollection.setMode((mLocalCollection == null || mLocalCollection.hasSyncedBefore()) ?
+                    (canAppend() ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.IDLE)
+                    : EmptyCollection.Mode.WAITING_FOR_SYNC);
+        }
     }
 
     protected void clearRefreshTask() {

@@ -99,57 +99,44 @@ public class PlayerTrackInfo extends RelativeLayout{
     public void fillTrackDetails() {
 
         if (mPlayingTrack == null) return;
-        if (!mPlayingTrack.full_track_info_loaded) {
-            if (findViewById(R.id.loading_layout) != null) {
-                findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
-            } else {
-                findViewById(R.id.stub_loading).setVisibility(View.VISIBLE);
-            }
 
-            findViewById(R.id.info_view).setVisibility(View.GONE);
 
-            if (findViewById(android.R.id.empty) != null) {
-                findViewById(android.R.id.empty).setVisibility(View.GONE);
-            }
+        if (mPlayingTrack.favoritings_count == 0) {
+            mLikersText.setVisibility(View.GONE);
+            mLikersHr.setVisibility(View.GONE);
         } else {
-
-            if (mPlayingTrack.favoritings_count == 0) {
-                mLikersText.setVisibility(View.GONE);
-                mLikersHr.setVisibility(View.GONE);
-            } else {
-                mLikersText.setVisibility(View.VISIBLE);
-                mLikersHr.setVisibility(View.VISIBLE);
-                mLikersText.setText(getResources().getQuantityString(R.plurals.track_info_likers,
-                        mPlayingTrack.favoritings_count, mPlayingTrack.favoritings_count));
-            }
-
-            if (mPlayingTrack.comment_count == 0) {
-                mCommentersTxt.setVisibility(View.GONE);
-                mCommentersHr.setVisibility(View.GONE);
-            } else {
-                mCommentersTxt.setVisibility(View.VISIBLE);
-                mCommentersHr.setVisibility(View.VISIBLE);
-                mCommentersTxt.setText(getResources().getQuantityString(R.plurals.track_info_commenters,
-                        mPlayingTrack.comment_count,mPlayingTrack.comment_count));
-            }
-
-            mTrackTags.removeAllViews();
-            mPlayingTrack.fillTags(mTrackTags, mPlayer);
-
-            TextView txtInfo = (TextView) findViewById(R.id.txtInfo);
-            if (txtInfo != null && mPlayingTrack != null) { // should never be null, but sure enough it is in rare cases. Maybe not inflated yet??
-                txtInfo.setText(ScTextUtils.fromHtml(mPlayingTrack.trackInfo()));
-                Linkify.addLinks(txtInfo, Linkify.WEB_URLS);
-
-                // for some reason this needs to be set to support links
-                // http://www.mail-archive.com/android-beginners@googlegroups.com/msg04465.html
-                MovementMethod mm = txtInfo.getMovementMethod();
-                if (!(mm instanceof LinkMovementMethod)) {
-                    txtInfo.setMovementMethod(LinkMovementMethod.getInstance());
-                }
-            }
-            mTrackInfoFilled = true;
+            mLikersText.setVisibility(View.VISIBLE);
+            mLikersHr.setVisibility(View.VISIBLE);
+            mLikersText.setText(getResources().getQuantityString(R.plurals.track_info_likers,
+                    mPlayingTrack.favoritings_count, mPlayingTrack.favoritings_count));
         }
+
+        if (mPlayingTrack.comment_count == 0) {
+            mCommentersTxt.setVisibility(View.GONE);
+            mCommentersHr.setVisibility(View.GONE);
+        } else {
+            mCommentersTxt.setVisibility(View.VISIBLE);
+            mCommentersHr.setVisibility(View.VISIBLE);
+            mCommentersTxt.setText(getResources().getQuantityString(R.plurals.track_info_commenters,
+                    mPlayingTrack.comment_count, mPlayingTrack.comment_count));
+        }
+
+        mTrackTags.removeAllViews();
+        mPlayingTrack.fillTags(mTrackTags, mPlayer);
+
+        TextView txtInfo = (TextView) findViewById(R.id.txtInfo);
+        if (txtInfo != null && mPlayingTrack != null) { // should never be null, but sure enough it is in rare cases. Maybe not inflated yet??
+            txtInfo.setText(ScTextUtils.fromHtml(mPlayingTrack.trackInfo()));
+            Linkify.addLinks(txtInfo, Linkify.WEB_URLS);
+
+            // for some reason this needs to be set to support links
+            // http://www.mail-archive.com/android-beginners@googlegroups.com/msg04465.html
+            MovementMethod mm = txtInfo.getMovementMethod();
+            if (!(mm instanceof LinkMovementMethod)) {
+                txtInfo.setMovementMethod(LinkMovementMethod.getInstance());
+            }
+        }
+        mTrackInfoFilled = true;
     }
 
     public void onInfoLoadError() {

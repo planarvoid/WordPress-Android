@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -18,8 +19,12 @@ import com.soundcloud.android.provider.DBHelper.Tracks;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchModelTask;
+import com.soundcloud.android.task.fetch.FetchTrackTask;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.FlowLayout;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
@@ -113,7 +118,6 @@ public class Track extends PlayableResource implements Playable {
     @JsonIgnore public boolean local_cached;
     @JsonIgnore public FetchModelTask<Track> load_info_task;
     @JsonIgnore public LoadCommentsTask load_comments_task;
-    @JsonIgnore public boolean full_track_info_loaded;
     @JsonIgnore public int last_playback_error = -1;
 
     public List<String> humanTags() {
@@ -216,7 +220,6 @@ public class Track extends PlayableResource implements Playable {
 
         b.putInt("local_user_playback_count", local_user_playback_count);
         b.putBoolean("local_cached", local_cached);
-        b.putBoolean("full_track_info_loaded", full_track_info_loaded);
         b.putInt("last_playback_error", last_playback_error);
 
         /* the following fields are left out because they are too expensive or complex
@@ -307,7 +310,6 @@ public class Track extends PlayableResource implements Playable {
 
         local_user_playback_count = b.getInt("local_user_playback_count");
         local_cached = b.getBoolean("local_cached");
-        full_track_info_loaded = b.getBoolean("full_track_info_loaded");
         last_playback_error = b.getInt("last_playback_error");
     }
 
@@ -470,6 +472,20 @@ public class Track extends PlayableResource implements Playable {
         }
     }
 
+    // TODO, THIS SUCKS
+    public FetchModelTask<Track> refreshInfoAsync(AndroidCloudAPI api, FetchModelTask.FetchModelListener<Track> listener) {
+        if (load_info_task == null){
+            if (AndroidUtils.isTaskFinished(load_info_task)) {
+                load_info_task = new FetchTrackTask(api, id);
+            }
+            load_info_task.addListener(listener);
+            if (AndroidUtils.isTaskPending(load_info_task)) {
+                load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, id));
+            }
+        }
+        return load_info_task;
+    }
+
     public String getUserName() {
         return user != null ? user.username : null;
     }
@@ -610,7 +626,6 @@ public class Track extends PlayableResource implements Playable {
 
     public void setUpdated() {
         last_updated = System.currentTimeMillis();
-        full_track_info_loaded = true;
     }
 
     public Track updateFrom(Track updatedItem, CacheUpdateMode cacheUpdateMode) {

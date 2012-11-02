@@ -306,8 +306,8 @@ public class User extends ScResource implements Refreshable {
     public User updateFrom(User user, CacheUpdateMode cacheUpdateMode) {
         this.id = user.id;
         this.username = user.username;
-        this.avatar_url = user.avatar_url;
 
+        if (user.avatar_url != null) this.avatar_url = user.avatar_url;
         if (user.permalink != null) this.permalink = user.permalink;
         if (user.full_name != null) this.full_name = user.full_name;
         if (user.city != null) this.city = user.city;

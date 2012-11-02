@@ -45,15 +45,7 @@ public abstract class TrackInfoCollection extends ScActivity implements   FetchT
         }
 
 
-        if (!mTrack.full_track_info_loaded) {
-            if (AndroidUtils.isTaskFinished(mTrack.load_info_task)) {
-                mTrack.load_info_task = new FetchTrackTask(getApp(), mTrack.id);
-            }
-            mTrack.load_info_task.addListener(this);
-            if (AndroidUtils.isTaskPending(mTrack.load_info_task)) {
-                mTrack.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mTrack.id));
-            }
-        }
+        mTrack.refreshInfoAsync(getApp(),this);
     }
 
     protected abstract Uri getContentUri();

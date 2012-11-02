@@ -171,16 +171,7 @@ public class PlayerTrackView extends LinearLayout implements
 
         setLikeStatus();
 
-        if (!mTrack.full_track_info_loaded) {
-            if (AndroidUtils.isTaskFinished(mTrack.load_info_task)) {
-                mTrack.load_info_task = new FetchTrackTask(mPlayer.getApp(), mTrack.id);
-            }
-
-            mTrack.load_info_task.addListener(this);
-            if (AndroidUtils.isTaskPending(mTrack.load_info_task)) {
-                mTrack.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mTrack.id));
-            }
-        }
+        mTrack.refreshInfoAsync(mPlayer.getApp(),this);
 
         if (mTrack.isStreamable() && mTrack.last_playback_error == -1) {
             hideUnplayable();

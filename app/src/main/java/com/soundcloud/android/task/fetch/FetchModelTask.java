@@ -25,6 +25,7 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
     private Set<WeakReference<FetchModelListener<Model>>> mListenerWeakReferences;
     private long mModelId;
     private Class<? extends Model> mModel;
+    private boolean mFinished;
 
     public String action;
 
@@ -38,11 +39,13 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
         if (mListenerWeakReferences == null){
             mListenerWeakReferences = new HashSet<WeakReference<FetchModelListener<Model>>>();
         }
+
         mListenerWeakReferences.add(new WeakReference<FetchModelListener<Model>>(listener));
     }
 
     @Override
     protected void onPostExecute(Model result) {
+        mFinished = true;
         if (mListenerWeakReferences != null) {
             for (WeakReference<FetchModelListener<Model>> listenerRef : mListenerWeakReferences) {
                 final FetchModelListener<Model> listener = listenerRef.get();
