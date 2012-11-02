@@ -45,7 +45,7 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
     private static final long SPLASH_DELAY = 500;
 
     private Intent launchIntent;
-
+    private boolean mLaunched;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,25 +71,18 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
                 !app.getLoggedInUser().isPrimaryEmailConfirmed() &&
                 !justAuthenticated(getIntent())) {
             checkEmailConfirmed(app);
-        } else {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    checkCanLaunch();
-                }
-            }, SPLASH_DELAY);
         }
 
         handleViewUrl(getIntent());
-
         launchIntent = ScLandingPage.LandingPage.fromString(app.getAccountData(User.DataKeys.LAST_LANDING_PAGE_IDX)).getIntent(this);
-
     }
 
     private void checkCanLaunch() {
         if (AndroidUtils.isTaskFinished(mResolveTask)
                 && AndroidUtils.isTaskFinished(mFetchUserTask)
-                && System.currentTimeMillis() - mStartTime > SPLASH_DELAY - 200){
+                && System.currentTimeMillis() - mStartTime > SPLASH_DELAY - 200
+                && !mLaunched){
+            mLaunched = true;
             startActivity(launchIntent);
             overridePendingTransition(R.anim.appear, R.anim.hold);
         }
@@ -101,6 +94,13 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
         if (getApp().getAccount() == null) {
             getApp().addAccount(this, managerCallback);
             finish();
+        } else {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    checkCanLaunch();
+                }
+            }, SPLASH_DELAY);
         }
     }
 
@@ -144,7 +144,8 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
             @Override
             protected void onPostExecute(User user) {
                 if (user == null || user.isPrimaryEmailConfirmed()) {
-                    checkCanLaunch();
+                    SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
+                    if (!mLaunched) checkCanLaunch();
                 } else {
                     startActivityForResult(new Intent(Launch.this, EmailConfirm.class)
                             .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
