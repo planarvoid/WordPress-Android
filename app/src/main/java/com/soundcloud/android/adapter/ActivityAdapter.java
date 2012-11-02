@@ -1,6 +1,7 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.task.collection.CollectionParams;
@@ -33,6 +34,12 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
         if (type == IGNORE_ITEM_VIEW_TYPE) return type;
 
         return getItem(position).getType().ordinal();
+    }
+
+    public boolean isExpired() {
+        if (mData.size() == 0) return true;
+        final Activity firstActivity = Activities.getFirstActivity(mContent, mContext.getContentResolver());
+        return (firstActivity == null || firstActivity.created_at.getTime() > mData.get(0).created_at.getTime());
     }
 
     @Override

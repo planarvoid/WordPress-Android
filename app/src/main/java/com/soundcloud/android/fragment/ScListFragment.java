@@ -18,6 +18,7 @@ import com.soundcloud.android.adapter.TrackAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -157,7 +158,7 @@ public class ScListFragment extends SherlockListFragment
 
             }
             setListAdapter(adapter);
-            if (canAppend()) append();
+            if (canAppend() && !waitingOnInitialSync()) append();
         }
     }
 
@@ -360,16 +361,9 @@ public class ScListFragment extends SherlockListFragment
         stopObservingChanges();
     }
 
-    /*
-    ToDo, broadcast listener
-    @Override
-    public void onLogout() {
-        stopObservingChanges();
-    } */
-
     protected void onContentChanged() {
         mContentInvalid = true;
-        if (!isRefreshing()){
+        if (!(getListAdapter() instanceof ActivityAdapter) || ((ActivityAdapter) getListAdapter()).isExpired()){
             executeRefreshTask();
         }
     }
@@ -576,7 +570,7 @@ public class ScListFragment extends SherlockListFragment
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Actions.LOGGING_OUT.equals(intent.getAction())) {
-                // alert lists?
+                stopObservingChanges();
             }
         }
     };

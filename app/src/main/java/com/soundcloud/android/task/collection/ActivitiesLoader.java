@@ -22,7 +22,7 @@ public class ActivitiesLoader extends CollectionLoader<Activity> {
             newActivities = Activities.getSince(params.contentUri, resolver, params.timestamp);
         } else {
             newActivities = getOlderActivities(resolver, params);
-            if (newActivities.size() == 0) {
+            if (newActivities.size() < params.maxToLoad) {
 
                 ApiSyncer.Result result = null;
                 try {
