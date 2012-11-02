@@ -668,6 +668,7 @@ public class PlayerTrackView extends LinearLayout implements
     @Override
     public void onSuccess(Track t, String action) {
 
+        t.setUpdated();
         t = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(t, ScResource.CacheUpdateMode.FULL);
 
         if (t.id != mTrack.id) return;

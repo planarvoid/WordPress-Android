@@ -17,10 +17,12 @@ import android.util.Log;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask<Request, Void, Model> {
     private AndroidCloudAPI mApi;
-    private ArrayList<WeakReference<FetchModelListener<Model>>> mListenerWeakReferences;
+    private Set<WeakReference<FetchModelListener<Model>>> mListenerWeakReferences;
     private long mModelId;
     private Class<? extends Model> mModel;
 
@@ -34,7 +36,7 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
 
     public void addListener(FetchModelListener<Model> listener){
         if (mListenerWeakReferences == null){
-            mListenerWeakReferences = new ArrayList<WeakReference<FetchModelListener<Model>>>();
+            mListenerWeakReferences = new HashSet<WeakReference<FetchModelListener<Model>>>();
         }
         mListenerWeakReferences.add(new WeakReference<FetchModelListener<Model>>(listener));
     }
@@ -43,7 +45,7 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
     protected void onPostExecute(Model result) {
         if (mListenerWeakReferences != null) {
             for (WeakReference<FetchModelListener<Model>> listenerRef : mListenerWeakReferences) {
-                FetchModelListener<Model> listener = listenerRef.get();
+                final FetchModelListener<Model> listener = listenerRef.get();
                 if (listener != null) {
                     if (result != null) {
                         listener.onSuccess(result, action);

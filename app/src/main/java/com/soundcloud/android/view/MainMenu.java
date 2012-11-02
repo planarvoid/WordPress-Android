@@ -18,6 +18,7 @@ import android.content.res.XmlResourceParser;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -325,7 +326,7 @@ public class MainMenu extends LinearLayout {
                 final User u = SoundCloudApplication.fromContext(getContext()).getLoggedInUser();
                 if (u != null) {
                     holder.text.setText(u.username);
-                    setDefaultImage = ImageLoader.get(getContext()).bind(this, holder.image, u.getListAvatarUri(getContext())) != ImageLoader.BindResult.OK;
+                    setDefaultImage = TextUtils.isEmpty(u.getListAvatarUri(getContext())) || ImageLoader.get(getContext()).bind(this, holder.image, u.getListAvatarUri(getContext())) != ImageLoader.BindResult.OK;
                 } else {
                     holder.text.setText(menuItem.text);
                 }

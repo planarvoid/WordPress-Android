@@ -17,7 +17,6 @@ public class CommentAdapter extends ScBaseAdapter<Comment> {
 
     @Override
     protected LazyRow createRow(int position) {
-        Log.i("asdf","Create Row");
         return new CommentRow(mContext, this);
     }
 
