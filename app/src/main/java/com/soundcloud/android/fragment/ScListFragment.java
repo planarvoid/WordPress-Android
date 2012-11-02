@@ -488,7 +488,7 @@ public class ScListFragment extends SherlockListFragment
                 return false;
         }
     }
-
+                                                                                                                               ''
     @Override
     public void onRefresh() {
         refresh(true);

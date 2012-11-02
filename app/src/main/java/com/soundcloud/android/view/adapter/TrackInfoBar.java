@@ -40,12 +40,14 @@ public class TrackInfoBar extends LazyRow {
     private TextView mLikeCount;
     private TextView mPlayCount;
     private TextView mCommentCount;
+    private TextView mRepostCount;
 
-    private View mPlayCountSeparator;
-    private View mCommentCountSeparator;
+    private View mPlayCountSeparator, mCommentCountSeparator, mLikeCountSeparator;
 
     private Drawable mLikesDrawable;
     private Drawable mLikedDrawable;
+    private Drawable mRepostsDrawable;
+    private Drawable mRepostedDrawable;
     private Drawable mPrivateBgDrawable;
     private Drawable mVeryPrivateBgDrawable;
     private Drawable mPlayingDrawable;
@@ -85,9 +87,11 @@ public class TrackInfoBar extends LazyRow {
         mLikeCount = (TextView) findViewById(R.id.like_count);
         mPlayCount = (TextView) findViewById(R.id.play_count);
         mCommentCount = (TextView) findViewById(R.id.comment_count);
+        mRepostCount = (TextView) findViewById(R.id.repost_count);
 
         mPlayCountSeparator = findViewById(R.id.vr_play_count);
         mCommentCountSeparator = findViewById(R.id.vr_comment_count);
+        mLikeCountSeparator = findViewById(R.id.vr_like_count);
 
         if (mAdapter == null) {
             // player view, these need to be set
@@ -140,6 +144,22 @@ public class TrackInfoBar extends LazyRow {
               mLikesDrawable.setBounds(0, 0, mLikesDrawable.getIntrinsicWidth(), mLikesDrawable.getIntrinsicHeight());
           }
         return mLikesDrawable;
+    }
+
+    private Drawable getRepostsDrawable() {
+        if (mRepostsDrawable == null) {
+            mRepostsDrawable = getResources().getDrawable(R.drawable.ic_stats_reposts_states);
+            mRepostsDrawable.setBounds(0, 0, mRepostsDrawable.getIntrinsicWidth(), mRepostsDrawable.getIntrinsicHeight());
+        }
+        return mRepostsDrawable;
+    }
+
+    private Drawable getRepostedDrawable() {
+        if (mRepostedDrawable == null) {
+            mRepostedDrawable = getResources().getDrawable(R.drawable.ic_stats_reposted_states);
+            mRepostedDrawable.setBounds(0, 0, mRepostedDrawable.getIntrinsicWidth(), mRepostedDrawable.getIntrinsicHeight());
+        }
+        return mRepostedDrawable;
     }
 
     private Drawable getPrivateBgDrawable(){
@@ -197,12 +217,20 @@ public class TrackInfoBar extends LazyRow {
                 track.comment_count, mCommentCount,
                 mCommentCountSeparator,
                 track.favoritings_count, mLikeCount,
+                mLikeCountSeparator,
+                track.reposts_count, mRepostCount,
                 keepHeight);
 
         if (track.user_like) {
             mLikeCount.setCompoundDrawablesWithIntrinsicBounds(getLikedDrawable(), null, null, null);
         } else {
             mLikeCount.setCompoundDrawables(getLikesDrawable(), null, null, null);
+        }
+
+        if (track.user_repost) {
+            mRepostCount.setCompoundDrawablesWithIntrinsicBounds(getRepostedDrawable(), null, null, null);
+        } else {
+            mRepostCount.setCompoundDrawables(getRepostsDrawable(), null, null, null);
         }
 
 
@@ -304,18 +332,25 @@ public class TrackInfoBar extends LazyRow {
                                 int stat2, TextView statTextView2,
                                 View separator2,
                                 int stat3, TextView statTextView3,
+                                View separator3,
+                                int stat4, TextView statTextView4,
                                 boolean maintainSize) {
 
         statTextView1.setText(String.valueOf(stat1));
         statTextView2.setText(String.valueOf(stat2));
         statTextView3.setText(String.valueOf(stat3));
+        statTextView4.setText(String.valueOf(stat4));
 
-        statTextView1.setVisibility(stat1 == 0 ? View.GONE : View.VISIBLE);
-        separator1.setVisibility(stat1 == 0 || (stat2 == 0 && stat3 == 0) ? View.GONE : View.VISIBLE);
+        statTextView1.setVisibility(stat1 <= 0 ? View.GONE : View.VISIBLE);
+        separator1.setVisibility(stat1 <= 0 || (stat2 <= 0 && stat3 <= 0 && stat4 <= 0) ? View.GONE : View.VISIBLE);
 
         statTextView2.setVisibility(stat2 == 0 ? View.GONE : View.VISIBLE);
-        separator2.setVisibility(stat2 == 0 || stat3 == 0 ? View.GONE : View.VISIBLE);
-        statTextView3.setVisibility(stat3 == 0 ? maintainSize ? View.INVISIBLE : View.GONE : View.VISIBLE);
+        separator2.setVisibility(stat2 <= 0 || (stat3 <= 0 && stat4 <= 0) ? View.GONE : View.VISIBLE);
+
+        statTextView3.setVisibility(stat3 <= 0 ? View.GONE : View.VISIBLE);
+        separator3.setVisibility(stat3 <= 0 || stat4 <= 0 ? View.GONE : View.VISIBLE);
+
+        statTextView4.setVisibility(stat4 <= 0 ? maintainSize ? View.INVISIBLE : View.GONE : View.VISIBLE);
     }
 
 }

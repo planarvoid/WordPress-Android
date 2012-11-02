@@ -124,5 +124,23 @@
                   android:layout_toRightOf="@id/vr_comment_count"
                   android:paddingRight="5dip"
                   style="@style/txt_list_sub_secondary"/>
+
+        <View android:id="@+id/vr_like_count"
+                      android:layout_toRightOf="@+id/like_count"
+                      android:layout_alignBottom="@+id/like_count"
+                      android:layout_alignTop="@+id/like_count"
+                      android:layout_height="0dp"
+                      android:layout_width="1dip"
+                      style="@style/stat_pipe" />
+
+        <TextView android:id="@+id/repost_count"
+                  android:layout_width="wrap_content"
+                  android:layout_alignWithParentIfMissing="true"
+                  android:drawablePadding="3dip"
+                  android:layout_height="wrap_content"
+                  android:singleLine="true"
+                  android:layout_toRightOf="@id/vr_like_count"
+                  android:paddingRight="5dip"
+                  style="@style/txt_list_sub_secondary"/>
     </RelativeLayout>
 </RelativeLayout>

@@ -64,6 +64,7 @@ public class Track extends PlayableResource implements Playable {
     @JsonView(Views.Full.class) public int download_count;
     @JsonView(Views.Full.class) public int comment_count;
     @JsonView(Views.Full.class) public int favoritings_count;
+    @JsonView(Views.Full.class) public int reposts_count;
     @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
     public int shared_to_count;
 
@@ -196,6 +197,7 @@ public class Track extends PlayableResource implements Playable {
         b.putInt("download_count", download_count);
         b.putInt("comment_count", comment_count);
         b.putInt("favoritings_count", favoritings_count);
+        b.putInt("reposts_count", reposts_count);
         b.putInt("shared_to_count", shared_to_count);
         b.putString("original_format", original_format);
         b.putString("user_uri", user_uri);
@@ -286,6 +288,7 @@ public class Track extends PlayableResource implements Playable {
         download_count = b.getInt("download_count");
         comment_count = b.getInt("comment_count");
         favoritings_count = b.getInt("favoritings_count");
+        reposts_count = b.getInt("reposts_count");
         shared_to_count = b.getInt("shared_to_count");
         original_format = b.getString("original_format");
         user_uri = b.getString("user_uri");
@@ -334,6 +337,7 @@ public class Track extends PlayableResource implements Playable {
         download_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOAD_COUNT));
         comment_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENT_COUNT));
         favoritings_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.FAVORITINGS_COUNT));
+        reposts_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.REPOSTS_COUNT));
         shared_to_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.SHARED_TO_COUNT));
         user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
         commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENTABLE)) == 1;
@@ -415,6 +419,7 @@ public class Track extends PlayableResource implements Playable {
         if (comment_count != -1) cv.put(Tracks.COMMENT_COUNT, comment_count);
         if (commentable) cv.put(Tracks.COMMENTABLE, commentable);
         if (favoritings_count != -1) cv.put(Tracks.FAVORITINGS_COUNT, favoritings_count);
+        if (reposts_count != -1) cv.put(Tracks.REPOSTS_COUNT, reposts_count);
         if (shared_to_count != -1) cv.put(Tracks.SHARED_TO_COUNT, shared_to_count);
         if (sharing_note != null && !sharing_note.isEmpty()) {
             cv.put(Tracks.SHARING_NOTE_TEXT, sharing_note.text);
@@ -629,6 +634,7 @@ public class Track extends PlayableResource implements Playable {
             playback_count = updatedItem.playback_count;
             comment_count = updatedItem.comment_count;
             favoritings_count = updatedItem.favoritings_count;
+            reposts_count = updatedItem.reposts_count;
             user_like = updatedItem.user_like;
             shared_to_count = updatedItem.shared_to_count;
             created_at = updatedItem.created_at;

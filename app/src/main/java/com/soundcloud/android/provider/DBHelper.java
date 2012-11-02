@@ -135,6 +135,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "download_count INTEGER," +
             "comment_count INTEGER," +
             "favoritings_count INTEGER," +
+            "reposts_count INTEGER," +
             "shared_to_count INTEGER," +
             "sharing_note_text VARCHAR(255),"+
             "user_id INTEGER" +
@@ -164,6 +165,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "download_count INTEGER," +
                 "comment_count INTEGER," +
                 "favoritings_count INTEGER," +
+                "reposts_count INTEGER," +
                 "shared_to_count INTEGER," +
                 "sharing_note_text VARCHAR(255),"+
                 "user_id INTEGER" +
@@ -352,6 +354,7 @@ public class DBHelper extends SQLiteOpenHelper {
             ",Tracks." + Tracks.DOWNLOAD_COUNT + " as " + TrackView.DOWNLOAD_COUNT +
             ",Tracks." + Tracks.COMMENT_COUNT + " as " + TrackView.COMMENT_COUNT +
             ",Tracks." + Tracks.FAVORITINGS_COUNT + " as " + TrackView.FAVORITINGS_COUNT +
+            ",Tracks." + Tracks.REPOSTS_COUNT + " as " + TrackView.REPOSTS_COUNT +
             ",Tracks." + Tracks.SHARED_TO_COUNT + " as " + TrackView.SHARED_TO_COUNT +
             ",Tracks." + Tracks.SHARING_NOTE_TEXT + " as " + TrackView.SHARING_NOTE_TEXT +
             ",Users." + Users._ID + " as " + TrackView.USER_ID +
@@ -429,6 +432,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String DOWNLOAD_COUNT = "download_count";
         public static final String COMMENT_COUNT = "comment_count";
         public static final String FAVORITINGS_COUNT = "favoritings_count";
+        public static final String REPOSTS_COUNT = "reposts_count";
         public static final String SHARED_TO_COUNT = "shared_to_count";
         public static final String SHARING_NOTE_TEXT = "sharing_note_text";
         public static final String USER_ID = "user_id";
@@ -438,7 +442,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 _ID, DURATION, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL, ARTWORK_URL,
                 WAVEFORM_URL, DOWNLOADABLE, DOWNLOAD_URL, STREAM_URL, STREAM_URL,
                 STREAMABLE, COMMENTABLE, SHARING, PLAYBACK_COUNT, DOWNLOAD_COUNT,
-                COMMENT_COUNT, FAVORITINGS_COUNT, SHARED_TO_COUNT, SHARING_NOTE_TEXT,
+                COMMENT_COUNT, FAVORITINGS_COUNT, REPOSTS_COUNT, SHARED_TO_COUNT, SHARING_NOTE_TEXT,
                 USER_ID, STATE, CREATED_AT, PERMALINK, LAST_UPDATED
         };
     }
@@ -453,7 +457,7 @@ public class DBHelper extends SQLiteOpenHelper {
                    _ID, TRACKS_URI, DURATION, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL, ARTWORK_URL,
                    WAVEFORM_URL, DOWNLOADABLE, DOWNLOAD_URL, STREAM_URL, STREAM_URL,
                    STREAMABLE, COMMENTABLE, SHARING, PLAYBACK_COUNT, DOWNLOAD_COUNT,
-                   COMMENT_COUNT, FAVORITINGS_COUNT, SHARED_TO_COUNT, SHARING_NOTE_TEXT,
+                   COMMENT_COUNT, FAVORITINGS_COUNT, REPOSTS_COUNT, SHARED_TO_COUNT, SHARING_NOTE_TEXT,
                    USER_ID, STATE, CREATED_AT, PERMALINK, LAST_UPDATED
            };
        }
@@ -647,6 +651,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String DOWNLOAD_COUNT = Tracks.DOWNLOAD_COUNT;
         public static final String COMMENT_COUNT = Tracks.COMMENT_COUNT;
         public static final String FAVORITINGS_COUNT = Tracks.FAVORITINGS_COUNT;
+        public static final String REPOSTS_COUNT = Tracks.REPOSTS_COUNT;
         public static final String SHARED_TO_COUNT = Tracks.SHARED_TO_COUNT;
         public static final String SHARING_NOTE_TEXT = Tracks.SHARING_NOTE_TEXT;
 
@@ -852,6 +857,7 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS Playlist");
 
             cleanActivities(db);
+            Table.TRACKS.alterColumns(db);
             Table.TRACK_VIEW.recreate(db);
             Table.ACTIVITY_VIEW.recreate(db);
             Table.PLAYLISTS.create(db);
