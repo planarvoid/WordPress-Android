@@ -87,11 +87,21 @@ public class ScSearch extends ScActivity implements ScLandingPage {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             mSearchFragment = ScSearchFragment.newInstance();
             ft.add(R.id.results_holder, mSearchFragment).commit();
+            handleIntent();
+        }
+    }
 
-            final Intent intent = getIntent();
-            if (intent.hasExtra(EXTRA_QUERY)) {
-                perform(new Search(intent.getCharSequenceExtra(EXTRA_QUERY).toString(), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL)));
-            }
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIntent();
+    }
+
+    private void handleIntent() {
+        final Intent intent = getIntent();
+        if (intent.hasExtra(EXTRA_QUERY)) {
+            perform(new Search(intent.getCharSequenceExtra(EXTRA_QUERY).toString(), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL)));
         }
     }
 

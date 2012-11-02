@@ -157,8 +157,12 @@ public class ScListFragment extends SherlockListFragment
 
             }
             setListAdapter(adapter);
-            append();
+            if (canAppend()) append();
         }
+    }
+
+    protected boolean canAppend() {
+        return mKeepGoing;
     }
 
     @Override
@@ -173,8 +177,7 @@ public class ScListFragment extends SherlockListFragment
         mListView.setOnScrollListener(this);
 
         mEmptyCollection = EmptyCollection.fromContent(context, mContent);
-        mEmptyCollection.setMode((mLocalCollection == null || mLocalCollection.hasSyncedBefore()) ?
-                EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.WAITING_FOR_SYNC);
+        resetEmptyCollection();
         mListView.setEmptyView(mEmptyCollection);
 
         if (isRefreshing() || waitingOnInitialSync()){
@@ -215,10 +218,10 @@ public class ScListFragment extends SherlockListFragment
         }
     }
 
-
     public ScActivity getScActivity() {
         return (ScActivity) getActivity();
     }
+
 
     public ScListView buildList() {
         return configureList(new ScListView(getActivity()));
@@ -377,10 +380,10 @@ public class ScListFragment extends SherlockListFragment
         mRefreshTask.execute(getTaskParams(true));
     }
 
-
     protected CollectionTask buildTask() {
         return new CollectionTask(SoundCloudApplication.fromContext(getActivity()), this);
     }
+
 
     protected CollectionParams getTaskParams(final boolean refresh) {
         CollectionParams params = getListAdapter().getParams(refresh);
@@ -398,11 +401,11 @@ public class ScListFragment extends SherlockListFragment
         return request;
     }
 
-
     protected Request getRequest(boolean isRefresh) {
         if (mContent == null || !mContent.hasRequest()) return null;
         return !(isRefresh) && !TextUtils.isEmpty(mNextHref) ? new Request(mNextHref) : mContent.request(mContentUri);
     }
+
 
     private void refreshSyncData() {
         if (isSyncable() && mLocalCollection != null) {
@@ -423,10 +426,7 @@ public class ScListFragment extends SherlockListFragment
             if (getListAdapter() instanceof FollowStatus.Listener) {
                 FollowStatus.get(getActivity()).requestUserFollowings((FollowStatus.Listener) getListAdapter());
             }
-        } else {
-            reset();
         }
-
 
         if (isSyncable()) {
             requestSync();
@@ -437,16 +437,24 @@ public class ScListFragment extends SherlockListFragment
     }
 
     public void reset() {
-        final ScBaseAdapter adp = getListAdapter();
-        if (adp != null){
-            adp.clearData();
-            setListAdapter(adp);
-            adp.notifyDataSetChanged();
-        }
+        resetEmptyCollection();
         mNextHref = "";
         mKeepGoing = true;
         clearRefreshTask();
         clearUpdateTask();
+
+        final ScBaseAdapter adp = getListAdapter();
+        if (adp != null) {
+            adp.clearData();
+            setListAdapter(adp);
+            adp.notifyDataSetChanged();
+        }
+    }
+
+    private void resetEmptyCollection() {
+        mEmptyCollection.setMode((mLocalCollection == null || mLocalCollection.hasSyncedBefore()) ?
+                (canAppend() ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.IDLE)
+                : EmptyCollection.Mode.WAITING_FOR_SYNC);
     }
 
     protected void clearRefreshTask() {
@@ -525,7 +533,7 @@ public class ScListFragment extends SherlockListFragment
         }
     }
 
-    private void append() {
+    protected void append() {
         buildTask().execute(getTaskParams(false));
         getListAdapter().setIsLoadingData(true);
     }

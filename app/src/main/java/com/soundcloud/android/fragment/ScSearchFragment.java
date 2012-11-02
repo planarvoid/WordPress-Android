@@ -21,8 +21,14 @@ public class ScSearchFragment extends ScListFragment {
     public void setCurrentSearch(Search currentSearch) {
         if (mCurrentSearch != currentSearch) {
             mCurrentSearch = currentSearch;
-            refresh(false);
+            reset();
+            if (canAppend()) append();
         }
+    }
+
+    @Override
+    protected boolean canAppend() {
+        return mCurrentSearch != null && super.canAppend();
     }
 
     private Search mCurrentSearch;

@@ -62,7 +62,7 @@ public class Search {
             case SOUNDS:
                 return Request.to(Endpoints.TRACKS).with("q", query);
             default:
-                return Request.to("/e1/search").with("q", query);
+                return Request.to("/search").with("q", query);
         }
     }
 
