@@ -144,7 +144,7 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
             @Override
             protected void onPostExecute(User user) {
                 if (user == null || user.isPrimaryEmailConfirmed()) {
-                    SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
+                    if (user != null) SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
                     if (!mLaunched) checkCanLaunch();
                 } else {
                     startActivityForResult(new Intent(Launch.this, EmailConfirm.class)

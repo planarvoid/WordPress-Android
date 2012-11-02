@@ -328,9 +328,11 @@ public class ScModelManager {
     }
 
     public Track cacheAndWrite(Track track, ScResource.CacheUpdateMode mode) {
-        if (mode == ScResource.CacheUpdateMode.FULL) track.setUpdated();
-        track = cache(track, mode);
-        write(track);
+        if (track != null) {
+            if (mode == ScResource.CacheUpdateMode.FULL) track.setUpdated();
+            track = cache(track, mode);
+            write(track);
+        }
         return track;
     }
 
@@ -339,8 +341,10 @@ public class ScModelManager {
     }
 
     public User cacheAndWrite(User user, ScResource.CacheUpdateMode mode) {
-        user = cache(user, mode);
-        write(user);
+        if (user != null) {
+            user = cache(user, mode);
+            write(user);
+        }
         return user;
     }
 
