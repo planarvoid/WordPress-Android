@@ -183,7 +183,7 @@ public class ApiSyncServiceTest {
         // make sure tracks+users got written
         expect(Content.USERS).toHaveCount(3);
         expect(Content.ME_FOLLOWERS).toHaveCount(3);
-        assertFirstIdToBe(Content.ME_FOLLOWERS, 792584);
+        assertFirstIdToBe(Content.ME_FOLLOWERS, 308291);
     }
 
     @Test
