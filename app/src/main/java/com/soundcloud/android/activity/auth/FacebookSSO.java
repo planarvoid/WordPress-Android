@@ -7,7 +7,6 @@ import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Env;
 import com.soundcloud.api.Http;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -234,8 +233,7 @@ public class FacebookSSO extends AbstractLoginActivity {
     }
 
     private static String getFacebookAppId(AndroidCloudAPI api) {
-        return api.getContext().getString(
-               api.getEnv() == Env.LIVE ? R.string.production_facebook_app_id : R.string.sandbox_facebook_app_id);
+        return api.getContext().getString(R.string.production_facebook_app_id);
     }
 
     private static boolean validateAppSignatureForPackage(Context context, String packageName) {
