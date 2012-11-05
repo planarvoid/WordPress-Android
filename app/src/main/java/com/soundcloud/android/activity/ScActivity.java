@@ -147,6 +147,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
      */
     private void configureActionBar() {
         getSupportActionBar().setTitle(null);
+        getSupportActionBar().setLogo(R.drawable.logo_white_transparent);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -168,7 +169,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             homeImage.setDuplicateParentStateEnabled(true);
             FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) homeImage.getLayoutParams();
             lp.topMargin = lp.bottomMargin = 0;
-            //homeImage.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            lp.leftMargin += 5 * density;
             homeImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         }
 
