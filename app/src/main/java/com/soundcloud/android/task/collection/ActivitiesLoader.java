@@ -7,6 +7,7 @@ import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ApiSyncer;
 
 import android.content.ContentResolver;
+import android.util.Log;
 
 import java.io.IOException;
 
@@ -20,6 +21,7 @@ public class ActivitiesLoader extends CollectionLoader<Activity> {
         final ContentResolver resolver = api.getContext().getContentResolver();
         if (params.isRefresh) {
             newActivities = Activities.getSince(params.contentUri, resolver, params.timestamp);
+            returnData.keepGoing = newActivities.size() >= params.maxToLoad;
         } else {
             newActivities = getOlderActivities(resolver, params);
             if (newActivities.size() < params.maxToLoad) {
@@ -42,8 +44,8 @@ public class ActivitiesLoader extends CollectionLoader<Activity> {
             a.resolve(api.getContext());
         }
 
+        returnData.keepGoing = newActivities.size() > 0;
         returnData.newItems = newActivities;
-        returnData.keepGoing = newActivities.size() == params.maxToLoad;
         return returnData;
     }
 

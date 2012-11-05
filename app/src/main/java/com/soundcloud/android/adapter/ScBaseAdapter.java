@@ -42,7 +42,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     protected Set<Long> mLoadingIcons = new HashSet<Long>();
     protected boolean mIsLoadingData;
     private View mProgressView;
-    private String mNextHref;
 
     @SuppressWarnings("unchecked")
     public ScBaseAdapter(Context context, Uri uri) {
@@ -228,7 +227,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
             if (data.wasRefresh) {
                 onSuccessfulRefresh();
             }
-            mNextHref = data.nextHref;
             mPage++;
 
             addItems(data.newItems);

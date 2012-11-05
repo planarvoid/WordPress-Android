@@ -1,6 +1,7 @@
 package com.soundcloud.android.fragment;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -76,6 +77,7 @@ public class ScListFragment extends SherlockListFragment
 
     private boolean mContentInvalid, mObservingContent, mIgnorePlaybackStatus, mKeepGoing;
     protected String mNextHref;
+    private CollectionTask mAppendTask;
 
 
     public static ScListFragment newInstance(Content content) {
@@ -158,12 +160,13 @@ public class ScListFragment extends SherlockListFragment
 
             }
             setListAdapter(adapter);
-            if (canAppend() && !waitingOnInitialSync()) append();
+            resetEmptyCollection();
+            if (canAppend()) append();
         }
     }
 
     protected boolean canAppend() {
-        return mKeepGoing;
+        return mKeepGoing && !waitingOnInitialSync();
     }
 
     @Override
@@ -509,8 +512,9 @@ public class ScListFragment extends SherlockListFragment
 
     @Override
     public void onPostTaskExecute(ReturnData data) {
-        mKeepGoing = data.keepGoing;
         if (data.success) mNextHref = data.nextHref;
+        if (!data.wasRefresh) mKeepGoing = data.keepGoing;
+
         getListAdapter().handleTaskReturnData(data);
 
         if (data.wasRefresh && !waitingOnInitialSync()) doneRefreshing();
@@ -525,13 +529,16 @@ public class ScListFragment extends SherlockListFragment
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        if (getListAdapter().shouldRequestNextPage(firstVisibleItem, visibleItemCount, totalItemCount) && mKeepGoing) {
+        if (getListAdapter().shouldRequestNextPage(firstVisibleItem, visibleItemCount, totalItemCount) && canAppend()) {
             append();
         }
     }
 
     protected void append() {
-        buildTask().execute(getTaskParams(false));
+        if (isTaskFinished(mAppendTask)){
+            mAppendTask = buildTask();
+            mAppendTask.execute(getTaskParams(false));
+        }
         getListAdapter().setIsLoadingData(true);
     }
 
