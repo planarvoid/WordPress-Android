@@ -12,6 +12,7 @@ import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Intent;
@@ -30,6 +31,7 @@ public abstract class ActivityRow extends LazyRow {
     protected Activity mActivity;
 
     private final TextView mUser;
+    private final TextView mReposter;
     private final TextView mTitle;
     private final TextView mCreatedAt;
 
@@ -42,6 +44,7 @@ public abstract class ActivityRow extends LazyRow {
         mTitle = (TextView) findViewById(R.id.title);
         mUser = (TextView) findViewById(R.id.user);
         mCreatedAt = (TextView) findViewById(R.id.created_at);
+        mReposter = (TextView) findViewById(R.id.reposter);
 
         init();
     }
@@ -114,6 +117,13 @@ public abstract class ActivityRow extends LazyRow {
         mSpanBuilder = createSpan();
 
         setImageSpan();
+
+        if (mActivity instanceof TrackRepostActivity) {
+            mReposter.setText(((TrackRepostActivity)mActivity).user.username);
+            mReposter.setVisibility(View.VISIBLE);
+        } else {
+            mReposter.setVisibility(View.GONE);
+        }
 
         mUser.setText(getOriginUser().username);
         mCreatedAt.setText(ScTextUtils.getTimeElapsed(getContext().getResources(), getOriginCreatedAt().getTime()));

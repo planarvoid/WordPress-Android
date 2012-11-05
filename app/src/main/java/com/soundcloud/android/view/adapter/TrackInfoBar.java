@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.quickaction.QuickTrackMenu;
@@ -21,6 +22,7 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.animation.Transformation;
@@ -33,6 +35,7 @@ public class TrackInfoBar extends LazyRow {
     private Playable mPlayable;
 
     private TextView mUser;
+    private TextView mReposter;
     private TextView mTitle;
     private TextView mCreatedAt;
     private TextView mPrivateIndicator;
@@ -81,6 +84,7 @@ public class TrackInfoBar extends LazyRow {
         mIcon = (ImageView) findViewById(R.id.icon);
         mTitle = (TextView) findViewById(R.id.track);
         mUser = (TextView) findViewById(R.id.user);
+        mReposter = (TextView) findViewById(R.id.reposter);
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
 
         mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
@@ -190,6 +194,13 @@ public class TrackInfoBar extends LazyRow {
 
         mUser.setText(track.user != null ? track.user.username : "");
         mCreatedAt.setText(p.getTimeSinceCreated(context));
+
+        if (mPlayable instanceof TrackRepostActivity) {
+            mReposter.setText(((TrackRepostActivity) mPlayable).user.username);
+            mReposter.setVisibility(View.VISIBLE);
+        } else {
+            mReposter.setVisibility(View.GONE);
+        }
 
         if (track.isPublic()) {
             mPrivateIndicator.setVisibility(View.GONE);

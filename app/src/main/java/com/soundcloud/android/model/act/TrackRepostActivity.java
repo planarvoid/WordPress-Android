@@ -34,7 +34,7 @@ public class TrackRepostActivity extends Activity implements Playable {
 
     @Override
     public User getUser() {
-        return track.user;
+        return user;
     }
 
     @Override
