@@ -1,10 +1,8 @@
 package com.soundcloud.android;
 
-import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -78,9 +76,7 @@ public interface AndroidCloudAPI extends CloudAPI {
         private String userAgent;
 
         public static Wrapper create(Context context, @Nullable Token initialToken) {
-            final Env env = Env.LIVE;  // AndroidUtils.isRunOnBuilder(context) ? Env.SANDBOX : Env.LIVE;
-            String clientId = context.getString(env == Env.LIVE ? R.string.client_id : R.string.sandbox_client_id);
-            return new Wrapper(context, clientId, getClientSecret(env == Env.LIVE), REDIRECT_URI, initialToken, env);
+            return new Wrapper(context, context.getString(R.string.client_id), getClientSecret(true), REDIRECT_URI, initialToken);
         }
 
         /* package */ static String getClientSecret(boolean production) {
@@ -101,8 +97,8 @@ public interface AndroidCloudAPI extends CloudAPI {
             return ScTextUtils.deobfuscate(production ? prod2 : sandbox);
         }
 
-        public Wrapper(Context context, String clientId, String clientSecret, URI redirectUri, Token token, Env env) {
-            super(clientId, clientSecret, redirectUri, token, env);
+        public Wrapper(Context context, String clientId, String clientSecret, URI redirectUri, Token token) {
+            super(clientId, clientSecret, redirectUri, token);
             // context can be null in tests
             if (context == null) return;
 
