@@ -82,26 +82,27 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         mRootView.configureMenu(R.menu.main_nav, new MainMenu.OnMenuItemClickListener() {
             @Override
-            public void onMenuItemClicked(int id) {
+            public boolean onMenuItemClicked(int id) {
                 switch (id) {
                     case R.id.nav_stream:
                         startNavActivity(Stream.class);
-                        break;
+                        return true;
                     case R.id.nav_news:
                         startNavActivity(News.class);
-                        break;
+                        return true;
                     case R.id.nav_you:
                         startNavActivity(You.class);
-                        break;
+                        return true;
                     case R.id.nav_record:
                         startNavActivity(ScCreate.class);
-                        break;
+                        return true;
                     case R.id.nav_settings:
                         startActivity(new Intent(ScActivity.this, Settings.class));
                         mRootView.animateClose();
-                        break;
+                        return false;
 
                 }
+                return false;
             }
 
             @Override

@@ -238,6 +238,7 @@ public class RootView extends ViewGroup {
      * global expansion state may have changed in another activity. make sure we are showing the correct state
      */
     public void onResume() {
+        mMenu.onResume();
         setExpandedState();
     }
 

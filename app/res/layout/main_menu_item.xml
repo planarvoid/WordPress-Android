@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.soundcloud.android.view.adapter.MainMenuRow xmlns:android="http://schemas.android.com/apk/res/android"
               style="@style/side_menu_item">
 
     <ImageView android:id="@+id/slm_item_icon"
@@ -10,4 +10,4 @@
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:layout_gravity="center_vertical" />
-</LinearLayout>
+</com.soundcloud.android.view.adapter.MainMenuRow>

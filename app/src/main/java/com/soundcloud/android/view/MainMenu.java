@@ -34,6 +34,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.Checkable;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -48,6 +49,7 @@ import java.util.List;
 
 public class MainMenu extends LinearLayout {
     private int mSelectedMenuId = -1;
+    private int mOriginalSelectedMenuItemPosition = -1;
 
     private ListView mList;
     private MenuAdapter mMenuAdapter;
@@ -60,12 +62,16 @@ public class MainMenu extends LinearLayout {
     private EditText mQueryText;
     private View mFocusCatcher;
 
+    public void onResume() {
+        setSelectedMenuItem();
+    }
+
     /**
      * Callback invoked when a menu item is clicked.
      */
     public static interface OnMenuItemClickListener {
 
-        public void onMenuItemClicked(int id);
+        public boolean onMenuItemClicked(int id);
 
         public void onSearchQuery(Search query);
 
@@ -98,6 +104,7 @@ public class MainMenu extends LinearLayout {
 
         LayoutInflater.from(getContext()).inflate(R.layout.main_menu, this, true);
         mList = (ListView) findViewById(R.id.root_menu_list);
+        mList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mList.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -105,7 +112,9 @@ public class MainMenu extends LinearLayout {
                     if (!mInSearchMode) {
                         final int itemId = ((SimpleListMenuItem) mMenuAdapter.getItem(position - mList.getHeaderViewsCount())).id;
                         if (mSelectedMenuId != itemId) {
-                            mClickListener.onMenuItemClicked(itemId);
+                            if (mClickListener.onMenuItemClicked(itemId)){
+                                mList.setItemChecked(position, true);
+                            }
                         }
                     } else if (parent.getAdapter() == mSuggestionsAdapter) {
                         switch (mSuggestionsAdapter.getItemViewType(position)) {
@@ -200,6 +209,7 @@ public class MainMenu extends LinearLayout {
 
     public void setMenuItems(int menu) {
         mMenuAdapter.clear();
+        mOriginalSelectedMenuItemPosition = -1;
         XmlResourceParser parser = null;
         try {
             parser = getResources().getLayout(menu);
@@ -209,9 +219,13 @@ public class MainMenu extends LinearLayout {
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
                     if ("item".equals(parser.getName())) {
-                        mMenuAdapter.addItem(new SimpleListMenuItem(
-                                getContext().obtainStyledAttributes(attrs, R.styleable.SimpleMenu)
-                        ));
+                        SimpleListMenuItem menuItem = new SimpleListMenuItem(
+                                                        getContext().obtainStyledAttributes(attrs, R.styleable.SimpleMenu)
+                                                );
+                        mMenuAdapter.addItem(menuItem);
+                        if (menuItem.id == mSelectedMenuId){
+                            mOriginalSelectedMenuItemPosition = mMenuAdapter.getCount() - 1;
+                        }
                     }
                 }
                 eventType = parser.next();
@@ -224,7 +238,18 @@ public class MainMenu extends LinearLayout {
         } finally {
             if (parser != null) parser.close();
         }
+
         mList.setAdapter(mMenuAdapter);
+    }
+
+    private void setSelectedMenuItem(){
+        if (mSelectedMenuId != -1){
+            final int pos = mMenuAdapter.getPositionById(mSelectedMenuId);
+            if (pos >= 0 && mList.getCheckedItemPosition() != pos) {
+                mList.setItemChecked(pos, true);
+                mMenuAdapter.notifyDataSetChanged();
+            }
+        }
     }
 
     class SimpleListMenuItem {
@@ -232,14 +257,12 @@ public class MainMenu extends LinearLayout {
         CharSequence text;
         Drawable icon;
         int layoutId;
-        boolean selected;
 
         public SimpleListMenuItem(TypedArray a) {
             this.id         = a.getResourceId(R.styleable.SimpleMenu_android_id, 0);
             this.text       = a.getText(R.styleable.SimpleMenu_android_text);
             this.icon       = a.getDrawable(R.styleable.SimpleMenu_android_icon);
             this.layoutId   = a.getResourceId(R.styleable.SimpleMenu_android_layout, 0);
-            this.selected   = this.id == mSelectedMenuId;
         }
     }
 
@@ -307,16 +330,6 @@ public class MainMenu extends LinearLayout {
 
                 convertView.setTag(holder);
 
-                if (menuItem.selected) {
-                    convertView.setBackgroundResource(R.drawable.sidebar_item_background_selected);
-                } else {
-                    convertView.setBackgroundResource(R.drawable.sidebar_item_background);
-                }
-
-                int paddingTopBottom = (int) getResources().getDimension(R.dimen.slm_item_padding_topbottom);
-                int paddingLeft      = (int) getResources().getDimension(R.dimen.slm_item_padding_left);
-                int paddingRight     = (int) getResources().getDimension(R.dimen.slm_item_padding_right);
-                convertView.setPadding(paddingLeft, paddingTopBottom, paddingRight, paddingTopBottom);
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
@@ -339,8 +352,20 @@ public class MainMenu extends LinearLayout {
                 holder.image.setImageDrawable(menuItem.icon);
             }
 
+            if (menuItem.id == mSelectedMenuId){
+                convertView.setSelected(true);
+            }
 
             return convertView;
+        }
+
+        public int getPositionById(int mSelectedMenuId) {
+            int i = 0;
+            for (SimpleListMenuItem menuItem : mMenuItems){
+                if (mSelectedMenuId == menuItem.id) return i;
+                i++;
+            }
+            return -1;
         }
 
         class ViewHolder {
