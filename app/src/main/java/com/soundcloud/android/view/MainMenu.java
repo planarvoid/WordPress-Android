@@ -49,18 +49,10 @@ import java.util.List;
 
 public class MainMenu extends LinearLayout {
     private int mSelectedMenuId = -1;
-    private int mOriginalSelectedMenuItemPosition = -1;
 
     private ListView mList;
     private MenuAdapter mMenuAdapter;
     private OnMenuItemClickListener mClickListener;
-
-    private SearchHistoryAdapter mSearchHistoryAdapter;
-    private SearchSuggestionsAdapter mSuggestionsAdapter;
-
-    private boolean mInSearchMode;
-    private EditText mQueryText;
-    private View mFocusCatcher;
 
     public void onResume() {
         setSelectedMenuItem();
@@ -72,12 +64,6 @@ public class MainMenu extends LinearLayout {
     public static interface OnMenuItemClickListener {
 
         public boolean onMenuItemClicked(int id);
-
-        public void onSearchQuery(Search query);
-
-        public void onSearchSuggestedTrackClicked(long id);
-
-        public void onSearchSuggestedUserClicked(long id);
     }
 
     public MainMenu(Context context) {
@@ -90,15 +76,6 @@ public class MainMenu extends LinearLayout {
         init();
     }
 
-    public boolean gotoMenu() {
-        if (mInSearchMode) {
-            toggleSearchMode();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     private void init() {
         setOrientation(LinearLayout.VERTICAL);
 
@@ -109,94 +86,18 @@ public class MainMenu extends LinearLayout {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (mClickListener != null) {
-                    if (!mInSearchMode) {
-                        final int itemId = ((SimpleListMenuItem) mMenuAdapter.getItem(position - mList.getHeaderViewsCount())).id;
-                        if (mSelectedMenuId != itemId) {
-                            if (mClickListener.onMenuItemClicked(itemId)){
-                                mList.setItemChecked(position, true);
-                            }
+                    final int itemId = ((SimpleListMenuItem) mMenuAdapter.getItem(position - mList.getHeaderViewsCount())).id;
+                    if (mSelectedMenuId != itemId) {
+                        if (mClickListener.onMenuItemClicked(itemId)) {
+                            mList.setItemChecked(position, true);
                         }
-                    } else if (parent.getAdapter() == mSuggestionsAdapter) {
-                        switch (mSuggestionsAdapter.getItemViewType(position)) {
-                            case SearchSuggestionsAdapter.TYPE_TRACK:
-                                mClickListener.onSearchSuggestedTrackClicked(id);
-                                break;
-                            case SearchSuggestionsAdapter.TYPE_USER:
-                                mClickListener.onSearchSuggestedUserClicked(id);
-                                break;
-                        }
-                    } else {
-                        mClickListener.onSearchQuery(mSearchHistoryAdapter.getItem(position));
                     }
-                    closeKeyboard();
                 }
             }
         });
 
         mList.setSelector(getContext().getResources().getDrawable(R.drawable.selectable_background_next));
-
-        mQueryText = (EditText) findViewById(R.id.root_menu_query);
-        mQueryText.setOnFocusChangeListener(new OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus && !mInSearchMode) {
-                    toggleSearchMode();
-                }
-            }
-        });
-
-        mQueryText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH && mClickListener != null) {
-                    mClickListener.onSearchQuery(new Search(mQueryText.getText().toString(), Search.ALL));
-                    toggleSearchMode();
-                    mQueryText.setText("");
-                    closeKeyboard();
-                    return true;
-
-                } else {
-                    return false;
-                }
-            }
-        });
-
-
         mMenuAdapter = new MenuAdapter();
-        mSearchHistoryAdapter = new SearchHistoryAdapter(getContext(), R.layout.search_history_row_dark);
-        mSuggestionsAdapter = new SearchSuggestionsAdapter(getContext(), null);
-        mFocusCatcher = findViewById(R.id.root_menu_focus_catcher);
-    }
-
-    public void setOffsetRight(int mOffsetRight) {
-        ((RelativeLayout.LayoutParams) mQueryText.getLayoutParams()).rightMargin = mOffsetRight;
-        mSuggestionsAdapter.setOffsetRight(mOffsetRight);
-        requestLayout();
-    }
-
-    private void closeKeyboard() {
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(mQueryText.getWindowToken(), 0);
-    }
-
-    private void toggleSearchMode() {
-        if (!mInSearchMode) {
-            mInSearchMode = true;
-            if (mQueryText.length() > 0) {
-                mList.setAdapter(mSuggestionsAdapter);
-                mSuggestionsAdapter.notifyDataSetChanged();
-            } else {
-                mList.setAdapter(mSearchHistoryAdapter);
-                SearchHistoryAdapter.refreshHistory(getContext().getContentResolver(), mSearchHistoryAdapter);
-            }
-            mQueryText.addTextChangedListener(mTextWatcher);
-
-        } else {
-            mInSearchMode = false;
-            mList.setAdapter(mMenuAdapter);
-            mQueryText.removeTextChangedListener(mTextWatcher);
-            mFocusCatcher.requestFocus();
-        }
     }
 
     public void setOnItemClickListener(OnMenuItemClickListener onMenuItemClickListener) {
@@ -209,7 +110,6 @@ public class MainMenu extends LinearLayout {
 
     public void setMenuItems(int menu) {
         mMenuAdapter.clear();
-        mOriginalSelectedMenuItemPosition = -1;
         XmlResourceParser parser = null;
         try {
             parser = getResources().getLayout(menu);
@@ -219,13 +119,8 @@ public class MainMenu extends LinearLayout {
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
                     if ("item".equals(parser.getName())) {
-                        SimpleListMenuItem menuItem = new SimpleListMenuItem(
-                                                        getContext().obtainStyledAttributes(attrs, R.styleable.SimpleMenu)
-                                                );
+                        SimpleListMenuItem menuItem = new SimpleListMenuItem(getContext().obtainStyledAttributes(attrs, R.styleable.SimpleMenu));
                         mMenuAdapter.addItem(menuItem);
-                        if (menuItem.id == mSelectedMenuId){
-                            mOriginalSelectedMenuItemPosition = mMenuAdapter.getCount() - 1;
-                        }
                     }
                 }
                 eventType = parser.next();
@@ -373,30 +268,5 @@ public class MainMenu extends LinearLayout {
             ImageView image;
         }
     }
-
-
-    private final TextWatcher mTextWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {
-        }
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        public void onTextChanged(CharSequence seq, int start, int before, int count) {
-            if (count == 0) {
-                mList.setAdapter(mSearchHistoryAdapter);
-            } else {
-                final String s = seq.toString();
-                mSuggestionsAdapter.getFilter().filter(
-                        s.contains(",") ?
-                                s.subSequence(s.lastIndexOf(",") + 1, s.length()).toString().trim() :
-                                s.trim());
-
-                if (mList.getAdapter() != mSuggestionsAdapter) mList.setAdapter(mSuggestionsAdapter);
-            }
-
-        }
-    };
-
 
 }

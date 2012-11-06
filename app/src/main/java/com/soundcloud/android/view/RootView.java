@@ -169,8 +169,6 @@ public class RootView extends ViewGroup {
         mOffsetLeft    = (int) (OFFSET_LEFT * density + 0.5f);
         mBezelHitWidth = (int) (BEZEL_HIT_WIDTH * density + 0.5f);
 
-        mMenu.setOffsetRight(mOffsetRight);
-
         mOverlayPaint = new Paint();
         mOverlayPaint.setColor(Color.BLACK);
 
@@ -314,8 +312,6 @@ public class RootView extends ViewGroup {
         final float density = getResources().getDisplayMetrics().density;
         mOffsetRight = (int) max(widthSpecSize - MENU_TARGET_WIDTH * density + 0.5f,
                                  OFFSET_RIGHT * density + 0.5f);
-
-        mMenu.setOffsetRight(mOffsetRight);
 
         // since we are measured we can now find a proper expanded position if necessary
         setExpandedState();
@@ -696,9 +692,7 @@ public class RootView extends ViewGroup {
     }
 
     public void onBack() {
-        if (!mMenu.gotoMenu()){
-            animateClose();
-        }
+        animateClose();
     }
 
 
@@ -760,9 +754,6 @@ public class RootView extends ViewGroup {
         mContent.setVisibility(View.VISIBLE);
         mMenu.setVisibility(View.GONE);
         if (mPlayer != null) mPlayer.setVisibility(View.GONE);
-
-        mMenu.gotoMenu();
-
 
         if (mExpandedState == COLLAPSED_FULL_CLOSED) {
             return;

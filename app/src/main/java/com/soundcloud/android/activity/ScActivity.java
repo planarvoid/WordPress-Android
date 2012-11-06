@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.internal.view.menu.ActionMenuItem;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -52,6 +53,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -101,33 +103,15 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     case R.id.nav_record:
                         startNavActivity(ScCreate.class);
                         return true;
+                    case R.id.nav_search:
+                        startNavActivity(ScSearch.class);
+                        return true;
                     case R.id.nav_settings:
                         startActivity(new Intent(ScActivity.this, Settings.class));
                         mRootView.animateClose();
                         return false;
-
                 }
                 return false;
-            }
-
-            @Override
-            public void onSearchQuery(Search search) {
-                startActivity(getNavIntent(ScSearch.class)
-                        .putExtra(ScSearch.EXTRA_QUERY, search.query)
-                        .putExtra(ScSearch.EXTRA_SEARCH_TYPE, search.search_type));
-            }
-
-            @Override
-            public void onSearchSuggestedTrackClicked(long id) {
-                // go to track, for now just play it
-                startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(CloudPlaybackService.EXTRA_TRACK_ID, id));
-                mRootView.animateClose();
-            }
-
-            @Override
-            public void onSearchSuggestedUserClicked(long id) {
-                // go to user
-                startActivity(getNavIntent(UserBrowser.class).putExtra(UserBrowser.EXTRA_USER_ID, id));
             }
         });
 
@@ -140,10 +124,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         }
 
         if (savedInstanceState == null) {
-            /*Fragment newFragment = new PlayerFragment();
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.add(mRootView.getPlayerHolderId(), newFragment).commit();*/
-
             handleIntent(getIntent());
         }
     }
@@ -375,30 +355,41 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         }
 
         // Get the SearchView and set the searchable configuration
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        if (menu.findItem(R.id.menu_search) != null){
+            SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 
-        final SearchableInfo searchableInfo = searchManager.getSearchableInfo(getComponentName());
-        searchView.setSearchableInfo(searchableInfo);
-
-        final SearchSuggestionsAdapter suggestionsAdapter = new SearchSuggestionsAdapter(this, null);
-        searchView.setSuggestionsAdapter(suggestionsAdapter);
-        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-            @Override
-            public boolean onSuggestionSelect(int position) {
-                return false;
+            AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null));
+            if (search_text == null){
+                search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
+            }
+            if (search_text != null){
+                search_text.setTextColor(Color.RED);
             }
 
-            @Override
-            public boolean onSuggestionClick(int position) {
-                if (suggestionsAdapter.getItemViewType(position) == SearchSuggestionsAdapter.TYPE_TRACK) {
-                    startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(CloudPlaybackService.EXTRA_TRACK_ID, suggestionsAdapter.getItemId(position)));
-                } else {
-                    startActivity(getNavIntent(UserBrowser.class).putExtra(UserBrowser.EXTRA_USER_ID, suggestionsAdapter.getItemId(position)));
+
+            final SearchableInfo searchableInfo = searchManager.getSearchableInfo(getComponentName());
+            searchView.setSearchableInfo(searchableInfo);
+
+            final SearchSuggestionsAdapter suggestionsAdapter = new SearchSuggestionsAdapter(this, null);
+            searchView.setSuggestionsAdapter(suggestionsAdapter);
+            searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+                @Override
+                public boolean onSuggestionSelect(int position) {
+                    return false;
                 }
-                return false;
-            }
-        });
+
+                @Override
+                public boolean onSuggestionClick(int position) {
+                    if (suggestionsAdapter.getItemViewType(position) == SearchSuggestionsAdapter.TYPE_TRACK) {
+                        startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(CloudPlaybackService.EXTRA_TRACK_ID, suggestionsAdapter.getItemId(position)));
+                    } else {
+                        startActivity(getNavIntent(UserBrowser.class).putExtra(UserBrowser.EXTRA_USER_ID, suggestionsAdapter.getItemId(position)));
+                    }
+                    return false;
+                }
+            });
+        }
 
         return true;
     }

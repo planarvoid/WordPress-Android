@@ -112,7 +112,7 @@ public class ScSearch extends ScActivity implements ScLandingPage {
 
     @Override
     protected int getSelectedMenuId() {
-        return -1;
+        return R.id.nav_search;
     }
 
 
@@ -173,6 +173,11 @@ public class ScSearch extends ScActivity implements ScLandingPage {
 
         mCurrentSearch = search;
         return true;
+    }
+
+    @Override
+    protected int getMenuResourceId(){
+            return R.menu.now_playing;
     }
 
 
