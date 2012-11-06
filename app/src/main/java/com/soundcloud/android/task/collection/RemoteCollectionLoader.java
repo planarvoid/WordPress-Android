@@ -8,6 +8,7 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.UnknownResource;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
@@ -38,7 +39,7 @@ public class RemoteCollectionLoader<T extends ScResource> extends CollectionLoad
             // suppress playlists for now
             List<ScResource> toRemove = new ArrayList<ScResource>();
             for (ScResource resource : holder){
-                if (resource instanceof Playlist) toRemove.add(resource);
+                if (resource instanceof Playlist || resource instanceof UnknownResource) toRemove.add(resource);
             }
             holder.collection.removeAll(toRemove);
 
