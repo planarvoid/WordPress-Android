@@ -177,7 +177,7 @@ public class ScSearch extends ScActivity implements ScLandingPage {
 
     @Override
     protected int getMenuResourceId(){
-            return R.menu.now_playing;
+            return -1;
     }
 
 

@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.internal.view.menu.ActionMenuItem;
 import com.actionbarsherlock.view.Menu;
@@ -48,6 +49,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -56,6 +58,7 @@ import android.view.WindowManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
@@ -128,6 +131,21 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         }
     }
 
+    protected void setupNowPlayingIndicator() {
+        RelativeLayout nowPlayingHolder = (RelativeLayout) View.inflate(this, R.layout.now_playing_view, null);
+        nowPlayingHolder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ScActivity.this, ScPlayer.class);
+                startActivity(intent);
+            }
+        });
+
+        mNowPlaying = (NowPlayingIndicator) nowPlayingHolder.findViewById(R.id.waveform_progress);
+        getSupportActionBar().setCustomView(nowPlayingHolder, new ActionBar.LayoutParams(Gravity.RIGHT));
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+    }
+
     protected abstract int getSelectedMenuId();
 
     @Override
@@ -194,6 +212,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     protected void onResume() {
         super.onResume();
+
         mRootView.onResume();
         mIsForeground = true;
         if (getApp().getAccount() == null) {
@@ -203,7 +222,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         if (mNowPlaying != null) {
             mNowPlaying.resume();
-
+        } else {
+            setupNowPlayingIndicator();
         }
     }
 
@@ -342,16 +362,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getSupportMenuInflater();
-        inflater.inflate(getMenuResourceId(), menu);
-
-        if (mNowPlaying != null) {
-            mNowPlaying.destroy();
-            mNowPlaying = null;
-        }
-
-        MenuItem waveform = menu.findItem(R.id.menu_waveform);
-        if (waveform != null){
-            mNowPlaying = (NowPlayingIndicator) waveform.getActionView().findViewById(R.id.waveform_progress);
+        final int menuResourceId = getMenuResourceId();
+        if (menuResourceId > -1) {
+            inflater.inflate(menuResourceId, menu);
         }
 
         // Get the SearchView and set the searchable configuration
@@ -359,14 +372,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
             SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 
+            /*
+            This is how you can find the search text view. It's hacky. Hopefully we don't need it
             AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null));
             if (search_text == null){
                 search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
-            }
-            if (search_text != null){
-                search_text.setTextColor(Color.RED);
-            }
-
+            }*/
 
             final SearchableInfo searchableInfo = searchManager.getSearchableInfo(getComponentName());
             searchView.setSearchableInfo(searchableInfo);
@@ -386,7 +397,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     } else {
                         startActivity(getNavIntent(UserBrowser.class).putExtra(UserBrowser.EXTRA_USER_ID, suggestionsAdapter.getItemId(position)));
                     }
-                    return false;
+                    return true;
                 }
             });
         }
