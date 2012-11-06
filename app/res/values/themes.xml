@@ -35,9 +35,6 @@
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
 
     </style>
-
-
-
     <style name="Theme.Next.NoActionBar" parent="Theme.Sherlock.NoActionBar"/>
     <style name="Theme.ScDialog" parent="android:Theme.Dialog"/>
 

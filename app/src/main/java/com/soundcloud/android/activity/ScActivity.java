@@ -4,6 +4,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.SearchView;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -16,6 +17,7 @@ import com.soundcloud.android.activity.landing.ScSearch;
 import com.soundcloud.android.activity.landing.Stream;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.adapter.SearchSuggestionsAdapter;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.model.User;
@@ -32,6 +34,9 @@ import com.soundcloud.android.view.RootView;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.SearchManager;
+import android.app.SearchableInfo;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -126,7 +131,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             }
         });
 
-        configureActionBar();
+        getSupportActionBar().setTitle(null);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         if (this instanceof ScLandingPage){
             getApp().setAccountData(User.DataKeys.LAST_LANDING_PAGE_IDX, ((ScLandingPage) this).getPageValue().key);
@@ -142,50 +149,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     protected abstract int getSelectedMenuId();
-
-    /**
-     * Basically, hack the action bar to make it look like next
-     */
-    private void configureActionBar() {
-        getSupportActionBar().setTitle(null);
-        getSupportActionBar().setLogo(R.drawable.logo_white_transparent);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        // configure home image to fill vertically
-        final float density = getResources().getDisplayMetrics().density;
-        ImageView homeImage = (ImageView) getWindow().getDecorView().findViewById(android.R.id.home);
-        if (homeImage == null){ // sherlock compatibility id
-            homeImage = (ImageView) getWindow().getDecorView().findViewById(R.id.abs__home);
-        }
-        if (homeImage != null) {
-
-            ViewGroup parent = (ViewGroup) homeImage.getParent();
-            parent.setBackgroundColor(0x00000000);
-            homeImage.setBackgroundDrawable(getResources().getDrawable(R.drawable.logo_states));
-
-            final int paddingVert = (int) (13 * density);
-            final int paddingHor = (int) (5 * density);
-            homeImage.setPadding(paddingHor, paddingVert, paddingHor, paddingVert);
-            homeImage.setDuplicateParentStateEnabled(true);
-            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) homeImage.getLayoutParams();
-            lp.topMargin = lp.bottomMargin = 0;
-            lp.leftMargin += 5 * density;
-            homeImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        }
-
-        // configure title for extra spacing
-        int titleId = Resources.getSystem().getIdentifier("action_bar_title", "id", "android");
-        View title = getWindow().getDecorView().findViewById(titleId);
-        if (title == null){ // sherlock compatibility id
-            title = getWindow().getDecorView().findViewById(R.id.abs__action_bar_title);
-        }
-        if (title != null){
-            ViewGroup parent = (ViewGroup) title.getParent();
-            parent.setPadding((int) (parent.getPaddingLeft() + density * 10),
-                    parent.getPaddingTop(), parent.getPaddingRight(), parent.getPaddingBottom());
-        }
-    }
 
     @Override
     public void setContentView(int id) {
@@ -410,6 +373,33 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         if (waveform != null){
             mNowPlaying = (NowPlayingIndicator) waveform.getActionView().findViewById(R.id.waveform_progress);
         }
+
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+
+        final SearchableInfo searchableInfo = searchManager.getSearchableInfo(getComponentName());
+        searchView.setSearchableInfo(searchableInfo);
+
+        final SearchSuggestionsAdapter suggestionsAdapter = new SearchSuggestionsAdapter(this, null);
+        searchView.setSuggestionsAdapter(suggestionsAdapter);
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                return false;
+            }
+
+            @Override
+            public boolean onSuggestionClick(int position) {
+                if (suggestionsAdapter.getItemViewType(position) == SearchSuggestionsAdapter.TYPE_TRACK) {
+                    startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(CloudPlaybackService.EXTRA_TRACK_ID, suggestionsAdapter.getItemId(position)));
+                } else {
+                    startActivity(getNavIntent(UserBrowser.class).putExtra(UserBrowser.EXTRA_USER_ID, suggestionsAdapter.getItemId(position)));
+                }
+                return false;
+            }
+        });
+
         return true;
     }
 
@@ -421,20 +411,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                onHomeButtonPressed();
+                mRootView.animateToggleMenu();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
 
-    }
-
-    protected void onHomeButtonPressed() {
-        if (this instanceof ScLandingPage) {
-            mRootView.animateToggleMenu();
-        } else {
-            onBackPressed();
-        }
     }
 
     public long getCurrentUserId() {
@@ -495,7 +477,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onMenuOpenLeft() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -504,6 +487,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onMenuClosed() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        invalidateOptionsMenu();
     }
 }

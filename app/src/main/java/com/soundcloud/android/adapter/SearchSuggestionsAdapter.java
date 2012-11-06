@@ -13,9 +13,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.MergeCursor;
 import android.graphics.drawable.Drawable;
+import android.support.v4.widget.CursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class SearchSuggestionsAdapter extends CursorAdapter{
+public class SearchSuggestionsAdapter extends CursorAdapter {
     private final ContentResolver mContentResolver;
     private final Context mContext;
 

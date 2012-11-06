@@ -375,7 +375,7 @@
   <string name="sc_upload_sharing_options_public">Su sonido se hará público en SoundCloud. ¿Qué otras redes desearía compartir?</string>
   <string name="sc_upload_with_access">Con acceso</string>
   <string name="search">Buscar</string>
-  <string name="search_hint">Sonidos</string>
+  <string name="search_hint">Buscar SoundCloud</string>
   <string name="search_settings_description">Buscar sonidos</string>
   <plurals name="seconds_available">
     <item quantity="one">1 segundo disponible</item>

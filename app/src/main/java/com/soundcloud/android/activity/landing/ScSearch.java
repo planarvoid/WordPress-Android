@@ -8,6 +8,7 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.view.ClearText;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -101,8 +102,9 @@ public class ScSearch extends ScActivity implements ScLandingPage {
 
     private void handleIntent() {
         final Intent intent = getIntent();
-        if (intent.hasExtra(EXTRA_QUERY)) {
-            pendingSearch = new Search(intent.getCharSequenceExtra(EXTRA_QUERY).toString(), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            pendingSearch = new Search(query, intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
         }
     }
 
