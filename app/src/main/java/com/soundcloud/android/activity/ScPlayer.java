@@ -83,6 +83,11 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     @Override
+    protected void setupNowPlayingIndicator() {
+        // do nothing, don't need it
+    }
+
+    @Override
     protected int getSelectedMenuId() {
         return -1;
     }

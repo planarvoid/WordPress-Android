@@ -4,6 +4,8 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -26,6 +28,7 @@ import android.graphics.Shader;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -88,22 +91,13 @@ public class NowPlayingIndicator extends ProgressBar {
     private void init(final Context context) {
 
         mSideOffset = (int) (context.getResources().getDisplayMetrics().density * 5);
-
-        setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (context.getClass().equals(ScPlayer.class)) return;
-
-                Intent intent = new Intent(context, ScPlayer.class);
-                context.startActivity(intent);
-            }
-        });
-
         mBackgroundPaint = new Paint();
         mBackgroundPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
 
         mForegroundPaint = new Paint();
         mForegroundPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+
+        setIndeterminate(false);
 
         // because the action bar gets created on demand, we can start the foreground lifecycle
         resume();
