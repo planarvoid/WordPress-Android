@@ -1,6 +1,5 @@
 package com.soundcloud.android;
 
-import static android.content.pm.PackageManager.*;
 import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
@@ -17,8 +16,6 @@ import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.service.beta.BetaService;
-import com.soundcloud.android.service.beta.WifiMonitor;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.SyncConfig;
 import com.soundcloud.android.tracking.ATTracker;
@@ -51,7 +48,6 @@ import android.accounts.OperationCanceledException;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -73,7 +69,6 @@ import java.net.URI;
         checkReportVersion = true,
         checkReportSender = true)
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener, Tracker {
-
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) ||
                                            "full_x86".equals(Build.PRODUCT);
@@ -138,16 +133,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             C2DMReceiver.register(this, getLoggedInUser());
         }
 
-        if (BETA_MODE) {
-            BetaService.scheduleCheck(this, false);
-        }
 //        setupStrictMode();
-
-        // make sure the WifiMonitor is disabled when not in beta mode
-        getPackageManager().setComponentEnabledSetting(
-                new ComponentName(this, WifiMonitor.class),
-                BETA_MODE ? COMPONENT_ENABLED_STATE_ENABLED : COMPONENT_ENABLED_STATE_DISABLED,
-                DONT_KILL_APP);
 
         FacebookSSO.extendAccessTokenIfNeeded(this);
     }
@@ -342,12 +328,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             getAccountManager().setUserData(account, key, value);
             return true;
         }
-    }
-
-    private String getClientId(boolean production) {
-        return getResources().getString(production ?
-                R.string.client_id :
-                R.string.sandbox_client_id);
     }
 
     private Token getToken(Account account) {

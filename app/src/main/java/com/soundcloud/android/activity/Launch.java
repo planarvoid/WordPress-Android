@@ -7,7 +7,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.EmailConfirm;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.landing.ScLandingPage;
-import com.soundcloud.android.activity.landing.Stream;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -41,7 +40,6 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
 
     @Nullable
     private ResolveFetchTask mResolveTask;
-    private FetchUserTask mFetchUserTask;
     private long mStartTime;
     private static final long SPLASH_DELAY = 500;
 
@@ -80,7 +78,6 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
 
     private void checkCanLaunch() {
         if (AndroidUtils.isTaskFinished(mResolveTask)
-                && AndroidUtils.isTaskFinished(mFetchUserTask)
                 && System.currentTimeMillis() - mStartTime > SPLASH_DELAY - 200
                 && !mLaunched){
             mLaunched = true;
@@ -157,11 +154,6 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
 
     private boolean justAuthenticated(Intent intent) {
         return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
-    }
-
-    private boolean showSplash(Bundle state) {
-        // don't show splash on configChanges (screen rotate)
-        return state == null;
     }
 
     private SoundCloudApplication getApp() {

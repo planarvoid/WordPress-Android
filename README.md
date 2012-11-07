@@ -26,10 +26,6 @@ Clone and build it:
     $ mvn install -DskipTests
     $ adb install app/target/soundcloud-android-X.Y-SNAPSHOT.apk
 
-If you don't want to use maven (who does?!) and have [sbt][] installed:
-
-    $ sbt android:package-debug
-
 ## Opening the project in Intellij IDEA
 
 First make sure there are no leftover config files in the project
@@ -52,7 +48,6 @@ Documented on the [wiki][].
 
 [Android SDK]: http://developer.android.com/sdk/index.html
 [Android NDK]: http://developer.android.com/sdk/ndk/index.html
-[sbt]: https://github.com/harrah/xsbt/
 [wiki]: https://github.com/soundcloud/SoundCloud-Android/wiki/
 [releasing]: https://github.com/soundcloud/SoundCloud-Android/wiki/Releasing
 [betas]: https://github.com/soundcloud/SoundCloud-Android/wiki/Betas

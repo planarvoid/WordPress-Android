@@ -8,6 +8,7 @@ import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.api.Token;
+import net.hockeyapp.android.UpdateManager;
 
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
@@ -87,6 +88,10 @@ public class Start extends AccountAuthenticatorActivity {
                     }
                 }
             }, 350);
+        }
+
+        if (SoundCloudApplication.BETA_MODE) {
+            UpdateManager.register(this, getString(R.string.hockey_app_id));
         }
     }
 
