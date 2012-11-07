@@ -1,24 +1,14 @@
 package com.soundcloud.android.model;
 
-import static com.soundcloud.android.SoundCloudApplication.*;
-
-import android.content.Context;
+import android.content.ContentValues;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soundcloud.android.model.act.Activities;
-import org.jetbrains.annotations.NotNull;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +20,9 @@ import java.util.List;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Track.class, name = "track"),
         @JsonSubTypes.Type(value = Comment.class, name = "comment"),
-        @JsonSubTypes.Type(value = User.class, name = "user")})
+        @JsonSubTypes.Type(value = User.class, name = "user"),
+        @JsonSubTypes.Type(value = Playlist.class, name = "playlist"),
+        @JsonSubTypes.Type(value = SoundAssociation.class, name = "stream_item")})
 public abstract class ScResource extends ScModel {
 
 
@@ -74,7 +66,7 @@ public abstract class ScResource extends ScModel {
 
     public abstract User getUser();
 
-    public abstract Track getTrack();
+    public abstract Sound getSound();
 
     public static class ScResourceHolder extends CollectionHolder<ScResource> {
     }

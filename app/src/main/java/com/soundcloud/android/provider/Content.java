@@ -5,6 +5,7 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 import android.util.SparseArray;
 
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Recording;
@@ -33,13 +34,14 @@ public enum Content  {
     ME_FOLLOWING("me/followings/#", null, 104, User.class, -1, null),
     ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, User.class, FOLLOWER, Table.COLLECTION_ITEMS),
     ME_FOLLOWER("me/followers/#", null, 106, User.class, -1, null),
-    ME_LIKES("me/likes", Endpoints.MY_FAVORITES, 107, Track.class, LIKE, Table.COLLECTION_ITEMS),
-    ME_LIKE("me/likes/#", null, 108, Track.class, LIKE, null),
+    ME_LIKES("me/likes", Endpoints.MY_FAVORITES, 107, Track.class, TRACK_LIKE, Table.COLLECTION_ITEMS),
+    ME_LIKE("me/likes/#", null, 108, Track.class, TRACK_LIKE, null),
     ME_GROUPS("me/groups", null, 109, null, -1, null),
     ME_PLAYLISTS("me/playlists", null, 110, null, -1, null),
     ME_USERID("me/userid", null, 111, null, -1, null),
-    ME_REPOSTS("me/reposts", TempEndpoints.e1.MY_REPOSTS, 112, Track.class, REPOST, Table.COLLECTION_ITEMS),
-    ME_REPOST("me/reposts/#",null, 113, Track.class, REPOST, null),
+    ME_REPOSTS("me/reposts", TempEndpoints.e1.MY_REPOSTS, 112, Track.class, -1, Table.COLLECTION_ITEMS),
+    ME_REPOST("me/reposts/#",null, 113, Track.class, -1, null),
+    ME_SOUNDS("me/sounds", TempEndpoints.e1.MY_SOUNDS, 100, Sound.class, -1, Table.USERS),
 
     // the ids of the following entries should not be changed, they are referenced in th db
     ME_SOUND_STREAM("me/activities/tracks", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),
@@ -50,9 +52,11 @@ public enum Content  {
     ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, User.class, FRIEND, null),
     SUGGESTED_USERS("users/suggested", null, 161, User.class, SUGGESTED_USER, null),
 
-    TRACKS("tracks", Endpoints.TRACKS, 201, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
-    TRACK("tracks/#", Endpoints.TRACK_DETAILS, 202, Track.class, -1, Table.TRACKS),
-    TRACK_ARTWORK("tracks/#/artwork", null, 203, null, -1, Table.TRACKS),
+    SOUNDS("sounds", null, 200, Sound.class, -1, Table.SOUNDS),
+
+    TRACKS("tracks", Endpoints.TRACKS, 201, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.SOUNDS),
+    TRACK("tracks/#", Endpoints.TRACK_DETAILS, 202, Track.class, -1, Table.SOUNDS),
+    TRACK_ARTWORK("tracks/#/artwork", null, 203, null, -1, Table.SOUNDS),
     TRACK_COMMENTS("tracks/#/comments", Endpoints.TRACK_COMMENTS, 204, Comment.class, -1, Table.COMMENTS),
     TRACK_PERMISSIONS("tracks/#/permissions", null, 205, null, -1, null),
     TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 206, null, -1, null),
@@ -60,20 +64,20 @@ public enum Content  {
 
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
     USER("users/#", null, 302, User.class, -1, Table.USERS),
-    USER_TRACKS("users/#/tracks", Endpoints.USER_TRACKS, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
-    USER_LIKES("users/#/likes", Endpoints.USER_FAVORITES, 304, Track.class, LIKE, null),
+    USER_TRACKS("users/#/tracks", Endpoints.USER_TRACKS, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.SOUNDS),
+    USER_LIKES("users/#/likes", Endpoints.USER_FAVORITES, 304, Track.class, TRACK_LIKE, null),
     USER_FOLLOWERS("users/#/followers", Endpoints.USER_FOLLOWERS, 305, User.class, FOLLOWER, null),
     USER_FOLLOWINGS("users/#/followings", Endpoints.USER_FOLLOWINGS, 306, User.class, FOLLOWING, null),
     USER_COMMENTS("users/#/comments", null, 307, Comment.class, -1, null),
     USER_GROUPS("users/#/groups", null, 308, null, -1, null),
     USER_PLAYLISTS("users/#/playlists", null, 309, null, -1, null),
-    USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Track.class, REPOST, null),
+    USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Sound.class, TRACK_REPOST, null),
 
     COMMENTS("comments", null, 400, Comment.class, -1, Table.COMMENTS),
     COMMENT("comments/#", null, 401, Comment.class, -1, Table.COMMENTS),
 
-    PLAYLISTS("playlists", null, 501, null, -1, Table.PLAYLISTS),
-    PLAYLIST("playlists/#", null, 502, null, -1, Table.PLAYLISTS),
+    PLAYLISTS("playlists", null, 501, null, -1, Table.SOUNDS),
+    PLAYLIST("playlists/#", null, 502, null, -1, Table.SOUNDS),
 
     GROUPS("groups", null, 600, null, -1, null),
     GROUP("groups/#", null, 602, null, -1, null),

@@ -76,14 +76,14 @@ public class SearchSuggestionsAdapter extends CursorAdapter {
             MergeSearchCursor mergeCursor = new MergeSearchCursor(
                     mContentResolver.query(Content.TRACKS.uri,
                             /*new String[]{
-                                    DBHelper.TrackView._ID,
-                                    DBHelper.TrackView.TITLE,
-                                    DBHelper.TrackView.USERNAME,
-                                    DBHelper.TrackView.ARTWORK_URL,
-                            }*/ null, "UPPER(" + DBHelper.TrackView.TITLE + ") GLOB ?",
+                                    DBHelper.SoundView._ID,
+                                    DBHelper.SoundView.TITLE,
+                                    DBHelper.SoundView.USERNAME,
+                                    DBHelper.SoundView.ARTWORK_URL,
+                            }*/ null, "UPPER(" + DBHelper.SoundView.TITLE + ") GLOB ?",
                             new String[]{
                                     constraint.toString().toUpperCase() + "*"
-                            }, DBHelper.TrackView.TITLE + " ASC"),
+                            }, DBHelper.SoundView.TITLE + " ASC"),
                     mContentResolver.query(Content.USERS.uri,
                             /*new String[]{
                                     DBHelper.Users._ID,
@@ -121,8 +121,8 @@ public class SearchSuggestionsAdapter extends CursorAdapter {
                 holder = (SearchHolder)view.getTag();
             }
 
-            setIcon(holder, cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.ARTWORK_URL)));
-            holder.tv_main.setText(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TITLE)));
+            setIcon(holder, cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.ARTWORK_URL)));
+            holder.tv_main.setText(cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.TITLE)));
             holder.iv_search_type.setImageResource(R.drawable.ic_search_sound);
 
         } else {

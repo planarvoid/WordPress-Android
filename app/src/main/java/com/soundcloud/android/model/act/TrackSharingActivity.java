@@ -60,7 +60,7 @@ public class TrackSharingActivity extends Activity implements Playable {
 
     /*
     @Override  @JsonIgnore
-    public Track getTrack() {
+    public Track getSound() {
         // need to set sharing note on track since the API doesn't return the track
         // with sharing_note attached if activity type = 'track_sharing'
         if (track.sharing_note == null && sharing_note != null) {

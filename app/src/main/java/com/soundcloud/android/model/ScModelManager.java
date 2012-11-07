@@ -64,7 +64,7 @@ public class ScModelManager {
     public Activity getActivityFromCursor(Cursor cursor){
         Activity a = Activity.Type.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE))).fromCursor(cursor);
         if (a != null) {
-            a.setCachedTrack(getTrackFromCursor(cursor, DBHelper.ActivityView.TRACK_ID));
+            a.setCachedTrack(getTrackFromCursor(cursor, DBHelper.ActivityView.SOUND_ID));
             a.setCachedUser(getUserFromActivityCursor(cursor));
         }
         return a;
@@ -123,7 +123,7 @@ public class ScModelManager {
     }
 
     public Track getTrackFromCursor(Cursor cursor){
-        return getTrackFromCursor(cursor, DBHelper.Tracks._ID);
+        return getTrackFromCursor(cursor, DBHelper.Sounds._ID);
     }
 
 
@@ -135,7 +135,7 @@ public class ScModelManager {
         if (track == null) {
             track = new Track(cursor);
 
-            final long user_id = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
+            final long user_id = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
             User user = USER_CACHE.get(user_id);
 
             if (user == null) {

@@ -123,7 +123,7 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         }
 
         if (getUser() != null) cv.put(DBHelper.Activities.USER_ID, getUser().id);
-        if (getTrack() != null) cv.put(DBHelper.Activities.TRACK_ID, getTrack().id);
+        if (getTrack() != null) cv.put(DBHelper.Activities.SOUND_ID, getTrack().id);
 
         return cv;
     }

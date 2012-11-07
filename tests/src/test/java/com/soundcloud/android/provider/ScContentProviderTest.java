@@ -258,12 +258,12 @@ public class ScContentProviderTest {
         List<Long> sorted = new ArrayList<Long>();
         List<Long> random = new ArrayList<Long>();
         while (c.moveToNext()) {
-            sorted.add(c.getLong(c.getColumnIndex(DBHelper.TrackView._ID)));
+            sorted.add(c.getLong(c.getColumnIndex(DBHelper.SoundView._ID)));
         }
         Cursor c2 = resolver.query(Content.TRACK.withQuery(RANDOM, "1"), null, null, null, null);
         expect(c2.getCount()).toEqual(15);
         while (c2.moveToNext()) {
-            random.add(c2.getLong(c2.getColumnIndex(DBHelper.TrackView._ID)));
+            random.add(c2.getLong(c2.getColumnIndex(DBHelper.SoundView._ID)));
         }
         expect(sorted).not.toEqual(random);
     }
@@ -289,7 +289,7 @@ public class ScContentProviderTest {
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
         expect(c.moveToNext()).toBeTrue();
-        expect(c.getLong(c.getColumnIndex(DBHelper.TrackView._ID))).toEqual(cachedId);
+        expect(c.getLong(c.getColumnIndex(DBHelper.SoundView._ID))).toEqual(cachedId);
     }
 
     @Test
@@ -311,7 +311,7 @@ public class ScContentProviderTest {
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
         expect(c.moveToNext()).toBeTrue();
-        expect(c.getLong(c.getColumnIndex(DBHelper.TrackView._ID))).toEqual(cachedId);
+        expect(c.getLong(c.getColumnIndex(DBHelper.SoundView._ID))).toEqual(cachedId);
     }
 
     @Test
@@ -333,7 +333,7 @@ public class ScContentProviderTest {
         long[] result = new long[sorted.length];
         int i = 0;
         while(c.moveToNext()) {
-            result[i++] = c.getLong(c.getColumnIndex(DBHelper.TrackView._ID));
+            result[i++] = c.getLong(c.getColumnIndex(DBHelper.SoundView._ID));
         }
         expect(Arrays.equals(result, sorted)).toBeFalse();
     }
@@ -359,7 +359,7 @@ public class ScContentProviderTest {
         long[] result = new long[sorted.length];
         int i=0;
         while (c.moveToNext()) {
-            result[i++] = c.getLong(c.getColumnIndex(DBHelper.ActivityView.TRACK_ID));
+            result[i++] = c.getLong(c.getColumnIndex(DBHelper.ActivityView.SOUND_ID));
         }
         expect(Arrays.equals(result, sorted)).toBeFalse();
     }
@@ -382,7 +382,7 @@ public class ScContentProviderTest {
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
         expect(c.moveToNext()).toBeTrue();
-        expect(c.getLong(c.getColumnIndex(DBHelper.ActivityView.TRACK_ID))).toEqual(cachedId);
+        expect(c.getLong(c.getColumnIndex(DBHelper.ActivityView.SOUND_ID))).toEqual(cachedId);
     }
 
 

@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 public enum Table {
-    TRACKS("Tracks", false, DBHelper.DATABASE_CREATE_TRACKS, DBHelper.Tracks.ALL_FIELDS),
+    SOUNDS("Sounds", false, DBHelper.DATABASE_CREATE_TRACKS, DBHelper.Sounds.ALL_FIELDS),
     TRACK_PLAYS("TrackPlays", false, null),
     TRACK_METADATA("TrackMetadata", false, DBHelper.DATABASE_CREATE_TRACK_METADATA, DBHelper.TrackMetadata.ALL_FIELDS),
     USERS("Users", false, DBHelper.DATABASE_CREATE_USERS, DBHelper.Users.ALL_FIELDS),
@@ -26,7 +26,6 @@ public enum Table {
     ACTIVITIES("Activities", false, DBHelper.DATABASE_CREATE_ACTIVITIES),
     RECORDINGS("Recordings", false, DBHelper.DATABASE_CREATE_RECORDINGS, DBHelper.Recordings.ALL_FIELDS),
     SEARCHES("Searches", false, DBHelper.DATABASE_CREATE_SEARCHES),
-    PLAYLISTS("Playlists", false, DBHelper.DATABASE_CREATE_PLAYLISTS, DBHelper.Playlists.ALL_FIELDS),
     PLAYLIST_TRACKS("PlaylistTracks", false, DBHelper.DATABASE_CREATE_PLAYLIST_TRACKS),
 
     PLAY_QUEUE("PlayQueue", false, DBHelper.DATABASE_CREATE_PLAY_QUEUE),
@@ -36,7 +35,7 @@ public enum Table {
     COLLECTION_PAGES("CollectionPages", false, DBHelper.DATABASE_CREATE_COLLECTION_PAGES),
 
     // views
-    TRACK_VIEW("TrackView", true, DBHelper.DATABASE_CREATE_TRACK_VIEW),
+    TRACK_VIEW("SoundView", true, DBHelper.DATABASE_CREATE_SOUND_VIEW),
     ACTIVITY_VIEW("ActivityView", true, DBHelper.DATABASE_CREATE_ACTIVITY_VIEW);
 
 

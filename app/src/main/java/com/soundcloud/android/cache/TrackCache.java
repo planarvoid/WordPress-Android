@@ -25,7 +25,7 @@ public class TrackCache extends LruCache<Long, Track> {
     }
 
     public Track fromActivityCursor(Cursor c) {
-        final long id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.TRACK_ID));
+        final long id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.SOUND_ID));
         Track track = get(id);
         if (track == null) {
             track = SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(c);

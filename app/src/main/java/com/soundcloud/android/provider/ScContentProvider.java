@@ -4,6 +4,7 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -111,9 +112,10 @@ public class ScContentProvider extends ContentProvider {
                 makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
                 _sortOrder = makeCollectionSort(uri, sortOrder);
                 if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
-                    qb.appendWhere(" AND "+DBHelper.TrackView.CACHED + "= 1");
+                    qb.appendWhere(" AND "+ DBHelper.SoundView.CACHED + "= 1");
                 }
                 break;
+
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
             case ME_FRIENDS:
@@ -145,18 +147,26 @@ public class ScContentProvider extends ContentProvider {
                 makeCollectionSelection(qb, uri.getPathSegments().get(1), content.collectionType);
                 _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
+
             case TRACKS:
+            case PLAYLISTS:
                 qb.setTables(Table.TRACK_VIEW.name);
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns,userId);
                 if ("1".equals(uri.getQueryParameter(Parameter.RANDOM))) {
                     _sortOrder = "RANDOM()";
                 }
+
+                appendSoundType(qb, content);
+
                 if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
-                    qb.appendWhere(DBHelper.TrackView.CACHED + "= 1");
+                    qb.appendWhere(DBHelper.SoundView.CACHED + "= 1");
                 }
                 break;
+
             case TRACK:
                 qb.setTables(Table.TRACK_VIEW.name);
+                appendSoundType(qb, content);
+
                 qb.appendWhere(Table.TRACK_VIEW.id + " = " + uri.getLastPathSegment());
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns,userId);
                 break;
@@ -170,11 +180,6 @@ public class ScContentProvider extends ContentProvider {
                 qb.setTables(content.table.name);
                 qb.appendWhere(Table.USERS.id + " = " + uri.getLastPathSegment());
                 if (_columns == null) _columns = formatWithUser(fullUserColumns,userId);
-                break;
-
-            case PLAYLISTS:
-                // TODO, Make view, joined with user and tracks
-                qb.setTables(Table.PLAYLISTS.name);
                 break;
 
             case SEARCHES:
@@ -245,7 +250,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_EXCLUSIVE_STREAM:
                 if (_columns == null) _columns = formatWithUser(fullActivityColumns, userId);
                 if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
-                    qb.appendWhere(DBHelper.TrackView.CACHED + "= 1 AND ");
+                    qb.appendWhere(DBHelper.SoundView.CACHED + "= 1 AND ");
                 }
 
             case ME_ALL_ACTIVITIES:
@@ -297,6 +302,12 @@ public class ScContentProvider extends ContentProvider {
         Cursor c = db.rawQuery(query, _selectionArgs);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
+    }
+
+    private void appendSoundType(SCQueryBuilder qb, Content content) {
+        qb.appendWhere(DBHelper.SoundView.TYPE + " = '" +
+                (content.modelType == Track.class ? Sound.DB_TYPE_TRACK : Sound.DB_TYPE_PLAYLIST)
+                + "'");
     }
 
 
@@ -382,11 +393,11 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_LIKES:
             case ME_REPOSTS:
-                id = Table.TRACKS.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = Table.SOUNDS.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, userId);
-                    cv.put(DBHelper.CollectionItems.ITEM_ID, (Long) values.get(DBHelper.Tracks._ID));
+                    cv.put(DBHelper.CollectionItems.ITEM_ID, (Long) values.get(DBHelper.Sounds._ID));
                     cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, content.collectionType);
                     id = Table.COLLECTION_ITEMS.insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_ABORT);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
@@ -530,19 +541,19 @@ public class ScContentProvider extends ContentProvider {
                 long userId = SoundCloudApplication.getUserIdFromContext(getContext());
                 if (userId > 0){
                     where = "_id NOT IN ("
-                                    + "SELECT _id FROM "+ Table.TRACKS.name + " WHERE EXISTS("
+                                    + "SELECT _id FROM "+ Table.SOUNDS.name + " WHERE EXISTS("
                                         + "SELECT 1 FROM CollectionItems WHERE "
                                         + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.TRACK+
-                                            " ," + CollectionItemTypes.LIKE + " ," + CollectionItemTypes.REPOST+ ") "
+                                            " ," + CollectionItemTypes.TRACK_LIKE + ") "
                                         + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
-                                        + " AND  " + DBHelper.CollectionItems.ITEM_ID + " =  " + DBHelper.Tracks._ID
-                                    + " UNION SELECT DISTINCT " + DBHelper.ActivityView.TRACK_ID + " FROM "+ Table.ACTIVITIES.name
+                                        + " AND  " + DBHelper.CollectionItems.ITEM_ID + " =  " + DBHelper.Sounds._ID
+                                    + " UNION SELECT DISTINCT " + DBHelper.ActivityView.SOUND_ID + " FROM "+ Table.ACTIVITIES.name
                                     + " UNION SELECT DISTINCT " + DBHelper.PlayQueue.TRACK_ID + " FROM "+ Table.PLAY_QUEUE.name
                                     + ")"
                                 + ")";
 
                     final long start = System.currentTimeMillis();
-                    count = db.delete(Table.TRACKS.name,where,null);
+                    count = db.delete(Table.SOUNDS.name,where,null);
                     log("Track cleanup done: deleted " + count + " tracks in " + (System.currentTimeMillis() - start) + " ms");
                     getContext().getContentResolver().notifyChange(Content.TRACKS.uri, null, false);
                     return count;
@@ -552,7 +563,7 @@ public class ScContentProvider extends ContentProvider {
             case USERS_CLEANUP:
                 userId = SoundCloudApplication.getUserIdFromContext(getContext());
                 if (userId > 0) {
-                    where = "_id NOT IN (SELECT DISTINCT " + DBHelper.Tracks.USER_ID + " FROM "+ Table.TRACKS.name + " UNION "
+                    where = "_id NOT IN (SELECT DISTINCT " + DBHelper.Sounds.USER_ID + " FROM "+ Table.SOUNDS.name + " UNION "
                                     + "SELECT _id FROM "+ Table.USERS.name + " WHERE EXISTS("
                                         + "SELECT 1 FROM CollectionItems WHERE "
                                         + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.FOLLOWER+ " ," + CollectionItemTypes.FOLLOWING+ ") "
@@ -587,6 +598,7 @@ public class ScContentProvider extends ContentProvider {
             case TRACKS:
             case USERS:
             case RECORDINGS:
+            case SOUNDS:
             case PLAYLISTS:
                 content.table.upsert(db, values);
                 if (values.length != 0) getContext().getContentResolver().notifyChange(uri, null, false);
@@ -600,6 +612,9 @@ public class ScContentProvider extends ContentProvider {
                 table = content.table;
                 break;
 
+            case ME_SOUNDS:
+                table = Table.COLLECTION_ITEMS;
+                break;
             case ME_TRACKS:
             case USER_TRACKS:
             case ME_LIKES:
@@ -753,10 +768,10 @@ public class ScContentProvider extends ContentProvider {
         qb.setTables(Table.TRACK_VIEW.name);
         String limit = uri.getQueryParameter(Parameter.LIMIT);
 
-        qb.appendWhere( DBHelper.TrackView.TITLE+" LIKE '%"+selectionArgs[0]+"%'");
+        qb.appendWhere( DBHelper.SoundView.TITLE+" LIKE '%"+selectionArgs[0]+"%'");
         String query = qb.buildQuery(
-                new String[]{ DBHelper.TrackView._ID, DBHelper.TrackView.TITLE, DBHelper.TrackView.USERNAME },
-                null, null, null, null, DBHelper.TrackView.CREATED_AT+" DESC", limit);
+                new String[]{ DBHelper.SoundView._ID, DBHelper.SoundView.TITLE, DBHelper.SoundView.USERNAME },
+                null, null, null, null, DBHelper.SoundView.CREATED_AT+" DESC", limit);
         log("suggest: query="+query);
         Cursor cursor = db.rawQuery(query, null);
         if (cursor != null) {
@@ -831,24 +846,24 @@ public class ScContentProvider extends ContentProvider {
             Table.TRACK_VIEW + ".*",
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                     + " WHERE " + Table.TRACK_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + LIKE
-                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_LIKE,
+                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + TRACK_LIKE
+                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.SoundView.USER_LIKE,
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                                 + " WHERE " + Table.TRACK_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID
-                                + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + REPOST
-                                + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_REPOST
+                                + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + CollectionItemTypes.TRACK_REPOST
+                                + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.SoundView.USER_REPOST
     };
 
     public static String[] fullActivityColumns = new String[]{
             Table.ACTIVITY_VIEW + ".*",
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
-                    + " WHERE " + DBHelper.ActivityView.TRACK_ID + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + LIKE
-                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_LIKE,
+                    + " WHERE " + DBHelper.ActivityView.SOUND_ID + " = " + DBHelper.CollectionItems.ITEM_ID
+                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + TRACK_LIKE
+                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.SoundView.USER_LIKE,
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
-                    + " WHERE " + DBHelper.ActivityView.TRACK_ID + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + REPOST
-                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_REPOST
+                    + " WHERE " + DBHelper.ActivityView.SOUND_ID + " = " + DBHelper.CollectionItems.ITEM_ID
+                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + TRACK_REPOST
+                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.SoundView.USER_REPOST
     };
 
     public static String[] fullUserColumns = new String[]{
@@ -865,14 +880,22 @@ public class ScContentProvider extends ContentProvider {
 
 
     public interface CollectionItemTypes {
-        int TRACK          = 0;
+        int TRACK           = 0;
+        int TRACK_LIKE      = 1;
+        int FOLLOWING       = 2;
+        int FOLLOWER        = 3;
+        int FRIEND          = 4;
+        int SUGGESTED_USER  = 5;
+        int SEARCH          = 6;
+        int TRACK_REPOST    = 7;
+        int PLAYLIST        = 8;
+        int PLAYLIST_REPOST = 9;
+        int PLAYLIST_LIKE   = 10;
+    }
+
+    public interface SoundAssociationTypes {
+        int REPOST = 0;
         int LIKE = 1;
-        int FOLLOWING      = 2;
-        int FOLLOWER       = 3;
-        int FRIEND         = 4;
-        int SUGGESTED_USER = 5;
-        int SEARCH         = 6;
-        int REPOST         = 7;
     }
 
     private static void log(String message) {

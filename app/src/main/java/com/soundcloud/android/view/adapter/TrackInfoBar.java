@@ -227,7 +227,7 @@ public class TrackInfoBar extends LazyRow {
                 mPlayCountSeparator,
                 track.comment_count, mCommentCount,
                 mCommentCountSeparator,
-                track.favoritings_count, mLikeCount,
+                track.likes_count, mLikeCount,
                 mLikeCountSeparator,
                 track.reposts_count, mRepostCount,
                 keepHeight);
