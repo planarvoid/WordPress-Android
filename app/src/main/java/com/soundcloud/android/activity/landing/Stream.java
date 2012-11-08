@@ -20,10 +20,6 @@ public class Stream extends ScActivity implements ScLandingPage {
             getSupportFragmentManager().beginTransaction()
                     .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_SOUND_STREAM)).commit();
         }
-
-        if (SoundCloudApplication.BETA_MODE) {
-            UpdateManager.register(this, getString(R.string.hockey_app_id));
-        }
     }
 
     @Override

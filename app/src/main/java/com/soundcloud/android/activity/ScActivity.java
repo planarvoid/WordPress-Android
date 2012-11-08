@@ -1,5 +1,7 @@
 package com.soundcloud.android.activity;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -31,6 +33,7 @@ import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.MainMenu;
 import com.soundcloud.android.view.NowPlayingIndicator;
 import com.soundcloud.android.view.RootView;
+import net.hockeyapp.android.UpdateManager;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -46,6 +49,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -57,6 +61,7 @@ import android.widget.RelativeLayout;
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
 public abstract class ScActivity extends SherlockFragmentActivity implements Tracker,RootView.OnMenuStateListener, ImageLoader.LoadBlocker {
+    public static final String EXTRA_FIRST_LAUNCH = "first-launch";
     protected static final int CONNECTIVITY_MSG = 0;
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
@@ -119,6 +124,18 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         if (savedInstanceState == null) {
             handleIntent(getIntent());
+        }
+
+        if (getIntent() != null && getIntent().getBooleanExtra(EXTRA_FIRST_LAUNCH, false)) {
+            getIntent().removeExtra(EXTRA_FIRST_LAUNCH);
+            onFirstLaunch();
+        }
+    }
+
+    private void onFirstLaunch() {
+        if (SoundCloudApplication.BETA_MODE) {
+            Log.d(TAG, "checking for beta updates");
+            UpdateManager.register(this, getString(R.string.hockey_app_id));
         }
     }
 

@@ -74,6 +74,7 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
 
         handleViewUrl(getIntent());
         launchIntent = ScLandingPage.LandingPage.fromString(app.getAccountData(User.DataKeys.LAST_LANDING_PAGE_IDX)).getIntent(this);
+        launchIntent.putExtra(ScActivity.EXTRA_FIRST_LAUNCH, true);
     }
 
     private void checkCanLaunch() {

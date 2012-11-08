@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity.landing;
 
 import com.soundcloud.android.activity.create.ScCreate;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.content.Intent;
@@ -27,7 +28,7 @@ public interface ScLandingPage {
             return new Intent(c, cls).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         }
 
-        public static LandingPage fromString(String key) {
+        public static @NotNull LandingPage fromString(String key) {
             for (LandingPage lp : values()) {
                 if (lp.key.equals(key)) {
                     return lp;
