@@ -38,7 +38,7 @@
     <TextView android:id="@+id/reposter"
                   android:visibility="gone"
                   android:layout_height="wrap_content"
-                  android:drawableLeft="@drawable/user_stream_repost"
+                  android:drawableLeft="@drawable/ic_repost_states"
                   android:drawablePadding="3dp"
                   style="@style/txt_list_sub"
                   android:singleLine="true"
