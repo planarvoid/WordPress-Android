@@ -419,7 +419,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         return mCurrentUserId;
     }
 
-    private Handler connHandler = new Handler() {
+    private final Handler connHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             final ScActivity ctxt = ScActivity.this;

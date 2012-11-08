@@ -4,10 +4,6 @@ package com.soundcloud.android.view;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.adapter.SearchHistoryAdapter;
-import com.soundcloud.android.adapter.SearchSuggestionsAdapter;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.Search;
 import com.soundcloud.android.model.User;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -15,35 +11,24 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.util.Xml;
 import android.view.InflateException;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
-import android.widget.Checkable;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,17 +80,19 @@ public class MainMenu extends LinearLayout {
                 }
             }
         });
-
         mList.setSelector(getContext().getResources().getDrawable(R.drawable.selectable_background_next));
-        mMenuAdapter = new MenuAdapter();
     }
 
     public void setOnItemClickListener(OnMenuItemClickListener onMenuItemClickListener) {
         mClickListener = onMenuItemClickListener;
     }
 
-    public void setSelectedMenuId(int mSelectedMenuId) {
-        this.mSelectedMenuId = mSelectedMenuId;
+    public void setSelectedMenuId(int selectedMenuId) {
+        this.mSelectedMenuId = selectedMenuId;
+
+        if (mMenuAdapter == null || mMenuAdapter.mSelectedMenuId != selectedMenuId) {
+            mMenuAdapter = new MenuAdapter(getContext(), selectedMenuId);
+        }
     }
 
     public void setMenuItems(int menu) {
@@ -147,7 +134,7 @@ public class MainMenu extends LinearLayout {
         }
     }
 
-    class SimpleListMenuItem {
+    private static class SimpleListMenuItem {
         int id;
         CharSequence text;
         Drawable icon;
@@ -161,13 +148,18 @@ public class MainMenu extends LinearLayout {
         }
     }
 
-    private class MenuAdapter extends BaseAdapter {
-        final private LayoutInflater inflater;
-        private List<SimpleListMenuItem> mMenuItems;
-        private SparseIntArray mLayouts;
+    private static class MenuAdapter extends BaseAdapter {
+        private final LayoutInflater inflater;
+        private final List<SimpleListMenuItem> mMenuItems;
+        private final SparseIntArray mLayouts;
+        private final Context mContext;
+        private final int mSelectedMenuId;
 
-        public MenuAdapter() {
-            inflater = LayoutInflater.from(getContext());
+
+        public MenuAdapter(Context context, int selectedMenuId) {
+            mContext = context;
+            mSelectedMenuId = selectedMenuId;
+            inflater = LayoutInflater.from(context);
             mMenuItems = new ArrayList<SimpleListMenuItem>();
             mLayouts = new SparseIntArray();
             mLayouts.put(R.layout.main_menu_item, 0);
@@ -231,11 +223,11 @@ public class MainMenu extends LinearLayout {
 
             boolean setDefaultImage = true;
             if (menuItem.id == R.id.nav_you) {
-                final User u = SoundCloudApplication.fromContext(getContext()).getLoggedInUser();
+                final User u = SoundCloudApplication.fromContext(mContext).getLoggedInUser();
                 if (u != null) {
                     holder.text.setText(u.username);
-                    final String listAvatarUri = u.getListAvatarUri(getContext());
-                    setDefaultImage = TextUtils.isEmpty(listAvatarUri) || ImageLoader.get(getContext()).bind(this, holder.image, listAvatarUri) != ImageLoader.BindResult.OK;
+                    final String listAvatarUri = u.getListAvatarUri(mContext);
+                    setDefaultImage = TextUtils.isEmpty(listAvatarUri) || ImageLoader.get(mContext).bind(this, holder.image, listAvatarUri) != ImageLoader.BindResult.OK;
                 } else {
                     holder.text.setText(menuItem.text);
                 }
@@ -263,7 +255,7 @@ public class MainMenu extends LinearLayout {
             return -1;
         }
 
-        class ViewHolder {
+        private static class ViewHolder {
             TextView text;
             ImageView image;
         }
