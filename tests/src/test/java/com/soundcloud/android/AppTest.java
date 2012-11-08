@@ -55,13 +55,13 @@ public class AppTest {
     }
 
     @Test
-    public void shouldNotHaveOpenGLEnabled() throws Exception {
+    public void shouldHaveOpenGLEnabled() throws Exception {
         DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
         f.setNamespaceAware(true);
         Document doc = f.newDocumentBuilder().parse(new File("../app/AndroidManifest.xml"));
         NodeList nl = (NodeList) XPathFactory.newInstance().newXPath().compile("//application").evaluate(doc, XPathConstants.NODESET);
         expect(nl.getLength()).toEqual(1);
         Node app = nl.item(0);
-        expect(app.getAttributes().getNamedItem("android:hardwareAccelerated").getNodeValue()).toEqual("false");
+        expect(app.getAttributes().getNamedItem("android:hardwareAccelerated").getNodeValue()).toEqual("true");
     }
 }

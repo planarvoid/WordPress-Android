@@ -37,7 +37,7 @@
                  android:label="@string/app_name"
                  android:theme="@style/Theme.Next"
                  android:configChanges="orientation|keyboardHidden|keyboard"
-                 android:hardwareAccelerated="false"
+                 android:hardwareAccelerated="true"
                  android:name="SoundCloudApplication">
 
         <!-- activities -->
