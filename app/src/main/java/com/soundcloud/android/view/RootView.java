@@ -72,9 +72,7 @@ public class RootView extends ViewGroup {
 
     private VelocityTracker mVelocityTracker;
 
-    private OnMenuOpenListener mOnMenuOpenListener;
-    private OnMenuCloseListener mOnMenuCloseListener;
-    private OnMenuScrollListener mOnMenuScrollListener;
+    private OnMenuStateListener mOnMenuStateListener;
 
     private final Handler mHandler = new SlidingHandler();
     private int mTouchDelta;
@@ -98,39 +96,30 @@ public class RootView extends ViewGroup {
     /**
      * Callback invoked when the menu is opened.
      */
-    public static interface OnMenuOpenListener {
+    public static interface OnMenuStateListener {
 
         /**
          * Invoked when the menu becomes fully open.
          */
         public void onMenuOpenLeft();
         public void onMenuOpenRight();
-    }
-    /**
-     * Callback invoked when the menu is closed.
-     */
-    public static interface OnMenuCloseListener {
 
         /**
          * Invoked when the menu becomes fully closed.
          */
         public void onMenuClosed();
-    }
-    /**
-     * Callback invoked when the menu is scrolled.
-     */
-    public static interface OnMenuScrollListener {
 
         /**
          * Invoked when the user starts dragging/flinging the menu's handle.
          */
         public void onScrollStarted();
+
         /**
          * Invoked when the user stops dragging/flinging the menu's handle.
          */
         public void onScrollEnded();
-
     }
+
     /**
      * A slide in navigation menu.
      *
@@ -241,18 +230,20 @@ public class RootView extends ViewGroup {
     }
 
     private void setExpandedState() {
-        switch (mExpandedState){
-            case COLLAPSED_FULL_CLOSED:
-                setClosed();
-                break;
+        if (!mAnimating && !mTracking) {
+            switch (mExpandedState) {
+                case COLLAPSED_FULL_CLOSED:
+                    setClosed();
+                    break;
 
-            case EXPANDED_LEFT:
-                openLeft();
-                break;
+                case EXPANDED_LEFT:
+                    openLeft();
+                    break;
 
-            case EXPANDED_RIGHT:
-                openRight();
-                break;
+                case EXPANDED_RIGHT:
+                    openRight();
+                    break;
+            }
         }
     }
 
@@ -312,10 +303,9 @@ public class RootView extends ViewGroup {
         final float density = getResources().getDisplayMetrics().density;
         mOffsetRight = (int) max(widthSpecSize - MENU_TARGET_WIDTH * density + 0.5f,
                                  OFFSET_RIGHT * density + 0.5f);
-
-        // since we are measured we can now find a proper expanded position if necessary
-        setExpandedState();
     }
+
+
 
     public boolean isExpanded(){
         return mExpandedState != COLLAPSED_FULL_CLOSED;
@@ -410,6 +400,10 @@ public class RootView extends ViewGroup {
             return;
         }
 
+        if (changed){
+            setExpandedState();
+        }
+
         final int width = getWidth();
         final int height = getHeight();
         mMenu.layout(0, 0, width, height);
@@ -433,8 +427,8 @@ public class RootView extends ViewGroup {
             prepareContent();
 
             // Must be called after prepareContent()
-            if (mOnMenuScrollListener != null) {
-                mOnMenuScrollListener.onScrollStarted();
+            if (mOnMenuStateListener != null) {
+                mOnMenuStateListener.onScrollStarted();
             }
 
             final int left = mContent.getLeft();
@@ -574,6 +568,7 @@ public class RootView extends ViewGroup {
             }
         }
 
+        if (mOnMenuStateListener != null) mOnMenuStateListener.onScrollStarted();
         mScroller.startScroll(position, 0, motion, 0, ANIMATION_DURATION);
         mAnimating = true;
         mHandler.removeMessages(MSG_ANIMATE);
@@ -636,10 +631,6 @@ public class RootView extends ViewGroup {
     private void stopTracking() {
         mTracking = false;
 
-        if (mOnMenuScrollListener != null) {
-            mOnMenuScrollListener.onScrollEnded();
-        }
-
         if (mVelocityTracker != null) {
             mVelocityTracker.recycle();
             mVelocityTracker = null;
@@ -701,15 +692,7 @@ public class RootView extends ViewGroup {
      */
     public void animateClose() {
         prepareContent();
-        final OnMenuScrollListener scrollListener = mOnMenuScrollListener;
-        if (scrollListener != null) {
-            scrollListener.onScrollStarted();
-        }
         animateClose(mContent.getLeft());
-
-        if (scrollListener != null) {
-            scrollListener.onScrollEnded();
-        }
     }
 
     /**
@@ -717,34 +700,16 @@ public class RootView extends ViewGroup {
      */
     public void animateMenuOpen() {
         prepareContent();
-        final OnMenuScrollListener scrollListener = mOnMenuScrollListener;
-        if (scrollListener != null) {
-            scrollListener.onScrollStarted();
-        }
         animateMenuOpen(mContent.getLeft());
-
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
-
-        if (scrollListener != null) {
-            scrollListener.onScrollEnded();
-        }
     }
 
     public void animatePlayerOpen() {
         if (!canOpenRight()) return;
 
         prepareContent();
-        final OnMenuScrollListener scrollListener = mOnMenuScrollListener;
-        if (scrollListener != null) {
-            scrollListener.onScrollStarted();
-        }
         animatePlayerOpen(mContent.getLeft());
-
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
-
-        if (scrollListener != null) {
-            scrollListener.onScrollEnded();
-        }
     }
 
     private void setClosed() {
@@ -760,8 +725,9 @@ public class RootView extends ViewGroup {
         }
 
         mExpandedState = COLLAPSED_FULL_CLOSED;
-        if (mOnMenuCloseListener != null) {
-            mOnMenuCloseListener.onMenuClosed();
+        if (mOnMenuStateListener != null) {
+            mOnMenuStateListener.onMenuClosed();
+            mOnMenuStateListener.onScrollEnded();
         }
     }
 
@@ -778,8 +744,9 @@ public class RootView extends ViewGroup {
 
         mExpandedState = EXPANDED_LEFT;
 
-        if (mOnMenuOpenListener != null) {
-            mOnMenuOpenListener.onMenuOpenLeft();
+        if (mOnMenuStateListener != null) {
+            mOnMenuStateListener.onMenuOpenLeft();
+            mOnMenuStateListener.onScrollEnded();
         }
     }
 
@@ -797,39 +764,19 @@ public class RootView extends ViewGroup {
 
         mExpandedState = EXPANDED_RIGHT;
 
-        if (mOnMenuOpenListener != null) {
-            mOnMenuOpenListener.onMenuOpenRight();
+        if (mOnMenuStateListener != null) {
+            mOnMenuStateListener.onMenuOpenRight();
+            mOnMenuStateListener.onScrollEnded();
         }
     }
 
     /**
-     * Sets the listener that receives a notification when the menu becomes open.
+     * Sets the listener that receives a notification when the menu state changes.
      *
-     * @param onMenuOpenListener The listener to be notified when the menu is opened.
+     * @param onMenuStateListener The listener to be notified when the menu state changes.
      */
-    public void setOnMenuOpenListener(OnMenuOpenListener onMenuOpenListener) {
-        mOnMenuOpenListener = onMenuOpenListener;
-    }
-
-    /**
-     * Sets the listener that receives a notification when the menu closes and the content is full screen.
-     *
-     * @param onMenuCloseListener The listener to be notified when the menu is closed.
-     */
-    public void setOnMenuCloseListener(OnMenuCloseListener onMenuCloseListener) {
-        mOnMenuCloseListener = onMenuCloseListener;
-    }
-
-    /**
-     * Sets the listener that receives a notification when the menu starts or ends
-     * a scroll. A fling is considered as a scroll. A fling will also trigger a
-     * menu opened or menu closed event.
-     *
-     * @param onMenuScrollListener The listener to be notified when scrolling
-     *                             starts or stops.
-     */
-    public void setOnMenuScrollListener(OnMenuScrollListener onMenuScrollListener) {
-        mOnMenuScrollListener = onMenuScrollListener;
+    public void setOnMenuStateListener(OnMenuStateListener onMenuStateListener) {
+        mOnMenuStateListener = onMenuStateListener;
     }
 
     /**

@@ -2,7 +2,6 @@ package com.soundcloud.android.activity;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.internal.view.menu.ActionMenuItem;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -21,7 +20,6 @@ import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.adapter.SearchSuggestionsAdapter;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Search;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
@@ -41,7 +39,6 @@ import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
@@ -49,21 +46,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class ScActivity extends SherlockFragmentActivity implements Tracker, RootView.OnMenuOpenListener, RootView.OnMenuCloseListener {
+public abstract class ScActivity extends SherlockFragmentActivity implements Tracker,RootView.OnMenuStateListener, ImageLoader.LoadBlocker {
     protected static final int CONNECTIVITY_MSG = 0;
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
@@ -87,9 +80,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         super.setContentView(mRootView);
 
 
-        mRootView.setOnMenuOpenListener(this);
-        mRootView.setOnMenuCloseListener(this);
-
+        mRootView.setOnMenuStateListener(this);
         mRootView.configureMenu(R.menu.main_nav, new MainMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClicked(int id) {
@@ -491,5 +482,15 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     public void onMenuClosed() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         invalidateOptionsMenu();
+    }
+
+    @Override
+    public void onScrollStarted() {
+        ImageLoader.get(this).block(this);
+    }
+
+    @Override
+    public void onScrollEnded() {
+        ImageLoader.get(this).unblock(this);
     }
 }
