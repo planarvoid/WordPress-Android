@@ -237,6 +237,9 @@
             </intent-filter>
         </activity>
 
+        <!-- hockey app -->
+        <activity android:name="net.hockeyapp.android.UpdateActivity" />
+
         <!-- providers -->
         <provider android:name=".provider.ScContentProvider"
                   android:authorities="com.soundcloud.android.provider.ScContentProvider"/>
@@ -284,8 +287,6 @@
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/sync" />
         </service>
-
-        <service android:name=".service.beta.BetaService"/>
 
         <!-- receivers -->
         <receiver android:label="SoundCloud Player"
@@ -342,12 +343,6 @@
 
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.ACCOUNT_ADDED" />
-            </intent-filter>
-        </receiver>
-
-        <receiver android:name=".service.beta.WifiMonitor" android:enabled="false">
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
             </intent-filter>
         </receiver>
 

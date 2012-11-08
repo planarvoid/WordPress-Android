@@ -1,9 +1,11 @@
 package com.soundcloud.android.activity.landing;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.provider.Content;
+import net.hockeyapp.android.UpdateManager;
 
 import android.os.Bundle;
 
@@ -16,6 +18,10 @@ public class Stream extends ScActivity implements ScLandingPage {
         if (state == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_SOUND_STREAM)).commit();
+        }
+
+        if (SoundCloudApplication.BETA_MODE) {
+            UpdateManager.register(this, getString(R.string.hockey_app_id));
         }
     }
 

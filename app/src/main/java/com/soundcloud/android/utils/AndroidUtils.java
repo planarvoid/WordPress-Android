@@ -3,7 +3,6 @@ package com.soundcloud.android.utils;
 import static android.content.pm.PackageManager.GET_SIGNATURES;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.R;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -183,10 +182,6 @@ public final class AndroidUtils {
         } catch (PackageManager.NameNotFoundException ignored) {
             throw new RuntimeException(ignored);
         }
-    }
-
-    public static boolean isRunOnBuilder(Context context) {
-        return appSignedBy(context, context.getString(R.string.builder_sig));
     }
 
     public static boolean appSignedBy(Context context, String... keys) {

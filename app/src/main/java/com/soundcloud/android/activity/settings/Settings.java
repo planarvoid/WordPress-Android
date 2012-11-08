@@ -8,7 +8,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.Tour;
 import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.service.beta.BetaPreferences;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -58,10 +57,6 @@ public class Settings extends PreferenceActivity {
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         addPreferencesFromResource(R.xml.settings);
-
-        if (SoundCloudApplication.BETA_MODE) {
-            BetaPreferences.add(this, getPreferenceScreen());
-        }
 
         PreferenceGroup extras = (PreferenceGroup) findPreference(EXTRAS);
         if (AlarmClock.isFeatureEnabled(this)) {

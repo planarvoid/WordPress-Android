@@ -3,34 +3,17 @@ require 'net/https'
 require 'uri'
 require 'pp'
 require 'csv'
+require 'json'
 require 'yaml'
 
-c2dm_credentials = 'c2dm.credentials'
-file c2dm_credentials => 'c2dm:login'
+DEFAULT_LEVELS = %w(CloudPlaybackService AwesomePlayer NuHTTPDataSource HTTPStream NuCachedSource2
+               StreamProxy StreamLoader StreamStorage C2DMReceiver SyncAdapterService ScContentProvider
+               ApiSyncService UploadService SoundCloudApplication VorbisEncoder VorbisEncoderNative
+               VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener)
 
-DEFAULT_LEVELS = %w(CloudPlaybackService
-               AwesomePlayer
-               NuHTTPDataSource
-               HTTPStream
-               NuCachedSource2
-               StreamProxy
-               StreamLoader
-               StreamStorage
-               C2DMReceiver
-               SyncAdapterService
-               ScContentProvider
-               ApiSyncService
-               UploadService
-               SoundCloudApplication
-               VorbisEncoder
-               VorbisEncoderNative
-               VorbisDecoderNative
-               SoundRecorder
-               WavWriter
-               AndroidCloudAPI
-               FacebookSSO
-               NetworkConnectivityListener
-              )
+# help methods to access pom data
+def pom() @pom ||= REXML::Document.new(File.read(File.dirname(__FILE__)+'/pom.xml')) end
+def current_version() pom.root.elements["version"].text end
 
 [:device, :emu].each do |t|
   def android_home
@@ -120,10 +103,6 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
       adb["pull /data/anr/traces.txt"]
     end
 
-    task :screenshots do
-      adb["pull /sdcard/Robotium-Screenshots"]
-    end
-
     task :redirect_stdio_true do
       adb["shell setprop log.redirect-stdio true"]
     end
@@ -138,6 +117,8 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
   end
 end
 
+
+# help methods to access manifest data
 def manifest
   @manifest ||= REXML::Document.new(File.read(File.dirname(__FILE__)+'/app/AndroidManifest.xml'))
 end
@@ -165,16 +146,47 @@ namespace :release do
 end
 
 namespace :beta do
-  BUCKET = "soundcloud-android-beta"
-  DEST="s3://#{BUCKET}/#{package}-#{versionCode}.apk"
-  CURRENT="s3://#{BUCKET}/#{package}-current.apk"
-  BETA_APK = "app/target/soundcloud-android-beta-#{versionName}-market.apk"
-
+  APP_ID="31bb3a437ee0cd325e994283fb8e7da3"
+  TOKEN="ef31e73570804365acba701c47568c9d"
+  BETA_APK = "app/target/soundcloud-android-#{current_version}-beta.apk"
   file BETA_APK => 'beta:build'
+
+  def get_last_published_version
+    versions = JSON.parse(`curl -s -H 'X-HockeyAppToken: #{TOKEN}' https://rink.hockeyapp.net/api/2/apps/#{APP_ID}/app_versions`)
+    versions['app_versions'].map { |app| app['version'].to_i }.max
+  end
+
+  task :versions do
+    sh "curl -H 'X-HockeyAppToken: #{TOKEN}' https://rink.hockeyapp.net/api/2/apps/#{APP_ID}/app_versions"
+  end
+
+  task :apps do
+    sh "curl -H 'X-HockeyAppToken: #{TOKEN}' https://rink.hockeyapp.net/api/2/apps"
+  end
+
+  desc "build and upload beta"
+  task :upload => [ BETA_APK, :verify ] do
+    sh <<-END
+      curl \
+        -H "X-HockeyAppToken: #{TOKEN}" \
+        -F "status=2" \
+        -F "notify=0" \
+        -F "notes_type=1" \
+        -F "notes=#{last_release_notes}" \
+        -F "ipa=@#{BETA_APK}" \
+        https://rink.hockeyapp.net/api/2/apps/#{APP_ID}/app_versions
+    END
+  end
+  [ :push, :release, :publish ].each { |a| task a => :upload }
 
   desc "build beta"
   task :build do
-    sh "sbt 'project soundcloud-android-beta' clean android:prepare-market"
+    version_code = get_last_published_version
+    sh <<-END
+      mvn install -DskipTests -Psign,soundcloud,beta \
+      -Dandroid.manifest.versionCode=#{version_code+1} \
+      -Dandroid.manifest.debuggable=true
+    END
   end
 
   desc "install beta on device"
@@ -184,7 +196,7 @@ namespace :beta do
 
   task :verify do
     raise "Missing file: #{BETA_APK}" unless File.exists?(BETA_APK)
-    raise "#{BETA_APK} does not contain -BETA" unless BETA_APK.match(/-BETA/)
+    raise "#{BETA_APK} does not contain -BETA" unless BETA_APK.match(/-BETA/i)
 
     output = `jarsigner -verify -certs -verbose #{BETA_APK}`
     raise unless $?.success?
@@ -193,50 +205,27 @@ namespace :beta do
     end
   end
 
-  [ :push, :release, :publish ].each { |a| task a => :upload }
-
-  desc "upload beta to s3"
-  task :upload => :verify do
-    metadata = {
-      'android-versionname' => versionName,
-      'android-versioncode' => versionCode,
-      'git-sha1'            => gitsha1
-    }
-    sh "s3cmd -P put #{BETA_APK} " +
-       "--mime-type=application/vnd.android.package-archive " +
-       metadata.inject([]) { |m,(k,v)|
-         m << "--add-header=x-amz-meta-#{k}:#{v}"
-         m
-       }.join(' ') +
-       (ENV['DRYRUN'] ? ' --dry-run ' : ' ') +
-       DEST
-
-   sh "s3cmd cp --acl-public #{DEST} #{CURRENT}"
-  end
-
-  desc "list beta bucket contents"
-  task :list do
-    http_url = "http://#{BUCKET}.s3.amazonaws.com"
-    out = `curl -s #{http_url}`
-    if $?.success?
-      doc = REXML::Document.new(out)
-      doc.write(STDOUT, 4)
-      puts
-      doc.elements.to_a("//Key").each do |key|
-        sh "curl", '-I', "#{http_url}/#{key.text}"
-      end
-    else
-      raise "error getting bucket: #{$?}"
-    end
-  end
+  desc "list beta versions"
+  task :list => :versions
 
   desc "tag the current beta"
   task :tag do
-    if versionName.to_s =~ /-BETA(\d+)?\Z/
-      sh "git tag -a #{versionName} -m #{versionName} && git push --tags && git push"
+    version = current_version.gsub(/-SNAPSHOT\Z/, '')
+    if version.to_s =~ /-BETA(\d+)?\Z/
+      sh "git tag -a #{version} -m #{version} && git push --tags && git push"
     else
-      raise "#{versionName}: not a beta version"
+      raise "#{version}: not a beta version"
     end
+  end
+
+  desc "bump the beta version"
+  task :bump do
+    version = current_version.gsub(/-SNAPSHOT\Z/, '')
+    match = version[/-BETA(\d+)/]
+    raise "Not a beta version" unless match
+    current_beta = $1.to_i
+    new_version = version.gsub(/BETA#{current_beta}\Z/, "BETA#{current_beta+1}")
+    sh "mvn --batch-mode release:update-versions -DdevelopmentVersion=#{new_version}"
   end
 end
 
@@ -293,4 +282,13 @@ END
   output = template.result(binding)
   notice_out =File.dirname(__FILE__)+"/app/assets/about.html"
   File.open(notice_out, 'w')  { |f| f << output }
+end
+
+def last_release_notes
+  changes = []
+  IO.read('CHANGES').split("\n")[1..-1].each do |l|
+     break if l[0] == '$'
+     changes << l.gsub(/\s*\*/, ' *') if (l =~ /s*\*/)
+  end
+  changes.join("\n")
 end
