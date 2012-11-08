@@ -62,17 +62,6 @@ public class Start extends AccountAuthenticatorActivity {
             }
         });
 
-        Button forgotBtn = (Button) this.findViewById(R.id.forgot_btn);
-        forgotBtn.setText(Html.fromHtml("<u>" +
-                getResources().getString(R.string.authentication_I_forgot_my_password)
-                + "</u>"));
-        forgotBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivityForResult(new Intent(Start.this, Recover.class), RECOVER_CODE);
-            }
-        });
-
         if (bundle == null) {
             findViewById(R.id.animation_holder).setVisibility(View.INVISIBLE);
             Animation animation = new AlphaAnimation(0.0f, 1.0f);

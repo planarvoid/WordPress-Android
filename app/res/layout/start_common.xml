@@ -44,18 +44,4 @@
             android:paddingLeft="18dip"
             android:text="@string/authentication_sign_up"
             android:background="@drawable/btn_login_bg_states"/>
-
-    <Button android:id="@+id/forgot_btn"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_marginBottom="13dip"
-            android:layout_marginLeft="10dip"
-            android:layout_marginRight="10dip"
-            android:textSize="16sp"
-            android:gravity="left|center"
-            android:textColor="@drawable/txt_start_light_states"
-            android:paddingLeft="10dip"
-            android:paddingRight="18dip"
-            android:text="@string/authentication_sign_up"
-            android:background="#00000000"/>
 </LinearLayout>
