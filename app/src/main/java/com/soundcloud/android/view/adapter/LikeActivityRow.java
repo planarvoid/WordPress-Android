@@ -7,9 +7,9 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
 
-public class LikeRow extends ActivityRow {
+public class LikeActivityRow extends ActivityRow {
 
-    public LikeRow(Context activity, ScBaseAdapter adapter) {
+    public LikeActivityRow(Context activity, ScBaseAdapter adapter) {
         super(activity, adapter);
     }
 

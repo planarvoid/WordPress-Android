@@ -5,7 +5,6 @@ import com.soundcloud.android.audio.WavHeader;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.tracking.Event;
-import com.soundcloud.api.Env;
 import com.soundcloud.api.Token;
 
 import android.accounts.Account;
@@ -38,7 +37,7 @@ public class TestApplication extends SoundCloudApplication {
 
     public TestApplication(Token token) {
         this.token = token;
-        mCloudApi = new Wrapper(null, "id", "secret", null, token, Env.LIVE);
+        mCloudApi = new Wrapper(null, "id", "secret", null, token);
     }
 
     @Override

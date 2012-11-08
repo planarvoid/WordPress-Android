@@ -17,12 +17,15 @@ import android.util.Log;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask<Request, Void, Model> {
     private AndroidCloudAPI mApi;
-    private ArrayList<WeakReference<FetchModelListener<Model>>> mListenerWeakReferences;
+    private Set<WeakReference<FetchModelListener<Model>>> mListenerWeakReferences;
     private long mModelId;
     private Class<? extends Model> mModel;
+    private boolean mFinished;
 
     public String action;
 
@@ -34,16 +37,18 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
 
     public void addListener(FetchModelListener<Model> listener){
         if (mListenerWeakReferences == null){
-            mListenerWeakReferences = new ArrayList<WeakReference<FetchModelListener<Model>>>();
+            mListenerWeakReferences = new HashSet<WeakReference<FetchModelListener<Model>>>();
         }
+
         mListenerWeakReferences.add(new WeakReference<FetchModelListener<Model>>(listener));
     }
 
     @Override
     protected void onPostExecute(Model result) {
+        mFinished = true;
         if (mListenerWeakReferences != null) {
             for (WeakReference<FetchModelListener<Model>> listenerRef : mListenerWeakReferences) {
-                FetchModelListener<Model> listener = listenerRef.get();
+                final FetchModelListener<Model> listener = listenerRef.get();
                 if (listener != null) {
                     if (result != null) {
                         listener.onSuccess(result, action);
@@ -65,11 +70,7 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
 
             switch (resp.getStatusLine().getStatusCode()) {
                 case HttpStatus.SC_OK: {
-                    Model model = mApi.getMapper().readValue(resp.getEntity().getContent(), mModel);
-                    if (model != null) {
-                        updateLocally(mApi.getContext().getContentResolver(), model);
-                    }
-                    return model;
+                    return mApi.getMapper().readValue(resp.getEntity().getContent(), mModel);
                 }
 
                 case HttpStatus.SC_NOT_FOUND: // gone
@@ -89,6 +90,4 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
         void onSuccess(Model m, @Nullable String action);
         void onError(long modelId);
     }
-
-    abstract protected void updateLocally(ContentResolver resolver, Model model);
 }

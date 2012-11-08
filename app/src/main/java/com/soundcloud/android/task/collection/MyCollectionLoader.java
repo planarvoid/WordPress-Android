@@ -32,7 +32,7 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
         ContentResolver resolver = api.getContext().getContentResolver();
         LocalData localData = new LocalData(resolver, params);
 
-        boolean keepGoing = localData.idList.size() == params.maxToLoad;
+        boolean keepGoing = localData.idList.size() > 0;
 
         // if we already have all the data, this is a NOP
         try {

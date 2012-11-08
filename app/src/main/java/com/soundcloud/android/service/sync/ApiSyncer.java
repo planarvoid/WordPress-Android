@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
@@ -24,6 +25,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncResult;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -173,7 +175,16 @@ public class ApiSyncer {
                         .getEntity().getContent();
 
                 // parse and add first items
-                added = SoundCloudApplication.MODEL_MANAGER.writeCollectionFromStream(is, content.uri, userId, ScResource.CacheUpdateMode.FULL);
+                CollectionHolder<User> firstUsers = SoundCloudApplication.MODEL_MANAGER.getCollectionFromStream(is);
+                added = SoundCloudApplication.MODEL_MANAGER.writeCollection(
+                        firstUsers.collection, content.uri, userId, ScResource.CacheUpdateMode.FULL
+                );
+
+                // remove items from master remote list and adjust start index
+                for (Parcelable u : firstUsers) {
+                    remote.remove(((User) u).id);
+                }
+                startPosition = firstUsers.size();
                 break;
 
             case ME_TRACKS:
@@ -222,7 +233,7 @@ public class ApiSyncer {
                     result.change = Result.CHANGED;
                     result.extra = "0"; // reset sync misses
                 } else {
-                    result.change = local.equals(remote) ? Result.UNCHANGED : Result.REORDERED;
+                    result.change = Result.REORDERED; // always mark users as reordered so we get the first page
                 }
                 break;
             default:
@@ -258,6 +269,8 @@ public class ApiSyncer {
         Result result = new Result(c.uri);
         User user = new FetchUserTask(mApi, SoundCloudApplication.getUserIdFromContext(mContext))
                 .doInBackground(c.request());
+
+        SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
 
         result.change = Result.CHANGED;
         result.success = user != null;

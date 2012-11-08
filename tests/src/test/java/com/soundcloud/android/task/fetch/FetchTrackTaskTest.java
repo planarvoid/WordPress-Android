@@ -6,6 +6,7 @@ import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Endpoints;
@@ -48,6 +49,8 @@ public class FetchTrackTaskTest {
         task.execute(Request.to(Endpoints.TRACK_DETAILS, 12345));
         expect(track[0]).not.toBeNull();
         expect(track[0].title).toEqual("recording on sunday night");
+
+        SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(track[0], ScResource.CacheUpdateMode.FULL);
 
         t = SoundCloudApplication.MODEL_MANAGER.getTrack(12345);
         expect(t).not.toBeNull();

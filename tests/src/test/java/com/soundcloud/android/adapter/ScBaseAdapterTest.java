@@ -7,8 +7,6 @@ import com.soundcloud.android.view.adapter.LazyRow;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.net.Uri;
-
 @RunWith(DefaultTestRunner.class)
 public class ScBaseAdapterTest {
 
@@ -21,7 +19,8 @@ public class ScBaseAdapterTest {
             }
 
             @Override
-            public void handleListItemClick(int position, long id) {
+            public int handleListItemClick(int position, long id) {
+                return ItemClickResults.IGNORE;
             }
         };
     }

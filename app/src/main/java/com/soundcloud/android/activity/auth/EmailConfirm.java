@@ -7,6 +7,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -24,7 +25,7 @@ import android.widget.TextView;
 import java.io.IOException;
 
 @Tracking(page = Page.Entry_confirm_your_email)
-public class EmailConfirm extends Activity  {
+public class EmailConfirm extends ScActivity {
     public static final String PREF_LAST_REMINDED = "confirmation_last_reminded";
     public static final int REMIND_PERIOD = 86400 * 1000 * 7; // 1 week
 
@@ -63,6 +64,11 @@ public class EmailConfirm extends Activity  {
     }
 
     @Override
+    protected int getSelectedMenuId() {
+        return -1;
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         getApp().track(getClass());
@@ -75,10 +81,6 @@ public class EmailConfirm extends Activity  {
     // XXX this check should happen earlier
     private long getLastReminded() {
         return getApp().getAccountDataLong(PREF_LAST_REMINDED);
-    }
-
-    private SoundCloudApplication getApp() {
-        return (SoundCloudApplication) getApplication();
     }
 
     static class ResendConfirmationTask extends AsyncApiTask<Void, Void, Boolean> {

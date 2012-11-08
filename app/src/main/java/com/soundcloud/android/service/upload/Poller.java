@@ -5,6 +5,7 @@ import static com.soundcloud.android.service.upload.UploadService.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -98,7 +99,8 @@ public class Poller extends Handler {
         // local storage should reflect full track info
         ContentResolver resolver = mApi.getContext().getContentResolver();
 
-        track.commitLocally();
+        track.setUpdated();
+        SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(track, ScResource.CacheUpdateMode.FULL);
 
         // this will tell any observers to update their UIs to the up to date track
         if (mNotifyUri != null) resolver.notifyChange(mNotifyUri, null, false);

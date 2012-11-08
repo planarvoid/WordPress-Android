@@ -1,9 +1,10 @@
 package com.soundcloud.android.activity.auth;
 
+import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.android.view.tour.Comment;
 import com.soundcloud.android.view.tour.Finish;
 import com.soundcloud.android.view.tour.Follow;
@@ -14,67 +15,100 @@ import com.soundcloud.android.view.tour.TourLayout;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 
-public class Tour extends Activity {
-    private WorkspaceView mWorkspaceView;
+public class Tour extends ScActivity {
+    private ViewPager mViewPager;
+    private View[] mViews;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tour);
 
-        mWorkspaceView = (WorkspaceView) findViewById(R.id.tour_view);
-        mWorkspaceView.addView(new Start(this));
-        mWorkspaceView.addView(new Record(this));
-        mWorkspaceView.addView(new Share(this));
-        mWorkspaceView.addView(new Follow(this));
-        mWorkspaceView.addView(new Comment(this));
-        mWorkspaceView.addView(new Finish(this));
-        mWorkspaceView.initWorkspace(0);
-
-        final Button btnDone = (Button) findViewById(R.id.btn_done);
-        final Button btnSkip = (Button) findViewById(R.id.btn_done_dark);
-
-        final View.OnClickListener done = new View.OnClickListener() {
+        mViewPager = (ViewPager) findViewById(R.id.tour_view);
+        mViews = new View[]{new Start(this), new Record(this), new Share(this), new Follow(this), new Comment(this), new Finish(this)};
+        mViewPager.setAdapter(new PagerAdapter() {
             @Override
-            public void onClick(View view) {
-                //noinspection ObjectEquality
-                ((SoundCloudApplication) getApplication()).track(
-                        view == btnDone ? Click.Tour_Tour_done : Click.Tour_Tour_skip);
-                finish();
+            public int getCount() {
+                return mViews.length;
             }
-        };
 
-        btnDone.setOnClickListener(done);
-        btnSkip.setOnClickListener(done);
-
-        mWorkspaceView.setOnScreenChangeListener(new WorkspaceView.OnScreenChangeListener() {
             @Override
-            public void onScreenChanged(View newScreen, int index) {
-                ((RadioButton) ((RadioGroup) findViewById(R.id.rdo_tour_step)).getChildAt(index)).setChecked(true);
-                if (index < mWorkspaceView.getScreenCount() - 1) {
-                    btnDone.setVisibility(View.GONE);
-                    btnSkip.setVisibility(View.VISIBLE);
+            public Object instantiateItem(ViewGroup container, int position) {
+                View v = mViews[position];
+                v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,LinearLayout.LayoutParams.FILL_PARENT));
+                container.addView(v);
+                return v;
+            }
+
+            @Override
+            public void destroyItem(View collection, int position, Object view) {
+                ((ViewPager) collection).removeView((View) view);
+            }
+
+
+            @Override
+            public boolean isViewFromObject(View view, Object object) {
+                return object == view;
+            }
+        });
+
+
+        mViewPager.setCurrentItem(0);
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                ((RadioButton) ((RadioGroup) findViewById(R.id.rdo_tour_step)).getChildAt(i)).setChecked(true);
+                if (i < mViews.length - 1) {
+//                    btnDone.setVisibility(View.GONE);
+//                    btnSkip.setVisibility(View.VISIBLE);
                 } else {
-                    btnDone.setVisibility(View.VISIBLE);
-                    btnSkip.setVisibility(View.GONE);
+//                    btnDone.setVisibility(View.VISIBLE);
+//                    btnSkip.setVisibility(View.GONE);
                 }
-                ((SoundCloudApplication)getApplication()).track(newScreen.getClass());
+                ((SoundCloudApplication) getApplication()).track(mViews[mViewPager.getCurrentItem()].getClass());
             }
 
             @Override
-            public void onScreenChanging(View newScreen, int newScreenIndex) {
+            public void onPageScrollStateChanged(int i) {
             }
+        });
 
-            @Override
-            public void onNextScreenVisible(View newScreen, int newScreenIndex) {
-            }
-        }, true);
+        getSupportActionBar().setHomeButtonEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_bar_close:
+                ((SoundCloudApplication) getApplication()).track(mViewPager.getCurrentItem() == mViews.length - 1 ? Click.Tour_Tour_done : Click.Tour_Tour_skip);
+                finish();
+                return true;
+        }
+        return false;
+    }
+
+    protected int getMenuResourceId() {
+        return R.menu.tour;
+    }
+
+    @Override
+    protected int getSelectedMenuId() {
+        return -1;
     }
 
     /* package */ String getMessage() {
@@ -82,7 +116,7 @@ public class Tour extends Activity {
     }
 
     private TourLayout getActiveTour() {
-        return (TourLayout) mWorkspaceView.getScreenAt(mWorkspaceView.getCurrentScreen());
+        return (TourLayout) mViewPager.getChildAt(mViewPager.getCurrentItem());
     }
 
 }

@@ -1,10 +1,9 @@
 $ 49
   % v current
-  _ 2012-??
-  ! ??
-    * added extra media button handling
-
-
+  _ 2012-11-02
+  ! Next
+    * New UI
+    * Extra media button handling
 
 $ 48
   % v 2.3.2

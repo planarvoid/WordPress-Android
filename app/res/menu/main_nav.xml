@@ -4,5 +4,6 @@
     <item android:id="@+id/nav_stream"   android:text="@string/tab_stream"    android:icon="@drawable/sidebar_stream"/>
     <item android:id="@+id/nav_news"     android:text="@string/tab_activity"  android:icon="@drawable/sidebar_activity" />
     <item android:id="@+id/nav_record"   android:text="@string/tab_record"    android:icon="@drawable/sidebar_record"/>
+    <item android:id="@+id/nav_search"   android:text="@string/tab_search"    android:icon="@drawable/sidebar_search"/>
     <item android:id="@+id/nav_settings" android:text="@string/menu_settings" android:icon="@android:drawable/ic_menu_preferences" />
 </menu>

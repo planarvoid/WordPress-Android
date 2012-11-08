@@ -80,7 +80,7 @@ public class UserBrowser extends ScActivity implements
     private Object[] mAdapterStates;
 
     private UserFragmentAdapter mAdapter;
-    private ViewPager mPager;
+    protected ViewPager mPager;
     private TitlePageIndicator mIndicator;
 
 

@@ -8,6 +8,7 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.view.ClearText;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -35,6 +36,7 @@ public class ScSearch extends ScActivity implements ScLandingPage {
     private Spinner mSpinner;
     private Search mCurrentSearch;
     private ScSearchFragment mSearchFragment;
+    private Search pendingSearch;
 
     public static final String EXTRA_SEARCH_TYPE = "search_type";
     public static final String EXTRA_QUERY = "query";
@@ -87,17 +89,30 @@ public class ScSearch extends ScActivity implements ScLandingPage {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             mSearchFragment = ScSearchFragment.newInstance();
             ft.add(R.id.results_holder, mSearchFragment).commit();
-
-            final Intent intent = getIntent();
-            if (intent.hasExtra(EXTRA_QUERY)) {
-                perform(new Search(intent.getCharSequenceExtra(EXTRA_QUERY).toString(), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL)));
-            }
+            handleIntent();
         }
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIntent();
+    }
+
+    private void handleIntent() {
+        final Intent intent = getIntent();
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            pendingSearch = new Search(query, intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
+        }
+    }
+
+
+
+    @Override
     protected int getSelectedMenuId() {
-        return -1;
+        return R.id.nav_search;
     }
 
 
@@ -110,6 +125,11 @@ public class ScSearch extends ScActivity implements ScLandingPage {
     protected void onResume() {
         super.onResume();
         track(getClass());
+
+        if (pendingSearch != null){
+            perform(pendingSearch);
+            pendingSearch = null;
+        }
     }
 
     private Search getSearch() {
@@ -153,6 +173,11 @@ public class ScSearch extends ScActivity implements ScLandingPage {
 
         mCurrentSearch = search;
         return true;
+    }
+
+    @Override
+    protected int getMenuResourceId(){
+            return -1;
     }
 
 

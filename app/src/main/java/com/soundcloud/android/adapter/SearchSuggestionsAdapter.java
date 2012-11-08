@@ -1,31 +1,21 @@
 package com.soundcloud.android.adapter;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Search;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.adapter.LazyRow;
-import com.soundcloud.android.view.adapter.TrackInfoBar;
-import com.soundcloud.android.view.adapter.UserlistRow;
-import com.soundcloud.android.view.quickaction.QuickAction;
 import org.jetbrains.annotations.Nullable;
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.MergeCursor;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
-import android.view.LayoutInflater;
+import android.support.v4.widget.CursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -34,7 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class SearchSuggestionsAdapter extends CursorAdapter{
+public class SearchSuggestionsAdapter extends CursorAdapter {
     private final ContentResolver mContentResolver;
     private final Context mContext;
 

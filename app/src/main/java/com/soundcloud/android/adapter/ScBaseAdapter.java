@@ -1,29 +1,24 @@
 
 package com.soundcloud.android.adapter;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.PlayInfo;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.task.collection.ReturnData;
 import com.soundcloud.android.task.collection.UpdateCollectionTask;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.quickaction.QuickAction;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.view.View;
@@ -42,12 +37,11 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     protected Content mContent;
     protected Uri mContentUri;
     protected List<T> mData;
-    protected int mPage = 1;
+    protected int mPage = 0;
     protected Map<Long, Drawable> mIconAnimations = new HashMap<Long, Drawable>();
     protected Set<Long> mLoadingIcons = new HashSet<Long>();
     protected boolean mIsLoadingData;
     private View mProgressView;
-    private String mNextHref;
 
     @SuppressWarnings("unchecked")
     public ScBaseAdapter(Context context, Uri uri) {
@@ -89,7 +83,8 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     @Override
     public boolean isEmpty() {
-        return getCount() == 0 && !mIsLoadingData;
+        final int count = getCount();
+        return count == 0 || (count == 1 && mIsLoadingData);
     }
 
     @Override
@@ -151,7 +146,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     public void clearData() {
         clearIcons();
         mData.clear();
-        mPage = 1;
+        mPage = 0;
     }
 
     public void onDestroy(){}
@@ -221,7 +216,8 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         CollectionParams params = new CollectionParams();
         params.loadModel = mContent.modelType;
         params.isRefresh = refresh;
-        params.startIndex = refresh ? 0 : getItemCount();
+        params.maxToLoad = Consts.COLLECTION_PAGE_SIZE;
+        params.startIndex = refresh ? 0 : mPage * Consts.COLLECTION_PAGE_SIZE;
         params.contentUri = mContentUri;
         return params;
     }
@@ -231,7 +227,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
             if (data.wasRefresh) {
                 onSuccessfulRefresh();
             }
-            mNextHref = data.nextHref;
+            mPage++;
 
             addItems(data.newItems);
             checkForStaleItems();
@@ -276,6 +272,11 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         }
     }
 
-    public abstract void handleListItemClick(int position, long id);
+    public abstract int handleListItemClick(int position, long id);
+
+    public interface ItemClickResults{
+        int IGNORE = 0;
+        int LEAVING = 1;
+    }
 
 }

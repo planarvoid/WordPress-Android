@@ -52,7 +52,9 @@ public class WaveformController extends TouchLayout {
     protected PlayerTime mCurrentTimeDisplay;
 
     protected ScPlayer mPlayer;
-    protected Track mPlayingTrack;
+    protected Track mTrack;
+    protected int mQueuePosition;
+
     protected boolean mSuspendTimeDisplay, mOnScreen;
     protected List<Comment> mCurrentComments;
     protected List<Comment> mCurrentTopComments;
@@ -196,7 +198,7 @@ public class WaveformController extends TouchLayout {
                     c.calculateXPos(getWidth(), mDuration);
                 }
             }
-            if (mPlayingTrack != null) {
+            if (mTrack != null) {
                 determineProgressInterval();
             }
         }
@@ -387,16 +389,17 @@ public class WaveformController extends TouchLayout {
         }
     }
 
-    public void updateTrack(Track track, boolean postAtFront) {
-        if (track == null || (mPlayingTrack != null &&
-                mPlayingTrack.id == track.id
+    public void updateTrack(Track track, int queuePosition, boolean postAtFront) {
+        mQueuePosition = queuePosition;
+        if (track == null || (mTrack != null
+                && mTrack.id == track.id
                 && waveformResult != BindResult.ERROR)) {
             return;
         }
 
-        final boolean changed = mPlayingTrack != track;
-        mPlayingTrack = track;
-        mDuration = mPlayingTrack.duration;
+        final boolean changed = mTrack != track;
+        mTrack = track;
+        mDuration = mTrack.duration;
         mCurrentTimeDisplay.setDuration(mDuration);
 
         if (changed) {
@@ -566,7 +569,7 @@ public class WaveformController extends TouchLayout {
     private void onWaveformError() {
         mWaveformErrorCount++;
         if (mWaveformErrorCount < MAX_WAVEFORM_RETRIES) {
-            updateTrack(mPlayingTrack, mOnScreen);
+            updateTrack(mTrack, mQueuePosition, mOnScreen);
         } else {
             mOverlay.setImageDrawable(mPlayer.getResources()
                     .getDrawable(R.drawable.player_wave_bg));
@@ -718,7 +721,7 @@ public class WaveformController extends TouchLayout {
             case TOUCH_MODE_COMMENT_DRAG:
                 if (isOnTouchBar(input.y)) {
                     mAddComment = Comment.build(
-                            mPlayingTrack,
+                            mTrack,
                             mPlayer.getApp().getLoggedInUser(),
                             stampFromPosition(input.x),
                             "",
@@ -761,10 +764,15 @@ public class WaveformController extends TouchLayout {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case UI_UPDATE_SEEK:
-                    long seekTime = mPlayer.setSeekMarker(mSeekPercent);
-                    mPlayerTouchBar.setSeekPosition((int) (mSeekPercent * getWidth()), mPlayerTouchBar.getHeight(), false);
-                    //setProgressInternal(seekTime);
-                    mCurrentTimeDisplay.setCurrentTime(seekTime,false);
+                    long seekTime = mPlayer.setSeekMarker(mQueuePosition, mSeekPercent);
+                    if (seekTime == -1){
+                        // the seek did not work, abort
+                        mode = TOUCH_MODE_NONE;
+                    } else {
+                        mPlayerTouchBar.setSeekPosition((int) (mSeekPercent * getWidth()), mPlayerTouchBar.getHeight(), false);
+                        mCurrentTimeDisplay.setCurrentTime(seekTime, false);
+                    }
+
                     mWaveformHolder.invalidate();
                     break;
 
@@ -813,7 +821,7 @@ public class WaveformController extends TouchLayout {
     }
 
     protected long stampFromPosition(int x) {
-        return (long) (Math.min(Math.max(.001, (((float) x) / getWidth())), 1) * mPlayingTrack.duration);
+        return (long) (Math.min(Math.max(.001, (((float) x) / getWidth())), 1) * mTrack.duration);
     }
 
     public void showNewComment(Comment c) {

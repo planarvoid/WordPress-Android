@@ -40,7 +40,6 @@ public class ApiSyncServiceTest {
     ContentResolver resolver;
     static final long USER_ID = 100L;
 
-
     @Before public void before() {
         resolver = Robolectric.application.getContentResolver();
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
@@ -184,7 +183,7 @@ public class ApiSyncServiceTest {
         // make sure tracks+users got written
         expect(Content.USERS).toHaveCount(3);
         expect(Content.ME_FOLLOWERS).toHaveCount(3);
-        assertFirstIdToBe(Content.ME_FOLLOWERS, 792584);
+        assertFirstIdToBe(Content.ME_FOLLOWERS, 308291);
     }
 
     @Test

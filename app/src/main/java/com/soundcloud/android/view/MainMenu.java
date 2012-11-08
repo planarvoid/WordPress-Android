@@ -18,6 +18,7 @@ import android.content.res.XmlResourceParser;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -33,6 +34,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.Checkable;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -52,25 +54,16 @@ public class MainMenu extends LinearLayout {
     private MenuAdapter mMenuAdapter;
     private OnMenuItemClickListener mClickListener;
 
-    private SearchHistoryAdapter mSearchHistoryAdapter;
-    private SearchSuggestionsAdapter mSuggestionsAdapter;
-
-    private boolean mInSearchMode;
-    private EditText mQueryText;
-    private View mFocusCatcher;
+    public void onResume() {
+        setSelectedMenuItem();
+    }
 
     /**
      * Callback invoked when a menu item is clicked.
      */
     public static interface OnMenuItemClickListener {
 
-        public void onMenuItemClicked(int id);
-
-        public void onSearchQuery(Search query);
-
-        public void onSearchSuggestedTrackClicked(long id);
-
-        public void onSearchSuggestedUserClicked(long id);
+        public boolean onMenuItemClicked(int id);
     }
 
     public MainMenu(Context context) {
@@ -83,110 +76,28 @@ public class MainMenu extends LinearLayout {
         init();
     }
 
-    public boolean gotoMenu() {
-        if (mInSearchMode) {
-            toggleSearchMode();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     private void init() {
         setOrientation(LinearLayout.VERTICAL);
 
         LayoutInflater.from(getContext()).inflate(R.layout.main_menu, this, true);
         mList = (ListView) findViewById(R.id.root_menu_list);
+        mList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mList.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (mClickListener != null) {
-                    if (!mInSearchMode) {
-                        final int itemId = ((SimpleListMenuItem) mMenuAdapter.getItem(position - mList.getHeaderViewsCount())).id;
-                        if (mSelectedMenuId != itemId) {
-                            mClickListener.onMenuItemClicked(itemId);
+                    final int itemId = ((SimpleListMenuItem) mMenuAdapter.getItem(position - mList.getHeaderViewsCount())).id;
+                    if (mSelectedMenuId != itemId) {
+                        if (mClickListener.onMenuItemClicked(itemId)) {
+                            mList.setItemChecked(position, true);
                         }
-                    } else if (parent.getAdapter() == mSuggestionsAdapter) {
-                        switch (mSuggestionsAdapter.getItemViewType(position)) {
-                            case SearchSuggestionsAdapter.TYPE_TRACK:
-                                mClickListener.onSearchSuggestedTrackClicked(id);
-                                break;
-                            case SearchSuggestionsAdapter.TYPE_USER:
-                                mClickListener.onSearchSuggestedUserClicked(id);
-                                break;
-                        }
-                    } else {
-                        mClickListener.onSearchQuery(mSearchHistoryAdapter.getItem(position));
                     }
-                    closeKeyboard();
                 }
             }
         });
 
         mList.setSelector(getContext().getResources().getDrawable(R.drawable.selectable_background_next));
-
-        mQueryText = (EditText) findViewById(R.id.root_menu_query);
-        mQueryText.setOnFocusChangeListener(new OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus && !mInSearchMode) {
-                    toggleSearchMode();
-                }
-            }
-        });
-
-        mQueryText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH && mClickListener != null) {
-                    mClickListener.onSearchQuery(new Search(mQueryText.getText().toString(), Search.ALL));
-                    toggleSearchMode();
-                    mQueryText.setText("");
-                    closeKeyboard();
-                    return true;
-
-                } else {
-                    return false;
-                }
-            }
-        });
-
-
         mMenuAdapter = new MenuAdapter();
-        mSearchHistoryAdapter = new SearchHistoryAdapter(getContext(), R.layout.search_history_row_dark);
-        mSuggestionsAdapter = new SearchSuggestionsAdapter(getContext(), null);
-        mFocusCatcher = findViewById(R.id.root_menu_focus_catcher);
-    }
-
-    public void setOffsetRight(int mOffsetRight) {
-        ((RelativeLayout.LayoutParams) mQueryText.getLayoutParams()).rightMargin = mOffsetRight;
-        mSuggestionsAdapter.setOffsetRight(mOffsetRight);
-        requestLayout();
-    }
-
-    private void closeKeyboard() {
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(mQueryText.getWindowToken(), 0);
-    }
-
-    private void toggleSearchMode() {
-        if (!mInSearchMode) {
-            mInSearchMode = true;
-            if (mQueryText.length() > 0) {
-                mList.setAdapter(mSuggestionsAdapter);
-                mSuggestionsAdapter.notifyDataSetChanged();
-            } else {
-                mList.setAdapter(mSearchHistoryAdapter);
-                SearchHistoryAdapter.refreshHistory(getContext().getContentResolver(), mSearchHistoryAdapter);
-            }
-            mQueryText.addTextChangedListener(mTextWatcher);
-
-        } else {
-            mInSearchMode = false;
-            mList.setAdapter(mMenuAdapter);
-            mQueryText.removeTextChangedListener(mTextWatcher);
-            mFocusCatcher.requestFocus();
-        }
     }
 
     public void setOnItemClickListener(OnMenuItemClickListener onMenuItemClickListener) {
@@ -208,9 +119,8 @@ public class MainMenu extends LinearLayout {
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
                     if ("item".equals(parser.getName())) {
-                        mMenuAdapter.addItem(new SimpleListMenuItem(
-                                getContext().obtainStyledAttributes(attrs, R.styleable.SimpleMenu)
-                        ));
+                        SimpleListMenuItem menuItem = new SimpleListMenuItem(getContext().obtainStyledAttributes(attrs, R.styleable.SimpleMenu));
+                        mMenuAdapter.addItem(menuItem);
                     }
                 }
                 eventType = parser.next();
@@ -223,7 +133,18 @@ public class MainMenu extends LinearLayout {
         } finally {
             if (parser != null) parser.close();
         }
+
         mList.setAdapter(mMenuAdapter);
+    }
+
+    private void setSelectedMenuItem(){
+        if (mSelectedMenuId != -1){
+            final int pos = mMenuAdapter.getPositionById(mSelectedMenuId);
+            if (pos >= 0 && mList.getCheckedItemPosition() != pos) {
+                mList.setItemChecked(pos, true);
+                mMenuAdapter.notifyDataSetChanged();
+            }
+        }
     }
 
     class SimpleListMenuItem {
@@ -231,14 +152,12 @@ public class MainMenu extends LinearLayout {
         CharSequence text;
         Drawable icon;
         int layoutId;
-        boolean selected;
 
         public SimpleListMenuItem(TypedArray a) {
             this.id         = a.getResourceId(R.styleable.SimpleMenu_android_id, 0);
             this.text       = a.getText(R.styleable.SimpleMenu_android_text);
             this.icon       = a.getDrawable(R.styleable.SimpleMenu_android_icon);
             this.layoutId   = a.getResourceId(R.styleable.SimpleMenu_android_layout, 0);
-            this.selected   = this.id == mSelectedMenuId;
         }
     }
 
@@ -306,15 +225,6 @@ public class MainMenu extends LinearLayout {
 
                 convertView.setTag(holder);
 
-                if (menuItem.selected) {
-                    convertView.setBackgroundResource(R.drawable.sidebar_item_background_selected);
-                } else {
-                    convertView.setBackgroundResource(R.drawable.sidebar_item_background);
-                }
-
-                int paddingTopBottom = (int) getResources().getDimension(R.dimen.slm_item_padding_topbottom);
-                int paddingLeftRight = (int) getResources().getDimension(R.dimen.slm_item_padding_leftright);
-                convertView.setPadding(paddingLeftRight, paddingTopBottom, paddingLeftRight, paddingTopBottom);
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
@@ -324,7 +234,8 @@ public class MainMenu extends LinearLayout {
                 final User u = SoundCloudApplication.fromContext(getContext()).getLoggedInUser();
                 if (u != null) {
                     holder.text.setText(u.username);
-                    setDefaultImage = ImageLoader.get(getContext()).bind(this, holder.image, u.getListAvatarUri(getContext())) != ImageLoader.BindResult.OK;
+                    final String listAvatarUri = u.getListAvatarUri(getContext());
+                    setDefaultImage = TextUtils.isEmpty(listAvatarUri) || ImageLoader.get(getContext()).bind(this, holder.image, listAvatarUri) != ImageLoader.BindResult.OK;
                 } else {
                     holder.text.setText(menuItem.text);
                 }
@@ -336,8 +247,20 @@ public class MainMenu extends LinearLayout {
                 holder.image.setImageDrawable(menuItem.icon);
             }
 
+            if (menuItem.id == mSelectedMenuId){
+                convertView.setSelected(true);
+            }
 
             return convertView;
+        }
+
+        public int getPositionById(int mSelectedMenuId) {
+            int i = 0;
+            for (SimpleListMenuItem menuItem : mMenuItems){
+                if (mSelectedMenuId == menuItem.id) return i;
+                i++;
+            }
+            return -1;
         }
 
         class ViewHolder {
@@ -345,30 +268,5 @@ public class MainMenu extends LinearLayout {
             ImageView image;
         }
     }
-
-
-    private final TextWatcher mTextWatcher = new TextWatcher() {
-        public void afterTextChanged(Editable s) {
-        }
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        public void onTextChanged(CharSequence seq, int start, int before, int count) {
-            if (count == 0) {
-                mList.setAdapter(mSearchHistoryAdapter);
-            } else {
-                final String s = seq.toString();
-                mSuggestionsAdapter.getFilter().filter(
-                        s.contains(",") ?
-                                s.subSequence(s.lastIndexOf(",") + 1, s.length()).toString().trim() :
-                                s.trim());
-
-                if (mList.getAdapter() != mSuggestionsAdapter) mList.setAdapter(mSuggestionsAdapter);
-            }
-
-        }
-    };
-
 
 }

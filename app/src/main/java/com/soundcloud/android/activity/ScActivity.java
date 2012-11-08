@@ -1,9 +1,12 @@
 package com.soundcloud.android.activity;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.internal.view.menu.ActionMenuItem;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.SearchView;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -16,6 +19,7 @@ import com.soundcloud.android.activity.landing.ScSearch;
 import com.soundcloud.android.activity.landing.Stream;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.adapter.SearchSuggestionsAdapter;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.model.User;
@@ -32,6 +36,9 @@ import com.soundcloud.android.view.RootView;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.SearchManager;
+import android.app.SearchableInfo;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -42,13 +49,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
@@ -82,108 +92,61 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         mRootView.configureMenu(R.menu.main_nav, new MainMenu.OnMenuItemClickListener() {
             @Override
-            public void onMenuItemClicked(int id) {
+            public boolean onMenuItemClicked(int id) {
                 switch (id) {
                     case R.id.nav_stream:
                         startNavActivity(Stream.class);
-                        break;
+                        return true;
                     case R.id.nav_news:
                         startNavActivity(News.class);
-                        break;
+                        return true;
                     case R.id.nav_you:
                         startNavActivity(You.class);
-                        break;
+                        return true;
                     case R.id.nav_record:
                         startNavActivity(ScCreate.class);
-                        break;
+                        return true;
+                    case R.id.nav_search:
+                        startNavActivity(ScSearch.class);
+                        return true;
                     case R.id.nav_settings:
                         startActivity(new Intent(ScActivity.this, Settings.class));
                         mRootView.animateClose();
-                        break;
-
+                        return false;
                 }
-            }
-
-            @Override
-            public void onSearchQuery(Search search) {
-                startActivity(getNavIntent(ScSearch.class)
-                        .putExtra(ScSearch.EXTRA_QUERY, search.query)
-                        .putExtra(ScSearch.EXTRA_SEARCH_TYPE, search.search_type));
-            }
-
-            @Override
-            public void onSearchSuggestedTrackClicked(long id) {
-                // go to track, for now just play it
-                startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(CloudPlaybackService.EXTRA_TRACK_ID, id));
-                mRootView.animateClose();
-            }
-
-            @Override
-            public void onSearchSuggestedUserClicked(long id) {
-                // go to user
-                startActivity(getNavIntent(UserBrowser.class).putExtra(UserBrowser.EXTRA_USER_ID, id));
+                return false;
             }
         });
 
-        configureActionBar();
+        getSupportActionBar().setTitle(null);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         if (this instanceof ScLandingPage){
             getApp().setAccountData(User.DataKeys.LAST_LANDING_PAGE_IDX, ((ScLandingPage) this).getPageValue().key);
         }
 
         if (savedInstanceState == null) {
-            /*Fragment newFragment = new PlayerFragment();
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.add(mRootView.getPlayerHolderId(), newFragment).commit();*/
-
             handleIntent(getIntent());
         }
     }
 
-    protected abstract int getSelectedMenuId();
+    protected void setupNowPlayingIndicator() {
+        RelativeLayout nowPlayingHolder = (RelativeLayout) View.inflate(this, R.layout.now_playing_view, null);
+        nowPlayingHolder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ScActivity.this, ScPlayer.class);
+                startActivity(intent);
+            }
+        });
 
-    /**
-     * Basically, hack the action bar to make it look like next
-     */
-    private void configureActionBar() {
-        getSupportActionBar().setTitle(null);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        // configure home image to fill vertically
-        final float density = getResources().getDisplayMetrics().density;
-        ImageView homeImage = (ImageView) getWindow().getDecorView().findViewById(android.R.id.home);
-        if (homeImage == null){ // sherlock compatibility id
-            homeImage = (ImageView) getWindow().getDecorView().findViewById(R.id.abs__home);
-        }
-        if (homeImage != null) {
-
-            ViewGroup parent = (ViewGroup) homeImage.getParent();
-            parent.setBackgroundColor(0x00000000);
-            homeImage.setBackgroundDrawable(getResources().getDrawable(R.drawable.logo_states));
-
-            final int paddingVert = (int) (13 * density);
-            final int paddingHor = (int) (5 * density);
-            homeImage.setPadding(paddingHor, paddingVert, paddingHor, paddingVert);
-            homeImage.setDuplicateParentStateEnabled(true);
-            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) homeImage.getLayoutParams();
-            lp.topMargin = lp.bottomMargin = 0;
-            //homeImage.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            homeImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        }
-
-        // configure title for extra spacing
-        int titleId = Resources.getSystem().getIdentifier("action_bar_title", "id", "android");
-        View title = getWindow().getDecorView().findViewById(titleId);
-        if (title == null){ // sherlock compatibility id
-            title = getWindow().getDecorView().findViewById(R.id.abs__action_bar_title);
-        }
-        if (title != null){
-            ViewGroup parent = (ViewGroup) title.getParent();
-            parent.setPadding((int) (parent.getPaddingLeft() + density * 10),
-                    parent.getPaddingTop(), parent.getPaddingRight(), parent.getPaddingBottom());
-        }
+        mNowPlaying = (NowPlayingIndicator) nowPlayingHolder.findViewById(R.id.waveform_progress);
+        getSupportActionBar().setCustomView(nowPlayingHolder, new ActionBar.LayoutParams(Gravity.RIGHT));
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
     }
+
+    protected abstract int getSelectedMenuId();
 
     @Override
     public void setContentView(int id) {
@@ -249,6 +212,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     protected void onResume() {
         super.onResume();
+
         mRootView.onResume();
         mIsForeground = true;
         if (getApp().getAccount() == null) {
@@ -258,7 +222,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         if (mNowPlaying != null) {
             mNowPlaying.resume();
-
+        } else {
+            setupNowPlayingIndicator();
         }
     }
 
@@ -397,20 +362,46 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getSupportMenuInflater();
-        inflater.inflate(getMenuResourceId(), menu);
-
-        if (mNowPlaying != null) {
-            mNowPlaying.destroy();
-            mNowPlaying = null;
+        final int menuResourceId = getMenuResourceId();
+        if (menuResourceId > -1) {
+            inflater.inflate(menuResourceId, menu);
         }
 
-        MenuItem waveform = menu.findItem(R.id.menu_waveform);
-        mNowPlaying = (NowPlayingIndicator) waveform.getActionView().findViewById(R.id.waveform_progress);
+        // Get the SearchView and set the searchable configuration
+        if (menu.findItem(R.id.menu_search) != null){
+            SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 
-        if (this instanceof ScPlayer) {
-            menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
-                    R.drawable.ic_menu_refresh);
+            /*
+            This is how you can find the search text view. It's hacky. Hopefully we don't need it
+            AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null));
+            if (search_text == null){
+                search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
+            }*/
+
+            final SearchableInfo searchableInfo = searchManager.getSearchableInfo(getComponentName());
+            searchView.setSearchableInfo(searchableInfo);
+
+            final SearchSuggestionsAdapter suggestionsAdapter = new SearchSuggestionsAdapter(this, null);
+            searchView.setSuggestionsAdapter(suggestionsAdapter);
+            searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+                @Override
+                public boolean onSuggestionSelect(int position) {
+                    return false;
+                }
+
+                @Override
+                public boolean onSuggestionClick(int position) {
+                    if (suggestionsAdapter.getItemViewType(position) == SearchSuggestionsAdapter.TYPE_TRACK) {
+                        startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(CloudPlaybackService.EXTRA_TRACK_ID, suggestionsAdapter.getItemId(position)));
+                    } else {
+                        startActivity(getNavIntent(UserBrowser.class).putExtra(UserBrowser.EXTRA_USER_ID, suggestionsAdapter.getItemId(position)));
+                    }
+                    return true;
+                }
+            });
         }
+
         return true;
     }
 
@@ -422,20 +413,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                onHomeButtonPressed();
+                mRootView.animateToggleMenu();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
 
-    }
-
-    protected void onHomeButtonPressed() {
-        if (this instanceof ScLandingPage) {
-            mRootView.animateToggleMenu();
-        } else {
-            onBackPressed();
-        }
     }
 
     public long getCurrentUserId() {
@@ -496,7 +479,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onMenuOpenLeft() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -505,6 +489,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onMenuClosed() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        invalidateOptionsMenu();
     }
 }

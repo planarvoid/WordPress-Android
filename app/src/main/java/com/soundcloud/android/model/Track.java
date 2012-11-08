@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -18,8 +19,12 @@ import com.soundcloud.android.provider.DBHelper.Tracks;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchModelTask;
+import com.soundcloud.android.task.fetch.FetchTrackTask;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.FlowLayout;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
@@ -64,6 +69,7 @@ public class Track extends PlayableResource implements Playable {
     @JsonView(Views.Full.class) public int download_count;
     @JsonView(Views.Full.class) public int comment_count;
     @JsonView(Views.Full.class) public int favoritings_count;
+    @JsonView(Views.Full.class) public int reposts_count;
     @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
     public int shared_to_count;
 
@@ -112,7 +118,6 @@ public class Track extends PlayableResource implements Playable {
     @JsonIgnore public boolean local_cached;
     @JsonIgnore public FetchModelTask<Track> load_info_task;
     @JsonIgnore public LoadCommentsTask load_comments_task;
-    @JsonIgnore public boolean full_track_info_loaded;
     @JsonIgnore public int last_playback_error = -1;
 
     public List<String> humanTags() {
@@ -196,6 +201,7 @@ public class Track extends PlayableResource implements Playable {
         b.putInt("download_count", download_count);
         b.putInt("comment_count", comment_count);
         b.putInt("favoritings_count", favoritings_count);
+        b.putInt("reposts_count", reposts_count);
         b.putInt("shared_to_count", shared_to_count);
         b.putString("original_format", original_format);
         b.putString("user_uri", user_uri);
@@ -214,7 +220,6 @@ public class Track extends PlayableResource implements Playable {
 
         b.putInt("local_user_playback_count", local_user_playback_count);
         b.putBoolean("local_cached", local_cached);
-        b.putBoolean("full_track_info_loaded", full_track_info_loaded);
         b.putInt("last_playback_error", last_playback_error);
 
         /* the following fields are left out because they are too expensive or complex
@@ -286,6 +291,7 @@ public class Track extends PlayableResource implements Playable {
         download_count = b.getInt("download_count");
         comment_count = b.getInt("comment_count");
         favoritings_count = b.getInt("favoritings_count");
+        reposts_count = b.getInt("reposts_count");
         shared_to_count = b.getInt("shared_to_count");
         original_format = b.getString("original_format");
         user_uri = b.getString("user_uri");
@@ -304,7 +310,6 @@ public class Track extends PlayableResource implements Playable {
 
         local_user_playback_count = b.getInt("local_user_playback_count");
         local_cached = b.getBoolean("local_cached");
-        full_track_info_loaded = b.getBoolean("full_track_info_loaded");
         last_playback_error = b.getInt("last_playback_error");
     }
 
@@ -334,6 +339,7 @@ public class Track extends PlayableResource implements Playable {
         download_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOAD_COUNT));
         comment_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENT_COUNT));
         favoritings_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.FAVORITINGS_COUNT));
+        reposts_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.REPOSTS_COUNT));
         shared_to_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.SHARED_TO_COUNT));
         user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
         commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENTABLE)) == 1;
@@ -415,6 +421,7 @@ public class Track extends PlayableResource implements Playable {
         if (comment_count != -1) cv.put(Tracks.COMMENT_COUNT, comment_count);
         if (commentable) cv.put(Tracks.COMMENTABLE, commentable);
         if (favoritings_count != -1) cv.put(Tracks.FAVORITINGS_COUNT, favoritings_count);
+        if (reposts_count != -1) cv.put(Tracks.REPOSTS_COUNT, reposts_count);
         if (shared_to_count != -1) cv.put(Tracks.SHARED_TO_COUNT, shared_to_count);
         if (sharing_note != null && !sharing_note.isEmpty()) {
             cv.put(Tracks.SHARING_NOTE_TEXT, sharing_note.text);
@@ -463,6 +470,20 @@ public class Track extends PlayableResource implements Playable {
                 view.addView(txt, flowLP);
             }
         }
+    }
+
+    // TODO, THIS SUCKS
+    public FetchModelTask<Track> refreshInfoAsync(AndroidCloudAPI api, FetchModelTask.FetchModelListener<Track> listener) {
+        if (load_info_task == null){
+            if (AndroidUtils.isTaskFinished(load_info_task)) {
+                load_info_task = new FetchTrackTask(api, id);
+            }
+            load_info_task.addListener(listener);
+            if (AndroidUtils.isTaskPending(load_info_task)) {
+                load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, id));
+            }
+        }
+        return load_info_task;
     }
 
     public String getUserName() {
@@ -603,10 +624,8 @@ public class Track extends PlayableResource implements Playable {
         return new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(EXTRA, this);
     }
 
-    public Uri commitLocally() {
+    public void setUpdated() {
         last_updated = System.currentTimeMillis();
-        full_track_info_loaded = true;
-        return SoundCloudApplication.MODEL_MANAGER.write(this);
     }
 
     public Track updateFrom(Track updatedItem, CacheUpdateMode cacheUpdateMode) {
@@ -630,12 +649,15 @@ public class Track extends PlayableResource implements Playable {
             playback_count = updatedItem.playback_count;
             comment_count = updatedItem.comment_count;
             favoritings_count = updatedItem.favoritings_count;
+            reposts_count = updatedItem.reposts_count;
             user_like = updatedItem.user_like;
-            user_repost = updatedItem.user_repost;
             shared_to_count = updatedItem.shared_to_count;
             created_at = updatedItem.created_at;
-            //refreshListArtworkUri(c);
-            //refreshTimeSinceCreated(c);
+            //user_repost = updatedItem.user_repost; THIS DOES NOT COME FROM THE API, ONLY UPDATE FROM DB
+
+            // these will get refreshed
+            mElapsedTime = null;
+            mArtworkUri = null;
         }
 
         return this;

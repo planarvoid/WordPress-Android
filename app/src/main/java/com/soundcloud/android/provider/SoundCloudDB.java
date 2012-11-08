@@ -53,7 +53,7 @@ public class SoundCloudDB {
         Uri uri = track.toUri();
         resolver.update(uri, track.buildContentValues(), null, null);
         if (track.user != null) {
-            insertUser(resolver, track.user);
+            upsertUser(resolver, track.user);
         }
         return uri;
     }

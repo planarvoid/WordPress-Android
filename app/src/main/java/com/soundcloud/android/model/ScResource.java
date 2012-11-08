@@ -25,13 +25,12 @@ import java.util.List;
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
+        defaultImpl = UnknownResource.class,
         property = "kind")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Track.class, name = "track"),
-        @JsonSubTypes.Type(value = Playlist.class, name = "playlist"),
         @JsonSubTypes.Type(value = Comment.class, name = "comment"),
-        @JsonSubTypes.Type(value = User.class, name = "user"),
-        @JsonSubTypes.Type(value = Playlist.class, name = "playlist")})
+        @JsonSubTypes.Type(value = User.class, name = "user")})
 public abstract class ScResource extends ScModel {
 
 

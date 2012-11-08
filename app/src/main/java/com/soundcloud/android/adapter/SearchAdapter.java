@@ -48,18 +48,17 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> implements Playable
     }
 
     @Override
-    public void handleListItemClick(int position, long id) {
+    public int handleListItemClick(int position, long id) {
         int type = getItemViewType(position);
         switch (type) {
             case TYPE_TRACK:
                 PlayUtils.playFromAdapter(mContext,this,mData,position,id);
-                break;
+                return ItemClickResults.LEAVING;
             case TYPE_USER:
                 mContext.startActivity(new Intent(mContext, UserBrowser.class).putExtra(UserBrowser.EXTRA_USER, getItem(position)));
-                break;
-            default:
-                throw new IllegalArgumentException("no view for playlists yet");
+                return ItemClickResults.LEAVING;
         }
+        return ItemClickResults.IGNORE;
     }
 
     @Override

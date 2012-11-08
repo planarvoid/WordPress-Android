@@ -18,7 +18,6 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.WorkspaceContentView;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -53,7 +52,6 @@ import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
 public class PlayerTrackView extends LinearLayout implements
-        WorkspaceContentView,
         View.OnTouchListener,
         FetchModelTask.FetchModelListener<Track>,
         LoadCommentsTask.LoadCommentsListener {
@@ -82,7 +80,7 @@ public class PlayerTrackView extends LinearLayout implements
     private Drawable mLikeDrawable, mLikedDrawable;
 
     public Track mTrack;
-    private int mPlayPos;
+    private int mQueuePosition;
     private long mDuration;
     private boolean mLandscape, mOnScreen;
     private boolean mIsCommenting;
@@ -148,16 +146,8 @@ public class PlayerTrackView extends LinearLayout implements
         mWaveformController.setOnScreen(onScreen);
     }
 
-    public void onAppear() {
-        setCommentMode(false, false);
-    }
-
-    public void onDisappear() {
-        setCommentMode(false, false);
-    }
-
     public void setTrack(@Nullable Track track, int queuePosition, boolean forceUpdate, boolean priority) {
-        mPlayPos = queuePosition;
+        mQueuePosition = queuePosition;
 
         final boolean changed = mTrack != track;
         if (!(forceUpdate || changed)) return;
@@ -169,7 +159,7 @@ public class PlayerTrackView extends LinearLayout implements
         }
 
         if (changed && !mLandscape) updateArtwork(priority);
-        mWaveformController.updateTrack(mTrack, priority);
+        mWaveformController.updateTrack(mTrack, queuePosition, priority);
 
         mTrackInfoBar.display(mTrack, false, -1, true, mPlayer.getCurrentUserId());
         if (mTrackInfo != null) mTrackInfo.setPlayingTrack(mTrack);
@@ -181,16 +171,7 @@ public class PlayerTrackView extends LinearLayout implements
 
         setLikeStatus();
 
-        if (!mTrack.full_track_info_loaded) {
-            if (AndroidUtils.isTaskFinished(mTrack.load_info_task)) {
-                mTrack.load_info_task = new FetchTrackTask(mPlayer.getApp(), mTrack.id);
-            }
-
-            mTrack.load_info_task.addListener(this);
-            if (AndroidUtils.isTaskPending(mTrack.load_info_task)) {
-                mTrack.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mTrack.id));
-            }
-        }
+        mTrack.refreshInfoAsync(mPlayer.getApp(),this);
 
         if (mTrack.isStreamable() && mTrack.last_playback_error == -1) {
             hideUnplayable();
@@ -321,7 +302,7 @@ public class PlayerTrackView extends LinearLayout implements
 
     public void onDataConnected() {
         if (mWaveformController.waveformResult == ImageLoader.BindResult.ERROR) {
-            mWaveformController.updateTrack(mTrack, mOnScreen);
+            mWaveformController.updateTrack(mTrack, mQueuePosition, mOnScreen);
         }
         if (!mLandscape && mCurrentArtBindResult == ImageLoader.BindResult.ERROR) {
             updateArtwork(mOnScreen);
@@ -458,24 +439,26 @@ public class PlayerTrackView extends LinearLayout implements
             }
         }
 
-        if (animated) {
-            if (mIsCommenting) {
-                mTrackInfoOverlay.setVisibility(VISIBLE);
-                runFadeInAnimationOn(mPlayer, mTrackInfoOverlay);
+        if (!mLandscape){
+            if (animated) {
+                if (mIsCommenting) {
+                    mTrackInfoOverlay.setVisibility(VISIBLE);
+                    runFadeInAnimationOn(mPlayer, mTrackInfoOverlay);
 
-                mArtworkOverlay.setVisibility(VISIBLE);
-                runFadeInAnimationOn(mPlayer, mArtworkOverlay);
+                    mArtworkOverlay.setVisibility(VISIBLE);
+                    runFadeInAnimationOn(mPlayer, mArtworkOverlay);
+                } else {
+                    runFadeOutAnimationOn(mPlayer, mTrackInfoOverlay);
+                    attachVisibilityListener(mTrackInfoOverlay, GONE);
+
+                    runFadeOutAnimationOn(mPlayer, mArtworkOverlay);
+                    attachVisibilityListener(mArtworkOverlay, GONE);
+                }
             } else {
-                runFadeOutAnimationOn(mPlayer, mTrackInfoOverlay);
-                attachVisibilityListener(mTrackInfoOverlay, GONE);
-
-                runFadeOutAnimationOn(mPlayer, mArtworkOverlay);
-                attachVisibilityListener(mArtworkOverlay, GONE);
+                int visibility = mIsCommenting ? VISIBLE : GONE;
+                mTrackInfoOverlay.setVisibility(visibility);
+                mArtworkOverlay.setVisibility(visibility);
             }
-        } else {
-            int visibility = mIsCommenting ? VISIBLE : GONE;
-            mTrackInfoOverlay.setVisibility(visibility);
-            mArtworkOverlay.setVisibility(visibility);
         }
     }
 
@@ -495,7 +478,7 @@ public class PlayerTrackView extends LinearLayout implements
 
 
     public int getPlayPosition() {
-        return mPlayPos;
+        return mQueuePosition;
     }
 
     public void onDestroy() {
@@ -638,14 +621,6 @@ public class PlayerTrackView extends LinearLayout implements
         }
     }
 
-    public void onRefresh() {
-        if (mTrackInfo != null) {
-            mTrackInfo.clearIsTrackInfoFilled();
-            mTrackInfo.fillTrackDetails();
-        }
-        refreshComments();
-    }
-
     public void onStop(boolean killLoading) {
         mWaveformController.onStop(killLoading);
     }
@@ -683,9 +658,13 @@ public class PlayerTrackView extends LinearLayout implements
 
     @Override
     public void onSuccess(Track t, String action) {
+
+        t.setUpdated();
+        t = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(t, ScResource.CacheUpdateMode.FULL);
+
         if (t.id != mTrack.id) return;
 
-        setTrack(t, mPlayPos, true, mOnScreen);
+        setTrack(t, mQueuePosition, true, mOnScreen);
         if (mTrackInfo != null) {
             mTrackInfo.onInfoLoadSuccess();
         }

@@ -20,6 +20,11 @@ public class TrackAdapter extends ScBaseAdapter<Track> implements PlayableAdapte
     }
 
     @Override
+    public boolean isEmpty() {
+        return super.isEmpty();
+    }
+
+    @Override
     protected LazyRow createRow(int position) {
         return new TrackInfoBar(mContext,this);
     }
@@ -30,12 +35,13 @@ public class TrackAdapter extends ScBaseAdapter<Track> implements PlayableAdapte
     }
 
     @Override
-    public void handleListItemClick(int position, long id) {
+    public int handleListItemClick(int position, long id) {
         PlayUtils.playFromAdapter(mContext, this, mData, position, id);
+        return ItemClickResults.LEAVING;
     }
 
     @Override
     public Uri getPlayableUri() {
-        return mContentUri;
+        return mContent.isMine() ? mContentUri : null;
     }
 }
