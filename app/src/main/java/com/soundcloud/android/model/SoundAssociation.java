@@ -1,8 +1,10 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -16,8 +18,14 @@ public class SoundAssociation extends ScResource{
 
     public Track track;
     public Playlist playlist;
+    public User user;
 
     public SoundAssociation() { //for deserialization
+    }
+
+    public SoundAssociation(Cursor cursor) {
+        associationType = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE));
+        created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP)));
     }
 
     public SoundAssociation(Parcel in) {
@@ -25,6 +33,7 @@ public class SoundAssociation extends ScResource{
         created_at = new Date(in.readLong());
         track = in.readParcelable(ClassLoader.getSystemClassLoader());
         playlist = in.readParcelable(ClassLoader.getSystemClassLoader());
+        user = in.readParcelable(ClassLoader.getSystemClassLoader());
     }
 
     @Override
@@ -33,6 +42,7 @@ public class SoundAssociation extends ScResource{
         dest.writeLong(created_at.getTime());
         dest.writeParcelable(track,0);
         dest.writeParcelable(playlist,0);
+        dest.writeParcelable(user,0);
     }
 
 
@@ -52,6 +62,10 @@ public class SoundAssociation extends ScResource{
         return track != null ? track : playlist;
     }
 
+    public int getResourceType(){
+        return playlist != null ? Sound.DB_TYPE_PLAYLIST : Sound.DB_TYPE_TRACK;
+    }
+
     @JsonProperty("type")
     public void setType(String type){
         if (type.equalsIgnoreCase("track")) {
@@ -69,5 +83,10 @@ public class SoundAssociation extends ScResource{
 
         }
 
+    }
+
+    public long getOriginId() {
+        return track != null ? track.id :
+                (playlist != null ? playlist.id : id);
     }
 }

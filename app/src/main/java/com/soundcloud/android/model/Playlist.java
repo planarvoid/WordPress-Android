@@ -61,12 +61,11 @@ public class Playlist extends Sound {
     }
 
     public ContentValues buildContentValues() {
-                ContentValues cv = super.buildContentValues();
-
-                cv.put(DBHelper.Sounds.TRACKS_URI, tracks_uri);
-
-                return cv;
-            }
+        ContentValues cv = super.buildContentValues();
+        cv.put(DBHelper.Sounds._TYPE, Sound.DB_TYPE_PLAYLIST);
+        cv.put(DBHelper.Sounds.TRACKS_URI, tracks_uri);
+        return cv;
+    }
 
     @Override
     public Uri getBulkInsertUri() {

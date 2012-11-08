@@ -35,13 +35,15 @@ public enum Table {
     COLLECTION_PAGES("CollectionPages", false, DBHelper.DATABASE_CREATE_COLLECTION_PAGES),
 
     // views
-    TRACK_VIEW("SoundView", true, DBHelper.DATABASE_CREATE_SOUND_VIEW),
-    ACTIVITY_VIEW("ActivityView", true, DBHelper.DATABASE_CREATE_ACTIVITY_VIEW);
+    SOUND_VIEW("SoundView", true, DBHelper.DATABASE_CREATE_SOUND_VIEW),
+    ACTIVITY_VIEW("ActivityView", true, DBHelper.DATABASE_CREATE_ACTIVITY_VIEW),
+    SOUND_ASSOCIATION_VIEW("SoundAssociationView", true, DBHelper.DATABASE_CREATE_SOUND_ASSOCIATION_VIEW);
 
 
     public final String name;
     public final String createString;
     public final String id;
+    public final String type;
     public final String[] fields;
     public final boolean view;
     public static final String TAG = DBHelper.TAG;
@@ -56,6 +58,7 @@ public enum Table {
             createString = null;
         }
         id = this.name +"."+BaseColumns._ID;
+        type = this.name + "." + DBHelper.ResourceTable._TYPE;
         this.fields = fields;
     }
 

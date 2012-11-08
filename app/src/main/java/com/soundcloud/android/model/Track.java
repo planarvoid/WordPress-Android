@@ -347,6 +347,7 @@ public class Track extends Sound implements Playable {
 
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
+        cv.put(DBHelper.Sounds._TYPE, Sound.DB_TYPE_TRACK);
 
         if (stream_url != null) cv.put(DBHelper.Sounds.STREAM_URL, stream_url);
         if (state != null) cv.put(DBHelper.Sounds.STATE, state.name);

@@ -218,7 +218,6 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
         ContentValues cv = super.buildContentValues();
 
         cv.put(DBHelper.Sounds.PERMALINK, permalink);
-        cv.put(DBHelper.Sounds.TYPE, "track");
 
         // account for partial objects, don't overwrite local full objects
         if (title != null) cv.put(DBHelper.Sounds.TITLE, title);

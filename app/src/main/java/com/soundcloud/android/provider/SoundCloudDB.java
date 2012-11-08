@@ -130,8 +130,9 @@ public class SoundCloudDB {
                     cv.put(DBHelper.CollectionItems.USER_ID, ownerId);
                     if (p instanceof SoundAssociation) {
                         cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, ((SoundAssociation) p).associationType);
+                        cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, ((SoundAssociation) p).getResourceType());
                         cv.put(DBHelper.CollectionItems.POSITION, ((SoundAssociation) p).created_at.getTime());
-                        cv.put(DBHelper.CollectionItems.ITEM_ID, id);
+                        cv.put(DBHelper.CollectionItems.ITEM_ID, ((SoundAssociation) p).getOriginId());
 
                     } else {
                         switch (Content.match(uri)) {

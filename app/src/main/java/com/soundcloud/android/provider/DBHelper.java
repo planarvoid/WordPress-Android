@@ -114,7 +114,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     static final String DATABASE_CREATE_TRACKS = "("+
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            "type INTEGER," +
+            "_type INTEGER," +
             "last_updated INTEGER," +
             "permalink VARCHAR(255)," +
             "duration INTEGER," +
@@ -146,6 +146,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     static final String DATABASE_CREATE_PLAYLISTS = "("+
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "_type INTEGER," +
                 "tracks_uri VARCHAR(255)," +
                 "last_updated INTEGER," +
                 "permalink VARCHAR(255)," +
@@ -198,6 +199,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     static final String DATABASE_CREATE_USERS = "("+
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "_type INTEGER," +
             // mini representation
             "username VARCHAR(255)," +
             "avatar_url VARCHAR(255)," +
@@ -334,21 +336,9 @@ public class DBHelper extends SQLiteOpenHelper {
             "PRIMARY KEY(user_id, item_id, collection_type) ON CONFLICT REPLACE"+
             ");";
 
-    /**
-     * {@link DBHelper.CollectionItems}
-     */
-    static final String DATABASE_CREATE_SOUND_ASSOCIATIONS = "(" +
-            "user_id INTEGER, " +
-            "sound_id INTEGER," +
-            "sound_type INTEGER, " +
-            "association_type INTEGER, " +
-            "created_at INTEGER, " +
-            "PRIMARY KEY(user_id, sound_id, sound_type, association_type) ON CONFLICT REPLACE" +
-            ");";
-
     static final String DATABASE_CREATE_SOUND_VIEW = "AS SELECT " +
             "Sounds." + Sounds._ID + " as " + SoundView._ID +
-            ",Sounds." + Sounds.TYPE + " as " + SoundView.TYPE +
+            ",Sounds." + Sounds._TYPE + " as " + SoundView._TYPE +
             ",Sounds." + Sounds.LAST_UPDATED + " as " + SoundView.LAST_UPDATED +
             ",Sounds." + Sounds.PERMALINK + " as " + SoundView.PERMALINK +
             ",Sounds." + Sounds.CREATED_AT + " as " + SoundView.CREATED_AT +
@@ -379,13 +369,27 @@ public class DBHelper extends SQLiteOpenHelper {
             ",Users." + Users.AVATAR_URL + " as " + SoundView.USER_AVATAR_URL +
             ",COALESCE(TrackMetadata." + TrackMetadata.PLAY_COUNT + ", 0) as " + SoundView.USER_PLAY_COUNT +
             ",COALESCE(TrackMetadata." + TrackMetadata.CACHED + ", 0) as " + SoundView.CACHED +
-            ",COALESCE(TrackMetadata." + TrackMetadata.TYPE + ", 0) as " + SoundView.TYPE +
+            ",COALESCE(TrackMetadata." + TrackMetadata.TYPE + ", 0) as " + SoundView._TYPE +
             " FROM Sounds" +
             " LEFT JOIN Users ON(" +
             "   Sounds." + Sounds.USER_ID + " = " + "Users." + Users._ID + ")" +
             " LEFT OUTER JOIN TrackMetadata ON(" +
             "   TrackMetadata." + TrackMetadata._ID + " = " + "Sounds." + SoundView._ID + ")"
             ;
+
+    /** A view which combines activity data + tracks/users/comments */
+        static final String DATABASE_CREATE_SOUND_ASSOCIATION_VIEW = "AS SELECT " +
+            "CollectionItems." + CollectionItems.POSITION + " as " + SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP +
+            ", CollectionItems." + CollectionItems.COLLECTION_TYPE + " as " + SoundAssociationView.SOUND_ASSOCIATION_TYPE +
+            ", CollectionItems." + CollectionItems.USER_ID + " as " + SoundAssociationView.SOUND_ASSOCIATION_USER_ID +
+
+            // track+user data
+            ", SoundView.*" +
+            " FROM " + Table.COLLECTION_ITEMS.name + " " +
+            " LEFT JOIN SoundView ON(" +
+            "   " + Table.COLLECTION_ITEMS.name + "." + CollectionItems.ITEM_ID + " = " + "SoundView." + SoundView._ID +
+            " AND " + Table.COLLECTION_ITEMS.name + "." + CollectionItems.RESOURCE_TYPE + " = " + "SoundView." + SoundView._TYPE + ")" +
+            " ORDER BY " + SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC";
 
     /** A view which combines activity data + tracks/users/comments */
     static final String DATABASE_CREATE_ACTIVITY_VIEW = "AS SELECT " +
@@ -422,6 +426,7 @@ public class DBHelper extends SQLiteOpenHelper {
             ;
 
     public static class ResourceTable implements BaseColumns {
+        public static final String _TYPE = "_type";
         public static final String CREATED_AT = "created_at";
         public static final String LAST_UPDATED = "last_updated";
         public static final String PERMALINK    = "permalink";
@@ -431,7 +436,6 @@ public class DBHelper extends SQLiteOpenHelper {
      * {@link DBHelper#DATABASE_CREATE_TRACKS}
      */
     public static class Sounds extends ResourceTable  {
-        public static final String TYPE = "type";
         public static final String DURATION = "duration";
         public static final String TAG_LIST = "tag_list";
         public static final String TRACK_TYPE = "track_type";
@@ -458,7 +462,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String PLAYLIST_TYPE = "playlist_type";
 
         public static final String[] ALL_FIELDS = {
-                _ID, TYPE, DURATION, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL, ARTWORK_URL,
+                _ID, _TYPE, DURATION, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL, ARTWORK_URL,
                 WAVEFORM_URL, DOWNLOADABLE, DOWNLOAD_URL, STREAM_URL, STREAM_URL,
                 STREAMABLE, COMMENTABLE, SHARING, PLAYBACK_COUNT, DOWNLOAD_COUNT,
                 COMMENT_COUNT, LIKES_COUNT, REPOSTS_COUNT, SHARED_TO_COUNT, SHARING_NOTE_TEXT,
@@ -633,7 +637,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String USER_ID = "user_id";
     }
 
-    public final static class SoundView implements BaseColumns {
+    public static class SoundView extends ResourceTable implements BaseColumns  {
         public static final String LAST_UPDATED = Sounds.LAST_UPDATED;
         public static final String PERMALINK = Sounds.PERMALINK;
         public static final String CREATED_AT = Sounds.CREATED_AT;
@@ -659,8 +663,6 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String SHARED_TO_COUNT = Sounds.SHARED_TO_COUNT;
         public static final String SHARING_NOTE_TEXT = Sounds.SHARING_NOTE_TEXT;
 
-        public static final String SOUND_TYPE = "sound_type";
-
         public static final String USER_ID         = "sound_user_id";
         public static final String USERNAME        = "sound_user_username";
         public static final String USER_PERMALINK  = "sound_user_permalink";
@@ -671,7 +673,6 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String USER_PLAY_COUNT = "sound_user_play_count";
 
         public static final String CACHED          = "sound_cached";
-        public static final String TYPE            = "sound_type";
     }
 
     public final static class ActivityView extends Activities {
@@ -682,6 +683,12 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String USER_USERNAME = "activity_user_username";
         public static final String USER_PERMALINK = "activity_user_permalink";
         public static final String USER_AVATAR_URL = "activity_user_avatar_url";
+    }
+
+    public final static class SoundAssociationView extends SoundView {
+        public static final String SOUND_ASSOCIATION_TIMESTAMP = "sound_association_timestamp";
+        public static final String SOUND_ASSOCIATION_TYPE = "sound_association_type";
+        public static final String SOUND_ASSOCIATION_USER_ID = "sound_association_user_id";
     }
 
 
@@ -763,7 +770,7 @@ public class DBHelper extends SQLiteOpenHelper {
             // trackview refers to metadata now (http://www.bugsense.com/dashboard/project/806c72af#error/24301879)
             Table.TRACK_METADATA.create(db);
 
-            Table.TRACK_VIEW.create(db);
+            Table.SOUND_VIEW.create(db);
             Table.COMMENTS.create(db);
             Table.ACTIVITIES.create(db);
             Table.ACTIVITY_VIEW.create(db);
@@ -784,7 +791,7 @@ public class DBHelper extends SQLiteOpenHelper {
         try {
             Table.TRACK_PLAYS.drop(db);
             Table.TRACK_METADATA.create(db);
-            Table.TRACK_VIEW.recreate(db);
+            Table.SOUND_VIEW.recreate(db);
             Table.USERS.alterColumns(db);
             return true;
 
@@ -823,7 +830,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static boolean upgradeTo13(SQLiteDatabase db, int oldVersion) {
             try {
                 Table.SOUNDS.alterColumns(db);
-                Table.TRACK_VIEW.recreate(db);
+                Table.SOUND_VIEW.recreate(db);
                 Table.COLLECTIONS.alterColumns(db);
                 Table.RECORDINGS.alterColumns(db);
                 return true;
@@ -865,10 +872,11 @@ public class DBHelper extends SQLiteOpenHelper {
             cleanActivities(db);
             Table.COLLECTION_ITEMS.alterColumns(db);
             Table.SOUNDS.alterColumns(db);
-            Table.TRACK_VIEW.recreate(db);
+            Table.SOUND_VIEW.recreate(db);
             Table.ACTIVITY_VIEW.recreate(db);
             Table.PLAYLIST_TRACKS.create(db);
             Table.PLAY_QUEUE.create(db);
+            Table.SOUND_ASSOCIATION_VIEW.create(db);
             return true;
 
         } catch (SQLException e) {

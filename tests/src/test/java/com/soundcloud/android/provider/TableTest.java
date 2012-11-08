@@ -20,7 +20,7 @@ public class TableTest {
 
     @Test
     public void shouldProvideACreateStringForViews() throws Exception {
-        Table view = Table.TRACK_VIEW;
+        Table view = Table.SOUND_VIEW;
         expect(view.view).toBe(true);
         expect(view.createString).toMatch("CREATE VIEW IF NOT EXISTS "+view.name);
     }

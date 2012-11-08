@@ -134,18 +134,21 @@ public class ScModelManager {
         // assumes track cache has always
         if (track == null) {
             track = new Track(cursor);
-
-            final long user_id = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
-            User user = USER_CACHE.get(user_id);
-
-            if (user == null) {
-                user = User.fromTrackView(cursor);
-                USER_CACHE.put(user);
-            }
-            track.user = user;
             TRACK_CACHE.put(track);
         }
+        track.user = getCachedUserFromCursor(cursor,DBHelper.SoundView.USER_ID);
         return track;
+    }
+
+    private User getCachedUserFromCursor(Cursor cursor, String col) {
+        final long user_id = cursor.getLong(cursor.getColumnIndex(col));
+        User user = USER_CACHE.get(user_id);
+
+        if (user == null) {
+            user = User.fromTrackView(cursor);
+            USER_CACHE.put(user);
+        }
+        return user;
     }
 
     public <T extends ScModel> CollectionHolder<T> loadLocalContent(ContentResolver resolver, Class<T> resourceType, Uri localUri) {
@@ -157,6 +160,12 @@ public class ScModelManager {
                     items.add(getTrackFromCursor(itemsCursor));
                 } else if (User.class.equals(resourceType)) {
                     items.add(getUserFromCursor(itemsCursor));
+                } else if (SoundAssociation.class.equals(resourceType)) {
+                    SoundAssociation soundAssociation = new SoundAssociation(itemsCursor);
+                    soundAssociation.track = getTrackFromCursor(itemsCursor, DBHelper.SoundAssociationView._ID);
+                    soundAssociation.user = getCachedUserFromCursor(itemsCursor, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID);
+                    items.add(soundAssociation);
+
                 } else {
                     throw new IllegalArgumentException("NOT HANDLED YET " + resourceType);
                 }

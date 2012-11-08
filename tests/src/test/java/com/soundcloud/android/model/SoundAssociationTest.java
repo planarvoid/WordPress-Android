@@ -52,11 +52,11 @@ public class SoundAssociationTest {
                 100l,
                 ScResource.CacheUpdateMode.NONE)).toEqual(41); // 38 tracks and 3 diff users
 
-        /*
+
         CollectionHolder<SoundAssociation> newItems = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(
                 DefaultTestRunner.application.getContentResolver(), SoundAssociation.class, Content.ME_SOUNDS.uri);
-                */
 
+        expect(newItems.size()).toEqual(38);
     }
 
     private void compareSoundItems(SoundAssociation soundItem, SoundAssociation soundItem2) {
