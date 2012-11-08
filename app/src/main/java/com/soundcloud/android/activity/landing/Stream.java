@@ -14,6 +14,7 @@ public class Stream extends ScActivity implements ScLandingPage {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+        getSupportActionBar().setTitle(getString(R.string.tab_stream));
 
         if (state == null) {
             getSupportFragmentManager().beginTransaction()
