@@ -86,7 +86,9 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
 
     @Override
     public void addItems(CollectionHolder<Activity> newItems) {
-        super.addItems(newItems);
+        for (Activity newItem : newItems){
+            if (!mData.contains(newItem))mData.add(newItem);
+        }
         Collections.sort(mData);
     }
 

@@ -128,20 +128,19 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         return cv;
     }
 
-    @Override @SuppressWarnings("RedundantIfStatement")
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Activity)) return false;
+
         Activity activity = (Activity) o;
-        return activity.uuid == uuid;
+        if (uuid != null ? !uuid.equals(activity.uuid) : activity.uuid != null) return false;
+        return true;
     }
 
     @Override
     public int hashCode() {
-        int result = 13;
-        result = 31 * result + (created_at != null ? created_at.hashCode() : 0);
-        result = 31 * result + (tags != null ? tags.hashCode() : 0);
-        return result;
+        return uuid != null ? uuid.hashCode() : 0;
     }
 
     @Override
