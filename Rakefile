@@ -182,10 +182,13 @@ namespace :beta do
   desc "build beta"
   task :build do
     version_code = get_last_published_version
+    if version_code.nil?
+      version_code = 0
+    end
     sh <<-END
       mvn install -DskipTests -Psign,soundcloud,beta \
-      -Dandroid.manifest.versionCode=#{version_code+1} \
-      -Dandroid.manifest.debuggable=true
+        -Dandroid.manifest.versionCode=#{version_code+1} \
+        -Dandroid.manifest.debuggable=true
     END
   end
 
