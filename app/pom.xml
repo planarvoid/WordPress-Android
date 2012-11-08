@@ -124,12 +124,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.commonsware</groupId>
-            <artifactId>CWAC-AdapterWrapper</artifactId>
-            <version>0.4</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.at</groupId>
             <artifactId>ATInternet</artifactId>
             <version>1.1.003</version>
