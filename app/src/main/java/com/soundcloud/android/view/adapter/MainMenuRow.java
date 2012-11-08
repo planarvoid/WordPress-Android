@@ -3,6 +3,7 @@ package com.soundcloud.android.view.adapter;
 import com.soundcloud.android.R;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.widget.Checkable;
 import android.widget.LinearLayout;
@@ -25,7 +26,7 @@ public class MainMenuRow extends LinearLayout implements Checkable {
         if (mChecked){
             setBackgroundResource(R.drawable.sidebar_item_background_selected);
         } else {
-            setBackgroundColor(android.R.color.transparent);
+            setBackgroundColor(Color.TRANSPARENT);
         }
 
         int paddingTopBottom = (int) getResources().getDimension(R.dimen.slm_item_padding_topbottom);
