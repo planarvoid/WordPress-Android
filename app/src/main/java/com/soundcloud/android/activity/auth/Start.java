@@ -1,5 +1,11 @@
 package com.soundcloud.android.activity.auth;
 
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -7,6 +13,10 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.view.tour.Comment;
+import com.soundcloud.android.view.tour.Finish;
+import com.soundcloud.android.view.tour.Follow;
+import com.soundcloud.android.view.tour.TourLayout;
 import com.soundcloud.api.Token;
 import net.hockeyapp.android.UpdateManager;
 
@@ -29,7 +39,12 @@ public class Start extends AccountAuthenticatorActivity {
     private static final int SUGGESTED_USERS = 2;
 
     public static final String FB_CONNECTED_EXTRA = "facebook_connected";
-    private final Handler mHandler = new Handler();
+
+    private ViewPager mViewPager;
+    private View[] mViews;
+
+    public Start() {
+    }
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -37,6 +52,58 @@ public class Start extends AccountAuthenticatorActivity {
         setContentView(R.layout.start);
 
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+
+        mViewPager = (ViewPager) findViewById(R.id.tour_view);
+        mViews = new View[]{new Follow(this), new Comment(this), new Finish(this)};
+        mViewPager.setAdapter(new PagerAdapter() {
+            @Override
+            public int getCount() {
+                return mViews.length;
+            }
+
+            @Override
+            public Object instantiateItem(ViewGroup container, int position) {
+                View v = mViews[position];
+                v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
+                container.addView(v);
+                return v;
+            }
+
+            @Override
+            public void destroyItem(View collection, int position, Object view) {
+                ((ViewPager) collection).removeView((View) view);
+            }
+
+
+            @Override
+            public boolean isViewFromObject(View view, Object object) {
+                return object == view;
+            }
+        });
+
+        mViewPager.setCurrentItem(0);
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                ((RadioButton) ((RadioGroup) findViewById(R.id.rdo_tour_step)).getChildAt(i)).setChecked(true);
+                if (i < mViews.length - 1) {
+//                    btnDone.setVisibility(View.GONE);
+//                    btnSkip.setVisibility(View.VISIBLE);
+                } else {
+//                    btnDone.setVisibility(View.VISIBLE);
+//                    btnSkip.setVisibility(View.GONE);
+                }
+                ((SoundCloudApplication) getApplication()).track(mViews[mViewPager.getCurrentItem()].getClass());
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+            }
+        });
 
         findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,23 +128,6 @@ public class Start extends AccountAuthenticatorActivity {
                 startActivityForResult(new Intent(Start.this, SignUp.class), 0);
             }
         });
-
-        if (bundle == null) {
-            findViewById(R.id.animation_holder).setVisibility(View.INVISIBLE);
-            Animation animation = new AlphaAnimation(0.0f, 1.0f);
-            animation.setDuration(700);
-
-            ((ViewGroup) findViewById(R.id.animation_holder)).setLayoutAnimation(
-                    new LayoutAnimationController(animation, 0.25f));
-
-            mHandler.postDelayed(new Runnable() {
-                public void run() {
-                    if (!Start.this.isFinishing()) {
-                        findViewById(R.id.animation_holder).setVisibility(View.VISIBLE);
-                    }
-                }
-            }, 350);
-        }
 
         if (SoundCloudApplication.BETA_MODE) {
             UpdateManager.register(this, getString(R.string.hockey_app_id));
@@ -161,4 +211,31 @@ public class Start extends AccountAuthenticatorActivity {
                             context.getString(R.string.authentication_recover_password_failure_reason, error));
         }
     }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_bar_close:
+                ((SoundCloudApplication) getApplication()).track(mViewPager.getCurrentItem() == mViews.length - 1 ? Click.Tour_Tour_done : Click.Tour_Tour_skip);
+                finish();
+                return true;
+        }
+        return false;
+    }
+
+    protected int getMenuResourceId() {
+        return R.menu.tour;
+    }
+
+    protected int getSelectedMenuId() {
+        return -1;
+    }
+
+    /* package */ String getMessage() {
+        return getActiveTour().getMessage().toString();
+    }
+
+    private TourLayout getActiveTour() {
+        return (TourLayout) mViewPager.getChildAt(mViewPager.getCurrentItem());
+    }
+
 }
