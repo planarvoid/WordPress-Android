@@ -203,7 +203,7 @@ public class ApiSyncServiceTest {
         expect(Content.ME_SOUND_STREAM).toHaveCount(112);
         expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(0);
         expect(Content.TRACKS).toHaveCount(111);
-        expect(Content.USERS).toHaveCount(27);
+        expect(Content.USERS).toHaveCount(28);
         //expect(Content.PLAYLISTS).toHaveCount(8);
 
         Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
