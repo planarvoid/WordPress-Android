@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'rexml/document'
 require 'net/https'
 require 'uri'
@@ -290,7 +291,7 @@ end
 def last_release_notes
   changes = []
   IO.read('CHANGES').split("\n")[1..-1].each do |l|
-     break if l[0] == '$'
+     break if l[0] && l[0].chr == '$'
      changes << l.gsub(/\s*\*/, ' *') if (l =~ /s*\*/)
   end
   changes.join("\n")
