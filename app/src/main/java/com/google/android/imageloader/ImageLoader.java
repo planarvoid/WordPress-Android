@@ -73,7 +73,7 @@ public class ImageLoader {
     private static final String TAG = "ImageLoader";
 
     public interface LoadBlocker {}
-    private Set<WeakReference<LoadBlocker>> mLoadBlockers = new HashSet<WeakReference<LoadBlocker>>();
+    private WeakHashMap<LoadBlocker,LoadBlocker> mLoadBlockers = new WeakHashMap<LoadBlocker, LoadBlocker>();
 
     /**
      * The default maximum number of active tasks.
@@ -123,13 +123,12 @@ public class ImageLoader {
     }
 
     public void block(LoadBlocker blocker){
-        mLoadBlockers.add(new WeakReference<LoadBlocker>(blocker));
+        mLoadBlockers.put(blocker,null);
     }
 
     public void unblock(LoadBlocker blocker){
-        for (WeakReference<LoadBlocker> blockerRef : new HashSet<WeakReference<LoadBlocker>>(mLoadBlockers)){
-            final LoadBlocker lb = blockerRef.get();
-            if (lb != null && lb.equals(blocker)){
+        for (LoadBlocker blockerRef : mLoadBlockers.keySet()){
+            if (blockerRef == blocker){
                 mLoadBlockers.remove(blockerRef);
             }
         }
