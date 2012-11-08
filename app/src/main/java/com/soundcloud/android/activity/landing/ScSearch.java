@@ -144,7 +144,7 @@ public class ScSearch extends ScActivity implements ScLandingPage {
     }
 
     boolean perform(final Search search) {
-        if (search.isEmpty()) return false;
+        if (search == null || search.isEmpty()) return false;
         // when called from Main or History
         mTxtQuery.setText(search.query);
 
