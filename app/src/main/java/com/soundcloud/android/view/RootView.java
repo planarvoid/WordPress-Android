@@ -29,6 +29,10 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Scroller;
 
+/*
+    Touch Handling pulled from the Android ICS ScrollView class
+*/
+
 public class RootView extends ViewGroup {
     static String TAG = RootView.class.getSimpleName();
 
@@ -434,6 +438,9 @@ public class RootView extends ViewGroup {
         return false;
     }
 
+    /*
+        touch handling from ICS ScrollView class
+    */
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
