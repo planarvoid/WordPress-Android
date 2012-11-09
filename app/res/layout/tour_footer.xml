@@ -5,7 +5,7 @@
               android:layout_width="fill_parent"
               android:layout_height="@dimen/tour_bottom_bar_height"
               android:layout_alignParentBottom="true"
-              android:gravity="bottom">
+              android:background="@color/transparent">
     <RadioGroup android:id="@+id/rdo_tour_step"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
