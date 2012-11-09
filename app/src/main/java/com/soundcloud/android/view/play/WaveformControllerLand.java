@@ -4,10 +4,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.InputObject;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Matrix;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -204,7 +202,6 @@ public class WaveformControllerLand extends WaveformController {
         }
     }
 
-    @TargetApi(8)
     private void toggleCommentsPanelVisibility(boolean visible) {
 
         if (visible && !mCommentPanelVisible) {
@@ -234,7 +231,7 @@ public class WaveformControllerLand extends WaveformController {
             }
 
         } else if (!visible && mCommentPanelVisible && mCommentPanel.getParent() == this) {
-            if (mCommentPanel.getAnimation() != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+            if (mCommentPanel.getAnimation() != null) {
                 mCommentPanel.getAnimation().cancel();
             }
             mCommentPanelVisible = false;
@@ -292,10 +289,10 @@ public class WaveformControllerLand extends WaveformController {
         super.setCommentMode(commenting);
     }
 
-    @Override @TargetApi(8)
+    @Override
     public void resetCommentDisplay(){
         if (mCommentPanel != null && mCommentPanel.getParent() == this) {
-            if (mCommentPanel.getAnimation() != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+            if (mCommentPanel.getAnimation() != null) {
                 mCommentPanel.getAnimation().cancel();
             }
             mCommentPanelVisible = false;

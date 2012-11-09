@@ -18,7 +18,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
@@ -337,7 +336,7 @@ public class C2DMReceiver extends BroadcastReceiver {
     }
 
     private static boolean isEnabled() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO;
+        return true;
     }
 
     private static PowerManager.WakeLock makeLock(Context context) {

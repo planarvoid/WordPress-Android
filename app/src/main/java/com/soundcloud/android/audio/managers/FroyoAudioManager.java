@@ -1,11 +1,9 @@
 package com.soundcloud.android.audio.managers;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.AudioManager;
 
 @SuppressWarnings("UnusedDeclaration")
-@TargetApi(8)
 public class FroyoAudioManager implements IAudioManager {
     private boolean mAudioFocusLost;
     private AudioManager.OnAudioFocusChangeListener listener;

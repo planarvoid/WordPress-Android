@@ -111,7 +111,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private static final int NOTIFY_META_CHANGED = 9;
 
     private static final int PLAYBACKSERVICE_STATUS_ID = 1;
-    private static final int MINIMUM_SEEKABLE_SDK = Build.VERSION_CODES.ECLAIR_MR1; // 7, 2.1
 
     private static final float FADE_CHANGE = 0.02f; // change to fade faster/slower
 
@@ -761,8 +760,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     /* package */
     public boolean isSeekable() {
-        return (Build.VERSION.SDK_INT >= MINIMUM_SEEKABLE_SDK
-                && mMediaPlayer != null
+        return (mMediaPlayer != null
                 && state.isSeekable()
                 && currentTrack != null);
     }

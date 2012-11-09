@@ -3,10 +3,8 @@ package com.soundcloud.android.utils;
 import static android.content.pm.PackageManager.GET_SIGNATURES;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
@@ -20,7 +18,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
@@ -238,17 +235,12 @@ public final class AndroidUtils {
         }
     }
 
-    @TargetApi(8)
     public static boolean isUserAMonkey() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-            try {
-                return ActivityManager.isUserAMonkey();
-            } catch (RuntimeException e) {
-                // java.lang.RuntimeException: Unknown exception code: 1 msg null
-                return true;
-            }
-        } else {
-            return false;
+        try {
+            return ActivityManager.isUserAMonkey();
+        } catch (RuntimeException e) {
+            // java.lang.RuntimeException: Unknown exception code: 1 msg null
+            return true;
         }
     }
 
