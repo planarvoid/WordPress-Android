@@ -3,7 +3,7 @@
               android:id="@+id/animation_holder"
               android:orientation="horizontal"
               android:layout_width="fill_parent"
-              android:layout_height="wrap_content"
+              android:layout_height="@dimen/tour_bottom_buttons_height"
               android:background="@color/transparent">
 
     <Button android:id="@+id/facebook_btn"

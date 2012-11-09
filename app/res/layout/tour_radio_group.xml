@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/bottom_bar"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent"
-              android:layout_height="@dimen/tour_bottom_bar_height"
-              android:layout_alignParentBottom="true"
-              android:background="@color/transparent">
+              android:layout_height="@dimen/tour_bottom_radio_height">
     <RadioGroup android:id="@+id/rdo_tour_step"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
@@ -16,4 +13,4 @@
         <RadioButton style="@style/rdo_tour" android:checked="true"/>
         <RadioButton style="@style/rdo_tour"/>
     </RadioGroup>
-</LinearLayout>
+</FrameLayout>
