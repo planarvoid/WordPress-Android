@@ -66,9 +66,6 @@ public class SuggestedUsers extends ScActivity {
 */
         // result ok no matter what
         setResult(RESULT_OK);
-
-        // start tour on top so we can preload  users
-        startActivity(new Intent(this, Tour.class));
     }
 
     @Override

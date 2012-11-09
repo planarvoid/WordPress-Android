@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-public abstract class TourLayout extends FrameLayout {
+public class TourLayout extends FrameLayout {
     public TourLayout(Context context, int resId) {
         super(context);
         View.inflate(context, resId, this);

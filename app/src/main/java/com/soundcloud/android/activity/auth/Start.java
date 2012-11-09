@@ -13,9 +13,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.view.tour.Comment;
-import com.soundcloud.android.view.tour.Finish;
-import com.soundcloud.android.view.tour.Follow;
 import com.soundcloud.android.view.tour.TourLayout;
 import com.soundcloud.api.Token;
 import net.hockeyapp.android.UpdateManager;
@@ -25,14 +22,8 @@ import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.LayoutAnimationController;
-import android.widget.Button;
 
 public class Start extends AccountAuthenticatorActivity {
     private static final int RECOVER_CODE    = 1;
@@ -54,7 +45,11 @@ public class Start extends AccountAuthenticatorActivity {
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
         mViewPager = (ViewPager) findViewById(R.id.tour_view);
-        mViews = new View[]{new Follow(this), new Comment(this), new Finish(this)};
+        mViews = new View[]{
+            new TourLayout(this, R.layout.tour_page_1),
+            new TourLayout(this, R.layout.tour_page_2)
+        };
+
         mViewPager.setAdapter(new PagerAdapter() {
             @Override
             public int getCount() {

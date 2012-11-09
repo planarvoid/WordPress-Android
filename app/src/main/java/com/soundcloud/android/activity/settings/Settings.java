@@ -6,7 +6,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.auth.Tour;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -37,7 +36,6 @@ public class Settings extends PreferenceActivity {
     private static final int DIALOG_CACHE_DELETING = 0;
     private static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
 
-    public static final String TOUR = "tour";
     public static final String CHANGE_LOG = "changeLog";
     public static final String LOGOUT = "logout";
     public static final String HELP = "help";
@@ -86,16 +84,6 @@ public class Settings extends PreferenceActivity {
                         return true;
                     }
         });
-
-        findPreference(TOUR).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    public boolean onPreferenceClick(Preference preference) {
-                        Intent intent = new Intent(Settings.this, Tour.class);
-                        startActivity(intent);
-                        return true;
-                    }
-                });
-
 
         final ChangeLog cl = new ChangeLog(this);
         findPreference(CHANGE_LOG).setOnPreferenceClickListener(
