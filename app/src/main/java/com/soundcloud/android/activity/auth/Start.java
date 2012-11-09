@@ -88,16 +88,13 @@ public class Start extends AccountAuthenticatorActivity {
             }
 
             @Override
-            public void onPageSelected(int i) {
-                ((RadioButton) ((RadioGroup) findViewById(R.id.rdo_tour_step)).getChildAt(i)).setChecked(true);
-                if (i < mViews.length - 1) {
-//                    btnDone.setVisibility(View.GONE);
-//                    btnSkip.setVisibility(View.VISIBLE);
-                } else {
-//                    btnDone.setVisibility(View.VISIBLE);
-//                    btnSkip.setVisibility(View.GONE);
+            public void onPageSelected(int selected) {
+                RadioGroup group = (RadioGroup) findViewById(R.id.rdo_tour_step);
+
+                for (int i = 0; i < group.getChildCount(); i++) {
+                    RadioButton button = (RadioButton) group.getChildAt(i);
+                    button.setChecked(i == selected);
                 }
-                ((SoundCloudApplication) getApplication()).track(mViews[mViewPager.getCurrentItem()].getClass());
             }
 
             @Override

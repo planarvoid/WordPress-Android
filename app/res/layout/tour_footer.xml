@@ -4,7 +4,8 @@
               android:id="@+id/bottom_bar"
               android:layout_width="fill_parent"
               android:layout_height="@dimen/tour_bottom_bar_height"
-              android:layout_alignParentBottom="true">
+              android:layout_alignParentBottom="true"
+              android:gravity="bottom">
     <RadioGroup android:id="@+id/rdo_tour_step"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
@@ -12,18 +13,11 @@
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
                 android:gravity="center">
-        <RadioButton android:id="@+id/rdo_tour_start"
-                     style="@style/rdo_tour"
-                     android:checked="true"/>
-        <RadioButton android:id="@+id/rdo_tour_rec"
-                     style="@style/rdo_tour"/>
-        <RadioButton android:id="@+id/rdo_tour_share"
-                     style="@style/rdo_tour"/>
-        <RadioButton android:id="@+id/rdo_tour_follow"
-                     style="@style/rdo_tour"/>
-        <RadioButton android:id="@+id/rdo_tour_comment"
-                     style="@style/rdo_tour"/>
-        <RadioButton android:id="@+id/rdo_tour_finish"
-                     style="@style/rdo_tour"/>
+        <RadioButton style="@style/rdo_tour" android:checked="true"/>
+        <RadioButton style="@style/rdo_tour"/>
+        <RadioButton style="@style/rdo_tour"/>
+        <RadioButton style="@style/rdo_tour"/>
+        <RadioButton style="@style/rdo_tour"/>
+        <RadioButton style="@style/rdo_tour"/>
     </RadioGroup>
 </LinearLayout>
