@@ -19,6 +19,7 @@ import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -538,14 +539,15 @@ public class RootView extends ViewGroup {
         // Must be called before prepareTracking()
         prepareContent();
 
+        final int left = mContent.getLeft();
+        mTouchDelta = eventX - left;
+        prepareTracking(left);
+
         // Must be called after prepareContent()
         if (mOnMenuStateListener != null) {
             mOnMenuStateListener.onScrollStarted();
         }
 
-        final int left = mContent.getLeft();
-        mTouchDelta = eventX - left;
-        prepareTracking(left);
         return true;
     }
 
@@ -587,11 +589,14 @@ public class RootView extends ViewGroup {
 
         switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
+
+                final int x = (int) event.getX(0);
+
                 /*
                  This event should only happen if there are no touch targets beneath the touch.
                  Otherwise, the drag logic should happen above, in onInterceptTouchEvent
                 */
-                mIsBeingDragged = getChildCount() != 0;
+                mIsBeingDragged = getChildCount() != 0 && checkShouldTrack(x);
                 if (!mIsBeingDragged) {
                     return false;
                 }
@@ -601,12 +606,13 @@ public class RootView extends ViewGroup {
                 * will be false if being flinged.
                 */
                 if (!mScroller.isFinished()) {
+                    onScrollComplete();
                     mScroller.abortAnimation();
                 }
 
                 // Remember where the motion event started
                 mActivePointerId = event.getPointerId(0);
-                startDrag(event, (int) event.getX(mActivePointerId));
+                startDrag(event, x);
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -733,6 +739,7 @@ public class RootView extends ViewGroup {
         if (mAnimating) {
             mAnimating = false;
             mHandler.removeMessages(MSG_ANIMATE);
+            onScrollComplete();
         }
         mIsBeingDragged = true;
         mVelocityTracker = VelocityTracker.obtain();
@@ -874,15 +881,14 @@ public class RootView extends ViewGroup {
         mMenu.setVisibility(View.GONE);
         if (mPlayer != null) mPlayer.setVisibility(View.GONE);
 
+        onScrollComplete();
+
         if (mExpandedState == COLLAPSED_FULL_CLOSED) {
             return;
         }
 
         mExpandedState = COLLAPSED_FULL_CLOSED;
-        if (mOnMenuStateListener != null) {
-            mOnMenuStateListener.onMenuClosed();
-            mOnMenuStateListener.onScrollEnded();
-        }
+        if (mOnMenuStateListener != null) mOnMenuStateListener.onMenuClosed();
     }
 
     private void openLeft() {
@@ -892,16 +898,18 @@ public class RootView extends ViewGroup {
         if (mPlayer != null) mPlayer.setVisibility(View.GONE);
         invalidate();
 
+        onScrollComplete();
+
         if (mExpandedState == EXPANDED_LEFT) {
             return;
         }
 
         mExpandedState = EXPANDED_LEFT;
+        if (mOnMenuStateListener != null) mOnMenuStateListener.onMenuOpenLeft();
+    }
 
-        if (mOnMenuStateListener != null) {
-            mOnMenuStateListener.onMenuOpenLeft();
-            mOnMenuStateListener.onScrollEnded();
-        }
+    private void onScrollComplete() {
+        if (mOnMenuStateListener != null) mOnMenuStateListener.onScrollEnded();
     }
 
     private void openRight() {
@@ -912,16 +920,14 @@ public class RootView extends ViewGroup {
         if (mPlayer != null) mPlayer.setVisibility(View.VISIBLE);
         invalidate();
 
+        onScrollComplete();
+
         if (mExpandedState == EXPANDED_RIGHT) {
             return;
         }
 
         mExpandedState = EXPANDED_RIGHT;
-
-        if (mOnMenuStateListener != null) {
-            mOnMenuStateListener.onMenuOpenRight();
-            mOnMenuStateListener.onScrollEnded();
-        }
+        if (mOnMenuStateListener != null) mOnMenuStateListener.onMenuOpenRight();
     }
 
     /**

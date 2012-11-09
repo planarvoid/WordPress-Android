@@ -123,15 +123,13 @@ public class ImageLoader {
         return loader;
     }
 
-    public synchronized void block(LoadBlocker blocker){
+    public void block(LoadBlocker blocker){
         mLoadBlockers.put(blocker,null);
     }
 
     public void unblock(LoadBlocker blocker){
-        synchronized (this) {
-            for (Iterator<LoadBlocker> it = mLoadBlockers.keySet().iterator(); it.hasNext(); ) {
-                if (it.next() == blocker) it.remove();
-            }
+        for (Iterator<LoadBlocker> it = mLoadBlockers.keySet().iterator(); it.hasNext(); ) {
+            if (it.next() == blocker) it.remove();
         }
 
         if (!isBlocked()) {
