@@ -1,5 +1,7 @@
 package com.soundcloud.android.view;
 
+import static java.lang.Math.max;
+
 import com.soundcloud.android.R;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,18 +19,15 @@ import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Scroller;
-
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 
 public class RootView extends ViewGroup {
     static String TAG = RootView.class.getSimpleName();
@@ -41,7 +40,6 @@ public class RootView extends ViewGroup {
     private static final int ANIMATION_DURATION = 300;
     private static final int ANIMATION_FRAME_DURATION = 1000 / 60;
 
-    private static final int FLING_TOLERANCE = 50;
     private static final int OFFSET_RIGHT = 60;// action bar home icon mRight
     private static final int OFFSET_LEFT = 60; // whatever we want on the left
     private static final int BEZEL_HIT_WIDTH = 30;
@@ -62,12 +60,14 @@ public class RootView extends ViewGroup {
     private static final String STATE_KEY = "state_key";
     public static final int MENU_TARGET_WIDTH = 400;
 
+    private static final int INVALID_POINTER = -1;
+
     private MainMenu mMenu;
     private @Nullable View mPlayer;
     private ViewGroup mContent;
 
-    private boolean mTracking;
-    private boolean mLocked;
+    private boolean mTrackOnMove;
+    private boolean mIsBeingDragged;
     private boolean mAnimating;
 
     private VelocityTracker mVelocityTracker;
@@ -92,6 +92,9 @@ public class RootView extends ViewGroup {
     private final int mOffsetLeft;
     private final int mDrowShadoWidth;
     private final int mBezelHitWidth;
+    private int mActivePointerId;
+    private float mLastMotionX;
+    private int mTouchSlop;
 
     /**
      * Callback invoked when the menu is opened.
@@ -165,10 +168,12 @@ public class RootView extends ViewGroup {
         mShadowLeftDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[]{0x00000000,0x8F000000});
         mShadowRightDrawable = new GradientDrawable(GradientDrawable.Orientation.RIGHT_LEFT,new int[]{0x00000000,0x8F000000});
 
+        mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+
         mExpandedState = COLLAPSED_FULL_CLOSED;
 
         setBackgroundColor(getResources().getColor(R.color.main_menu_bg));
-        //setAlwaysDrawnWithCacheEnabled(false);
+        setAlwaysDrawnWithCacheEnabled(false);
     }
 
     public int getContentHolderId() {
@@ -230,7 +235,7 @@ public class RootView extends ViewGroup {
     }
 
     private void setExpandedState() {
-        if (!mAnimating && !mTracking) {
+        if (!mAnimating && !mIsBeingDragged) {
             switch (mExpandedState) {
                 case COLLAPSED_FULL_CLOSED:
                     setClosed();
@@ -284,15 +289,16 @@ public class RootView extends ViewGroup {
         }
 
         if (mMenu != null){
-            int width = widthSpecSize;
-            mMenu.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+            mMenu.measure(MeasureSpec.makeMeasureSpec(widthSpecSize, MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(heightSpecSize, MeasureSpec.EXACTLY));
         }
 
         if (mPlayer != null) {
             int width = widthSpecSize - mOffsetLeft;
-            mPlayer.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(heightSpecSize, MeasureSpec.EXACTLY));
+            if (mPlayer != null) {
+                mPlayer.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(heightSpecSize, MeasureSpec.EXACTLY));
+            }
         }
 
         mShadowLeftDrawable.setBounds(0, 0, mDrowShadoWidth, getHeight());
@@ -321,7 +327,7 @@ public class RootView extends ViewGroup {
 
         float closedRatio = 1 - openRatio;
 
-        if (mTracking || mAnimating || isExpanded()) {
+        if (mIsBeingDragged || mAnimating || isExpanded()) {
 
 
             final int alpha = (int) (MAXIMUM_OVERLAY_ALPHA * (closedRatio));
@@ -396,7 +402,7 @@ public class RootView extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        if (mTracking) {
+        if (mIsBeingDragged) {
             return;
         }
 
@@ -411,35 +417,6 @@ public class RootView extends ViewGroup {
         if (mPlayer != null) mPlayer.layout(0, 0, width - mOffsetLeft, height);
     }
 
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent event) {
-        if (mLocked) {
-            return false;
-        }
-
-        final int action = event.getAction();
-        float x = event.getX();
-        if (action == MotionEvent.ACTION_DOWN && checkShouldTrack((int) event.getX())) {
-            mTracking = true;
-
-            // Must be called before prepareTracking()
-            prepareContent();
-
-            // Must be called after prepareContent()
-            if (mOnMenuStateListener != null) {
-                mOnMenuStateListener.onScrollStarted();
-            }
-
-            final int left = mContent.getLeft();
-            mTouchDelta = (int) x - left;
-            prepareTracking(left);
-            mVelocityTracker.addMovement(event);
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     private boolean checkShouldTrack(int x){
         if (x >= mContent.getLeft() && x <= mContent.getRight()) {
@@ -457,48 +434,215 @@ public class RootView extends ViewGroup {
         return false;
     }
 
+
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (mLocked) {
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        /*
+        * This method JUST determines whether we want to intercept the motion.
+        * If we return true, onMotionEvent will be called and we do the actual
+        * scrolling there.
+        */
+
+        /*
+        * Shortcut the most recurring case: the user is in the dragging
+        * state and he is moving his finger.  We want to intercept this
+        * motion.
+        */
+        final int action = ev.getAction();
+        if ((action == MotionEvent.ACTION_MOVE) && (mIsBeingDragged)) {
             return true;
         }
 
-        if (mTracking) {
-            mVelocityTracker.addMovement(event);
-            final int action = event.getAction();
-            switch (action) {
-                case MotionEvent.ACTION_MOVE:
-                    moveContent((int) (event.getX()) - mTouchDelta);
+        switch (action & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_MOVE: {
+                /*
+                * mIsBeingDragged == false, otherwise the shortcut would have caught it. Check
+                * whether the user has moved far enough from his original down touch.
+                */
+
+                /*
+                * Locally do absolute value. mLastMotionX is set to the x value
+                * of the down event.
+                */
+                final int activePointerId = mActivePointerId;
+                if (activePointerId == INVALID_POINTER) {
+                    // If we don't have a valid id, the touch down wasn't on content.
                     break;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL: {
-                    final VelocityTracker velocityTracker = mVelocityTracker;
-                    velocityTracker.computeCurrentVelocity(mVelocityUnits);
+                }
 
-                    float yVelocity = velocityTracker.getYVelocity();
-                    float xVelocity = velocityTracker.getXVelocity();
-                    boolean negative;
-
-                    negative = xVelocity < 0;
-                    if (yVelocity < 0) {
-                        yVelocity = -yVelocity;
-                    }
-                    if (yVelocity > mMaximumMinorVelocity) {
-                        yVelocity = mMaximumMinorVelocity;
-                    }
-
-                    float velocity = (float) Math.hypot(xVelocity, yVelocity);
-                    if (negative) {
-                        velocity = -velocity;
-                    }
-                    performFling(mContent.getLeft(), velocity, -1);
+                final int pointerIndex = ev.findPointerIndex(activePointerId);
+                final float x = ev.getX(pointerIndex);
+                final int xDiff = (int) Math.abs(x - mLastMotionX);
+                if (xDiff > mTouchSlop) {
+                    return startDrag(ev, (int) x);
                 }
                 break;
             }
+
+            case MotionEvent.ACTION_DOWN: {
+                final int x = (int) ev.getX();
+                if (!checkShouldTrack(x)) {
+                    mIsBeingDragged = false;
+                    recycleVelocityTracker();
+                    break;
+                }
+
+                /*
+                * Remember location of down touch.
+                * ACTION_DOWN always refers to pointer index 0.
+                */
+                mLastMotionX = x;
+                mActivePointerId = ev.getPointerId(0);
+
+                initOrResetVelocityTracker();
+                mVelocityTracker.addMovement(ev);
+                /*
+                * If being flinged and user touches the screen, initiate drag;
+                * otherwise don't.  mScroller.isFinished should be false when
+                * being flinged.
+                */
+                mIsBeingDragged = !mScroller.isFinished();
+                break;
+            }
+
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
+                /* Release the drag */
+                mIsBeingDragged = false;
+                mActivePointerId = INVALID_POINTER;
+                recycleVelocityTracker();
+                break;
+        }
+
+        /*
+        * The only time we want to intercept motion events is if we are in the
+        * drag mode.
+        */
+        return mIsBeingDragged;
+    }
+
+    private boolean startDrag(MotionEvent ev, int eventX) {
+
+        mIsBeingDragged = true;
+        mLastMotionX = eventX;
+        initVelocityTrackerIfNotExists();
+        mVelocityTracker.addMovement(ev);
+
+        // Must be called before prepareTracking()
+        prepareContent();
+
+        // Must be called after prepareContent()
+        if (mOnMenuStateListener != null) {
+            mOnMenuStateListener.onScrollStarted();
+        }
+
+        final int left = mContent.getLeft();
+        mTouchDelta = eventX - left;
+        prepareTracking(left);
+        return true;
+    }
+
+    private void initOrResetVelocityTracker() {
+        if (mVelocityTracker == null) {
+            mVelocityTracker = VelocityTracker.obtain();
+        } else {
+            mVelocityTracker.clear();
+        }
+    }
+
+    private void initVelocityTrackerIfNotExists() {
+        if (mVelocityTracker == null) {
+            mVelocityTracker = VelocityTracker.obtain();
+        }
+    }
+
+    private void recycleVelocityTracker() {
+        if (mVelocityTracker != null) {
+            mVelocityTracker.recycle();
+            mVelocityTracker = null;
+        }
+    }
+
+    @Override
+    public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        if (disallowIntercept) {
+            recycleVelocityTracker();
+        }
+        super.requestDisallowInterceptTouchEvent(disallowIntercept);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        initVelocityTrackerIfNotExists();
+        mVelocityTracker.addMovement(event);
+
+        final int action = event.getAction();
+
+        switch (action & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_DOWN:
+                /*
+                 This event should only happen if there are no touch targets beneath the touch.
+                 Otherwise, the drag logic should happen above, in onInterceptTouchEvent
+                */
+                mIsBeingDragged = getChildCount() != 0;
+                if (!mIsBeingDragged) {
+                    return false;
+                }
+
+                /*
+                * If being flinged and user touches, stop the fling. isFinished
+                * will be false if being flinged.
+                */
+                if (!mScroller.isFinished()) {
+                    mScroller.abortAnimation();
+                }
+
+                // Remember where the motion event started
+                mActivePointerId = event.getPointerId(0);
+                startDrag(event, (int) event.getX(mActivePointerId));
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                if (mIsBeingDragged) {
+                    mVelocityTracker.addMovement(event);
+                    moveContent((int) (event.getX()) - mTouchDelta);
+                }
+                break;
+
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL: {
+                final VelocityTracker velocityTracker = mVelocityTracker;
+                velocityTracker.computeCurrentVelocity(mVelocityUnits);
+
+                float yVelocity = velocityTracker.getYVelocity();
+                float xVelocity = velocityTracker.getXVelocity();
+                boolean negative;
+
+                negative = xVelocity < 0;
+                if (yVelocity < 0) {
+                    yVelocity = -yVelocity;
+                }
+                if (yVelocity > mMaximumMinorVelocity) {
+                    yVelocity = mMaximumMinorVelocity;
+                }
+
+                float velocity = (float) Math.hypot(xVelocity, yVelocity);
+                if (negative) {
+                    velocity = -velocity;
+                }
+                performFling(mContent.getLeft(), velocity, -1);
+
+                mActivePointerId = INVALID_POINTER;
+                mIsBeingDragged = false;
+                recycleVelocityTracker();
+            }
+            break;
         }
 
         return true;
     }
+
+
 
     private void animateClose(int position) {
         prepareTracking(position);
@@ -576,12 +720,14 @@ public class RootView extends ViewGroup {
         stopTracking();
     }
 
+
+
     private void prepareTracking(int position) {
         if (mAnimating) {
             mAnimating = false;
             mHandler.removeMessages(MSG_ANIMATE);
         }
-        mTracking = true;
+        mIsBeingDragged = true;
         mVelocityTracker = VelocityTracker.obtain();
         moveContent(isExpanded() ? position : 0);
     }
@@ -629,7 +775,7 @@ public class RootView extends ViewGroup {
     }
 
     private void stopTracking() {
-        mTracking = false;
+        mIsBeingDragged = false;
 
         if (mVelocityTracker != null) {
             mVelocityTracker.recycle();
@@ -703,6 +849,7 @@ public class RootView extends ViewGroup {
         animateMenuOpen(mContent.getLeft());
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
+
 
     public void animatePlayerOpen() {
         if (!canOpenRight()) return;
@@ -800,24 +947,6 @@ public class RootView extends ViewGroup {
     }
 
     /**
-     * Unlocks the SlidingMenu so that touch events are processed.
-     *
-     * @see #lock()
-     */
-    public void unlock() {
-        mLocked = false;
-    }
-
-    /**
-     * Locks the SlidingMenu so that touch events are ignores.
-     *
-     * @see #unlock()
-     */
-    public void lock() {
-        mLocked = true;
-    }
-
-    /**
      * Indicates whether the menu is currently fully opened.
      *
      * @return True if the menu is opened, false otherwise.
@@ -832,7 +961,7 @@ public class RootView extends ViewGroup {
      * @return True if the menu is scroller or flinging, false otherwise.
      */
     public boolean isMoving() {
-        return mTracking || mAnimating;
+        return mIsBeingDragged || mAnimating;
     }
 
     private class SlidingHandler extends Handler {
