@@ -3,7 +3,6 @@ package com.soundcloud.android.audio.managers;
 import android.content.Context;
 import android.media.AudioManager;
 
-@SuppressWarnings("UnusedDeclaration")
 public class FroyoAudioManager implements IAudioManager {
     private boolean mAudioFocusLost;
     private AudioManager.OnAudioFocusChangeListener listener;
@@ -79,6 +78,4 @@ public class FroyoAudioManager implements IAudioManager {
     protected AudioManager getAudioManager() {
         return (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
     }
-
-
 }
