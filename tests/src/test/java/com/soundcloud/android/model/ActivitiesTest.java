@@ -254,6 +254,8 @@ public class ActivitiesTest {
         expect(trackActivity.getTrack().title).toEqual("Total Waxer");
         expect(trackActivity.getTrack().genre).toEqual("Podcast");
         expect(trackActivity.getTrack().waveform_url).toEqual("https://w1.sndcdn.com/DsoyShDam62m_m.png");
+        expect(trackActivity.sharing_note.text).toEqual("this is a sharing note");
+        expect(trackActivity.sharing_note.getDateString()).toEqual("2012/09/25 19:09:40 +0000");
 
         TrackSharingActivity trackSharingActivity = (TrackSharingActivity) activities.get(1);
         expect(trackSharingActivity.getDateString()).toEqual("2012/09/25 17:40:17 +0000");
@@ -266,6 +268,7 @@ public class ActivitiesTest {
         expect(trackSharingActivity.getTrack().title).toEqual("Wendyhouse - Hold Me Down (Feat. FRANKi)");
         expect(trackSharingActivity.getTrack().original_format).toEqual("mp3");
         expect(trackSharingActivity.getTrack().artwork_url).toEqual("https://i1.sndcdn.com/artworks-000030981203-eerjjh-large.jpg?04ad178");
+        expect(trackSharingActivity.sharing_note.text).toEqual("this is a sharing note");
 
         AffiliationActivity affiliationActivity = (AffiliationActivity) activities.get(2);
         expect(affiliationActivity.getDateString()).toEqual("2012/09/24 22:43:20 +0000");

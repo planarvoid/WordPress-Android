@@ -5,11 +5,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SharingNote;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DBHelper;
@@ -49,6 +52,7 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     @JsonProperty public String uuid;
     @JsonProperty public Date created_at;
     @JsonProperty public String tags;
+    @JsonProperty public SharingNote sharing_note;
 
     static final long NUM_100NS_INTERVALS_SINCE_UUID_EPOCH = 0x01b21dd213814000L;
     // cache human readable elapsed time
@@ -61,6 +65,10 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     public Activity(Parcel in) {
         created_at = new Date(in.readLong());
         tags = in.readString();
+        sharing_note = new SharingNote();
+        sharing_note.text = in.readString();
+        final long milliseconds = in.readLong();
+        sharing_note.created_at = milliseconds == -1l ? null : new Date(milliseconds);
     }
 
     public Activity(Cursor c) {
@@ -68,6 +76,10 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         uuid = c.getString(c.getColumnIndex(DBHelper.ActivityView.UUID));
         tags = c.getString(c.getColumnIndex(DBHelper.ActivityView.TAGS));
         created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.CREATED_AT)));
+
+        sharing_note = new SharingNote();
+        sharing_note.created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.SHARING_NOTE_CREATED_AT)));
+        sharing_note.text = c.getString(c.getColumnIndex(DBHelper.ActivityView.SHARING_NOTE_TEXT));
     }
 
     public CharSequence getTimeSinceCreated(Context context) {
@@ -117,6 +129,10 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         cv.put(DBHelper.Activities.UUID, uuid);
         cv.put(DBHelper.Activities.TAGS, tags);
         cv.put(DBHelper.Activities.TYPE, getType().type);
+        if (sharing_note != null){
+            cv.put(DBHelper.Activities.SHARING_NOTE_TEXT, sharing_note.text);
+            cv.put(DBHelper.Activities.SHARING_NOTE_CREATED_AT, sharing_note.created_at.getTime());
+        }
 
         if (created_at != null) {
             cv.put(DBHelper.Activities.CREATED_AT, created_at.getTime());
@@ -134,13 +150,23 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         if (!(o instanceof Activity)) return false;
 
         Activity activity = (Activity) o;
+
+        if (created_at != null ? !created_at.equals(activity.created_at) : activity.created_at != null) return false;
+        if (sharing_note != null ? !sharing_note.equals(activity.sharing_note) : activity.sharing_note != null)
+            return false;
+        if (tags != null ? !tags.equals(activity.tags) : activity.tags != null) return false;
         if (uuid != null ? !uuid.equals(activity.uuid) : activity.uuid != null) return false;
+
         return true;
     }
 
     @Override
     public int hashCode() {
-        return uuid != null ? uuid.hashCode() : 0;
+        int result = uuid != null ? uuid.hashCode() : 0;
+        result = 31 * result + (created_at != null ? created_at.hashCode() : 0);
+        result = 31 * result + (tags != null ? tags.hashCode() : 0);
+        result = 31 * result + (sharing_note != null ? sharing_note.hashCode() : 0);
+        return result;
     }
 
     @Override
@@ -167,6 +193,8 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     public void writeToParcel(Parcel out, int flags) {
         out.writeLong(created_at.getTime());
         out.writeString(tags);
+        out.writeString(sharing_note == null ? "" : sharing_note.text);
+        out.writeLong(sharing_note == null ? -1l : sharing_note.created_at.getTime());
     }
 
     public abstract Type getType();
