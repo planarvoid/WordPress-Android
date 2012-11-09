@@ -122,11 +122,11 @@ public class ImageLoader {
         return loader;
     }
 
-    public void block(LoadBlocker blocker){
+    public synchronized void block(LoadBlocker blocker){
         mLoadBlockers.put(blocker,null);
     }
 
-    public void unblock(LoadBlocker blocker){
+    public synchronized void unblock(LoadBlocker blocker){
         for (LoadBlocker blockerRef : mLoadBlockers.keySet()){
             if (blockerRef == blocker){
                 mLoadBlockers.remove(blockerRef);
