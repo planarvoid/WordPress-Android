@@ -267,6 +267,7 @@ namespace :keyhash do
   end
 end
 
+desc "regenerate the NOTICE file"
 task :regenerate_notice do
   require 'erb'
   notice = File.read(File.dirname(__FILE__)+"/NOTICE")
