@@ -144,8 +144,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         nowPlayingHolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ScActivity.this, ScPlayer.class);
-                startActivity(intent);
+                goToPlayer();
             }
         });
 
@@ -222,7 +221,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         super.onResume();
 
         if (getApp().getAccount() == null) {
-            startActivity(new Intent(this,Launch.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            startActivity(new Intent(this, Launch.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
             finish();
             return;
         }
@@ -408,6 +407,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                 public boolean onSuggestionClick(int position) {
                     if (suggestionsAdapter.getItemViewType(position) == SearchSuggestionsAdapter.TYPE_TRACK) {
                         startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(CloudPlaybackService.EXTRA_TRACK_ID, suggestionsAdapter.getItemId(position)));
+                        goToPlayer();
                     } else {
                         startActivity(getNavIntent(UserBrowser.class).putExtra(UserBrowser.EXTRA_USER_ID, suggestionsAdapter.getItemId(position)));
                     }
@@ -417,6 +417,16 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         }
 
         return true;
+    }
+
+    private void goToPlayer() {
+        if (!(this instanceof ScPlayer)){
+            if (mRootView.isExpanded()) {
+                startNavActivity(ScPlayer.class);
+            } else {
+                startActivity(new Intent(this, ScPlayer.class));
+            }
+        }
     }
 
     protected int getMenuResourceId(){
