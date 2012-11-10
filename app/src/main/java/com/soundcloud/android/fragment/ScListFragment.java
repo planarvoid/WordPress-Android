@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.google.android.imageloader.ImageLoader;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -19,7 +20,6 @@ import com.soundcloud.android.adapter.TrackAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -58,7 +58,7 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 
 public class ScListFragment extends SherlockListFragment
-        implements PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener, CollectionTask.Callback, AbsListView.OnScrollListener {
+        implements PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener, CollectionTask.Callback, AbsListView.OnScrollListener, ImageLoader.LoadBlocker {
 
     protected static final int CONNECTIVITY_MSG = 0;
 
@@ -179,6 +179,7 @@ public class ScListFragment extends SherlockListFragment
         mListView = buildList();
         mListView.setOnRefreshListener(this);
         mListView.setOnScrollListener(this);
+
 
         mEmptyCollection = EmptyCollection.fromContent(context, mContent);
         resetEmptyCollection();
@@ -524,7 +525,14 @@ public class ScListFragment extends SherlockListFragment
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
-
+        switch (scrollState){
+            case SCROLL_STATE_FLING:
+            case SCROLL_STATE_TOUCH_SCROLL:
+                ImageLoader.get(getActivity()).block(this);
+                break;
+            case SCROLL_STATE_IDLE:
+                ImageLoader.get(getActivity()).unblock(this);
+        }
     }
 
     @Override
