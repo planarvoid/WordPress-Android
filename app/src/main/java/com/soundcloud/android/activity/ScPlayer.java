@@ -39,9 +39,10 @@ import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
 public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPageListener {
-    public static final String PLAYER_SHOWING_COMMENTS = "playerShowingComments";
     public static final int REFRESH_DELAY = 1000;
 
+    private static final String STATE_PAGER_QUEUE_POSITION = "pager_queue_position";
+    private static final String PLAYER_SHOWING_COMMENTS = "playerShowingComments";
     private static final int REFRESH = 1;
     private static final int SEND_CURRENT_QUEUE_POSITION = 2;
     private static final long TRACK_SWIPE_UPDATE_DELAY = 1000;
@@ -53,6 +54,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private PlayerTrackPager mTrackPager;
     private TransportBar mTransportBar;
     private CloudPlaybackService mPlaybackService;
+
+    private int mPendingPlayPosition = -1;
 
     public interface PlayerError {
         int PLAYBACK_ERROR    = 0;
@@ -203,13 +206,16 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     @Override
     public void onSaveInstanceState(Bundle state) {
-        state.putBoolean("paused", mActivityPaused);
+        state.putInt(STATE_PAGER_QUEUE_POSITION, getCurrentDisplayedTrackPosition());
         super.onSaveInstanceState(state);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
-        mActivityPaused = state.getBoolean("paused");
+        final int position = state.getInt(STATE_PAGER_QUEUE_POSITION,-1);
+        if (position != -1 && position != getCurrentDisplayedTrackPosition()){
+            mPendingPlayPosition = position;
+        }
         super.onRestoreInstanceState(state);
     }
 
@@ -276,6 +282,9 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             Intent intent = new Intent(this, News.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
+        } else if (mPendingPlayPosition != -1){
+            mPlaybackService.setQueuePosition(mPendingPlayPosition);
+            mPendingPlayPosition = -1;
         }
     }
 
@@ -501,7 +510,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         f.addAction(Actions.COMMENT_ADDED);
         registerReceiver(mStatusListener, new IntentFilter(f));
 
-        setTrackDisplayFromService();
+        Log.i("asdf","Setting play pos " + mPendingPlayPosition);
+        setTrackDisplayFromService(mPendingPlayPosition);
     }
 
     @Override
@@ -531,8 +541,11 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     private void setTrackDisplayFromService() {
+        setTrackDisplayFromService(-1);
+    }
 
-        mTrackPager.configureFromService(this);
+    private void setTrackDisplayFromService(int queuePosition) {
+        mTrackPager.configureFromService(this, queuePosition);
 
         final PlayQueueManager playQueueManager = CloudPlaybackService.getPlayQueueManager();
         final long queueLength = playQueueManager == null ? 1 :playQueueManager.length();
