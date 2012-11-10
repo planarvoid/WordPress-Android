@@ -25,7 +25,6 @@ import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.Activity;
-import android.app.SearchManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -38,13 +37,15 @@ import java.io.IOException;
 
 public class Launch extends Activity implements FetchModelTask.FetchModelListener<ScResource> {
 
+    private static final int DELAY_MILLIS = 300;
+    private static final long MAX_DELAY_MILLIS = 1000;
+
     @Nullable
     private ResolveFetchTask mResolveTask;
-    private long mStartTime;
-    private static final long SPLASH_DELAY = 500;
-
     private Intent launchIntent;
     private boolean mLaunched;
+    private FetchUserTask mFetchUserTask;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,19 +53,23 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
 
         setContentView(R.layout.launch);
 
-        mStartTime = System.currentTimeMillis();
+        if (getApp().getAccount() == null) {
+            getApp().addAccount(this, managerCallback);
+            finish();
+            return;
+        }
 
         mResolveTask = (ResolveFetchTask) getLastNonConfigurationInstance();
         if (mResolveTask != null) {
             mResolveTask.setListener(this);
         }
 
+        handleViewUrl(getIntent());
         final boolean resolving = !AndroidUtils.isTaskFinished(mResolveTask);
-
         findViewById(R.id.progress_resolve_layout).setVisibility(resolving ? View.VISIBLE : View.GONE);
 
         final SoundCloudApplication app = getApp();
-        if (IOUtils.isConnected(this) &&
+        if (!resolving && IOUtils.isConnected(this) &&
                 app.getAccount() != null &&
                 app.getToken().valid() &&
                 !app.getLoggedInUser().isPrimaryEmailConfirmed() &&
@@ -72,34 +77,15 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
             checkEmailConfirmed(app);
         }
 
-        handleViewUrl(getIntent());
         launchIntent = ScLandingPage.LandingPage.fromString(app.getAccountData(User.DataKeys.LAST_LANDING_PAGE_IDX)).getIntent(this);
         launchIntent.putExtra(ScActivity.EXTRA_FIRST_LAUNCH, true);
     }
 
     private void checkCanLaunch() {
-        if (AndroidUtils.isTaskFinished(mResolveTask)
-                && System.currentTimeMillis() - mStartTime > SPLASH_DELAY - 200
-                && !mLaunched){
+        if (AndroidUtils.isTaskFinished(mResolveTask) && !mLaunched){
             mLaunched = true;
             startActivity(launchIntent);
             overridePendingTransition(R.anim.appear, R.anim.hold);
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (getApp().getAccount() == null) {
-            getApp().addAccount(this, managerCallback);
-            finish();
-        } else {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    checkCanLaunch();
-                }
-            }, SPLASH_DELAY);
         }
     }
 
@@ -139,7 +125,7 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
     };
 
     private void checkEmailConfirmed(final SoundCloudApplication app) {
-        (new FetchUserTask(app) {
+        mFetchUserTask = new FetchUserTask(app) {
             @Override
             protected void onPostExecute(User user) {
                 if (user == null || user.isPrimaryEmailConfirmed()) {
@@ -150,7 +136,8 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
                             .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
                 }
             }
-        }).execute(Request.to(Endpoints.MY_DETAILS));
+        };
+        mFetchUserTask.execute(Request.to(Endpoints.MY_DETAILS));
     }
 
     private boolean justAuthenticated(Intent intent) {
@@ -166,13 +153,28 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
         return mResolveTask;
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                checkCanLaunch();
+            }
+            // give some extra time for a email confirm check, but not too much
+        }, mFetchUserTask != null ? MAX_DELAY_MILLIS : DELAY_MILLIS);
+    }
+
     protected void onTrackLoaded(Track track, @Nullable String action) {
+        mResolveTask = null;
         startService(track.getPlayIntent());
         launchIntent = new Intent(this, ScPlayer.class);
         checkCanLaunch();
     }
 
     protected void onUserLoaded(User u, @Nullable String action) {
+        mResolveTask = null;
         launchIntent = new Intent(this, UserBrowser.class)
                 .putExtra("user", u)
                 .putExtra("updateInfo", false);

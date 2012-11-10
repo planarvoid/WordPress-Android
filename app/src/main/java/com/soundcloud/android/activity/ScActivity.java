@@ -221,6 +221,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     protected void onResume() {
         super.onResume();
 
+        if (getApp().getAccount() == null) {
+            startActivity(new Intent(this,Launch.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            finish();
+            return;
+        }
+
         mRootView.onResume();
         mIsForeground = true;
         if (getApp().getAccount() == null) {
