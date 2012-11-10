@@ -16,6 +16,12 @@
               android:layout_alignTop="@id/track_info_bar"
               android:layout_alignBottom="@id/track_info_bar"
               android:visibility="gone" />
+        <View android:id="@+id/track_info_clicker"
+              android:background="#00000000"
+              android:layout_width="fill_parent"
+              android:layout_height="0dp"
+              android:layout_alignTop="@id/track_info_bar"
+              android:layout_alignBottom="@id/track_info_bar"/>
     </RelativeLayout>
     <com.soundcloud.android.view.SafeViewFlipper android:id="@+id/vfTrackInfo"
                                                  android:layout_weight="1"
