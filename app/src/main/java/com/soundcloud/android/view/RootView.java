@@ -176,9 +176,11 @@ public class RootView extends ViewGroup {
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
         mExpandedState = COLLAPSED_FULL_CLOSED;
+        mActivePointerId = INVALID_POINTER;
 
         setBackgroundColor(getResources().getColor(R.color.main_menu_bg));
         setAlwaysDrawnWithCacheEnabled(false);
+
     }
 
     public int getContentHolderId() {
