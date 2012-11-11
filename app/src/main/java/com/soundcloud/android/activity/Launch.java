@@ -31,13 +31,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
 import android.widget.Toast;
 
 import java.io.IOException;
 
 public class Launch extends Activity implements FetchModelTask.FetchModelListener<ScResource> {
 
-    private static final int DELAY_MILLIS = 300;
+    private static final int DELAY_MILLIS = 500;
     private static final long MAX_DELAY_MILLIS = 1000;
 
     @Nullable
@@ -45,6 +46,7 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
     private Intent launchIntent;
     private boolean mLaunched;
     private FetchUserTask mFetchUserTask;
+    private long mStartTIme;
 
 
     @Override
@@ -52,6 +54,8 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.launch);
+
+        mStartTIme = System.currentTimeMillis();
 
         if (getApp().getAccount() == null) {
             getApp().addAccount(this, managerCallback);
@@ -81,8 +85,9 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
         launchIntent.putExtra(ScActivity.EXTRA_FIRST_LAUNCH, true);
     }
 
-    private void checkCanLaunch() {
-        if (AndroidUtils.isTaskFinished(mResolveTask) && !mLaunched){
+    private void checkCanLaunch(boolean force) {
+        if (AndroidUtils.isTaskFinished(mResolveTask) && !mLaunched &&
+                (force || mStartTIme - System.currentTimeMillis() >= DELAY_MILLIS)){
             mLaunched = true;
             startActivity(launchIntent);
             overridePendingTransition(R.anim.appear, R.anim.hold);
@@ -130,7 +135,7 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
             protected void onPostExecute(User user) {
                 if (user == null || user.isPrimaryEmailConfirmed()) {
                     if (user != null) SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
-                    if (!mLaunched) checkCanLaunch();
+                    if (!mLaunched) checkCanLaunch(false);
                 } else {
                     startActivityForResult(new Intent(Launch.this, EmailConfirm.class)
                             .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
@@ -156,11 +161,10 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
     @Override
     protected void onResume() {
         super.onResume();
-
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                checkCanLaunch();
+                checkCanLaunch(true);
             }
             // give some extra time for a email confirm check, but not too much
         }, mFetchUserTask != null ? MAX_DELAY_MILLIS : DELAY_MILLIS);
@@ -170,7 +174,7 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
         mResolveTask = null;
         startService(track.getPlayIntent());
         launchIntent = new Intent(this, ScPlayer.class);
-        checkCanLaunch();
+        checkCanLaunch(false);
     }
 
     protected void onUserLoaded(User u, @Nullable String action) {
@@ -178,14 +182,14 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
         launchIntent = new Intent(this, UserBrowser.class)
                 .putExtra("user", u)
                 .putExtra("updateInfo", false);
-        checkCanLaunch();
+        checkCanLaunch(false);
     }
 
     @Override
     public void onError(long modelId) {
         mResolveTask = null;
         Toast.makeText(this, R.string.error_loading_url, Toast.LENGTH_LONG).show();
-        checkCanLaunch();
+        checkCanLaunch(false);
     }
 
     @Override
@@ -200,7 +204,7 @@ public class Launch extends Activity implements FetchModelTask.FetchModelListene
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        checkCanLaunch();
+        checkCanLaunch(false);
     }
 }
 
