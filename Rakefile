@@ -227,9 +227,14 @@ namespace :beta do
     version = current_version.gsub(/-SNAPSHOT\Z/, '')
     match = version[/-BETA(\d+)/]
     raise "Not a beta version" unless match
+    raise "Uncommitted changes in working tree" unless system("git diff --exit-code --quiet")
+
     current_beta = $1.to_i
     new_version = version.gsub(/BETA#{current_beta}\Z/, "BETA#{current_beta+1}")
-    sh "mvn --batch-mode release:update-versions -DdevelopmentVersion=#{new_version}"
+    sh <<-END
+      mvn --batch-mode release:update-versions -DdevelopmentVersion=#{new_version} &&
+      git commit -a -m 'Bumped to #{new_version}'
+    END
   end
 end
 
