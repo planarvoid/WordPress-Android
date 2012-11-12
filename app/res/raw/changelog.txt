@@ -1,10 +1,13 @@
 $ 49
   % v current
-  _ 2012-11-02
+  _ 2012-11-12
   ! Next
+    * Fixed notification handling
     * Fixed left trim handle dragging in Record Edit screen
-    * New UI
-    * Extra media button handling
+    * Fixed url resolving
+    * various UI improvements
+    - New UI
+    - Extra media button handling
 
 $ 48
   % v 2.3.2
