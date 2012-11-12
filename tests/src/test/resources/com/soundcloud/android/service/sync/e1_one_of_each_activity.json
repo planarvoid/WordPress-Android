@@ -157,7 +157,7 @@
     {
       "uuid": "8e3bf200-0744-11e2-9817-590114067ab0",
       "sharing_note": {
-        "text": "",
+        "text": "this is a sharing note",
         "created_at": "2012/09/25 19:09:40 +0000"
       },
       "type": "track",
@@ -225,7 +225,7 @@
      {
        "uuid": "11a31680-0738-11e2-8cce-6fced32aa777",
        "sharing_note": {
-         "text": "",
+         "text": "this is a sharing note",
          "created_at": "2012/09/25 17:37:01 +0000"
        },
        "type": "track-sharing",
@@ -305,7 +305,7 @@
         "created_at": "2012/07/03 14:38:41 +0000",
         "sharing_note": {
           "created_at": "2012/09/27 14:38:41 +0000",
-          "text": ""
+          "text": "this is a sharing note"
         },
         "playlist": {
           "uri": "https://api.soundcloud.com/playlists/2537863",

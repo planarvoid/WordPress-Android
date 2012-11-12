@@ -90,10 +90,6 @@ public class Track extends PlayableResource implements Playable {
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public CreatedWith created_with;
 
-    @JsonView(Views.Full.class)
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-    public SharingNote sharing_note;
-
     @JsonView(Views.Full.class) public String attachments_uri;
 
     @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
@@ -211,7 +207,6 @@ public class Track extends PlayableResource implements Playable {
         b.putBoolean("user_like", user_like);
         b.putBoolean("user_repost", user_repost);
         b.putParcelable("created_with", created_with);
-        b.putParcelable("sharing_note", sharing_note);
         b.putString("attachments_uri", attachments_uri);
         b.putString("download_url", download_url);
         b.putInt("downloads_remaining", downloads_remaining);
@@ -301,7 +296,6 @@ public class Track extends PlayableResource implements Playable {
         user_like = b.getBoolean("user_like");
         user_repost = b.getBoolean("user_repost");
         created_with = b.getParcelable("created_with");
-        sharing_note = b.getParcelable("sharing_note");
         attachments_uri = b.getString("attachments_uri");
         download_url = b.getString("download_url");
         downloads_remaining = b.getInt("downloads_remaining");
@@ -343,12 +337,6 @@ public class Track extends PlayableResource implements Playable {
         shared_to_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.SHARED_TO_COUNT));
         user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
         commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENTABLE)) == 1;
-
-        final int sharingNoteIdx = cursor.getColumnIndex(DBHelper.TrackView.SHARING_NOTE_TEXT);
-        if (sharingNoteIdx != -1) {
-            sharing_note = new SharingNote();
-            sharing_note.text = cursor.getString(sharingNoteIdx);
-        }
 
         final long lastUpdated = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.LAST_UPDATED));
         if (lastUpdated > 0) {
@@ -423,9 +411,6 @@ public class Track extends PlayableResource implements Playable {
         if (favoritings_count != -1) cv.put(Tracks.FAVORITINGS_COUNT, favoritings_count);
         if (reposts_count != -1) cv.put(Tracks.REPOSTS_COUNT, reposts_count);
         if (shared_to_count != -1) cv.put(Tracks.SHARED_TO_COUNT, shared_to_count);
-        if (sharing_note != null && !sharing_note.isEmpty()) {
-            cv.put(Tracks.SHARING_NOTE_TEXT, sharing_note.text);
-        }
         if (isCompleteTrack()) {
             cv.put(Tracks.LAST_UPDATED, System.currentTimeMillis());
         }

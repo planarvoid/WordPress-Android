@@ -9,8 +9,4 @@
           android:icon="@drawable/ic_add_user_white"
           android:title="@string/action_bar_follow"
           android:showAsAction="always"/>
-    <item android:id="@+id/action_bar_private_message"
-          android:icon="@drawable/ic_options_menu_rec"
-          android:title="@string/menu_private_message"
-          android:showAsAction="ifRoom"/>
 </menu>
