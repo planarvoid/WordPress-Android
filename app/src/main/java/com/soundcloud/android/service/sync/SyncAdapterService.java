@@ -4,9 +4,9 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.c2dm.PushEvent;
-import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.DebugUtils;
@@ -17,7 +17,6 @@ import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
-import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
@@ -76,7 +75,7 @@ public class SyncAdapterService extends Service {
                 AndroidCloudAPI.Wrapper.setBackgroundMode(false);
             }
 
-            @Override @TargetApi(8)
+            @Override
             public void onSyncCanceled() {
                 if (DEBUG_CANCEL) {
                     Log.d(TAG, "sync canceled, dumping stack");

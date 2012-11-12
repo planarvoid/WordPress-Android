@@ -9,7 +9,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.TouchLayout;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -37,8 +36,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class WaveformController extends TouchLayout {
-    private static final String TAG = "WaveformController";
-
     protected static final long CLOSE_COMMENT_DELAY = 5000;
 
     protected PlayerAvatarBar mPlayerAvatarBar;
@@ -234,11 +231,10 @@ public class WaveformController extends TouchLayout {
          if (mPlayerAvatarBar != null && killLoading) mPlayerAvatarBar.onStop();
     }
 
-    @TargetApi(8)
     public void resetCommentDisplay(){
         if (mCurrentCommentPanel != null) {
             if (mCurrentCommentPanel.getAnimation() != null){
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) mCurrentCommentPanel.getAnimation().cancel();
+                mCurrentCommentPanel.getAnimation().cancel();
                 mCurrentCommentPanel.clearAnimation();
             }
             if (mCurrentCommentPanel.getParent() == mWaveformFrame){
