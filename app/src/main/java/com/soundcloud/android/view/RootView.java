@@ -63,7 +63,7 @@ public class RootView extends ViewGroup {
     public static final String EXTRA_ROOT_VIEW_STATE = "fim_menu_state";
     private static final String KEY_MENU_STATE = "menuState_key";
     private static final String STATE_KEY = "state_key";
-    public static final int MENU_TARGET_WIDTH = 400;
+    public static final int MENU_TARGET_WIDTH = 300;
 
     private static final int INVALID_POINTER = -1;
 
