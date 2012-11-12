@@ -1,13 +1,18 @@
 package com.soundcloud.android.view.tour;
 
 import android.content.Context;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.text.*;
 import android.text.style.BackgroundColorSpan;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
 public class TourTextView extends TextView {
+    private Paint mBackgroundPaint;
+
     public TourTextView(Context context) {
         super(context);
     }
@@ -20,18 +25,53 @@ public class TourTextView extends TextView {
         super(context, attrs, defStyle);
     }
 
-    public void setText(CharSequence text, BufferType type) {
-        SpannableStringBuilder spanBuilder = new SpannableStringBuilder();
-        spanBuilder.append(text);
+    private Paint getBackgroundPaint() {
+        if (mBackgroundPaint == null) {
+            mBackgroundPaint = new Paint();
+            mBackgroundPaint.setColor(0x00000000);
+        }
 
-        spanBuilder.setSpan(
-            new BackgroundColorSpan(0xCC000000),
-            0,
-            text.length(),
-            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-        );
-
-        super.setText(spanBuilder, type);
+        return mBackgroundPaint;
     }
 
+    @Override
+    public void setBackgroundDrawable(Drawable drawable) {
+        if (drawable instanceof ColorDrawable) {
+            getBackgroundPaint().setColor(((ColorDrawable) drawable).getColor());
+        }
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        if (getLayout() == null) {
+            forceLayout();
+        }
+
+        Layout layout = getLayout();
+
+        canvas.translate(getPaddingLeft(), getPaddingTop());
+        for (int line = 0; line < getLayout().getLineCount(); line++) {
+            float left   = layout.getLineLeft(line);
+            float top    = layout.getLineTop(line);
+            float right  = layout.getLineRight(line);
+            float bottom = layout.getLineBottom(line);
+
+            // Apply padding to background rectangles
+            if (line == 0) {
+                top -= getPaddingTop();
+            }
+
+            if (line == layout.getLineCount() - 1) {
+                bottom += getPaddingBottom();
+            }
+
+            left  -= getPaddingLeft();
+            right += getPaddingRight();
+
+            canvas.drawRect(left, top, right, bottom, getBackgroundPaint());
+        }
+
+        layout.getPaint().setColor(getTextColors().getDefaultColor());
+        layout.draw(canvas);
+    }
 }

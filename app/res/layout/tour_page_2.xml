@@ -8,14 +8,15 @@
                android:src="@drawable/tour_image_2"
                android:scaleType="centerCrop"/>
 
-    <com.soundcloud.android.view.tour.TourTextView android:layout_width="fill_parent"
-                                                   android:layout_height="wrap_content"
-
-                                                   android:padding="10dp"
-                                                   android:layout_marginBottom="@dimen/tour_bottom_bar_height"
-
-                                                   android:text="Get ready to discover, connect and share all kinds of music and audio."
-                                                   android:textColor="#FFFFFF"
-                                                   android:textSize="24dp"
-                                                   android:layout_alignParentBottom="true"/>
+    <LinearLayout android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="vertical"
+                  android:padding="10dp"
+                  android:layout_marginBottom="@dimen/tour_bottom_bar_height"
+                  android:layout_alignParentBottom="true">
+        <com.soundcloud.android.view.tour.TourTextView style="@style/Tour.Headline"
+                                                       android:text="Welcome to SoundCloud!" />
+        <com.soundcloud.android.view.tour.TourTextView style="@style/Tour.CallToAction"
+                                                       android:text="Get ready to discover, connect and share all kinds of music and audio."/>
+    </LinearLayout>
 </RelativeLayout>

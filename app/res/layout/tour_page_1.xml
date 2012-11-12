@@ -12,17 +12,10 @@
                   android:layout_height="wrap_content"
                   android:orientation="vertical"
                   android:padding="10dp">
-        <com.soundcloud.android.view.tour.TourTextView android:layout_width="fill_parent"
-                                                       android:layout_height="wrap_content"
-                                                       android:text="Fire 20 people."
-                                                       android:textColor="#FFFFFF"
-                                                       android:textSize="36dp"/>
-        <com.soundcloud.android.view.tour.TourTextView android:layout_width="fill_parent"
-                                                       android:layout_height="wrap_content"
-
-                                                       android:text="Then have a cup of tea and an orange"
-                                                       android:textColor="#FFFFFF"
-                                                       android:textSize="26dp"/>
+        <com.soundcloud.android.view.tour.TourTextView style="@style/Tour.Headline"
+                                                       android:text="Fire 20 people."/>
+        <com.soundcloud.android.view.tour.TourTextView style="@style/Tour.CallToAction"
+                                                       android:text="Then have a cup of tea and an orange" />
 
     </LinearLayout>
 </RelativeLayout>
