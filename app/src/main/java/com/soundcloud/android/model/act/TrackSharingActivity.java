@@ -78,12 +78,6 @@ public class TrackSharingActivity extends Activity implements Playable {
     };
 
     @Override
-    public ContentValues buildContentValues() {
-        ContentValues cv = super.buildContentValues();
-        return cv;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof TrackSharingActivity)) return false;
