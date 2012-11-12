@@ -16,7 +16,7 @@ import java.util.List;
 public class DBHelper extends SQLiteOpenHelper {
     static final String TAG = "DBHelper";
 
-    public static final int DATABASE_VERSION = 16;
+    public static final int DATABASE_VERSION = 17;
     private static final String DATABASE_NAME = "SoundCloud";
 
     DBHelper(Context context) {
@@ -83,6 +83,9 @@ public class DBHelper extends SQLiteOpenHelper {
                         case 16:
                             success = upgradeTo16(db, oldVersion);
                             break;
+                        case 17:
+                            success = upgradeTo17(db, oldVersion);
+                            break;
                         default:
                             break;
                     }
@@ -137,7 +140,6 @@ public class DBHelper extends SQLiteOpenHelper {
             "favoritings_count INTEGER," +
             "reposts_count INTEGER," +
             "shared_to_count INTEGER," +
-            "sharing_note_text VARCHAR(255),"+
             "user_id INTEGER" +
             ");";
 
@@ -167,7 +169,6 @@ public class DBHelper extends SQLiteOpenHelper {
                 "favoritings_count INTEGER," +
                 "reposts_count INTEGER," +
                 "shared_to_count INTEGER," +
-                "sharing_note_text VARCHAR(255),"+
                 "user_id INTEGER" +
                 ");";
 
@@ -273,6 +274,8 @@ public class DBHelper extends SQLiteOpenHelper {
             "tags VARCHAR(255)," +
             "created_at INTEGER," +
             "content_id INTEGER," +
+            "sharing_note_text VARCHAR(255),"+
+            "sharing_note_created_at INTEGER," +
             "UNIQUE (created_at, type, content_id, track_id, user_id)" +
             ");";
 
@@ -356,7 +359,6 @@ public class DBHelper extends SQLiteOpenHelper {
             ",Tracks." + Tracks.FAVORITINGS_COUNT + " as " + TrackView.FAVORITINGS_COUNT +
             ",Tracks." + Tracks.REPOSTS_COUNT + " as " + TrackView.REPOSTS_COUNT +
             ",Tracks." + Tracks.SHARED_TO_COUNT + " as " + TrackView.SHARED_TO_COUNT +
-            ",Tracks." + Tracks.SHARING_NOTE_TEXT + " as " + TrackView.SHARING_NOTE_TEXT +
             ",Users." + Users._ID + " as " + TrackView.USER_ID +
             ",Users." + Users.USERNAME + " as " + TrackView.USERNAME +
             ",Users." + Users.PERMALINK + " as " + TrackView.USER_PERMALINK +
@@ -382,6 +384,9 @@ public class DBHelper extends SQLiteOpenHelper {
             ",Activities." + Activities.TRACK_ID + " as " + ActivityView.TRACK_ID+
             ",Activities." + Activities.USER_ID + " as " + ActivityView.USER_ID +
             ",Activities." + Activities.CONTENT_ID + " as " + ActivityView.CONTENT_ID +
+            ",Activities." + Activities.SHARING_NOTE_TEXT + " as " + ActivityView.SHARING_NOTE_TEXT +
+            ",Activities." + Activities.SHARING_NOTE_CREATED_AT + " as " + ActivityView.SHARING_NOTE_CREATED_AT +
+
 
             // activity user (who commented, favorited etc. on contained following)
             ",Users." + Users.USERNAME + " as " + ActivityView.USER_USERNAME +
@@ -434,7 +439,6 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String FAVORITINGS_COUNT = "favoritings_count";
         public static final String REPOSTS_COUNT = "reposts_count";
         public static final String SHARED_TO_COUNT = "shared_to_count";
-        public static final String SHARING_NOTE_TEXT = "sharing_note_text";
         public static final String USER_ID = "user_id";
         public static final String STATE = "state";
 
@@ -442,7 +446,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 _ID, DURATION, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL, ARTWORK_URL,
                 WAVEFORM_URL, DOWNLOADABLE, DOWNLOAD_URL, STREAM_URL, STREAM_URL,
                 STREAMABLE, COMMENTABLE, SHARING, PLAYBACK_COUNT, DOWNLOAD_COUNT,
-                COMMENT_COUNT, FAVORITINGS_COUNT, REPOSTS_COUNT, SHARED_TO_COUNT, SHARING_NOTE_TEXT,
+                COMMENT_COUNT, FAVORITINGS_COUNT, REPOSTS_COUNT, SHARED_TO_COUNT,
                 USER_ID, STATE, CREATED_AT, PERMALINK, LAST_UPDATED
         };
     }
@@ -457,7 +461,7 @@ public class DBHelper extends SQLiteOpenHelper {
                    _ID, TRACKS_URI, DURATION, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL, ARTWORK_URL,
                    WAVEFORM_URL, DOWNLOADABLE, DOWNLOAD_URL, STREAM_URL, STREAM_URL,
                    STREAMABLE, COMMENTABLE, SHARING, PLAYBACK_COUNT, DOWNLOAD_COUNT,
-                   COMMENT_COUNT, FAVORITINGS_COUNT, REPOSTS_COUNT, SHARED_TO_COUNT, SHARING_NOTE_TEXT,
+                   COMMENT_COUNT, FAVORITINGS_COUNT, REPOSTS_COUNT, SHARED_TO_COUNT,
                    USER_ID, STATE, CREATED_AT, PERMALINK, LAST_UPDATED
            };
        }
@@ -585,6 +589,8 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String COMMENT_ID = "comment_id";
         public static final String CREATED_AT  = "created_at";
         public static final String CONTENT_ID  = "content_id";
+        public static final String SHARING_NOTE_TEXT = "sharing_note_text";
+        public static final String SHARING_NOTE_CREATED_AT = "sharing_note_created_at";
     }
 
     /**
@@ -653,7 +659,6 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String FAVORITINGS_COUNT = Tracks.FAVORITINGS_COUNT;
         public static final String REPOSTS_COUNT = Tracks.REPOSTS_COUNT;
         public static final String SHARED_TO_COUNT = Tracks.SHARED_TO_COUNT;
-        public static final String SHARING_NOTE_TEXT = Tracks.SHARING_NOTE_TEXT;
 
         public static final String USER_ID         = "track_user_id";
         public static final String USERNAME        = "track_user_username";
@@ -864,6 +869,21 @@ public class DBHelper extends SQLiteOpenHelper {
             Table.PLAYLIST_TRACKS.create(db);
             Table.PLAY_QUEUE.create(db);
 
+            return true;
+        } catch (SQLException e) {
+            SoundCloudApplication.handleSilentException("error during upgrade16 " +
+                    "(from " + oldVersion + ")", e);
+        }
+        return false;
+    }
+
+    private static boolean upgradeTo17(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.TRACKS.alterColumns(db);
+            Table.PLAYLISTS.alterColumns(db);
+            Table.ACTIVITIES.alterColumns(db);
+            Table.TRACK_VIEW.recreate(db);
+            Table.ACTIVITY_VIEW.recreate(db);
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade16 " +

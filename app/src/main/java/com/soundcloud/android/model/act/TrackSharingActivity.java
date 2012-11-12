@@ -9,7 +9,9 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SharingNote;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.DBHelper;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -18,7 +20,6 @@ import java.util.Date;
 
 public class TrackSharingActivity extends Activity implements Playable {
     @JsonProperty @JsonView(Views.Mini.class) public Track track;
-    @JsonProperty @JsonView(Views.Mini.class) public SharingNote sharing_note;
 
     public TrackSharingActivity() {
         super();
@@ -48,50 +49,20 @@ public class TrackSharingActivity extends Activity implements Playable {
         return null;
     }
 
-    @JsonIgnore @Override
+    @JsonIgnore
+    @Override
     public void setCachedTrack(Track track) {
-            this.track = track;
-            this.sharing_note = track.sharing_note;
-        }
+        this.track = track;
+    }
 
     @JsonIgnore @Override
     public void setCachedUser(User user) {
     }
 
-    /*
-    @Override  @JsonIgnore
-    public Track getTrack() {
-        // need to set sharing note on track since the API doesn't return the track
-        // with sharing_note attached if activity type = 'track_sharing'
-        if (track.sharing_note == null && sharing_note != null) {
-            track.sharing_note = sharing_note;
-        }
-        return track;
-    }*/
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        TrackSharingActivity that = (TrackSharingActivity) o;
-
-        return !(sharing_note != null ? !sharing_note.equals(that.sharing_note) : that.sharing_note != null)
-            && !(track != null ? !track.equals(that.track) : that.track != null);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = track != null ? track.hashCode() : 0;
-        result = 31 * result + (sharing_note != null ? sharing_note.hashCode() : 0);
-        return result;
-    }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(track, 0);
-        dest.writeString(sharing_note.text);
-        dest.writeLong(sharing_note.created_at.getTime());
     }
 
     public static final Parcelable.Creator<TrackSharingActivity> CREATOR = new Parcelable.Creator<TrackSharingActivity>() {
@@ -99,13 +70,30 @@ public class TrackSharingActivity extends Activity implements Playable {
 
             TrackSharingActivity ts = new TrackSharingActivity();
             ts.track = in.readParcelable(Track.class.getClassLoader());
-            ts.sharing_note = new SharingNote();
-            ts.sharing_note.text = in.readString();
-            ts.sharing_note.created_at = new Date(in.readLong());
             return ts;
         }
         public TrackSharingActivity[] newArray(int size) {
             return new TrackSharingActivity[size];
         }
     };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TrackSharingActivity)) return false;
+        if (!super.equals(o)) return false;
+
+        TrackSharingActivity that = (TrackSharingActivity) o;
+
+        if (track != null ? !track.equals(that.track) : that.track != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (track != null ? track.hashCode() : 0);
+        return result;
+    }
 }
