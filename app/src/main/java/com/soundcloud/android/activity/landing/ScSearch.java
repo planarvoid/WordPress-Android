@@ -115,7 +115,7 @@ public class ScSearch extends ScActivity {
 
     @Override
     protected int getSelectedMenuId() {
-        return R.id.nav_search;
+        return -1;
     }
 
 

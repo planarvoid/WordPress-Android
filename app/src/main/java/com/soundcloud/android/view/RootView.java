@@ -110,8 +110,8 @@ public class RootView extends ViewGroup {
          * Invoked when the menu becomes fully open.
          */
         public void onMenuOpenLeft();
-        public void onMenuOpenRight();
 
+        public void onMenuOpenRight();
         /**
          * Invoked when the menu becomes fully closed.
          */
@@ -126,8 +126,8 @@ public class RootView extends ViewGroup {
          * Invoked when the user stops dragging/flinging the menu's handle.
          */
         public void onScrollEnded();
-    }
 
+    }
     /**
      * A slide in navigation menu.
      *
@@ -202,6 +202,10 @@ public class RootView extends ViewGroup {
 
         content.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         mContent.addView(content);
+    }
+
+    public void setSelectedMenuId(int i) {
+        mMenu.setSelectedMenuId(i);
     }
 
     public void configureMenu(int menuResourceId, final MainMenu.OnMenuItemClickListener listener) {
