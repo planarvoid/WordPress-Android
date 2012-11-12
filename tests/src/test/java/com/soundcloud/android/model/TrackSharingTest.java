@@ -16,6 +16,7 @@ public class TrackSharingTest {
     @Test
     public void shouldBeParcelable() throws Exception {
         TrackSharingActivity ts = new TrackSharingActivity();
+        ts.created_at = new Date();
         ts.track = new Track();
         ts.sharing_note = new SharingNote();
         ts.sharing_note.created_at = new Date();
