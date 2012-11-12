@@ -38,7 +38,7 @@ import java.io.IOException;
 
 public class Launch extends Activity implements FetchModelTask.FetchModelListener<ScResource> {
 
-    private static final int DELAY_MILLIS = 500;
+    private static final int DELAY_MILLIS = 700;
     private static final long MAX_DELAY_MILLIS = 1000;
 
     @Nullable
