@@ -25,4 +25,8 @@
             <flag name="both" value="0x3" />
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="CustomFontTextView">
+        <attr name="custom_font" format="string" />
+    </declare-styleable>
 </resources>

@@ -6,11 +6,10 @@ import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.*;
-import android.text.style.BackgroundColorSpan;
 import android.util.AttributeSet;
-import android.widget.TextView;
+import com.soundcloud.android.view.CustomFontTextView;
 
-public class JaggedTextView extends TextView {
+public class JaggedTextView extends CustomFontTextView {
     private Paint mBackgroundPaint;
 
     public JaggedTextView(Context context) {

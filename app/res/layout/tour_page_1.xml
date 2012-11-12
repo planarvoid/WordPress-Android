@@ -13,9 +13,9 @@
                   android:orientation="vertical"
                   android:padding="10dp">
         <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.Headline"
-                                                       android:text="Fire 20 people."/>
+                                                         android:text="Fire 20 people."/>
         <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.CallToAction"
-                                                       android:text="Then have a cup of tea and an orange" />
+                                                         android:text="Then have a cup of tea and an orange" />
 
     </LinearLayout>
 </RelativeLayout>
