@@ -14,9 +14,9 @@
                   android:padding="10dp"
                   android:layout_marginBottom="@dimen/tour_bottom_bar_height"
                   android:layout_alignParentBottom="true">
-        <com.soundcloud.android.view.tour.TourTextView style="@style/Tour.Headline"
+        <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.Headline"
                                                        android:text="Welcome to SoundCloud!" />
-        <com.soundcloud.android.view.tour.TourTextView style="@style/Tour.CallToAction"
+        <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.CallToAction"
                                                        android:text="Get ready to discover, connect and share all kinds of music and audio."/>
     </LinearLayout>
 </RelativeLayout>

@@ -12,9 +12,9 @@
                   android:layout_height="wrap_content"
                   android:orientation="vertical"
                   android:padding="10dp">
-        <com.soundcloud.android.view.tour.TourTextView style="@style/Tour.Headline"
+        <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.Headline"
                                                        android:text="Fire 20 people."/>
-        <com.soundcloud.android.view.tour.TourTextView style="@style/Tour.CallToAction"
+        <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.CallToAction"
                                                        android:text="Then have a cup of tea and an orange" />
 
     </LinearLayout>

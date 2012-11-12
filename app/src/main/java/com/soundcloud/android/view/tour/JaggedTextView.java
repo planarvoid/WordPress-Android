@@ -10,18 +10,18 @@ import android.text.style.BackgroundColorSpan;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-public class TourTextView extends TextView {
+public class JaggedTextView extends TextView {
     private Paint mBackgroundPaint;
 
-    public TourTextView(Context context) {
+    public JaggedTextView(Context context) {
         super(context);
     }
 
-    public TourTextView(Context context, AttributeSet attrs) {
+    public JaggedTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public TourTextView(Context context, AttributeSet attrs, int defStyle) {
+    public JaggedTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
