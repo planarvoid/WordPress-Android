@@ -757,8 +757,9 @@ public class RootView extends ViewGroup {
     }
 
     private void moveContent(int position) {
+        final int expandedLeftContentPos = getMeasuredWidth() - mOffsetRight;
         if (position == EXPANDED_LEFT) {
-            final int togo = (getMeasuredWidth() - mOffsetRight) - mContent.getLeft();
+            final int togo = expandedLeftContentPos - mContent.getLeft();
             mContent.offsetLeftAndRight(togo); //todo proper value
         } else if (position == EXPANDED_RIGHT) {
             final int togo = (-getMeasuredWidth() + mOffsetLeft) - mContent.getLeft();
@@ -768,6 +769,11 @@ public class RootView extends ViewGroup {
 
         } else {
             final int left = mContent.getLeft();
+
+            if (position > expandedLeftContentPos){
+                position = (int) (expandedLeftContentPos + (position - expandedLeftContentPos) * .5);
+            }
+
             int deltaX = position - left;
             if (position < 0 && !canOpenRight()) {
                 deltaX = -left;
