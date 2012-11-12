@@ -93,9 +93,9 @@ public class Recording extends ScResource implements Comparable<Recording> {
     public String service_ids;
 
     // private message to another user
-    private User   recipient;
-    /* package */ String recipient_username;
-    /* package */ long   recipient_user_id;
+    @Deprecated private User   recipient;
+    /* package */ @Deprecated String recipient_username;
+    /* package */ @Deprecated long   recipient_user_id;
 
     // status
     public boolean external_upload;
@@ -139,15 +139,13 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     public Recording(File f) {
-        this(f, null, null);
+        this(f, null);
     }
 
-    private Recording(File f, @Nullable User user, @Nullable String tip_key) {
+    private Recording(File f, @Nullable String tip_key) {
         if (f == null) throw new IllegalArgumentException("file is null");
         audio_path = f;
-        if (user != null) {
-            setRecipient(user);
-        }
+
         if (!TextUtils.isEmpty(tip_key)){
             this.tip_key = tip_key;
         }
@@ -263,7 +261,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
         return audio_path.exists() || getEncodedFile().exists();
     }
 
-    private void setRecipient(User recipient) {
+    @Deprecated private void setRecipient(User recipient) {
         this.recipient     = recipient;
         recipient_user_id  = recipient.id;
         recipient_username = recipient.getDisplayName();
@@ -711,25 +709,20 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     public static @NotNull Recording create() {
-        return create(null, null);
+        return create(null);
     }
 
-    public static @NotNull Recording create(@Nullable User user) {
-        return create(user, null);
-    }
 
     /**
-     * @param user the user this recording is for, or null if there's no recipient
      * @param tip_key the key of the suggestion (tip) that was present when recording started
      * @return a recording initialised with a file path (which will be used for the recording).
      */
-    public static @NotNull Recording create(@Nullable User user, @Nullable String tip_key ) {
+    public static @NotNull Recording create(@Nullable String tip_key ) {
         File file = new File(SoundRecorder.RECORD_DIR,
                 System.currentTimeMillis()
-                + (user == null ? "" : "_" + user.id)
                 + "."+WavReader.EXTENSION);
 
-        return new Recording(file, user, tip_key);
+        return new Recording(file, tip_key);
     }
 
     @Override

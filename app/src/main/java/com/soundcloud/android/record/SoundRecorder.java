@@ -263,12 +263,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         return mState;
     }
 
-    public @NotNull Recording startRecording(@Nullable User user) throws IOException {
-        return startRecording(user,null);
-    }
-
     // Sets output file path, call directly after construction/reset.
-    public @NotNull Recording startRecording(@Nullable User user, @Nullable String tip_key) throws IOException {
+    public @NotNull Recording startRecording(@Nullable String tip_key) throws IOException {
         if (!IOUtils.isSDCardAvailable()) {
             throw new IOException(mContext.getString(R.string.record_insert_sd_card));
         } else if (!mRemainingTimeCalculator.isDiskSpaceAvailable()) {
@@ -278,7 +274,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         mRemainingTimeCalculator.reset();
         if (mState != State.RECORDING) {
             if (mRecording == null) {
-                mRecording = Recording.create(user, tip_key);
+                mRecording = Recording.create(tip_key);
 
                 mRecordStream.setWriters(mRecording.getRawFile(),
                         shouldEncodeWhileRecording() ? mRecording.getEncodedFile() : null);

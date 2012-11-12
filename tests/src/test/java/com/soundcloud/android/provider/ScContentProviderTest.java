@@ -131,25 +131,6 @@ public class ScContentProviderTest {
         expect(t.permalink).toEqual("info-chez-vous-2012-27-09");
     }
 
-    @Test
-    public void shouldIncludeUsernameForPrivateRecordings() throws Exception {
-        User user = new User();
-        user.id = USER_ID;
-        user.username = "current user";
-
-        Recording r = Recording.create(user);
-        r.user_id = USER_ID;
-        expect(resolver.insert(Content.USERS.uri, user.buildContentValues())).not.toBeNull();
-        Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
-
-        expect(uri).not.toBeNull();
-
-        Cursor c = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(1);
-        expect(c.moveToFirst()).toBeTrue();
-
-        expect(c.getString(c.getColumnIndex("username"))).toEqual("current user");
-    }
 
     @Test
     public void shouldSupportAndroidGlobalSearch() throws Exception {
