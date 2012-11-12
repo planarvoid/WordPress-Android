@@ -81,38 +81,6 @@ public class SignupTest extends ActivityTestCase<News> {
         solo.assertText(R.string.tab_stream);
     }
 
-    @Suppress
-    @FlakyTest
-    public void testSignupSwipeThroughTour() throws Exception {
-        performSignup(generateEmail(), "password", "password");
-        solo.assertText(R.string.authentication_add_info_msg);
-
-        solo.clickOnButtonResId(R.string.btn_skip);
-        solo.assertDialogClosed();
-
-        Tour tour = solo.assertActivity(Tour.class);
-
-        assertEquals(solo.getString(R.string.tour_start_message), tour.getMessage());
-        solo.swipeLeft();
-        assertEquals(solo.getString(R.string.tour_record_message), tour.getMessage());
-        solo.swipeLeft();
-        assertEquals(solo.getString(R.string.tour_share_message), tour.getMessage());
-        solo.swipeLeft();
-        assertEquals(solo.getString(R.string.tour_follow_message), tour.getMessage());
-        solo.swipeLeft();
-        assertEquals(solo.getString(R.string.tour_comment_message), tour.getMessage());
-        solo.swipeLeft();
-        assertEquals(
-            Html.fromHtml(solo.getString(R.string.tour_finish_message)).toString(), tour.getMessage());
-
-        solo.clickOnButtonResId(R.string.btn_done);
-        // Find Friends
-        solo.assertText(R.string.suggested_users_msg);
-
-        solo.clickOnButtonResId(R.string.btn_done);
-
-        solo.assertText(R.string.tab_stream);
-    }
 
     public void testSignupWithPhotoFromCamera() throws Exception {
         performSignup(generateEmail(), "password", "password");
