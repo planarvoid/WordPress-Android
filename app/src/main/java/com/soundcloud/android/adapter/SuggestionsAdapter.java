@@ -12,32 +12,22 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.MergeCursor;
-import android.graphics.drawable.Drawable;
 import android.support.v4.widget.CursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-public class SearchSuggestionsAdapter extends CursorAdapter {
+public class SuggestionsAdapter extends CursorAdapter {
     private final ContentResolver mContentResolver;
     private final Context mContext;
-
-    protected Map<Long, Drawable> mIconAnimations = new HashMap<Long, Drawable>();
-    protected Set<Long> mLoadingIcons = new HashSet<Long>();
 
     private ImageLoader mImageLoader;
 
     public final static int TYPE_TRACK = 0;
     public final static int TYPE_USER = 1;
-    private int mOffsetRight;
 
-    public SearchSuggestionsAdapter(Context context, Cursor c) {
+    public SuggestionsAdapter(Context context, Cursor c) {
         super(context, c, false);
         mContentResolver = context.getContentResolver();
         mContext = context;
@@ -101,45 +91,28 @@ public class SearchSuggestionsAdapter extends CursorAdapter {
     }
 
     private View createViewFromResource(Cursor cursor,
-                                           @Nullable View convertView,
-                                           @Nullable ViewGroup parent) {
+                                        @Nullable View convertView,
+                                        @Nullable ViewGroup parent) {
         View view = convertView;
         SearchHolder holder;
+        if (convertView == null) {
+            view = View.inflate(mContext, R.layout.search_suggestion, null);
+            holder = new SearchHolder();
+            holder.iv_icon = (ImageView) view.findViewById(R.id.icon);
+            holder.iv_search_type = (ImageView) view.findViewById(R.id.iv_search_type);
+            holder.tv_main = (TextView) view.findViewById(R.id.title);
+            view.setTag(holder);
+            fixRowPadding(view);
+        } else {
+            holder = (SearchHolder) view.getTag();
+        }
 
         if (cursor.getPosition() < ((MergeSearchCursor) cursor).trackCount) {
-
-            if (convertView == null) {
-                view = View.inflate(mContext, R.layout.search_suggestion_track, null);
-                holder = new SearchHolder();
-                holder.iv_icon = (ImageView) view.findViewById(R.id.icon);
-                holder.iv_search_type = (ImageView) view.findViewById(R.id.iv_search_type);
-                holder.tv_main = (TextView) view.findViewById(R.id.title);
-                view.setTag(holder);
-
-                fixRowPadding(view);
-            }else{
-                holder = (SearchHolder)view.getTag();
-            }
-
             setIcon(holder, cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.ARTWORK_URL)));
             holder.tv_main.setText(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TITLE)));
             holder.iv_search_type.setImageResource(R.drawable.ic_search_sound);
 
         } else {
-
-            if (convertView == null) {
-                view = View.inflate(mContext, R.layout.search_suggestion_user, null);
-                holder = new SearchHolder();
-                holder.iv_icon = (ImageView) view.findViewById(R.id.icon);
-                holder.iv_search_type = (ImageView) view.findViewById(R.id.iv_search_type);
-                holder.tv_main = (TextView) view.findViewById(R.id.username);
-                view.setTag(holder);
-
-                fixRowPadding(view);
-            } else {
-                holder = (SearchHolder) view.getTag();
-            }
-
             setIcon(holder, cursor.getString(cursor.getColumnIndex(DBHelper.Users.AVATAR_URL)));
             holder.tv_main.setText(cursor.getString(cursor.getColumnIndex(DBHelper.Users.USERNAME)));
             holder.iv_search_type.setImageResource(R.drawable.ic_search_user);
@@ -149,9 +122,9 @@ public class SearchSuggestionsAdapter extends CursorAdapter {
 
     private void fixRowPadding(View view) {
         view.setPadding(view.getPaddingLeft(),
-                        view.getPaddingTop(),
-                        view.getPaddingRight() + mOffsetRight,
-                        view.getPaddingBottom());
+                view.getPaddingTop(),
+                view.getPaddingRight(),
+                view.getPaddingBottom());
     }
 
     private void setIcon(SearchHolder holder, String iconUri) {
@@ -159,17 +132,13 @@ public class SearchSuggestionsAdapter extends CursorAdapter {
             ImageLoader.BindResult result = mImageLoader.bind(this, holder.iv_icon,
                     Consts.GraphicSize.formatUriForSearchSuggestionsList(mContext, iconUri)
             );
-            if (result != ImageLoader.BindResult.OK){
+            if (result != ImageLoader.BindResult.OK) {
                 holder.iv_icon.setImageResource(R.drawable.cloud_no_logo_sm);
             }
         } else {
             mImageLoader.unbind(holder.iv_icon);
             holder.iv_icon.setImageResource(R.drawable.cloud_no_logo_sm);
         }
-    }
-
-    public void setOffsetRight(int mOffsetRight) {
-        this.mOffsetRight = mOffsetRight;
     }
 
     static class SearchHolder {

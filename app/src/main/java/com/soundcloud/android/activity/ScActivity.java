@@ -5,7 +5,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.google.android.imageloader.ImageLoader;
@@ -20,7 +19,7 @@ import com.soundcloud.android.activity.landing.ScSearch;
 import com.soundcloud.android.activity.landing.Stream;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
-import com.soundcloud.android.adapter.SearchSuggestionsAdapter;
+import com.soundcloud.android.adapter.SuggestionsAdapter;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -374,15 +373,15 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getSupportMenuInflater();
         final int menuResourceId = getMenuResourceId();
-        if (menuResourceId > -1) {
-            inflater.inflate(menuResourceId, menu);
-        }
+        if (menuResourceId < 0) return true;
+
+        getSupportMenuInflater().inflate(menuResourceId, menu);
 
         // Get the SearchView and set the searchable configuration
         if (menu.findItem(R.id.menu_search) != null){
             SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+
             SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 
             /*
@@ -395,7 +394,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             final SearchableInfo searchableInfo = searchManager.getSearchableInfo(getComponentName());
             searchView.setSearchableInfo(searchableInfo);
 
-            final SearchSuggestionsAdapter suggestionsAdapter = new SearchSuggestionsAdapter(this, null);
+            final SuggestionsAdapter suggestionsAdapter = new SuggestionsAdapter(this, null);
             searchView.setSuggestionsAdapter(suggestionsAdapter);
             searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
                 @Override
@@ -405,7 +404,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
                 @Override
                 public boolean onSuggestionClick(int position) {
-                    if (suggestionsAdapter.getItemViewType(position) == SearchSuggestionsAdapter.TYPE_TRACK) {
+                    if (suggestionsAdapter.getItemViewType(position) == SuggestionsAdapter.TYPE_TRACK) {
                         startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(CloudPlaybackService.EXTRA_TRACK_ID, suggestionsAdapter.getItemId(position)));
                         goToPlayer();
                     } else {
