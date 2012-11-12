@@ -76,10 +76,6 @@ public class EmptyCollection extends FrameLayout {
             mMode = mode;
             switch (mode) {
                 case WAITING_FOR_SYNC:
-                    mEmptyLayout.setVisibility(View.GONE);
-                    mSyncLayout.setVisibility(View.VISIBLE);
-                    findViewById(R.id.txt_sync).setVisibility(View.VISIBLE);
-                    break;
                 case WAITING_FOR_DATA:
                     mEmptyLayout.setVisibility(View.GONE);
                     mSyncLayout.setVisibility(View.VISIBLE);
