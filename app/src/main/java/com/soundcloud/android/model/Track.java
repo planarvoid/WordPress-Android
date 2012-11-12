@@ -276,7 +276,7 @@ public class Track extends PlayableResource implements Playable {
     }
 
     public Track(Parcel in) {
-        Bundle b = in.readBundle();
+        Bundle b = in.readBundle(getClass().getClassLoader());
         super.readFromBundle(b);
 
         state = State.fromString(b.getString("state"));

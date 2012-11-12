@@ -10,6 +10,7 @@ import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
 import android.net.Uri;
+import android.util.Log;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -23,7 +24,10 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, Uri>  {
 
     @Override
     protected Uri doInBackground(Uri... params) {
-        final Uri uri = params[0];
+        return resolve(params[0]);
+    }
+
+    public Uri resolve(Uri uri) {
         Uri local = resolveSoundCloudURI(uri, mApi.getEnv());
         if (local != null) {
             return local;
@@ -52,7 +56,9 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, Uri>  {
             warn("error resolving url", e);
             return null;
         }
+
     }
+
 
     public void setListener(ResolveListener listener){
         mListener = new WeakReference<ResolveListener>(listener);

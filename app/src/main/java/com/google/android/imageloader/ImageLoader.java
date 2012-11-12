@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -127,10 +128,8 @@ public class ImageLoader {
     }
 
     public void unblock(LoadBlocker blocker){
-        for (LoadBlocker blockerRef : mLoadBlockers.keySet()){
-            if (blockerRef == blocker){
-                mLoadBlockers.remove(blockerRef);
-            }
+        for (Iterator<LoadBlocker> it = mLoadBlockers.keySet().iterator(); it.hasNext(); ) {
+            if (it.next() == blocker) it.remove();
         }
 
         if (!isBlocked()) {

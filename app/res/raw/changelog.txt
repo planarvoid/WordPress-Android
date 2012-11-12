@@ -2,6 +2,7 @@ $ 49
   % v current
   _ 2012-11-02
   ! Next
+    * Fixed left trim handle dragging in Record Edit screen
     * New UI
     * Extra media button handling
 

@@ -282,10 +282,10 @@ public class Activities extends CollectionHolder<Activity> {
 
     public static Activity getLastActivity(Content content, ContentResolver resolver) {
         Activity a = null;
-        Cursor c = resolver.query(content.uri,
+        Cursor c = resolver.query(Content.ME_ALL_ACTIVITIES.uri,
                     null,
-                    null,
-                    null,
+                DBHelper.ActivityView.CONTENT_ID+" = ?",
+                new String[] { String.valueOf(content.id) },
                     DBHelper.ActivityView.CREATED_AT + " ASC LIMIT 1");
         if (c != null && c.moveToFirst()){
             a = SoundCloudApplication.MODEL_MANAGER.getActivityFromCursor(c);
@@ -296,10 +296,10 @@ public class Activities extends CollectionHolder<Activity> {
 
     public static Activity getFirstActivity(Content content, ContentResolver resolver) {
         Activity a = null;
-        Cursor c = resolver.query(content.uri,
+        Cursor c = resolver.query(Content.ME_ALL_ACTIVITIES.uri,
                 null,
-                null,
-                null,
+                DBHelper.ActivityView.CONTENT_ID+" = ?",
+                new String[] { String.valueOf(content.id) },
                 DBHelper.ActivityView.CREATED_AT + " DESC LIMIT 1");
         if (c != null && c.moveToFirst()) {
             a = SoundCloudApplication.MODEL_MANAGER.getActivityFromCursor(c);

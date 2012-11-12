@@ -191,7 +191,6 @@ public final class Consts {
 
         int DASHBOARD_NOTIFY_STREAM_ID = 4;
         int DASHBOARD_NOTIFY_ACTIVITIES_ID = 5;
-        int BETA_NOTIFY_ID    = 6;
     }
 
     public interface ResourceStaleTimes {
@@ -221,8 +220,5 @@ public final class Consts {
         String DEV_HTTP_PROXY                       = "dev.http.proxy";
         String DEV_ALARM_CLOCK_ENABLED              = "dev.alarmClock.enabled";
         String DEV_ALARM_CLOCK_URI                  = "dev.alarmClock.uri";
-        String BETA_CHECK_FOR_UPDATES               = "beta.check_for_updates";
-        String BETA_REQUIRE_WIFI                    = "beta.require_wifi";
-        String BETA_VERSION                         = "beta.beta_version";
     }
 }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.view.play;
 
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
@@ -116,7 +117,8 @@ public class PlayerTrackView extends LinearLayout implements
 
         mAvatar = (ImageView) findViewById(R.id.icon);
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
-        mAvatar.setOnClickListener(new View.OnClickListener() {
+
+        findViewById(R.id.track_info_clicker).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (mTrack != null) {
                     // get a valid id somehow or don't bother

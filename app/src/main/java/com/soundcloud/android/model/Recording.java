@@ -416,11 +416,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     public Intent getViewIntent() {
-        if (recipient_user_id > 0) {
-            return new Intent(Actions.MESSAGE).putExtra("recipient", recipient_user_id);
-        } else {
-            return new Intent(Actions.RECORD);
-        }
+        return new Intent(Actions.RECORD);
     }
 
     public Map<String, ?> toParamsMap(Context context) {

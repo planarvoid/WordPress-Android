@@ -34,9 +34,4 @@ public class You extends UserBrowser implements ScLandingPage {
     protected boolean isYou() {
         return true;
     }
-
-    @Override
-    public LandingPage getPageValue() {
-        return LandingPage.You;
-    }
 }
