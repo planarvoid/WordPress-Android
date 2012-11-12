@@ -199,8 +199,6 @@ public class UserBrowser extends ScActivity implements
             if (intent.hasExtra(Tab.EXTRA)) {
                 mPager.setCurrentItem(Tab.indexOf(intent.getStringExtra(Tab.EXTRA)));
                 intent.removeExtra(Tab.EXTRA);
-            } else if (isYou()) {
-                mPager.setCurrentItem(getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX));
             }
         }
 

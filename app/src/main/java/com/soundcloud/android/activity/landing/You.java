@@ -22,7 +22,6 @@ public class You extends UserBrowser implements ScLandingPage {
 
             @Override
             public void onPageSelected(int i) {
-                getApp().setAccountData(User.DataKeys.PROFILE_IDX, i);
                 mRootView.setSelectedMenuId(Tab.values()[i] == Tab.likes ? R.id.nav_likes : R.id.nav_you);
             }
 
@@ -35,8 +34,7 @@ public class You extends UserBrowser implements ScLandingPage {
     @Override
     protected int getSelectedMenuId() {
         final Intent intent = getIntent();
-        if ((intent.hasExtra(Tab.EXTRA) && Tab.values()[Tab.indexOf(intent.getStringExtra(Tab.EXTRA))] == Tab.likes) ||
-                (!intent.hasExtra(Tab.EXTRA) && Tab.values()[getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX)] == Tab.likes)) {
+        if (intent.hasExtra(Tab.EXTRA) && Tab.values()[Tab.indexOf(intent.getStringExtra(Tab.EXTRA))] == Tab.likes) {
             return R.id.nav_likes;
         } else {
             return R.id.nav_you;
