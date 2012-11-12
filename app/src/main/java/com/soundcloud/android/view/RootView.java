@@ -501,6 +501,10 @@ public class RootView extends ViewGroup {
                     break;
                 }
 
+                if (isExpanded()){
+                    return startDrag(ev, x);
+                }
+
                 /*
                 * Remember location of down touch.
                 * ACTION_DOWN always refers to pointer index 0.
