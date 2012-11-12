@@ -94,28 +94,28 @@ public class SuggestionsAdapter extends CursorAdapter {
                                         @Nullable View convertView,
                                         @Nullable ViewGroup parent) {
         View view = convertView;
-        SearchHolder holder;
+        SearchTag tag;
         if (convertView == null) {
             view = View.inflate(mContext, R.layout.search_suggestion, null);
-            holder = new SearchHolder();
-            holder.iv_icon = (ImageView) view.findViewById(R.id.icon);
-            holder.iv_search_type = (ImageView) view.findViewById(R.id.iv_search_type);
-            holder.tv_main = (TextView) view.findViewById(R.id.title);
-            view.setTag(holder);
+            tag = new SearchTag();
+            tag.iv_icon = (ImageView) view.findViewById(R.id.icon);
+            tag.iv_search_type = (ImageView) view.findViewById(R.id.iv_search_type);
+            tag.tv_main = (TextView) view.findViewById(R.id.title);
+            view.setTag(tag);
             fixRowPadding(view);
         } else {
-            holder = (SearchHolder) view.getTag();
+            tag = (SearchTag) view.getTag();
         }
 
         if (cursor.getPosition() < ((MergeSearchCursor) cursor).trackCount) {
-            setIcon(holder, cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.ARTWORK_URL)));
-            holder.tv_main.setText(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TITLE)));
-            holder.iv_search_type.setImageResource(R.drawable.ic_search_sound);
+            setIcon(tag, cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.ARTWORK_URL)));
+            tag.tv_main.setText(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TITLE)));
+            tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
 
         } else {
-            setIcon(holder, cursor.getString(cursor.getColumnIndex(DBHelper.Users.AVATAR_URL)));
-            holder.tv_main.setText(cursor.getString(cursor.getColumnIndex(DBHelper.Users.USERNAME)));
-            holder.iv_search_type.setImageResource(R.drawable.ic_search_user);
+            setIcon(tag, cursor.getString(cursor.getColumnIndex(DBHelper.Users.AVATAR_URL)));
+            tag.tv_main.setText(cursor.getString(cursor.getColumnIndex(DBHelper.Users.USERNAME)));
+            tag.iv_search_type.setImageResource(R.drawable.ic_search_user);
         }
         return view;
     }
@@ -127,21 +127,21 @@ public class SuggestionsAdapter extends CursorAdapter {
                 view.getPaddingBottom());
     }
 
-    private void setIcon(SearchHolder holder, String iconUri) {
+    private void setIcon(SearchTag tag, String iconUri) {
         if (ImageUtils.checkIconShouldLoad(iconUri)) {
-            ImageLoader.BindResult result = mImageLoader.bind(this, holder.iv_icon,
+            ImageLoader.BindResult result = mImageLoader.bind(this, tag.iv_icon,
                     Consts.GraphicSize.formatUriForSearchSuggestionsList(mContext, iconUri)
             );
             if (result != ImageLoader.BindResult.OK) {
-                holder.iv_icon.setImageResource(R.drawable.cloud_no_logo_sm);
+                tag.iv_icon.setImageResource(R.drawable.cloud_no_logo_sm);
             }
         } else {
-            mImageLoader.unbind(holder.iv_icon);
-            holder.iv_icon.setImageResource(R.drawable.cloud_no_logo_sm);
+            mImageLoader.unbind(tag.iv_icon);
+            tag.iv_icon.setImageResource(R.drawable.cloud_no_logo_sm);
         }
     }
 
-    static class SearchHolder {
+    static class SearchTag {
         ImageView iv_icon;
         ImageView iv_search_type;
         TextView tv_main;
