@@ -198,8 +198,7 @@ public class UserBrowser extends ScActivity implements
 
             if (intent.hasExtra(Tab.EXTRA)) {
                 mPager.setCurrentItem(Tab.indexOf(intent.getStringExtra(Tab.EXTRA)));
-            } else if (isYou()) {
-                mPager.setCurrentItem(getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX));
+                intent.removeExtra(Tab.EXTRA);
             }
         }
 
@@ -229,7 +228,7 @@ public class UserBrowser extends ScActivity implements
 
     @Override
     protected int getSelectedMenuId() {
-        return R.id.nav_you;
+        return -1;
     }
 
 
