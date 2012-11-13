@@ -528,7 +528,7 @@ public class ScListFragment extends SherlockListFragment
     }
 
     protected void configureEmptyCollection(){
-        mEmptyCollection.setMode(canAppend() || isRefreshing() ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.IDLE);
+        mEmptyCollection.setMode(canAppend() || isRefreshing() || waitingOnInitialSync()? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.IDLE);
     }
 
     @Override
