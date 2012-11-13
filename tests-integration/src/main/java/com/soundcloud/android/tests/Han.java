@@ -177,7 +177,7 @@ public class Han extends Solo {
     }
 
     public void logoutViaSettings() {
-        clickOnMenuItem(R.string.menu_settings);
+        clickOnMenuItem(R.string.side_menu_settings);
         clickOnText(R.string.pref_revoke_access);
         assertText(R.string.menu_clear_user_title);
         clickOnOK();

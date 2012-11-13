@@ -12,6 +12,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.adapter.CommentAdapter;
+import com.soundcloud.android.adapter.FriendAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.PlayableAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
@@ -62,8 +63,10 @@ public class ScListFragment extends SherlockListFragment
 
     protected static final int CONNECTIVITY_MSG = 0;
 
-    private @Nullable ScListView mListView;
-    private @NotNull EmptyCollection mEmptyCollection;
+    @Nullable
+    protected ScListView mListView;
+    @NotNull
+    protected EmptyCollection mEmptyCollection;
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
     private @Nullable Content mContent;
@@ -136,8 +139,11 @@ public class ScListFragment extends SherlockListFragment
                 case USER_FOLLOWERS:
                 case TRACK_LIKERS:
                 case SUGGESTED_USERS:
-                case ME_FRIENDS:
                     adapter = new UserAdapter(getActivity(), mContentUri);
+                    break;
+
+                case ME_FRIENDS:
+                    adapter = new FriendAdapter(getActivity(), mContentUri);
                     break;
 
                 case ME_TRACKS:
@@ -162,13 +168,13 @@ public class ScListFragment extends SherlockListFragment
 
             }
             setListAdapter(adapter);
-            resetEmptyCollection();
+            configureEmptyCollection();
             if (canAppend()) append();
         }
     }
 
     protected boolean canAppend() {
-        return mKeepGoing && !waitingOnInitialSync();
+        return mKeepGoing && !waitingOnInitialSync() && getActivity() != null;
     }
 
     @Override
@@ -184,7 +190,7 @@ public class ScListFragment extends SherlockListFragment
 
 
         mEmptyCollection = EmptyCollection.fromContent(context, mContent);
-        resetEmptyCollection();
+        configureEmptyCollection();
         mListView.setEmptyView(mEmptyCollection);
 
         if (isRefreshing() || waitingOnInitialSync()){
@@ -198,9 +204,6 @@ public class ScListFragment extends SherlockListFragment
 
         root.setLayoutParams(new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
-
-
-
         return root;
     }
 
@@ -375,7 +378,8 @@ public class ScListFragment extends SherlockListFragment
     }
 
     public void executeRefreshTask() {
-        mEmptyCollection.setMode(mLocalCollection == null || mLocalCollection.hasSyncedBefore() ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.WAITING_FOR_SYNC);
+        configureEmptyCollection();
+        mEmptyCollection.setMode(EmptyCollection.Mode.WAITING_FOR_DATA);
         mRefreshTask = buildTask();
         mRefreshTask.execute(getTaskParams(true));
     }
@@ -437,12 +441,11 @@ public class ScListFragment extends SherlockListFragment
     }
 
     public void reset() {
-
         mNextHref = "";
         mKeepGoing = true;
         clearRefreshTask();
         clearUpdateTask();
-        resetEmptyCollection();
+        configureEmptyCollection();
 
         final ScBaseAdapter adp = getListAdapter();
         if (adp != null) {
@@ -450,14 +453,8 @@ public class ScListFragment extends SherlockListFragment
             setListAdapter(adp);
             adp.notifyDataSetChanged();
         }
-    }
 
-    private void resetEmptyCollection() {
-        if (mEmptyCollection != null){
-            mEmptyCollection.setMode((mLocalCollection == null || mLocalCollection.hasSyncedBefore()) ?
-                    (canAppend() ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.IDLE)
-                    : EmptyCollection.Mode.WAITING_FOR_SYNC);
-        }
+        if (canAppend()) append();
     }
 
     protected void clearRefreshTask() {
@@ -520,9 +517,18 @@ public class ScListFragment extends SherlockListFragment
 
         getListAdapter().handleTaskReturnData(data);
 
-        if (data.wasRefresh && !waitingOnInitialSync()) doneRefreshing();
-        mEmptyCollection.setMode(waitingOnInitialSync() ? EmptyCollection.Mode.WAITING_FOR_SYNC : EmptyCollection.Mode.IDLE);
+        if (!isRefreshing() && !waitingOnInitialSync()) doneRefreshing();
         handleResponseCode(data.responseCode);
+        configureEmptyCollection();
+
+        if (getListAdapter().isEmpty() && mKeepGoing){
+            // this can happen if we manually filter out the entire collection (e.g. all playlists)
+            append(true);
+        }
+    }
+
+    protected void configureEmptyCollection(){
+        mEmptyCollection.setMode(canAppend() || isRefreshing() || waitingOnInitialSync()? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.IDLE);
     }
 
     @Override
@@ -543,9 +549,11 @@ public class ScListFragment extends SherlockListFragment
             append();
         }
     }
-
     protected void append() {
-        if (isTaskFinished(mAppendTask)){
+        append(false);
+    }
+    protected void append(boolean force) {
+        if (force || isTaskFinished(mAppendTask)){
             mAppendTask = buildTask();
             mAppendTask.execute(getTaskParams(false));
         }
