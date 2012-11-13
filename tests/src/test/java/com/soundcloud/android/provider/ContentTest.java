@@ -44,8 +44,8 @@ public class ContentTest {
         expect(Content.COLLECTION_ITEMS.forId(1234).toString()).toEqual(
                 "content://com.soundcloud.android.provider.ScContentProvider/collection_items/1234");
 
-        expect(Content.TRACK_ARTWORK.forId(1234).toString()).toEqual(
-                "content://com.soundcloud.android.provider.ScContentProvider/tracks/1234/artwork");
+        expect(Content.ME_SHORTCUTS_ICON.forId(1234).toString()).toEqual(
+                "content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/1234");
     }
 
     @Test
