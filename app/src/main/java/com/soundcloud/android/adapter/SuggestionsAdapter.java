@@ -42,11 +42,11 @@ public class SuggestionsAdapter extends CursorAdapter {
     private ImageLoader mImageLoader;
     private Handler handler = new Handler();
 
-    public final static int TYPE_TRACK = 0;
-    public final static int TYPE_USER  = 1;
+    private final static int TYPE_TRACK = 0;
+    private final static int TYPE_USER  = 1;
 
-    public static final int MAX_LOCAL  = 3;
-    public static final int MAX_REMOTE = 3;
+    private static final int MAX_LOCAL  = 3;
+    private static final int MAX_REMOTE = 5;
 
     public SuggestionsAdapter(Context context, Cursor c, AndroidCloudAPI api) {
         super(context, c, false);
@@ -131,8 +131,13 @@ public class SuggestionsAdapter extends CursorAdapter {
             if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 for (SearchSuggestions.Query q : mApi.getMapper().readValue(resp.getEntity().getContent(),
                         SearchSuggestions.class)) {
-                    remote.addRow(new Object[]{q.id, q.query, q.getClientUri(),
-                            "https://i1.sndcdn.com/avatars-000006111783-xqaxy3-tiny.jpg?2479809"});
+                    remote.addRow(new Object[] {
+                        q.id,
+                        q.query,
+                        q.getClientUri(),
+                        // TODO: resolve icon url
+                        "https://i1.sndcdn.com/avatars-000006111783-xqaxy3-tiny.jpg?2479809"
+                    });
                 }
             } else {
                 Log.w(TAG, "invalid status code returned: "+resp.getStatusLine());
