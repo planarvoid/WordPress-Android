@@ -64,8 +64,6 @@ public class FriendFinderFragment extends ScListFragment implements ParcelCache.
                 setState(States.NO_FB_CONNECTION, refresh);
             }
         }
-
-        if (mListView != null) mListView.onRefreshComplete();
     }
 
     @Override
@@ -79,10 +77,10 @@ public class FriendFinderFragment extends ScListFragment implements ParcelCache.
         onConnections(connections, true);
     }
 
-    public void setState(int state, boolean refresh) {
+    public void setState(int state, boolean reset) {
         mCurrentState = state;
         configureEmptyCollection();
-        if (refresh){
+        if (reset){
             reset();
         } else {
             final ScBaseAdapter listAdapter = getListAdapter();
