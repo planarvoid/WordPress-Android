@@ -37,7 +37,7 @@ public class LoginTest extends ActivityTestCase<News> {
 
         solo.clickOnButtonResId(R.string.btn_login);
         solo.assertDialogClosed();
-        solo.assertText(R.string.tab_stream);
+        solo.assertText(R.string.side_menu_stream);
     }
 
     @FlakyTest

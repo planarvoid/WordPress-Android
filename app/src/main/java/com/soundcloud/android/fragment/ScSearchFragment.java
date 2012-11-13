@@ -22,7 +22,6 @@ public class ScSearchFragment extends ScListFragment {
         if (mCurrentSearch != currentSearch) {
             mCurrentSearch = currentSearch;
             reset();
-            if (canAppend()) append();
         }
     }
 
