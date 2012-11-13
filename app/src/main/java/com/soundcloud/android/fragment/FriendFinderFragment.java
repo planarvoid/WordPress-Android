@@ -135,9 +135,6 @@ public class FriendFinderFragment extends ScListFragment implements ParcelCache.
 
     @Override
     protected void configureEmptyCollection() {
-        //override just in case
-        if (!AndroidUtils.isTaskFinished(mConnectionTask)) mCurrentState = States.LOADING;
-
         if (mEmptyCollection != null) {
             switch (mCurrentState) {
                 case States.LOADING:

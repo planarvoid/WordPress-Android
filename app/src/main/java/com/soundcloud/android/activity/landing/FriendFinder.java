@@ -58,6 +58,10 @@ public class FriendFinder extends ScActivity implements ScLandingPage {
                             mFragment.setState(FriendFinderFragment.States.LOADING, false);
                         }
                     }
+                } else {
+                    if (mFragment != null) {
+                        mFragment.executeRefreshTask();
+                    }
                 }
                 break;
         }

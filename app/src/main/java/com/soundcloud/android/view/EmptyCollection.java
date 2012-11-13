@@ -20,8 +20,8 @@ public class EmptyCollection extends FrameLayout {
 
     private TextView mTxtMessage;
     private TextView mTxtLink;
-    private ImageView mImage;
-    private Button mBtnAction;
+    protected ImageView mImage;
+    protected Button mBtnAction;
     private ActionListener mButtonActionListener;
 
     private ActionListener mImageActionListener;
@@ -98,8 +98,12 @@ public class EmptyCollection extends FrameLayout {
     }
 
     public EmptyCollection setMessageText(int messageId){
-        mTxtMessage.setText(messageId);
-        mTxtMessage.setVisibility(View.VISIBLE);
+        if(messageId == -1){
+            mTxtMessage.setVisibility(View.GONE);
+        } else {
+            mTxtMessage.setText(messageId);
+            mTxtMessage.setVisibility(View.VISIBLE);
+        }
         return this;
     }
 
@@ -129,12 +133,6 @@ public class EmptyCollection extends FrameLayout {
         } else {
             mBtnAction.setVisibility(View.INVISIBLE);
         }
-        return this;
-    }
-
-    private EmptyCollection setButtonBackgroundResource(int resId) {
-        mBtnAction.setBackgroundResource(resId);
-        mBtnAction.setVisibility(View.VISIBLE);
         return this;
     }
 
@@ -176,9 +174,9 @@ public class EmptyCollection extends FrameLayout {
 
             case ME_FRIENDS:
                 return new FriendFinderEmptyCollection(context).setMessageText(R.string.list_empty_user_following_message)
-                        .setActionText(R.string.list_empty_user_following_action)
-                        .setImage(R.drawable.empty_follow_3row)
-                        .setButtonBackgroundResource(R.drawable.btn_fb_bg_states);
+                        .setMessageText(R.string.list_no_facebook_friends)
+                        .setActionText(R.string.connect_to_facebook)
+                        .setImage(R.drawable.empty_follow_3row);
             default:
                 return new EmptyCollection(context);
         }
