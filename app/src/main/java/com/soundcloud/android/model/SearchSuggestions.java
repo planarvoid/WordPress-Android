@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ Suggestions from the /search/suggest endpoint.
+
  <pre>
    {
      "tx_id" : "92dbb484c0d144afa6c193ece99514f3",
@@ -20,6 +22,8 @@ import java.util.List;
      ]
    }
  </pre>
+
+ @see <a href="https://github.com/soundcloud/search-suggest#setting-up-the-suggest-engine">search-suggest</a>
  */
 public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
     public String tx_id;

@@ -25,6 +25,7 @@ import android.database.MergeCursor;
 import android.os.Handler;
 import android.provider.BaseColumns;
 import android.support.v4.widget.CursorAdapter;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -125,8 +126,7 @@ public class SuggestionsAdapter extends CursorAdapter {
         try {
             HttpResponse resp = mApi.get(Request.to("/search/suggest")
                     .with("q", constraint,
-                            "highlight", "false",
-                            "limit", max));
+                          "limit", max));
 
             if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 for (SearchSuggestions.Query q : mApi.getMapper().readValue(resp.getEntity().getContent(),
@@ -196,8 +196,7 @@ public class SuggestionsAdapter extends CursorAdapter {
                 cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))));
 
         final String data = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.INTENT_DATA));
-
-        tag.tv_main.setText(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1)));
+        tag.tv_main.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1))));
 
         ClientUri uri = ClientUri.fromUri(data);
         if (uri.isSound()) {
