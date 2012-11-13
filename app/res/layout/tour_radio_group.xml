@@ -10,7 +10,7 @@
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
                 android:gravity="center">
-        <RadioButton style="@style/rdo_tour" android:checked="true"/>
-        <RadioButton style="@style/rdo_tour"/>
+        <RadioButton style="@style/Tour.RadioButton" android:checked="true"/>
+        <RadioButton style="@style/Tour.RadioButton"/>
     </RadioGroup>
 </FrameLayout>

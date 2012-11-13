@@ -64,4 +64,12 @@
         <item name="custom_font">fonts/Interstate-Regular.ttf</item>
     </style>
 
+    <style name="Tour.RadioButton" parent="@android:style/Widget.CompoundButton.RadioButton">
+        <item name="android:button">@drawable/tour_radio_button</item>
+        <item name="android:layout_width">6dp</item>
+        <item name="android:layout_height">6dp</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginRight">8dp</item>
+    </style>
+
 </resources>
