@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "following",
+    "id": 2,
+    "username": "Eric",
+    "avatar_url": "https://i1.sndcdn.com/avatars-000006111783-xqaxy3-tiny.jpg?2479809",
+    "permalink_url": "http://soundcloud.com/eric"
+  },
+  {
+    "kind": "like",
+    "id": 64629168,
+    "title": "Halls - Roses For The Dead (Max Cooper remix)",
+    "artwork_url": "https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809",
+    "permalink_url": "http://soundcloud.com/no-pain-in-pop/halls-roses-for-the-dead-max"
+  },
+  {
+    "kind": "group",
+    "id": 8,
+    "name": "Field Recordings",
+    "artwork_url": "https://i1.sndcdn.com/artworks-000000481489-cw4cwt-tiny.jpg?2479809",
+    "permalink_url": "http://soundcloud.com/groups/field-recordings"
+  }
+]

@@ -35,7 +35,6 @@ import java.util.List;
 public abstract class ScResource extends ScModel {
 
 
-    public static final List<ScResource> EMPTY_LIST = new ArrayList<ScResource>();
     @JsonIgnore
     public long last_updated = NOT_SET;
 

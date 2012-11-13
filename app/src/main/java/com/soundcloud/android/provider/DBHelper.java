@@ -3,6 +3,7 @@ package com.soundcloud.android.provider;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -405,6 +406,25 @@ public class DBHelper extends SQLiteOpenHelper {
             " ORDER BY " + ActivityView.CREATED_AT + " DESC"
             ;
 
+
+    /**
+     * {@link DBHelper.Suggestions}
+     */
+    static final String DATABASE_CREATE_SUGGESTIONS = "(" +
+            "_id INTEGER," +
+            "id  INTEGER," +
+            "kind VARCHAR(32) NOT NULL," +
+            "text VARCHAR(255) COLLATE NOCASE," +
+            "icon_url       VARCHAR(255)," +
+            "permalink_url  VARCHAR(255)," +
+            "suggest_text_1 VARCHAR(255) NOT NULL," +
+            "suggest_text_2 VARCHAR(255)," +
+            "suggest_icon_1 VARCHAR(255)," +
+            "suggest_intent_data VARCHAR(255)," +
+
+            "UNIQUE(id, kind) ON CONFLICT REPLACE" +
+            ")";
+
     public static class ResourceTable implements BaseColumns {
         public static final String CREATED_AT = "created_at";
         public static final String LAST_UPDATED = "last_updated";
@@ -678,6 +698,35 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String USER_AVATAR_URL = "activity_user_avatar_url";
     }
 
+
+    /**
+     * @see <a href="http://developer.android.com/guide/topics/search/adding-custom-suggestions.html#SuggestionTable">
+     *  Building a suggestion table</a>
+     */
+    public final static class Suggestions implements BaseColumns {
+        public static final String ID   = "id";
+
+        // following | like | group
+        public static final String KIND = "kind";
+
+        // used as an index to search
+        public static final String TEXT = "text";
+
+        // avatar_url | artwork_url
+        public static final String ICON_URL = "icon_url";
+
+        // use search manager compatible mappings
+        public static final String COLUMN_TEXT1  = SearchManager.SUGGEST_COLUMN_TEXT_1;
+        public static final String COLUMN_TEXT2  = SearchManager.SUGGEST_COLUMN_TEXT_2;
+        public static final String COLUMN_ICON   = SearchManager.SUGGEST_COLUMN_ICON_1;
+
+        // soundcloud:tracks:XXXX | soundcloud:users:XXXX
+        public static final String INTENT_DATA   = SearchManager.SUGGEST_COLUMN_INTENT_DATA;
+
+        public static final String[] ALL_FIELDS = {
+            ID, KIND, TEXT, ICON_URL, COLUMN_TEXT1, COLUMN_TEXT2, COLUMN_ICON, INTENT_DATA
+        };
+    }
 
     /*
     * altered id naming for content resolver

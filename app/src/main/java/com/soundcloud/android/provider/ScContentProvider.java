@@ -284,6 +284,10 @@ public class ScContentProvider extends ContentProvider {
             case ANDROID_SEARCH_REFRESH_PATH:
                 return refresh(uri, columns, selection, selectionArgs, sortOrder);
 
+            case ME_SHORTCUTS:
+                qb.setTables(content.table.name);
+                break;
+
             case UNKNOWN:
             default:
                 throw new IllegalArgumentException("No query available for: " + uri);
@@ -580,6 +584,7 @@ public class ScContentProvider extends ContentProvider {
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String[] extraCV = null;
+        boolean recreateTable = false;
 
         final Content content = Content.match(uri);
         final Table table;
@@ -591,14 +596,6 @@ public class ScContentProvider extends ContentProvider {
                 content.table.upsert(db, values);
                 if (values.length != 0) getContext().getContentResolver().notifyChange(uri, null, false);
                 return values.length;
-
-            case COMMENTS:
-            case ME_SOUND_STREAM:
-            case ME_EXCLUSIVE_STREAM:
-            case ME_ACTIVITIES:
-            case PLAY_QUEUE:
-                table = content.table;
-                break;
 
             case ME_TRACKS:
             case USER_TRACKS:
@@ -618,13 +615,24 @@ public class ScContentProvider extends ContentProvider {
                 extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(content.collectionType)};
                 break;
 
+
+            case ME_SHORTCUTS:
+                recreateTable = true;
+
             default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+                table = content.table;
         }
+
+        if (table == null) throw new IllegalArgumentException("No table for URI "+uri);
 
         try {
             db.beginTransaction();
             boolean failed = false;
+
+            if (recreateTable) {
+                db.delete(table.name, null, null);
+            }
+
             for (ContentValues v : values) {
                 if (v != null){
                     if (extraCV != null) v.put(extraCV[0], extraCV[1]);
@@ -644,7 +652,6 @@ public class ScContentProvider extends ContentProvider {
         if (values.length != 0) getContext().getContentResolver().notifyChange(uri, null, false);
         return values.length;
     }
-
 
     @Override
     public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
@@ -750,46 +757,15 @@ public class ScContentProvider extends ContentProvider {
         }
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         SCQueryBuilder qb = new SCQueryBuilder();
-        qb.setTables(Table.TRACK_VIEW.name);
-        String limit = uri.getQueryParameter(Parameter.LIMIT);
+        qb.setTables(Table.SUGGESTIONS.name);
+        qb.appendWhere( DBHelper.Suggestions.TEXT+" LIKE '"+selectionArgs[0]+"%' OR "+DBHelper.Suggestions.TEXT +
+                " LIKE '% "+selectionArgs[0]+"%'");
 
-        qb.appendWhere( DBHelper.TrackView.TITLE+" LIKE '%"+selectionArgs[0]+"%'");
-        String query = qb.buildQuery(
-                new String[]{ DBHelper.TrackView._ID, DBHelper.TrackView.TITLE, DBHelper.TrackView.USERNAME },
-                null, null, null, null, DBHelper.TrackView.CREATED_AT+" DESC", limit);
+        final String limit = uri.getQueryParameter(Parameter.LIMIT);
+        final String query = qb.buildQuery(null, null, null, null, null, null, limit);
+
         log("suggest: query="+query);
-        Cursor cursor = db.rawQuery(query, null);
-        if (cursor != null) {
-            MatrixCursor suggest = new MatrixCursor(
-                    new String[] {BaseColumns._ID,
-                                  SearchManager.SUGGEST_COLUMN_TEXT_1,
-                                  SearchManager.SUGGEST_COLUMN_TEXT_2,
-                                  SearchManager.SUGGEST_COLUMN_INTENT_DATA,
-                                  SearchManager.SUGGEST_COLUMN_ICON_1,
-                                  SearchManager.SUGGEST_COLUMN_SHORTCUT_ID},
-                    cursor.getCount());
-
-            while (cursor.moveToNext()) {
-                long trackId = cursor.getLong(0);
-                String title = cursor.getString(1);
-                String username = cursor.getString(2);
-                String icon = Content.TRACK_ARTWORK.forId(trackId).toString();
-                suggest.addRow(new Object[] {
-                        trackId,
-                        title,
-                        username,
-                        Track.getClientUri(trackId).toString(),
-                        icon,
-                        SearchManager.SUGGEST_NEVER_MAKE_SHORTCUT});
-            }
-            cursor.close();
-            return suggest;
-        } else {
-            Log.w(TAG, "suggest: cursor is null");
-            // no results
-            return new MatrixCursor(
-                   new String[] {BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1}, 0);
-        }
+        return db.rawQuery(query, null);
     }
 
     /**

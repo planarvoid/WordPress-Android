@@ -35,6 +35,8 @@ public enum Table {
     COLLECTIONS("Collections", false, DBHelper.DATABASE_CREATE_COLLECTIONS),
     COLLECTION_PAGES("CollectionPages", false, DBHelper.DATABASE_CREATE_COLLECTION_PAGES),
 
+    SUGGESTIONS("Suggestions", false, DBHelper.DATABASE_CREATE_SUGGESTIONS, DBHelper.Suggestions.ALL_FIELDS),
+
     // views
     TRACK_VIEW("TrackView", true, DBHelper.DATABASE_CREATE_TRACK_VIEW),
     ACTIVITY_VIEW("ActivityView", true, DBHelper.DATABASE_CREATE_ACTIVITY_VIEW);

@@ -7,6 +7,7 @@ import static com.soundcloud.android.provider.ScContentProvider.Parameter.RANDOM
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Shortcut;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Recording;
@@ -30,6 +31,7 @@ import android.content.PeriodicSync;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -153,62 +155,43 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldSupportAndroidGlobalSearch() throws Exception {
-        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("user_favorites.json"),
-                TrackHolder.class);
+        Shortcut[] shortcuts = AndroidCloudAPI.Mapper.readValue(getClass().getResourceAsStream("all_shortcuts.json"),
+                Shortcut[].class);
 
-        for (Track t : tracks) {
-            resolver.insert(Content.TRACKS.uri, t.buildContentValues());
-            resolver.insert(Content.USERS.uri, t.user.buildContentValues());
+        List<ContentValues> cvs = new ArrayList<ContentValues>();
+        for (Shortcut shortcut : shortcuts) {
+            ContentValues cv = shortcut.buildContentValues();
+            if (cv != null) cvs.add(cv);
         }
+        int inserted = resolver.bulkInsert(Content.ME_SHORTCUTS.uri, cvs.toArray(new ContentValues[cvs.size()]));
+        expect(inserted).toEqual(cvs.size());
+        expect(Content.ME_SHORTCUTS).toHaveCount(inserted);
+
 
         Cursor cursor = resolver.query(Content.ANDROID_SEARCH_SUGGEST.uri,
-                null, null, new String[] { "plaid"}, null);
+                null, null, new String[] { "blac" }, null);
 
-        expect(cursor.getCount()).toEqual(1);
-        expect(cursor.moveToFirst()).toBeTrue();
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)))
-                .toEqual("Plaid - missing (taken from new album Scintilli)");
-
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_2)))
-                .toEqual("Warp Records");
-
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID)))
-                .toEqual(SearchManager.SUGGEST_NEVER_MAKE_SHORTCUT);
-
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA)))
-                .toEqual("soundcloud:tracks:22365800");
-
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1)))
-                .toEqual(Content.TRACK_ARTWORK.forId(22365800L).toString());
-
-        expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)))
-                .toEqual(22365800L);
-    }
-
-    @Test
-    public void shouldSuggestSoundsSortedByCreatedAt() throws Exception {
-
-        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("user_favorites.json"),
-                TrackHolder.class);
-
-        for (Track t : tracks) {
-            resolver.insert(Content.TRACKS.uri, t.buildContentValues());
-            resolver.insert(Content.USERS.uri, t.user.buildContentValues());
-        }
-
-        Cursor cursor = resolver.query(Content.ANDROID_SEARCH_SUGGEST.uri,
-                null, null, new String[] { "H" }, null);
-
-        expect(cursor.getCount()).toEqual(7);
+        expect(cursor.getCount()).toEqual(4);  // 2 followings + 2 likes
 
         expect(cursor.moveToFirst()).toBeTrue();
-        Track first = SoundCloudApplication.MODEL_MANAGER.getTrack(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)));
-        expect(cursor.moveToLast()).toBeTrue();
-        Track last = SoundCloudApplication.MODEL_MANAGER.getTrack(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)));
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("The Black Dog");
+        expect(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.KIND))).toEqual("following");
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual("soundcloud:users:950");
 
-        expect(first.created_at.after(last.created_at)).toBeTrue();
+        expect(cursor.moveToNext()).toBeTrue();
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("Blackest Ever Black");
+        expect(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.KIND))).toEqual("following");
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual("soundcloud:users:804339");
+
+        expect(cursor.moveToNext()).toBeTrue();
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("The Black Dog - Industrial Smokers Behind The Factory Wall");
+        expect(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.KIND))).toEqual("like");
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual("soundcloud:tracks:25273712");
+
+        expect(cursor.moveToNext()).toBeTrue();
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("CBLS 119 - Compost Black Label Sessions Radio hosted by SHOW-B & Thomas Herb");
+        expect(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.KIND))).toEqual("like");
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual("soundcloud:tracks:24336214");
     }
 
     @Test
@@ -424,5 +407,26 @@ public class ScContentProviderTest {
         resolver.delete(Content.RECORDINGS.uri, null, null);
         Cursor cursor = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
         expect(cursor.getCount()).toEqual(0);
+    }
+
+    @Test
+    public void shouldBulkInsertSuggestions() throws Exception {
+        Shortcut[] shortcuts = AndroidCloudAPI.Mapper.readValue(getClass().getResourceAsStream("all_shortcuts.json"),
+                Shortcut[].class);
+
+        List<ContentValues> cvs = new ArrayList<ContentValues>();
+        for (Shortcut shortcut : shortcuts) {
+            ContentValues cv = shortcut.buildContentValues();
+            if (cv != null) cvs.add(cv);
+        }
+
+        int inserted = resolver.bulkInsert(Content.ME_SHORTCUTS.uri, cvs.toArray(new ContentValues[cvs.size()]));
+        expect(inserted).toEqual(cvs.size());
+        expect(Content.ME_SHORTCUTS).toHaveCount(inserted);
+
+        // reinsert same batch, make sure no dups
+        inserted = resolver.bulkInsert(Content.ME_SHORTCUTS.uri, cvs.toArray(new ContentValues[cvs.size()]));
+        expect(inserted).toEqual(cvs.size());
+        expect(Content.ME_SHORTCUTS).toHaveCount(inserted);
     }
 }

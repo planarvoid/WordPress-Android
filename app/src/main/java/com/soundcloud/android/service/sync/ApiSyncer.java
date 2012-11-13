@@ -6,6 +6,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.Shortcut;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.LocalCollection;
@@ -16,6 +17,8 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.Request;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +38,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -85,6 +89,10 @@ public class ApiSyncer {
                 case ME_REPOSTS:
                     result = syncContent(c, SoundCloudApplication.getUserIdFromContext(mContext));
                     result.success = true;
+                    break;
+
+                case ME_SHORTCUTS:
+                    result = syncShortcuts(c);
                     break;
             }
         } else {
@@ -274,6 +282,28 @@ public class ApiSyncer {
 
         result.change = Result.CHANGED;
         result.success = user != null;
+        return result;
+    }
+
+    private Result syncShortcuts(Content c) throws IOException {
+        Result result = new Result(c.uri);
+        HttpResponse resp = mApi.get(c.request());
+        if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+            Shortcut[] shortcuts = mApi.getMapper().readValue(resp.getEntity().getContent(), Shortcut[].class);
+
+            List<ContentValues> cvs = new ArrayList<ContentValues>(shortcuts.length);
+            for (Shortcut shortcut : shortcuts) {
+                ContentValues cv = shortcut.buildContentValues();
+                if (cv != null) cvs.add(cv);
+            }
+
+            if (!cvs.isEmpty()) {
+                int inserted = mResolver.bulkInsert(c.uri, cvs.toArray(new ContentValues[cvs.size()]));
+                Log.d(TAG, "inserted " +inserted + " shortcuts");
+            }
+
+            result.success = true;
+        }
         return result;
     }
 

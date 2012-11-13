@@ -5,6 +5,7 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 import android.util.SparseArray;
 
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.model.Shortcut;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Recording;
@@ -39,7 +40,10 @@ public enum Content  {
     ME_PLAYLISTS("me/playlists", null, 110, null, -1, null),
     ME_USERID("me/userid", null, 111, null, -1, null),
     ME_REPOSTS("me/reposts", TempEndpoints.e1.MY_REPOSTS, 112, Track.class, REPOST, Table.COLLECTION_ITEMS),
-    ME_REPOST("me/reposts/#",null, 113, Track.class, REPOST, null),
+    ME_REPOST("me/reposts/#", null, 113, Track.class, REPOST, null),
+
+    ME_SHORTCUTS("me/shortcuts", TempEndpoints.i1.MY_SHORTCUTS, 114, Shortcut.class, -1, Table.SUGGESTIONS),
+
 
     // the ids of the following entries should not be changed, they are referenced in th db
     ME_SOUND_STREAM("me/activities/tracks", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),
