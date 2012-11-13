@@ -95,7 +95,6 @@ public class SuggestionsAdapter extends CursorAdapter {
             tag.iv_search_type = (ImageView) view.findViewById(R.id.iv_search_type);
             tag.tv_main = (TextView) view.findViewById(R.id.title);
             view.setTag(tag);
-            fixRowPadding(view);
         } else {
             tag = (SearchTag) view.getTag();
         }
@@ -115,13 +114,6 @@ public class SuggestionsAdapter extends CursorAdapter {
         }
 
         return view;
-    }
-
-    private void fixRowPadding(View view) {
-        view.setPadding(view.getPaddingLeft(),
-                view.getPaddingTop(),
-                view.getPaddingRight(),
-                view.getPaddingBottom());
     }
 
     private void setIcon(SearchTag tag, String iconUri) {
