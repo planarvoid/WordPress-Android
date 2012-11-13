@@ -43,7 +43,7 @@ public enum Content  {
     ME_REPOST("me/reposts/#", null, 113, Track.class, REPOST, null),
 
     ME_SHORTCUTS("me/shortcuts", TempEndpoints.i1.MY_SHORTCUTS, 114, Shortcut.class, -1, Table.SUGGESTIONS),
-
+    ME_SHORTCUTS_ICON("me/shortcut_icon/#", null, 115, null, -1, Table.SUGGESTIONS),
 
     // the ids of the following entries should not be changed, they are referenced in th db
     ME_SOUND_STREAM("me/activities/tracks", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),
@@ -56,7 +56,6 @@ public enum Content  {
 
     TRACKS("tracks", Endpoints.TRACKS, 201, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
     TRACK("tracks/#", Endpoints.TRACK_DETAILS, 202, Track.class, -1, Table.TRACKS),
-    TRACK_ARTWORK("tracks/#/artwork", null, 203, null, -1, Table.TRACKS),
     TRACK_COMMENTS("tracks/#/comments", Endpoints.TRACK_COMMENTS, 204, Comment.class, -1, Table.COMMENTS),
     TRACK_PERMISSIONS("tracks/#/permissions", null, 205, null, -1, null),
     TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 206, null, -1, null),

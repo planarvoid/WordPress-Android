@@ -411,7 +411,7 @@ public class DBHelper extends SQLiteOpenHelper {
      * {@link DBHelper.Suggestions}
      */
     static final String DATABASE_CREATE_SUGGESTIONS = "(" +
-            "_id INTEGER," +
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "id  INTEGER," +
             "kind VARCHAR(32) NOT NULL," +
             "text VARCHAR(255) COLLATE NOCASE," +

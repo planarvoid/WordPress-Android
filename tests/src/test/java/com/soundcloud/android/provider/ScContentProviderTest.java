@@ -172,26 +172,30 @@ public class ScContentProviderTest {
                 null, null, new String[] { "blac" }, null);
 
         expect(cursor.getCount()).toEqual(4);  // 2 followings + 2 likes
-
         expect(cursor.moveToFirst()).toBeTrue();
+
+        expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))).not.toEqual(0l);
         expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("The Black Dog");
-        expect(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.KIND))).toEqual("following");
         expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual("soundcloud:users:950");
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1))).toMatch("content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/(\\d+)");
 
         expect(cursor.moveToNext()).toBeTrue();
+        expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))).not.toEqual(0l);
         expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("Blackest Ever Black");
-        expect(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.KIND))).toEqual("following");
         expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual("soundcloud:users:804339");
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1))).toMatch("content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/(\\d+)");
 
         expect(cursor.moveToNext()).toBeTrue();
+        expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))).not.toEqual(0l);
         expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("The Black Dog - Industrial Smokers Behind The Factory Wall");
-        expect(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.KIND))).toEqual("like");
         expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual("soundcloud:tracks:25273712");
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1))).toMatch("content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/(\\d+)");
 
         expect(cursor.moveToNext()).toBeTrue();
+        expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))).not.toEqual(0l);
         expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("CBLS 119 - Compost Black Label Sessions Radio hosted by SHOW-B & Thomas Herb");
-        expect(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.KIND))).toEqual("like");
         expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual("soundcloud:tracks:24336214");
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1))).toMatch("content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/(\\d+)");
     }
 
     @Test
