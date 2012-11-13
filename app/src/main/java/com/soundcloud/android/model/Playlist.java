@@ -25,7 +25,7 @@ public class Playlist extends PlayableResource {
     }
 
     public Playlist(Parcel in) {
-        Bundle b = in.readBundle();
+        Bundle b = in.readBundle(getClass().getClassLoader());
         super.readFromBundle(b);
 
         playlist_type = b.getString("playlist_type");

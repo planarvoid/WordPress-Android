@@ -262,8 +262,6 @@ public class User extends ScResource implements Refreshable {
         String USERNAME        = "currentUsername";
         String USER_ID         = "currentUserId";
         String USER_PERMALINK  = "currentUserPermalink";
-        String LAST_LANDING_PAGE_IDX = "lastLandingPageIndex";
-        String PROFILE_IDX     = "lastProfileIndex";
         String SIGNUP          = "signup";
 
         String LAST_INCOMING_SEEN = "last_incoming_sync_event_timestamp";

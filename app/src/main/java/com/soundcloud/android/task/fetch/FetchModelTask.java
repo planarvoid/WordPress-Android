@@ -60,12 +60,9 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
         }
     }
 
-    @Override
-    public Model doInBackground(Request... request) {
-        if (request == null || request.length == 0) throw new IllegalArgumentException("need path to executeAppendTask");
-
+    public Model resolve(Request request) {
         try {
-            HttpResponse resp = mApi.get(request[0]);
+            HttpResponse resp = mApi.get(request);
             if (isCancelled()) return null;
 
             switch (resp.getStatusLine().getStatusCode()) {
@@ -84,6 +81,13 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
             Log.e(TAG, "error", e);
             return null;
         }
+    }
+
+
+    @Override
+    public Model doInBackground(Request... request) {
+        if (request == null || request.length == 0) throw new IllegalArgumentException("need path to executeAppendTask");
+        return resolve(request[0]);
     }
 
     public interface FetchModelListener<Model extends Parcelable> {

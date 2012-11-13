@@ -35,38 +35,31 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
             return resource;
         }
 
-        try {
-            Log.d(TAG, "resolving uri "+uri+" remotely");
-            Uri resolvedUri = new ResolveTask(mApi).execute(uri).get();
-            if (resolvedUri != null) {
-                List<String> segments = resolvedUri.getPathSegments();
-                if (segments.size() >= 2) {
-                    FetchModelTask<?> task;
-                    final String path = segments.get(0);
-                    if ("tracks".equalsIgnoreCase(path)) {
-                        task = new FetchTrackTask(mApi);
-                    } else if ("users".equalsIgnoreCase(path)) {
-                        task = new FetchUserTask(mApi);
-                    } else {
-                        return null;
-                    }
+        Log.d(TAG, "resolving uri "+uri+" remotely");
+        Uri resolvedUri = new ResolveTask(mApi).resolve(uri);
 
-                    final Request request = Request.to(resolvedUri.getPath() +
-                            (resolvedUri.getQuery() != null ? ("?"+resolvedUri.getQuery()) : ""));
-
-                    return task.execute(request).get();
+        if (resolvedUri != null) {
+            List<String> segments = resolvedUri.getPathSegments();
+            if (segments.size() >= 2) {
+                FetchModelTask<?> task;
+                final String path = segments.get(0);
+                if ("tracks".equalsIgnoreCase(path)) {
+                    task = new FetchTrackTask(mApi);
+                } else if ("users".equalsIgnoreCase(path)) {
+                    task = new FetchUserTask(mApi);
                 } else {
                     return null;
                 }
-            } else return null;
-        } catch (InterruptedException e) {
-            Log.w(TAG, e);
-            return null;
 
-        } catch (ExecutionException e) {
-            Log.w(TAG, e);
-            return null;
-        }
+                final Request request = Request.to(resolvedUri.getPath() +
+                        (resolvedUri.getQuery() != null ? ("?"+resolvedUri.getQuery()) : ""));
+
+
+                return task.resolve(request);
+            } else {
+                return null;
+            }
+        } else return null;
     }
 
     @Override

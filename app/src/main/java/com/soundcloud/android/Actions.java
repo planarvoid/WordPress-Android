@@ -7,11 +7,9 @@ public final class Actions {
     public static final String RECORD       = "com.soundcloud.android.action.RECORD";
     public static final String RECORD_START = "com.soundcloud.android.action.RECORD_START";
     public static final String RECORD_STOP  = "com.soundcloud.android.action.RECORD_STOP";
-    public static final String MESSAGE      = "com.soundcloud.android.action.MESSAGE";
     public static final String STREAM       = "com.soundcloud.android.action.STREAM";
     public static final String ACTIVITY     = "com.soundcloud.android.action.ACTIVITY";
     public static final String SEARCH       = "com.soundcloud.android.action.SEARCH";
-    public static final String PROFILE      = "com.soundcloud.android.action.PROFILE";
     public static final String PLAYER       = "com.soundcloud.android.action.PLAYER";
     public static final String MY_PROFILE   = "com.soundcloud.android.action.MY_PROFILE";
     public static final String SHARE        = "com.soundcloud.android.SHARE";

@@ -4,8 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.create.NewConnectionTask;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -66,7 +64,7 @@ public class Connect extends ScActivity {
                 showConnectionError(description);
             }
 
-            @Override @TargetApi(8)
+            @Override
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                 handler.cancel();
                 showConnectionError(error.toString());

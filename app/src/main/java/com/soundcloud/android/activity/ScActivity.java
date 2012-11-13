@@ -1,7 +1,5 @@
 package com.soundcloud.android.activity;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -13,10 +11,12 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.ScCreate;
-import com.soundcloud.android.activity.landing.ScLandingPage;
+import com.soundcloud.android.activity.landing.FriendFinder;
+import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.News;
+import com.soundcloud.android.activity.landing.ScLandingPage;
 import com.soundcloud.android.activity.landing.ScSearch;
-import com.soundcloud.android.activity.landing.Stream;
+import com.soundcloud.android.activity.landing.SuggestedUsers;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
@@ -32,7 +32,6 @@ import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.MainMenu;
 import com.soundcloud.android.view.NowPlayingIndicator;
 import com.soundcloud.android.view.RootView;
-import net.hockeyapp.android.UpdateManager;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -48,7 +47,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -60,7 +58,6 @@ import android.widget.RelativeLayout;
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
 public abstract class ScActivity extends SherlockFragmentActivity implements Tracker,RootView.OnMenuStateListener, ImageLoader.LoadBlocker {
-    public static final String EXTRA_FIRST_LAUNCH = "first-launch";
     protected static final int CONNECTIVITY_MSG = 0;
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
@@ -90,7 +87,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             public boolean onMenuItemClicked(int id) {
                 switch (id) {
                     case R.id.nav_stream:
-                        startNavActivity(Stream.class);
+                        startNavActivity(Home.class);
                         return true;
                     case R.id.nav_news:
                         startNavActivity(News.class);
@@ -101,8 +98,19 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     case R.id.nav_record:
                         startNavActivity(ScCreate.class);
                         return true;
-                    case R.id.nav_search:
-                        startNavActivity(ScSearch.class);
+                    case R.id.nav_likes:
+                        startActivity(getNavIntent(You.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                .putExtra(UserBrowser.Tab.EXTRA,UserBrowser.Tab.likes.tag));
+                        return true;
+                    case R.id.nav_followings:
+                        startActivity(getNavIntent(You.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.followings.tag));
+                        return true;
+                    case R.id.nav_friend_finder:
+                        startNavActivity(FriendFinder.class);
+                        return true;
+                    case R.id.nav_suggested_users:
+                        startNavActivity(SuggestedUsers.class);
                         return true;
                     case R.id.nav_settings:
                         startActivity(new Intent(ScActivity.this, Settings.class));
@@ -113,28 +121,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             }
         });
 
-        getSupportActionBar().setTitle(null);
+        if (!(this instanceof Home)) getSupportActionBar().setTitle(null);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
-        if (this instanceof ScLandingPage){
-            getApp().setAccountData(User.DataKeys.LAST_LANDING_PAGE_IDX, ((ScLandingPage) this).getPageValue().key);
-        }
-
         if (savedInstanceState == null) {
             handleIntent(getIntent());
-        }
-
-        if (getIntent() != null && getIntent().getBooleanExtra(EXTRA_FIRST_LAUNCH, false)) {
-            getIntent().removeExtra(EXTRA_FIRST_LAUNCH);
-            onFirstLaunch();
-        }
-    }
-
-    private void onFirstLaunch() {
-        if (SoundCloudApplication.BETA_MODE) {
-            Log.d(TAG, "checking for beta updates");
-            UpdateManager.register(this, getString(R.string.hockey_app_id));
         }
     }
 
@@ -219,8 +211,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     protected void onResume() {
         super.onResume();
 
-        if (getApp().getAccount() == null) {
-            startActivity(new Intent(this, Launch.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        if (getApp().getAccount() == null && !(this instanceof Home)) {
+            startActivity(new Intent(this, Home.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
             finish();
             return;
         }
@@ -315,7 +307,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             case Consts.Dialogs.DIALOG_UNAUTHORIZED:
                 return new AlertDialog.Builder(this).setTitle(R.string.error_unauthorized_title)
                         .setMessage(R.string.error_unauthorized_message).setNegativeButton(
-                                R.string.menu_settings, new DialogInterface.OnClickListener() {
+                                R.string.side_menu_settings, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 startActivity(new Intent(ScActivity.this, Settings.class));
                             }

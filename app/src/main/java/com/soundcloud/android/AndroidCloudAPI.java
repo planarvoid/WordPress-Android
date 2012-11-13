@@ -16,14 +16,12 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.jetbrains.annotations.Nullable;
 
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.SSLCertificateSocketFactory;
 import android.net.SSLSessionCache;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -142,11 +140,9 @@ public interface AndroidCloudAPI extends CloudAPI {
         }
 
         @SuppressWarnings({"PointlessBooleanExpression", "ConstantConditions"})
-        @TargetApi(8)
         @Override protected SSLSocketFactory getSSLSocketFactory() {
             if (SoundCloudApplication.DALVIK &&
-                env == Env.LIVE &&
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+                env == Env.LIVE) {
                 // make use of android's implementation
                 return SSLCertificateSocketFactory.getHttpSocketFactory(ApiWrapper.TIMEOUT,
                         new SSLSessionCache(mContext));

@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Tracking(page = Page.Search_main)
-public class ScSearch extends ScActivity implements ScLandingPage {
+public class ScSearch extends ScActivity {
 
     private static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
 
@@ -45,7 +45,7 @@ public class ScSearch extends ScActivity implements ScLandingPage {
     public void onCreate(Bundle state) {
         super.onCreate(state);
 
-        getSupportActionBar().setTitle(getString(R.string.tab_search));
+        getSupportActionBar().setTitle(getString(R.string.title_search));
 
         setContentView(R.layout.sc_search);
 
@@ -115,7 +115,7 @@ public class ScSearch extends ScActivity implements ScLandingPage {
 
     @Override
     protected int getSelectedMenuId() {
-        return R.id.nav_search;
+        return -1;
     }
 
 
@@ -212,10 +212,5 @@ public class ScSearch extends ScActivity implements ScLandingPage {
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public LandingPage getPageValue() {
-        return LandingPage.Search;
     }
 }

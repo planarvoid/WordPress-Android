@@ -9,7 +9,6 @@ import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.accounts.Account;
-import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentProvider;
@@ -23,7 +22,6 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDiskIOException;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
@@ -778,22 +776,15 @@ public class ScContentProvider extends ContentProvider {
         return null;
     }
 
-    @TargetApi(8)
     public static void enableSyncing(Account account, long pollFrequency) {
         ContentResolver.setIsSyncable(account, AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-            ContentResolver.addPeriodicSync(account, AUTHORITY, new Bundle(), pollFrequency);
-        }
+        ContentResolver.addPeriodicSync(account, AUTHORITY, new Bundle(), pollFrequency);
     }
 
-    @TargetApi(8)
     public static void disableSyncing(Account account) {
         ContentResolver.setSyncAutomatically(account, AUTHORITY, false);
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-            ContentResolver.removePeriodicSync(account, AUTHORITY, new Bundle());
-        }
+        ContentResolver.removePeriodicSync(account, AUTHORITY, new Bundle());
     }
 
     // XXX ghetto, use prepared statements

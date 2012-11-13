@@ -81,6 +81,9 @@ public class MainMenu extends LinearLayout {
             }
         });
         mList.setSelector(getContext().getResources().getDrawable(R.drawable.selectable_background_next));
+
+        mMenuAdapter = new MenuAdapter(getContext());
+        mList.setAdapter(mMenuAdapter);
     }
 
     public void setOnItemClickListener(OnMenuItemClickListener onMenuItemClickListener) {
@@ -89,10 +92,7 @@ public class MainMenu extends LinearLayout {
 
     public void setSelectedMenuId(int selectedMenuId) {
         this.mSelectedMenuId = selectedMenuId;
-
-        if (mMenuAdapter == null || mMenuAdapter.mSelectedMenuId != selectedMenuId) {
-            mMenuAdapter = new MenuAdapter(getContext(), selectedMenuId);
-        }
+        setSelectedMenuItem();
     }
 
     public void setMenuItems(int menu) {
@@ -129,9 +129,9 @@ public class MainMenu extends LinearLayout {
             final int pos = mMenuAdapter.getPositionById(mSelectedMenuId);
             if (pos >= 0 && mList.getCheckedItemPosition() != pos) {
                 mList.setItemChecked(pos, true);
-                mMenuAdapter.notifyDataSetChanged();
             }
         }
+        mMenuAdapter.notifyDataSetChanged();
     }
 
     private static class SimpleListMenuItem {
@@ -153,12 +153,9 @@ public class MainMenu extends LinearLayout {
         private final List<SimpleListMenuItem> mMenuItems;
         private final SparseIntArray mLayouts;
         private final Context mContext;
-        private final int mSelectedMenuId;
 
-
-        public MenuAdapter(Context context, int selectedMenuId) {
+        public MenuAdapter(Context context) {
             mContext = context;
-            mSelectedMenuId = selectedMenuId;
             inflater = LayoutInflater.from(context);
             mMenuItems = new ArrayList<SimpleListMenuItem>();
             mLayouts = new SparseIntArray();
@@ -237,10 +234,6 @@ public class MainMenu extends LinearLayout {
 
             if (setDefaultImage) {
                 holder.image.setImageDrawable(menuItem.icon);
-            }
-
-            if (menuItem.id == mSelectedMenuId){
-                convertView.setSelected(true);
             }
 
             return convertView;

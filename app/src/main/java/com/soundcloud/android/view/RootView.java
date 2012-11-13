@@ -63,7 +63,7 @@ public class RootView extends ViewGroup {
     public static final String EXTRA_ROOT_VIEW_STATE = "fim_menu_state";
     private static final String KEY_MENU_STATE = "menuState_key";
     private static final String STATE_KEY = "state_key";
-    public static final int MENU_TARGET_WIDTH = 400;
+    public static final int MENU_TARGET_WIDTH = 300;
 
     private static final int INVALID_POINTER = -1;
 
@@ -110,8 +110,8 @@ public class RootView extends ViewGroup {
          * Invoked when the menu becomes fully open.
          */
         public void onMenuOpenLeft();
-        public void onMenuOpenRight();
 
+        public void onMenuOpenRight();
         /**
          * Invoked when the menu becomes fully closed.
          */
@@ -126,8 +126,8 @@ public class RootView extends ViewGroup {
          * Invoked when the user stops dragging/flinging the menu's handle.
          */
         public void onScrollEnded();
-    }
 
+    }
     /**
      * A slide in navigation menu.
      *
@@ -202,6 +202,10 @@ public class RootView extends ViewGroup {
 
         content.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         mContent.addView(content);
+    }
+
+    public void setSelectedMenuId(int i) {
+        mMenu.setSelectedMenuId(i);
     }
 
     public void configureMenu(int menuResourceId, final MainMenu.OnMenuItemClickListener listener) {
@@ -497,6 +501,10 @@ public class RootView extends ViewGroup {
                     break;
                 }
 
+                if (isExpanded()){
+                    return startDrag(ev, x);
+                }
+
                 /*
                 * Remember location of down touch.
                 * ACTION_DOWN always refers to pointer index 0.
@@ -749,8 +757,9 @@ public class RootView extends ViewGroup {
     }
 
     private void moveContent(int position) {
+        final int expandedLeftContentPos = getMeasuredWidth() - mOffsetRight;
         if (position == EXPANDED_LEFT) {
-            final int togo = (getMeasuredWidth() - mOffsetRight) - mContent.getLeft();
+            final int togo = expandedLeftContentPos - mContent.getLeft();
             mContent.offsetLeftAndRight(togo); //todo proper value
         } else if (position == EXPANDED_RIGHT) {
             final int togo = (-getMeasuredWidth() + mOffsetLeft) - mContent.getLeft();
@@ -760,6 +769,11 @@ public class RootView extends ViewGroup {
 
         } else {
             final int left = mContent.getLeft();
+
+            if (position > expandedLeftContentPos){
+                position = (int) (expandedLeftContentPos + (position - expandedLeftContentPos) * .5);
+            }
+
             int deltaX = position - left;
             if (position < 0 && !canOpenRight()) {
                 deltaX = -left;

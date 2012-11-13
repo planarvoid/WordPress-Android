@@ -281,7 +281,7 @@
   <string name="menu_incoming">Entrante</string>
   <string name="menu_load_more">Cargar más</string>
   <string name="menu_refresh">Actualizar</string>
-  <string name="menu_settings">Ajustes</string>
+  <string name="side_menu_settings">Ajustes</string>
   <string name="menu_stream_setting">Configuración Stream</string>
   <string name="menu_view_current_track">Reproductor</string>
   <plurals name="minutes_available">
@@ -393,11 +393,11 @@
   <string name="sounds_from">Sonidos desde %s</string>
   <string name="suggested_users_msg">Bienvenido. Gracias por unirse a SoundCloud. Encuentre a sus amigos en Facebook y siga la lista de personas sugeridas para escuchar sus sonidos.</string>
   <string name="suggested_users_no_friends_msg">Es el primero de sus amigos que se une a SoundClud. Pruebe nuevos sonidos de nuestra lista de personas sugeridas.</string>
-  <string name="tab_activity">Actividad</string>
-  <string name="tab_record">Grabar</string>
-  <string name="tab_search">Buscar</string>
-  <string name="tab_stream">Stream</string>
-  <string name="tab_you">Usted</string>
+  <string name="side_menu_activity">Actividad</string>
+  <string name="side_menu_record">Grabar</string>
+  <string name="title_search">Buscar</string>
+  <string name="side_menu_stream">Stream</string>
+  <string name="side_menu_you">Usted</string>
   <string name="take_new_picture">Tomar una nueva foto</string>
   <string name="take_new_picture_error">No pudiste tomar una foto</string>
   <string name="this_user">este usuario</string>

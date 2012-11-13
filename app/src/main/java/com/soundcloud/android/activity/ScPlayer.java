@@ -509,8 +509,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         f.addAction(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED);
         f.addAction(Actions.COMMENT_ADDED);
         registerReceiver(mStatusListener, new IntentFilter(f));
-
-        Log.i("asdf","Setting play pos " + mPendingPlayPosition);
         setTrackDisplayFromService(mPendingPlayPosition);
     }
 

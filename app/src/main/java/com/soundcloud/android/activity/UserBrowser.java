@@ -198,8 +198,7 @@ public class UserBrowser extends ScActivity implements
 
             if (intent.hasExtra(Tab.EXTRA)) {
                 mPager.setCurrentItem(Tab.indexOf(intent.getStringExtra(Tab.EXTRA)));
-            } else if (isYou()) {
-                mPager.setCurrentItem(getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX));
+                intent.removeExtra(Tab.EXTRA);
             }
         }
 
@@ -229,7 +228,7 @@ public class UserBrowser extends ScActivity implements
 
     @Override
     protected int getSelectedMenuId() {
-        return R.id.nav_you;
+        return -1;
     }
 
 
@@ -582,15 +581,8 @@ public class UserBrowser extends ScActivity implements
             final boolean following = isFollowing();
             followItem.setIcon(following ? R.drawable.ic_remove_user_white : R.drawable.ic_add_user_white);
             followItem.setTitle(getResources().getString(following ? R.string.action_bar_unfollow : R.string.action_bar_follow));
-
-            SoundRecorder soundRecorder = SoundRecorder.getInstance(this);
-            if (soundRecorder.isRecording() && !(soundRecorder.getRecording().getRecipient() == mUser)) {
-                menu.removeItem(R.id.action_bar_private_message);
-            }
         } else {
             menu.removeItem(R.id.action_bar_follow);
-            menu.removeItem(R.id.action_bar_private_message);
-
         }
         return true;
     }
@@ -603,11 +595,6 @@ public class UserBrowser extends ScActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_bar_private_message:
-                Intent intent = new Intent(this, ScCreate.class);
-                intent.putExtra(ScCreate.EXTRA_PRIVATE_MESSAGE_RECIPIENT,mUser);
-                startActivity(intent);
-                return true;
             case R.id.action_bar_follow:
                 if (mUser.user_following){
                     follow(mUser);
