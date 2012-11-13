@@ -123,6 +123,9 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity.landing.SuggestedUsers" android:label="@string/side_menu_suggested_users" android:configChanges="orientation"/>
+        <activity android:name=".activity.landing.FriendFinder" android:label="@string/side_menu_friend_finder" android:configChanges="orientation"/>
+
 
         <activity android:name=".activity.auth.Start" android:label="@string/app_name" android:exported="true" android:theme="@style/Theme.ScAuth" />
         <activity android:name=".activity.auth.Login" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScAuth"  />

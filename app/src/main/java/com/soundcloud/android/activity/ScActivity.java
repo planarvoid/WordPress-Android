@@ -12,10 +12,12 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.ScCreate;
+import com.soundcloud.android.activity.landing.FriendFinder;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.activity.landing.ScLandingPage;
 import com.soundcloud.android.activity.landing.ScSearch;
+import com.soundcloud.android.activity.landing.SuggestedUsers;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.adapter.SearchSuggestionsAdapter;
@@ -104,6 +106,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     case R.id.nav_followings:
                         startActivity(getNavIntent(You.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                 .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.followings.tag));
+                        return true;
+                    case R.id.nav_friend_finder:
+                        startNavActivity(FriendFinder.class);
+                        return true;
+                    case R.id.nav_suggested_users:
+                        startNavActivity(SuggestedUsers.class);
                         return true;
                     case R.id.nav_settings:
                         startActivity(new Intent(ScActivity.this, Settings.class));

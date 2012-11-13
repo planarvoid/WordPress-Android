@@ -135,6 +135,8 @@ public class ScListFragment extends SherlockListFragment
                 case USER_FOLLOWINGS:
                 case USER_FOLLOWERS:
                 case TRACK_LIKERS:
+                case SUGGESTED_USERS:
+                case ME_FRIENDS:
                     adapter = new UserAdapter(getActivity(), mContentUri);
                     break;
 
