@@ -12,8 +12,8 @@
     <string name="tab_title_my_info">Your Info</string>
     <string name="tab_title_my_sounds">Your Sounds</string>
     <string name="tab_title_my_likes">Your Likes</string>
-    <string name="tab_title_my_followers">Your Followers</string>
-    <string name="tab_title_my_followings">Your Followings</string>
+    <string name="tab_title_my_followers">Your followers</string>
+    <string name="tab_title_my_followings">People you follow</string>
 
     <string name="tab_title_user_info">Info</string>
     <string name="tab_title_user_sounds">Sounds</string>
@@ -47,8 +47,8 @@
 
     <string name="side_menu_likes">Your likes</string>
     <string name="side_menu_followings">People you follow</string>
-    <string name="side_menu_friend_finder">Friend Finder</string>
-    <string name="side_menu_suggested_users">Suggested Users</string>
+    <string name="side_menu_friend_finder">Find friends</string>
+    <string name="side_menu_suggested_users">Who to follow</string>
 
     <string name="action_bar_follow">Follow</string>
     <string name="action_bar_unfollow">Unfollow</string>
