@@ -53,4 +53,9 @@
     <string name="action_bar_follow">Follow</string>
     <string name="action_bar_unfollow">Unfollow</string>
 
+    <string name="find_friends_on_facebook">Find friends on facebook</string>
+    <string name="connect_to_facebook">Connect to facebook</string>
+    <string name="problem_getting_connections">Problem retrieving connections</string>
+    <string name="list_no_facebook_friends">You currently have no facebook friends</string>
+
 </resources>
