@@ -16,6 +16,22 @@
         <item name="android:background">@drawable/btn_login_bg_states</item>
     </style>
 
+    <style name="Tour.LeftButton" parent="Tour.Button">
+        <item name="android:background">@drawable/next_button_white_left_default</item>
+        <!--
+            We use negative margin to pull the left and right button closer to each other
+            so their outlines are on top of each other.
+
+            This makes it look like they share a separator instead of having two outlines
+            next to each other.
+        -->
+        <item name="android:layout_marginRight">-1dp</item>
+    </style>
+    <style name="Tour.RightButton" parent="Tour.Button">
+        <item name="android:background">@drawable/next_button_white_right_default</item>
+        <item name="android:layout_marginLeft">-1dp</item>
+    </style>
+
     <style name="Tour.FacebookButton" parent="Tour.Button">
         <item name="android:textColor">#FFFFFFFF</item>
         <item name="android:background">@drawable/btn_fb_bg_states</item>
