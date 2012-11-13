@@ -91,8 +91,6 @@ public final class Consts {
         MINI("mini", 16, 16),
         Unknown("large", 100, 100);
 
-
-
         public final int width;
         public final int height;
         public final String key;
