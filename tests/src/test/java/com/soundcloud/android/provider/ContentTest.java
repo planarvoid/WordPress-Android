@@ -53,5 +53,4 @@ public class ContentTest {
         expect(Content.ME_ACTIVITIES.withQuery("a", "1", "b", "2"))
                 .toEqual("content://com.soundcloud.android.provider.ScContentProvider/me/activities/all/own?a=1&b=2");
     }
-
 }

@@ -7,13 +7,12 @@ import static com.soundcloud.android.provider.ScContentProvider.Parameter.RANDOM
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Shortcut;
-import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Shortcut;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackHolder;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -31,7 +30,6 @@ import android.content.PeriodicSync;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -413,5 +411,25 @@ public class ScContentProviderTest {
         inserted = resolver.bulkInsert(Content.ME_SHORTCUTS.uri, cvs.toArray(new ContentValues[cvs.size()]));
         expect(inserted).toEqual(cvs.size());
         expect(Content.ME_SHORTCUTS).toHaveCount(inserted);
+    }
+
+    @Test
+    public void shouldStoreAndFetchShortcut() throws Exception {
+        Shortcut c = new Shortcut();
+        c.kind = "like";
+        c.id = 12;
+        c.title = "Something";
+        c.permalink_url = "http://soundcloud.com/foo";
+        c.artwork_url   = "http://soundcloud.com/foo/artwork";
+
+
+        Uri uri = resolver.insert(Content.ME_SHORTCUTS.uri, c.buildContentValues());
+        expect(uri).not.toBeNull();
+
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        expect(cursor.getCount()).toEqual(1);
+        expect(cursor.moveToFirst()).toBeTrue();
+
+        expect(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))).toEqual("http://soundcloud.com/foo/artwork");
     }
 }

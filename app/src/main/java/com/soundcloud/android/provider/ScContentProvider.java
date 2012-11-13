@@ -1,7 +1,9 @@
 package com.soundcloud.android.provider;
 
+import static com.soundcloud.android.Consts.GraphicSize;
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -280,6 +282,11 @@ public class ScContentProvider extends ContentProvider {
             case ANDROID_SEARCH_REFRESH_PATH:
                 return refresh(uri, columns, selection, selectionArgs, sortOrder);
 
+            case ME_SHORTCUT:
+                qb.setTables(content.table.name);
+                qb.appendWhere(Table.SUGGESTIONS.id + " = " + uri.getLastPathSegment());
+                break;
+
             case ME_SHORTCUTS:
                 qb.setTables(content.table.name);
                 break;
@@ -400,6 +407,11 @@ public class ScContentProvider extends ContentProvider {
             case ME_ACTIVITIES:
             case ME_EXCLUSIVE_STREAM:
                 id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
+                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                return result;
+
+            case ME_SHORTCUTS:
+                id = content.table.insertOrReplace(db, values);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 return result;
 
@@ -656,14 +668,15 @@ public class ScContentProvider extends ContentProvider {
                 List<String> segments = uri.getPathSegments();
                 long suggestId = Long.parseLong(segments.get(segments.size()-1));
 
-                Cursor c = query(Content.ME_SHORTCUTS.forId(suggestId), null, null, null, null);
+                Cursor c = query(Content.ME_SHORTCUT.forId(suggestId), null, null, null, null);
                 try {
                     if (c != null && c.moveToFirst()) {
                         String url = c.getString(c.getColumnIndex(DBHelper.Suggestions.ICON_URL));
                         if (url != null) {
-                            final File iconFile = IOUtils.getCacheFile(getContext(), IOUtils.md5(url));
+                            final String listUrl = GraphicSize.getSearchSuggestionsListItemGraphicSize(getContext()).formatUri(url);
+                            final File iconFile = IOUtils.getCacheFile(getContext(), IOUtils.md5(listUrl));
                             if (!iconFile.exists()) {
-                                HttpUtils.fetchUriToFile(url, iconFile, false);
+                                HttpUtils.fetchUriToFile(listUrl, iconFile, false);
                             }
                             return ParcelFileDescriptor.open(iconFile, ParcelFileDescriptor.MODE_READ_ONLY);
                         } else throw new FileNotFoundException();
@@ -759,7 +772,9 @@ public class ScContentProvider extends ContentProvider {
                     BaseColumns._ID,
                     SearchManager.SUGGEST_COLUMN_TEXT_1,
                     SearchManager.SUGGEST_COLUMN_INTENT_DATA,
-                    "'content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/' || _id" + " AS " + SearchManager.SUGGEST_COLUMN_ICON_1
+                    "'content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/' || _id" + " AS "
+                            + SearchManager.SUGGEST_COLUMN_ICON_1,
+                    "'"+SearchManager.SUGGEST_NEVER_MAKE_SHORTCUT + "' AS "  + SearchManager.SUGGEST_COLUMN_SHORTCUT_ID
                 },
                 null, null, null, null, null, limit);
 

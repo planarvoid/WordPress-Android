@@ -87,6 +87,10 @@ public class DBHelper extends SQLiteOpenHelper {
                         case 17:
                             success = upgradeTo17(db, oldVersion);
                             break;
+                        case 18:
+                            success = upgradeTo18(db, oldVersion);
+                            break;
+
                         default:
                             break;
                     }
@@ -145,33 +149,33 @@ public class DBHelper extends SQLiteOpenHelper {
             ");";
 
     static final String DATABASE_CREATE_PLAYLISTS = "("+
-                "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "tracks_uri VARCHAR(255)," +
-                "last_updated INTEGER," +
-                "permalink VARCHAR(255)," +
-                "duration INTEGER," +
-                "state VARCHAR(50)," +
-                "created_at INTEGER," +
-                "tag_list VARCHAR(255)," +
-                "track_type VARCHAR(255)," +
-                "title VARCHAR(255)," +
-                "permalink_url VARCHAR(255)," +
-                "artwork_url VARCHAR(255), " +
-                "waveform_url VARCHAR(255), " +
-                "downloadable BOOLEAN, " +
-                "commentable BOOLEAN, " +
-                "download_url VARCHAR(255), " +
-                "stream_url VARCHAR(255)," +
-                "streamable BOOLEAN DEFAULT 0, " +
-                "sharing VARCHAR(255)," +
-                "playback_count INTEGER," +
-                "download_count INTEGER," +
-                "comment_count INTEGER," +
-                "favoritings_count INTEGER," +
-                "reposts_count INTEGER," +
-                "shared_to_count INTEGER," +
-                "user_id INTEGER" +
-                ");";
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "tracks_uri VARCHAR(255)," +
+            "last_updated INTEGER," +
+            "permalink VARCHAR(255)," +
+            "duration INTEGER," +
+            "state VARCHAR(50)," +
+            "created_at INTEGER," +
+            "tag_list VARCHAR(255)," +
+            "track_type VARCHAR(255)," +
+            "title VARCHAR(255)," +
+            "permalink_url VARCHAR(255)," +
+            "artwork_url VARCHAR(255), " +
+            "waveform_url VARCHAR(255), " +
+            "downloadable BOOLEAN, " +
+            "commentable BOOLEAN, " +
+            "download_url VARCHAR(255), " +
+            "stream_url VARCHAR(255)," +
+            "streamable BOOLEAN DEFAULT 0, " +
+            "sharing VARCHAR(255)," +
+            "playback_count INTEGER," +
+            "download_count INTEGER," +
+            "comment_count INTEGER," +
+            "favoritings_count INTEGER," +
+            "reposts_count INTEGER," +
+            "shared_to_count INTEGER," +
+            "user_id INTEGER" +
+            ");";
 
     static final String DATABASE_CREATE_PLAYLIST_TRACKS = "(" +
             "playlist_id INTEGER, " +
@@ -935,7 +939,18 @@ public class DBHelper extends SQLiteOpenHelper {
             Table.ACTIVITY_VIEW.recreate(db);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade16 " +
+            SoundCloudApplication.handleSilentException("error during upgrade17 " +
+                    "(from " + oldVersion + ")", e);
+        }
+        return false;
+    }
+
+    private static boolean upgradeTo18(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.SUGGESTIONS.recreate(db);
+            return true;
+        } catch (SQLException e) {
+            SoundCloudApplication.handleSilentException("error during upgrade18 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;

@@ -93,6 +93,10 @@ public class ApiSyncer {
 
                 case ME_SHORTCUTS:
                     result = syncShortcuts(c);
+                    PreferenceManager.getDefaultSharedPreferences(mContext)
+                            .edit()
+                            .putLong(Consts.PrefKeys.LAST_SHORTCUT_SYNC, System.currentTimeMillis())
+                            .commit();
                     break;
             }
         } else {
@@ -286,6 +290,8 @@ public class ApiSyncer {
     }
 
     private Result syncShortcuts(Content c) throws IOException {
+        log("Syncing shortcuts");
+
         Result result = new Result(c.uri);
         HttpResponse resp = mApi.get(c.request());
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {

@@ -108,10 +108,11 @@ public class ScSearch extends ScActivity {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             pendingSearch = new Search(query, intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
+        } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null) {
+            // probably came through quick search box, resolve intent through normal system
+            startActivity(new Intent(Intent.ACTION_VIEW).setData(intent.getData()));
         }
     }
-
-
 
     @Override
     protected int getSelectedMenuId() {
