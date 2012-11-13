@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.view.adapter.UserlistRow;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
@@ -13,6 +14,10 @@ public class ClientUri {
     public final Uri uri;
     public final String type;
     public final String id;
+
+    public ClientUri(String uri) {
+        this(Uri.parse(uri));
+    }
 
     public ClientUri(Uri uri) {
         if (!"soundcloud".equalsIgnoreCase(uri.getScheme())) {
@@ -59,5 +64,10 @@ public class ClientUri {
 
     public static Uri forUser(long id) {
         return Uri.parse("soundcloud:users:"+id);
+    }
+
+    @Override
+    public String toString() {
+        return uri.toString();
     }
 }

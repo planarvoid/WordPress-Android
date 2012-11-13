@@ -384,7 +384,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             final SearchableInfo searchableInfo = searchManager.getSearchableInfo(getComponentName());
             searchView.setSearchableInfo(searchableInfo);
 
-            final SuggestionsAdapter suggestionsAdapter = new SuggestionsAdapter(this, null);
+            final SuggestionsAdapter suggestionsAdapter = new SuggestionsAdapter(this, null, getApp());
             searchView.setSuggestionsAdapter(suggestionsAdapter);
             searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
                 @Override
