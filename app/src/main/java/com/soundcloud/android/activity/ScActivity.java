@@ -101,6 +101,10 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         startActivity(getNavIntent(You.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                 .putExtra(UserBrowser.Tab.EXTRA,UserBrowser.Tab.likes.tag));
                         return true;
+                    case R.id.nav_followings:
+                        startActivity(getNavIntent(You.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.followings.tag));
+                        return true;
                     case R.id.nav_settings:
                         startActivity(new Intent(ScActivity.this, Settings.class));
                         mRootView.animateClose();
@@ -296,7 +300,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             case Consts.Dialogs.DIALOG_UNAUTHORIZED:
                 return new AlertDialog.Builder(this).setTitle(R.string.error_unauthorized_title)
                         .setMessage(R.string.error_unauthorized_message).setNegativeButton(
-                                R.string.menu_settings, new DialogInterface.OnClickListener() {
+                                R.string.side_menu_settings, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 startActivity(new Intent(ScActivity.this, Settings.class));
                             }

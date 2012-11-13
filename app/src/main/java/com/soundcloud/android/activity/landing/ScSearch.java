@@ -45,7 +45,7 @@ public class ScSearch extends ScActivity {
     public void onCreate(Bundle state) {
         super.onCreate(state);
 
-        getSupportActionBar().setTitle(getString(R.string.tab_search));
+        getSupportActionBar().setTitle(getString(R.string.title_search));
 
         setContentView(R.layout.sc_search);
 
