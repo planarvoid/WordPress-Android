@@ -132,6 +132,12 @@ public class EmptyCollection extends FrameLayout {
         return this;
     }
 
+    private EmptyCollection setButtonBackgroundResource(int resId) {
+        mBtnAction.setBackgroundResource(resId);
+        mBtnAction.setVisibility(View.VISIBLE);
+        return this;
+    }
+
     public EmptyCollection setButtonActionListener(ActionListener listener){
         mButtonActionListener = listener;
         return this;
@@ -172,16 +178,7 @@ public class EmptyCollection extends FrameLayout {
                 return new FriendFinderEmptyCollection(context).setMessageText(R.string.list_empty_user_following_message)
                         .setActionText(R.string.list_empty_user_following_action)
                         .setImage(R.drawable.empty_follow_3row)
-                        .setButtonActionListener(new EmptyCollection.ActionListener() {
-                            @Override
-                            public void onAction() {
-                                // go to friend finder
-                            }
-
-                            @Override
-                            public void onSecondaryAction() {
-                            }
-                        });
+                        .setButtonBackgroundResource(R.drawable.btn_fb_bg_states);
             default:
                 return new EmptyCollection(context);
         }

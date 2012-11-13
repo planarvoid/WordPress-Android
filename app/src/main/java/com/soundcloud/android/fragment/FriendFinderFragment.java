@@ -1,19 +1,31 @@
 package com.soundcloud.android.fragment;
 
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.auth.Connect;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.ParcelCache;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.task.create.NewConnectionTask;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.FriendFinderEmptyCollection;
 import com.soundcloud.api.Request;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.List;
 
@@ -22,6 +34,7 @@ public class FriendFinderFragment extends ScListFragment implements ParcelCache.
     private List<Connection> mConnections;
 
     private int mCurrentState;
+    private AsyncTask<Connection.Service, Void, Uri> mConnectionTask;
 
     public interface States {
         int LOADING = 1;
@@ -44,6 +57,38 @@ public class FriendFinderFragment extends ScListFragment implements ParcelCache.
         mConnections = Connections.get().getObjectsOrNull();
         onConnections(mConnections, true);
         Connections.get().requestUpdate(app, false, this);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View v = super.onCreateView(inflater, container, savedInstanceState);
+        mEmptyCollection.setButtonActionListener(new EmptyCollection.ActionListener() {
+            @Override
+            public void onAction() {
+                setState(States.LOADING, false);
+                final ScActivity scActivity = getScActivity();
+                mConnectionTask = new NewConnectionTask(scActivity.getApp()) {
+                    @Override
+                    protected void onPostExecute(Uri uri) {
+                        if (uri != null) {
+                            scActivity.startActivityForResult(
+                                    (new Intent(scActivity, Connect.class))
+                                            .putExtra("service", Connection.Service.Facebook.name())
+                                            .setData(uri),
+                                    Consts.RequestCodes.MAKE_CONNECTION);
+                        } else {
+                            scActivity.showToast(R.string.new_connection_error);
+                            setState(States.NO_FB_CONNECTION, false);
+                        }
+                    }
+                }.execute(Connection.Service.Facebook);
+            }
+
+            @Override
+            public void onSecondaryAction() {
+            }
+        });
+        return v;
     }
 
     @Override
@@ -90,6 +135,9 @@ public class FriendFinderFragment extends ScListFragment implements ParcelCache.
 
     @Override
     protected void configureEmptyCollection() {
+        //override just in case
+        if (!AndroidUtils.isTaskFinished(mConnectionTask)) mCurrentState = States.LOADING;
+
         if (mEmptyCollection != null) {
             switch (mCurrentState) {
                 case States.LOADING:
