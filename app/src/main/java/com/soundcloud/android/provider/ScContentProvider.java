@@ -772,6 +772,7 @@ public class ScContentProvider extends ContentProvider {
                     BaseColumns._ID,
                     SearchManager.SUGGEST_COLUMN_TEXT_1,
                     SearchManager.SUGGEST_COLUMN_INTENT_DATA,
+                    DBHelper.Suggestions.ICON_URL,
                     "'content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/' || _id" + " AS "
                             + SearchManager.SUGGEST_COLUMN_ICON_1,
                     "'"+SearchManager.SUGGEST_NEVER_MAKE_SHORTCUT + "' AS "  + SearchManager.SUGGEST_COLUMN_SHORTCUT_ID

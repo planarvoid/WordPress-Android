@@ -669,10 +669,6 @@ public class Track extends PlayableResource implements Playable {
         return t;
     }
 
-    public static Uri getClientUri(long id) {
-        return Uri.parse("soundcloud:tracks:"+id);
-    }
-
     public static enum State {
         UNDEFINED(""),
         FINISHED("finished"),

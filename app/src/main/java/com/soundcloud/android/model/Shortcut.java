@@ -47,9 +47,9 @@ public class Shortcut extends ScModel {
 
     public @Nullable Uri getDataUri() {
         if ("following".equals(kind)) {
-            return User.getClientUri(id);
+            return ClientUri.forUser(id);
         } else if ("like".equals(kind)) {
-            return Track.getClientUri(id);
+            return ClientUri.forTrack(id);
         } else {
             return null;
         }

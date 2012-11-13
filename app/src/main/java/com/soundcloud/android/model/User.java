@@ -356,10 +356,6 @@ public class User extends ScResource implements Refreshable {
         Search.clearState(resolver, SoundCloudApplication.getUserId());
     }
 
-    public static Uri getClientUri(long id) {
-        return Uri.parse("soundcloud:users:"+id);
-    }
-
     @Override
     public Uri getBulkInsertUri() {
         return Content.USERS.uri;

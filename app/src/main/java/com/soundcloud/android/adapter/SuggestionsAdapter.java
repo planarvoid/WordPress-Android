@@ -1,8 +1,10 @@
 package com.soundcloud.android.adapter;
 
+import static com.soundcloud.android.Consts.GraphicSize;
+
 import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.ImageUtils;
@@ -11,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.MergeCursor;
+import android.provider.BaseColumns;
 import android.support.v4.widget.CursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +27,7 @@ public class SuggestionsAdapter extends CursorAdapter {
     private ImageLoader mImageLoader;
 
     public final static int TYPE_TRACK = 0;
-    public final static int TYPE_USER = 1;
+    public final static int TYPE_USER  = 1;
 
     public SuggestionsAdapter(Context context, Cursor c) {
         super(context, c, false);
@@ -37,7 +39,7 @@ public class SuggestionsAdapter extends CursorAdapter {
     @Override
     public long getItemId(int position) {
         final Cursor cursor = (Cursor) getItem(position);
-        return cursor.getLong(cursor.getColumnIndex(DBHelper.ResourceTable._ID));
+        return cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
     }
 
     @Override
@@ -52,7 +54,8 @@ public class SuggestionsAdapter extends CursorAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        return getCursor() == null || ((MergeSearchCursor) getCursor()).trackCount > position ? TYPE_TRACK : TYPE_USER;
+        ClientUri uri = getItemUri(position);
+        return uri.isSound() ? TYPE_TRACK : TYPE_USER;
     }
 
     @Override
@@ -63,31 +66,21 @@ public class SuggestionsAdapter extends CursorAdapter {
     @Override
     public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
         if (constraint != null) {
-            MergeSearchCursor mergeCursor = new MergeSearchCursor(
-                    mContentResolver.query(Content.TRACKS.uri,
-                            /*new String[]{
-                                    DBHelper.TrackView._ID,
-                                    DBHelper.TrackView.TITLE,
-                                    DBHelper.TrackView.USERNAME,
-                                    DBHelper.TrackView.ARTWORK_URL,
-                            }*/ null, "UPPER(" + DBHelper.TrackView.TITLE + ") GLOB ?",
-                            new String[]{
-                                    constraint.toString().toUpperCase() + "*"
-                            }, DBHelper.TrackView.TITLE + " ASC"),
-                    mContentResolver.query(Content.USERS.uri,
-                            /*new String[]{
-                                    DBHelper.Users._ID,
-                                    DBHelper.Users.USERNAME,
-                                    DBHelper.Users.AVATAR_URL,
-                            }*/ null, "UPPER(" + DBHelper.Users.USERNAME + ") GLOB ?",
-                            new String[]{
-                                    constraint.toString().toUpperCase() + "*"
-                            }, DBHelper.Users.USERNAME + " ASC"));
-            return mergeCursor;
+            return mContentResolver.query(
+                Content.ANDROID_SEARCH_SUGGEST.uri,
+                    null,
+                    null,
+                    new String[] { constraint.toString() },
+                    null);
         } else {
             return super.runQueryOnBackgroundThread(constraint);
         }
+    }
 
+    public ClientUri getItemUri(int position) {
+        Cursor cursor = (Cursor) getItem(position);
+        final String data = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.INTENT_DATA));
+        return ClientUri.fromUri(data);
     }
 
     private View createViewFromResource(Cursor cursor,
@@ -107,16 +100,20 @@ public class SuggestionsAdapter extends CursorAdapter {
             tag = (SearchTag) view.getTag();
         }
 
-        if (cursor.getPosition() < ((MergeSearchCursor) cursor).trackCount) {
-            setIcon(tag, cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.ARTWORK_URL)));
-            tag.tv_main.setText(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TITLE)));
-            tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
+        setIcon(tag, GraphicSize.formatUriForList(mContext,
+                cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))));
 
-        } else {
-            setIcon(tag, cursor.getString(cursor.getColumnIndex(DBHelper.Users.AVATAR_URL)));
-            tag.tv_main.setText(cursor.getString(cursor.getColumnIndex(DBHelper.Users.USERNAME)));
+        final String data = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.INTENT_DATA));
+
+        tag.tv_main.setText(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1)));
+
+        ClientUri uri = ClientUri.fromUri(data);
+        if (uri.isSound()) {
+            tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
+        } else if (uri.isUser()) {
             tag.iv_search_type.setImageResource(R.drawable.ic_search_user);
         }
+
         return view;
     }
 
@@ -130,7 +127,7 @@ public class SuggestionsAdapter extends CursorAdapter {
     private void setIcon(SearchTag tag, String iconUri) {
         if (ImageUtils.checkIconShouldLoad(iconUri)) {
             ImageLoader.BindResult result = mImageLoader.bind(this, tag.iv_icon,
-                    Consts.GraphicSize.formatUriForSearchSuggestionsList(mContext, iconUri)
+                    GraphicSize.formatUriForSearchSuggestionsList(mContext, iconUri)
             );
             if (result != ImageLoader.BindResult.OK) {
                 tag.iv_icon.setImageResource(R.drawable.cloud_no_logo_sm);
@@ -145,14 +142,5 @@ public class SuggestionsAdapter extends CursorAdapter {
         ImageView iv_icon;
         ImageView iv_search_type;
         TextView tv_main;
-    }
-
-    private static class MergeSearchCursor extends MergeCursor {
-        public int trackCount;
-
-        public MergeSearchCursor(Cursor trackCursor, Cursor userCursor) {
-            super(new Cursor[]{trackCursor, userCursor});
-            trackCount = trackCursor.getCount();
-        }
     }
 }
