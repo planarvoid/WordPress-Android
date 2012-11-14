@@ -17,7 +17,7 @@ public class FriendFinderEmptyCollection extends EmptyCollection {
     public FriendFinderEmptyCollection(Context context) {
         super(context);
 
-        mBtnAction.setBackgroundResource(R.drawable.btn_fb_bg_states);
+        mBtnAction.setBackgroundResource(R.drawable.next_button_blue_states);
         mBtnAction.setTextColor(getResources().getColorStateList(R.drawable.txt_btn_blue_states));
     }
 
