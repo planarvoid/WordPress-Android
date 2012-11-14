@@ -724,6 +724,9 @@ public class DBHelper extends SQLiteOpenHelper {
         // avatar_url | artwork_url
         public static final String ICON_URL = "icon_url";
 
+        // permalink_url
+        public static final String PERMALINK_URL = "permalink_url";
+
         // use search manager compatible mappings
         public static final String COLUMN_TEXT1  = SearchManager.SUGGEST_COLUMN_TEXT_1;
         public static final String COLUMN_TEXT2  = SearchManager.SUGGEST_COLUMN_TEXT_2;
@@ -733,7 +736,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String INTENT_DATA   = SearchManager.SUGGEST_COLUMN_INTENT_DATA;
 
         public static final String[] ALL_FIELDS = {
-            ID, KIND, TEXT, ICON_URL, COLUMN_TEXT1, COLUMN_TEXT2, COLUMN_ICON, INTENT_DATA
+            ID, KIND, TEXT, ICON_URL, PERMALINK_URL, COLUMN_TEXT1, COLUMN_TEXT2, COLUMN_ICON, INTENT_DATA
         };
     }
 

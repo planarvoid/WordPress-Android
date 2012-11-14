@@ -87,14 +87,6 @@
                 <data android:scheme="https" android:host="snd.sc"/>
             </intent-filter>
 
-            <!-- soundcloud:users:12345#show | soundcloud:tracks:12345#play -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="soundcloud"/>
-            </intent-filter>
-
         </activity>
 
         <activity android:name=".activity.landing.ScSearch">
@@ -159,13 +151,22 @@
             </intent-filter>
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".activity.landing.Home"/>
         </activity>
+
         <activity android:name=".activity.UserBrowser" android:label="Profile">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.USER_BROWSER"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
 
+            <!-- soundcloud:users:12345#show | soundcloud:tracks:12345#play -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:mimeType="vnd.soundcloud/user"/>
+            </intent-filter>
         </activity>
+
         <activity android:name=".activity.create.ScCreate"
                   android:theme="@style/Theme.ScCreate"
                   android:launchMode="singleTask">

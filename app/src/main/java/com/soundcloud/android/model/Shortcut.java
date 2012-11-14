@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -7,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import android.content.ContentValues;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 public class Shortcut extends ScModel {
 
@@ -20,7 +22,8 @@ public class Shortcut extends ScModel {
 
     @Override
     public @Nullable ContentValues buildContentValues() {
-        if (getDataUri() == null) return null;
+        final Uri dataUri = getDataUri();
+        if (dataUri == null) return null;
 
         ContentValues cv = new ContentValues();
 
@@ -33,13 +36,17 @@ public class Shortcut extends ScModel {
             cv.put(DBHelper.Suggestions.ICON_URL, artwork_url);
         }
 
+        if (!TextUtils.isEmpty(permalink_url)) {
+            cv.put(DBHelper.Suggestions.PERMALINK_URL, permalink_url);
+        }
+
         if (!TextUtils.isEmpty(getText())) {
             cv.put(DBHelper.Suggestions.COLUMN_TEXT1, getText());
             cv.put(DBHelper.Suggestions.TEXT, getText());
         }
 
-        if (getDataUri() != null) {
-            cv.put(DBHelper.Suggestions.INTENT_DATA, getDataUri().toString());
+        if (dataUri != null) {
+            cv.put(DBHelper.Suggestions.INTENT_DATA, dataUri.toString());
         }
 
         return cv;
@@ -47,9 +54,9 @@ public class Shortcut extends ScModel {
 
     public @Nullable Uri getDataUri() {
         if ("following".equals(kind)) {
-            return ClientUri.forUser(id);
+            return Content.USER.forId(id);
         } else if ("like".equals(kind)) {
-            return ClientUri.forTrack(id);
+            return Content.TRACK.forId(id);
         } else {
             return null;
         }

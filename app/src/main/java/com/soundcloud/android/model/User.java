@@ -72,6 +72,15 @@ public class User extends ScResource implements Refreshable {
     public User() {
     }
 
+    public static User fromUri(Uri uri, ContentResolver resolver) {
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        try {
+            return cursor != null && cursor.moveToFirst() ? new User(cursor) : null;
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+    }
+
     public User(Parcel in) {
         // TODO replace with generated file
         User model = this;
@@ -105,6 +114,7 @@ public class User extends ScResource implements Refreshable {
     public User updateFromCursor(Cursor cursor) {
         id = cursor.getLong(cursor.getColumnIndex(Users._ID));
         permalink = cursor.getString(cursor.getColumnIndex(Users.PERMALINK));
+        permalink_url = cursor.getString(cursor.getColumnIndex(Users.PERMALINK_URL));
         username = cursor.getString(cursor.getColumnIndex(Users.USERNAME));
         track_count = cursor.getInt(cursor.getColumnIndex(Users.TRACK_COUNT));
         discogs_name = cursor.getString(cursor.getColumnIndex(Users.DISCOGS_NAME));

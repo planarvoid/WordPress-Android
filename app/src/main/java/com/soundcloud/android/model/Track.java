@@ -226,6 +226,15 @@ public class Track extends PlayableResource implements Playable {
         dest.writeBundle(b);
     }
 
+    public static Track fromUri(Uri uri, ContentResolver resolver) {
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        try {
+            return cursor != null && cursor.moveToFirst() ? new Track(cursor) : null;
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+    }
+
     @JsonIgnoreProperties(ignoreUnknown=true)
     public static class CreatedWith implements Parcelable {
         @JsonView(Views.Full.class) public long id;

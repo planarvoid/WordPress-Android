@@ -308,6 +308,8 @@ public class ApiSyncer {
                 Log.d(TAG, "inserted " +inserted + " shortcuts");
             }
 
+
+
             result.success = true;
         }
         return result;

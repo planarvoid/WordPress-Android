@@ -190,7 +190,7 @@ public class UserBrowser extends ScActivity implements
                 loadUserByObject((User) intent.getParcelableExtra(EXTRA_USER));
             } else if (intent.hasExtra(EXTRA_USER_ID)) {
                 loadUserById(intent.getLongExtra(EXTRA_USER_ID, -1));
-            } else {
+            } else if (intent.getData() == null || !loadUserByUri(intent.getData())){
                 loadYou();
             }
 
@@ -295,6 +295,11 @@ public class UserBrowser extends ScActivity implements
             mUser = new User();
             mUser.id = userId;
         }
+    }
+
+    private boolean loadUserByUri(Uri uri) {
+        if (uri != null) mUser = User.fromUri(uri, getContentResolver());
+        return (mUser != null);
     }
 
     private void loadUserByObject(User user) {

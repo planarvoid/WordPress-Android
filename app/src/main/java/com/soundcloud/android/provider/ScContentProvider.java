@@ -646,13 +646,22 @@ public class ScContentProvider extends ContentProvider {
                     if (extraCV != null) v.put(extraCV[0], extraCV[1]);
                     log("bulkInsert: " + v);
 
-                    if (db.replace(table.name, null, v) < 0) {
+                    if (db.insertWithOnConflict(table.name, null, v, SQLiteDatabase.CONFLICT_REPLACE) < 0) {
                         Log.w(TAG, "replace returned failure");
                         failed = true;
                         break;
                     }
                 }
             }
+
+            if (content == Content.ME_SHORTCUTS) {
+                db.execSQL("INSERT OR IGNORE INTO " + Table.USERS.name + " (_id, username, avatar_url, permalink_url) " +
+                        " SELECT id, text, icon_url, permalink_url FROM " + Table.SUGGESTIONS.name + " where kind = 'following'");
+                db.execSQL("INSERT OR IGNORE INTO " + Table.TRACKS.name + " (_id, title, artwork_url, permalink_url) " +
+                        " SELECT id, text, icon_url, permalink_url FROM " + Table.SUGGESTIONS.name + " where kind = 'like'");
+            }
+
+
             if (!failed) db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -666,7 +675,7 @@ public class ScContentProvider extends ContentProvider {
         switch (Content.match(uri)) {
             case ME_SHORTCUTS_ICON:
                 List<String> segments = uri.getPathSegments();
-                long suggestId = Long.parseLong(segments.get(segments.size()-1));
+                long suggestId = Long.parseLong(segments.get(segments.size() - 1));
 
                 Cursor c = query(Content.ME_SHORTCUT.forId(suggestId), null, null, null, null);
                 try {
@@ -732,15 +741,20 @@ public class ScContentProvider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
-        switch(Content.match(uri)) {
+        switch (Content.match(uri)) {
             case ANDROID_SEARCH_SUGGEST:
             case ANDROID_SEARCH_SUGGEST_PATH:
                 return SearchManager.SUGGEST_MIME_TYPE;
 
+            case USER:
+                return "vnd.soundcloud/user";
+
+            case TRACK:
+                return "vnd.soundcloud/track";
+
             case RECORDING:
             case RECORDINGS:
                 return "vnd.soundcloud/recording";
-
 
             default:
                 return null;
