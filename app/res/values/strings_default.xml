@@ -25,6 +25,7 @@
   <string name="authentication_error_title">Oops!</string>
   <string name="authentication_find_friends_on_facebook">\u0020\u0020\u0020\u0020Find Friends from Facebook</string>
   <string name="authentication_log_in">Log In</string>
+  <string name="authentication_log_in_with_facebook_two_lines">&lt;small&gt;Log in with&lt;/small&gt; &lt;br&gt;Facebook</string>
   <string name="authentication_log_in_with_facebook">Log In with Facebook</string>
   <string name="authentication_log_in_with_facebook_ssl_error">Error connecting to Facebook (SSL)</string>
   <string name="authentication_login_error_password_message">We couldn\'t log you in. Sure you had the right email and password?</string>

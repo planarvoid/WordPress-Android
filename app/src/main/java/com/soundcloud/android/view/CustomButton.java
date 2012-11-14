@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
+import android.text.Html;
 import android.util.AttributeSet;
 import android.widget.Button;
 import com.soundcloud.android.R;
@@ -16,19 +17,34 @@ public class CustomButton extends Button {
         super(context, attrs);
 
         applyCustomFont(context, attrs);
+        applyHtmlText(context, attrs);
     }
 
     public CustomButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         applyCustomFont(context, attrs);
+        applyHtmlText(context, attrs);
     }
 
     private void applyCustomFont(Context context, AttributeSet attrs) {
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.CustomFontTextView);
         String path = array.getString(R.styleable.CustomFontTextView_custom_font);
 
-        setFontFromPath(path);
+        if (path != null) {
+            setFontFromPath(path);
+        }
+
+        array.recycle();
+    }
+
+    private void applyHtmlText(Context context, AttributeSet attrs) {
+        TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.CustomButton);
+        String html = array.getString(R.styleable.CustomButton_html_text);
+
+        if (html != null) {
+            setText(Html.fromHtml(html), BufferType.SPANNABLE);
+        }
 
         array.recycle();
     }

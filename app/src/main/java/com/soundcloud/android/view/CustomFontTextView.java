@@ -32,7 +32,9 @@ public class CustomFontTextView extends TextView {
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.CustomFontTextView);
         String path = array.getString(R.styleable.CustomFontTextView_custom_font);
 
-        setFontFromPath(path);
+        if (path != null) {
+            setFontFromPath(path);
+        }
 
         array.recycle();
     }
