@@ -14,6 +14,8 @@
         <item name="android:gravity">center</item>
 
         <item name="android:background">@drawable/next_button_white</item>
+
+        <item name="custom_font">fonts/Interstate-Light.ttf</item>
     </style>
 
     <style name="Tour.LeftButton" parent="Tour.Button">

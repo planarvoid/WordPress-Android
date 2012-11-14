@@ -7,21 +7,21 @@
               android:background="@color/transparent"
               android:padding="10dp">
 
-    <Button android:id="@+id/facebook_btn"
-            style="@style/Tour.FacebookButton"
-            android:text="@string/authentication_log_in_with_facebook"
+    <com.soundcloud.android.view.CustomButton android:id="@+id/facebook_btn"
+                                              style="@style/Tour.FacebookButton"
+                                              android:text="@string/authentication_log_in_with_facebook"
 
-            android:layout_marginRight="10dp">
+                                              android:layout_marginRight="10dp">
         <requestFocus/>
-    </Button>
+    </com.soundcloud.android.view.CustomButton>
 
-    <Button android:id="@+id/login_btn"
-            style="@style/Tour.Button"
-            android:text="@string/authentication_log_in"
+    <com.soundcloud.android.view.CustomButton android:id="@+id/login_btn"
+                                              style="@style/Tour.Button"
+                                              android:text="@string/authentication_log_in"
 
-            android:layout_marginRight="10dp"/>
+                                              android:layout_marginRight="10dp"/>
 
-    <Button android:id="@+id/signup_btn"
-            style="@style/Tour.Button"
-            android:text="@string/authentication_sign_up"/>
+    <com.soundcloud.android.view.CustomButton android:id="@+id/signup_btn"
+                                              style="@style/Tour.Button"
+                                              android:text="@string/authentication_sign_up"/>
 </LinearLayout>

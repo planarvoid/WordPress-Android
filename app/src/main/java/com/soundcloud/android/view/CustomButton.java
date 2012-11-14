@@ -4,25 +4,21 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
-import android.widget.TextView;
+import android.widget.Button;
 import com.soundcloud.android.R;
 
-import java.lang.ref.SoftReference;
-import java.util.Hashtable;
-
-public class CustomFontTextView extends TextView {
-
-    public CustomFontTextView(Context context) {
+public class CustomButton extends Button {
+    public CustomButton(Context context) {
         super(context);
     }
 
-    public CustomFontTextView(Context context, AttributeSet attrs) {
+    public CustomButton(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         applyCustomFont(context, attrs);
     }
 
-    public CustomFontTextView(Context context, AttributeSet attrs, int defStyle) {
+    public CustomButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         applyCustomFont(context, attrs);
