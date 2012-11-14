@@ -21,4 +21,7 @@
 
     <!-- re-enable later -->
     <issue id="NewApi" severity="warning"/>
+
+    <!-- can't resolve mvn dependencies -->
+    <issue id="MissingRegistered" severity="ignore"/>
 </lint>
