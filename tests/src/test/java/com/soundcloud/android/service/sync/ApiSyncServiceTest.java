@@ -263,7 +263,7 @@ public class ApiSyncServiceTest {
                 "e1_activities_1.json",
                 "e1_activities_2.json");
 
-        expect(Content.ME_ACTIVITIES).toHaveCount(9);
+        expect(Content.ME_ACTIVITIES).toHaveCount(17);
         expect(Content.COMMENTS).toHaveCount(5);
 
         Activities own = Activities.getSince(Content.ME_ACTIVITIES, resolver, -1);
@@ -281,7 +281,7 @@ public class ApiSyncServiceTest {
                 "e1_activities_1.json",
                 "e1_activities_2.json");
 
-        expect(Content.ME_ACTIVITIES).toHaveCount(9);
+        expect(Content.ME_ACTIVITIES).toHaveCount(17);
         expect(Content.COMMENTS).toHaveCount(5);
 
         append(svc, Content.ME_ACTIVITIES,
@@ -298,7 +298,7 @@ public class ApiSyncServiceTest {
                 "e1_activities_1.json",
                                 "e1_activities_2.json");
 
-        expect(Content.ME_ACTIVITIES).toHaveCount(9);
+        expect(Content.ME_ACTIVITIES).toHaveCount(17);
 
         for (int i=0; i<3; i++)
             append(svc, Content.ME_ACTIVITIES,
@@ -321,7 +321,7 @@ public class ApiSyncServiceTest {
                 "e1_stream_oldest.json");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(112);
-        expect(Content.ME_ACTIVITIES).toHaveCount(9);
+        expect(Content.ME_ACTIVITIES).toHaveCount(17);
         expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(0);
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(137);
     }
