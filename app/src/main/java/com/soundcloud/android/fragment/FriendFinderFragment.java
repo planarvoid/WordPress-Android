@@ -55,7 +55,13 @@ public class FriendFinderFragment extends ScListFragment implements ParcelCache.
         super();
 
         mConnections = Connections.get().getObjectsOrNull();
-        onConnections(mConnections, true);
+
+        if (mConnections == null){
+            setState(States.LOADING, false);
+        } else {
+            onConnections(mConnections, true);
+        }
+
         Connections.get().requestUpdate(app, false, this);
     }
 
@@ -90,12 +96,6 @@ public class FriendFinderFragment extends ScListFragment implements ParcelCache.
         });
         return v;
     }
-
-    @Override
-    protected boolean canAppend() {
-        return true && super.canAppend();
-    }
-
 
     private void onConnections(List<Connection> connections, boolean refresh) {
         mConnections = connections;
