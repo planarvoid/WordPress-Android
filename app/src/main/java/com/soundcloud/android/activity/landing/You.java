@@ -22,7 +22,10 @@ public class You extends UserBrowser implements ScLandingPage {
 
             @Override
             public void onPageSelected(int i) {
-                mRootView.setSelectedMenuId(Tab.values()[i] == Tab.likes ? R.id.nav_likes : R.id.nav_you);
+                mRootView.setSelectedMenuId(
+                        Tab.values()[i] == Tab.likes ? R.id.nav_likes :
+                        Tab.values()[i] == Tab.followings ? R.id.nav_followings :
+                        R.id.nav_you);
             }
 
             @Override
@@ -34,11 +37,15 @@ public class You extends UserBrowser implements ScLandingPage {
     @Override
     protected int getSelectedMenuId() {
         final Intent intent = getIntent();
-        if (intent.hasExtra(Tab.EXTRA) && Tab.values()[Tab.indexOf(intent.getStringExtra(Tab.EXTRA))] == Tab.likes) {
-            return R.id.nav_likes;
-        } else {
-            return R.id.nav_you;
+        if (intent.hasExtra(Tab.EXTRA)){
+            final Tab tab = Tab.values()[Tab.indexOf(intent.getStringExtra(Tab.EXTRA))];
+            if (tab == Tab.likes) {
+                return R.id.nav_likes;
+            } else if (tab == Tab.followings) {
+                return R.id.nav_followings;
+            }
         }
+        return R.id.nav_you;
     }
 
     @Override

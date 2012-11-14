@@ -63,7 +63,7 @@ public class RootView extends ViewGroup {
     public static final String EXTRA_ROOT_VIEW_STATE = "fim_menu_state";
     private static final String KEY_MENU_STATE = "menuState_key";
     private static final String STATE_KEY = "state_key";
-    public static final int MENU_TARGET_WIDTH = 300;
+    public static final int MENU_TARGET_WIDTH = 250;
 
     private static final int INVALID_POINTER = -1;
 
@@ -332,9 +332,10 @@ public class RootView extends ViewGroup {
     protected void dispatchDraw(Canvas canvas) {
         final long drawingTime = getDrawingTime();
 
+        final int width = getWidth();
         float openRatio = mContent.getLeft() < 0 ?
-                          (float) -1 * mContent.getLeft() / (getWidth() - mOffsetLeft) :
-                          (float) mContent.getLeft() / (getWidth() - mOffsetRight) ;
+                          (float) -1 * mContent.getLeft() / (width - mOffsetLeft) :
+                          (float) mContent.getLeft() / (width - mOffsetRight) ;
 
         float closedRatio = 1 - openRatio;
 
@@ -348,7 +349,7 @@ public class RootView extends ViewGroup {
 
                 // menu
                 final int left = mMenu.getLeft();
-                final int offset = Math.min(-left, (int) (-closedRatio * mMenu.getWidth() * PARALLAX_SPEED_RATIO) - left);
+                final int offset = Math.min(-left, (int) (-closedRatio * (width - mOffsetRight) * PARALLAX_SPEED_RATIO) - left);
                 mMenu.offsetLeftAndRight(offset);
 
                 final Bitmap menuCache = mMenu.getDrawingCache();
@@ -374,7 +375,7 @@ public class RootView extends ViewGroup {
             } else if (mContent.getLeft() < 0 && mPlayer != null) {
 
                 // player
-                final int offset = mOffsetLeft + (int) (closedRatio * mPlayer.getWidth() * PARALLAX_SPEED_RATIO) - mPlayer.getLeft();
+                final int offset = mOffsetLeft + (int) (closedRatio * (width - mOffsetLeft) * PARALLAX_SPEED_RATIO) - mPlayer.getLeft();
                 mPlayer.offsetLeftAndRight(offset);
 
                 final Bitmap playerCache = mPlayer.getDrawingCache();
@@ -387,7 +388,7 @@ public class RootView extends ViewGroup {
                 }
 
                 // playerOverlay
-                if (alpha > 0) canvas.drawRect(mPlayer.getLeft(), 0, getWidth() , getHeight(), mOverlayPaint);
+                if (alpha > 0) canvas.drawRect(mPlayer.getLeft(), 0, width, getHeight(), mOverlayPaint);
 
                 // gradient
                 canvas.save();
@@ -484,6 +485,10 @@ public class RootView extends ViewGroup {
                     break;
                 }
 
+                initVelocityTrackerIfNotExists();
+                mVelocityTracker.addMovement(ev);
+
+
                 final int pointerIndex = ev.findPointerIndex(activePointerId);
                 final float x = ev.getX(pointerIndex);
                 final int xDiff = (int) Math.abs(x - mLastMotionX);
@@ -543,8 +548,6 @@ public class RootView extends ViewGroup {
 
         mIsBeingDragged = true;
         mLastMotionX = eventX;
-        initVelocityTrackerIfNotExists();
-        mVelocityTracker.addMovement(ev);
 
         // Must be called before prepareTracking()
         prepareContent();
@@ -592,9 +595,6 @@ public class RootView extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        initVelocityTrackerIfNotExists();
-        mVelocityTracker.addMovement(event);
-
         final int action = event.getAction();
 
         switch (action & MotionEvent.ACTION_MASK) {
@@ -627,6 +627,7 @@ public class RootView extends ViewGroup {
 
             case MotionEvent.ACTION_MOVE:
                 if (mIsBeingDragged) {
+                    initVelocityTrackerIfNotExists();
                     mVelocityTracker.addMovement(event);
                     moveContent((int) (event.getX()) - mTouchDelta);
                 }
@@ -636,24 +637,7 @@ public class RootView extends ViewGroup {
             case MotionEvent.ACTION_CANCEL: {
                 final VelocityTracker velocityTracker = mVelocityTracker;
                 velocityTracker.computeCurrentVelocity(mVelocityUnits);
-
-                float yVelocity = velocityTracker.getYVelocity();
-                float xVelocity = velocityTracker.getXVelocity();
-                boolean negative;
-
-                negative = xVelocity < 0;
-                if (yVelocity < 0) {
-                    yVelocity = -yVelocity;
-                }
-                if (yVelocity > mMaximumMinorVelocity) {
-                    yVelocity = mMaximumMinorVelocity;
-                }
-
-                float velocity = (float) Math.hypot(xVelocity, yVelocity);
-                if (negative) {
-                    velocity = -velocity;
-                }
-                performFling(mContent.getLeft(), velocity, -1);
+                performFling(mContent.getLeft(), velocityTracker.getXVelocity(), -1);
 
                 mActivePointerId = INVALID_POINTER;
                 mIsBeingDragged = false;
@@ -683,7 +667,6 @@ public class RootView extends ViewGroup {
     }
 
     private void performFling(int position, float velocity, int forceState) {
-
         final int motion;
         if (mExpandedState == EXPANDED_LEFT) {
 
@@ -713,13 +696,12 @@ public class RootView extends ViewGroup {
             }
 
         } else {
-
             final boolean shouldOpenLeft = velocity > mMaximumMajorVelocity ||
-                    (position > (getWidth()) / 2 &&
+                    (position > (getWidth() - mOffsetRight) / 2 &&
                             velocity > -mMaximumMajorVelocity);
 
             final boolean shouldOpenRight = canOpenRight() && (velocity < -mMaximumMajorVelocity ||
-                                (position < -(getWidth()) / 2 &&
+                                (position < -(getWidth() - mOffsetLeft) / 2 &&
                                         velocity < mMaximumMajorVelocity));
 
             if (forceState == EXPANDED_LEFT || shouldOpenLeft){

@@ -79,7 +79,7 @@
 
     <dimen name="rec_toggle_fade_margin_top">15dp</dimen>
 
-    <dimen name="slm_item_padding_topbottom">10dp</dimen>
+    <dimen name="slm_item_padding_topbottom">15dp</dimen>
     <dimen name="slm_item_padding_left">14dp</dimen>
     <dimen name="slm_item_padding_right">16dp</dimen>
 

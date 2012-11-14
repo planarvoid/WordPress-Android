@@ -31,9 +31,9 @@ import java.util.List;
         @JsonSubTypes.Type(value = Track.class, name = "track"),
         @JsonSubTypes.Type(value = Comment.class, name = "comment"),
         @JsonSubTypes.Type(value = User.class, name = "user"),
+        @JsonSubTypes.Type(value = Friend.class, name = "friend"),
         @JsonSubTypes.Type(value = Playlist.class, name = "playlist")})
 public abstract class ScResource extends ScModel {
-
 
     public static final List<ScResource> EMPTY_LIST = new ArrayList<ScResource>();
     @JsonIgnore

@@ -48,7 +48,7 @@ public enum Content  {
     ME_ALL_ACTIVITIES("me/activities", null, 150, Activity.class, -1, Table.ACTIVITIES),
 
     ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, User.class, FRIEND, null),
-    SUGGESTED_USERS("users/suggested", null, 161, User.class, SUGGESTED_USER, null),
+    SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 161, User.class, SUGGESTED_USER, null),
 
     TRACKS("tracks", Endpoints.TRACKS, 201, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
     TRACK("tracks/#", Endpoints.TRACK_DETAILS, 202, Track.class, -1, Table.TRACKS),
@@ -68,6 +68,7 @@ public enum Content  {
     USER_GROUPS("users/#/groups", null, 308, null, -1, null),
     USER_PLAYLISTS("users/#/playlists", null, 309, null, -1, null),
     USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Track.class, REPOST, null),
+
 
     COMMENTS("comments", null, 400, Comment.class, -1, Table.COMMENTS),
     COMMENT("comments/#", null, 401, Comment.class, -1, Table.COMMENTS),

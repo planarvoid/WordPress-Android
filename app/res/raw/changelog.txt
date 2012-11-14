@@ -1,10 +1,16 @@
 $ 49
   % v current
-  _ 2012-11-02
+  _ 2012-11-13
   ! Next
-    * Fixed left trim handle dragging in Record Edit screen
-    * New UI
-    * Extra media button handling
+    * Menu styling and optimizations
+    * Added Friend Finder back
+    * Added You shortcuts back
+    - Fixed notification handling
+    - Fixed left trim handle dragging in Record Edit screen
+    - Fixed url resolving
+    - various UI improvements
+    - New UI
+    - Extra media button handling
 
 $ 48
   % v 2.3.2

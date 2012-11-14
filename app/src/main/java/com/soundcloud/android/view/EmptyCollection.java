@@ -15,20 +15,21 @@ import android.widget.TextView;
 
 public class EmptyCollection extends FrameLayout {
 
-    private ViewGroup mSyncLayout;
-    private ViewGroup mEmptyLayout;
+    protected ViewGroup mSyncLayout;
+    protected ViewGroup mEmptyLayout;
 
     private TextView mTxtMessage;
     private TextView mTxtLink;
-    private ImageView mImage;
-    private Button mBtnAction;
+    protected ImageView mImage;
+    protected Button mBtnAction;
     private ActionListener mButtonActionListener;
 
     private ActionListener mImageActionListener;
-    private Mode mMode;
+    private int mMode;
 
-    public enum Mode {
-        WAITING_FOR_SYNC, WAITING_FOR_DATA, IDLE
+    public interface Mode {
+        int WAITING_FOR_DATA = 1;
+        int IDLE = 2;
     }
 
     public EmptyCollection(Context context) {
@@ -71,24 +72,24 @@ public class EmptyCollection extends FrameLayout {
         setMode(Mode.WAITING_FOR_DATA);
     }
 
-    public void setMode(Mode mode) {
+    public boolean setMode(int mode) {
         if (mMode != mode) {
             mMode = mode;
             switch (mode) {
-                case WAITING_FOR_SYNC:
-                case WAITING_FOR_DATA:
+                case Mode.WAITING_FOR_DATA:
                     mEmptyLayout.setVisibility(View.GONE);
                     mSyncLayout.setVisibility(View.VISIBLE);
                     findViewById(R.id.txt_sync).setVisibility(View.GONE);
-                    break;
-                case IDLE:
+                    return true;
 
+                case Mode.IDLE:
                     mEmptyLayout.setVisibility(View.VISIBLE);
                     mSyncLayout.setVisibility(View.GONE);
-                    break;
-
+                    return true;
             }
+            return false;
         }
+        return true;
     }
 
     public EmptyCollection setImage(int imageId){
@@ -97,8 +98,12 @@ public class EmptyCollection extends FrameLayout {
     }
 
     public EmptyCollection setMessageText(int messageId){
-        mTxtMessage.setText(messageId);
-        mTxtMessage.setVisibility(View.VISIBLE);
+        if(messageId == -1){
+            mTxtMessage.setVisibility(View.GONE);
+        } else {
+            mTxtMessage.setText(messageId);
+            mTxtMessage.setVisibility(View.VISIBLE);
+        }
         return this;
     }
 
@@ -166,6 +171,12 @@ public class EmptyCollection extends FrameLayout {
                             public void onSecondaryAction() {
                             }
                         });
+
+            case ME_FRIENDS:
+                return new FriendFinderEmptyCollection(context).setMessageText(R.string.list_empty_user_following_message)
+                        .setMessageText(R.string.list_no_facebook_friends)
+                        .setActionText(R.string.connect_to_facebook)
+                        .setImage(R.drawable.empty_follow_3row);
             default:
                 return new EmptyCollection(context);
         }

@@ -58,7 +58,7 @@ public class SignupTest extends ActivityTestCase<News> {
 
         solo.clickOnButtonResId(R.string.btn_done);
 
-        solo.assertText(R.string.tab_stream);
+        solo.assertText(R.string.side_menu_stream);
     }
 
     public void testSignupSkip() throws Exception {
@@ -78,9 +78,8 @@ public class SignupTest extends ActivityTestCase<News> {
 
         solo.clickOnButtonResId(R.string.btn_done);
 
-        solo.assertText(R.string.tab_stream);
+        solo.assertText(R.string.side_menu_stream);
     }
-
 
     public void testSignupWithPhotoFromCamera() throws Exception {
         performSignup(generateEmail(), "password", "password");
@@ -168,7 +167,7 @@ public class SignupTest extends ActivityTestCase<News> {
 
         solo.clickOnButtonResId(R.string.btn_done);
 
-        solo.assertText(R.string.tab_stream);
+        solo.assertText(R.string.side_menu_stream);
 
         solo.logoutViaSettings();
 
@@ -197,7 +196,7 @@ public class SignupTest extends ActivityTestCase<News> {
 
         solo.assertText(R.string.email_confirmation_you_need_to_confirm);
         solo.clickOnText(R.string.email_confirmation_confirm_later);
-        solo.assertText(R.string.tab_stream);
+        solo.assertText(R.string.side_menu_stream);
 
         // relaunch activity, make sure email screen doesn't show up again
         solo.goBack();
@@ -205,7 +204,7 @@ public class SignupTest extends ActivityTestCase<News> {
 
         setActivity(null);
         getActivity();
-        solo.assertText(R.string.tab_stream);
+        solo.assertText(R.string.side_menu_stream);
     }
 
 
@@ -225,7 +224,7 @@ public class SignupTest extends ActivityTestCase<News> {
 
         solo.assertText(R.string.email_confirmation_you_need_to_confirm);
         solo.clickOnText(R.string.email_confirmation_resend);
-        solo.assertText(R.string.tab_stream);
+        solo.assertText(R.string.side_menu_stream);
 
         // relaunch activity, make sure email screen doesn't show up again
         solo.goBack();
@@ -233,7 +232,7 @@ public class SignupTest extends ActivityTestCase<News> {
 
         setActivity(null);
         getActivity();
-        solo.assertText(R.string.tab_stream);
+        solo.assertText(R.string.side_menu_stream);
     }
 
 

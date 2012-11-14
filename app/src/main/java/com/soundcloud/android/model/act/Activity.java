@@ -192,7 +192,7 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeLong(created_at.getTime());
-        out.writeString(tags);
+        out.writeString(tags == null ? "" : tags);
         out.writeString(sharing_note == null ? "" : sharing_note.text);
         out.writeLong(sharing_note == null ? -1l : sharing_note.created_at.getTime());
     }

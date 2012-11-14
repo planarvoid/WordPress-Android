@@ -48,7 +48,7 @@ public class CommentActivityRow extends ActivityRow {
     @Override
     protected Drawable doGetDrawable(boolean pressed) {
         Drawable drawable =
-                getResources().getDrawable(pressed ? R.drawable.stats_comments_white_50 : R.drawable.stats_comments);
+                getResources().getDrawable(pressed ? R.drawable.activity_comment_white_50 : R.drawable.activity_comment);
         drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
         return drawable;
     }

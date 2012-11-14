@@ -29,6 +29,11 @@ public class TrackSharingActivity extends Activity implements Playable {
         super(cursor);
     }
 
+    public TrackSharingActivity(Parcel in) {
+        super(in);
+        track = in.readParcelable(Track.class.getClassLoader());
+    }
+
     @Override
     public Type getType() {
         return Type.TRACK_SHARING;
@@ -62,15 +67,13 @@ public class TrackSharingActivity extends Activity implements Playable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest,flags);
         dest.writeParcelable(track, 0);
     }
 
     public static final Parcelable.Creator<TrackSharingActivity> CREATOR = new Parcelable.Creator<TrackSharingActivity>() {
         public TrackSharingActivity createFromParcel(Parcel in) {
-
-            TrackSharingActivity ts = new TrackSharingActivity();
-            ts.track = in.readParcelable(Track.class.getClassLoader());
-            return ts;
+            return new TrackSharingActivity(in);
         }
         public TrackSharingActivity[] newArray(int size) {
             return new TrackSharingActivity[size];

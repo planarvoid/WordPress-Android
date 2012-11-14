@@ -12,8 +12,8 @@
     <string name="tab_title_my_info">Your Info</string>
     <string name="tab_title_my_sounds">Your Sounds</string>
     <string name="tab_title_my_likes">Your Likes</string>
-    <string name="tab_title_my_followers">Your Followers</string>
-    <string name="tab_title_my_followings">Your Followings</string>
+    <string name="tab_title_my_followers">Your followers</string>
+    <string name="tab_title_my_followings">People you follow</string>
 
     <string name="tab_title_user_info">Info</string>
     <string name="tab_title_user_sounds">Sounds</string>
@@ -37,9 +37,25 @@
     <string name="action_bar_comment">Comment</string>
     <string name="action_bar_share">Share</string>
     <string name="action_bar_info">Info</string>
-    <string name="tab_likes">Likes</string>
+
+    <string name="side_menu_activity">Activity</string>
+    <string name="side_menu_record">Record</string>
+    <string name="title_search">Search</string>
+    <string name="side_menu_stream">Stream</string>
+    <string name="side_menu_you">You</string>
+    <string name="side_menu_settings">Settings</string>
+
+    <string name="side_menu_likes">Your likes</string>
+    <string name="side_menu_followings">People you follow</string>
+    <string name="side_menu_friend_finder">Find friends</string>
+    <string name="side_menu_suggested_users">Who to follow</string>
 
     <string name="action_bar_follow">Follow</string>
     <string name="action_bar_unfollow">Unfollow</string>
+
+    <string name="find_friends_on_facebook">Find friends on facebook</string>
+    <string name="connect_to_facebook">Connect to facebook</string>
+    <string name="problem_getting_connections">Problem retrieving connections</string>
+    <string name="list_no_facebook_friends">You currently have no facebook friends</string>
 
 </resources>
