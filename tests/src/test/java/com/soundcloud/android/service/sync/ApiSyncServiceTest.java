@@ -267,7 +267,7 @@ public class ApiSyncServiceTest {
         expect(Content.COMMENTS).toHaveCount(5);
 
         Activities own = Activities.getSince(Content.ME_ACTIVITIES, resolver, -1);
-        expect(own.size()).toEqual(9);
+        expect(own.size()).toEqual(17);
         assertResolverNotified(Content.TRACKS.uri,
                 Content.USERS.uri,
                 Content.COMMENTS.uri,
@@ -287,7 +287,7 @@ public class ApiSyncServiceTest {
         append(svc, Content.ME_ACTIVITIES,
                 "own_append.json");
 
-        expect(Content.ME_ACTIVITIES).toHaveCount(10);
+        expect(Content.ME_ACTIVITIES).toHaveCount(18);
         expect(Content.COMMENTS).toHaveCount(6);
     }
 
@@ -304,7 +304,7 @@ public class ApiSyncServiceTest {
             append(svc, Content.ME_ACTIVITIES,
                     "own_append.json");
 
-        expect(Content.ME_ACTIVITIES).toHaveCount(10);
+        expect(Content.ME_ACTIVITIES).toHaveCount(18);
         expect(Content.COMMENTS).toHaveCount(6);
     }
 

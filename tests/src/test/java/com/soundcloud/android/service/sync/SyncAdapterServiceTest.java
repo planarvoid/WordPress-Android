@@ -156,7 +156,7 @@ public class SyncAdapterServiceTest {
                 .toEqual(Actions.STREAM);
 
         expect(notifications.get(1).info.getContentTitle().toString())
-                .toEqual("10 new activities");
+                .toEqual("2 new activities");
         expect(notifications.get(1).info.getContentText().toString())
                 .toEqual("Comments and likes from D∃SIGNATED∀VΞ and Liraz Axelrad");
 
