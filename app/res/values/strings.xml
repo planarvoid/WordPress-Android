@@ -60,4 +60,8 @@
 
     <string name="list_header_track_reposters">People who reposted this sound</string>
 
+    <string name="started_following_you">started following you</string>
+
+
+
 </resources>

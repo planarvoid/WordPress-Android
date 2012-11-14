@@ -15,6 +15,7 @@ import com.soundcloud.android.view.adapter.CommentActivityRow;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.adapter.LikeActivityRow;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
+import com.soundcloud.android.view.adapter.TrackRepostActivityRow;
 
 import android.content.Context;
 import android.content.Intent;
@@ -54,8 +55,10 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
-            case TRACK_REPOST:
                 return new TrackInfoBar(mContext, this);
+
+            case TRACK_REPOST:
+                return new TrackRepostActivityRow(mContext, this);
 
             case COMMENT:
                 return new CommentActivityRow(mContext, this);
@@ -84,7 +87,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
     @Override
     public CollectionParams getParams(boolean refresh) {
         CollectionParams params = super.getParams(refresh);
-        if (mData != null && mData.size() > 0) {
+        if (mData.size() > 0) {
             Activity first = getItem(0);
             Activity last  = getItem(getItemCount() -1);
             params.timestamp = refresh ? (first == null ? 0 : first.created_at.getTime())

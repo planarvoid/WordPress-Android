@@ -32,7 +32,6 @@ public abstract class ActivityRow extends LazyRow {
     protected Activity mActivity;
 
     protected final TextView mUser;
-    protected final TextView mReposter;
     private final TextView mTitle;
     private final TextView mCreatedAt;
 
@@ -45,8 +44,6 @@ public abstract class ActivityRow extends LazyRow {
         mTitle = (TextView) findViewById(R.id.title);
         mUser = (TextView) findViewById(R.id.user);
         mCreatedAt = (TextView) findViewById(R.id.created_at);
-        mReposter = (TextView) findViewById(R.id.reposter);
-
         init();
     }
 
@@ -119,13 +116,6 @@ public abstract class ActivityRow extends LazyRow {
 
         setImageSpan();
         mCreatedAt.setText(ScTextUtils.getTimeElapsed(getContext().getResources(), getOriginCreatedAt().getTime()));
-
-        if (mActivity instanceof TrackRepostActivity) {
-            mReposter.setText(((TrackRepostActivity)mActivity).user.username);
-            mReposter.setVisibility(View.VISIBLE);
-        } else {
-            mReposter.setVisibility(View.GONE);
-        }
 
         mUser.setText(getOriginUser().username);
         mCreatedAt.setText(ScTextUtils.getTimeElapsed(getContext().getResources(), getOriginCreatedAt().getTime()));

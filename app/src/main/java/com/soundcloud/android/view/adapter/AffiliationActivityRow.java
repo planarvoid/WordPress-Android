@@ -55,7 +55,7 @@ public class AffiliationActivityRow extends ActivityRow {
         mSpanBuilder = new SpannableStringBuilder();
         mSpanBuilder.append("  ").append(mActivity.getUser().username);
         mSpanBuilder.setSpan(new StyleSpan(Typeface.BOLD), 1, mSpanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mSpanBuilder.append(" started following you");
+        mSpanBuilder.append(" " + getContext().getResources().getString(R.string.started_following_you));
         return mSpanBuilder;
     }
 
