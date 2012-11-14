@@ -13,11 +13,11 @@
 
         <item name="android:gravity">center</item>
 
-        <item name="android:background">@drawable/next_button_white_states</item>
+        <item name="android:background">@drawable/next_button_white</item>
     </style>
 
     <style name="Tour.LeftButton" parent="Tour.Button">
-        <item name="android:background">@drawable/next_button_white_left_states</item>
+        <item name="android:background">@drawable/next_button_white_left</item>
         <!--
             We use negative margin to pull the left and right button closer to each other
             so their outlines are on top of each other.
@@ -28,13 +28,13 @@
         <item name="android:layout_marginRight">-1dp</item>
     </style>
     <style name="Tour.RightButton" parent="Tour.Button">
-        <item name="android:background">@drawable/next_button_white_right_states</item>
+        <item name="android:background">@drawable/next_button_white_right</item>
         <item name="android:layout_marginLeft">-1dp</item>
     </style>
 
     <style name="Tour.FacebookButton" parent="Tour.Button">
         <item name="android:textColor">#FFFFFFFF</item>
-        <item name="android:background">@drawable/next_button_blue_states</item>
+        <item name="android:background">@drawable/next_button_blue</item>
         <item name="android:focusableInTouchMode">true</item>
     </style>
 
