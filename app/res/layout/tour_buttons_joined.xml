@@ -9,7 +9,7 @@
 
     <Button android:id="@+id/facebook_btn"
             style="@style/Tour.FacebookButton"
-            android:text="Log In with Facebook"
+            android:text="@string/authentication_log_in_with_facebook"
 
             android:singleLine="false"
 
