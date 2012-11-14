@@ -209,6 +209,7 @@
 
         <activity android:name=".activity.auth.Tour" android:screenOrientation="portrait" />
         <activity android:name=".activity.track.TrackLikers" />
+        <activity android:name=".activity.track.TrackReposters" />
         <activity android:name=".activity.track.TrackComments" />
         <activity android:name=".activity.track.TracksByTag" />
 

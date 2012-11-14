@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.*;
 import android.os.Bundle;
@@ -31,7 +32,7 @@ abstract class PlayableResource extends ScResource implements Playable, Refresha
     @JsonView(Views.Full.class) public boolean user_repost;
 
     @JsonView(Views.Full.class) public int duration = NOT_SET;
-    @JsonView(Views.Full.class) public Date created_at;
+    @JsonView(Views.Full.class) @Nullable public Date created_at;
 
     @JsonView(Views.Full.class) public boolean streamable;
     @JsonView(Views.Full.class) public boolean downloadable;
@@ -102,7 +103,7 @@ abstract class PlayableResource extends ScResource implements Playable, Refresha
         b.putBoolean("user_like", user_like);
         b.putBoolean("user_repost", user_repost);
         b.putInt("duration", duration);
-        b.putLong("created_at", created_at.getTime());
+        b.putLong("created_at",  created_at != null ? created_at.getTime() : -1l);
         b.putBoolean("streamable", streamable);
         b.putBoolean("downloadable", downloadable);
         b.putString("license", license);
@@ -140,7 +141,7 @@ abstract class PlayableResource extends ScResource implements Playable, Refresha
         user_like = b.getBoolean("user_like");
         user_repost = b.getBoolean("user_repost");
         duration = b.getInt("duration");
-        created_at = new Date(b.getLong("created_at"));
+        created_at = b.getLong("created_at") == -1l ? null : new Date(b.getLong("created_at"));
         streamable = b.getBoolean("streamable");
         downloadable = b.getBoolean("downloadable");
         license = b.getString("license");

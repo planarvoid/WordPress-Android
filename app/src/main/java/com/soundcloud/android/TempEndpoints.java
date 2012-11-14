@@ -10,7 +10,8 @@ public interface TempEndpoints {
         String MY_ACTIVITIES = "/e1/me/activities";
         String MY_REPOSTS = "/e1/me/track_reposts";
         String MY_REPOST = "/e1/me/track_reposts/%d";
-        String USER_REPOSTS = "/e1/users/#/reposts";
+        String USER_REPOSTS = "/e1/users/%/reposts";
+        String TRACK_REPOSTERS = "/e1/tracks/%d/reposters";
     }
     public interface i1 {
         String ME_FACEBOOK_TOKEN = "/i1/me/facebook_token";
