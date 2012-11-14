@@ -15,13 +15,13 @@
         <requestFocus/>
     </Button>
 
-    <Button android:id="@+id/login_btn"
+    <Button android:id="@+id/signup_btn"
             style="@style/Tour.Button"
-            android:text="@string/authentication_log_in"
+            android:text="@string/authentication_sign_up"
 
             android:layout_marginRight="10dp"/>
 
-    <Button android:id="@+id/signup_btn"
+    <Button android:id="@+id/login_btn"
             style="@style/Tour.Button"
-            android:text="@string/authentication_sign_up"/>
+            android:text="@string/authentication_log_in"/>
 </LinearLayout>

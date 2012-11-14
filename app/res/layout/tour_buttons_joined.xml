@@ -18,11 +18,11 @@
         <requestFocus/>
     </com.soundcloud.android.view.CustomButton>
 
-    <Button android:id="@+id/login_btn"
-            style="@style/Tour.LeftButton"
-            android:text="@string/authentication_log_in"/>
-
     <Button android:id="@+id/signup_btn"
-            style="@style/Tour.RightButton"
+            style="@style/Tour.LeftButton"
             android:text="@string/authentication_sign_up"/>
+
+    <Button android:id="@+id/login_btn"
+            style="@style/Tour.RightButton"
+            android:text="@string/authentication_log_in"/>
 </LinearLayout>
