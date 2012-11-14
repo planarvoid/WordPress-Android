@@ -9,10 +9,14 @@
 
     <Button android:id="@+id/facebook_btn"
             style="@style/Tour.FacebookButton"
-            android:text="@string/authentication_log_in_with_facebook"
+            android:text="Log In with Facebook"
 
-            android:layout_weight="2"
-            android:layout_marginRight="10dp">
+            android:singleLine="false"
+
+            android:layout_width="wrap_content"
+            android:layout_weight="0"
+            android:layout_marginRight="10dp"
+            android:paddingRight="8dp">
         <requestFocus/>
     </Button>
 

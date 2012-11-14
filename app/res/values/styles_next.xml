@@ -35,6 +35,9 @@
     <style name="Tour.FacebookButton" parent="Tour.Button">
         <item name="android:textColor">#FFFFFFFF</item>
         <item name="android:background">@drawable/next_button_blue</item>
+        <item name="android:drawableLeft">@drawable/facebook_button_logo</item>
+        <item name="android:drawablePadding">4dp</item>
+
         <item name="android:focusableInTouchMode">true</item>
     </style>
 
