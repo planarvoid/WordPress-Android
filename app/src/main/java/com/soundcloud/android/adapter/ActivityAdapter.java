@@ -1,17 +1,23 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.activity.track.TrackComments;
+import com.soundcloud.android.activity.track.TrackReposters;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.utils.PlayUtils;
+import com.soundcloud.android.view.adapter.AffiliationActivityRow;
 import com.soundcloud.android.view.adapter.CommentActivityRow;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.adapter.LikeActivityRow;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
@@ -56,6 +62,10 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
 
             case TRACK_LIKE:
                 return new LikeActivityRow(mContext, this);
+
+            case AFFILIATION:
+                return new AffiliationActivityRow(mContext, this);
+
 
             default:
                 throw new IllegalArgumentException("no view for " + type + " yet");
@@ -104,9 +114,25 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
-            case TRACK_REPOST:
                 PlayUtils.playFromAdapter(mContext, this, mData, position, id);
                 return ItemClickResults.LEAVING;
+            case TRACK_REPOST:
+                mContext.startActivity(new Intent(mContext, TrackReposters.class)
+                        .putExtra(Track.EXTRA, getItem(position).getTrack()));
+                // todo, scroll to specific repost
+                return ItemClickResults.LEAVING;
+
+            case COMMENT:
+                mContext.startActivity(new Intent(mContext, TrackComments.class)
+                        .putExtra(Track.EXTRA, getItem(position).getTrack()));
+                // todo, scroll to specific comment
+                return ItemClickResults.LEAVING;
+
+            case AFFILIATION:
+                mContext.startActivity(new Intent(mContext, UserBrowser.class)
+                        .putExtra(UserBrowser.EXTRA_USER, getItem(position).getUser()));
+                return ItemClickResults.LEAVING;
+
             default:
                 Log.i(SoundCloudApplication.TAG, "Clicked on item " + id);
         }

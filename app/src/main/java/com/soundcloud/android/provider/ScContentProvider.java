@@ -250,8 +250,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_ACTIVITIES:
                 qb.setTables(Table.ACTIVITY_VIEW.name);
                 if (content != Content.ME_ALL_ACTIVITIES) {
-                    qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id + " AND " +
-                            DBHelper.ActivityView.TYPE + " != '" + Activity.Type.AFFILIATION.type + "' AND (" + // remove affiliations
+                    qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id + " AND (" +
                             DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST.type +
                             "' AND " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_LIKE.type +
                             "' AND " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_REPOST.type +

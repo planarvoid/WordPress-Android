@@ -14,6 +14,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.view.DrawableSpan;
 
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -30,13 +31,13 @@ import java.util.Date;
 public abstract class ActivityRow extends LazyRow {
     protected Activity mActivity;
 
-    private final TextView mUser;
-    private final TextView mReposter;
+    protected final TextView mUser;
+    protected final TextView mReposter;
     private final TextView mTitle;
     private final TextView mCreatedAt;
 
     private Drawable mDrawable, mPressedDrawable;
-    private SpannableStringBuilder mSpanBuilder;
+    protected SpannableStringBuilder mSpanBuilder;
 
     public ActivityRow(Context context, IScAdapter adapter) {
         super(context, adapter);
@@ -77,7 +78,7 @@ public abstract class ActivityRow extends LazyRow {
         return mActivity.created_at;
     }
 
-    private SpannableStringBuilder createSpan() {
+    protected SpannableStringBuilder createSpan() {
         mSpanBuilder = new SpannableStringBuilder();
         mSpanBuilder.append("  ").append(getTrack().title);
         addSpan(mSpanBuilder);
@@ -117,6 +118,7 @@ public abstract class ActivityRow extends LazyRow {
         mSpanBuilder = createSpan();
 
         setImageSpan();
+        mCreatedAt.setText(ScTextUtils.getTimeElapsed(getContext().getResources(), getOriginCreatedAt().getTime()));
 
         if (mActivity instanceof TrackRepostActivity) {
             mReposter.setText(((TrackRepostActivity)mActivity).user.username);
@@ -132,8 +134,8 @@ public abstract class ActivityRow extends LazyRow {
 
     private void setImageSpan() {
         if (mSpanBuilder == null) return;
-        mSpanBuilder.setSpan(new ImageSpan(isPressed() ? getPressedDrawable() :
-                getDrawable(), ImageSpan.ALIGN_BASELINE), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mSpanBuilder.setSpan(new DrawableSpan(isPressed() ? getPressedDrawable() :
+                getDrawable(), DrawableSpan.ALIGN_BASELINE), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         mTitle.setText(mSpanBuilder);
     }
 
