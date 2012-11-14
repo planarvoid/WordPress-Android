@@ -34,7 +34,8 @@ public abstract class TrackInfoCollection extends ScActivity implements   FetchT
         mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PlayUtils.playTrack(TrackInfoCollection.this, PlayInfo.forTracks(mTrack));
+                // if it comes from a mention, might not have a user
+                if (mTrack.user != null) PlayUtils.playTrack(TrackInfoCollection.this, PlayInfo.forTracks(mTrack));
             }
         });
 
