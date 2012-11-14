@@ -518,7 +518,7 @@ public class ScListFragment extends SherlockListFragment
 
         getListAdapter().handleTaskReturnData(data);
 
-        if (!isRefreshing() && !waitingOnInitialSync()) doneRefreshing();
+        if ((data.wasRefresh || !isRefreshing()) && !waitingOnInitialSync()) doneRefreshing();
         handleResponseCode(data.responseCode);
         configureEmptyCollection();
 
