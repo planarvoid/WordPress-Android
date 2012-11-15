@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+               android:layout_width="fill_parent"
+               android:layout_height="fill_parent">
+    <ImageView android:layout_width="fill_parent"
+               android:layout_height="fill_parent"
+               android:src="@drawable/tour_image_2"
+               android:scaleType="centerCrop"/>
+
+    <LinearLayout android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="vertical"
+                  android:padding="10dp"
+                  android:layout_marginBottom="@dimen/tour_bottom_bar_height"
+                  android:layout_alignParentBottom="true">
+        <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.Headline"
+                                                       android:text="Welcome to SoundCloud!" />
+        <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.CallToAction"
+                                                       android:text="Get ready to discover, connect and share all kinds of music and audio."/>
+    </LinearLayout>
+</RelativeLayout>

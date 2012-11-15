@@ -164,8 +164,8 @@
                 <action android:name="com.soundcloud.android.action.USER_BROWSER"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-
         </activity>
+
         <activity android:name=".activity.create.ScCreate"
                   android:theme="@style/Theme.ScCreate"
                   android:launchMode="singleTask">
