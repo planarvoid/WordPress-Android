@@ -45,6 +45,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -298,7 +299,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     private boolean loadUserByUri(Uri uri) {
-        if (uri != null) mUser = User.fromUri(uri, getContentResolver());
+        if (uri != null) mUser = User.fromUri(uri, getContentResolver(), true);
         return (mUser != null);
     }
 

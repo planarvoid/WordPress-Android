@@ -66,6 +66,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private boolean mIsForeground;
 
     private NowPlayingIndicator mNowPlaying;
+    private SuggestionsAdapter mSuggestionsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,6 +193,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         super.onDestroy();
         connectivityListener.unregisterHandler(connHandler);
         connectivityListener = null;
+
+        // suggestions adapter has to stop handler thread
+        if (mSuggestionsAdapter != null) mSuggestionsAdapter.onDestroy();
     }
 
     @Override
@@ -385,8 +389,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             final SearchableInfo searchableInfo = searchManager.getSearchableInfo(getComponentName());
             searchView.setSearchableInfo(searchableInfo);
 
-            final SuggestionsAdapter suggestionsAdapter = new SuggestionsAdapter(this, null, getApp());
-            searchView.setSuggestionsAdapter(suggestionsAdapter);
+            mSuggestionsAdapter = new SuggestionsAdapter(this, null, getApp());
+            searchView.setSuggestionsAdapter(mSuggestionsAdapter);
             searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
                 @Override
                 public boolean onSuggestionSelect(int position) {
@@ -395,7 +399,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
                 @Override
                 public boolean onSuggestionClick(int position) {
-                    final Uri itemUri = suggestionsAdapter.getItemUri(position);
+                    final Uri itemUri = mSuggestionsAdapter.getItemUri(position);
                     startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
                     return true;
                 }

@@ -11,6 +11,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.track.TracksByTag;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
@@ -38,6 +39,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.FloatMath;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -227,9 +229,17 @@ public class Track extends PlayableResource implements Playable {
     }
 
     public static Track fromUri(Uri uri, ContentResolver resolver) {
+        try { // check the cache first
+            final Track t = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(Long.parseLong(uri.getLastPathSegment()));
+            if (t != null) return t;
+
+        } catch (NumberFormatException e) {
+            Log.e(UserBrowser.class.getSimpleName(), "Unexpected Track uri: " + uri.toString());
+        }
+
         Cursor cursor = resolver.query(uri, null, null, null, null);
         try {
-            return cursor != null && cursor.moveToFirst() ? new Track(cursor) : null;
+            return cursor != null && cursor.moveToFirst() ? SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor) : null;
         } finally {
             if (cursor != null) cursor.close();
         }

@@ -24,7 +24,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.net.Uri;
-import android.os.Handler;
+import android.os.*;
 import android.provider.BaseColumns;
 import android.support.v4.widget.CursorAdapter;
 import android.text.Html;
@@ -52,6 +52,10 @@ public class SuggestionsAdapter extends CursorAdapter {
     private static final int MAX_REMOTE = 5;
 
     static final private UriMatcher sMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    private SuggestionsHandler mSuggestionsHandler;
+    private HandlerThread mSuggestionsHandlerThread;
+    public CharSequence mCurrentConstraint;
+    private Cursor mLocalSuggestions;
 
 
     public SuggestionsAdapter(Context context, Cursor c, AndroidCloudAPI api) {
@@ -61,8 +65,17 @@ public class SuggestionsAdapter extends CursorAdapter {
         mImageLoader = ImageLoader.get(mContext);
         mApi = api;
 
+        mSuggestionsHandlerThread = new HandlerThread("SuggestionsHandler", android.os.Process.THREAD_PRIORITY_DEFAULT);
+        mSuggestionsHandlerThread.start();
+        mSuggestionsHandler = new SuggestionsHandler(mSuggestionsHandlerThread.getLooper());
+
         sMatcher.addURI(ScContentProvider.AUTHORITY, Content.USER.uriPath, Content.USER.id);
         sMatcher.addURI(ScContentProvider.AUTHORITY, Content.TRACK.uriPath, Content.TRACK.id);
+    }
+
+    public void onDestroy(){
+        mSuggestionsHandler.removeMessages(0);
+        mSuggestionsHandlerThread.getLooper().quit();
     }
 
     @Override
@@ -94,26 +107,16 @@ public class SuggestionsAdapter extends CursorAdapter {
 
     @Override
     public Cursor runQueryOnBackgroundThread(final CharSequence constraint) {
+        mCurrentConstraint = constraint;
         if (!TextUtils.isEmpty(constraint)) {
-            final Cursor local = fetchLocalSuggestions(constraint, MAX_LOCAL);
+            mLocalSuggestions = fetchLocalSuggestions(constraint, MAX_LOCAL);
 
-            // kick off suggestion API query
-            new Thread() {
-                @Override
-                public void run() {
-                    final MatrixCursor remote = fetchApiSuggestions(constraint, MAX_REMOTE);
-                    if (remote.getCount() > 0) {
-                        handler.post(new Runnable() {
-                            @Override public void run() {
-                                swapCursor(new MergeCursor(new Cursor[]{ local, remote }));
-                            }
-                        });
-                    }
-                }
-            }.start();
+            mSuggestionsHandler.removeMessages(0);
+            Message.obtain(mSuggestionsHandler,0,constraint).sendToTarget();
 
-            return local;
+            return mLocalSuggestions;
         } else {
+            mLocalSuggestions = null;
             return super.runQueryOnBackgroundThread(constraint);
         }
     }
@@ -124,36 +127,53 @@ public class SuggestionsAdapter extends CursorAdapter {
         return Uri.parse(data);
     }
 
-    private MatrixCursor fetchApiSuggestions(CharSequence constraint, int max) {
-        final MatrixCursor remote = new MatrixCursor(new String[]{
-                BaseColumns._ID,
-                SearchManager.SUGGEST_COLUMN_TEXT_1,
-                SearchManager.SUGGEST_COLUMN_INTENT_DATA,
-                DBHelper.Suggestions.ICON_URL});
-
-        try {
-            HttpResponse resp = mApi.get(Request.to("/search/suggest")
-                    .with("q", constraint,
-                          "limit", max));
-
-            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                for (SearchSuggestions.Query q : mApi.getMapper().readValue(resp.getEntity().getContent(),
-                        SearchSuggestions.class)) {
-                    remote.addRow(new Object[] {
-                        q.id,
-                        q.query,
-                        q.getClientUri(),
-                        // TODO: resolve icon url
-                        "https://i1.sndcdn.com/avatars-000006111783-xqaxy3-tiny.jpg?2479809"
-                    });
-                }
-            } else {
-                Log.w(TAG, "invalid status code returned: "+resp.getStatusLine());
-            }
-        } catch (IOException e) {
-            Log.w(TAG, "error fetching suggestions", e);
+    private final class SuggestionsHandler extends Handler {
+        public SuggestionsHandler(Looper looper) {
+            super(looper);
         }
-        return remote;
+
+        @Override
+        public void handleMessage(Message msg) {
+            final CharSequence constraint = (CharSequence) msg.obj;
+            final MatrixCursor remote = new MatrixCursor(new String[]{
+                    BaseColumns._ID,
+                    SearchManager.SUGGEST_COLUMN_TEXT_1,
+                    SearchManager.SUGGEST_COLUMN_INTENT_DATA,
+                    DBHelper.Suggestions.ICON_URL});
+
+            try {
+                HttpResponse resp = mApi.get(Request.to("/search/suggest")
+                        .with("q", constraint,
+                                "limit", MAX_REMOTE));
+
+                if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                    for (SearchSuggestions.Query q : mApi.getMapper().readValue(resp.getEntity().getContent(),
+                            SearchSuggestions.class)) {
+                        remote.addRow(new Object[]{
+                                q.id,
+                                q.query,
+                                q.getUriPath(),
+                                q.getIconUri()
+                        });
+                    }
+                } else {
+                    Log.w(TAG, "invalid status code returned: " + resp.getStatusLine());
+                }
+            } catch (IOException e) {
+                Log.w(TAG, "error fetching suggestions", e);
+            }
+            if (remote.getCount() > 0) {
+                handler.post(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        // make sure we are still relevant
+                        if (constraint == mCurrentConstraint) swapCursor(new MergeCursor(new Cursor[]{mLocalSuggestions, remote}));
+                    }
+                });
+            }
+
+        }
     }
 
     private Cursor fetchLocalSuggestions(CharSequence constraint, int max) {
