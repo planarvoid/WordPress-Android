@@ -1,10 +1,13 @@
 $ 49
   % v current
-  _ 2012-11-13
+  _ 2012-11-14
   ! Next
-    * Menu styling and optimizations
-    * Added Friend Finder back
-    * Added You shortcuts back
+    * fixed reposts layout
+    - Added affiliations and reposts to activities list
+    - assorted bug fixes
+    - Menu styling and optimizations
+    - Added Friend Finder back
+    - Added You shortcuts back
     - Fixed notification handling
     - Fixed left trim handle dragging in Record Edit screen
     - Fixed url resolving
