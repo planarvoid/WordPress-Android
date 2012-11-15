@@ -6,10 +6,14 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.SearchSuggestions;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -19,12 +23,17 @@ import org.jetbrains.annotations.Nullable;
 import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.net.Uri;
-import android.os.*;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.provider.BaseColumns;
 import android.support.v4.widget.CursorAdapter;
 import android.text.Html;
@@ -36,11 +45,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class SuggestionsAdapter extends CursorAdapter {
+public class SuggestionsAdapter extends CursorAdapter implements  DetachableResultReceiver.Receiver {
     private final ContentResolver mContentResolver;
     private final Context mContext;
     private final AndroidCloudAPI mApi;
+
+    private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
     private ImageLoader mImageLoader;
     private Handler handler = new Handler();
@@ -55,7 +68,9 @@ public class SuggestionsAdapter extends CursorAdapter {
     private SuggestionsHandler mSuggestionsHandler;
     private HandlerThread mSuggestionsHandlerThread;
     public CharSequence mCurrentConstraint;
+
     private Cursor mLocalSuggestions;
+    private SearchSuggestions mRemoteSuggestions;
 
 
     public SuggestionsAdapter(Context context, Cursor c, AndroidCloudAPI api) {
@@ -97,6 +112,10 @@ public class SuggestionsAdapter extends CursorAdapter {
     @Override
     public int getItemViewType(int position) {
         Uri uri = getItemUri(position);
+        return getUriType(uri);
+    }
+
+    private int getUriType(Uri uri) {
         return sMatcher.match(uri) != Content.USER.id ? TYPE_USER : TYPE_TRACK;
     }
 
@@ -128,53 +147,108 @@ public class SuggestionsAdapter extends CursorAdapter {
     }
 
     private final class SuggestionsHandler extends Handler {
+
         public SuggestionsHandler(Looper looper) {
             super(looper);
         }
-
         @Override
         public void handleMessage(Message msg) {
             final CharSequence constraint = (CharSequence) msg.obj;
-            final MatrixCursor remote = new MatrixCursor(new String[]{
-                    BaseColumns._ID,
-                    SearchManager.SUGGEST_COLUMN_TEXT_1,
-                    SearchManager.SUGGEST_COLUMN_INTENT_DATA,
-                    DBHelper.Suggestions.ICON_URL});
 
             try {
-                HttpResponse resp = mApi.get(Request.to("/search/suggest")
-                        .with("q", constraint,
-                                "limit", MAX_REMOTE));
+                HttpResponse resp = mApi.get(Request.to("/search/suggest").with("q", constraint, "limit", MAX_REMOTE));
 
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    for (SearchSuggestions.Query q : mApi.getMapper().readValue(resp.getEntity().getContent(),
-                            SearchSuggestions.class)) {
-                        remote.addRow(new Object[]{
-                                q.id,
-                                q.query,
-                                q.getUriPath(),
-                                q.getIconUri()
-                        });
-                    }
+                    final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(),
+                            SearchSuggestions.class);
+                    onRemoteSuggestions(constraint,searchSuggestions);
+                    return;
+
                 } else {
                     Log.w(TAG, "invalid status code returned: " + resp.getStatusLine());
                 }
             } catch (IOException e) {
                 Log.w(TAG, "error fetching suggestions", e);
             }
-            if (remote.getCount() > 0) {
-                handler.post(new Runnable() {
 
-                    @Override
-                    public void run() {
-                        // make sure we are still relevant
-                        if (constraint == mCurrentConstraint) swapCursor(new MergeCursor(new Cursor[]{mLocalSuggestions, remote}));
-                    }
-                });
-            }
+            onRemoteSuggestions(constraint, null);
 
         }
+
+        private void onRemoteSuggestions(final CharSequence constraint, final SearchSuggestions suggestions) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    // make sure we are still relevant
+                    if (constraint == mCurrentConstraint) {
+                        mRemoteSuggestions = suggestions;
+                        reloadRemoteCursor(true);
+                    }
+                }
+            });
+        }
+
     }
+
+    private void reloadRemoteCursor(boolean doLookup) {
+
+        if (doLookup){
+            final List<Long> trackLookupIds = new ArrayList<Long>();
+            final List<Long> userLookupIds = new ArrayList<Long>();
+            mRemoteSuggestions.putMissingIds(trackLookupIds, userLookupIds);
+
+            if (!trackLookupIds.isEmpty()) sendLookupIntent(Content.TRACK_LOOKUP, trackLookupIds);
+            if (!userLookupIds.isEmpty()) sendLookupIntent(Content.USER_LOOKUP, userLookupIds);
+        }
+
+        final MatrixCursor remote = new MatrixCursor(new String[]{
+                BaseColumns._ID,
+                SearchManager.SUGGEST_COLUMN_TEXT_1,
+                SearchManager.SUGGEST_COLUMN_INTENT_DATA,
+                DBHelper.Suggestions.ICON_URL});
+
+        for (SearchSuggestions.Query q : mRemoteSuggestions) {
+            remote.addRow(new Object[]{
+                    q.id,
+                    q.query,
+                    q.getUriPath(),
+                    q.getIconUri()
+            });
+        }
+
+        if (remote.getCount() > 0){
+            swapCursor(new MergeCursor(new Cursor[]{mLocalSuggestions, remote}));
+        } else {
+            swapCursor(mLocalSuggestions);
+        }
+
+    }
+
+    private void sendLookupIntent(Content content, List<Long> lookupIds){
+        Intent intent = new Intent(mContext, ApiSyncService.class)
+                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
+                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                .setData(content.forQuery(TextUtils.join(",", lookupIds)));
+        mContext.startService(intent);
+    }
+
+    @Override
+    public void onReceiveResult(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case ApiSyncService.STATUS_SYNC_FINISHED:
+                reloadRemoteCursor(false);
+                break;
+            case ApiSyncService.STATUS_SYNC_ERROR: {
+                break;
+            }
+        }
+    }
+
+    protected DetachableResultReceiver getReceiver() {
+        mDetachableReceiver.setReceiver(this);
+        return mDetachableReceiver;
+    }
+
 
     private Cursor fetchLocalSuggestions(CharSequence constraint, int max) {
         final MatrixCursor local = new MatrixCursor(new String[]{

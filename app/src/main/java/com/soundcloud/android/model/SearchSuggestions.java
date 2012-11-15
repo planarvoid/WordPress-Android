@@ -1,9 +1,12 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.Content;
 
 import android.net.Uri;
+import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,6 +40,18 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
 
     public List<Query> suggestions;
 
+    public void putMissingIds(List<Long> missingTracks, List<Long> missingUsers) {
+        for (Query q : this) {
+            if (q.getIconUri() == null) {
+                if (q.isUser()) {
+                    missingUsers.add(q.id);
+                } else {
+                    missingTracks.add(q.id);
+                }
+            }
+        }
+    }
+
     @Override
     public Iterator<Query> iterator() {
         return suggestions.iterator();
@@ -52,10 +67,20 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
             return new ClientUri("soundcloud:" + ("user".equals(kind) ? "users" : "tracks") + ":" + id).toString();
         }
 
-        public String getIconUri(){
-            // todo, return icon redirect with client uri
-            return null;
+        public String getIconUri() {
+            if (isUser()) {
+                final User user = SoundCloudApplication.MODEL_MANAGER.getUser(id);
+                return user == null ? null : user.avatar_url;
+            } else {
+                final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
+                return track == null ? null : track.artwork_url;
+            }
         }
+
+        public boolean isUser(){
+            return "user".equals(kind);
+        }
+
 
         public String getUriPath() {
             return ("user".equals(kind) ? Content.USER.forId(id).toString() : Content.TRACK.forId(id).toString());
