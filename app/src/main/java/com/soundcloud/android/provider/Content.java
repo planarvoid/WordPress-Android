@@ -65,7 +65,7 @@ public enum Content  {
     TRACK_LOOKUP("tracks/*", Endpoints.TRACKS, 2250, Track.class, -1, Table.TRACKS),
 
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
-    USER("users/#", null, 302, User.class, -1, Table.USERS),
+    USER("users/#", Endpoints.USER_DETAILS, 302, User.class, -1, Table.USERS),
     USER_TRACKS("users/#/tracks", Endpoints.USER_TRACKS, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
     USER_LIKES("users/#/likes", Endpoints.USER_FAVORITES, 304, Track.class, LIKE, null),
     USER_FOLLOWERS("users/#/followers", Endpoints.USER_FOLLOWERS, 305, User.class, FOLLOWER, null),

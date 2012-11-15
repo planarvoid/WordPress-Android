@@ -582,6 +582,7 @@ public class Track extends PlayableResource implements Playable {
                 "id="+id+
                 ", title='" + title + "'" +
                 ", permalink_url='" + permalink_url + "'" +
+                ", artwork_url='" + artwork_url + "'" +
                 ", duration=" + duration +
                 ", state=" + state +
                 ", user=" + user +

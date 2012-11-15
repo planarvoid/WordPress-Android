@@ -6,9 +6,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.SearchSuggestions;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -34,6 +32,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Parcelable;
 import android.provider.BaseColumns;
 import android.support.v4.widget.CursorAdapter;
 import android.text.Html;
@@ -182,7 +181,26 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
                     // make sure we are still relevant
                     if (constraint == mCurrentConstraint) {
                         mRemoteSuggestions = suggestions;
-                        reloadRemoteCursor(true);
+                        reloadRemoteCursor();
+
+                        if (mRemoteSuggestions != null){
+                            final List<Long> trackLookupIds = new ArrayList<Long>();
+                            final List<Long> userLookupIds = new ArrayList<Long>();
+                            mRemoteSuggestions.putMissingIds(trackLookupIds, userLookupIds);
+
+                            ArrayList<Uri> toSync = new ArrayList<Uri>();
+                            if (!trackLookupIds.isEmpty()) toSync.add(Content.TRACK_LOOKUP.forQuery(TextUtils.join(",", trackLookupIds)));
+                            if (!userLookupIds.isEmpty()) toSync.add(Content.USER_LOOKUP.forQuery(TextUtils.join(",", userLookupIds)));
+
+                            if (!toSync.isEmpty()) {
+                                Intent intent = new Intent(mContext, ApiSyncService.class)
+                                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
+                                        .putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, toSync)
+                                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true);
+                                mContext.startService(intent);
+                            }
+
+                        }
                     }
                 }
             });
@@ -190,16 +208,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
 
     }
 
-    private void reloadRemoteCursor(boolean doLookup) {
-
-        if (doLookup){
-            final List<Long> trackLookupIds = new ArrayList<Long>();
-            final List<Long> userLookupIds = new ArrayList<Long>();
-            mRemoteSuggestions.putMissingIds(trackLookupIds, userLookupIds);
-
-            if (!trackLookupIds.isEmpty()) sendLookupIntent(Content.TRACK_LOOKUP, trackLookupIds);
-            if (!userLookupIds.isEmpty()) sendLookupIntent(Content.USER_LOOKUP, userLookupIds);
-        }
+    private void reloadRemoteCursor() {
 
         final MatrixCursor remote = new MatrixCursor(new String[]{
                 BaseColumns._ID,
@@ -207,13 +216,15 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
                 SearchManager.SUGGEST_COLUMN_INTENT_DATA,
                 DBHelper.Suggestions.ICON_URL});
 
-        for (SearchSuggestions.Query q : mRemoteSuggestions) {
-            remote.addRow(new Object[]{
-                    q.id,
-                    q.query,
-                    q.getUriPath(),
-                    q.getIconUri()
-            });
+        if (mRemoteSuggestions != null) {
+            for (SearchSuggestions.Query q : mRemoteSuggestions) {
+                remote.addRow(new Object[]{
+                        q.id,
+                        q.query,
+                        q.getUriPath(),
+                        q.getIconUri()
+                });
+            }
         }
 
         if (remote.getCount() > 0){
@@ -224,19 +235,11 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
 
     }
 
-    private void sendLookupIntent(Content content, List<Long> lookupIds){
-        Intent intent = new Intent(mContext, ApiSyncService.class)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
-                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .setData(content.forQuery(TextUtils.join(",", lookupIds)));
-        mContext.startService(intent);
-    }
-
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
-                reloadRemoteCursor(false);
+                reloadRemoteCursor();
                 break;
             case ApiSyncService.STATUS_SYNC_ERROR: {
                 break;

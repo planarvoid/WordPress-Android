@@ -92,7 +92,9 @@ public class ApiSyncer {
                     break;
 
                 case TRACK_LOOKUP:
+                case TRACK:
                 case USER_LOOKUP:
+                case USER:
                     result = doLookupAndInsert(c, uri.getLastPathSegment());
                     result.success = true;
                     break;

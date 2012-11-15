@@ -4,6 +4,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.Content;
 
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
 
     public void putMissingIds(List<Long> missingTracks, List<Long> missingUsers) {
         for (Query q : this) {
-            if (q.getIconUri() == null) {
+            if (TextUtils.isEmpty(q.getIconUri())) {
                 if (q.isUser()) {
                     missingUsers.add(q.id);
                 } else {
@@ -73,7 +74,7 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
                 return user == null ? null : user.avatar_url;
             } else {
                 final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
-                return track == null ? null : track.artwork_url;
+                return track == null ? null : track.getArtwork();
             }
         }
 
