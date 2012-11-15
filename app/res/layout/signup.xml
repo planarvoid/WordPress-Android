@@ -11,73 +11,72 @@
           android:layout_width="fill_parent"
           android:layout_height="fill_parent"/>
 
-    <RelativeLayout android:padding="10dip"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent">
-        <TextView android:id="@+id/txt_title"
-                  android:layout_height="wrap_content"
-                  style="@style/txt_auth_title"
-                  android:layout_width="wrap_content"
-                  android:layout_alignParentLeft="true"
-                  android:text="@string/authentication_sign_up"/>
+    <LinearLayout android:layout_width="fill_parent"
+                  android:layout_height="fill_parent"
 
-        <com.soundcloud.android.view.ClearText android:id="@+id/txt_email_address"
-                  android:layout_height="wrap_content"
-                  android:hint="@string/authentication_your_email_address"
-                  android:layout_below="@+id/txt_title"
-                  android:layout_width="fill_parent"
-                  android:imeOptions="actionNext"
-                  android:singleLine="true"
-                  android:lines="1"
-                  android:inputType="textNoSuggestions|textEmailAddress"
-                  style="@style/txt_auth_input"
-                />
+                  android:orientation="vertical"
 
-        <EditText android:id="@+id/txt_choose_a_password"
-                  android:layout_height="wrap_content"
-                  android:layout_width="wrap_content"
-                  android:inputType="textPassword"
-                  android:singleLine="true"
-                  android:hint="@string/authentication_choose_a_password"
-                  android:layout_below="@id/txt_email_address"
-                  android:imeOptions="actionNext" android:lines="1"
-                  android:layout_alignLeft="@id/txt_email_address"
-                  android:layout_alignRight="@id/txt_email_address"
-                  style="@style/txt_auth_input"
-                />
+                  android:layout_margin="10dip">
 
-        <EditText android:id="@+id/txt_repeat_your_password"
-                  android:layout_height="wrap_content"
-                  android:layout_width="wrap_content"
-                  android:inputType="textPassword"
-                  android:singleLine="true"
-                  android:hint="@string/authentication_repeat_your_password"
-                  android:layout_below="@id/txt_choose_a_password"
-                  android:imeOptions="actionDone"
-                  android:lines="1"
-                  android:layout_alignLeft="@id/txt_email_address"
-                  android:layout_alignRight="@id/txt_email_address"
-                  style="@style/txt_auth_input"/>
+        <Button android:id="@+id/facebook_btn"
+                style="@style/Tour.FacebookButton"
+                android:layout_width="fill_parent"
+                android:layout_height="@dimen/tour_bottom_buttons_height"
 
-        <TextView android:id="@+id/txt_msg"
-                  android:layout_height="wrap_content"
-                  style="@style/txt_auth_msg"
-                  android:layout_width="wrap_content"
-                  android:layout_alignLeft="@id/txt_email_address"
-                  android:layout_alignRight="@id/txt_email_address"
-                  android:layout_below="@+id/txt_repeat_your_password"
+                android:text="@string/authentication_log_in_with_facebook">
+            <requestFocus/>
+        </Button>
+
+        <TextView style="@style/SignUp.Info"
+                  android:text="Or sign up with your email address"
+
+                  android:layout_marginTop="30dp"/>
+
+        <TableLayout style="@style/SignUp.LoginForm">
+
+            <TableRow>
+                <TextView style="@style/SignUp.Label"
+                          android:text="Email" />
+
+                <com.soundcloud.android.view.ClearText android:id="@+id/txt_email_address"
+                                                       android:hint="@string/authentication_your_email_address"
+                                                       style="@style/SignUp.EmailEntry" />
+
+
+            </TableRow>
+
+            <TableRow>
+                <TextView style="@style/SignUp.Label"
+                          android:text="Password" />
+
+                <EditText android:id="@+id/txt_choose_a_password"
+                          style="@style/SignUp.PasswordEntry"
+                          android:hint="@string/authentication_choose_a_password"
+                          android:imeOptions="actionNext"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView style="@style/SignUp.Label"
+                          android:text="Confirm" />
+
+                <EditText android:id="@+id/txt_repeat_your_password"
+                          style="@style/SignUp.PasswordEntry"
+                          android:hint="@string/authentication_repeat_your_password"
+                          android:imeOptions="actionDone"/>
+            </TableRow>
+        </TableLayout>
+
+        <TextView style="@style/SignUp.Info"
+                  android:id="@+id/txt_msg"
                   android:text="@string/authentication_by_signing_in_I_agree_to_the"/>
-    </RelativeLayout>
-    <View android:background="@color/authButtonSeparator"
-          android:layout_height="1dp"
-          android:layout_width="fill_parent"
-          android:layout_above="@+id/btn_signup"/>
-    <Button android:id="@id/btn_signup"
-            android:layout_alignParentBottom="true"
+    </LinearLayout>
+
+    <Button style="@style/Tour.Button"
+            android:id="@+id/btn_signup"
             android:text="@string/btn_signup"
-            android:background="@drawable/btn_auth_bg_states"
-            android:textColor="@drawable/txt_btn_dark_states"
+            android:layout_alignParentBottom="true"
             android:layout_width="fill_parent"
-            android:layout_height="@dimen/button_bar_height"/>
+            android:layout_height="@dimen/tour_bottom_buttons_height"
+            android:layout_margin="10dip"/>
 
 </RelativeLayout>
