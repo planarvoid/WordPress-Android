@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.net.Uri;
 
 import java.io.IOException;
 
@@ -89,5 +90,25 @@ public class ApiSyncerTest {
         expect(result.success).toBe(true);
         expect(result.change).toEqual(ApiSyncer.Result.UNCHANGED);
         expect(result.extra).toBeNull();
+    }
+
+    @Test
+    public void shouldDoTrackLookup() throws Exception {
+        TestHelper.addCannedResponses(getClass(), "tracks.json");
+        ApiSyncer syncer = new ApiSyncer(Robolectric.application);
+        ApiSyncer.Result result = syncer.syncContent(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"), Intent.ACTION_SYNC);
+        expect(result.success).toBe(true);
+        expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
+        expect(Content.TRACKS).toHaveCount(3);
+    }
+
+    @Test
+    public void shouldDoUserLookup() throws Exception {
+        TestHelper.addCannedResponses(getClass(), "users.json");
+        ApiSyncer syncer = new ApiSyncer(Robolectric.application);
+        ApiSyncer.Result result = syncer.syncContent(Content.USER_LOOKUP.forQuery("308291,792584,1255758"), Intent.ACTION_SYNC);
+        expect(result.success).toBe(true);
+        expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
+        expect(Content.USERS).toHaveCount(3);
     }
 }

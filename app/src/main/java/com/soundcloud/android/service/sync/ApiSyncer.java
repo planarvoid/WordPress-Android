@@ -15,6 +15,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -38,7 +39,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -88,6 +88,12 @@ public class ApiSyncer {
                 case ME_FOLLOWERS:
                 case ME_REPOSTS:
                     result = syncContent(c, SoundCloudApplication.getUserIdFromContext(mContext));
+                    result.success = true;
+                    break;
+
+                case TRACK_LOOKUP:
+                case USER_LOOKUP:
+                    result = doLookupAndInsert(c, uri.getLastPathSegment());
                     result.success = true;
                     break;
 
@@ -308,10 +314,26 @@ public class ApiSyncer {
                 Log.d(TAG, "inserted " +inserted + " shortcuts");
             }
 
-
-
             result.success = true;
         }
+        return result;
+    }
+
+    private Result doLookupAndInsert(Content content, String ids) throws IOException {
+        Result result = new Result(content.uri);
+
+        List<ScResource> resources = new ArrayList<ScResource>();
+        InputStream is = ScModelManager.validateResponse(
+                mApi.get(Request.to(Track.class.equals(content.modelType) ? Content.TRACKS.remoteUri : Content.USERS.remoteUri)
+                                .add("linked_partitioning", "1")
+                                .add("ids", ids))).getEntity().getContent();
+
+        resources.addAll(SoundCloudApplication.MODEL_MANAGER.getCollectionFromStream(is).collection);
+
+        final int inserted = SoundCloudDB.bulkInsertModels(mResolver, resources);
+        Log.d(TAG, "inserted " +inserted + " resources");
+        result.change = inserted > 0 ? Result.CHANGED : Result.UNCHANGED;
+        result.success = true;
         return result;
     }
 

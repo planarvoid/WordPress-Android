@@ -55,6 +55,7 @@ public enum Content  {
     ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, User.class, FRIEND, null),
     SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 161, User.class, SUGGESTED_USER, null),
 
+    TRACK_LOOKUP("tracks/*", Endpoints.TRACKS, 200, Track.class, -1, Table.TRACKS),
     TRACKS("tracks", Endpoints.TRACKS, 201, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
     TRACK("tracks/#", Endpoints.TRACK_DETAILS, 202, Track.class, -1, Table.TRACKS),
     TRACK_COMMENTS("tracks/#/comments", Endpoints.TRACK_COMMENTS, 204, Comment.class, -1, Table.COMMENTS),
@@ -63,6 +64,7 @@ public enum Content  {
     TRACK_LIKERS("tracks/#/favoriters", Endpoints.TRACK_FAVORITERS, 207, User.class, -1, Table.USERS),
     TRACK_REPOSTERS("tracks/#/reposters", TempEndpoints.e1.TRACK_REPOSTERS, 208, User.class, -1, Table.USERS),
 
+    USER_LOOKUP("users/*", Endpoints.USERS, 300, Track.class, -1, Table.TRACKS),
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
     USER("users/#", null, 302, User.class, -1, Table.USERS),
     USER_TRACKS("users/#/tracks", Endpoints.USER_TRACKS, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
@@ -206,6 +208,14 @@ public enum Content  {
             return Uri.parse(uri.toString().replace("#", String.valueOf(id)));
         } else {
             return buildUpon().appendEncodedPath(String.valueOf(id)).build();
+        }
+    }
+
+    public Uri forQuery(String query) {
+        if (uri.toString().contains("*")) {
+            return Uri.parse(uri.toString().replace("*", String.valueOf(query)));
+        } else {
+            return buildUpon().appendEncodedPath(String.valueOf(query)).build();
         }
     }
 
