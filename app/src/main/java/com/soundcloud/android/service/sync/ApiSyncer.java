@@ -63,7 +63,7 @@ public class ApiSyncer {
 
     public Result syncContent(Uri uri, String action) throws IOException {
         Content c = Content.match(uri);
-        Result result = null;
+        Result result = new Result(uri);
         if (c.remoteUri != null) {
             switch (c) {
                 case ME:
