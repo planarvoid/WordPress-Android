@@ -34,10 +34,6 @@ public class Start extends AccountAuthenticatorActivity {
     private ViewPager mViewPager;
     private View[] mViews;
 
-    public Start() {
-    }
-
-    @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.start);
@@ -203,31 +199,4 @@ public class Start extends AccountAuthenticatorActivity {
                             context.getString(R.string.authentication_recover_password_failure_reason, error));
         }
     }
-
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_bar_close:
-                ((SoundCloudApplication) getApplication()).track(mViewPager.getCurrentItem() == mViews.length - 1 ? Click.Tour_Tour_done : Click.Tour_Tour_skip);
-                finish();
-                return true;
-        }
-        return false;
-    }
-
-    protected int getMenuResourceId() {
-        return R.menu.tour;
-    }
-
-    protected int getSelectedMenuId() {
-        return -1;
-    }
-
-    /* package */ String getMessage() {
-        return getActiveTour().getMessage().toString();
-    }
-
-    private TourLayout getActiveTour() {
-        return (TourLayout) mViewPager.getChildAt(mViewPager.getCurrentItem());
-    }
-
 }
