@@ -171,7 +171,7 @@ namespace :beta do
       curl \
         -H "X-HockeyAppToken: #{TOKEN}" \
         -F "status=2" \
-        -F "notify=0" \
+        -F "notify=1" \
         -F "notes_type=1" \
         -F "notes=#{last_release_notes}" \
         -F "ipa=@#{BETA_APK}" \

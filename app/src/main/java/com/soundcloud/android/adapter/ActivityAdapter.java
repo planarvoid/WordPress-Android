@@ -8,6 +8,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.adapter.AffiliationActivityRow;
@@ -58,7 +59,8 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
                 return new TrackInfoBar(mContext, this);
 
             case TRACK_REPOST:
-                return new TrackRepostActivityRow(mContext, this);
+                return (mContent == Content.ME_ACTIVITIES) ?
+                        new TrackRepostActivityRow(mContext, this) : new TrackInfoBar(mContext, this);
 
             case COMMENT:
                 return new CommentActivityRow(mContext, this);
