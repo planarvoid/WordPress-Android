@@ -109,9 +109,10 @@ public class Activities extends CollectionHolder<Activity> {
             return tracks;
         }
 
-    public Activities selectType(Class type) {
+    public Activities selectType(Class[] types) {
         List<Activity> activities = new ArrayList<Activity>();
         for (Activity e : this) {
+            for (Class type : types)
             if (type.isAssignableFrom(e.getClass())) {
                 activities.add(e);
             }
@@ -120,19 +121,23 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public Activities trackLikes() {
-        return selectType(TrackLikeActivity.class);
+        return selectType(new Class[]{TrackLikeActivity.class});
     }
 
     public Activities comments() {
-        return selectType(CommentActivity.class);
+        return selectType(new Class[]{CommentActivity.class});
     }
 
     public Activities sharings() {
-        return selectType(TrackSharingActivity.class);
+        return selectType(new Class[]{TrackSharingActivity.class});
     }
 
     public Activities tracks() {
-        return selectType(TrackActivity.class);
+        return selectType(new Class[]{TrackActivity.class});
+    }
+
+    public Activities commentsAndTrackLikes() {
+        return selectType(new Class[]{CommentActivity.class, TrackLikeActivity.class});
     }
 
     public Map<Track, Activities> groupedByTrack() {

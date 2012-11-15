@@ -134,10 +134,21 @@ class ServiceResultReceiver extends ResultReceiver {
 
     private boolean maybeNotifyOwn(SoundCloudApplication app, Activities activities, Bundle extras) {
         if (!activities.isEmpty()) {
-            Activities favoritings = SyncConfig.isLikeEnabled(app, extras) ? activities.trackLikes() : Activities.EMPTY;
-            Activities comments    = SyncConfig.isCommentsEnabled(app, extras) ? activities.comments() : Activities.EMPTY;
+            boolean likeEnabled = SyncConfig.isLikeEnabled(app, extras);
+            final boolean commentsEnabled = SyncConfig.isCommentsEnabled(app, extras);
 
-            Message msg = new Message(app.getResources(), activities, favoritings, comments);
+            Activities favoritings = likeEnabled ? activities.trackLikes() : Activities.EMPTY;
+            Activities comments    = commentsEnabled ? activities.comments() : Activities.EMPTY;
+
+            Activities notifyable = Activities.EMPTY;
+            if (likeEnabled && commentsEnabled){
+                notifyable = activities.commentsAndTrackLikes();
+            } else if (likeEnabled){
+                notifyable = favoritings;
+            } else if (commentsEnabled){
+                notifyable = comments;
+            }
+            Message msg = new Message(app.getResources(), notifyable, favoritings, comments);
 
             if (activities.newerThan(app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM))) {
                 prefetchArtwork(app, activities);

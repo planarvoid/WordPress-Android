@@ -61,6 +61,7 @@ public enum Content  {
     TRACK_PERMISSIONS("tracks/#/permissions", null, 205, null, -1, null),
     TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 206, null, -1, null),
     TRACK_LIKERS("tracks/#/favoriters", Endpoints.TRACK_FAVORITERS, 207, User.class, -1, Table.USERS),
+    TRACK_REPOSTERS("tracks/#/reposters", TempEndpoints.e1.TRACK_REPOSTERS, 208, User.class, -1, Table.USERS),
 
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
     USER("users/#", null, 302, User.class, -1, Table.USERS),

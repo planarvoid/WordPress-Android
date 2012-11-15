@@ -121,7 +121,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         if (!(this instanceof Home)) getSupportActionBar().setTitle(null);
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if (savedInstanceState == null) {
             handleIntent(getIntent());
@@ -487,7 +487,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onMenuOpenLeft() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         invalidateOptionsMenu();
     }
 
@@ -497,7 +497,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onMenuClosed() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         invalidateOptionsMenu();
     }
 

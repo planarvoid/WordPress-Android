@@ -138,6 +138,7 @@ public class ScListFragment extends SherlockListFragment
                 case USER_FOLLOWINGS:
                 case USER_FOLLOWERS:
                 case TRACK_LIKERS:
+                case TRACK_REPOSTERS:
                 case SUGGESTED_USERS:
                     adapter = new UserAdapter(getActivity(), mContentUri);
                     break;
@@ -517,7 +518,7 @@ public class ScListFragment extends SherlockListFragment
 
         getListAdapter().handleTaskReturnData(data);
 
-        if (!isRefreshing() && !waitingOnInitialSync()) doneRefreshing();
+        if ((data.wasRefresh || !isRefreshing()) && !waitingOnInitialSync()) doneRefreshing();
         handleResponseCode(data.responseCode);
         configureEmptyCollection();
 

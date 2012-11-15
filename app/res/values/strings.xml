@@ -58,4 +58,10 @@
     <string name="problem_getting_connections">Problem retrieving connections</string>
     <string name="list_no_facebook_friends">You currently have no facebook friends</string>
 
+    <string name="list_header_track_reposters">People who reposted this sound</string>
+
+    <string name="started_following_you">started following you</string>
+
+
+
 </resources>
