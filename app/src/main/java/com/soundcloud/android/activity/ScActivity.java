@@ -45,6 +45,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -394,7 +395,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
                 @Override
                 public boolean onSuggestionClick(int position) {
-                    startActivity(new Intent(Intent.ACTION_VIEW).setData(suggestionsAdapter.getItemUri(position)));
+                    final Uri itemUri = suggestionsAdapter.getItemUri(position);
+                    startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
                     return true;
                 }
             });

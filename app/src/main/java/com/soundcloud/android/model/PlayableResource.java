@@ -21,7 +21,7 @@ abstract class PlayableResource extends ScResource implements Playable, Refresha
     public abstract boolean isStale();
 
     @JsonView(Views.Mini.class) public String title;
-    @JsonView(Views.Mini.class) public User user;
+    @JsonView(Views.Mini.class) @Nullable public User user;
     @JsonView(Views.Mini.class) public String uri;
     @JsonView(Views.Mini.class) public long user_id;
     @JsonView(Views.Mini.class) public String artwork_url;

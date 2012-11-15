@@ -1,5 +1,7 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.provider.Content;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -46,6 +48,10 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
 
         public String getClientUri() {
             return new ClientUri("soundcloud:" + ("user".equals(kind) ? "users" : "tracks") + ":" + id).toString();
+        }
+
+        public String getUri() {
+            return ("user".equals(kind) ? Content.USERS.forId(id) : Content.TRACKS.forId(id)).toString();
         }
 
         @Override
