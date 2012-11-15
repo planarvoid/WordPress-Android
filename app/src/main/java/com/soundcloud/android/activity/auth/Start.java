@@ -1,11 +1,15 @@
 package com.soundcloud.android.activity.auth;
 
+import android.graphics.drawable.Drawable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.animation.Animation;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import com.actionbarsherlock.view.MenuItem;
+import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -29,10 +33,12 @@ public class Start extends AccountAuthenticatorActivity {
     private static final int RECOVER_CODE    = 1;
     private static final int SUGGESTED_USERS = 2;
 
-    public static final String FB_CONNECTED_EXTRA = "facebook_connected";
+    public static final String FB_CONNECTED_EXTRA    = "facebook_connected";
+    public static final String TOUR_BACKGROUND_EXTRA = "tour_background";
 
     private ViewPager mViewPager;
     private View[] mViews;
+    private int[]  mBackgroundIds;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -44,6 +50,11 @@ public class Start extends AccountAuthenticatorActivity {
         mViews = new View[]{
             new TourLayout(this, R.layout.tour_page_1),
             new TourLayout(this, R.layout.tour_page_2)
+        };
+
+        mBackgroundIds = new int[]{
+            R.drawable.tour_image_1,
+            R.drawable.tour_image_2,
         };
 
         mViewPager.setAdapter(new PagerAdapter() {
@@ -105,7 +116,12 @@ public class Start extends AccountAuthenticatorActivity {
             @Override
             public void onClick(View v) {
                 app.track(Click.Login);
-                startActivityForResult(new Intent(Start.this, Login.class), 0);
+
+                Intent loginIntent = new Intent(Start.this, Login.class);
+                loginIntent.putExtra(TOUR_BACKGROUND_EXTRA, getBackgroundId());
+
+                startActivityForResult(loginIntent, 0);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
         });
 
@@ -113,7 +129,12 @@ public class Start extends AccountAuthenticatorActivity {
             @Override
             public void onClick(View v) {
                 app.track(Click.Signup_Signup);
-                startActivityForResult(new Intent(Start.this, SignUp.class), 0);
+
+                Intent signUpIntent = new Intent(Start.this, SignUp.class);
+                signUpIntent.putExtra(TOUR_BACKGROUND_EXTRA, getBackgroundId());
+
+                startActivityForResult(signUpIntent, 0);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
         });
 
@@ -126,6 +147,8 @@ public class Start extends AccountAuthenticatorActivity {
     protected void onResume() {
         super.onResume();
         ((SoundCloudApplication)getApplication()).track(Page.Entry_main);
+
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     @Override
@@ -198,5 +221,11 @@ public class Start extends AccountAuthenticatorActivity {
                             context.getString(R.string.authentication_recover_password_failure) :
                             context.getString(R.string.authentication_recover_password_failure_reason, error));
         }
+    }
+
+    public int getBackgroundId() {
+        int i = mViewPager.getCurrentItem();
+
+        return mBackgroundIds[i];
     }
 }

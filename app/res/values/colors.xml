@@ -72,6 +72,8 @@
     <color name="black">#ff000000</color>
     <color name="transparent">#00000000</color>
 
+    <color name="tour_overlay">#CC000000</color>
+
     <!-- For settings framework -->
     <color name="darker_gray">#aaa</color>
 
