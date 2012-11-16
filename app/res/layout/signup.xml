@@ -32,8 +32,7 @@
                       android:layout_marginTop="30dp"/>
 
             <TableLayout style="@style/SignUp.LoginForm">
-
-                <TableRow>
+                <TableRow style="@style/SignUp.LabelRow">
                     <TextView style="@style/SignUp.Label"
                               android:text="Email" />
 
@@ -44,7 +43,11 @@
 
                 </TableRow>
 
-                <TableRow>
+                <TableRow style="@style/SignUp.SeperatorRow">
+                    <View style="@style/SignUp.SeperatorView"/>
+                </TableRow>
+
+                <TableRow style="@style/SignUp.LabelRow">
                     <TextView style="@style/SignUp.Label"
                               android:text="Password" />
 
@@ -54,7 +57,11 @@
                               android:imeOptions="actionNext"/>
                 </TableRow>
 
-                <TableRow>
+                <TableRow style="@style/SignUp.SeperatorRow">
+                    <View style="@style/SignUp.SeperatorView"/>
+                </TableRow>
+
+                <TableRow style="@style/SignUp.LabelRow">
                     <TextView style="@style/SignUp.Label"
                               android:text="Confirm" />
 

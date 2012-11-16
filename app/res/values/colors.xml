@@ -73,6 +73,7 @@
     <color name="transparent">#00000000</color>
 
     <color name="tour_overlay">#CC000000</color>
+    <color name="signup_separator">#999999</color>
 
     <!-- For settings framework -->
     <color name="darker_gray">#aaa</color>

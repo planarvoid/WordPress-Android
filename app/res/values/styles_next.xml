@@ -111,7 +111,21 @@
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@drawable/text_field</item>
-        <item name="android:padding">10dp</item>
+    </style>
+
+    <style name="SignUp.LabelRow">
+        <item name="android:layout_margin">5dp</item>
+    </style>
+
+    <style name="SignUp.SeperatorRow">
+        <item name="android:background">@color/signup_separator</item>
+        <item name="android:layout_span">2</item>
+    </style>
+
+    <style name="SignUp.SeperatorView">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">1px</item>
+        <item name="android:background">@color/signup_separator</item>
     </style>
 
     <style name="SignUp.Label">
