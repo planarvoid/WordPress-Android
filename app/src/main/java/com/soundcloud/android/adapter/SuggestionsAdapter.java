@@ -60,7 +60,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
     private final static int TYPE_TRACK = 0;
     private final static int TYPE_USER  = 1;
 
-    private static final int MAX_LOCAL  = 3;
+    private static final int MAX_LOCAL  = 5;
     private static final int MAX_REMOTE = 5;
 
     static final private UriMatcher sMatcher = new UriMatcher(UriMatcher.NO_MATCH);
