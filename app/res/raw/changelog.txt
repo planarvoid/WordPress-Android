@@ -2,6 +2,7 @@ $ 49
   % v current
   _ 2012-11-14
   ! Next
+    * Fixed a recurring search crash
     * Remote search suggestions added
     - fixed reposts layout
     - Added affiliations and reposts to activities list
