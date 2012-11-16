@@ -28,7 +28,6 @@ import android.util.Log;
 import java.io.IOException;
 
 public class Home extends ScActivity implements ScLandingPage {
-
     private FetchUserTask mFetchUserTask;
 
     @Override
@@ -55,9 +54,6 @@ public class Home extends ScActivity implements ScLandingPage {
                 UpdateManager.register(this, getString(R.string.hockey_app_id));
             }
         }
-
-
-
     }
 
     @Override
@@ -67,9 +63,7 @@ public class Home extends ScActivity implements ScLandingPage {
         if (getApp().getAccount() == null) {
             getApp().addAccount(this, managerCallback);
             finish();
-            return;
         }
-
     }
 
     @Override
@@ -87,6 +81,7 @@ public class Home extends ScActivity implements ScLandingPage {
                         startActivityForResult(new Intent(Home.this, EmailConfirm.class)
                                 .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
                     }
+                    mFetchUserTask = null;
                 }
             };
             mFetchUserTask.execute(Request.to(Endpoints.MY_DETAILS));
