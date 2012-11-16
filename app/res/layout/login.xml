@@ -8,13 +8,13 @@
     <View style="@style/SignUp.Overlay"/>
 
     <ScrollView android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:paddingBottom="@dimen/tour_bottom_buttons_height">
+                android:layout_height="fill_parent">
         <LinearLayout android:layout_width="fill_parent"
-                      android:layout_height="fill_parent"
+                      android:layout_height="wrap_content"
                       android:orientation="vertical"
 
-                      android:layout_margin="10dip">
+                      android:layout_margin="10dip"
+                      android:paddingBottom="@dimen/tour_bottom_buttons_height_plus_padding">
 
             <Button android:id="@+id/facebook_btn"
                     style="@style/Tour.FacebookButton"
