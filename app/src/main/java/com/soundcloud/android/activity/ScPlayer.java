@@ -15,6 +15,7 @@ import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.PlayerTrackPager;
 import com.soundcloud.android.view.play.PlayerTrackView;
 import com.soundcloud.android.view.play.TransportBar;
@@ -83,6 +84,24 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+
+        if (icicle == null){
+            handleIntent(getIntent());
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+    }
+
+    private void handleIntent(Intent intent){
+        if (intent.getData() != null){
+            Track track = Track.fromUri(intent.getData(),getContentResolver());
+            if (track != null) startService(track.getPlayIntent());
+        }
     }
 
     @Override

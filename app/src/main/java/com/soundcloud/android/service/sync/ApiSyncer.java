@@ -6,6 +6,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.Shortcut;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.LocalCollection;
@@ -14,8 +15,11 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.Request;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.jetbrains.annotations.Nullable;
@@ -59,7 +63,7 @@ public class ApiSyncer {
 
     public Result syncContent(Uri uri, String action) throws IOException {
         Content c = Content.match(uri);
-        Result result = null;
+        Result result = new Result(uri);
         if (c.remoteUri != null) {
             switch (c) {
                 case ME:
@@ -85,6 +89,22 @@ public class ApiSyncer {
                 case ME_REPOSTS:
                     result = syncContent(c, SoundCloudApplication.getUserIdFromContext(mContext));
                     result.success = true;
+                    break;
+
+                case TRACK_LOOKUP:
+                case TRACK:
+                case USER_LOOKUP:
+                case USER:
+                    result = doLookupAndInsert(c, uri.getLastPathSegment());
+                    result.success = true;
+                    break;
+
+                case ME_SHORTCUTS:
+                    result = syncShortcuts(c);
+                    PreferenceManager.getDefaultSharedPreferences(mContext)
+                            .edit()
+                            .putLong(Consts.PrefKeys.LAST_SHORTCUT_SYNC, System.currentTimeMillis())
+                            .commit();
                     break;
             }
         } else {
@@ -274,6 +294,48 @@ public class ApiSyncer {
 
         result.change = Result.CHANGED;
         result.success = user != null;
+        return result;
+    }
+
+    private Result syncShortcuts(Content c) throws IOException {
+        log("Syncing shortcuts");
+
+        Result result = new Result(c.uri);
+        HttpResponse resp = mApi.get(c.request());
+        if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+            Shortcut[] shortcuts = mApi.getMapper().readValue(resp.getEntity().getContent(), Shortcut[].class);
+
+            List<ContentValues> cvs = new ArrayList<ContentValues>(shortcuts.length);
+            for (Shortcut shortcut : shortcuts) {
+                ContentValues cv = shortcut.buildContentValues();
+                if (cv != null) cvs.add(cv);
+            }
+
+            if (!cvs.isEmpty()) {
+                int inserted = mResolver.bulkInsert(c.uri, cvs.toArray(new ContentValues[cvs.size()]));
+                Log.d(TAG, "inserted " +inserted + " shortcuts");
+            }
+
+            result.success = true;
+        }
+        return result;
+    }
+
+    private Result doLookupAndInsert(Content content, String ids) throws IOException {
+        Result result = new Result(content.uri);
+
+        List<ScResource> resources = new ArrayList<ScResource>();
+        InputStream is = ScModelManager.validateResponse(
+                mApi.get(Request.to(Track.class.equals(content.modelType) ? Content.TRACKS.remoteUri : Content.USERS.remoteUri)
+                                .add("linked_partitioning", "1")
+                                .add("ids", ids))).getEntity().getContent();
+
+        resources.addAll(SoundCloudApplication.MODEL_MANAGER.getCollectionFromStream(is).collection);
+
+        final int inserted = SoundCloudDB.bulkInsertModels(mResolver, resources);
+        Log.d(TAG, "inserted " +inserted + " resources");
+        result.change = inserted > 0 ? Result.CHANGED : Result.UNCHANGED;
+        result.success = true;
         return result;
     }
 

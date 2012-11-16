@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ScModel implements Parcelable{
+public class ScModel implements Parcelable {
 
     public static final int NOT_SET = -1;
     @JsonView(Views.Mini.class) public long id = NOT_SET;

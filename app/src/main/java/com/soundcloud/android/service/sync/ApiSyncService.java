@@ -78,7 +78,6 @@ public class ApiSyncService extends Service {
                     } else {
                         mPendingRequests.add(request);
                     }
-
                     request.onQueued();
                 } else if (syncIntent.isUIRequest && !mPendingRequests.getFirst().equals(request)) {
                     // move the original object up in the queue, since it has already been initialized with onQueued()
