@@ -227,8 +227,10 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
             }
         }
 
-        if (remote.getCount() > 0){
+        if (remote.getCount() > 0 && mLocalSuggestions != null && mLocalSuggestions.getCount() > 0){
             swapCursor(new MergeCursor(new Cursor[]{mLocalSuggestions, remote}));
+        } else if (remote.getCount() > 0){
+            swapCursor(remote);
         } else {
             swapCursor(mLocalSuggestions);
         }
