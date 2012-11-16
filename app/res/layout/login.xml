@@ -2,61 +2,61 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent">
-    <ImageView android:id="@+id/tour_background_image"
-               android:layout_width="fill_parent"
-               android:layout_height="fill_parent"
-               android:scaleType="centerCrop"/>
+    <ImageView style="@style/SignUp.Background"
+               android:id="@+id/tour_background_image"/>
 
-    <View android:background="@color/tour_overlay"
-          android:layout_width="fill_parent"
-          android:layout_height="fill_parent"/>
+    <View style="@style/SignUp.Overlay"/>
 
-    <LinearLayout android:layout_width="fill_parent"
-                  android:layout_height="fill_parent"
+    <ScrollView android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_marginBottom="@dimen/tour_bottom_buttons_height">
+        <LinearLayout android:layout_width="fill_parent"
+                      android:layout_height="fill_parent"
+                      android:orientation="vertical"
 
-                  android:orientation="vertical"
+                      android:layout_margin="10dip">
 
-                  android:layout_margin="10dip">
+            <Button android:id="@+id/facebook_btn"
+                    style="@style/Tour.FacebookButton"
+                    android:layout_width="fill_parent"
+                    android:layout_height="@dimen/tour_bottom_buttons_height"
+                    android:text="@string/authentication_log_in_with_facebook"
 
-    <Button android:id="@+id/facebook_btn"
-            style="@style/Tour.FacebookButton"
-            android:layout_width="fill_parent"
-            android:layout_height="@dimen/tour_bottom_buttons_height"
+                    android:layout_marginTop="20dp">
+                <requestFocus/>
+            </Button>
 
-            android:text="@string/authentication_log_in_with_facebook">
-        <requestFocus/>
-    </Button>
+            <TextView style="@style/SignUp.Info"
+                      android:text="Or log in with your email address"
 
-    <TextView style="@style/SignUp.Info"
-              android:text="Or log in with your email address"
+                      android:layout_marginTop="30dp"/>
 
-              android:layout_marginTop="30dp"/>
+            <TableLayout style="@style/SignUp.LoginForm">
+                <TableRow>
+                    <TextView style="@style/SignUp.Label"
+                              android:text="Email" />
 
-    <TableLayout style="@style/SignUp.LoginForm">
-        <TableRow>
-            <TextView style="@style/SignUp.Label"
-                      android:text="Email" />
+                    <com.soundcloud.android.view.ClearText android:id="@+id/txt_email_address"
+                                                           android:hint="@string/authentication_your_email_address"
+                                                           style="@style/SignUp.EmailEntry"/>
+                </TableRow>
+                <TableRow>
+                    <TextView style="@style/SignUp.Label"
+                              android:text="Password" />
 
-            <com.soundcloud.android.view.ClearText android:id="@+id/txt_email_address"
-                      android:hint="@string/authentication_your_email_address"
-                      style="@style/SignUp.EmailEntry"/>
-        </TableRow>
-        <TableRow>
-            <TextView style="@style/SignUp.Label"
-                      android:text="Password" />
+                    <EditText style="@style/SignUp.PasswordEntry"
+                              android:id="@+id/txt_password"
+                              android:hint="@string/authentication_your_password"
+                              android:layout_below="@id/txt_email_address"
+                              android:imeOptions="actionDone"/>
+                </TableRow>
+            </TableLayout>
 
-            <EditText style="@style/SignUp.PasswordEntry"
-                      android:id="@+id/txt_password"
-                      android:hint="@string/authentication_your_password"
-                      android:layout_below="@id/txt_email_address"
-                      android:imeOptions="actionDone"/>
-        </TableRow>
-    </TableLayout>
-
-    <TextView style="@style/SignUp.Info"
-              android:id="@+id/txt_msg"
-              android:text="@string/authentication_I_forgot_my_password"/>
-</LinearLayout>
+            <TextView style="@style/SignUp.Info"
+                      android:id="@+id/txt_msg"
+                      android:text="@string/authentication_I_forgot_my_password"/>
+        </LinearLayout>
+    </ScrollView>
 
     <Button style="@style/Tour.Button"
             android:id="@+id/btn_login"
