@@ -24,7 +24,6 @@ public class You extends UserBrowser implements ScLandingPage {
             public void onPageSelected(int i) {
                 mRootView.setSelectedMenuId(
                         Tab.values()[i] == Tab.likes ? R.id.nav_likes :
-                        Tab.values()[i] == Tab.followings ? R.id.nav_followings :
                         R.id.nav_you);
             }
 
@@ -41,8 +40,6 @@ public class You extends UserBrowser implements ScLandingPage {
             final Tab tab = Tab.values()[Tab.indexOf(intent.getStringExtra(Tab.EXTRA))];
             if (tab == Tab.likes) {
                 return R.id.nav_likes;
-            } else if (tab == Tab.followings) {
-                return R.id.nav_followings;
             }
         }
         return R.id.nav_you;

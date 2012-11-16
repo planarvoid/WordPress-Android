@@ -102,10 +102,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         startActivity(getNavIntent(You.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                 .putExtra(UserBrowser.Tab.EXTRA,UserBrowser.Tab.likes.tag));
                         return true;
-                    case R.id.nav_followings:
-                        startActivity(getNavIntent(You.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.followings.tag));
-                        return true;
                     case R.id.nav_friend_finder:
                         startNavActivity(FriendFinder.class);
                         return true;
