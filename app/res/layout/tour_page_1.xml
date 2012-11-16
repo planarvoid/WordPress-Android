@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+    <ImageView android:layout_width="fill_parent"
+               android:layout_height="fill_parent"
+               android:src="@drawable/tour_image_1"
+               android:scaleType="centerCrop"/>
+
+    <LinearLayout android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="vertical"
+                  android:padding="10dp">
+        <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.Headline"
+                                                         android:text="Fire 20 people."/>
+        <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.CallToAction"
+                                                         android:text="Then have a cup of tea and an orange" />
+
+    </LinearLayout>
+</RelativeLayout>
