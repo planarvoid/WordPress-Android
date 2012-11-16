@@ -18,7 +18,8 @@ enum SyncContent {
     MyLikes     (Content.ME_LIKES,  SyncConfig.TRACK_STALE_TIME, SyncConfig.TRACK_BACKOFF_MULTIPLIERS),
     MyReposts   (Content.ME_REPOSTS,    SyncConfig.TRACK_STALE_TIME, SyncConfig.TRACK_BACKOFF_MULTIPLIERS),
     MyFollowings(Content.ME_FOLLOWINGS, SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS),
-    MyFollowers (Content.ME_FOLLOWERS,  SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS);
+    MyFollowers (Content.ME_FOLLOWERS,  SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS),
+    MyShortcuts (Content.ME_SHORTCUTS,  SyncConfig.USER_STALE_TIME,  null);
 
     SyncContent(Content content, long syncDelay, int[] backoffMultipliers) {
         this.content = content;
@@ -42,8 +43,8 @@ enum SyncContent {
     }
 
     public boolean shouldSync(int misses, long lastSync) {
-        return misses < backoffMultipliers.length
-            && System.currentTimeMillis() - lastSync >= syncDelay * backoffMultipliers[misses];
+        return backoffMultipliers == null || (misses < backoffMultipliers.length
+            && System.currentTimeMillis() - lastSync >= syncDelay * backoffMultipliers[misses]);
     }
 
     /**

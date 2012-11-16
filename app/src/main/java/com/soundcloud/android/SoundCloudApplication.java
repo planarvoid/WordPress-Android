@@ -136,9 +136,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             C2DMReceiver.register(this, getLoggedInUser());
         }
 
-        // get latest shortcuts. TODO, is this necessary?
-        startService(new Intent(this, ApiSyncService.class).setData(Content.ME_SHORTCUT.uri));
-
 //        setupStrictMode();
 
         FacebookSSO.extendAccessTokenIfNeeded(this);
