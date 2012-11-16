@@ -2,7 +2,8 @@ $ 49
   % v current
   _ 2012-11-14
   ! Next
-    * fixed reposts layout
+    * Remote search suggestions added
+    - fixed reposts layout
     - Added affiliations and reposts to activities list
     - assorted bug fixes
     - Menu styling and optimizations
