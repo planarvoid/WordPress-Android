@@ -7,7 +7,7 @@
                android:src="@drawable/cloud_no_logo_sm" />
 
     <TextView android:id="@+id/title"
-              style="@style/side_menu_item_text"
+              style="@style/search_suggestion_text"
               android:text="@string/track"
               android:layout_width="0dp"
               android:layout_height="wrap_content"

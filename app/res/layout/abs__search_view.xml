@@ -82,7 +82,7 @@
                 android:layout_weight="1"
                 android:layout_gravity="center_vertical"
                 android:orientation="horizontal"
-                android:background="@drawable/txt_menu_search_bg_states">
+                android:background="@drawable/abs__textfield_search_right_default_holo_light">
 
             <view class="com.actionbarsherlock.widget.SearchView$SearchAutoComplete"
                   android:id="@+id/abs__search_src_text"
@@ -102,10 +102,10 @@
                   android:dropDownAnchor="@+id/abs__search_plate"
                   android:dropDownVerticalOffset="5dip"
                   android:popupBackground="@drawable/search_drop_down_list_background"
+                  android:iconifiedByDefault="false"
                   android:background="@null"
-                  android:textColor="#333333"
                   android:textColorHint="#666666"
-                  android:textCursorDrawable="@null"
+                  android:textCursorDrawable="@drawable/black_cursor"
                   android:dropDownHorizontalOffset="0dip"
                   android:contentDescription="@string/abs__searchview_description_query"/>
 
