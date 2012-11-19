@@ -32,7 +32,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.os.Parcelable;
 import android.provider.BaseColumns;
 import android.support.v4.widget.CursorAdapter;
 import android.text.Html;
@@ -73,7 +72,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
 
 
     public SuggestionsAdapter(Context context, Cursor c, AndroidCloudAPI api) {
-        super(context, c, false);
+        super(context, c, 0);
         mContentResolver = context.getContentResolver();
         mContext = context;
         mImageLoader = ImageLoader.get(mContext);
@@ -132,7 +131,8 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
             mSuggestionsHandler.removeMessages(0);
             Message.obtain(mSuggestionsHandler,0,constraint).sendToTarget();
 
-            return mLocalSuggestions;
+            return mLocalSuggestions == null || mLocalSuggestions.getCount() == 0 ? getMixedCursor() : mLocalSuggestions;
+
         } else {
             mLocalSuggestions = null;
             return super.runQueryOnBackgroundThread(constraint);
@@ -181,7 +181,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
                     // make sure we are still relevant
                     if (constraint == mCurrentConstraint) {
                         mRemoteSuggestions = suggestions;
-                        reloadRemoteCursor();
+                        swapCursor(getMixedCursor());
 
                         if (mRemoteSuggestions != null){
                             final List<Long> trackLookupIds = new ArrayList<Long>();
@@ -208,7 +208,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
 
     }
 
-    private void reloadRemoteCursor() {
+    private Cursor getMixedCursor() {
 
         final MatrixCursor remote = new MatrixCursor(new String[]{
                 BaseColumns._ID,
@@ -228,20 +228,19 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
         }
 
         if (remote.getCount() > 0 && mLocalSuggestions != null && mLocalSuggestions.getCount() > 0){
-            swapCursor(new MergeCursor(new Cursor[]{mLocalSuggestions, remote}));
+            return new MergeCursor(new Cursor[]{mLocalSuggestions, remote});
         } else if (remote.getCount() > 0){
-            swapCursor(remote);
+            return remote;
         } else {
-            swapCursor(mLocalSuggestions);
+            return mLocalSuggestions;
         }
-
     }
 
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
-                reloadRemoteCursor();
+                swapCursor(getMixedCursor());
                 break;
             case ApiSyncService.STATUS_SYNC_ERROR: {
                 break;
