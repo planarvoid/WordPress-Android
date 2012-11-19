@@ -1,9 +1,12 @@
 $ 49
   % v current
-  _ 2012-11-14
+  _ 2012-11-19
   ! Next
-    * Fixed a recurring search crash
-    * Remote search suggestions added
+    * More Search Styling
+    * Parallax in start page tour
+    * Fancificated login overlay
+    - Fixed a recurring search crash
+    - Remote search suggestions added
     - fixed reposts layout
     - Added affiliations and reposts to activities list
     - assorted bug fixes
