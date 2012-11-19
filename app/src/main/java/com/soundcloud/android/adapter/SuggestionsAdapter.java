@@ -298,34 +298,32 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
             tag = (SearchTag) view.getTag();
         }
 
-        setIcon(tag, GraphicSize.formatUriForList(mContext,
-                cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))));
-
         final String data = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.INTENT_DATA));
-        tag.tv_main.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1))));
-
         Uri uri = Uri.parse(data);
-        if (sMatcher.match(uri) == Content.TRACK.id) {
-            tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
-        } else if (sMatcher.match(uri) == Content.USER.id) {
-            tag.iv_search_type.setImageResource(R.drawable.ic_search_user);
-        }
+        boolean isUser = sMatcher.match(uri) == Content.USER.id;
+        setIcon(tag, GraphicSize.formatUriForList(mContext,
+                cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))), isUser);
 
+        tag.tv_main.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1))));
+        if (isUser) {
+            tag.iv_search_type.setImageResource(R.drawable.ic_search_user);
+        } else {
+            tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
+        }
         return view;
     }
 
-    private void setIcon(SearchTag tag, String iconUri) {
+    private void setIcon(SearchTag tag, String iconUri, boolean isUser) {
         if (ImageUtils.checkIconShouldLoad(iconUri)) {
             ImageLoader.BindResult result = mImageLoader.bind(this, tag.iv_icon,
                     GraphicSize.formatUriForSearchSuggestionsList(mContext, iconUri)
             );
-            if (result != ImageLoader.BindResult.OK) {
-                tag.iv_icon.setImageResource(R.drawable.cloud_no_logo_sm);
-            }
+            if (result == ImageLoader.BindResult.OK) return;
         } else {
             mImageLoader.unbind(tag.iv_icon);
-            tag.iv_icon.setImageResource(R.drawable.cloud_no_logo_sm);
         }
+
+        tag.iv_icon.setImageResource(isUser ? R.drawable.no_user_cover : R.drawable.no_sound_cover);
     }
 
     static class SearchTag {
