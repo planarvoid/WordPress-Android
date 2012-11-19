@@ -12,7 +12,8 @@
     <LinearLayout android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
                   android:orientation="vertical"
-                  android:padding="10dp">
+                  android:padding="10dp"
+                  android:tag="parallax">
         <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.Headline"
                                                          android:text="Fire 20 people."/>
         <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.CallToAction"

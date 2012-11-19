@@ -13,6 +13,7 @@
                   android:layout_height="wrap_content"
                   android:orientation="vertical"
                   android:padding="10dp"
+                  android:tag="parallax"
                   android:layout_marginBottom="@dimen/tour_bottom_bar_height"
                   android:layout_alignParentBottom="true">
         <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.Headline"
