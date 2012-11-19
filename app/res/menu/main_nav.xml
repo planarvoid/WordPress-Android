@@ -6,6 +6,6 @@
     <item android:id="@+id/nav_likes"           android:text="@string/side_menu_likes"              android:icon="@drawable/sidebar_likes"/>
     <item android:id="@+id/nav_suggested_users" android:text="@string/side_menu_suggested_users"    android:icon="@drawable/sidebar_peopleufollow"/>
     <item android:id="@+id/nav_friend_finder"   android:text="@string/side_menu_friend_finder"      android:icon="@drawable/sidebar_you"/>
-    <item android:id="@+id/nav_record"          android:text="@string/side_menu_record"             android:icon="@drawable/sidebar_rec"/>
+    <item android:id="@+id/nav_record"          android:text="@string/side_menu_record"             android:icon="@drawable/sidebar_record"/>
     <item android:id="@+id/nav_settings"        android:text="@string/side_menu_settings"           android:icon="@drawable/sidebar_settings" />
 </menu>
