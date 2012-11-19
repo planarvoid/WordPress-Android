@@ -189,6 +189,10 @@ public class SyncAdapterService extends Service {
                     urisToSync.add(Content.ME.uri);
                 }
 
+                if (SyncConfig.shouldSync(app, Consts.PrefKeys.LAST_SHORTCUT_SYNC, SyncConfig.SHORTCUT_DELAY) || manual) {
+                    urisToSync.add(Content.ME_SHORTCUTS.uri);
+                }
+
                 if (!urisToSync.isEmpty()) {
                     syncIntent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
                 }

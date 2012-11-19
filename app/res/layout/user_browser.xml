@@ -65,7 +65,7 @@
                           android:drawablePadding="3dip"
                           android:layout_height="wrap_content"
                           android:id="@+id/tracks"
-                          android:text="@string/track_count"
+                          android:text=""
                           android:layout_alignParentLeft="true"
                           style="@style/txt_list_sub_secondary"/>
                 <View style="@style/stat_pipe"
@@ -81,7 +81,7 @@
                           android:drawablePadding="3dip"
                           android:layout_height="wrap_content"
                           android:id="@+id/followers"
-                          android:text="@string/follower_count"
+                          android:text=""
                           android:layout_toRightOf="@id/vr_stats"
                           android:layout_alignWithParentIfMissing="true"
                           style="@style/txt_list_sub_secondary"/>

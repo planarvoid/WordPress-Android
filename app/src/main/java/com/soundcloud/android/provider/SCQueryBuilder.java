@@ -33,7 +33,8 @@ import java.util.regex.Pattern;
  * This is a convience class that helps build SQL queries to be sent to
  * {@link SQLiteDatabase} objects.
  *
- * Taken without modification from Android source tree (ICS).
+ * Taken without modification from Android source tree (ICS,
+ * {@link android.database.sqlite.SQLiteQueryBuilder}).
  * Added for bugfixes and easier testing w/ Robolectric.
  */
 public class SCQueryBuilder

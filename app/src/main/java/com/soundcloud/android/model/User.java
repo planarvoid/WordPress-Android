@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.json.Views;
@@ -27,6 +28,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.EnumSet;
 
@@ -72,6 +74,37 @@ public class User extends ScResource implements Refreshable {
     public User() {
     }
 
+    public User(long id) {
+        this.id = id;
+    }
+
+    public static User fromUri(Uri uri, ContentResolver resolver, boolean createDummy) {
+        long id = -1l;
+        try {
+            //check the cache first
+            id = Long.parseLong(uri.getLastPathSegment());
+            final User u = SoundCloudApplication.MODEL_MANAGER.getCachedUser(id);
+            if (u != null) return u;
+
+        } catch (NumberFormatException e) {
+            Log.e(UserBrowser.class.getSimpleName(), "Unexpected User uri: " + uri.toString());
+        }
+
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        try {
+            if (cursor != null && cursor.moveToFirst()) {
+                return SoundCloudApplication.MODEL_MANAGER.getUserFromCursor(cursor);
+            } else if (createDummy && id >= 0) {
+                return new User(id);
+            } else {
+                return null;
+            }
+
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+    }
+
     public User(Parcel in) {
         // TODO replace with generated file
         User model = this;
@@ -105,6 +138,7 @@ public class User extends ScResource implements Refreshable {
     public User updateFromCursor(Cursor cursor) {
         id = cursor.getLong(cursor.getColumnIndex(Users._ID));
         permalink = cursor.getString(cursor.getColumnIndex(Users.PERMALINK));
+        permalink_url = cursor.getString(cursor.getColumnIndex(Users.PERMALINK_URL));
         username = cursor.getString(cursor.getColumnIndex(Users.USERNAME));
         track_count = cursor.getInt(cursor.getColumnIndex(Users.TRACK_COUNT));
         discogs_name = cursor.getString(cursor.getColumnIndex(Users.DISCOGS_NAME));

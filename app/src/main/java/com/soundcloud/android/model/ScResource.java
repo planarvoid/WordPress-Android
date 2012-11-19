@@ -35,7 +35,6 @@ import java.util.List;
         @JsonSubTypes.Type(value = Playlist.class, name = "playlist")})
 public abstract class ScResource extends ScModel {
 
-    public static final List<ScResource> EMPTY_LIST = new ArrayList<ScResource>();
     @JsonIgnore
     public long last_updated = NOT_SET;
 

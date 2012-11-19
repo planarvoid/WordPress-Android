@@ -5,6 +5,7 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 import android.util.SparseArray;
 
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.model.Shortcut;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Recording;
@@ -39,7 +40,11 @@ public enum Content  {
     ME_PLAYLISTS("me/playlists", null, 110, null, -1, null),
     ME_USERID("me/userid", null, 111, null, -1, null),
     ME_REPOSTS("me/reposts", TempEndpoints.e1.MY_REPOSTS, 112, Track.class, REPOST, Table.COLLECTION_ITEMS),
-    ME_REPOST("me/reposts/#",null, 113, Track.class, REPOST, null),
+    ME_REPOST("me/reposts/#", null, 113, Track.class, REPOST, null),
+
+    ME_SHORTCUT("me/shortcuts/#", TempEndpoints.i1.MY_SHORTCUTS, 114, Shortcut.class, -1, Table.SUGGESTIONS),
+    ME_SHORTCUTS("me/shortcuts", TempEndpoints.i1.MY_SHORTCUTS, 115, Shortcut.class, -1, Table.SUGGESTIONS),
+    ME_SHORTCUTS_ICON("me/shortcut_icon/#", null, 116, null, -1, Table.SUGGESTIONS),
 
     // the ids of the following entries should not be changed, they are referenced in th db
     ME_SOUND_STREAM("me/activities/tracks", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),
@@ -52,15 +57,15 @@ public enum Content  {
 
     TRACKS("tracks", Endpoints.TRACKS, 201, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
     TRACK("tracks/#", Endpoints.TRACK_DETAILS, 202, Track.class, -1, Table.TRACKS),
-    TRACK_ARTWORK("tracks/#/artwork", null, 203, null, -1, Table.TRACKS),
     TRACK_COMMENTS("tracks/#/comments", Endpoints.TRACK_COMMENTS, 204, Comment.class, -1, Table.COMMENTS),
     TRACK_PERMISSIONS("tracks/#/permissions", null, 205, null, -1, null),
     TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 206, null, -1, null),
     TRACK_LIKERS("tracks/#/favoriters", Endpoints.TRACK_FAVORITERS, 207, User.class, -1, Table.USERS),
     TRACK_REPOSTERS("tracks/#/reposters", TempEndpoints.e1.TRACK_REPOSTERS, 208, User.class, -1, Table.USERS),
+    TRACK_LOOKUP("tracks/*", Endpoints.TRACKS, 2250, Track.class, -1, Table.TRACKS),
 
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
-    USER("users/#", null, 302, User.class, -1, Table.USERS),
+    USER("users/#", Endpoints.USER_DETAILS, 302, User.class, -1, Table.USERS),
     USER_TRACKS("users/#/tracks", Endpoints.USER_TRACKS, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
     USER_LIKES("users/#/likes", Endpoints.USER_FAVORITES, 304, Track.class, LIKE, null),
     USER_FOLLOWERS("users/#/followers", Endpoints.USER_FOLLOWERS, 305, User.class, FOLLOWER, null),
@@ -69,6 +74,7 @@ public enum Content  {
     USER_GROUPS("users/#/groups", null, 308, null, -1, null),
     USER_PLAYLISTS("users/#/playlists", null, 309, null, -1, null),
     USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Track.class, REPOST, null),
+    USER_LOOKUP("users/*", Endpoints.USERS, 350, User.class, -1, Table.USERS),
 
 
     COMMENTS("comments", null, 400, Comment.class, -1, Table.COMMENTS),
@@ -202,6 +208,14 @@ public enum Content  {
             return Uri.parse(uri.toString().replace("#", String.valueOf(id)));
         } else {
             return buildUpon().appendEncodedPath(String.valueOf(id)).build();
+        }
+    }
+
+    public Uri forQuery(String query) {
+        if (uri.toString().contains("*")) {
+            return Uri.parse(uri.toString().replace("*", String.valueOf(query)));
+        } else {
+            return buildUpon().appendEncodedPath(String.valueOf(query)).build();
         }
     }
 

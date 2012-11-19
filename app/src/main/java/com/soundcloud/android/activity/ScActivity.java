@@ -3,7 +3,6 @@ package com.soundcloud.android.activity;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.google.android.imageloader.ImageLoader;
@@ -16,13 +15,11 @@ import com.soundcloud.android.activity.landing.FriendFinder;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.activity.landing.ScLandingPage;
-import com.soundcloud.android.activity.landing.ScSearch;
 import com.soundcloud.android.activity.landing.SuggestedUsers;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
-import com.soundcloud.android.adapter.SearchSuggestionsAdapter;
+import com.soundcloud.android.adapter.SuggestionsAdapter;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
@@ -48,6 +45,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -68,6 +66,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private boolean mIsForeground;
 
     private NowPlayingIndicator mNowPlaying;
+    private SuggestionsAdapter mSuggestionsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,10 +101,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     case R.id.nav_likes:
                         startActivity(getNavIntent(You.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                 .putExtra(UserBrowser.Tab.EXTRA,UserBrowser.Tab.likes.tag));
-                        return true;
-                    case R.id.nav_followings:
-                        startActivity(getNavIntent(You.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.followings.tag));
                         return true;
                     case R.id.nav_friend_finder:
                         startNavActivity(FriendFinder.class);
@@ -194,6 +189,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         super.onDestroy();
         connectivityListener.unregisterHandler(connHandler);
         connectivityListener = null;
+
+        // suggestions adapter has to stop handler thread
+        if (mSuggestionsAdapter != null) mSuggestionsAdapter.onDestroy();
     }
 
     @Override
@@ -366,15 +364,15 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getSupportMenuInflater();
         final int menuResourceId = getMenuResourceId();
-        if (menuResourceId > -1) {
-            inflater.inflate(menuResourceId, menu);
-        }
+        if (menuResourceId < 0) return true;
+
+        getSupportMenuInflater().inflate(menuResourceId, menu);
 
         // Get the SearchView and set the searchable configuration
         if (menu.findItem(R.id.menu_search) != null){
             SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+
             SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 
             /*
@@ -387,8 +385,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             final SearchableInfo searchableInfo = searchManager.getSearchableInfo(getComponentName());
             searchView.setSearchableInfo(searchableInfo);
 
-            final SearchSuggestionsAdapter suggestionsAdapter = new SearchSuggestionsAdapter(this, null);
-            searchView.setSuggestionsAdapter(suggestionsAdapter);
+            mSuggestionsAdapter = new SuggestionsAdapter(this, null, getApp());
+            searchView.setSuggestionsAdapter(mSuggestionsAdapter);
             searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
                 @Override
                 public boolean onSuggestionSelect(int position) {
@@ -397,12 +395,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
                 @Override
                 public boolean onSuggestionClick(int position) {
-                    if (suggestionsAdapter.getItemViewType(position) == SearchSuggestionsAdapter.TYPE_TRACK) {
-                        startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(CloudPlaybackService.EXTRA_TRACK_ID, suggestionsAdapter.getItemId(position)));
-                        goToPlayer();
-                    } else {
-                        startActivity(getNavIntent(UserBrowser.class).putExtra(UserBrowser.EXTRA_USER_ID, suggestionsAdapter.getItemId(position)));
-                    }
+                    final Uri itemUri = mSuggestionsAdapter.getItemUri(position);
+                    startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
                     return true;
                 }
             });

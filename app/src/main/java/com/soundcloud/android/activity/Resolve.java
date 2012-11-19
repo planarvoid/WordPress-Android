@@ -14,6 +14,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 public class Resolve extends Activity implements FetchModelTask.FetchModelListener<ScResource> {

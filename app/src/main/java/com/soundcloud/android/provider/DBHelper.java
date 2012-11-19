@@ -3,6 +3,7 @@ package com.soundcloud.android.provider;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -16,7 +17,7 @@ import java.util.List;
 public class DBHelper extends SQLiteOpenHelper {
     static final String TAG = "DBHelper";
 
-    public static final int DATABASE_VERSION = 17;
+    public static final int DATABASE_VERSION = 18;
     private static final String DATABASE_NAME = "SoundCloud";
 
     DBHelper(Context context) {
@@ -86,6 +87,10 @@ public class DBHelper extends SQLiteOpenHelper {
                         case 17:
                             success = upgradeTo17(db, oldVersion);
                             break;
+                        case 18:
+                            success = upgradeTo18(db, oldVersion);
+                            break;
+
                         default:
                             break;
                     }
@@ -144,33 +149,33 @@ public class DBHelper extends SQLiteOpenHelper {
             ");";
 
     static final String DATABASE_CREATE_PLAYLISTS = "("+
-                "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "tracks_uri VARCHAR(255)," +
-                "last_updated INTEGER," +
-                "permalink VARCHAR(255)," +
-                "duration INTEGER," +
-                "state VARCHAR(50)," +
-                "created_at INTEGER," +
-                "tag_list VARCHAR(255)," +
-                "track_type VARCHAR(255)," +
-                "title VARCHAR(255)," +
-                "permalink_url VARCHAR(255)," +
-                "artwork_url VARCHAR(255), " +
-                "waveform_url VARCHAR(255), " +
-                "downloadable BOOLEAN, " +
-                "commentable BOOLEAN, " +
-                "download_url VARCHAR(255), " +
-                "stream_url VARCHAR(255)," +
-                "streamable BOOLEAN DEFAULT 0, " +
-                "sharing VARCHAR(255)," +
-                "playback_count INTEGER," +
-                "download_count INTEGER," +
-                "comment_count INTEGER," +
-                "favoritings_count INTEGER," +
-                "reposts_count INTEGER," +
-                "shared_to_count INTEGER," +
-                "user_id INTEGER" +
-                ");";
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "tracks_uri VARCHAR(255)," +
+            "last_updated INTEGER," +
+            "permalink VARCHAR(255)," +
+            "duration INTEGER," +
+            "state VARCHAR(50)," +
+            "created_at INTEGER," +
+            "tag_list VARCHAR(255)," +
+            "track_type VARCHAR(255)," +
+            "title VARCHAR(255)," +
+            "permalink_url VARCHAR(255)," +
+            "artwork_url VARCHAR(255), " +
+            "waveform_url VARCHAR(255), " +
+            "downloadable BOOLEAN, " +
+            "commentable BOOLEAN, " +
+            "download_url VARCHAR(255), " +
+            "stream_url VARCHAR(255)," +
+            "streamable BOOLEAN DEFAULT 0, " +
+            "sharing VARCHAR(255)," +
+            "playback_count INTEGER," +
+            "download_count INTEGER," +
+            "comment_count INTEGER," +
+            "favoritings_count INTEGER," +
+            "reposts_count INTEGER," +
+            "shared_to_count INTEGER," +
+            "user_id INTEGER" +
+            ");";
 
     static final String DATABASE_CREATE_PLAYLIST_TRACKS = "(" +
             "playlist_id INTEGER, " +
@@ -409,6 +414,25 @@ public class DBHelper extends SQLiteOpenHelper {
             "   Activities." + Activities.COMMENT_ID + " = " + "Comments." + Comments._ID + ")" +
             " ORDER BY " + ActivityView.CREATED_AT + " DESC"
             ;
+
+
+    /**
+     * {@link DBHelper.Suggestions}
+     */
+    static final String DATABASE_CREATE_SUGGESTIONS = "(" +
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "id  INTEGER," +
+            "kind VARCHAR(32) NOT NULL," +
+            "text VARCHAR(255) COLLATE NOCASE," +
+            "icon_url       VARCHAR(255)," +
+            "permalink_url  VARCHAR(255)," +
+            "suggest_text_1 VARCHAR(255) NOT NULL," +
+            "suggest_text_2 VARCHAR(255)," +
+            "suggest_icon_1 VARCHAR(255)," +
+            "suggest_intent_data VARCHAR(255)," +
+
+            "UNIQUE(id, kind) ON CONFLICT REPLACE" +
+            ")";
 
     public static class ResourceTable implements BaseColumns {
         public static final String CREATED_AT = "created_at";
@@ -684,6 +708,38 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
+    /**
+     * @see <a href="http://developer.android.com/guide/topics/search/adding-custom-suggestions.html#SuggestionTable">
+     *  Building a suggestion table</a>
+     */
+    public final static class Suggestions implements BaseColumns {
+        public static final String ID   = "id";
+
+        // following | like | group
+        public static final String KIND = "kind";
+
+        // used as an index to search
+        public static final String TEXT = "text";
+
+        // avatar_url | artwork_url
+        public static final String ICON_URL = "icon_url";
+
+        // permalink_url
+        public static final String PERMALINK_URL = "permalink_url";
+
+        // use search manager compatible mappings
+        public static final String COLUMN_TEXT1  = SearchManager.SUGGEST_COLUMN_TEXT_1;
+        public static final String COLUMN_TEXT2  = SearchManager.SUGGEST_COLUMN_TEXT_2;
+        public static final String COLUMN_ICON   = SearchManager.SUGGEST_COLUMN_ICON_1;
+
+        // soundcloud:tracks:XXXX | soundcloud:users:XXXX
+        public static final String INTENT_DATA   = SearchManager.SUGGEST_COLUMN_INTENT_DATA;
+
+        public static final String[] ALL_FIELDS = {
+            ID, KIND, TEXT, ICON_URL, PERMALINK_URL, COLUMN_TEXT1, COLUMN_TEXT2, COLUMN_ICON, INTENT_DATA
+        };
+    }
+
     /*
     * altered id naming for content resolver
     */
@@ -886,7 +942,18 @@ public class DBHelper extends SQLiteOpenHelper {
             Table.ACTIVITY_VIEW.recreate(db);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade16 " +
+            SoundCloudApplication.handleSilentException("error during upgrade17 " +
+                    "(from " + oldVersion + ")", e);
+        }
+        return false;
+    }
+
+    private static boolean upgradeTo18(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.SUGGESTIONS.recreate(db);
+            return true;
+        } catch (SQLException e) {
+            SoundCloudApplication.handleSilentException("error during upgrade18 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
