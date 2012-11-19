@@ -373,8 +373,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         if (menu.findItem(R.id.menu_search) != null){
             SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
             searchView.setIconifiedByDefault(false);
-
-
             SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 
             /*
