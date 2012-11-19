@@ -65,7 +65,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
     static final private UriMatcher sMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     private SuggestionsHandler mSuggestionsHandler;
     private HandlerThread mSuggestionsHandlerThread;
-    public CharSequence mCurrentConstraint;
+    public String mCurrentConstraint;
 
     private Cursor mLocalSuggestions;
     private SearchSuggestions mRemoteSuggestions;
@@ -124,9 +124,9 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
 
     @Override
     public Cursor runQueryOnBackgroundThread(final CharSequence constraint) {
-        mCurrentConstraint = constraint;
+        mCurrentConstraint = constraint.toString();
         if (!TextUtils.isEmpty(constraint)) {
-            mLocalSuggestions = fetchLocalSuggestions(constraint, MAX_LOCAL);
+            mLocalSuggestions = fetchLocalSuggestions(mCurrentConstraint, MAX_LOCAL);
 
             mSuggestionsHandler.removeMessages(0);
             Message.obtain(mSuggestionsHandler,0,constraint).sendToTarget();
@@ -220,7 +220,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
             for (SearchSuggestions.Query q : mRemoteSuggestions) {
                 remote.addRow(new Object[]{
                         q.id,
-                        q.query,
+                        highlight(q.query,mCurrentConstraint),
                         q.getUriPath(),
                         q.getIconUri()
                 });
@@ -254,7 +254,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
     }
 
 
-    private Cursor fetchLocalSuggestions(CharSequence constraint, int max) {
+    private Cursor fetchLocalSuggestions(String constraint, int max) {
         final MatrixCursor local = new MatrixCursor(new String[]{
                 BaseColumns._ID,
                 SearchManager.SUGGEST_COLUMN_TEXT_1,
@@ -272,7 +272,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
         while (cursor.moveToNext()) {
             local.addRow(new Object[] {
                 cursor.getInt(cursor.getColumnIndex(BaseColumns._ID)),
-                cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)),
+                highlight(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)),constraint),
                 cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA)),
                 cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))
             });
@@ -334,4 +334,35 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
         ImageView iv_search_type;
         TextView tv_main;
     }
+
+
+    /**
+     * Match highlighting
+     */
+    private StringBuilder sbHighlightSource = new StringBuilder();
+    private StringBuilder sbHighlightSourceLower = new StringBuilder();
+    private CharSequence highlightTagOpen = "<font color='white'>";
+    private CharSequence highlightTagClose = "</font>";
+
+    private String highlight(String original, String constraint) {
+        sbHighlightSource.setLength(0);
+        sbHighlightSource.trimToSize();
+        sbHighlightSource.append(original);
+
+        sbHighlightSourceLower.setLength(0);
+        sbHighlightSourceLower.trimToSize();
+        sbHighlightSourceLower.append(original.toLowerCase());
+
+        final String searchString = constraint.toLowerCase();
+        final String replacement = highlightTagOpen + constraint + highlightTagClose;
+
+        int idx = 0;
+        while ((idx = sbHighlightSourceLower.indexOf(searchString, idx)) != -1) {
+            sbHighlightSource.replace(idx, idx + searchString.length(), highlightTagOpen + sbHighlightSource.substring(idx,idx + searchString.length()) + highlightTagClose);
+            sbHighlightSourceLower.replace(idx, idx + searchString.length(), replacement);
+            idx += replacement.length();
+        }
+        return sbHighlightSource.toString();
+    }
+
 }

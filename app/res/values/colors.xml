@@ -98,5 +98,7 @@
 
     <color name="main_menu_bg">#FF222222</color>
 
+    <color name="search_suggestion_text_color">#666666</color>
+
 
 </resources>
