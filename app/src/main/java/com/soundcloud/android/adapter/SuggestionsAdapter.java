@@ -155,7 +155,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
             final CharSequence constraint = (CharSequence) msg.obj;
 
             try {
-                HttpResponse resp = mApi.get(Request.to("/search/suggest").with("q", constraint, "limit", MAX_REMOTE));
+                HttpResponse resp = mApi.get(Request.to("/search/suggest").with("q", constraint, "highlight", "false", "limit", MAX_REMOTE));
 
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(),
