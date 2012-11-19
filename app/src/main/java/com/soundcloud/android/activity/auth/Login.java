@@ -1,5 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
+import android.graphics.drawable.Drawable;
+import android.widget.ImageView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.tracking.Click;
@@ -23,6 +25,12 @@ public class Login extends AbstractLoginActivity {
     protected void onResume() {
         super.onResume();
         ((SoundCloudApplication)getApplication()).track(getClass());
+
+        int backgroundId         = getIntent().getExtras().getInt(Start.TOUR_BACKGROUND_EXTRA, R.drawable.tour_image_1);
+        Drawable drawable        = getResources().getDrawable(backgroundId);
+        ImageView backgroundView = (ImageView) findViewById(R.id.tour_background_image);
+
+        backgroundView.setImageDrawable(drawable);
     }
 
     protected void build() {
@@ -79,6 +87,7 @@ public class Login extends AbstractLoginActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (resultCode == RESULT_OK) {
             Start.handleRecoverResult(this, data);
         }
