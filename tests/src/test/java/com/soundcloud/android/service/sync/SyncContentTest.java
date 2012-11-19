@@ -26,7 +26,7 @@ public class SyncContentTest {
     @Test
     public void shouldSyncAll() throws Exception {
         List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
-        expect(urisToSync.size()).toEqual(4);
+        expect(urisToSync.size()).toEqual(5);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class SyncContentTest {
                 resolver);
 
         List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
-        expect(urisToSync.size()).toEqual(3);
+        expect(urisToSync.size()).toEqual(4);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class SyncContentTest {
                 resolver);
 
         List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
-        expect(urisToSync.size()).toEqual(3);
+        expect(urisToSync.size()).toEqual(4);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class SyncContentTest {
                 resolver);
 
         List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
-        expect(urisToSync.size()).toEqual(4);
+        expect(urisToSync.size()).toEqual(5);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class SyncContentTest {
                 resolver);
 
         List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
-        expect(urisToSync.size()).toEqual(3);
+        expect(urisToSync.size()).toEqual(4);
     }
 
     @Test
@@ -101,13 +101,13 @@ public class SyncContentTest {
                 resolver);
 
         List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
-        expect(urisToSync.size()).toEqual(4);
+        expect(urisToSync.size()).toEqual(5);
 
         android.os.Bundle syncResult = new android.os.Bundle();
         syncResult.putBoolean(SyncContent.MySounds.content.uri.toString(),false);
         SyncContent.updateCollections(Robolectric.application, syncResult);
 
         urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
-        expect(urisToSync.size()).toEqual(3);
+        expect(urisToSync.size()).toEqual(4);
     }
 }

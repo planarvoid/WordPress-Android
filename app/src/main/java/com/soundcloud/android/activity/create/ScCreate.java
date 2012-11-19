@@ -8,7 +8,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.activity.landing.ScLandingPage;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
@@ -55,16 +54,13 @@ import java.util.Date;
 import java.util.List;
 
 @Tracking(page = Page.Record_main)
-public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, ScLandingPage {
+public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     public static final int REQUEST_UPLOAD_SOUND  = 1;
 
     private static final int MSG_ANIMATE_OUT_SAVE_MESSAGE = 0;
     private static final long SAVE_MSG_DISPLAY_TIME = 3000; //ms
 
-    public static final String EXTRA_PRIVATE_MESSAGE_RECIPIENT = "privateMessageRecipient";
-
-    private User mRecipient;
     private SoundRecorder mRecorder;
 
     private CreateState mLastState, mCurrentState;
@@ -84,11 +80,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
     private List<Recording> mUnsavedRecordings;
 
     private ProgressBar mGeneratingWaveformProgressBar;
-
-    @Override
-    public LandingPage getPageValue() {
-        return LandingPage.Create;
-    }
 
     public enum CreateState {
         GENERATING_WAVEFORM,
@@ -432,8 +423,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
         CreateState newState = null;
         if (mRecorder.isRecording()) {
             newState = CreateState.RECORD;
-            setRecipient(mRecorder.getRecording().getRecipient());
-
         } else {
 
             Recording recording = Recording.fromIntent(intent, getContentResolver(), getCurrentUserId());
@@ -447,13 +436,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
                 }
 
                 mRecorder.setRecording(recording);
-                setRecipient(recording.getRecipient());
                 mSeenSavedMessage = true;
-            }
-
-            if (recording == null && intent.hasExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT)) {
-                if (mRecorder.hasRecording()) mRecorder.reset();
-                setRecipient((User) intent.getParcelableExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT));
             }
 
             if (mRecorder.isPlaying()) {
@@ -481,7 +464,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
 
         Recording.clearRecordingFromIntent(intent);
 
-        if (newState == CreateState.IDLE_RECORD && mRecipient == null) {
+        if (newState == CreateState.IDLE_RECORD) {
             mUnsavedRecordings = Recording.getUnsavedRecordings(
                     getContentResolver(),
                     SoundRecorder.RECORD_DIR,
@@ -496,13 +479,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
         setupToggleFade(mRecorder.isFading());
         setupToggleOptimize(mRecorder.isOptimized());
         updateUi(newState);
-    }
-
-    private void setRecipient(User recipient){
-        if (recipient != null){
-            mRecipient = recipient;
-            mTxtInstructions.setText(getString(R.string.private_message_title, mRecipient.username));
-        }
     }
 
     private void updateUi(CreateState newState) {
@@ -683,7 +659,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
             if (!TextUtils.isEmpty(mRecordErrorMessage)) {
                 mTxtRecordMessage.setMessage(mRecordErrorMessage);
             } else {
-                mTxtRecordMessage.loadSuggestion(mRecipient == null ? null : mRecipient.getDisplayName());
+                mTxtRecordMessage.loadSuggestion(null);
             }
         }
     }
@@ -723,7 +699,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
         mRecordErrorMessage = null;
 
         try {
-            mRecorder.startRecording(mRecipient, mTxtRecordMessage.getCurrentSuggestionKey());
+            mRecorder.startRecording(mTxtRecordMessage.getCurrentSuggestionKey());
             mWaveDisplay.gotoRecordMode();
         } catch (IOException e) {
             onRecordingError(e.getMessage());

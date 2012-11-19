@@ -33,9 +33,6 @@ public final class Consts {
     public static final int COLLECTION_PAGE_SIZE      = 50;
     public static final int MAX_COMMENTS_TO_LOAD      = 50;
 
-    // adapter loading constants
-    public static final int ROW_APPEND_BUFFER = 6;
-    public static final int ITEM_TYPE_LOADING = -1;
     public static final String SECRET_CODE_ACTION = "android.provider.Telephony.SECRET_CODE";
     public static final String AUDIO_BECOMING_NOISY = "android.media.AUDIO_BECOMING_NOISY";
 
@@ -115,14 +112,14 @@ public final class Consts {
             return getListItemGraphicSize(c).formatUri(uri);
         }
 
-        public static Consts.GraphicSize getListItemGraphicSize(Context c) {
+        public static GraphicSize getListItemGraphicSize(Context c) {
             if (ImageUtils.isScreenXL(c)) {
-                return Consts.GraphicSize.LARGE;
+                return GraphicSize.LARGE;
             } else {
                 if (c.getResources().getDisplayMetrics().density > 1) {
-                    return Consts.GraphicSize.LARGE;
+                    return GraphicSize.LARGE;
                 } else {
-                    return Consts.GraphicSize.BADGE;
+                    return GraphicSize.BADGE;
                 }
             }
         }
@@ -131,7 +128,7 @@ public final class Consts {
             return getSearchSuggestionsListItemGraphicSize(c).formatUri(uri);
         }
 
-        public static Consts.GraphicSize getSearchSuggestionsListItemGraphicSize(Context c) {
+        public static GraphicSize getSearchSuggestionsListItemGraphicSize(Context c) {
             if (ImageUtils.isScreenXL(c)) {
                 return GraphicSize.T67;
             } else {
@@ -147,19 +144,25 @@ public final class Consts {
             return getPlayerGraphicSize(c).formatUri(uri);
         }
 
-        public static Consts.GraphicSize getPlayerGraphicSize(Context c) {
+        public static GraphicSize getPlayerGraphicSize(Context c) {
             // for now, just return T500. logic will come with more screen support
             return GraphicSize.T500;
         }
 
         public String formatUri(String uri) {
             if (TextUtils.isEmpty(uri)) return null;
-            else if (this == Consts.GraphicSize.LARGE) return uri;
-            else return uri.replace(Consts.GraphicSize.LARGE.key, key);
+            if (uri.contains(GraphicSize.LARGE.key) && GraphicSize.LARGE != this) {
+                return uri.replace(GraphicSize.LARGE.key, key);
+            } else if (uri.contains(GraphicSize.TINY_ARTWORK.key) &&
+                    GraphicSize.TINY_ARTWORK != this && GraphicSize.TINY_AVATAR != this) {
+                return uri.replace(GraphicSize.TINY_ARTWORK.key, key);
+            } else {
+                return uri;
+            }
         }
 
-        public static Consts.GraphicSize getMinimumSizeFor(int width, int height, boolean fillDimensions) {
-            Consts.GraphicSize valid = null;
+        public static GraphicSize getMinimumSizeFor(int width, int height, boolean fillDimensions) {
+            GraphicSize valid = null;
             for (GraphicSize gs : values()) {
                 if (fillDimensions){
                     if (gs.width >= width && gs.height >= height) {
@@ -191,7 +194,6 @@ public final class Consts {
 
         int DASHBOARD_NOTIFY_STREAM_ID = 4;
         int DASHBOARD_NOTIFY_ACTIVITIES_ID = 5;
-        int BETA_NOTIFY_ID    = 6;
     }
 
     public interface ResourceStaleTimes {
@@ -217,12 +219,10 @@ public final class Consts {
         String VERSION_KEY                          = "changeLogVersionCode";
         String PLAYBACK_ERROR_REPORTING_ENABLED     = "playbackErrorReportingEnabled";
         String LAST_USER_SYNC                       = "lastUserSync";
+        String LAST_SHORTCUT_SYNC                   = "lastShortcutSync";
 
         String DEV_HTTP_PROXY                       = "dev.http.proxy";
         String DEV_ALARM_CLOCK_ENABLED              = "dev.alarmClock.enabled";
         String DEV_ALARM_CLOCK_URI                  = "dev.alarmClock.uri";
-        String BETA_CHECK_FOR_UPDATES               = "beta.check_for_updates";
-        String BETA_REQUIRE_WIFI                    = "beta.require_wifi";
-        String BETA_VERSION                         = "beta.beta_version";
     }
 }

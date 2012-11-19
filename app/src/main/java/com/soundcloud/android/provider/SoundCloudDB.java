@@ -2,6 +2,7 @@ package com.soundcloud.android.provider;
 
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.model.SoundAssociation;
@@ -141,6 +142,11 @@ public class SoundCloudDB {
                                 cv.put(DBHelper.PlayQueue.TRACK_ID, id);
                                 break;
 
+                            // this will not be necessary once we use e1 likes endpoint
+                            case ME_LIKES:
+                            case USER_LIKES:
+                                //cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, Track.DB_TYPE_TRACK);
+                                // fallthrough
                             default:
                                 cv.put(DBHelper.CollectionItems.POSITION, i);
                                 cv.put(DBHelper.CollectionItems.ITEM_ID, id);

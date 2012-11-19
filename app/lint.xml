@@ -4,7 +4,6 @@
         <ignore path="res/values/dev.xml" />
         <ignore path="res/values/keys.xml" />
         <ignore path="res/values/array.xml" />
-        <ignore path="res/values/beta.xml" />
         <ignore path="res/values/sigs.xml" />
         <ignore path="res/values/dimens.xml" />
         <ignore path="res/values/array.xml" />
@@ -22,4 +21,7 @@
 
     <!-- re-enable later -->
     <issue id="NewApi" severity="warning"/>
+
+    <!-- can't resolve mvn dependencies -->
+    <issue id="MissingRegistered" severity="ignore"/>
 </lint>

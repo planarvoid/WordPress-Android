@@ -5,17 +5,24 @@
         <item name="android:background">@null</item>
 
         <item name="actionBarItemBackground">@drawable/selectable_background_next</item>
-        <item name="popupMenuStyle">@style/next_PopupMenu</item>
-        <item name="dropDownListViewStyle">@style/next_DropDownListView</item>
-        <item name="actionBarTabStyle">@style/next_ActionBarTabStyle</item>
-        <item name="actionDropDownStyle">@style/next_DropDownNav</item>
-        <item name="actionBarStyle">@style/next_solid_ActionBar</item>
-
         <item name="android:actionBarItemBackground">@drawable/selectable_background_next</item>
+
+        <item name="popupMenuStyle">@style/next_PopupMenu</item>
         <item name="android:popupMenuStyle">@style/next_PopupMenu</item>
-        <item name="android:dropDownListViewStyle">@style/next_DropDownListView</item>
-        <item name="android:actionBarTabStyle">@style/next_ActionBarTabStyle</item>
+
+        <item name="actionDropDownStyle">@style/next_DropDownNav</item>
         <item name="android:actionDropDownStyle">@style/next_DropDownNav</item>
+
+        <item name="dropDownListViewStyle">@style/next_DropDownListView</item>
+        <item name="android:dropDownListViewStyle">@style/next_DropDownListView</item>
+
+        <item name="android:actionBarTabStyle">@style/next_ActionBarTabStyle</item>
+        <item name="android:actionBarStyle">@style/next_solid_ActionBar</item>
+
+        <item name="actionBarStyle">@style/next_solid_ActionBar</item>
+        <item name="actionBarTabStyle">@style/next_ActionBarTabStyle</item>
+
+        <!--<item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>-->
 
         <!-- Compatibility issues when this is set. Check on more devices -->
         <!--<item name="android:panelBackground">@drawable/menu_hardkey_panel_next</item>-->
@@ -34,6 +41,7 @@
         <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
 
+        <item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>
     </style>
     <style name="Theme.Next.NoActionBar" parent="Theme.Sherlock.NoActionBar"/>
     <style name="Theme.ScDialog" parent="android:Theme.Dialog"/>
@@ -57,38 +65,45 @@
     </style>
 
     <style name="next_solid_ActionBar" parent="@style/Widget.Sherlock.Light.ActionBar.Solid.Inverse">
+        <item name="background">@drawable/action_bar_background</item>
         <item name="android:background">@drawable/action_bar_background</item>
-        <item name="backgroundStacked">@drawable/ab_stacked_solid_next</item>
-        <item name="backgroundSplit">@drawable/ab_bottom_solid_next</item>
-        <item name="progressBarStyle">@style/next_ProgressBar</item>
+
+        <item name="android:textColor">#FFFFFF</item>
     </style>
 
     <style name="next_transparent_ActionBar" parent="@style/Widget.Sherlock.ActionBar">
-        <item name="background">@drawable/ab_transparent_next</item>
+        <item name="background">@drawable/action_bar_background</item>
         <item name="progressBarStyle">@style/next_ProgressBar</item>
 
-        <item name="android:background">@drawable/ab_transparent_next</item>
+        <item name="android:background">@drawable/action_bar_background</item>
         <item name="android:progressBarStyle">@style/next_ProgressBar</item>
     </style>
 
     <style name="next_PopupMenu" parent="@style/Widget.Sherlock.ListPopupWindow">
-        <item name="android:popupBackground">@drawable/menu_dropdown_panel_next</item>
+        <!-- keep for now -->
     </style>
 
     <style name="next_DropDownListView" parent="@style/Widget.Sherlock.ListView.DropDown">
-        <item name="android:listSelector">@drawable/selectable_background_next</item>
+        <item name="android:paddingTop">1dp</item>
+        <item name="android:paddingBottom">1dp</item>
     </style>
 
     <style name="next_ActionBarTabStyle" parent="@style/Widget.Sherlock.ActionBar.TabView">
-        <item name="background">@drawable/tab_indicator_ab_next</item>
+        <item name="background">@drawable/action_bar_background</item>
 
-        <item name="android:background">@drawable/tab_indicator_ab_next</item>
+        <item name="android:background">@drawable/action_bar_background</item>
+    </style>
+
+    <style name="next_ActionBarTabBarStyle" parent="@style/Widget.Sherlock.ActionBar.TabView">
+        <item name="background">@drawable/action_bar_background</item>
+
+        <item name="android:background">@drawable/action_bar_background</item>
     </style>
 
     <style name="next_DropDownNav" parent="@style/Widget.Sherlock.Spinner.DropDown.ActionBar">
-        <item name="background">@drawable/spinner_background_ab_next</item>
+        <item name="background">@drawable/action_bar_background</item>
 
-        <item name="android:background">@drawable/spinner_background_ab_next</item>
+        <item name="android:background">@drawable/action_bar_background</item>
         <item name="android:popupBackground">@drawable/menu_dropdown_panel_next</item>
         <item name="android:dropDownSelector">@drawable/selectable_background_next</item>
     </style>
@@ -100,10 +115,16 @@
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->
     <style name="Theme.next.widget" parent="@style/Theme.Sherlock">
         <item name="popupMenuStyle">@style/next_PopupMenu</item>
-        <item name="dropDownListViewStyle">@style/next_DropDownListView</item>
-
         <item name="android:popupMenuStyle">@style/next_PopupMenu</item>
+
+        <item name="dropDownListViewStyle">@style/next_DropDownListView</item>
         <item name="android:dropDownListViewStyle">@style/next_DropDownListView</item>
+
+        <item name="searchViewSearchIcon">@drawable/search_dark</item>
+        <item name="searchViewCloseIcon">@drawable/abs__ic_clear_search_api_holo_light</item>
+
+        <item name="android:windowBackground">@android:color/transparent</item>
+
     </style>
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->
     <style name="next_DropDownItem" parent="@style/Widget.Sherlock.Light.DropDownItem.Spinner">
@@ -119,7 +140,7 @@
     <!-- ****** ViewPagerIndicator ****** -->
 
     <style name="Widget.ScTabPageIndicator" parent="Widget.TabPageIndicator">
-        <item name="android:background">@drawable/vpi__tab_indicator</item>
+        <item name="android:background">@drawable/action_bar_background</item>
         <item name="android:textAppearance">@style/TextAppearance.ScTabPageIndicator</item>
         <item name="footerColor">#ff6600</item>
     </style>
@@ -129,7 +150,7 @@
     </style>
 
     <style name="Widget.ScTitlePageIndicator">
-        <item name="android:background">@drawable/vpi__tab_indicator</item>
+        <item name="android:background">@drawable/action_bar_background</item>
         <item name="android:textSize">13dp</item>
         <item name="selectedColor">@color/black</item>
 

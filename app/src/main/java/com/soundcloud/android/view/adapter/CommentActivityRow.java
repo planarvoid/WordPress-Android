@@ -3,10 +3,10 @@ package com.soundcloud.android.view.adapter;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.ScBaseAdapter;
-import com.soundcloud.android.model.act.CommentActivity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.act.CommentActivity;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -47,8 +47,7 @@ public class CommentActivityRow extends ActivityRow {
 
     @Override
     protected Drawable doGetDrawable(boolean pressed) {
-        Drawable drawable =
-                getResources().getDrawable(pressed ? R.drawable.stats_comments_white_50 : R.drawable.stats_comments);
+        Drawable drawable = getResources().getDrawable(pressed ? R.drawable.activity_comment_white_50 : R.drawable.activity_comment);
         drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
         return drawable;
     }

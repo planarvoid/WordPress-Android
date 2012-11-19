@@ -282,11 +282,11 @@ public class ScModelManagerTest {
 
     @Test
     public void shouldBulkInsertWithCollections() throws Exception {
-        List<ScResource> items = createModels();
-        expect(manager.writeCollection(items, Content.ME_LIKES.uri, USER_ID, ScResource.CacheUpdateMode.MINI)).toEqual(3);
+        List<Track> items = createTracks();
+        expect(manager.writeCollection(items, Content.ME_LIKES.uri, USER_ID, ScResource.CacheUpdateMode.MINI)).toEqual(4);
 
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(1);
+        expect(c.getCount()).toEqual(2);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -316,6 +316,31 @@ public class ScModelManagerTest {
         items.add(u1);
         items.add(t);
         items.add(u2_);
+        return items;
+    }
+
+    private List<Track> createTracks() {
+        List<Track> items = new ArrayList<Track>();
+
+        User u1 = new User();
+        u1.permalink = "u1";
+        u1.id = 100L;
+
+        Track t = new Track();
+        t.id = 200L;
+        t.user = u1;
+
+        User u2 = new User();
+        u2.permalink = "u2";
+        u2.id = 300L;
+
+
+        Track t2 = new Track();
+        t2.id = 400;
+        t2.user = u2;
+
+        items.add(t);
+        items.add(t2);
         return items;
     }
 

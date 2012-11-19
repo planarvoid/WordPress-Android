@@ -7,6 +7,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.*;
 import android.database.Cursor;
@@ -26,7 +27,7 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
     public abstract boolean isStale();
 
     @JsonView(Views.Mini.class) public String title;
-    @JsonView(Views.Mini.class) public User user;
+    @JsonView(Views.Mini.class) @Nullable public User user;
     @JsonView(Views.Mini.class) public String uri;
     @JsonView(Views.Mini.class) public long user_id;
     @JsonView(Views.Mini.class) public String artwork_url;
@@ -37,7 +38,7 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
     @JsonView(Views.Full.class) public boolean user_repost;
 
     @JsonView(Views.Full.class) public int duration = NOT_SET;
-    @JsonView(Views.Full.class) public Date created_at;
+    @JsonView(Views.Full.class) @Nullable public Date created_at;
 
     @JsonView(Views.Full.class) public boolean streamable;
     @JsonView(Views.Full.class) public boolean downloadable;
@@ -151,7 +152,7 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
         b.putBoolean("user_like", user_like);
         b.putBoolean("user_repost", user_repost);
         b.putInt("duration", duration);
-        b.putLong("created_at", created_at.getTime());
+        b.putLong("created_at",  created_at != null ? created_at.getTime() : -1l);
         b.putBoolean("streamable", streamable);
         b.putBoolean("downloadable", downloadable);
         b.putString("license", license);
@@ -189,7 +190,7 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
         user_like = b.getBoolean("user_like");
         user_repost = b.getBoolean("user_repost");
         duration = b.getInt("duration");
-        created_at = new Date(b.getLong("created_at"));
+        created_at = b.getLong("created_at") == -1l ? null : new Date(b.getLong("created_at"));
         streamable = b.getBoolean("streamable");
         downloadable = b.getBoolean("downloadable");
         license = b.getString("license");
@@ -234,6 +235,7 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
         if (downloadable) cv.put(DBHelper.Sounds.DOWNLOADABLE, downloadable);
         if (streamable) cv.put(DBHelper.Sounds.STREAMABLE, streamable);
         if (sharing != null) cv.put(DBHelper.Sounds.SHARING, sharing.value);
+        if (likes_count != -1) cv.put(DBHelper.Sounds.LIKES_COUNT, likes_count);
         if (reposts_count != -1) cv.put(DBHelper.Sounds.REPOSTS_COUNT, reposts_count);
         return cv;
     }
@@ -252,6 +254,7 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
             streamable = updatedItem.streamable;
             artwork_url = updatedItem.artwork_url;
             user = updatedItem.user;
+            likes_count = updatedItem.likes_count;
             reposts_count = updatedItem.reposts_count;
             user_like = updatedItem.user_like;
             created_at = updatedItem.created_at;

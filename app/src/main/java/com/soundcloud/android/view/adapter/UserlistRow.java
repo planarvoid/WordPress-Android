@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Event;
@@ -94,9 +95,9 @@ public class UserlistRow extends LazyRow {
 
     @Override
     public void display(int position, Parcelable p) {
-        if (!(p instanceof User)) throw new IllegalArgumentException("Not a valid user");
+        if (!(p instanceof User || p instanceof Friend)) throw new IllegalArgumentException("Not a valid user");
 
-        mUser = (User) p;
+        mUser = p instanceof Friend ? ((Friend) p).user : (User) p;
 
         super.display(position);
         if (mUser != null) {

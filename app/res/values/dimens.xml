@@ -61,8 +61,9 @@
     <dimen name="share_progress_icon_width">67px</dimen>
     <dimen name="share_progress_icon_height">67px</dimen>
 
-    <dimen name="tour_top_bar_height">60dp</dimen>
-    <dimen name="tour_bottom_bar_height">60dp</dimen>
+    <dimen name="tour_bottom_bar_height">80dp</dimen>
+    <dimen name="tour_bottom_radio_height">12dp</dimen>
+    <dimen name="tour_bottom_buttons_height">68dp</dimen>
 
     <dimen name="rec_header_you_button_height">40dp</dimen>
     <dimen name="rec_header_you_button_width">40dp</dimen>
@@ -78,7 +79,7 @@
 
     <dimen name="rec_toggle_fade_margin_top">15dp</dimen>
 
-    <dimen name="slm_item_padding_topbottom">10dp</dimen>
+    <dimen name="slm_item_padding_topbottom">15dp</dimen>
     <dimen name="slm_item_padding_left">14dp</dimen>
     <dimen name="slm_item_padding_right">16dp</dimen>
 

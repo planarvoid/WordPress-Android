@@ -44,11 +44,15 @@ public abstract class TouchLayout extends RelativeLayout  implements View.OnTouc
 
     }
 
+
     public boolean onTouch(View v, MotionEvent event) {
         try {
             // Fix scrolling inside workspace view
             if ((event.getAction() == MotionEvent.ACTION_MOVE || event.getAction() == MotionEvent.ACTION_DOWN) && getParent() != null) {
                 getParent().requestDisallowInterceptTouchEvent(true);
+            }
+            if ((event.getAction() == MotionEvent.ACTION_UP) && getParent() != null) {
+                getParent().requestDisallowInterceptTouchEvent(false);
             }
             // history first
             int hist = event.getHistorySize();

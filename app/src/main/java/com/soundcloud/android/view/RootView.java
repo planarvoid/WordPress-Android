@@ -1,5 +1,7 @@
 package com.soundcloud.android.view;
 
+import static java.lang.Math.max;
+
 import com.soundcloud.android.R;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,13 +24,15 @@ import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Scroller;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
+/*
+    Touch Handling pulled from the Android ICS ScrollView class
+*/
 
 public class RootView extends ViewGroup {
     static String TAG = RootView.class.getSimpleName();
@@ -41,7 +45,6 @@ public class RootView extends ViewGroup {
     private static final int ANIMATION_DURATION = 300;
     private static final int ANIMATION_FRAME_DURATION = 1000 / 60;
 
-    private static final int FLING_TOLERANCE = 50;
     private static final int OFFSET_RIGHT = 60;// action bar home icon mRight
     private static final int OFFSET_LEFT = 60; // whatever we want on the left
     private static final int BEZEL_HIT_WIDTH = 30;
@@ -60,21 +63,21 @@ public class RootView extends ViewGroup {
     public static final String EXTRA_ROOT_VIEW_STATE = "fim_menu_state";
     private static final String KEY_MENU_STATE = "menuState_key";
     private static final String STATE_KEY = "state_key";
-    public static final int MENU_TARGET_WIDTH = 400;
+    public static final int MENU_TARGET_WIDTH = 250;
+
+    private static final int INVALID_POINTER = -1;
 
     private MainMenu mMenu;
     private @Nullable View mPlayer;
     private ViewGroup mContent;
 
-    private boolean mTracking;
-    private boolean mLocked;
+    private boolean mTrackOnMove;
+    private boolean mIsBeingDragged;
     private boolean mAnimating;
 
     private VelocityTracker mVelocityTracker;
 
-    private OnMenuOpenListener mOnMenuOpenListener;
-    private OnMenuCloseListener mOnMenuCloseListener;
-    private OnMenuScrollListener mOnMenuScrollListener;
+    private OnMenuStateListener mOnMenuStateListener;
 
     private final Handler mHandler = new SlidingHandler();
     private int mTouchDelta;
@@ -94,37 +97,31 @@ public class RootView extends ViewGroup {
     private final int mOffsetLeft;
     private final int mDrowShadoWidth;
     private final int mBezelHitWidth;
+    private int mActivePointerId;
+    private float mLastMotionX;
+    private int mTouchSlop;
 
     /**
      * Callback invoked when the menu is opened.
      */
-    public static interface OnMenuOpenListener {
+    public static interface OnMenuStateListener {
 
         /**
          * Invoked when the menu becomes fully open.
          */
         public void onMenuOpenLeft();
-        public void onMenuOpenRight();
-    }
-    /**
-     * Callback invoked when the menu is closed.
-     */
-    public static interface OnMenuCloseListener {
 
+        public void onMenuOpenRight();
         /**
          * Invoked when the menu becomes fully closed.
          */
         public void onMenuClosed();
-    }
-    /**
-     * Callback invoked when the menu is scrolled.
-     */
-    public static interface OnMenuScrollListener {
 
         /**
          * Invoked when the user starts dragging/flinging the menu's handle.
          */
         public void onScrollStarted();
+
         /**
          * Invoked when the user stops dragging/flinging the menu's handle.
          */
@@ -176,10 +173,14 @@ public class RootView extends ViewGroup {
         mShadowLeftDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[]{0x00000000,0x8F000000});
         mShadowRightDrawable = new GradientDrawable(GradientDrawable.Orientation.RIGHT_LEFT,new int[]{0x00000000,0x8F000000});
 
+        mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+
         mExpandedState = COLLAPSED_FULL_CLOSED;
+        mActivePointerId = INVALID_POINTER;
 
         setBackgroundColor(getResources().getColor(R.color.main_menu_bg));
-        //setAlwaysDrawnWithCacheEnabled(false);
+        setAlwaysDrawnWithCacheEnabled(false);
+
     }
 
     public int getContentHolderId() {
@@ -201,6 +202,10 @@ public class RootView extends ViewGroup {
 
         content.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         mContent.addView(content);
+    }
+
+    public void setSelectedMenuId(int i) {
+        mMenu.setSelectedMenuId(i);
     }
 
     public void configureMenu(int menuResourceId, final MainMenu.OnMenuItemClickListener listener) {
@@ -241,18 +246,20 @@ public class RootView extends ViewGroup {
     }
 
     private void setExpandedState() {
-        switch (mExpandedState){
-            case COLLAPSED_FULL_CLOSED:
-                setClosed();
-                break;
+        if (!mAnimating && !mIsBeingDragged) {
+            switch (mExpandedState) {
+                case COLLAPSED_FULL_CLOSED:
+                    setClosed();
+                    break;
 
-            case EXPANDED_LEFT:
-                openLeft();
-                break;
+                case EXPANDED_LEFT:
+                    openLeft();
+                    break;
 
-            case EXPANDED_RIGHT:
-                openRight();
-                break;
+                case EXPANDED_RIGHT:
+                    openRight();
+                    break;
+            }
         }
     }
 
@@ -293,15 +300,16 @@ public class RootView extends ViewGroup {
         }
 
         if (mMenu != null){
-            int width = widthSpecSize;
-            mMenu.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+            mMenu.measure(MeasureSpec.makeMeasureSpec(widthSpecSize, MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(heightSpecSize, MeasureSpec.EXACTLY));
         }
 
         if (mPlayer != null) {
             int width = widthSpecSize - mOffsetLeft;
-            mPlayer.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(heightSpecSize, MeasureSpec.EXACTLY));
+            if (mPlayer != null) {
+                mPlayer.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(heightSpecSize, MeasureSpec.EXACTLY));
+            }
         }
 
         mShadowLeftDrawable.setBounds(0, 0, mDrowShadoWidth, getHeight());
@@ -312,10 +320,9 @@ public class RootView extends ViewGroup {
         final float density = getResources().getDisplayMetrics().density;
         mOffsetRight = (int) max(widthSpecSize - MENU_TARGET_WIDTH * density + 0.5f,
                                  OFFSET_RIGHT * density + 0.5f);
-
-        // since we are measured we can now find a proper expanded position if necessary
-        setExpandedState();
     }
+
+
 
     public boolean isExpanded(){
         return mExpandedState != COLLAPSED_FULL_CLOSED;
@@ -325,13 +332,14 @@ public class RootView extends ViewGroup {
     protected void dispatchDraw(Canvas canvas) {
         final long drawingTime = getDrawingTime();
 
+        final int width = getWidth();
         float openRatio = mContent.getLeft() < 0 ?
-                          (float) -1 * mContent.getLeft() / (getWidth() - mOffsetLeft) :
-                          (float) mContent.getLeft() / (getWidth() - mOffsetRight) ;
+                          (float) -1 * mContent.getLeft() / (width - mOffsetLeft) :
+                          (float) mContent.getLeft() / (width - mOffsetRight) ;
 
         float closedRatio = 1 - openRatio;
 
-        if (mTracking || mAnimating || isExpanded()) {
+        if (mIsBeingDragged || mAnimating || isExpanded()) {
 
 
             final int alpha = (int) (MAXIMUM_OVERLAY_ALPHA * (closedRatio));
@@ -341,7 +349,7 @@ public class RootView extends ViewGroup {
 
                 // menu
                 final int left = mMenu.getLeft();
-                final int offset = Math.min(-left, (int) (-closedRatio * mMenu.getWidth() * PARALLAX_SPEED_RATIO) - left);
+                final int offset = Math.min(-left, (int) (-closedRatio * (width - mOffsetRight) * PARALLAX_SPEED_RATIO) - left);
                 mMenu.offsetLeftAndRight(offset);
 
                 final Bitmap menuCache = mMenu.getDrawingCache();
@@ -367,7 +375,7 @@ public class RootView extends ViewGroup {
             } else if (mContent.getLeft() < 0 && mPlayer != null) {
 
                 // player
-                final int offset = mOffsetLeft + (int) (closedRatio * mPlayer.getWidth() * PARALLAX_SPEED_RATIO) - mPlayer.getLeft();
+                final int offset = mOffsetLeft + (int) (closedRatio * (width - mOffsetLeft) * PARALLAX_SPEED_RATIO) - mPlayer.getLeft();
                 mPlayer.offsetLeftAndRight(offset);
 
                 final Bitmap playerCache = mPlayer.getDrawingCache();
@@ -380,7 +388,7 @@ public class RootView extends ViewGroup {
                 }
 
                 // playerOverlay
-                if (alpha > 0) canvas.drawRect(mPlayer.getLeft(), 0, getWidth() , getHeight(), mOverlayPaint);
+                if (alpha > 0) canvas.drawRect(mPlayer.getLeft(), 0, width, getHeight(), mOverlayPaint);
 
                 // gradient
                 canvas.save();
@@ -406,8 +414,12 @@ public class RootView extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        if (mTracking) {
+        if (mIsBeingDragged) {
             return;
+        }
+
+        if (changed){
+            setExpandedState();
         }
 
         final int width = getWidth();
@@ -417,35 +429,6 @@ public class RootView extends ViewGroup {
         if (mPlayer != null) mPlayer.layout(0, 0, width - mOffsetLeft, height);
     }
 
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent event) {
-        if (mLocked) {
-            return false;
-        }
-
-        final int action = event.getAction();
-        float x = event.getX();
-        if (action == MotionEvent.ACTION_DOWN && checkShouldTrack((int) event.getX())) {
-            mTracking = true;
-
-            // Must be called before prepareTracking()
-            prepareContent();
-
-            // Must be called after prepareContent()
-            if (mOnMenuScrollListener != null) {
-                mOnMenuScrollListener.onScrollStarted();
-            }
-
-            final int left = mContent.getLeft();
-            mTouchDelta = (int) x - left;
-            prepareTracking(left);
-            mVelocityTracker.addMovement(event);
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     private boolean checkShouldTrack(int x){
         if (x >= mContent.getLeft() && x <= mContent.getRight()) {
@@ -463,48 +446,210 @@ public class RootView extends ViewGroup {
         return false;
     }
 
+    /*
+        touch handling from ICS ScrollView class
+    */
+
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (mLocked) {
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        /*
+        * This method JUST determines whether we want to intercept the motion.
+        * If we return true, onMotionEvent will be called and we do the actual
+        * scrolling there.
+        */
+
+        /*
+        * Shortcut the most recurring case: the user is in the dragging
+        * state and he is moving his finger.  We want to intercept this
+        * motion.
+        */
+        final int action = ev.getAction();
+        if ((action == MotionEvent.ACTION_MOVE) && (mIsBeingDragged)) {
             return true;
         }
 
-        if (mTracking) {
-            mVelocityTracker.addMovement(event);
-            final int action = event.getAction();
-            switch (action) {
-                case MotionEvent.ACTION_MOVE:
-                    moveContent((int) (event.getX()) - mTouchDelta);
+        switch (action & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_MOVE: {
+                /*
+                * mIsBeingDragged == false, otherwise the shortcut would have caught it. Check
+                * whether the user has moved far enough from his original down touch.
+                */
+
+                /*
+                * Locally do absolute value. mLastMotionX is set to the x value
+                * of the down event.
+                */
+                final int activePointerId = mActivePointerId;
+                if (activePointerId == INVALID_POINTER) {
+                    // If we don't have a valid id, the touch down wasn't on content.
                     break;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL: {
-                    final VelocityTracker velocityTracker = mVelocityTracker;
-                    velocityTracker.computeCurrentVelocity(mVelocityUnits);
+                }
 
-                    float yVelocity = velocityTracker.getYVelocity();
-                    float xVelocity = velocityTracker.getXVelocity();
-                    boolean negative;
+                initVelocityTrackerIfNotExists();
+                mVelocityTracker.addMovement(ev);
 
-                    negative = xVelocity < 0;
-                    if (yVelocity < 0) {
-                        yVelocity = -yVelocity;
-                    }
-                    if (yVelocity > mMaximumMinorVelocity) {
-                        yVelocity = mMaximumMinorVelocity;
-                    }
 
-                    float velocity = (float) Math.hypot(xVelocity, yVelocity);
-                    if (negative) {
-                        velocity = -velocity;
-                    }
-                    performFling(mContent.getLeft(), velocity, -1);
+                final int pointerIndex = ev.findPointerIndex(activePointerId);
+                final float x = ev.getX(pointerIndex);
+                final int xDiff = (int) Math.abs(x - mLastMotionX);
+                if (xDiff > mTouchSlop) {
+                    return startDrag(ev, (int) x);
                 }
                 break;
             }
+
+            case MotionEvent.ACTION_DOWN: {
+                final int x = (int) ev.getX();
+                if (!checkShouldTrack(x)) {
+                    mIsBeingDragged = false;
+                    recycleVelocityTracker();
+                    break;
+                }
+
+                if (isExpanded()){
+                    return startDrag(ev, x);
+                }
+
+                /*
+                * Remember location of down touch.
+                * ACTION_DOWN always refers to pointer index 0.
+                */
+                mLastMotionX = x;
+                mActivePointerId = ev.getPointerId(0);
+
+                initOrResetVelocityTracker();
+                mVelocityTracker.addMovement(ev);
+                /*
+                * If being flinged and user touches the screen, initiate drag;
+                * otherwise don't.  mScroller.isFinished should be false when
+                * being flinged.
+                */
+                mIsBeingDragged = !mScroller.isFinished();
+                break;
+            }
+
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
+                /* Release the drag */
+                mIsBeingDragged = false;
+                mActivePointerId = INVALID_POINTER;
+                recycleVelocityTracker();
+                break;
+        }
+
+        /*
+        * The only time we want to intercept motion events is if we are in the
+        * drag mode.
+        */
+        return mIsBeingDragged;
+    }
+
+    private boolean startDrag(MotionEvent ev, int eventX) {
+
+        mIsBeingDragged = true;
+        mLastMotionX = eventX;
+
+        // Must be called before prepareTracking()
+        prepareContent();
+
+        final int left = mContent.getLeft();
+        mTouchDelta = eventX - left;
+        prepareTracking(left);
+
+        // Must be called after prepareContent()
+        if (mOnMenuStateListener != null) {
+            mOnMenuStateListener.onScrollStarted();
         }
 
         return true;
     }
+
+    private void initOrResetVelocityTracker() {
+        if (mVelocityTracker == null) {
+            mVelocityTracker = VelocityTracker.obtain();
+        } else {
+            mVelocityTracker.clear();
+        }
+    }
+
+    private void initVelocityTrackerIfNotExists() {
+        if (mVelocityTracker == null) {
+            mVelocityTracker = VelocityTracker.obtain();
+        }
+    }
+
+    private void recycleVelocityTracker() {
+        if (mVelocityTracker != null) {
+            mVelocityTracker.recycle();
+            mVelocityTracker = null;
+        }
+    }
+
+    @Override
+    public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        if (disallowIntercept) {
+            recycleVelocityTracker();
+        }
+        super.requestDisallowInterceptTouchEvent(disallowIntercept);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        final int action = event.getAction();
+
+        switch (action & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_DOWN:
+
+                final int x = (int) event.getX(0);
+
+                /*
+                 This event should only happen if there are no touch targets beneath the touch.
+                 Otherwise, the drag logic should happen above, in onInterceptTouchEvent
+                */
+                mIsBeingDragged = getChildCount() != 0 && checkShouldTrack(x);
+                if (!mIsBeingDragged) {
+                    return false;
+                }
+
+                /*
+                * If being flinged and user touches, stop the fling. isFinished
+                * will be false if being flinged.
+                */
+                if (!mScroller.isFinished()) {
+                    onScrollComplete();
+                    mScroller.abortAnimation();
+                }
+
+                // Remember where the motion event started
+                mActivePointerId = event.getPointerId(0);
+                startDrag(event, x);
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                if (mIsBeingDragged) {
+                    initVelocityTrackerIfNotExists();
+                    mVelocityTracker.addMovement(event);
+                    moveContent((int) (event.getX()) - mTouchDelta);
+                }
+                break;
+
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL: {
+                final VelocityTracker velocityTracker = mVelocityTracker;
+                velocityTracker.computeCurrentVelocity(mVelocityUnits);
+                performFling(mContent.getLeft(), velocityTracker.getXVelocity(), -1);
+
+                mActivePointerId = INVALID_POINTER;
+                mIsBeingDragged = false;
+                recycleVelocityTracker();
+            }
+            break;
+        }
+
+        return true;
+    }
+
+
 
     private void animateClose(int position) {
         prepareTracking(position);
@@ -522,7 +667,6 @@ public class RootView extends ViewGroup {
     }
 
     private void performFling(int position, float velocity, int forceState) {
-
         final int motion;
         if (mExpandedState == EXPANDED_LEFT) {
 
@@ -552,13 +696,12 @@ public class RootView extends ViewGroup {
             }
 
         } else {
-
             final boolean shouldOpenLeft = velocity > mMaximumMajorVelocity ||
-                    (position > (getWidth()) / 2 &&
+                    (position > (getWidth() - mOffsetRight) / 2 &&
                             velocity > -mMaximumMajorVelocity);
 
             final boolean shouldOpenRight = canOpenRight() && (velocity < -mMaximumMajorVelocity ||
-                                (position < -(getWidth()) / 2 &&
+                                (position < -(getWidth() - mOffsetLeft) / 2 &&
                                         velocity < mMaximumMajorVelocity));
 
             if (forceState == EXPANDED_LEFT || shouldOpenLeft){
@@ -574,6 +717,7 @@ public class RootView extends ViewGroup {
             }
         }
 
+        if (mOnMenuStateListener != null) mOnMenuStateListener.onScrollStarted();
         mScroller.startScroll(position, 0, motion, 0, ANIMATION_DURATION);
         mAnimating = true;
         mHandler.removeMessages(MSG_ANIMATE);
@@ -581,19 +725,23 @@ public class RootView extends ViewGroup {
         stopTracking();
     }
 
+
+
     private void prepareTracking(int position) {
         if (mAnimating) {
             mAnimating = false;
             mHandler.removeMessages(MSG_ANIMATE);
+            onScrollComplete();
         }
-        mTracking = true;
+        mIsBeingDragged = true;
         mVelocityTracker = VelocityTracker.obtain();
         moveContent(isExpanded() ? position : 0);
     }
 
     private void moveContent(int position) {
+        final int expandedLeftContentPos = getMeasuredWidth() - mOffsetRight;
         if (position == EXPANDED_LEFT) {
-            final int togo = (getMeasuredWidth() - mOffsetRight) - mContent.getLeft();
+            final int togo = expandedLeftContentPos - mContent.getLeft();
             mContent.offsetLeftAndRight(togo); //todo proper value
         } else if (position == EXPANDED_RIGHT) {
             final int togo = (-getMeasuredWidth() + mOffsetLeft) - mContent.getLeft();
@@ -603,6 +751,11 @@ public class RootView extends ViewGroup {
 
         } else {
             final int left = mContent.getLeft();
+
+            if (position > expandedLeftContentPos){
+                position = (int) (expandedLeftContentPos + (position - expandedLeftContentPos) * .5);
+            }
+
             int deltaX = position - left;
             if (position < 0 && !canOpenRight()) {
                 deltaX = -left;
@@ -634,11 +787,7 @@ public class RootView extends ViewGroup {
     }
 
     private void stopTracking() {
-        mTracking = false;
-
-        if (mOnMenuScrollListener != null) {
-            mOnMenuScrollListener.onScrollEnded();
-        }
+        mIsBeingDragged = false;
 
         if (mVelocityTracker != null) {
             mVelocityTracker.recycle();
@@ -701,15 +850,7 @@ public class RootView extends ViewGroup {
      */
     public void animateClose() {
         prepareContent();
-        final OnMenuScrollListener scrollListener = mOnMenuScrollListener;
-        if (scrollListener != null) {
-            scrollListener.onScrollStarted();
-        }
         animateClose(mContent.getLeft());
-
-        if (scrollListener != null) {
-            scrollListener.onScrollEnded();
-        }
     }
 
     /**
@@ -717,34 +858,17 @@ public class RootView extends ViewGroup {
      */
     public void animateMenuOpen() {
         prepareContent();
-        final OnMenuScrollListener scrollListener = mOnMenuScrollListener;
-        if (scrollListener != null) {
-            scrollListener.onScrollStarted();
-        }
         animateMenuOpen(mContent.getLeft());
-
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
-
-        if (scrollListener != null) {
-            scrollListener.onScrollEnded();
-        }
     }
+
 
     public void animatePlayerOpen() {
         if (!canOpenRight()) return;
 
         prepareContent();
-        final OnMenuScrollListener scrollListener = mOnMenuScrollListener;
-        if (scrollListener != null) {
-            scrollListener.onScrollStarted();
-        }
         animatePlayerOpen(mContent.getLeft());
-
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
-
-        if (scrollListener != null) {
-            scrollListener.onScrollEnded();
-        }
     }
 
     private void setClosed() {
@@ -755,14 +879,14 @@ public class RootView extends ViewGroup {
         mMenu.setVisibility(View.GONE);
         if (mPlayer != null) mPlayer.setVisibility(View.GONE);
 
+        onScrollComplete();
+
         if (mExpandedState == COLLAPSED_FULL_CLOSED) {
             return;
         }
 
         mExpandedState = COLLAPSED_FULL_CLOSED;
-        if (mOnMenuCloseListener != null) {
-            mOnMenuCloseListener.onMenuClosed();
-        }
+        if (mOnMenuStateListener != null) mOnMenuStateListener.onMenuClosed();
     }
 
     private void openLeft() {
@@ -772,15 +896,18 @@ public class RootView extends ViewGroup {
         if (mPlayer != null) mPlayer.setVisibility(View.GONE);
         invalidate();
 
+        onScrollComplete();
+
         if (mExpandedState == EXPANDED_LEFT) {
             return;
         }
 
         mExpandedState = EXPANDED_LEFT;
+        if (mOnMenuStateListener != null) mOnMenuStateListener.onMenuOpenLeft();
+    }
 
-        if (mOnMenuOpenListener != null) {
-            mOnMenuOpenListener.onMenuOpenLeft();
-        }
+    private void onScrollComplete() {
+        if (mOnMenuStateListener != null) mOnMenuStateListener.onScrollEnded();
     }
 
     private void openRight() {
@@ -791,45 +918,23 @@ public class RootView extends ViewGroup {
         if (mPlayer != null) mPlayer.setVisibility(View.VISIBLE);
         invalidate();
 
+        onScrollComplete();
+
         if (mExpandedState == EXPANDED_RIGHT) {
             return;
         }
 
         mExpandedState = EXPANDED_RIGHT;
-
-        if (mOnMenuOpenListener != null) {
-            mOnMenuOpenListener.onMenuOpenRight();
-        }
+        if (mOnMenuStateListener != null) mOnMenuStateListener.onMenuOpenRight();
     }
 
     /**
-     * Sets the listener that receives a notification when the menu becomes open.
+     * Sets the listener that receives a notification when the menu state changes.
      *
-     * @param onMenuOpenListener The listener to be notified when the menu is opened.
+     * @param onMenuStateListener The listener to be notified when the menu state changes.
      */
-    public void setOnMenuOpenListener(OnMenuOpenListener onMenuOpenListener) {
-        mOnMenuOpenListener = onMenuOpenListener;
-    }
-
-    /**
-     * Sets the listener that receives a notification when the menu closes and the content is full screen.
-     *
-     * @param onMenuCloseListener The listener to be notified when the menu is closed.
-     */
-    public void setOnMenuCloseListener(OnMenuCloseListener onMenuCloseListener) {
-        mOnMenuCloseListener = onMenuCloseListener;
-    }
-
-    /**
-     * Sets the listener that receives a notification when the menu starts or ends
-     * a scroll. A fling is considered as a scroll. A fling will also trigger a
-     * menu opened or menu closed event.
-     *
-     * @param onMenuScrollListener The listener to be notified when scrolling
-     *                             starts or stops.
-     */
-    public void setOnMenuScrollListener(OnMenuScrollListener onMenuScrollListener) {
-        mOnMenuScrollListener = onMenuScrollListener;
+    public void setOnMenuStateListener(OnMenuStateListener onMenuStateListener) {
+        mOnMenuStateListener = onMenuStateListener;
     }
 
     /**
@@ -853,24 +958,6 @@ public class RootView extends ViewGroup {
     }
 
     /**
-     * Unlocks the SlidingMenu so that touch events are processed.
-     *
-     * @see #lock()
-     */
-    public void unlock() {
-        mLocked = false;
-    }
-
-    /**
-     * Locks the SlidingMenu so that touch events are ignores.
-     *
-     * @see #unlock()
-     */
-    public void lock() {
-        mLocked = true;
-    }
-
-    /**
      * Indicates whether the menu is currently fully opened.
      *
      * @return True if the menu is opened, false otherwise.
@@ -885,7 +972,7 @@ public class RootView extends ViewGroup {
      * @return True if the menu is scroller or flinging, false otherwise.
      */
     public boolean isMoving() {
-        return mTracking || mAnimating;
+        return mIsBeingDragged || mAnimating;
     }
 
     private class SlidingHandler extends Handler {

@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -73,7 +74,7 @@ public class ImageLoader {
     private static final String TAG = "ImageLoader";
 
     public interface LoadBlocker {}
-    private Set<WeakReference<LoadBlocker>> mLoadBlockers = new HashSet<WeakReference<LoadBlocker>>();
+    private WeakHashMap<LoadBlocker,LoadBlocker> mLoadBlockers = new WeakHashMap<LoadBlocker, LoadBlocker>();
 
     /**
      * The default maximum number of active tasks.
@@ -123,15 +124,12 @@ public class ImageLoader {
     }
 
     public void block(LoadBlocker blocker){
-        mLoadBlockers.add(new WeakReference<LoadBlocker>(blocker));
+        mLoadBlockers.put(blocker,null);
     }
 
     public void unblock(LoadBlocker blocker){
-        for (WeakReference<LoadBlocker> blockerRef : new HashSet<WeakReference<LoadBlocker>>(mLoadBlockers)){
-            final LoadBlocker lb = blockerRef.get();
-            if (lb != null && lb.equals(blocker)){
-                mLoadBlockers.remove(blockerRef);
-            }
+        for (Iterator<LoadBlocker> it = mLoadBlockers.keySet().iterator(); it.hasNext(); ) {
+            if (it.next() == blocker) it.remove();
         }
 
         if (!isBlocked()) {

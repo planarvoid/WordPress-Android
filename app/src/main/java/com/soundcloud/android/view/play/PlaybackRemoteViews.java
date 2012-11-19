@@ -94,7 +94,7 @@ public class PlaybackRemoteViews extends RemoteViews{
         mTrack = track;
         mIsPlaying = isPlaying;
         setCurrentTrackTitle(track.title);
-        setCurrentUsername(track.user.username);
+        setCurrentUsername(track.user == null ? "" : track.user.username);
     }
 
     public boolean isAlreadyNotifying(Track track, boolean isPlaying){

@@ -22,11 +22,10 @@ import java.util.List;
         @JsonSubTypes.Type(value = Comment.class, name = "comment"),
         @JsonSubTypes.Type(value = User.class, name = "user"),
         @JsonSubTypes.Type(value = Playlist.class, name = "playlist"),
-        @JsonSubTypes.Type(value = SoundAssociation.class, name = "stream_item")})
+        @JsonSubTypes.Type(value = SoundAssociation.class, name = "stream_item"),
+        @JsonSubTypes.Type(value = Friend.class, name = "friend")})
 public abstract class ScResource extends ScModel {
 
-
-    public static final List<ScResource> EMPTY_LIST = new ArrayList<ScResource>();
     @JsonIgnore
     public long last_updated = NOT_SET;
 

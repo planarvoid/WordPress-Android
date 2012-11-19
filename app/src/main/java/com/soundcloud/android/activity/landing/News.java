@@ -7,11 +7,12 @@ import com.soundcloud.android.provider.Content;
 
 import android.os.Bundle;
 
-public class News extends ScActivity implements ScLandingPage {
+public class News extends ScActivity implements ScLandingPage{
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+        getSupportActionBar().setTitle(getString(R.string.side_menu_activity));
 
         if (state == null) {
             getSupportFragmentManager().beginTransaction()
@@ -22,10 +23,5 @@ public class News extends ScActivity implements ScLandingPage {
     @Override
     protected int getSelectedMenuId() {
         return R.id.nav_news;
-    }
-
-    @Override
-    public LandingPage getPageValue() {
-        return LandingPage.News;
     }
 }

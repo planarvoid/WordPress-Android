@@ -11,6 +11,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.track.TracksByTag;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
@@ -38,6 +39,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.FloatMath;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,10 +89,6 @@ public class Track extends Sound implements Playable {
     @JsonView(Views.Full.class)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public CreatedWith created_with;
-
-    @JsonView(Views.Full.class)
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-    public SharingNote sharing_note;
 
     @JsonView(Views.Full.class) public String attachments_uri;
 
@@ -211,7 +209,6 @@ public class Track extends Sound implements Playable {
         b.putBoolean("user_like", user_like);
         b.putBoolean("user_repost", user_repost);
         b.putParcelable("created_with", created_with);
-        b.putParcelable("sharing_note", sharing_note);
         b.putString("attachments_uri", attachments_uri);
         b.putString("download_url", download_url);
         b.putInt("downloads_remaining", downloads_remaining);
@@ -229,6 +226,23 @@ public class Track extends Sound implements Playable {
         */
 
         dest.writeBundle(b);
+    }
+
+    public static Track fromUri(Uri uri, ContentResolver resolver) {
+        try { // check the cache first
+            final Track t = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(Long.parseLong(uri.getLastPathSegment()));
+            if (t != null) return t;
+
+        } catch (NumberFormatException e) {
+            Log.e(UserBrowser.class.getSimpleName(), "Unexpected Track uri: " + uri.toString());
+        }
+
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        try {
+            return cursor != null && cursor.moveToFirst() ? SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor) : null;
+        } finally {
+            if (cursor != null) cursor.close();
+        }
     }
 
     @JsonIgnoreProperties(ignoreUnknown=true)
@@ -276,7 +290,7 @@ public class Track extends Sound implements Playable {
     }
 
     public Track(Parcel in) {
-        Bundle b = in.readBundle();
+        Bundle b = in.readBundle(getClass().getClassLoader());
         super.readFromBundle(b);
 
         state = State.fromString(b.getString("state"));
@@ -300,7 +314,6 @@ public class Track extends Sound implements Playable {
         user_like = b.getBoolean("user_like");
         user_repost = b.getBoolean("user_repost");
         created_with = b.getParcelable("created_with");
-        sharing_note = b.getParcelable("sharing_note");
         attachments_uri = b.getString("attachments_uri");
         download_url = b.getString("download_url");
         downloads_remaining = b.getInt("downloads_remaining");
@@ -313,6 +326,7 @@ public class Track extends Sound implements Playable {
     }
 
     Track(Cursor cursor) {
+
         super(cursor);
         state = State.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.STATE)));
         track_type = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.TRACK_TYPE));
@@ -327,13 +341,6 @@ public class Track extends Sound implements Playable {
         comment_count = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.COMMENT_COUNT));
         shared_to_count = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.SHARED_TO_COUNT));
         commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.COMMENTABLE)) == 1;
-
-        final int sharingNoteIdx = cursor.getColumnIndex(DBHelper.SoundView.SHARING_NOTE_TEXT);
-        if (sharingNoteIdx != -1) {
-            sharing_note = new SharingNote();
-            sharing_note.text = cursor.getString(sharingNoteIdx);
-        }
-
 
         final int localPlayCountIdx = cursor.getColumnIndex(DBHelper.SoundView.USER_PLAY_COUNT);
         if (localPlayCountIdx != -1) {
@@ -358,11 +365,7 @@ public class Track extends Sound implements Playable {
         if (download_count != -1) cv.put(DBHelper.Sounds.DOWNLOAD_COUNT, download_count);
         if (comment_count != -1) cv.put(DBHelper.Sounds.COMMENT_COUNT, comment_count);
         if (commentable) cv.put(DBHelper.Sounds.COMMENTABLE, commentable);
-        if (likes_count != -1) cv.put(Sounds.LIKES_COUNT, likes_count);
         if (shared_to_count != -1) cv.put(DBHelper.Sounds.SHARED_TO_COUNT, shared_to_count);
-        if (sharing_note != null && !sharing_note.isEmpty()) {
-            cv.put(DBHelper.Sounds.SHARING_NOTE_TEXT, sharing_note.text);
-        }
         if (isCompleteTrack()) {
             cv.put(DBHelper.Sounds.LAST_UPDATED, System.currentTimeMillis());
         }
@@ -531,6 +534,7 @@ public class Track extends Sound implements Playable {
                 "id="+id+
                 ", title='" + title + "'" +
                 ", permalink_url='" + permalink_url + "'" +
+                ", artwork_url='" + artwork_url + "'" +
                 ", duration=" + duration +
                 ", state=" + state +
                 ", user=" + user +
@@ -615,12 +619,6 @@ public class Track extends Sound implements Playable {
         }
         return t;
     }
-
-    public static Uri getClientUri(long id) {
-        return Uri.parse("soundcloud:tracks:"+id);
-    }
-
-
 
     public static enum State {
         UNDEFINED(""),

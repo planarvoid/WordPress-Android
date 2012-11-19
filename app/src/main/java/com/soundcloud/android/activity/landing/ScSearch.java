@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Tracking(page = Page.Search_main)
-public class ScSearch extends ScActivity implements ScLandingPage {
+public class ScSearch extends ScActivity {
 
     private static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
 
@@ -44,6 +44,9 @@ public class ScSearch extends ScActivity implements ScLandingPage {
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
+
+        getSupportActionBar().setTitle(getString(R.string.title_search));
+
         setContentView(R.layout.sc_search);
 
         mSpinner = (Spinner) findViewById(R.id.spinner_search_type);
@@ -105,14 +108,15 @@ public class ScSearch extends ScActivity implements ScLandingPage {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             pendingSearch = new Search(query, intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
+        } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null) {
+            // probably came through quick search box, resolve intent through normal system
+            startActivity(new Intent(Intent.ACTION_VIEW).setData(intent.getData()));
         }
     }
 
-
-
     @Override
     protected int getSelectedMenuId() {
-        return R.id.nav_search;
+        return -1;
     }
 
 
@@ -144,7 +148,7 @@ public class ScSearch extends ScActivity implements ScLandingPage {
     }
 
     boolean perform(final Search search) {
-        if (search.isEmpty()) return false;
+        if (search == null || search.isEmpty()) return false;
         // when called from Main or History
         mTxtQuery.setText(search.query);
 
@@ -209,10 +213,5 @@ public class ScSearch extends ScActivity implements ScLandingPage {
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public LandingPage getPageValue() {
-        return LandingPage.Search;
     }
 }

@@ -40,7 +40,7 @@ public class CollectionTask extends AsyncTask<CollectionParams, ReturnData, Retu
         final Class<? extends ScModel> resourceType = params.getContent().modelType;
         if (resourceType != null && Activity.class.isAssignableFrom(resourceType)) {
             return new ActivitiesLoader().load(mApi, params);
-        } else if (params.getContent().isMine()) {
+        } else if (params.getContent().isSyncable()) {
             return new MyCollectionLoader().load(mApi, params);
 
         } else if (params.request != null) {

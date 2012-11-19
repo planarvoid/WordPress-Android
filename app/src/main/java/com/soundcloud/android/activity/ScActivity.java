@@ -2,9 +2,7 @@ package com.soundcloud.android.activity;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.internal.view.menu.ActionMenuItem;
 import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.google.android.imageloader.ImageLoader;
@@ -13,16 +11,15 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.ScCreate;
-import com.soundcloud.android.activity.landing.ScLandingPage;
+import com.soundcloud.android.activity.landing.FriendFinder;
+import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.News;
-import com.soundcloud.android.activity.landing.ScSearch;
-import com.soundcloud.android.activity.landing.Stream;
+import com.soundcloud.android.activity.landing.ScLandingPage;
+import com.soundcloud.android.activity.landing.SuggestedUsers;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
-import com.soundcloud.android.adapter.SearchSuggestionsAdapter;
+import com.soundcloud.android.adapter.SuggestionsAdapter;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Search;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
@@ -41,7 +38,6 @@ import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
@@ -53,17 +49,14 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class ScActivity extends SherlockFragmentActivity implements Tracker, RootView.OnMenuOpenListener, RootView.OnMenuCloseListener {
+public abstract class ScActivity extends SherlockFragmentActivity implements Tracker,RootView.OnMenuStateListener, ImageLoader.LoadBlocker {
     protected static final int CONNECTIVITY_MSG = 0;
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
@@ -73,6 +66,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private boolean mIsForeground;
 
     private NowPlayingIndicator mNowPlaying;
+    private SuggestionsAdapter mSuggestionsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,15 +81,13 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         super.setContentView(mRootView);
 
 
-        mRootView.setOnMenuOpenListener(this);
-        mRootView.setOnMenuCloseListener(this);
-
+        mRootView.setOnMenuStateListener(this);
         mRootView.configureMenu(R.menu.main_nav, new MainMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClicked(int id) {
                 switch (id) {
                     case R.id.nav_stream:
-                        startNavActivity(Stream.class);
+                        startNavActivity(Home.class);
                         return true;
                     case R.id.nav_news:
                         startNavActivity(News.class);
@@ -106,8 +98,15 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     case R.id.nav_record:
                         startNavActivity(ScCreate.class);
                         return true;
-                    case R.id.nav_search:
-                        startNavActivity(ScSearch.class);
+                    case R.id.nav_likes:
+                        startActivity(getNavIntent(You.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                .putExtra(UserBrowser.Tab.EXTRA,UserBrowser.Tab.likes.tag));
+                        return true;
+                    case R.id.nav_friend_finder:
+                        startNavActivity(FriendFinder.class);
+                        return true;
+                    case R.id.nav_suggested_users:
+                        startNavActivity(SuggestedUsers.class);
                         return true;
                     case R.id.nav_settings:
                         startActivity(new Intent(ScActivity.this, Settings.class));
@@ -118,13 +117,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             }
         });
 
-        getSupportActionBar().setTitle(null);
+        if (!(this instanceof Home)) getSupportActionBar().setTitle(null);
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
-        if (this instanceof ScLandingPage){
-            getApp().setAccountData(User.DataKeys.LAST_LANDING_PAGE_IDX, ((ScLandingPage) this).getPageValue().key);
-        }
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if (savedInstanceState == null) {
             handleIntent(getIntent());
@@ -136,8 +131,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         nowPlayingHolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ScActivity.this, ScPlayer.class);
-                startActivity(intent);
+                goToPlayer();
             }
         });
 
@@ -195,6 +189,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         super.onDestroy();
         connectivityListener.unregisterHandler(connHandler);
         connectivityListener = null;
+
+        // suggestions adapter has to stop handler thread
+        if (mSuggestionsAdapter != null) mSuggestionsAdapter.onDestroy();
     }
 
     @Override
@@ -212,6 +209,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (getApp().getAccount() == null && !(this instanceof Home)) {
+            startActivity(new Intent(this, Home.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            finish();
+            return;
+        }
 
         mRootView.onResume();
         mIsForeground = true;
@@ -303,7 +306,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             case Consts.Dialogs.DIALOG_UNAUTHORIZED:
                 return new AlertDialog.Builder(this).setTitle(R.string.error_unauthorized_title)
                         .setMessage(R.string.error_unauthorized_message).setNegativeButton(
-                                R.string.menu_settings, new DialogInterface.OnClickListener() {
+                                R.string.side_menu_settings, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 startActivity(new Intent(ScActivity.this, Settings.class));
                             }
@@ -361,15 +364,15 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getSupportMenuInflater();
         final int menuResourceId = getMenuResourceId();
-        if (menuResourceId > -1) {
-            inflater.inflate(menuResourceId, menu);
-        }
+        if (menuResourceId < 0) return true;
+
+        getSupportMenuInflater().inflate(menuResourceId, menu);
 
         // Get the SearchView and set the searchable configuration
         if (menu.findItem(R.id.menu_search) != null){
             SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+
             SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 
             /*
@@ -382,8 +385,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             final SearchableInfo searchableInfo = searchManager.getSearchableInfo(getComponentName());
             searchView.setSearchableInfo(searchableInfo);
 
-            final SearchSuggestionsAdapter suggestionsAdapter = new SearchSuggestionsAdapter(this, null);
-            searchView.setSuggestionsAdapter(suggestionsAdapter);
+            mSuggestionsAdapter = new SuggestionsAdapter(this, null, getApp());
+            searchView.setSuggestionsAdapter(mSuggestionsAdapter);
             searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
                 @Override
                 public boolean onSuggestionSelect(int position) {
@@ -392,17 +395,24 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
                 @Override
                 public boolean onSuggestionClick(int position) {
-                    if (suggestionsAdapter.getItemViewType(position) == SearchSuggestionsAdapter.TYPE_TRACK) {
-                        startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(CloudPlaybackService.EXTRA_TRACK_ID, suggestionsAdapter.getItemId(position)));
-                    } else {
-                        startActivity(getNavIntent(UserBrowser.class).putExtra(UserBrowser.EXTRA_USER_ID, suggestionsAdapter.getItemId(position)));
-                    }
+                    final Uri itemUri = mSuggestionsAdapter.getItemUri(position);
+                    startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
                     return true;
                 }
             });
         }
 
         return true;
+    }
+
+    private void goToPlayer() {
+        if (!(this instanceof ScPlayer)){
+            if (mRootView.isExpanded()) {
+                startNavActivity(ScPlayer.class);
+            } else {
+                startActivity(new Intent(this, ScPlayer.class));
+            }
+        }
     }
 
     protected int getMenuResourceId(){
@@ -428,7 +438,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         return mCurrentUserId;
     }
 
-    private Handler connHandler = new Handler() {
+    private final Handler connHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             final ScActivity ctxt = ScActivity.this;
@@ -479,7 +489,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onMenuOpenLeft() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         invalidateOptionsMenu();
     }
 
@@ -489,7 +499,17 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onMenuClosed() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         invalidateOptionsMenu();
+    }
+
+    @Override
+    public void onScrollStarted() {
+        ImageLoader.get(this).block(this);
+    }
+
+    @Override
+    public void onScrollEnded() {
+        ImageLoader.get(this).unblock(this);
     }
 }

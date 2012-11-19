@@ -111,7 +111,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private static final int NOTIFY_META_CHANGED = 9;
 
     private static final int PLAYBACKSERVICE_STATUS_ID = 1;
-    private static final int MINIMUM_SEEKABLE_SDK = Build.VERSION_CODES.ECLAIR_MR1; // 7, 2.1
 
     private static final float FADE_CHANGE = 0.02f; // change to fade faster/slower
 
@@ -503,6 +502,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
         state = PREPARING;
         setPlayingNotification(track);
+
         try {
             if (mProxy == null) {
                 mProxy = new StreamProxy(getApp()).init().start();
@@ -517,10 +517,15 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             mMediaPlayer.setOnErrorListener(errorListener);
             mMediaPlayer.setOnBufferingUpdateListener(bufferingListener);
             mMediaPlayer.setOnInfoListener(infolistener);
-            Track next = mPlayQueueManager.getNext();
-            mMediaPlayer.setDataSource(mProxy.createUri(currentTrack.stream_url, next == null ? null : next.stream_url).toString());
-            mMediaPlayer.prepareAsync();
             notifyChange(BUFFERING);
+            Track next = mPlayQueueManager.getNext();
+
+            // if this comes from a shortcut, we may not have the stream url yet. we should get it on info load
+            if (currentTrack.isStreamable()) {
+                mMediaPlayer.setDataSource(mProxy.createUri(currentTrack.stream_url, next == null ? null : next.stream_url).toString());
+            }
+
+            mMediaPlayer.prepareAsync();
 
         } catch (IllegalStateException e) {
             Log.e(TAG, "error", e);
@@ -761,8 +766,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     /* package */
     public boolean isSeekable() {
-        return (Build.VERSION.SDK_INT >= MINIMUM_SEEKABLE_SDK
-                && mMediaPlayer != null
+        return (mMediaPlayer != null
                 && state.isSeekable()
                 && currentTrack != null);
     }

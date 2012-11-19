@@ -17,6 +17,7 @@ import com.soundcloud.android.task.collection.UpdateCollectionTask;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.quickaction.QuickAction;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -36,7 +37,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     protected Context mContext;
     protected Content mContent;
     protected Uri mContentUri;
-    protected List<T> mData;
+    @NotNull protected List<T> mData = new ArrayList<T>();
     protected int mPage = 0;
     protected Map<Long, Drawable> mIconAnimations = new HashMap<Long, Drawable>();
     protected Set<Long> mLoadingIcons = new HashSet<Long>();
@@ -48,17 +49,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         mContext = context;
         mContent = Content.match(uri);
         mContentUri = uri;
-        mData = new ArrayList<T>();
         mProgressView = View.inflate(context, R.layout.list_loading_item, null);
-    }
-
-    private List<T> getData() {
-        return mData;
-    }
-
-    private void setData(List<T> data) {
-        mData = data;
-        notifyDataSetChanged();
     }
 
     public int getItemCount() {
@@ -77,8 +68,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     @Override
     public int getCount() {
-        int count = mData == null ? 0 : mData.size();
-        return mIsLoadingData ? count + 1 : count;
+        return mIsLoadingData ? mData.size() + 1 : mData.size();
     }
 
     @Override
@@ -94,13 +84,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     public void setIsLoadingData(boolean isLoadingData) {
         mIsLoadingData = isLoadingData;
-    }
-
-    public void setIsLoadingData(boolean isLoadingData, boolean redrawList) {
-        mIsLoadingData = isLoadingData;
-        if (redrawList) {
-            notifyDataSetChanged();
-        }
+        notifyDataSetChanged();
     }
 
     @Override
@@ -208,10 +192,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         mData.addAll(newItems.collection);
     }
 
-    private void addItem(T newItem) {
-        getData().add(newItem);
-    }
-
     public CollectionParams getParams(boolean refresh) {
         CollectionParams params = new CollectionParams();
         params.loadModel = mContent.modelType;
@@ -232,7 +212,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
             addItems(data.newItems);
             checkForStaleItems();
         }
-        setIsLoadingData(false, true);
+        setIsLoadingData(false);
     }
 
     protected void onSuccessfulRefresh() {

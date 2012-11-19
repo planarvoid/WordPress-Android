@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.json.Views;
 
 import android.os.Parcel;
@@ -20,7 +21,8 @@ public class SharingNote implements Parcelable {
 
     public SharingNote(Parcel in) {
         text = in.readString();
-        created_at = new Date(in.readLong());
+        final long createdAtTime = in.readLong();
+        if (createdAtTime != -1l) created_at = new Date(createdAtTime);
     }
 
 
@@ -37,7 +39,6 @@ public class SharingNote implements Parcelable {
 
         return !(created_at != null ? !created_at.equals(that.created_at) : that.created_at != null)
                 && !(text != null ? !text.equals(that.text) : that.text != null);
-
     }
 
     @Override
@@ -55,6 +56,11 @@ public class SharingNote implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(text);
-        dest.writeLong(created_at.getTime());
+        dest.writeLong(created_at == null ? -1l : created_at.getTime());
+    }
+
+    public String getDateString() {
+        return created_at == null ? null :
+                AndroidCloudAPI.CloudDateFormat.formatDate(created_at.getTime());
     }
 }

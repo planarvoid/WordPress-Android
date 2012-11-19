@@ -12,6 +12,7 @@ import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -44,10 +45,10 @@ public class PlayerTrackPager extends ViewPager {
    		mTrackPageListener = listener;
    	}
 
-    public void configureFromService(ScPlayer player) {
+    public void configureFromService(ScPlayer player, int playPosition) {
         PlayQueueManager playQueueManager = CloudPlaybackService.getPlayQueueManager();
         final long queueLength = playQueueManager == null ? 1 : playQueueManager.length();
-        final int playPosition = playQueueManager == null ? 0 : playQueueManager.getPosition();
+        if (playPosition == -1) playPosition = playQueueManager == null ? 0 : playQueueManager.getPosition();
 
         mPlayerTrackViews.clear();
 

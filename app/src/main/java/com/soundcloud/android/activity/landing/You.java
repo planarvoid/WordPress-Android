@@ -5,6 +5,7 @@ import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.User;
 import com.viewpagerindicator.TitlePageIndicator;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 
@@ -21,7 +22,9 @@ public class You extends UserBrowser implements ScLandingPage {
 
             @Override
             public void onPageSelected(int i) {
-                getApp().setAccountData(User.DataKeys.PROFILE_IDX, i);
+                mRootView.setSelectedMenuId(
+                        Tab.values()[i] == Tab.likes ? R.id.nav_likes :
+                        R.id.nav_you);
             }
 
             @Override
@@ -31,12 +34,19 @@ public class You extends UserBrowser implements ScLandingPage {
     }
 
     @Override
-    protected boolean isYou() {
-        return true;
+    protected int getSelectedMenuId() {
+        final Intent intent = getIntent();
+        if (intent.hasExtra(Tab.EXTRA)){
+            final Tab tab = Tab.values()[Tab.indexOf(intent.getStringExtra(Tab.EXTRA))];
+            if (tab == Tab.likes) {
+                return R.id.nav_likes;
+            }
+        }
+        return R.id.nav_you;
     }
 
     @Override
-    public LandingPage getPageValue() {
-        return LandingPage.You;
+    protected boolean isYou() {
+        return true;
     }
 }
