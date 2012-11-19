@@ -19,8 +19,7 @@
     <!-- should probably re-enable later once more important things are fixed -->
     <issue id="ContentDescription" severity="ignore"/>
 
-    <!-- re-enable later -->
-    <issue id="NewApi" severity="warning"/>
+    <issue id="NewApi" severity="error"/>
 
     <!-- can't resolve mvn dependencies -->
     <issue id="MissingRegistered" severity="ignore"/>
