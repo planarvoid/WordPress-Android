@@ -100,6 +100,7 @@ public class PlayerTrackView extends LinearLayout implements
         mPlayer = player;
 
         mTrackInfoBar = (TrackInfoBar) findViewById(R.id.track_info_bar);
+        mTrackInfoBar.setDuplicateParentStateEnabled(false);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
 
         mTrackInfoBar.addTextShadows();
