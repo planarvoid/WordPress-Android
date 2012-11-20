@@ -46,7 +46,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -491,7 +490,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     @Override
-    public void onDimClick() {
+    public void onBlockerClick() {
+        closeSearch();
+    }
+
+    private void closeSearch(){
+        mRootView.unBlock();
         if (mSearchItem != null && mSearchItem.isActionViewExpanded()) mSearchItem.collapseActionView();
     }
 
@@ -509,10 +513,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
                     if (hasFocus) {
-                        mRootView.dim();
+                        mRootView.block();
                     } else {
-                        mRootView.undim();
-                        if (mSearchItem.isActionViewExpanded()) mSearchItem.collapseActionView();
+                        closeSearch();
                     }
                 }
             });

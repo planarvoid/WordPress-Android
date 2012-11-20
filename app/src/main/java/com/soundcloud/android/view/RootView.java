@@ -3,7 +3,6 @@ package com.soundcloud.android.view;
 import static java.lang.Math.max;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.AnimUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.annotation.TargetApi;
@@ -31,7 +30,6 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.FrameLayout;
 import android.widget.Scroller;
 
 /*
@@ -56,27 +54,27 @@ public class RootView extends ViewGroup {
     private static final float DROP_SHADOW_WIDTH = 10.0f;
 
     private static int mExpandedState;
-    private static boolean mIsDim;
     private static final int EXPANDED_LEFT = 100000;
     private static final int COLLAPSED_FULL_CLOSED = 100001;
-
     private static final int EXPANDED_RIGHT = 100002;
 
     private static final int MAXIMUM_OVERLAY_ALPHA = 180;
 
     private static final float PARALLAX_SPEED_RATIO = 0.5f;
+
     public static final String EXTRA_ROOT_VIEW_STATE = "fim_menu_state";
     private static final String KEY_MENU_STATE = "menuState_key";
     private static final String STATE_KEY = "state_key";
-    private static final String DIM_KEY = "dim_key";
-
+    private static final String BLOCK_KEY = "dim_key";
     public static final int MENU_TARGET_WIDTH = 250;
 
     private static final int INVALID_POINTER = -1;
+
+    private boolean mIsBlocked;
     private MainMenu mMenu;
     private @Nullable View mPlayer;
     private ViewGroup mContent;
-    private View mDimmer;
+    private View mBlocker;
 
     private boolean mTrackOnMove;
     private boolean mIsBeingDragged;
@@ -135,9 +133,9 @@ public class RootView extends ViewGroup {
         public void onScrollEnded();
 
         /**
-         * Invoked when the user clicks the dimmed view
+         * Invoked when the user clicks the blocked view
          */
-        public void onDimClick();
+        public void onBlockerClick();
 
     }
     /**
@@ -156,15 +154,15 @@ public class RootView extends ViewGroup {
 
         setId(101010101);
 
-        mDimmer = findViewById(R.id.dimmer);
-        mDimmer.setVisibility(View.GONE);
-        mDimmer.setOnClickListener(new OnClickListener() {
+        mBlocker = findViewById(R.id.blocker);
+        mBlocker.setVisibility(View.GONE);
+        mBlocker.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mOnMenuStateListener != null) mOnMenuStateListener.onDimClick();
+                if (mOnMenuStateListener != null) mOnMenuStateListener.onBlockerClick();
             }
         });
-        mIsDim = false;
+        mIsBlocked = false;
 
         setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
@@ -205,28 +203,28 @@ public class RootView extends ViewGroup {
 
     }
 
-    public void dim(){
-        if (!mIsDim){
-            mIsDim = true;
-            mDimmer.setVisibility(View.VISIBLE);
-            mDimmer.clearAnimation();
-            mDimmer.setEnabled(true);
+    public void block(){
+        if (!mIsBlocked){
+            mIsBlocked = true;
+            mBlocker.setVisibility(View.VISIBLE);
+            mBlocker.clearAnimation();
+            mBlocker.setEnabled(true);
             Animation animation = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_in);
             animation.setDuration(200);
             animation.setStartOffset(300);
-            mDimmer.startAnimation(animation);
+            mBlocker.startAnimation(animation);
         }
     }
 
-    public void undim(){
-        if (mIsDim) {
-            mIsDim = false;
-            mDimmer.clearAnimation();
-            mDimmer.setEnabled(false);
+    public void unBlock(){
+        if (mIsBlocked) {
+            mIsBlocked = false;
+            mBlocker.clearAnimation();
+            mBlocker.setEnabled(false);
             Animation animation = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_out);
             animation.setDuration(200);
-            mDimmer.startAnimation(animation);
-            mDimmer.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+            mBlocker.startAnimation(animation);
+            mBlocker.getAnimation().setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
                 }
@@ -237,8 +235,8 @@ public class RootView extends ViewGroup {
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    if (mDimmer.getAnimation() == animation) {
-                        mDimmer.setVisibility(View.GONE);
+                    if (mBlocker.getAnimation() == animation) {
+                        mBlocker.setVisibility(View.GONE);
                     }
                 }
             });
@@ -282,13 +280,13 @@ public class RootView extends ViewGroup {
         mMenu.saveHierarchyState(container);
         bundle.putSparseParcelableArray(RootView.KEY_MENU_STATE, container);
         bundle.putInt(RootView.STATE_KEY,mExpandedState);
-        bundle.putBoolean(RootView.DIM_KEY, mIsDim);
+        bundle.putBoolean(RootView.BLOCK_KEY, mIsBlocked);
 
         return bundle;
     }
 
     public void restoreStateFromExtra(Bundle state) {
-        Log.i("asdf","RESTORE STATE FROM EXTRA " + state.getBoolean(RootView.DIM_KEY));
+        Log.i("asdf", "RESTORE STATE FROM EXTRA " + state.getBoolean(RootView.BLOCK_KEY));
         mMenu.restoreHierarchyState(state.getSparseParcelableArray(KEY_MENU_STATE));
         mExpandedState = state.getInt(STATE_KEY);
 
@@ -301,9 +299,9 @@ public class RootView extends ViewGroup {
             }, 100); // post on delay to avoid animation jank at start of activity
         }
 
-        mIsDim = state.getBoolean(RootView.DIM_KEY);
-        mDimmer.setVisibility(mIsDim ? View.VISIBLE : View.GONE);
-        mDimmer.setEnabled(mIsDim ? true : false);
+        mIsBlocked = state.getBoolean(RootView.BLOCK_KEY);
+        mBlocker.setVisibility(mIsBlocked ? View.VISIBLE : View.GONE);
+        mBlocker.setEnabled(mIsBlocked ? true : false);
     }
 
 
@@ -341,7 +339,7 @@ public class RootView extends ViewGroup {
     protected Parcelable onSaveInstanceState() {
         SavedState ss = new SavedState(super.onSaveInstanceState());
         ss.expanded = mExpandedState;
-        ss.dimmed = mIsDim;
+        ss.blocked = mIsBlocked;
         return ss;
     }
 
@@ -352,9 +350,9 @@ public class RootView extends ViewGroup {
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
         mExpandedState = ss.expanded;
-        mIsDim = ss.dimmed;
-        mDimmer.setVisibility(mIsDim ? View.VISIBLE : View.GONE);
-        mDimmer.setEnabled(mIsDim ? true : false);
+        mIsBlocked = ss.blocked;
+        mBlocker.setVisibility(mIsBlocked ? View.VISIBLE : View.GONE);
+        mBlocker.setEnabled(mIsBlocked ? true : false);
     }
 
     @Override
@@ -485,7 +483,7 @@ public class RootView extends ViewGroup {
             drawChild(canvas, mContent, drawingTime);
         }
 
-        if (mDimmer.getVisibility() == View.VISIBLE) drawChild(canvas,mDimmer,drawingTime);
+        if (mBlocker.getVisibility() == View.VISIBLE) drawChild(canvas, mBlocker,drawingTime);
 
     }
 
@@ -504,7 +502,7 @@ public class RootView extends ViewGroup {
         mMenu.layout(0, 0, width, height);
         mContent.layout(mContent.getLeft(), 0, mContent.getLeft() + width, height);
         if (mPlayer != null) mPlayer.layout(0, 0, width - mOffsetLeft, height);
-        mDimmer.layout(0, 0, width, height);
+        mBlocker.layout(0, 0, width, height);
     }
 
 
@@ -578,7 +576,7 @@ public class RootView extends ViewGroup {
 
             case MotionEvent.ACTION_DOWN: {
                 final int x = (int) ev.getX();
-                if (!checkShouldTrack(x) || mIsDim) {
+                if (!checkShouldTrack(x) || mIsBlocked) {
                     mIsBeingDragged = false;
                     recycleVelocityTracker();
                     break;
@@ -1065,7 +1063,7 @@ public class RootView extends ViewGroup {
 
     static class SavedState extends BaseSavedState {
         int expanded;
-        boolean dimmed;
+        boolean blocked;
 
         SavedState(Parcelable superState) {
             super(superState);
@@ -1074,14 +1072,14 @@ public class RootView extends ViewGroup {
         private SavedState(Parcel in) {
             super(in);
             this.expanded = in.readInt();
-            this.dimmed = in.readInt() == 1;
+            this.blocked = in.readInt() == 1;
         }
 
         @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
-            out.writeInt(mExpandedState);
-            out.writeInt(mIsDim ? 1 : 0);
+            out.writeInt(expanded);
+            out.writeInt(blocked ? 1 : 0);
         }
 
         //required field that makes Parcelables from a Parcel
