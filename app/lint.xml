@@ -19,7 +19,9 @@
     <!-- should probably re-enable later once more important things are fixed -->
     <issue id="ContentDescription" severity="ignore"/>
 
-    <issue id="NewApi" severity="error"/>
+
+    <!-- re-enable before release   -->
+    <issue id="NewApi" severity="warning"/>
 
     <issue id="NewApi">
         <!-- make sure these still work on 2.2 -->
