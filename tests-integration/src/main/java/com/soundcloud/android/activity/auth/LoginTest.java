@@ -91,7 +91,6 @@ public class LoginTest extends ActivityTestCase<News> {
 
         solo.assertDialogClosed();
         solo.assertText(R.string.authentication_recover_password_failure_reason, "Unknown Email Address");
-        solo.assertActivity(Start.class);
     }
 
     public void testRecoverPasswordNoInput() throws Exception {
