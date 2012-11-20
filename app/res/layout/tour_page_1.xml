@@ -13,11 +13,13 @@
                   android:layout_height="wrap_content"
                   android:orientation="vertical"
                   android:padding="10dp"
-                  android:tag="parallax">
+                  android:tag="parallax"
+                  android:layout_marginBottom="@dimen/tour_bottom_bar_height"
+                  android:layout_alignParentBottom="true">
         <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.Headline"
-                                                         android:text="Fire 20 people."/>
+                                                         android:text="@string/tour_title_1"/>
         <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.CallToAction"
-                                                         android:text="Then have a cup of tea and an orange" />
+                                                         android:text="@string/tour_text_1" />
 
     </LinearLayout>
 </RelativeLayout>

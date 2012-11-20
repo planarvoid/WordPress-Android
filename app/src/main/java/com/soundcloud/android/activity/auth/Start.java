@@ -49,7 +49,8 @@ public class Start extends AccountAuthenticatorActivity {
         mViewPager = (ViewPager) findViewById(R.id.tour_view);
         mViews = new View[]{
             new TourLayout(this, R.layout.tour_page_1),
-            new TourLayout(this, R.layout.tour_page_2)
+            new TourLayout(this, R.layout.tour_page_2),
+            new TourLayout(this, R.layout.tour_page_3)
         };
 
         mBackgroundIds = new int[]{
