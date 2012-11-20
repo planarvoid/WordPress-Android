@@ -65,7 +65,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
     static final private UriMatcher sMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     private SuggestionsHandler mSuggestionsHandler;
     private HandlerThread mSuggestionsHandlerThread;
-    public CharSequence mCurrentConstraint;
+    public String mCurrentConstraint;
 
     private Cursor mLocalSuggestions;
     private SearchSuggestions mRemoteSuggestions;
@@ -124,9 +124,9 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
 
     @Override
     public Cursor runQueryOnBackgroundThread(final CharSequence constraint) {
-        mCurrentConstraint = constraint;
+        mCurrentConstraint = constraint.toString();
         if (!TextUtils.isEmpty(constraint)) {
-            mLocalSuggestions = fetchLocalSuggestions(constraint, MAX_LOCAL);
+            mLocalSuggestions = fetchLocalSuggestions(mCurrentConstraint, MAX_LOCAL);
 
             mSuggestionsHandler.removeMessages(0);
             Message.obtain(mSuggestionsHandler,0,constraint).sendToTarget();
@@ -155,7 +155,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
             final CharSequence constraint = (CharSequence) msg.obj;
 
             try {
-                HttpResponse resp = mApi.get(Request.to("/search/suggest").with("q", constraint, "limit", MAX_REMOTE));
+                HttpResponse resp = mApi.get(Request.to("/search/suggest").with("q", constraint, "highlight", "false", "limit", MAX_REMOTE));
 
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(),
@@ -220,7 +220,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
             for (SearchSuggestions.Query q : mRemoteSuggestions) {
                 remote.addRow(new Object[]{
                         q.id,
-                        q.query,
+                        highlight(q.query,mCurrentConstraint),
                         q.getUriPath(),
                         q.getIconUri()
                 });
@@ -254,7 +254,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
     }
 
 
-    private Cursor fetchLocalSuggestions(CharSequence constraint, int max) {
+    private Cursor fetchLocalSuggestions(String constraint, int max) {
         final MatrixCursor local = new MatrixCursor(new String[]{
                 BaseColumns._ID,
                 SearchManager.SUGGEST_COLUMN_TEXT_1,
@@ -272,7 +272,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
         while (cursor.moveToNext()) {
             local.addRow(new Object[] {
                 cursor.getInt(cursor.getColumnIndex(BaseColumns._ID)),
-                cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)),
+                highlight(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)),constraint),
                 cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA)),
                 cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))
             });
@@ -298,34 +298,32 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
             tag = (SearchTag) view.getTag();
         }
 
-        setIcon(tag, GraphicSize.formatUriForList(mContext,
-                cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))));
-
         final String data = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.INTENT_DATA));
-        tag.tv_main.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1))));
-
         Uri uri = Uri.parse(data);
-        if (sMatcher.match(uri) == Content.TRACK.id) {
-            tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
-        } else if (sMatcher.match(uri) == Content.USER.id) {
-            tag.iv_search_type.setImageResource(R.drawable.ic_search_user);
-        }
+        boolean isUser = sMatcher.match(uri) == Content.USER.id;
+        setIcon(tag, GraphicSize.formatUriForList(mContext,
+                cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))), isUser);
 
+        tag.tv_main.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1))));
+        if (isUser) {
+            tag.iv_search_type.setImageResource(R.drawable.ic_search_user);
+        } else {
+            tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
+        }
         return view;
     }
 
-    private void setIcon(SearchTag tag, String iconUri) {
+    private void setIcon(SearchTag tag, String iconUri, boolean isUser) {
         if (ImageUtils.checkIconShouldLoad(iconUri)) {
             ImageLoader.BindResult result = mImageLoader.bind(this, tag.iv_icon,
                     GraphicSize.formatUriForSearchSuggestionsList(mContext, iconUri)
             );
-            if (result != ImageLoader.BindResult.OK) {
-                tag.iv_icon.setImageResource(R.drawable.cloud_no_logo_sm);
-            }
+            if (result == ImageLoader.BindResult.OK) return;
         } else {
             mImageLoader.unbind(tag.iv_icon);
-            tag.iv_icon.setImageResource(R.drawable.cloud_no_logo_sm);
         }
+
+        tag.iv_icon.setImageResource(isUser ? R.drawable.no_user_cover : R.drawable.no_sound_cover);
     }
 
     static class SearchTag {
@@ -334,4 +332,35 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
         ImageView iv_search_type;
         TextView tv_main;
     }
+
+
+    /**
+     * Match highlighting
+     */
+    private StringBuilder sbHighlightSource = new StringBuilder();
+    private StringBuilder sbHighlightSourceLower = new StringBuilder();
+    private CharSequence highlightTagOpen = "<font color='white'>";
+    private CharSequence highlightTagClose = "</font>";
+
+    private String highlight(String original, String constraint) {
+        sbHighlightSource.setLength(0);
+        sbHighlightSource.trimToSize();
+        sbHighlightSource.append(original);
+
+        sbHighlightSourceLower.setLength(0);
+        sbHighlightSourceLower.trimToSize();
+        sbHighlightSourceLower.append(original.toLowerCase());
+
+        final String searchString = constraint.toLowerCase();
+        final String replacement = highlightTagOpen + constraint + highlightTagClose;
+
+        int idx = 0;
+        while ((idx = sbHighlightSourceLower.indexOf(searchString, idx)) != -1) {
+            sbHighlightSource.replace(idx, idx + searchString.length(), highlightTagOpen + sbHighlightSource.substring(idx,idx + searchString.length()) + highlightTagClose);
+            sbHighlightSourceLower.replace(idx, idx + searchString.length(), replacement);
+            idx += replacement.length();
+        }
+        return sbHighlightSource.toString();
+    }
+
 }

@@ -3,7 +3,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                android:layout_width="fill_parent"
                android:layout_height="fill_parent">
-    <ImageView android:layout_width="fill_parent"
+    <ImageView android:id="@+id/tour_background_image"
+               android:layout_width="fill_parent"
                android:layout_height="fill_parent"
                android:src="@drawable/tour_image_2"
                android:scaleType="centerCrop"/>
@@ -12,6 +13,7 @@
                   android:layout_height="wrap_content"
                   android:orientation="vertical"
                   android:padding="10dp"
+                  android:tag="parallax"
                   android:layout_marginBottom="@dimen/tour_bottom_bar_height"
                   android:layout_alignParentBottom="true">
         <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.Headline"

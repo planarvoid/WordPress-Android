@@ -25,7 +25,7 @@
   <string name="authentication_error_title">¡Lo sentimos!</string>
   <string name="authentication_find_friends_on_facebook">Encuentro amigos</string>
   <string name="authentication_log_in">Iniciar sesión</string>
-    <string name="authentication_log_in_with_facebook_two_lines">&lt;small&gt;Iniciar sesión con&lt;/small&gt; &lt;br&gt;Facebook</string>
+  <string name="authentication_log_in_with_facebook_two_lines">&lt;small&gt;Iniciar sesión con&lt;/small&gt; &lt;br&gt;Facebook</string>
   <string name="authentication_log_in_with_facebook">Iniciar sesión con Facebook</string>
   <string name="authentication_log_in_with_facebook_ssl_error">Error al conectar con Facebook (SSL)</string>
   <string name="authentication_login_error_password_message">No puede iniciar sesión. ¿Seguro que introdujo bien su correo electrónico y contraseña?</string>

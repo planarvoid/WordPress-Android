@@ -120,8 +120,8 @@
         <item name="dropDownListViewStyle">@style/next_DropDownListView</item>
         <item name="android:dropDownListViewStyle">@style/next_DropDownListView</item>
 
-        <item name="searchViewSearchIcon">@drawable/search_dark</item>
-        <item name="searchViewCloseIcon">@drawable/abs__ic_clear_search_api_holo_light</item>
+        <item name="searchViewSearchIcon">@drawable/search_white</item>
+        <item name="searchViewCloseIcon">@drawable/ic_txt_delete_states</item>
 
         <item name="android:windowBackground">@android:color/transparent</item>
 
