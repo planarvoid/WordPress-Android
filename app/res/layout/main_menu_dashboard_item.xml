@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.soundcloud.android.view.adapter.MainMenuRow xmlns:android="http://schemas.android.com/apk/res/android"
+                                                 style="@style/side_menu_item">
+
+    <ImageView android:id="@+id/main_menu_item_icon"
+               style="@style/side_menu_item_icon"/>
+
+    <TextView android:id="@+id/main_menu_item_text"
+              style="@style/side_menu_item_text"
+              android:layout_width="0dp"
+              android:layout_weight="1"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center_vertical"/>
+
+    <TextView android:id="@+id/main_menu_dashboard_counter"
+              style="@style/side_menu_dashboard_counter"
+              android:text="20"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center_vertical"/>
+
+</com.soundcloud.android.view.adapter.MainMenuRow>

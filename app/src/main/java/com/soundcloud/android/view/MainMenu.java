@@ -39,10 +39,6 @@ public class MainMenu extends LinearLayout {
     private MenuAdapter mMenuAdapter;
     private OnMenuItemClickListener mClickListener;
 
-    public void onResume() {
-        setSelectedMenuItem();
-    }
-
     /**
      * Callback invoked when a menu item is clicked.
      */
@@ -124,6 +120,14 @@ public class MainMenu extends LinearLayout {
         mList.setAdapter(mMenuAdapter);
     }
 
+    public void onResume() {
+        setSelectedMenuItem();
+    }
+
+    public void setOffsetRight(int offsetRight) {
+        mMenuAdapter.setOffsetRight(offsetRight);
+    }
+
     private void setSelectedMenuItem(){
         if (mSelectedMenuId != -1){
             final int pos = mMenuAdapter.getPositionById(mSelectedMenuId);
@@ -152,6 +156,7 @@ public class MainMenu extends LinearLayout {
         private final LayoutInflater inflater;
         private final List<SimpleListMenuItem> mMenuItems;
         private final SparseIntArray mLayouts;
+        private int mOffsetRight;
         private final Context mContext;
 
         public MenuAdapter(Context context) {
@@ -164,6 +169,13 @@ public class MainMenu extends LinearLayout {
 
         void clear() {
             mMenuItems.clear();
+        }
+
+        public void setOffsetRight(int offsetRight){
+            if (offsetRight != mOffsetRight){
+                mOffsetRight = offsetRight;
+                notifyDataSetChanged();
+            }
         }
 
         void addItem(SimpleListMenuItem item) {
@@ -209,8 +221,8 @@ public class MainMenu extends LinearLayout {
                 convertView = inflater.inflate(layout_id == 0 ? R.layout.main_menu_item : layout_id, null);
 
                 holder = new ViewHolder();
-                holder.image = (ImageView) convertView.findViewById(R.id.slm_item_icon);
-                holder.text = (TextView) convertView.findViewById(R.id.slm_item_text);
+                holder.image = (ImageView) convertView.findViewById(R.id.main_menu_item_icon);
+                holder.text = (TextView) convertView.findViewById(R.id.main_menu_item_text);
 
                 convertView.setTag(holder);
 
@@ -236,6 +248,13 @@ public class MainMenu extends LinearLayout {
                 holder.image.setImageDrawable(menuItem.icon);
             }
 
+            if (mOffsetRight > 0){
+                // serious coupling action here. should find something better
+                if (convertView instanceof LinearLayout){
+                    ((LayoutParams) ((LinearLayout) convertView).getChildAt(((LinearLayout) convertView).getChildCount() - 1).getLayoutParams()).rightMargin = mOffsetRight;
+                    convertView.invalidate();
+                }
+            }
             return convertView;
         }
 
