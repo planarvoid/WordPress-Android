@@ -148,6 +148,8 @@ class ServiceResultReceiver extends ResultReceiver {
             } else if (commentsEnabled){
                 notifyable = comments;
             }
+
+            if (notifyable == null || notifyable.isEmpty()) return false;
             Message msg = new Message(app.getResources(), notifyable, favoritings, comments);
 
             if (activities.newerThan(app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM))) {

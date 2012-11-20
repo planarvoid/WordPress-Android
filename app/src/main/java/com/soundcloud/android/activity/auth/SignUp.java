@@ -1,5 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
+import android.graphics.drawable.Drawable;
+import android.widget.ImageView;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -65,6 +67,12 @@ public class SignUp extends Activity {
     protected void onResume() {
         super.onResume();
         ((SoundCloudApplication)getApplication()).track(getClass());
+
+        int backgroundId         = getIntent().getExtras().getInt(Start.TOUR_BACKGROUND_EXTRA, R.drawable.tour_image_1);
+        Drawable drawable        = getResources().getDrawable(backgroundId);
+        ImageView backgroundView = (ImageView) findViewById(R.id.tour_background_image);
+        backgroundView.setImageDrawable(drawable);
+
     }
 
     protected void build() {

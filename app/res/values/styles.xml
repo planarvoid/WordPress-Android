@@ -9,9 +9,10 @@
         <item name="android:windowExitAnimation">@anim/add_comment_exit</item>
     </style>
 
-    <style name="notification_progress_bar_label" parent="@android:style/TextAppearance.StatusBar.EventContent">
+    <style name="notification_progress_bar_label">
         <item name="android:textSize">10sp</item>
     </style>
+
     <style name="notification_progress_bar" parent="@android:style/Widget.ProgressBar.Horizontal">
         <item name="android:minHeight">3dp</item>
         <item name="android:maxHeight">3dp</item>

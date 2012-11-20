@@ -57,10 +57,10 @@
         <item name="android:paddingBottom">1sp</item>
 
         <item name="android:textColor">#FFFFFF</item>
-        <item name="android:background">#CC000000</item>
         <item name="android:textSize">16sp</item>
         <item name="android:antialias">true</item>
 
+        <item name="jagged_background">#CC000000</item>
         <item name="custom_font">fonts/Interstate-Regular.ttf</item>
     </style>
 
@@ -81,4 +81,80 @@
         <item name="android:layout_marginRight">8dp</item>
     </style>
 
+    <style name="SignUp"/> <!-- and Login, too! -->
+
+    <style name="SignUp.Background">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:scaleType">centerCrop</item>
+    </style>
+
+    <style name="SignUp.Overlay">
+        <item name="android:background">@color/tour_overlay</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+    </style>
+
+    <style name="SignUp.Info">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+
+        <item name="android:textColor">@color/white</item>
+        <item name="android:gravity">center</item>
+
+    </style>
+
+    <style name="SignUp.LoginForm">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/text_field</item>
+    </style>
+
+    <style name="SignUp.LabelRow">
+        <item name="android:layout_margin">5dp</item>
+    </style>
+
+    <style name="SignUp.SeperatorRow">
+        <item name="android:background">@color/signup_separator</item>
+        <item name="android:layout_span">2</item>
+    </style>
+
+    <style name="SignUp.SeperatorView">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">1px</item>
+        <item name="android:background">@color/signup_separator</item>
+    </style>
+
+    <style name="SignUp.Label">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:lines">1</item>
+
+        <item name="android:textColor">#000000</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="SignUp.TextEntry">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:imeOptions">actionNext</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:lines">1</item>
+
+        <item name="android:textColor">#000000</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:typeface">sans</item>
+    </style>
+
+    <style name="SignUp.EmailEntry" parent="SignUp.TextEntry">
+        <item name="android:inputType">textNoSuggestions|textEmailAddress</item>
+    </style>
+
+    <style name="SignUp.PasswordEntry" parent="SignUp.TextEntry">
+        <item name="android:inputType">textPassword</item>
+    </style>
 </resources>
