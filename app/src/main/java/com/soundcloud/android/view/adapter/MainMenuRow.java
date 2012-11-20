@@ -28,7 +28,7 @@ public class MainMenuRow extends LinearLayout implements Checkable {
         if (mChecked){
             setBackgroundResource(R.drawable.sidebar_item_background_selected);
         } else {
-            setBackgroundColor(Color.TRANSPARENT);
+            setBackgroundResource(R.drawable.sidebar_item_background);
         }
 
         int paddingTopBottom = (int) getResources().getDimension(R.dimen.slm_item_padding_topbottom);
