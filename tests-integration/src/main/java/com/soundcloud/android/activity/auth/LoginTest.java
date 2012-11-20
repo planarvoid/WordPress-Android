@@ -46,8 +46,7 @@ public class LoginTest extends ActivityTestCase<News> {
             log("Facebook SSO is available, not testing WebFlow");
             return;
         }
-
-        solo.clickOnButtonResId(R.string.authentication_log_in_with_facebook);
+        solo.clickOnView(R.id.facebook_btn);
         solo.assertDialogClosed();
         WebView webView = solo.assertActivity(FacebookWebFlow.class).getWebView();
         assertNotNull(webView);
@@ -76,12 +75,14 @@ public class LoginTest extends ActivityTestCase<News> {
     @FlakyTest
     public void testLoginAndLogout() throws Exception {
         testLogin();
+
         solo.logoutViaSettings();
         solo.assertActivity(Start.class);
     }
 
     @FlakyTest
     public void testRecoverPassword() throws Exception {
+        solo.clickOnText(R.string.authentication_log_in);
         solo.clickOnText(R.string.authentication_I_forgot_my_password);
         solo.assertActivity(Recover.class);
 
@@ -94,6 +95,7 @@ public class LoginTest extends ActivityTestCase<News> {
     }
 
     public void testRecoverPasswordNoInput() throws Exception {
+        solo.clickOnText(R.string.authentication_log_in);
         solo.clickOnText(R.string.authentication_I_forgot_my_password);
         solo.assertActivity(Recover.class);
 
