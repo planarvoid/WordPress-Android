@@ -1,15 +1,11 @@
 package com.soundcloud.android.activity.auth;
 
-import android.graphics.drawable.Drawable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.view.animation.Animation;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import com.actionbarsherlock.view.MenuItem;
-import com.google.android.imageloader.ImageLoader;
+
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -37,8 +33,7 @@ public class Start extends AccountAuthenticatorActivity {
     public static final String TOUR_BACKGROUND_EXTRA = "tour_background";
 
     private ViewPager mViewPager;
-    private View[] mViews;
-    private int[]  mBackgroundIds;
+    private TourLayout[] mTourPages;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -47,26 +42,21 @@ public class Start extends AccountAuthenticatorActivity {
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
         mViewPager = (ViewPager) findViewById(R.id.tour_view);
-        mViews = new View[]{
-            new TourLayout(this, R.layout.tour_page_1),
-            new TourLayout(this, R.layout.tour_page_2),
-            new TourLayout(this, R.layout.tour_page_3)
-        };
-
-        mBackgroundIds = new int[]{
-            R.drawable.tour_image_1,
-            R.drawable.tour_image_2,
+        mTourPages = new TourLayout[]{
+            new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1),
+            new TourLayout(this, R.layout.tour_page_2, R.drawable.tour_image_2),
+            new TourLayout(this, R.layout.tour_page_3, R.drawable.tour_image_3)
         };
 
         mViewPager.setAdapter(new PagerAdapter() {
             @Override
             public int getCount() {
-                return mViews.length;
+                return mTourPages.length;
             }
 
             @Override
             public Object instantiateItem(ViewGroup container, int position) {
-                View v = mViews[position];
+                View v = mTourPages[position];
                 v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
                 container.addView(v);
                 return v;
@@ -225,8 +215,6 @@ public class Start extends AccountAuthenticatorActivity {
     }
 
     public int getBackgroundId() {
-        int i = mViewPager.getCurrentItem();
-
-        return mBackgroundIds[i];
+        return mTourPages[mViewPager.getCurrentItem()].getBgResId();
     }
 }
