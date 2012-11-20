@@ -46,7 +46,7 @@ public class LoginTest extends ActivityTestCase<News> {
             log("Facebook SSO is available, not testing WebFlow");
             return;
         }
-        solo.clickOnView(R.id.facebook_btn);
+        solo.clickOnText("Facebook");
         solo.assertDialogClosed();
         WebView webView = solo.assertActivity(FacebookWebFlow.class).getWebView();
         assertNotNull(webView);
