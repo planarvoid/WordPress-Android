@@ -38,6 +38,7 @@ import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
@@ -49,7 +50,9 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
@@ -67,6 +70,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     private NowPlayingIndicator mNowPlaying;
     private SuggestionsAdapter mSuggestionsAdapter;
+
+    private MenuItem mSearchItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -371,35 +376,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         // Get the SearchView and set the searchable configuration
         if (menu.findItem(R.id.menu_search) != null){
-            SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
-            searchView.setIconifiedByDefault(false);
-            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-
-            /*
-            This is how you can find the search text view. It's hacky. Hopefully we don't need it
-            AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null));
-            if (search_text == null){
-                search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
-            }*/
-
-            final SearchableInfo searchableInfo = searchManager.getSearchableInfo(getComponentName());
-            searchView.setSearchableInfo(searchableInfo);
-
-            mSuggestionsAdapter = new SuggestionsAdapter(this, null, getApp());
-            searchView.setSuggestionsAdapter(mSuggestionsAdapter);
-            searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-                @Override
-                public boolean onSuggestionSelect(int position) {
-                    return false;
-                }
-
-                @Override
-                public boolean onSuggestionClick(int position) {
-                    final Uri itemUri = mSuggestionsAdapter.getItemUri(position);
-                    startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
-                    return true;
-                }
-            });
+            setupSearchView(menu);
         }
 
         return true;
@@ -512,4 +489,85 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     public void onScrollEnded() {
         ImageLoader.get(this).unblock(this);
     }
+
+    @Override
+    public void onDimClick() {
+        if (mSearchItem != null && mSearchItem.isActionViewExpanded()) mSearchItem.collapseActionView();
+    }
+
+    private void setupSearchView(Menu menu) {
+        mSearchItem = menu.findItem(R.id.menu_search);
+
+        final boolean isFullScreen = (getResources().getConfiguration().screenLayout &
+                        Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+
+        final SearchView searchView = (SearchView) mSearchItem.getActionView();
+        searchView.setIconifiedByDefault(false);
+
+        if (!isFullScreen) {
+            searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (hasFocus) {
+                        mRootView.dim();
+                    } else {
+                        mRootView.undim();
+                        if (mSearchItem.isActionViewExpanded()) mSearchItem.collapseActionView();
+                    }
+                }
+            });
+        }
+
+        /* find and configure the search autocompletetextview */
+
+        // actionbarsherlock view
+        AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
+
+        if (search_text == null){
+            // native search view
+            search_text = (AutoCompleteTextView) searchView.findViewById(searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null));
+        }
+
+        if (search_text != null){
+            if (isFullScreen) {
+                // on a large screen device, just anchor to the search bar itself
+                if (findViewById(R.id.abs__search_bar) != null) search_text.setDropDownAnchor(R.id.abs__search_bar);
+                search_text.setDropDownWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
+            } else {
+                // on a normal size device, use the whole action bar
+                final int identifier = getResources().getIdentifier("action_bar", "id", "android");
+                if (findViewById(identifier) != null) {
+                    // native action bar (>= Honeycomb)
+                    search_text.setDropDownAnchor(identifier);
+                } else if (findViewById(R.id.abs__action_bar) != null) {
+                    // abs action bar (< Honeycomb)
+                    search_text.setDropDownAnchor(R.id.abs__action_bar);
+                }
+                search_text.setDropDownWidth(ViewGroup.LayoutParams.FILL_PARENT);
+            }
+        }
+
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        final SearchableInfo searchableInfo = searchManager.getSearchableInfo(getComponentName());
+        searchView.setSearchableInfo(searchableInfo);
+
+        mSuggestionsAdapter = new SuggestionsAdapter(this, null, getApp());
+        searchView.setSuggestionsAdapter(mSuggestionsAdapter);
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                return false;
+            }
+
+            @Override
+            public boolean onSuggestionClick(int position) {
+                final Uri itemUri = mSuggestionsAdapter.getItemUri(position);
+                startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
+                return true;
+            }
+        });
+    }
+
+
 }
