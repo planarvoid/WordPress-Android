@@ -39,36 +39,35 @@ import android.widget.Scroller;
 public class RootView extends ViewGroup {
     static String TAG = RootView.class.getSimpleName();
 
-    private static final float MAXIMUM_MINOR_VELOCITY = 150.0f;
-    private static final float MAXIMUM_MAJOR_VELOCITY = 200.0f;
-    private static final float MAXIMUM_ACCELERATION = 2000.0f;
-    private static final int VELOCITY_UNITS = 1000;
-    private static final int MSG_ANIMATE = 1000;
-    private static final int ANIMATION_DURATION = 300;
-    private static final int ANIMATION_FRAME_DURATION = 1000 / 60;
+    private static final float MAXIMUM_MINOR_VELOCITY   = 150.0f;
+    private static final float MAXIMUM_MAJOR_VELOCITY   = 200.0f;
+    private static final float MAXIMUM_ACCELERATION     = 2000.0f;
+    private static final float DROP_SHADOW_WIDTH        = 10.0f;
 
-    private static final int OFFSET_RIGHT = 60;// action bar home icon mRight
-    private static final int OFFSET_LEFT = 60; // whatever we want on the left
-    private static final int BEZEL_HIT_WIDTH = 30;
-
-    private static final float DROP_SHADOW_WIDTH = 10.0f;
-
-    private static int mExpandedState;
-    private static final int EXPANDED_LEFT = 100000;
-    private static final int COLLAPSED_FULL_CLOSED = 100001;
-    private static final int EXPANDED_RIGHT = 100002;
-
-    private static final int MAXIMUM_OVERLAY_ALPHA = 180;
+    private static final int INVALID_POINTER            = -1;
+    private static final int VELOCITY_UNITS             = 1000;
+    private static final int MSG_ANIMATE                = 1000;
+    private static final int ANIMATION_DURATION         = 300;
+    private static final int ANIMATION_FRAME_DURATION   = 1000 / 60;
+    private static final int MENU_TARGET_WIDTH          = 230;
+    private static final int BEZEL_HIT_WIDTH            = 30;
+    private static final int OFFSET_RIGHT               = 60;   // action bar home icon mRight
+    private static final int OFFSET_LEFT                = 60;   // whatever we want on the left
+    private static final int MAXIMUM_OVERLAY_ALPHA      = 180;  // max alpha of the player/menu dimmers
 
     private static final float PARALLAX_SPEED_RATIO = 0.5f;
 
-    public static final String EXTRA_ROOT_VIEW_STATE = "fim_menu_state";
-    private static final String KEY_MENU_STATE = "menuState_key";
-    private static final String STATE_KEY = "state_key";
-    private static final String BLOCK_KEY = "dim_key";
-    public static final int MENU_TARGET_WIDTH = 250;
+    private static int mExpandedState;
+    private static final int EXPANDED_LEFT              = 100000;
+    private static final int COLLAPSED_FULL_CLOSED      = 100001;
+    private static final int EXPANDED_RIGHT             = 100002;
 
-    private static final int INVALID_POINTER = -1;
+
+    public static final String EXTRA_ROOT_VIEW_STATE    = "fim_menu_state";
+
+    private static final String KEY_MENU_STATE          = "menuState_key";
+    private static final String STATE_KEY               = "state_key";
+    private static final String BLOCK_KEY               = "block_key";
 
     private boolean mIsBlocked;
     private MainMenu mMenu;
@@ -76,7 +75,6 @@ public class RootView extends ViewGroup {
     private ViewGroup mContent;
     private View mBlocker;
 
-    private boolean mTrackOnMove;
     private boolean mIsBeingDragged;
     private boolean mAnimating;
 
@@ -152,6 +150,7 @@ public class RootView extends ViewGroup {
 
         View.inflate(context, R.layout.root_view, this);
 
+        // TODO. GET A REAL ID
         setId(101010101);
 
         mBlocker = findViewById(R.id.blocker);
