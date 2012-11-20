@@ -62,6 +62,13 @@
 
     <string name="started_following_you">started following you</string>
 
+    <string name="tour_title_1">Welcome to SoundCloud!</string>
+    <string name="tour_text_1">Get ready to discover, connect and share all kinds of music and audio.</string>
 
+    <string name="tour_title_2">Discover &amp; Listen</string>
+    <string name="tour_text_2">Use the search to explore and discover all kinds of music and audio. Like favorites so you can easily play them again.</string>
+
+    <string name="tour_title_3">Find and follow people</string>
+    <string name="tour_text_3">Connect with music and audio creators to hear their sounds.</string>
 
 </resources>

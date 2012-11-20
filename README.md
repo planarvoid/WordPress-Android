@@ -29,7 +29,7 @@ Clone and build it:
 ## Opening the project in Intellij IDEA
 
 First make sure there are no leftover config files in the project
-(`git clean -df` or `(find . -name -print0 '*.iml' | xargs -0 rm) && rm -rf .idea`).
+(`git clean -df` or `(find . -name '*.iml' -print0 | xargs -0 rm) && rm -rf .idea`).
 Open IntelliJ, select "New Project", then "Import project from external model", select "Maven".
 Make sure the settings look like in this screenshot: http://bit.ly/intellij-maven
 
