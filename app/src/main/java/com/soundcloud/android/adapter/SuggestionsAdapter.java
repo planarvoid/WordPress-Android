@@ -123,9 +123,9 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
     }
 
     @Override
-    public Cursor runQueryOnBackgroundThread(final CharSequence constraint) {
-        mCurrentConstraint = constraint.toString();
+    public Cursor runQueryOnBackgroundThread(@Nullable final CharSequence constraint) {
         if (!TextUtils.isEmpty(constraint)) {
+            mCurrentConstraint = constraint.toString();
             mLocalSuggestions = fetchLocalSuggestions(mCurrentConstraint, MAX_LOCAL);
 
             mSuggestionsHandler.removeMessages(0);
