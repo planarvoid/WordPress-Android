@@ -100,12 +100,12 @@ public class QuickTrackMenu extends QuickAction {
 //                        shareIntent.setType("text/plain");
 //                        shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, track.title + " by " + track.user.username + " on #SoundCloud");
 //                        shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, track.permalink_url);
-//                        mContext.startActivity(Intent.createChooser(shareIntent, "Share: " + track.title));
+//                        mContext.getIntent(Intent.createChooser(shareIntent, "Share: " + track.title));
 //                        break;
 //                    case 4:
 //                        Intent intent = new Intent(mContext, UserBrowser.class);
 //                        intent.putExtra("user", track.user);
-//                        mContext.startActivity(intent);
+//                        mContext.getIntent(intent);
 //
 //                        break;
 //                }

@@ -145,7 +145,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     public void setContentView(int id) {
         setContentView(View.inflate(this, id, new FrameLayout(this)));
-
     }
 
     @Override

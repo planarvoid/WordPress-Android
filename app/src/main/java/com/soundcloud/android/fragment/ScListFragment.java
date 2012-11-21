@@ -170,7 +170,11 @@ public class ScListFragment extends SherlockListFragment
             }
             setListAdapter(adapter);
             configureEmptyCollection();
-            if (canAppend()) append(false);
+            if (canAppend()) {
+                append(false);
+            } else {
+                mKeepGoing = false;
+            }
         }
     }
 
@@ -325,6 +329,7 @@ public class ScListFragment extends SherlockListFragment
         if (mListView != null) {
             mListView.onRefreshComplete();
         }
+        configureEmptyCollection();
     }
 
     protected boolean isSyncable() {
@@ -344,6 +349,13 @@ public class ScListFragment extends SherlockListFragment
             case ApiSyncService.STATUS_SYNC_ERROR: {
                 if (resultData != null && !resultData.getBoolean(mContentUri.toString()) && !isRefreshing()) {
                     doneRefreshing(); // nothing changed
+
+                    // first time user with no account data. this will force the empty screen that was held back earlier
+                    if (!waitingOnInitialSync() && getListAdapter().getItemCount() == 0) {
+                        mKeepGoing = true;
+                        append(false);
+                    }
+
                 } else if (mContentInvalid && !isRefreshTaskActive()) {
                     executeRefreshTask();
                 }

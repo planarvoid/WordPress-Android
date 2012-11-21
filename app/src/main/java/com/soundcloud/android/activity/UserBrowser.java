@@ -5,6 +5,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -92,10 +93,10 @@ public class UserBrowser extends ScActivity implements
 
     public enum Tab {
         //details(Page.Users_info, Page.You_info, Content.USER, Content.ME, R.string.tab_title_user_info, R.string.tab_title_my_info),
-        tracks(Page.Users_sounds, Page.You_sounds, Content.USER_TRACKS, Content.ME_TRACKS, R.string.tab_title_user_sounds, R.string.tab_title_my_sounds),
-        likes(Page.Users_likes, Page.You_likes, Content.USER_LIKES, Content.ME_LIKES, R.string.tab_title_user_likes, R.string.tab_title_my_likes),
-        followings(Page.Users_following, Page.You_following, Content.USER_FOLLOWINGS, Content.ME_FOLLOWINGS, R.string.tab_title_user_followings, R.string.tab_title_my_followings),
-        followers(Page.Users_followers, Page.You_followers, Content.USER_FOLLOWERS, Content.ME_FOLLOWERS, R.string.tab_title_user_followers, R.string.tab_title_my_followers);
+        tracks(Actions.YOUR_SOUNDS, Page.Users_sounds, Page.You_sounds, Content.USER_TRACKS, Content.ME_TRACKS, R.string.tab_title_user_sounds, R.string.tab_title_my_sounds),
+        likes(Actions.YOUR_LIKES, Page.Users_likes, Page.You_likes, Content.USER_LIKES, Content.ME_LIKES, R.string.tab_title_user_likes, R.string.tab_title_my_likes),
+        followings(Actions.YOUR_FOLLOWINGS, Page.Users_following, Page.You_following, Content.USER_FOLLOWINGS, Content.ME_FOLLOWINGS, R.string.tab_title_user_followings, R.string.tab_title_my_followings),
+        followers(Actions.YOUR_FOLLOWERS, Page.Users_followers, Page.You_followers, Content.USER_FOLLOWERS, Content.ME_FOLLOWERS, R.string.tab_title_user_followers, R.string.tab_title_my_followers);
 
         public static final String EXTRA = "userBrowserTag";
 
@@ -103,8 +104,10 @@ public class UserBrowser extends ScActivity implements
         public final Content userContent, youContent;
         public final int userTitle, youTitle;
         public final String tag;
+        public final String action;
 
-        Tab(Page userPage, Page youPage, Content userContent, Content youContent, int userTitle, int youTitle) {
+        Tab(String action, Page userPage, Page youPage, Content userContent, Content youContent, int userTitle, int youTitle) {
+            this.action = action;
             this.userPage = userPage;
             this.youPage = youPage;
             this.userContent = userContent;
@@ -121,6 +124,14 @@ public class UserBrowser extends ScActivity implements
                 }
             return -1;
         }
+
+        public static Tab fromAction(String needle){
+            for (Tab t : values()){
+                if (t.action == needle) return t;
+            }
+            return null;
+        }
+
     }
 
     @SuppressWarnings("unchecked")
@@ -187,24 +198,28 @@ public class UserBrowser extends ScActivity implements
         if (c != null) {
             fromConfiguration(c);
         } else {
-            if (intent.hasExtra(EXTRA_USER)) {
-                loadUserByObject((User) intent.getParcelableExtra(EXTRA_USER));
-            } else if (intent.hasExtra(EXTRA_USER_ID)) {
-                loadUserById(intent.getLongExtra(EXTRA_USER_ID, -1));
-            } else if (intent.getData() == null || !loadUserByUri(intent.getData())){
-                loadYou();
-            }
-
-            if (!isYou()) FollowStatus.get(this).requestUserFollowings(this);
-
-            if (intent.hasExtra(Tab.EXTRA)) {
-                mPager.setCurrentItem(Tab.indexOf(intent.getStringExtra(Tab.EXTRA)));
-                intent.removeExtra(Tab.EXTRA);
-            }
+            handleIntent(intent);
         }
 
         loadDetails();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    protected void handleIntent(Intent intent) {
+        if (intent.hasExtra(EXTRA_USER)) {
+            loadUserByObject((User) intent.getParcelableExtra(EXTRA_USER));
+        } else if (intent.hasExtra(EXTRA_USER_ID)) {
+            loadUserById(intent.getLongExtra(EXTRA_USER_ID, -1));
+        } else if (intent.getData() == null || !loadUserByUri(intent.getData())){
+            loadYou();
+        }
+
+        if (!isYou()) FollowStatus.get(this).requestUserFollowings(this);
+
+        if (intent.hasExtra(Tab.EXTRA)) {
+            mPager.setCurrentItem(Tab.indexOf(intent.getStringExtra(Tab.EXTRA)));
+            intent.removeExtra(Tab.EXTRA);
+        }
     }
 
     @Override
