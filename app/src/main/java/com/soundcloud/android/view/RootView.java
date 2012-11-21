@@ -208,6 +208,7 @@ public class RootView extends ViewGroup {
             mBlocker.setVisibility(View.VISIBLE);
             mBlocker.clearAnimation();
             mBlocker.setEnabled(true);
+            mBlocker.setClickable(true);
             Animation animation = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_in);
             animation.setDuration(200);
             animation.setStartOffset(300);
@@ -219,6 +220,7 @@ public class RootView extends ViewGroup {
         if (mIsBlocked) {
             mIsBlocked = false;
             mBlocker.clearAnimation();
+            mBlocker.setClickable(false);
             mBlocker.setEnabled(false);
             Animation animation = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_out);
             animation.setDuration(200);
@@ -234,6 +236,7 @@ public class RootView extends ViewGroup {
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
+
                     if (mBlocker.getAnimation() == animation) {
                         mBlocker.setVisibility(View.GONE);
                     }
@@ -285,7 +288,6 @@ public class RootView extends ViewGroup {
     }
 
     public void restoreStateFromExtra(Bundle state) {
-        Log.i("asdf", "RESTORE STATE FROM EXTRA " + state.getBoolean(RootView.BLOCK_KEY));
         mMenu.restoreHierarchyState(state.getSparseParcelableArray(KEY_MENU_STATE));
         mExpandedState = state.getInt(STATE_KEY);
 
