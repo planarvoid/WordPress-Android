@@ -103,7 +103,7 @@
                   android:iconifiedByDefault="false"
                   android:background="@null"
                   android:textColorHint="#666666"
-                  android:textCursorDrawable="@drawable/black_cursor"
+                  android:textColor="#FFFFFF"
                   android:dropDownHorizontalOffset="0dip"
                   android:contentDescription="@string/abs__searchview_description_query"/>
 
