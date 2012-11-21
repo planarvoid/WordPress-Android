@@ -69,7 +69,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.clickOnText(R.string.delete);
         solo.assertText(R.string.dialog_confirm_delete_recording_message);
         solo.clickOnOK();
-        assertState(IDLE_PLAYBACK);
+        assertState(IDLE_RECORD);
     }
 
     public void testRecordAndDelete() throws Exception {
