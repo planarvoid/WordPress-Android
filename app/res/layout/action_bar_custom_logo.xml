@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="wrap_content"
+             android:layout_height="fill_parent"
+             android:paddingLeft="@dimen/list_icon_margin_left">
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/custom_home"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:background="@drawable/logo_states">
+        <ImageView android:layout_height="fill_parent"
+                   android:layout_width="wrap_content"
+                   android:scaleType="centerInside"
+                   android:paddingBottom="13dp"
+                   android:paddingTop="13dp"
+                   android:paddingLeft="5dp"
+                   android:paddingRight="5dp"
+                   android:layout_centerInParent="true"
+                   android:src="@drawable/logo_white_transparent"/>
+    </RelativeLayout>
+</FrameLayout>
