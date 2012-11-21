@@ -71,4 +71,7 @@
     <string name="tour_title_3">Find and follow people</string>
     <string name="tour_text_3">Connect with music and audio creators to hear their sounds.</string>
 
+    <string name="search_for_query">Search for \'%s\'</string>
+
+
 </resources>
