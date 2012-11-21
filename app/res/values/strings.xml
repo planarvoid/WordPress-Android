@@ -71,4 +71,6 @@
     <string name="tour_title_3">Find and follow people</string>
     <string name="tour_text_3">Connect with music and audio creators to hear their sounds.</string>
 
+    <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link that\'ll allow you to change your password. Problems? Contact support.</string>
+
 </resources>
