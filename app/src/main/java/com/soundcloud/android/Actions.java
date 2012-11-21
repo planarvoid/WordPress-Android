@@ -1,7 +1,5 @@
 package com.soundcloud.android;
 
-import android.content.Intent;
-
 public final class Actions {
     // public intent API (do not change)
     public static final String WHO_TO_FOLLOW    = "com.soundcloud.android.action.WHO_TO_FOLLOW";
@@ -24,10 +22,6 @@ public final class Actions {
     public static final String EDIT         = "com.soundcloud.android.EDIT";
     public static final String ACCOUNT_PREF = "com.soundcloud.android.action.ACCOUNT_PREF";
     public static final String USER_BROWSER = "com.soundcloud.android.action.USER_BROWSER";
-
-    public static final String RECORDING_PROCESS   = "com.soundcloud.android.recording.PROCESS";
-    public static final String RECORDING_EXTRA_IN  = "com.soundcloud.android.recording.extra.in";
-    public static final String RECORDING_EXTRA_OUT = "com.soundcloud.android.recording.extra.out";
 
     public static final String UPLOAD_EXTRA_UPLOADING = "com.soundcloud.android.upload.uploading";
 
