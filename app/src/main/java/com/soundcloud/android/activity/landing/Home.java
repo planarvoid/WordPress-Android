@@ -12,6 +12,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.auth.AuthenticatorService;
 import com.soundcloud.android.task.fetch.FetchUserTask;
+import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -29,10 +30,13 @@ import java.io.IOException;
 
 public class Home extends ScActivity implements ScLandingPage {
     private FetchUserTask mFetchUserTask;
+    private ChangeLog mChangeLog;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+
+        mChangeLog = new ChangeLog(this);
 
         final SoundCloudApplication app = getApp();
         if (app.getAccount() != null) {
@@ -63,6 +67,8 @@ public class Home extends ScActivity implements ScLandingPage {
         if (getApp().getAccount() == null) {
             getApp().addAccount(this, managerCallback);
             finish();
+        } else if (mChangeLog.isFirstRun()) {
+            mChangeLog.getDialog(true).show();
         }
     }
 
