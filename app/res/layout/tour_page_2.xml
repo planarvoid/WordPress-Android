@@ -6,19 +6,18 @@
     <ImageView android:id="@+id/tour_background_image"
                android:layout_width="fill_parent"
                android:layout_height="fill_parent"
-               android:src="@drawable/tour_image_2"
                android:scaleType="centerCrop"/>
 
-    <LinearLayout android:layout_width="fill_parent"
+    <LinearLayout android:layout_width="250dp"
                   android:layout_height="wrap_content"
                   android:orientation="vertical"
                   android:padding="10dp"
                   android:tag="parallax"
-                  android:layout_marginBottom="@dimen/tour_bottom_bar_height"
-                  android:layout_alignParentBottom="true">
+                  android:layout_marginTop="40dp"
+                  android:layout_alignParentTop="true">
         <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.Headline"
-                                                       android:text="Welcome to SoundCloud!" />
+                                                         android:text="@string/tour_title_2"/>
         <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.CallToAction"
-                                                       android:text="Get ready to discover, connect and share all kinds of music and audio."/>
+                                                         android:text="@string/tour_text_2" />
     </LinearLayout>
 </RelativeLayout>

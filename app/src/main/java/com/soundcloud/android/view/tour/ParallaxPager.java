@@ -1,6 +1,8 @@
 package com.soundcloud.android.view.tour;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -32,16 +34,17 @@ public class ParallaxPager extends ViewPager {
         super(context, attrs);
     }
 
-    @Override
+    @Override @TargetApi(11)
     protected void onPageScrolled(int position, float offset, int offsetPixels) {
         super.onPageScrolled(position, offset, offsetPixels);
 
-        for (ParallaxInfo info : mParallaxViews) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            for (ParallaxInfo info : mParallaxViews) {
+                float targetX = info.page * getWidth();
+                float actualX = position  * getWidth() + offsetPixels;
 
-            float targetX = info.page * getWidth();
-            float actualX = position  * getWidth() + offsetPixels;
-
-            info.view.setTranslationX(targetX - actualX);
+                info.view.setTranslationX(targetX - actualX);
+            }
         }
     }
 

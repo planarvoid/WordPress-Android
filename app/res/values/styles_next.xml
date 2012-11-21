@@ -57,10 +57,10 @@
         <item name="android:paddingBottom">1sp</item>
 
         <item name="android:textColor">#FFFFFF</item>
-        <item name="android:background">#CC000000</item>
         <item name="android:textSize">16sp</item>
         <item name="android:antialias">true</item>
 
+        <item name="jagged_background">#CC000000</item>
         <item name="custom_font">fonts/Interstate-Regular.ttf</item>
     </style>
 

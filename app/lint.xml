@@ -19,8 +19,18 @@
     <!-- should probably re-enable later once more important things are fixed -->
     <issue id="ContentDescription" severity="ignore"/>
 
-    <issue id="NewApi" severity="error"/>
 
-    <!-- can't resolve mvn dependencies -->
+    <!-- re-enable before release   -->
+    <issue id="NewApi" severity="warning"/>
+
+    <issue id="NewApi">
+        <!-- make sure these still work on 2.2 -->
+        <ignore path="res/layout/abs__search_view.xml"/>
+        <ignore path="res/layout/dashboard_notification_v11.xml"/>
+        <ignore path="res/layout/playback_status_v11.xml"/>
+        <ignore path="res/layout/upload_status.xml"/>
+    </issue>
+
+    <!-- can't resolve mvn dependencies at this point -->
     <issue id="MissingRegistered" severity="ignore"/>
 </lint>

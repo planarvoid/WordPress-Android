@@ -1,12 +1,14 @@
 package com.soundcloud.android.view.tour;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.*;
 import android.util.AttributeSet;
+import com.soundcloud.android.R;
 import com.soundcloud.android.view.CustomFontTextView;
 
 public class JaggedTextView extends CustomFontTextView {
@@ -18,10 +20,21 @@ public class JaggedTextView extends CustomFontTextView {
 
     public JaggedTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        applyColor(context, attrs);
     }
 
     public JaggedTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        applyColor(context, attrs);
+    }
+
+    private void applyColor(Context context, AttributeSet attrs) {
+        TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.JaggedTextView);
+        int color = array.getColor(R.styleable.JaggedTextView_jagged_background, 0x000000);
+
+        getBackgroundPaint().setColor(color);
+
+        array.recycle();
     }
 
     private Paint getBackgroundPaint() {
@@ -35,9 +48,6 @@ public class JaggedTextView extends CustomFontTextView {
 
     @Override
     public void setBackgroundDrawable(Drawable drawable) {
-        if (drawable instanceof ColorDrawable) {
-            getBackgroundPaint().setColor(((ColorDrawable) drawable).getColor());
-        }
     }
 
     @Override

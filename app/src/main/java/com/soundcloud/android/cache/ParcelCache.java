@@ -63,7 +63,7 @@ public abstract class ParcelCache<T extends Parcelable> implements Parcelable {
             Log.d(TAG, "loaded from cache: "+ mObjects);
             mLoadedFromCache = true;
         } catch (ParcelFormatException e) {
-            throw new IOException(e);
+            throw new IOException(e.getMessage());
         }
     }
 

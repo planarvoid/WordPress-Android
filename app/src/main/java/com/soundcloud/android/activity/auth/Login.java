@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
 import android.graphics.drawable.Drawable;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -8,6 +9,7 @@ import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Intent;
@@ -21,16 +23,11 @@ import android.widget.TextView;
 @Tracking(page = Page.Entry_login__main)
 public class Login extends AbstractLoginActivity {
 
+
     @Override
     protected void onResume() {
         super.onResume();
         ((SoundCloudApplication)getApplication()).track(getClass());
-
-        int backgroundId         = getIntent().getExtras().getInt(Start.TOUR_BACKGROUND_EXTRA, R.drawable.tour_image_1);
-        Drawable drawable        = getResources().getDrawable(backgroundId);
-        ImageView backgroundView = (ImageView) findViewById(R.id.tour_background_image);
-
-        backgroundView.setImageDrawable(drawable);
     }
 
     protected void build() {
@@ -82,6 +79,22 @@ public class Login extends AbstractLoginActivity {
                         startActivityForResult(i, 0);
                     }
                 }, true);
+
+        final int backgroundId = getIntent().getExtras().getInt(Start.TOUR_BACKGROUND_EXTRA, R.drawable.tour_image_1);
+        final ImageView backgroundView = (ImageView) findViewById(R.id.tour_background_image);
+
+        ViewTreeObserver observer = backgroundView.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+
+            public void onGlobalLayout() {
+                  // make sure it is not called anymore
+                backgroundView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                backgroundView.setImageBitmap(
+                        ImageUtils.decodeSampledBitmapFromResource(getResources(), backgroundId, backgroundView.getWidth(), backgroundView.getHeight())
+                );
+            }
+        });
     }
 
     @Override

@@ -12,5 +12,6 @@
                 android:gravity="center">
         <RadioButton style="@style/Tour.RadioButton" android:checked="true"/>
         <RadioButton style="@style/Tour.RadioButton"/>
+        <RadioButton style="@style/Tour.RadioButton"/>
     </RadioGroup>
 </FrameLayout>
