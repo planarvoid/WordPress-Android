@@ -55,7 +55,7 @@ public class LoginTest extends ActivityTestCase<News> {
             solo.sleep(500);
         }
         assertNotNull("FB request timed out", webView.getUrl());
-        assertTrue("got url:" + webView.getUrl(), webView.getUrl().startsWith("http://m.facebook.com/login.php"));
+        assertTrue("got url:" + webView.getUrl(), webView.getUrl().contains("facebook.com"));
     }
 
     public void testLoginWithWrongCredentials() {
