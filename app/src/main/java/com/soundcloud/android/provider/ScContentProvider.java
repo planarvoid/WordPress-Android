@@ -751,6 +751,10 @@ public class ScContentProvider extends ContentProvider {
             case TRACK:
                 return "vnd.soundcloud/track";
 
+            case SEARCH_ITEM:
+                return "vnd.soundcloud/search_item";
+
+
             case RECORDING:
             case RECORDINGS:
                 return "vnd.soundcloud/recording";

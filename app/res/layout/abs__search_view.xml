@@ -99,13 +99,11 @@
                   android:imeOptions="actionSearch"
                   android:dropDownHeight="wrap_content"
                   android:dropDownWidth="fill_parent"
-                  android:dropDownAnchor="@+id/abs__search_plate"
-                  android:dropDownVerticalOffset="5dip"
                   android:popupBackground="@drawable/search_drop_down_list_background"
                   android:iconifiedByDefault="false"
                   android:background="@null"
                   android:textColorHint="#666666"
-                  android:textCursorDrawable="@drawable/black_cursor"
+                  android:textColor="#FFFFFF"
                   android:dropDownHorizontalOffset="0dip"
                   android:contentDescription="@string/abs__searchview_description_query"/>
 

@@ -56,8 +56,9 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
     private ImageLoader mImageLoader;
     private Handler handler = new Handler();
 
-    private final static int TYPE_TRACK = 0;
-    private final static int TYPE_USER  = 1;
+    private final static int TYPE_SEARCH_ITEM = 0;
+    private final static int TYPE_TRACK  = 1;
+    private final static int TYPE_USER  = 2;
 
     private static final int MAX_LOCAL  = 5;
     private static final int MAX_REMOTE = 5;
@@ -82,6 +83,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
         mSuggestionsHandlerThread.start();
         mSuggestionsHandler = new SuggestionsHandler(mSuggestionsHandlerThread.getLooper());
 
+        sMatcher.addURI(ScContentProvider.AUTHORITY, Content.SEARCH_ITEM.uriPath, Content.SEARCH_ITEM.id);
         sMatcher.addURI(ScContentProvider.AUTHORITY, Content.USER.uriPath, Content.USER.id);
         sMatcher.addURI(ScContentProvider.AUTHORITY, Content.TRACK.uriPath, Content.TRACK.id);
     }
@@ -114,12 +116,21 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
     }
 
     private int getUriType(Uri uri) {
-        return sMatcher.match(uri) != Content.USER.id ? TYPE_USER : TYPE_TRACK;
+        Log.i("asdf","Get URI TYpe " + uri.toString());
+        final int match = sMatcher.match(uri);
+        if (match == Content.SEARCH_ITEM.id) {
+            return TYPE_SEARCH_ITEM;
+        } else if (match == Content.USER.id) {
+            return TYPE_USER;
+        } else  {
+            return TYPE_TRACK;
+        }
+
     }
 
     @Override
     public int getViewTypeCount() {
-        return 2;
+        return 3;
     }
 
     @Override
@@ -131,7 +142,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
             mSuggestionsHandler.removeMessages(0);
             Message.obtain(mSuggestionsHandler,0,constraint).sendToTarget();
 
-            return mLocalSuggestions == null || mLocalSuggestions.getCount() == 0 ? getMixedCursor() : mLocalSuggestions;
+            return getMixedCursor();
 
         } else {
             mLocalSuggestions = null;
@@ -261,6 +272,15 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
                 SearchManager.SUGGEST_COLUMN_INTENT_DATA,
                 DBHelper.Suggestions.ICON_URL});
 
+        if (!TextUtils.isEmpty(mCurrentConstraint)) {
+            local.addRow(new Object[]{
+                    -1,
+                    mContext.getResources().getString(R.string.search_for_query,mCurrentConstraint),
+                    Content.SEARCH_ITEM.forQuery(mCurrentConstraint),
+                    ""
+            });
+        }
+
         final Cursor cursor = mContentResolver.query(
                 Content.ANDROID_SEARCH_SUGGEST.uri.buildUpon().appendQueryParameter("limit",
                         String.valueOf(max)).build(),
@@ -298,17 +318,26 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
             tag = (SearchTag) view.getTag();
         }
 
-        final String data = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.INTENT_DATA));
-        Uri uri = Uri.parse(data);
-        boolean isUser = sMatcher.match(uri) == Content.USER.id;
-        setIcon(tag, GraphicSize.formatUriForList(mContext,
-                cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))), isUser);
-
         tag.tv_main.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1))));
-        if (isUser) {
-            tag.iv_search_type.setImageResource(R.drawable.ic_search_user);
+
+        final int rowType = getItemViewType(cursor.getPosition());
+        if (rowType == TYPE_SEARCH_ITEM) {
+            tag.iv_icon.setVisibility(View.GONE);
+            tag.iv_search_type.setVisibility(View.GONE);
         } else {
-            tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
+            tag.iv_icon.setVisibility(View.VISIBLE);
+            tag.iv_search_type.setVisibility(View.VISIBLE);
+
+            boolean isUser = rowType == TYPE_USER;
+            setIcon(tag, GraphicSize.formatUriForList(mContext,
+                    cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))), isUser);
+
+            if (isUser) {
+                tag.iv_search_type.setImageResource(R.drawable.ic_search_user);
+            } else {
+                tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
+            }
+
         }
         return view;
     }

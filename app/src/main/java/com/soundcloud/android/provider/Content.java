@@ -115,6 +115,7 @@ public enum Content  {
     SEARCHES_USER("searches/users/*", null, 1405, User.class, ScContentProvider.CollectionItemTypes.SEARCH, null),
 
     SEARCH("search", null, 1500, ScResource.class, -1, null),
+    SEARCH_ITEM("search/*", null, 1501, ScResource.class, -1, null),
 
     PLAY_QUEUE("play_queue", null, 2000, null, -1, Table.PLAY_QUEUE),
     PLAY_QUEUE_ITEM("play_queue/#", null, 2001, null, -1, Table.PLAY_QUEUE),
