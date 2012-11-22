@@ -177,6 +177,8 @@ namespace :beta do
         -F "ipa=@#{BETA_APK}" \
         https://rink.hockeyapp.net/api/2/apps/#{APP_ID}/app_versions
     END
+    # undo changes caused by build
+    sh "git checkout app/AndroidManifest.xml"
   end
   [ :push, :release, :publish ].each { |a| task a => :upload }
 
