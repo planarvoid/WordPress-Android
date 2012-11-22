@@ -1,7 +1,10 @@
 package com.soundcloud.android.activity;
 
+import static com.actionbarsherlock.internal.view.menu.ActionMenuView.OnClickListener;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.internal.view.menu.ActionMenuView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
@@ -46,6 +49,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -65,12 +69,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     protected RootView mRootView;
     private Boolean mIsConnected;
-    private boolean mIsForeground;
+    private boolean mIsForeground, mInSearchMode;
 
     private NowPlayingIndicator mNowPlaying;
     private SuggestionsAdapter mSuggestionsAdapter;
-
-    private MenuItem mSearchItem;
+    private ViewGroup mActionBarCustomView, mSearchCustomView;
+    private SearchView mSearchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,35 +125,40 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             }
         });
 
-        if (!(this instanceof Home)) getSupportActionBar().setTitle(null);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(null);
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        configureCustomView();
 
         if (savedInstanceState == null) {
             handleIntent(getIntent());
         }
     }
 
-    protected void setupNowPlayingIndicator() {
-        RelativeLayout nowPlayingHolder = (RelativeLayout) View.inflate(this, R.layout.now_playing_view, null);
-        nowPlayingHolder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                goToPlayer();
-            }
-        });
+    protected abstract int getSelectedMenuId();
 
-        mNowPlaying = (NowPlayingIndicator) nowPlayingHolder.findViewById(R.id.waveform_progress);
-        getSupportActionBar().setCustomView(nowPlayingHolder, new ActionBar.LayoutParams(Gravity.RIGHT));
-        getSupportActionBar().setDisplayShowCustomEnabled(true);
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putBoolean("inSearchMode", mInSearchMode);
+        final CharSequence query = getSearchView().getQuery();
+        if (!TextUtils.isEmpty(query))savedInstanceState.putCharSequence("searchQuery" , query);
     }
 
-    protected abstract int getSelectedMenuId();
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState.getBoolean("inSearchMode") != mInSearchMode){
+            toggleSearch();
+        }
+        if (savedInstanceState.containsKey("searchQuery")){
+            getSearchView().setQuery(savedInstanceState.getCharSequence("searchQuery"), false);
+            if (mInSearchMode) getSearchView().setIconified(false); // request focus
+        }
+    }
 
     @Override
     public void setContentView(int id) {
         setContentView(View.inflate(this, id, new FrameLayout(this)));
-
     }
 
     @Override
@@ -229,8 +238,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         if (mNowPlaying != null) {
             mNowPlaying.resume();
-        } else {
-            setupNowPlayingIndicator();
         }
     }
 
@@ -300,7 +307,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         mIsConnected = isConnected;
         if (isConnected) {
             // clear image loading errors
-            ImageLoader.get(ScActivity.this).clearErrors();
+            ImageLoader.get(this).clearErrors();
         }
     }
 
@@ -368,16 +375,13 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        final int menuResourceId = getMenuResourceId();
-        if (menuResourceId < 0) return true;
-
-        getSupportMenuInflater().inflate(menuResourceId, menu);
-
-        // Get the SearchView and set the searchable configuration
-        if (menu.findItem(R.id.menu_search) != null){
-            setupSearchView(menu);
+        if (mInSearchMode){
+            getSupportMenuInflater().inflate(R.menu.search_mode, menu);
+            mSearchView.setIconified(false); // this will set focus on the searchview and update the IME
+        } else {
+            final int menuResourceId = getMenuResourceId();
+            if (menuResourceId > 0) getSupportMenuInflater().inflate(menuResourceId, menu);
         }
-
         return true;
     }
 
@@ -398,9 +402,17 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                mRootView.animateToggleMenu();
+            case R.id.enter_search:
+                toggleSearch();
                 return true;
+
+            case R.id.close_search:
+                if (TextUtils.isEmpty(mSearchView.getQuery())){
+                    toggleSearch();
+                } else {
+                    mSearchView.setIconified(true);
+                }
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -458,15 +470,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         }
     }
 
-    public void addNewComment(final Comment comment) {
-        getApp().pendingComment = comment;
-        safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
-    }
 
     @Override
     public void onMenuOpenLeft() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        invalidateOptionsMenu();
     }
 
     @Override
@@ -475,8 +481,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onMenuClosed() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        invalidateOptionsMenu();
     }
 
     @Override
@@ -494,44 +498,97 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         closeSearch();
     }
 
-    private void closeSearch(){
-        mRootView.unBlock();
-        if (mSearchItem != null && mSearchItem.isActionViewExpanded()) mSearchItem.collapseActionView();
+    /**
+     * Action Bar Custom Views
+     */
+
+    private void configureCustomView(){
+        getSupportActionBar().setCustomView(mInSearchMode ? getSearchCustomView() : getDefaultCustomView());
     }
 
-    private void setupSearchView(Menu menu) {
-        mSearchItem = menu.findItem(R.id.menu_search);
-
-        final boolean isFullScreen = (getResources().getConfiguration().screenLayout &
-                        Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
-
-        final SearchView searchView = (SearchView) mSearchItem.getActionView();
-        searchView.setIconifiedByDefault(false);
-
-        if (!isFullScreen) {
-            searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+    private View getDefaultCustomView() {
+        if (mActionBarCustomView == null) {
+            final boolean inPlayer = (this instanceof ScPlayer);
+            mActionBarCustomView = (RelativeLayout) View.inflate(this, inPlayer ? R.layout.action_bar_custom_logo : R.layout.action_bar_custom_view, null);
+            mActionBarCustomView.findViewById(R.id.custom_home).setOnClickListener(new OnClickListener() {
                 @Override
-                public void onFocusChange(View v, boolean hasFocus) {
-                    if (hasFocus) {
-                        mRootView.block();
-                    } else {
-                        closeSearch();
-                    }
+                public void onClick(View view) {
+                    mRootView.animateToggleMenu();
                 }
             });
+            if (!inPlayer) {
+                mNowPlaying = (NowPlayingIndicator) mActionBarCustomView.findViewById(R.id.waveform_progress);
+                mActionBarCustomView.findViewById(R.id.waveform_holder).setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        goToPlayer();
+                    }
+                });
+            }
         }
+        return mActionBarCustomView;
+    }
+
+    private View getSearchCustomView() {
+        if (mSearchCustomView == null) {
+            mSearchCustomView = new RelativeLayout(getSupportActionBar().getThemedContext());
+            mSearchCustomView.addView(getSearchView());
+        }
+        return mSearchCustomView;
+    }
+
+    private SearchView getSearchView(){
+        if (mSearchView == null) {
+            mSearchView = new SearchView(getSupportActionBar().getThemedContext());
+            mSearchView.setLayoutParams(new ActionMenuView.LayoutParams(ActionMenuView.LayoutParams.WRAP_CONTENT, ActionMenuView.LayoutParams.MATCH_PARENT));
+            mSearchView.setGravity(Gravity.LEFT);
+            setupSearchView(mSearchView); // sets up listeners
+        }
+        return mSearchView;
+    }
+
+    /**
+     * Search Handling
+     */
+
+    private void toggleSearch() {
+        mInSearchMode = !mInSearchMode;
+        configureCustomView();
+        invalidateOptionsMenu();
+    }
+
+    private void closeSearch() {
+        getSearchView().clearFocus();
+        mRootView.unBlock();
+        if (mInSearchMode) toggleSearch();
+    }
+
+    /**
+     * Configure search view to funciton how we want it
+     * @param searchView
+     */
+    private void setupSearchView(SearchView searchView) {
+
+        final boolean isFullScreen = (getResources().getConfiguration().screenLayout &
+                Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+
+        searchView.setIconifiedByDefault(false);
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    if (!isFullScreen) mRootView.block();
+                } else {
+                    closeSearch();
+                }
+            }
+        });
 
         /* find and configure the search autocompletetextview */
 
         // actionbarsherlock view
         AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
-
-        if (search_text == null){
-            // native search view
-            search_text = (AutoCompleteTextView) searchView.findViewById(searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null));
-        }
-
-        if (search_text != null){
+        if (search_text != null) {
             if (isFullScreen) {
                 // on a large screen device, just anchor to the search bar itself
                 if (findViewById(R.id.abs__search_bar) != null) search_text.setDropDownAnchor(R.id.abs__search_bar);
@@ -548,6 +605,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                 }
                 search_text.setDropDownWidth(ViewGroup.LayoutParams.FILL_PARENT);
             }
+
         }
 
 
@@ -567,10 +625,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             public boolean onSuggestionClick(int position) {
                 final Uri itemUri = mSuggestionsAdapter.getItemUri(position);
                 startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
+                closeSearch();
                 return true;
             }
         });
     }
-
-
 }

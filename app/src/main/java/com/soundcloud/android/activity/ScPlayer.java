@@ -5,6 +5,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.ShareActionProvider;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.model.Comment;
@@ -85,7 +86,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-
         if (icicle == null){
             handleIntent(getIntent());
         }
@@ -94,7 +94,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-
+        handleIntent(intent);
     }
 
     private void handleIntent(Intent intent){
@@ -102,11 +102,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             Track track = Track.fromUri(intent.getData(),getContentResolver());
             if (track != null) startService(track.getPlayIntent());
         }
-    }
-
-    @Override
-    protected void setupNowPlayingIndicator() {
-        // do nothing, don't need it
     }
 
     @Override
@@ -278,6 +273,11 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void addNewComment(final Comment comment) {
+        getApp().pendingComment = comment;
+        safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
     }
 
     private final ServiceConnection osc = new ServiceConnection() {
