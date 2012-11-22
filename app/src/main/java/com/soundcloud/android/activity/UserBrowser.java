@@ -584,10 +584,13 @@ public class UserBrowser extends ScActivity implements
 
         if (!isYou()){
             MenuItem followItem = menu.findItem(R.id.action_bar_follow);
-            final boolean following = isFollowing();
-            followItem.setIcon(following ? R.drawable.ic_remove_user_white : R.drawable.ic_add_user_white);
-            followItem.setTitle(getResources().getString(following ? R.string.action_bar_unfollow : R.string.action_bar_follow));
+            if (followItem != null) {
+                final boolean following = isFollowing();
+                followItem.setIcon(following ? R.drawable.ic_remove_user_white : R.drawable.ic_add_user_white);
+                followItem.setTitle(getResources().getString(following ? R.string.action_bar_unfollow : R.string.action_bar_follow));
+            }
         } else {
+
             menu.removeItem(R.id.action_bar_follow);
         }
         return true;
