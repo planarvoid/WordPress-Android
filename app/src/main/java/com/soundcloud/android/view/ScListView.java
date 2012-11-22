@@ -46,7 +46,6 @@ public class ScListView extends PullToRefreshListView implements PullToRefreshBa
         getRefreshableView().setLongClickable(false);
         getRefreshableView().setScrollingCacheEnabled(false);
         getRefreshableView().setCacheColorHint(Color.WHITE);
-        setOnConfigureHeaderListener(this);
         setShowIndicator(false); // we don't want the indicator, it interferes with out timestamps
     }
 
