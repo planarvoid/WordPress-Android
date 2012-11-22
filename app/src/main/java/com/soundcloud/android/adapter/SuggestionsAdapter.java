@@ -116,7 +116,6 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
     }
 
     private int getUriType(Uri uri) {
-        Log.i("asdf","Get URI TYpe " + uri.toString());
         final int match = sMatcher.match(uri);
         if (match == Content.SEARCH_ITEM.id) {
             return TYPE_SEARCH_ITEM;

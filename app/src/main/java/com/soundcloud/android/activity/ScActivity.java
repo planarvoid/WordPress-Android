@@ -509,7 +509,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private View getDefaultCustomView() {
         if (mActionBarCustomView == null) {
             final boolean inPlayer = (this instanceof ScPlayer);
-            mActionBarCustomView = (View) View.inflate(this, inPlayer ? R.layout.action_bar_custom_logo : R.layout.action_bar_custom_view, null);
+            mActionBarCustomView = View.inflate(this, inPlayer ? R.layout.action_bar_custom_logo : R.layout.action_bar_custom_view, null);
             mActionBarCustomView.findViewById(R.id.custom_home).setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
