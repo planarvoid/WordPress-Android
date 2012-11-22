@@ -22,7 +22,6 @@ import com.soundcloud.android.activity.landing.SuggestedUsers;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
-import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
@@ -50,7 +49,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -74,7 +72,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     private NowPlayingIndicator mNowPlaying;
     private SuggestionsAdapter mSuggestionsAdapter;
-    private ViewGroup mActionBarCustomView, mSearchCustomView;
+    private View mActionBarCustomView;
+    private ViewGroup mSearchCustomView;
     private SearchView mSearchView;
 
     @Override
@@ -510,7 +509,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private View getDefaultCustomView() {
         if (mActionBarCustomView == null) {
             final boolean inPlayer = (this instanceof ScPlayer);
-            mActionBarCustomView = (RelativeLayout) View.inflate(this, inPlayer ? R.layout.action_bar_custom_logo : R.layout.action_bar_custom_view, null);
+            mActionBarCustomView = (View) View.inflate(this, inPlayer ? R.layout.action_bar_custom_logo : R.layout.action_bar_custom_view, null);
             mActionBarCustomView.findViewById(R.id.custom_home).setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -579,10 +578,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     /**
      * Configure search view to funciton how we want it
-     * @param searchView
+     * @param searchView the search view
      */
     private void setupSearchView(SearchView searchView) {
-
         searchView.setIconifiedByDefault(false);
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -594,7 +592,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         });
 
         /* find and configure the search autocompletetextview */
-
         // actionbarsherlock view
         AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
         if (search_text != null) {
