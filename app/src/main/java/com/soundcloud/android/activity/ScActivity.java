@@ -50,6 +50,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -555,6 +556,14 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         mInSearchMode = !mInSearchMode;
         configureCustomView();
         invalidateOptionsMenu();
+
+        if (useFullScreenSearch()) {
+            if (!mInSearchMode) {
+                mRootView.unBlock();
+            } else {
+                mRootView.block();
+            }
+        }
     }
 
     private void closeSearch() {
@@ -563,22 +572,22 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         if (mInSearchMode) toggleSearch();
     }
 
+    private boolean useFullScreenSearch(){
+        return (getResources().getConfiguration().screenLayout &
+                                Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE;
+    }
+
     /**
      * Configure search view to funciton how we want it
      * @param searchView
      */
     private void setupSearchView(SearchView searchView) {
 
-        final boolean isFullScreen = (getResources().getConfiguration().screenLayout &
-                Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
-
         searchView.setIconifiedByDefault(false);
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    if (!isFullScreen) mRootView.block();
-                } else {
+                if (!hasFocus) {
                     closeSearch();
                 }
             }
@@ -589,11 +598,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         // actionbarsherlock view
         AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
         if (search_text != null) {
-            if (isFullScreen) {
-                // on a large screen device, just anchor to the search bar itself
-                if (findViewById(R.id.abs__search_bar) != null) search_text.setDropDownAnchor(R.id.abs__search_bar);
-                search_text.setDropDownWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
-            } else {
+            if (useFullScreenSearch()) {
                 // on a normal size device, use the whole action bar
                 final int identifier = getResources().getIdentifier("action_bar", "id", "android");
                 if (findViewById(identifier) != null) {
@@ -604,6 +609,10 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     search_text.setDropDownAnchor(R.id.abs__action_bar);
                 }
                 search_text.setDropDownWidth(ViewGroup.LayoutParams.FILL_PARENT);
+            } else {
+                // on a large screen device, just anchor to the search bar itself
+                if (findViewById(R.id.abs__search_bar) != null) search_text.setDropDownAnchor(R.id.abs__search_bar);
+                search_text.setDropDownWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
             }
 
         }
