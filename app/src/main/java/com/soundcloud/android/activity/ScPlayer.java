@@ -85,7 +85,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-
         if (icicle == null){
             handleIntent(getIntent());
         }
@@ -94,7 +93,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-
+        handleIntent(intent);
     }
 
     private void handleIntent(Intent intent){
@@ -102,11 +101,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             Track track = Track.fromUri(intent.getData(),getContentResolver());
             if (track != null) startService(track.getPlayIntent());
         }
-    }
-
-    @Override
-    protected void setupNowPlayingIndicator() {
-        // do nothing, don't need it
     }
 
     @Override

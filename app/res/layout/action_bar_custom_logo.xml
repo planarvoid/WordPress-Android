@@ -5,7 +5,7 @@
              android:paddingLeft="@dimen/list_icon_margin_left">
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                     android:id="@+id/custom_home"
-                    android:layout_width="wrap_content"
+                    android:layout_width="@dimen/next_home_width"
                     android:layout_height="fill_parent"
                     android:background="@drawable/logo_states">
         <ImageView android:layout_height="fill_parent"
