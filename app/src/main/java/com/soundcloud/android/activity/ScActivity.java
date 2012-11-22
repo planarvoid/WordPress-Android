@@ -138,8 +138,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-      super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putBoolean("inSearchMode" , mInSearchMode);
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putBoolean("inSearchMode", mInSearchMode);
         final CharSequence query = getSearchView().getQuery();
         if (!TextUtils.isEmpty(query))savedInstanceState.putCharSequence("searchQuery" , query);
     }
@@ -159,7 +159,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     public void setContentView(int id) {
         setContentView(View.inflate(this, id, new FrameLayout(this)));
-
     }
 
     @Override
@@ -308,7 +307,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         mIsConnected = isConnected;
         if (isConnected) {
             // clear image loading errors
-            ImageLoader.get(ScActivity.this).clearErrors();
+            ImageLoader.get(this).clearErrors();
         }
     }
 
@@ -471,15 +470,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         }
     }
 
-    public void addNewComment(final Comment comment) {
-        getApp().pendingComment = comment;
-        safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
-    }
 
     @Override
     public void onMenuOpenLeft() {
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        //invalidateOptionsMenu();
     }
 
     @Override
@@ -488,8 +481,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onMenuClosed() {
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        //invalidateOptionsMenu();
     }
 
     @Override
@@ -639,6 +630,4 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             }
         });
     }
-
-
 }

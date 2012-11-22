@@ -5,6 +5,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.ShareActionProvider;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.model.Comment;
@@ -272,6 +273,11 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void addNewComment(final Comment comment) {
+        getApp().pendingComment = comment;
+        safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
     }
 
     private final ServiceConnection osc = new ServiceConnection() {
