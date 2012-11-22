@@ -69,8 +69,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.clickOnText(R.string.delete);
         solo.assertText(R.string.dialog_confirm_delete_recording_message);
         solo.clickOnOK();
-        solo.sleep(1000);
-        solo.assertActivityFinished();
+        assertState(IDLE_RECORD);
     }
 
     public void testRecordAndDelete() throws Exception {
@@ -78,7 +77,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.clickOnText(R.string.delete); // "Discard"
         solo.assertText(R.string.dialog_confirm_delete_recording_message); // "Are you sure you want to delete this recording?"
         solo.clickOnOK();
-        solo.assertActivityFinished();
+        assertState(IDLE_RECORD);
     }
 
     public void testRecordAndUpload() throws Exception {
@@ -278,7 +277,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.enterTextId(R.id.what, title);
         solo.goBack();
 
-//XXX        solo.clickOnView(R.id.btn_you);
+        solo.clickOnView(R.id.action_bar_local_recordings);
 
         // delete wav file
         File wavFile = r.getFile();
