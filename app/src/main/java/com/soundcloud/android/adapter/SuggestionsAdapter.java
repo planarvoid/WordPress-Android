@@ -26,6 +26,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,8 +35,11 @@ import android.os.Looper;
 import android.os.Message;
 import android.provider.BaseColumns;
 import android.support.v4.widget.CursorAdapter;
-import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -230,7 +234,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
             for (SearchSuggestions.Query q : mRemoteSuggestions) {
                 remote.addRow(new Object[]{
                         q.id,
-                        highlight(q.query,mCurrentConstraint),
+                        q.query,
                         q.getUriPath(),
                         q.getIconUri()
                 });
@@ -291,7 +295,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
         while (cursor.moveToNext()) {
             local.addRow(new Object[] {
                 cursor.getInt(cursor.getColumnIndex(BaseColumns._ID)),
-                highlight(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)),constraint),
+                cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)),
                 cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA)),
                 cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))
             });
@@ -317,7 +321,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
             tag = (SearchTag) view.getTag();
         }
 
-        tag.tv_main.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1))));
+        tag.tv_main.setText(highlight(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1)), mCurrentConstraint));
 
         final int rowType = getItemViewType(cursor.getPosition());
         if (rowType == TYPE_SEARCH_ITEM) {
@@ -355,40 +359,20 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
     }
 
     static class SearchTag {
-
         ImageView iv_icon;
         ImageView iv_search_type;
         TextView tv_main;
     }
 
-
     /**
      * Match highlighting
      */
-    private StringBuilder sbHighlightSource = new StringBuilder();
-    private StringBuilder sbHighlightSourceLower = new StringBuilder();
-    private CharSequence highlightTagOpen = "<font color='white'>";
-    private CharSequence highlightTagClose = "</font>";
-
-    private String highlight(String original, String constraint) {
-        sbHighlightSource.setLength(0);
-        sbHighlightSource.trimToSize();
-        sbHighlightSource.append(original);
-
-        sbHighlightSourceLower.setLength(0);
-        sbHighlightSourceLower.trimToSize();
-        sbHighlightSourceLower.append(original.toLowerCase());
-
-        final String searchString = constraint.toLowerCase();
-        final String replacement = highlightTagOpen + constraint + highlightTagClose;
-
-        int idx = 0;
-        while ((idx = sbHighlightSourceLower.indexOf(searchString, idx)) != -1) {
-            sbHighlightSource.replace(idx, idx + searchString.length(), highlightTagOpen + sbHighlightSource.substring(idx,idx + searchString.length()) + highlightTagClose);
-            sbHighlightSourceLower.replace(idx, idx + searchString.length(), replacement);
-            idx += replacement.length();
-        }
-        return sbHighlightSource.toString();
+    private Spanned highlight(String original, String constraint) {
+        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
+        spannableStringBuilder.append(original);
+        final int start = original.toLowerCase().indexOf(constraint.toLowerCase());
+        if (start >= 0) spannableStringBuilder.setSpan(new ForegroundColorSpan(Color.WHITE), start, start + constraint.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        return spannableStringBuilder;
     }
 
 }
