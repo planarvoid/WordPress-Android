@@ -2,9 +2,9 @@ $ 49
   % v current
   _ 2012-11-19
   ! Next
-    * More Search Styling
-    * Parallax in start page tour
-    * Fancificated login overlay
+    * Even more Search Styling
+    - Parallax in start page tour
+    - Fancificated login overlay
     - Fixed a recurring search crash
     - Remote search suggestions added
     - fixed reposts layout
