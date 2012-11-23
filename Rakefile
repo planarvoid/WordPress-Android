@@ -165,7 +165,7 @@ namespace :beta do
     sh "curl -H 'X-HockeyAppToken: #{TOKEN}' https://rink.hockeyapp.net/api/2/apps"
   end
 
-  desc "build and upload beta"
+  desc "build and upload beta, then tag it"
   task :upload => [ BETA_APK, :verify ] do
     sh <<-END
       curl \
@@ -179,8 +179,9 @@ namespace :beta do
     END
     # undo changes caused by build
     sh "git checkout app/AndroidManifest.xml"
+
+    Rake::Task['beta:tag'].invoke
   end
-  [ :push, :release, :publish ].each { |a| task a => :upload }
 
   desc "build beta"
   task :build do
