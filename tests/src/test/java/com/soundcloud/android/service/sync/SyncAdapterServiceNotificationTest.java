@@ -9,7 +9,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.List;
 
