@@ -2,12 +2,13 @@
 <com.soundcloud.android.view.adapter.MainMenuRow xmlns:android="http://schemas.android.com/apk/res/android"
               style="@style/side_menu_item">
 
-    <ImageView android:id="@+id/slm_item_icon"
+    <ImageView android:id="@+id/main_menu_item_icon"
                style="@style/side_menu_item_icon" />
 
-    <TextView android:id="@+id/slm_item_text"
+    <TextView android:id="@+id/main_menu_item_text"
               style="@style/side_menu_item_text"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:layout_gravity="center_vertical" />
+
 </com.soundcloud.android.view.adapter.MainMenuRow>

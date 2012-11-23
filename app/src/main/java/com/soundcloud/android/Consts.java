@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
@@ -182,6 +183,10 @@ public final class Consts {
             return valid == null ? Unknown : valid;
         }
 
+    }
+
+    public interface GeneralIntents {
+        String ACTIVITIES_UNSEEN_CHANGED = Activities.class.getSimpleName() + ".unseen_changed";
     }
 
     // these need to be unique across app

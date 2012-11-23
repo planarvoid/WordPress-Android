@@ -197,6 +197,8 @@ public class RootView extends ViewGroup {
         mExpandedState = COLLAPSED_FULL_CLOSED;
         mActivePointerId = INVALID_POINTER;
 
+
+
         setBackgroundColor(getResources().getColor(R.color.main_menu_bg));
         setAlwaysDrawnWithCacheEnabled(false);
 
@@ -392,6 +394,7 @@ public class RootView extends ViewGroup {
         final float density = getResources().getDisplayMetrics().density;
         mOffsetRight = (int) max(widthSpecSize - MENU_TARGET_WIDTH * density + 0.5f,
                                  OFFSET_RIGHT * density + 0.5f);
+        mMenu.setOffsetRight(mOffsetRight);
     }
 
 
@@ -1019,7 +1022,7 @@ public class RootView extends ViewGroup {
      * @return The View representing the handle of the menu, identified by
      *         the "handle" id in XML.
      */
-    public View getMenu() {
+    public MainMenu getMenu() {
         return mMenu;
     }
 
