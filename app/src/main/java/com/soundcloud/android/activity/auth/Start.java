@@ -1,20 +1,22 @@
 package com.soundcloud.android.activity.auth;
 
+import android.net.Uri;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.ViewStub;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.*;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.tour.TourLayout;
+import com.soundcloud.api.Env;
 import com.soundcloud.api.Token;
 import net.hockeyapp.android.UpdateManager;
 
@@ -27,17 +29,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import org.jetbrains.annotations.Nullable;
 
-public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler {
+import java.io.*;
+
+public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler {
     private static final int RECOVER_CODE    = 1;
     private static final int SUGGESTED_USERS = 2;
+
+    private static final File SIGNUP_LOG = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".dr");
 
     public static final String FB_CONNECTED_EXTRA    = "facebook_connected";
     public static final String TOUR_BACKGROUND_EXTRA = "tour_background";
 
+    private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
+
+    public static final int THROTTLE_WINDOW = 60 * 60 * 1000;
+    public static final int THROTTLE_AFTER_ATTEMPT = 3;
+
     private ViewPager mViewPager;
     private TourLayout[] mTourPages;
 
-    @Nullable private Login mLogin;
+    @Nullable private Login  mLogin;
+    @Nullable private SignUp mSignUp;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -120,11 +132,11 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             public void onClick(View v) {
                 app.track(Click.Signup_Signup);
 
-                Intent signUpIntent = new Intent(Start.this, SignUp.class);
-                signUpIntent.putExtra(TOUR_BACKGROUND_EXTRA, getBackgroundId());
+                if (shouldThrottleSignup(Start.this)) {
 
-                startActivityForResult(signUpIntent, 0);
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                } else {
+                    getSignUp().setVisibility(View.VISIBLE);
+                }
             }
         });
 
@@ -213,10 +225,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         }
     }
 
-    public int getBackgroundId() {
-        return mTourPages[mViewPager.getCurrentItem()].getBgResId();
-    }
-
     public Login getLogin() {
         if (mLogin == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.login_stub);
@@ -228,9 +236,86 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         return mLogin;
     }
 
+    public View getSignUp() {
+        if (mSignUp == null) {
+            ViewStub stub = (ViewStub) findViewById(R.id.sign_up_stub);
+
+            mSignUp = (SignUp) stub.inflate();
+            mSignUp.setSignUpHandler(this);
+        }
+
+        return mSignUp;
+    }
+
+    static boolean shouldThrottleSignup(Context context) {
+        AndroidCloudAPI api = (AndroidCloudAPI) context.getApplicationContext();
+        // don't throttle sandbox requests - we need it for integration testing
+        if (api.getEnv() ==  Env.SANDBOX) return false;
+
+        final long[] signupLog = readLog();
+        if (signupLog == null) {
+            return false;
+        } else {
+            int i = signupLog.length - 1;
+            while (i >= 0 &&
+                    System.currentTimeMillis() - signupLog[i] < THROTTLE_WINDOW &&
+                    signupLog.length - i <= THROTTLE_AFTER_ATTEMPT) {
+                i--;
+            }
+            return signupLog.length - i > THROTTLE_AFTER_ATTEMPT;
+        }
+    }
+
+    static boolean writeNewSignupToLog() {
+        return writeNewSignupToLog(System.currentTimeMillis());
+    }
+
+    static boolean writeNewSignupToLog(long timestamp) {
+
+        long[] toWrite, current = readLog();
+        if (current == null) {
+            toWrite = new long[1];
+        } else {
+            toWrite = new long[current.length + 1];
+            System.arraycopy(current, 0, toWrite, 0, current.length);
+        }
+        toWrite[toWrite.length - 1] = timestamp;
+        return writeLog(toWrite);
+    }
+
+    static boolean writeLog(long[] toWrite) {
+        try {
+            IOUtils.mkdirs(SIGNUP_LOG.getParentFile());
+
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(SIGNUP_LOG));
+            out.writeObject(toWrite);
+            out.close();
+            return true;
+        } catch (IOException e) {
+            Log.w(SoundCloudApplication.TAG, "Error writing to sign up log ", e);
+            return false;
+        }
+    }
+
+    @Nullable static long[] readLog() {
+
+        try {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(SIGNUP_LOG));
+            return (long[]) in.readObject();
+        } catch (IOException e) {
+            Log.e(SoundCloudApplication.TAG, "Error reading sign up log ", e);
+        } catch (ClassNotFoundException e) {
+            Log.e(SoundCloudApplication.TAG, "Error reading sign up log ", e);
+        }
+        return null;
+    }
 
     @Override
     public void onLogin(String email, String password) {
+    }
+
+    @Override
+    public void onSignUp(String email, String password) {
     }
 
     @Override
@@ -239,6 +324,14 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
         app.track(Click.Login_with_facebook);
         startActivityForResult(new Intent(this, Facebook.class), 0);
+    }
+
+    @Override
+    public void onTermsOfUse() {
+        SoundCloudApplication app = (SoundCloudApplication) getApplication();
+
+        app.track(Click.Signup_Signup_terms);
+        startActivity(new Intent(Intent.ACTION_VIEW, TERMS_OF_USE_URL));
     }
 
     @Override

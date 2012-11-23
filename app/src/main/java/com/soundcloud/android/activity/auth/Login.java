@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import org.jetbrains.annotations.Nullable;
 
 public class Login extends RelativeLayout {
     public interface LoginHandler {
@@ -25,7 +26,7 @@ public class Login extends RelativeLayout {
         void onFacebookLogin();
     }
 
-    private LoginHandler mLoginHandler;
+    @Nullable private LoginHandler mLoginHandler;
 
     public Login(Context context) {
         super(context);
