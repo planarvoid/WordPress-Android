@@ -1,13 +1,16 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -15,6 +18,7 @@ import java.util.Date;
  */
 public class SoundAssociation extends ScResource {
 
+    public static final String TRACK_REPOST = "track_repost";
     public int associationType;
     public String type;
     public Date created_at;
@@ -37,6 +41,17 @@ public class SoundAssociation extends ScResource {
         track = in.readParcelable(ClassLoader.getSystemClassLoader());
         playlist = in.readParcelable(ClassLoader.getSystemClassLoader());
         user = in.readParcelable(ClassLoader.getSystemClassLoader());
+    }
+
+    @Override
+    public ContentValues buildContentValues() {
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.CollectionItems.ITEM_ID, getSound().id);
+        cv.put(DBHelper.CollectionItems.USER_ID, SoundCloudApplication.getUserId());
+        cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, associationType);
+        cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, getResourceType());
+        cv.put(DBHelper.CollectionItems.POSITION,  created_at.getTime());
+        return cv;
     }
 
     @Override
@@ -72,7 +87,7 @@ public class SoundAssociation extends ScResource {
     public void setType(String type){
         if (type.equalsIgnoreCase("track")) {
             associationType = ScContentProvider.CollectionItemTypes.TRACK;
-        } else if (type.equalsIgnoreCase("track_repost")) {
+        } else if (type.equalsIgnoreCase(TRACK_REPOST)) {
             associationType = ScContentProvider.CollectionItemTypes.TRACK_REPOST;
         } else if (type.equalsIgnoreCase("track_like")) {
             associationType = ScContentProvider.CollectionItemTypes.TRACK_LIKE;
@@ -86,8 +101,5 @@ public class SoundAssociation extends ScResource {
         this.type = type;
     }
 
-    public long getOriginId() {
-        return track != null ? track.id :
-                (playlist != null ? playlist.id : id);
-    }
+
 }

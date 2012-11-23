@@ -129,30 +129,22 @@ public class SoundCloudDB {
                 if (uri != null) {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, ownerId);
-                    if (p instanceof SoundAssociation) {
-                        cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, ((SoundAssociation) p).associationType);
-                        cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, ((SoundAssociation) p).getResourceType());
-                        cv.put(DBHelper.CollectionItems.POSITION, ((SoundAssociation) p).created_at.getTime());
-                        cv.put(DBHelper.CollectionItems.ITEM_ID, ((SoundAssociation) p).getOriginId());
+                    switch (Content.match(uri)) {
+                        case PLAY_QUEUE:
+                            cv.put(DBHelper.PlayQueue.POSITION, i);
+                            cv.put(DBHelper.PlayQueue.TRACK_ID, id);
+                            break;
 
-                    } else {
-                        switch (Content.match(uri)) {
-                            case PLAY_QUEUE:
-                                cv.put(DBHelper.PlayQueue.POSITION, i);
-                                cv.put(DBHelper.PlayQueue.TRACK_ID, id);
-                                break;
+                        // this will not be necessary once we use e1 likes endpoint
+                        case ME_LIKES:
+                        case USER_LIKES:
+                            //cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, Track.DB_TYPE_TRACK);
+                            // fallthrough
+                        default:
+                            cv.put(DBHelper.CollectionItems.POSITION, i);
+                            cv.put(DBHelper.CollectionItems.ITEM_ID, id);
+                            break;
 
-                            // this will not be necessary once we use e1 likes endpoint
-                            case ME_LIKES:
-                            case USER_LIKES:
-                                //cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, Track.DB_TYPE_TRACK);
-                                // fallthrough
-                            default:
-                                cv.put(DBHelper.CollectionItems.POSITION, i);
-                                cv.put(DBHelper.CollectionItems.ITEM_ID, id);
-                                break;
-
-                        }
                     }
                     bulkValues[index] = cv;
                     index++;

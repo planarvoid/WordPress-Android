@@ -118,6 +118,10 @@ public class ApiSyncerTest {
 
         Result result = sync(Content.ME_SOUNDS.uri);
         expect(result.success).toBeTrue();
+
+        expect(Content.TRACKS).toHaveCount(48);
+        expect(Content.ME_SOUNDS).toHaveCount(48);
+
     }
 
     @Test

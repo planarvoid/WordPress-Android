@@ -148,6 +148,7 @@ public class ScListFragment extends SherlockListFragment
                     break;
 
                 case ME_TRACKS:
+                case ME_SOUNDS:
                     adapter = new MyTracksAdapter(getScActivity(), mContentUri);
                     break;
 

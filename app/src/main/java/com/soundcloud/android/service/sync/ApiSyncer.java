@@ -134,10 +134,16 @@ public class ApiSyncer {
         Result result = new Result(uri);
         log("syncSounds(" + uri + ")");
 
-        List<SoundAssociation> sounds = CollectionHolder.fetchAllResources(mApi,
+        SoundAssociationHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
                 Request.to("/e1/me/sounds/mini").with("limit", 200),
                 SoundAssociationHolder.class);
 
+        if (holder != null) {
+            holder.insert(mResolver);
+
+            result.setSyncData(System.currentTimeMillis(), holder.collection.size(), null);
+            result.success = true;
+        }
 
 
         return result;

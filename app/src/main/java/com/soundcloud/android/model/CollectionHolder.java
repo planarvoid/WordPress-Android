@@ -13,6 +13,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -20,6 +21,7 @@ import android.text.TextUtils;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -111,11 +113,11 @@ public class CollectionHolder<T> implements Iterable<T> {
         }
     }
 
-    public static <T> List<T> fetchAllResources(AndroidCloudAPI api,
+    public @Nullable static <T, C extends CollectionHolder<T>> C fetchAllResourcesHolder(AndroidCloudAPI api,
                                                 Request request,
-                                                Class<? extends CollectionHolder<T>> ch) throws IOException {
+                                                Class<C> ch) throws IOException {
         List<T> objects = new ArrayList<T>();
-        CollectionHolder<T> holder = null;
+        C holder = null;
         do {
             Request r =  holder == null ? request : Request.to(holder.next_href);
             HttpResponse resp = validateResponse(api.get(r.with(LINKED_PARTITIONING, "1")));
@@ -126,7 +128,25 @@ public class CollectionHolder<T> implements Iterable<T> {
                 }
             }
         } while (holder != null && holder.next_href != null);
-        return objects;
+
+        if (holder != null) {
+            holder.collection = objects;
+            return holder;
+        } else {
+            return null;
+        }
+    }
+
+    public static <T, C extends CollectionHolder<T>> List<T> fetchAllResources(AndroidCloudAPI api,
+                                                Request request,
+                                                Class<C> ch) throws IOException {
+
+        C holder = fetchAllResourcesHolder(api, request, ch);
+        if (holder != null) {
+            return holder.collection;
+        } else {
+            return new ArrayList<T>();
+        }
     }
 }
 

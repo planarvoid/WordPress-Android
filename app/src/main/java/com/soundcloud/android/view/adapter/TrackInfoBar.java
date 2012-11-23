@@ -6,8 +6,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.TrackRepostActivity;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.quickaction.QuickTrackMenu;
@@ -197,6 +199,10 @@ public class TrackInfoBar extends LazyRow {
 
         if (mPlayable instanceof TrackRepostActivity) {
             mReposter.setText(((TrackRepostActivity) mPlayable).user.username);
+            mReposter.setVisibility(View.VISIBLE);
+        } else if (mPlayable instanceof SoundAssociation && ((SoundAssociation) mPlayable).associationType == ScContentProvider.CollectionItemTypes.TRACK_REPOST) {
+
+            mReposter.setText(((SoundAssociation) mPlayable).user.username);
             mReposter.setVisibility(View.VISIBLE);
         } else {
             mReposter.setVisibility(View.GONE);
