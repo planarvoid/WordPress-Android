@@ -22,4 +22,9 @@
         <include layout="@layout/tour_radio_group"/>
         <include layout="@layout/tour_buttons"/>
     </LinearLayout>
+
+    <ViewStub android:id="@+id/login_stub"
+              android:layout="@layout/login"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"/>
 </RelativeLayout>

@@ -2,6 +2,7 @@ package com.soundcloud.android.activity.auth;
 
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.ViewStub;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -24,8 +25,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import org.jetbrains.annotations.Nullable;
 
-public class Start extends AccountAuthenticatorActivity {
+public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler {
     private static final int RECOVER_CODE    = 1;
     private static final int SUGGESTED_USERS = 2;
 
@@ -34,6 +36,8 @@ public class Start extends AccountAuthenticatorActivity {
 
     private ViewPager mViewPager;
     private TourLayout[] mTourPages;
+
+    @Nullable private Login mLogin;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -98,8 +102,7 @@ public class Start extends AccountAuthenticatorActivity {
         findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                app.track(Click.Login_with_facebook);
-                startActivityForResult(new Intent(Start.this, Facebook.class), 0);
+               onFacebookLogin();
             }
         });
 
@@ -108,11 +111,7 @@ public class Start extends AccountAuthenticatorActivity {
             public void onClick(View v) {
                 app.track(Click.Login);
 
-                Intent loginIntent = new Intent(Start.this, Login.class);
-                loginIntent.putExtra(TOUR_BACKGROUND_EXTRA, getBackgroundId());
-
-                startActivityForResult(loginIntent, 0);
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                getLogin().setVisibility(View.VISIBLE);
             }
         });
 
@@ -216,5 +215,40 @@ public class Start extends AccountAuthenticatorActivity {
 
     public int getBackgroundId() {
         return mTourPages[mViewPager.getCurrentItem()].getBgResId();
+    }
+
+    public Login getLogin() {
+        if (mLogin == null) {
+            ViewStub stub = (ViewStub) findViewById(R.id.login_stub);
+
+            mLogin = (Login) stub.inflate();
+            mLogin.setLoginHandler(this);
+        }
+
+        return mLogin;
+    }
+
+
+    @Override
+    public void onLogin(String email, String password) {
+    }
+
+    @Override
+    public void onFacebookLogin() {
+        SoundCloudApplication app = (SoundCloudApplication) getApplication();
+
+        app.track(Click.Login_with_facebook);
+        startActivityForResult(new Intent(this, Facebook.class), 0);
+    }
+
+    @Override
+    public void onRecover(String email) {
+        Intent recoveryIntent = new Intent(this, Recover.class);
+
+        if (email != null && email.length() > 0) {
+            recoveryIntent.putExtra("email", email);
+        }
+
+        startActivityForResult(recoveryIntent, 0);
     }
 }
