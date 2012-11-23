@@ -13,15 +13,19 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.soundcloud.android.*;
+import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.GetTokensTask;
 import com.soundcloud.android.task.SignupTask;
+import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.tour.TourLayout;
+import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Env;
+import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 import net.hockeyapp.android.UpdateManager;
 
@@ -35,6 +39,8 @@ import android.view.ViewGroup;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler {
     private static final int RECOVER_CODE    = 1;
@@ -158,78 +164,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (resultCode) {
-            case RESULT_OK:
-                handleActivityResult(requestCode, data);
-                break;
-        }
-    }
-
-    private void handleActivityResult(int requestCode, Intent data) {
-        switch (requestCode) {
-            case 0:
-                SoundCloudApplication app = (SoundCloudApplication) getApplication();
-                final String error = data.getStringExtra("error");
-                if (error == null) {
-                    final User user = data.getParcelableExtra("user");
-                    final Token token = (Token) data.getSerializableExtra("token");
-
-                    SignupVia via = SignupVia.fromIntent(data);
-                    // API signup will already have created the account
-                    if (SignupVia.API == via || app.addUserAccount(user, token, via)) {
-                        final Bundle result = new Bundle();
-                        result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
-                        result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
-                        setAccountAuthenticatorResult(result);
-
-                        sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
-                                .putExtra("user", user)
-                                .putExtra("signed_up", via.name));
-
-                        if (via != SignupVia.UNKNOWN) {
-                            startActivityForResult(
-                                new Intent(this, SuggestedUsers.class).putExtra(FB_CONNECTED_EXTRA, via.isFacebook()),
-                                    SUGGESTED_USERS);
-                        } else {
-                            finish();
-                        }
-                    } else {
-                        AndroidUtils.showToast(this, R.string.error_creating_account);
-                    }
-                } else {
-                    AndroidUtils.showToast(this, error);
-                }
-                break;
-            case SUGGESTED_USERS:
-                handleSuggestedUsersReturned(data);
-                break;
-
-            case RECOVER_CODE:
-                handleRecoverResult(this, data);
-                break;
-        }
-    }
-
-    private void handleSuggestedUsersReturned(Intent data) {
-        finish();
-    }
-
-    static void handleRecoverResult(Context context, Intent data) {
-        final boolean success = data.getBooleanExtra("success", false);
-        if (success) {
-            AndroidUtils.showToast(context, R.string.authentication_recover_password_success);
-        } else {
-            String error = data.getStringExtra("error");
-            AndroidUtils.showToast(context,
-                    error == null ?
-                            context.getString(R.string.authentication_recover_password_failure) :
-                            context.getString(R.string.authentication_recover_password_failure_reason, error));
-        }
-    }
-
     public Login getLogin() {
         if (mLogin == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.login_stub);
@@ -276,7 +210,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     static boolean writeNewSignupToLog(long timestamp) {
-
         long[] toWrite, current = readLog();
         if (current == null) {
             toWrite = new long[1];
@@ -317,14 +250,71 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
     @Override
     public void onLogin(String email, String password) {
+        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+        final Bundle param = new Bundle();
+        param.putString("username", email);
+        param.putString("password", password);
+
+        new GetTokensTask(app) {
+            ProgressDialog progress;
+
+            @Override
+            protected void onPreExecute() {
+                if (!isFinishing()) {
+                    progress = AndroidUtils.showProgress(Start.this,
+                                                         R.string.authentication_login_progress_message);
+                }
+            }
+
+            @Override
+            protected void onPostExecute(final Token token) {
+                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+token+")");
+
+                if (!isFinishing()) {
+                    try {
+                        progress.dismiss();
+                    } catch (IllegalArgumentException ignored) {}
+                }
+
+                if (token != null) {
+                    new FetchUserTask(app) {
+                        @Override
+                        protected void onPostExecute(User user) {
+                            // need to create user account as soon as possible, so the executeRefreshTask logic in
+                            // SoundCloudApplication works properly
+                            final boolean signedUp = app.addUserAccount(user, app.getToken(), SignupVia.API);
+
+                            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
+
+                            if (user != null) {
+                                startActivityForResult(new Intent(Start.this, Home.class), 0);
+                                Start.this.finish();
+                            } else { // user request failed
+                                loginFail(null);
+                            }
+                        }
+                    }.execute(Request.to(Endpoints.MY_DETAILS));
+                } else { // no tokens obtained
+//                    loginFail(mException);
+                }
+            }
+        }.execute(param);
+    }
+
+    protected void loginFail(@Nullable String error) {
     }
 
     @Override
     public void onSignUp(final String email, final String password) {
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+        final Bundle param = new Bundle();
+        param.putString("username", email);
+        param.putString("password", password);
+
 
         new SignupTask(app) {
             ProgressDialog progress;
+
             @Override
             protected void onPreExecute() {
                 progress = AndroidUtils.showProgress(Start.this,
@@ -346,16 +336,13 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                     // SoundCloudApplication works properly
                     final boolean signedUp = app.addUserAccount(user, app.getToken(), SignupVia.API);
 
-                    final Bundle param = new Bundle();
-                    param.putString("username", email);
-                    param.putString("password", password);
                     new GetTokensTask(mApi) {
                         @Override protected void onPostExecute(Token token) {
                             if (token != null) {
                                 startActivityForResult(new Intent(Start.this, SignupDetails.class)
-                                        .putExtra(SignupVia.EXTRA, signedUp ? SignupVia.API.name : null)
-                                        .putExtra("user", user)
-                                        .putExtra("token", token), 0);
+                                    .putExtra(SignupVia.EXTRA, signedUp ? SignupVia.API.name : null)
+                                    .putExtra("user", user)
+                                    .putExtra("token", token), 0);
                             } else {
                                 signupFail(null);
                             }
