@@ -1,6 +1,7 @@
 package com.soundcloud.android.tests;
 
 import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
@@ -99,7 +100,9 @@ public class Han extends Solo {
     }
 
     public void assertActivityFinished() {
-        assertTrue(getCurrentActivity().isFinishing());
+        Activity a = getCurrentActivity();
+        assertNotNull("activity is null", a);
+        assertTrue("Activity "+a+" not finished", a.isFinishing());
     }
 
     public void assertDialogClosed() {
@@ -177,6 +180,8 @@ public class Han extends Solo {
     }
 
     public void logoutViaSettings() {
+
+        clickOnView(R.id.abs__home);
         clickOnMenuItem(R.string.side_menu_settings);
         clickOnText(R.string.pref_revoke_access);
         assertText(R.string.menu_clear_user_title);

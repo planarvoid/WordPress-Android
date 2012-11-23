@@ -121,10 +121,15 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
             case TRACK_SHARING:
                 PlayUtils.playFromAdapter(mContext, this, mData, position, id);
                 return ItemClickResults.LEAVING;
+
             case TRACK_REPOST:
-                mContext.startActivity(new Intent(mContext, TrackReposters.class)
+                if (mContent == Content.ME_ACTIVITIES) {
+                    // todo, scroll to specific repost
+                    mContext.startActivity(new Intent(mContext, TrackReposters.class)
                         .putExtra(Track.EXTRA, getItem(position).getTrack()));
-                // todo, scroll to specific repost
+                } else {
+                    PlayUtils.playFromAdapter(mContext, this, mData, position, id);
+                }
                 return ItemClickResults.LEAVING;
 
             case COMMENT:

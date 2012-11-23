@@ -40,6 +40,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
@@ -528,7 +529,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return ACRA.getErrorReporter().handleSilentException(e);
     }
 
-    public static SoundCloudApplication fromContext(Context c){
+    public static SoundCloudApplication fromContext(@NotNull Context c){
         if (c.getApplicationContext() instanceof  SoundCloudApplication) {
             return ((SoundCloudApplication) c.getApplicationContext());
         } else {

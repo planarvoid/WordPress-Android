@@ -46,8 +46,7 @@ public class LoginTest extends ActivityTestCase<News> {
             log("Facebook SSO is available, not testing WebFlow");
             return;
         }
-
-        solo.clickOnButtonResId(R.string.authentication_log_in_with_facebook);
+        solo.clickOnText("Facebook");
         solo.assertDialogClosed();
         WebView webView = solo.assertActivity(FacebookWebFlow.class).getWebView();
         assertNotNull(webView);
@@ -56,7 +55,7 @@ public class LoginTest extends ActivityTestCase<News> {
             solo.sleep(500);
         }
         assertNotNull("FB request timed out", webView.getUrl());
-        assertTrue("got url:" + webView.getUrl(), webView.getUrl().startsWith("http://m.facebook.com/login.php"));
+        assertTrue("got url:" + webView.getUrl(), webView.getUrl().contains("facebook.com"));
     }
 
     public void testLoginWithWrongCredentials() {
@@ -76,12 +75,14 @@ public class LoginTest extends ActivityTestCase<News> {
     @FlakyTest
     public void testLoginAndLogout() throws Exception {
         testLogin();
+
         solo.logoutViaSettings();
         solo.assertActivity(Start.class);
     }
 
     @FlakyTest
     public void testRecoverPassword() throws Exception {
+        solo.clickOnText(R.string.authentication_log_in);
         solo.clickOnText(R.string.authentication_I_forgot_my_password);
         solo.assertActivity(Recover.class);
 
@@ -90,10 +91,10 @@ public class LoginTest extends ActivityTestCase<News> {
 
         solo.assertDialogClosed();
         solo.assertText(R.string.authentication_recover_password_failure_reason, "Unknown Email Address");
-        solo.assertActivity(Start.class);
     }
 
     public void testRecoverPasswordNoInput() throws Exception {
+        solo.clickOnText(R.string.authentication_log_in);
         solo.clickOnText(R.string.authentication_I_forgot_my_password);
         solo.assertActivity(Recover.class);
 

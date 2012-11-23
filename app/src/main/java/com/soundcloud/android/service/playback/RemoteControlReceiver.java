@@ -3,7 +3,6 @@ package com.soundcloud.android.service.playback;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.KeyEvent;
 
 public class RemoteControlReceiver extends BroadcastReceiver {

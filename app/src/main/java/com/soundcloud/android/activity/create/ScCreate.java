@@ -952,8 +952,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         track(Click.Record_Pause_Delete, mTxtRecordMessage.getCurrentSuggestionKey());
-                                        mRecorder.reset(true);
-                                        finish();
+                                        reset(true);
                                     }
                                 })
                         .setNegativeButton(android.R.string.no, null)
@@ -979,15 +978,17 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         MenuItem followItem = menu.findItem(R.id.action_bar_local_recordings);
-        switch (mCurrentState) {
-            case GENERATING_WAVEFORM:
-            case IDLE_RECORD:
-            case RECORD:
-                followItem.setIcon(R.drawable.ic_rec_you_dark);
-                break;
-            default:
-                followItem.setIcon(R.drawable.ic_rec_you);
-                break;
+        if (followItem != null){
+            switch (mCurrentState) {
+                case GENERATING_WAVEFORM:
+                case IDLE_RECORD:
+                case RECORD:
+                    followItem.setIcon(R.drawable.ic_rec_you_dark);
+                    break;
+                default:
+                    followItem.setIcon(R.drawable.ic_rec_you);
+                    break;
+            }
         }
         return true;
     }

@@ -1,1 +1,1 @@
-script: mvn install
+script: mvn3 clean install -Dandroid.sdk.path=/usr/local/android-sdk-linux/ -Dandroid.ndk.path=/usr/local/android-ndk -Dandroid.test.skip=true

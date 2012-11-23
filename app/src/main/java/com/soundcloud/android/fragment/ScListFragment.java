@@ -170,12 +170,12 @@ public class ScListFragment extends SherlockListFragment
             }
             setListAdapter(adapter);
             configureEmptyCollection();
-            if (canAppend()) append();
+            if (canAppend()) append(false);
         }
     }
 
     protected boolean canAppend() {
-        return mKeepGoing && !waitingOnInitialSync() && getActivity() != null;
+        return mKeepGoing && !waitingOnInitialSync();
     }
 
     @Override
@@ -455,7 +455,7 @@ public class ScListFragment extends SherlockListFragment
             adp.notifyDataSetChanged();
         }
 
-        if (canAppend()) append();
+        if (canAppend()) append(false);
     }
 
     protected void clearRefreshTask() {
@@ -490,10 +490,6 @@ public class ScListFragment extends SherlockListFragment
         }
     }
 
-    @Override
-    public void onRefresh() {
-        refresh(true);
-    }
 
     private Handler connHandler = new Handler() {
             @Override
@@ -547,13 +543,13 @@ public class ScListFragment extends SherlockListFragment
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         if (getListAdapter().shouldRequestNextPage(firstVisibleItem, visibleItemCount, totalItemCount) && canAppend()) {
-            append();
+            append(false);
         }
     }
-    protected void append() {
-        append(false);
-    }
+
     protected void append(boolean force) {
+        if (getActivity() == null) return; // has been detached
+
         if (force || isTaskFinished(mAppendTask)){
             mAppendTask = buildTask();
             mAppendTask.execute(getTaskParams(false));
@@ -561,6 +557,10 @@ public class ScListFragment extends SherlockListFragment
         getListAdapter().setIsLoadingData(true);
     }
 
+    @Override
+    public void onRefresh(PullToRefreshBase refreshView) {
+        refresh(true);
+    }
 
     private class ChangeObserver extends ContentObserver {
         public ChangeObserver() {

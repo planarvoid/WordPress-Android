@@ -8,7 +8,6 @@ import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.Connection;
@@ -45,12 +44,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
 import java.util.List;
@@ -150,7 +147,6 @@ public class UserBrowser extends ScActivity implements
         mMyspaceName = (TextView) mInfoView.findViewById(R.id.myspace_name);
         mDescription = (TextView) mInfoView.findViewById(R.id.description);
 
-        mIcon.setScaleType(ScaleType.CENTER_INSIDE);
         if (getResources().getDisplayMetrics().density > 1 || ImageUtils.isScreenXL(this)) {
             mIcon.getLayoutParams().width = 100;
             mIcon.getLayoutParams().height = 100;
@@ -584,10 +580,13 @@ public class UserBrowser extends ScActivity implements
 
         if (!isYou()){
             MenuItem followItem = menu.findItem(R.id.action_bar_follow);
-            final boolean following = isFollowing();
-            followItem.setIcon(following ? R.drawable.ic_remove_user_white : R.drawable.ic_add_user_white);
-            followItem.setTitle(getResources().getString(following ? R.string.action_bar_unfollow : R.string.action_bar_follow));
+            if (followItem != null) {
+                final boolean following = isFollowing();
+                followItem.setIcon(following ? R.drawable.ic_remove_user_white : R.drawable.ic_add_user_white);
+                followItem.setTitle(getResources().getString(following ? R.string.action_bar_unfollow : R.string.action_bar_follow));
+            }
         } else {
+
             menu.removeItem(R.id.action_bar_follow);
         }
         return true;
