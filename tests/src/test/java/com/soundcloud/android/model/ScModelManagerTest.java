@@ -418,7 +418,7 @@ public class ScModelManagerTest {
         }
 
         expect(manager.writeCollection(users, ScResource.CacheUpdateMode.MINI)).toEqual(2);
-        expect(manager.writeMissingCollectionItems((AndroidCloudAPI) Robolectric.application, ids,Content.USERS,false,5)).toEqual(5);
+        expect(manager.fetchMissingCollectionItems((AndroidCloudAPI) Robolectric.application, ids, Content.USERS, false, 5)).toEqual(5);
     }
 
     private User createUserWithId(long id){

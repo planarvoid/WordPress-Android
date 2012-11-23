@@ -2,6 +2,7 @@ package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.*;
+import static com.soundcloud.android.service.sync.ApiSyncer.Result;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -21,6 +22,7 @@ import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.SyncResult;
 import android.net.Uri;
 
 import java.io.IOException;
@@ -40,11 +42,11 @@ public class ApiSyncerTest {
     public void shouldSyncMe() throws Exception {
         addCannedResponses(getClass(), "me.json");
         expect(Content.ME).toBeEmpty();
-        ApiSyncer.Result result = sync(Content.ME.uri);
+        Result result = sync(Content.ME.uri);
         expect(Content.ME).toHaveCount(1);
         expect(Content.USERS).toHaveCount(1);
         expect(result.success).toBe(true);
-        expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
+        expect(result.change).toEqual(Result.CHANGED);
     }
 
     @Test
@@ -112,33 +114,35 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncSounds() throws Exception {
+        addResourceResponse("/e1/me/sounds/mini?limit=200&linked_partitioning=1", "me_sounds_mini.json");
 
-
+        Result result = sync(Content.ME_SOUNDS.uri);
+        expect(result.success).toBeTrue();
     }
 
     @Test
     public void shouldDoTrackLookup() throws Exception {
         TestHelper.addCannedResponses(getClass(), "tracks.json");
-        ApiSyncer.Result result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));
+        Result result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));
         expect(result.success).toBe(true);
-        expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
+        expect(result.change).toEqual(Result.CHANGED);
         expect(Content.TRACKS).toHaveCount(3);
     }
 
     @Test
     public void shouldDoUserLookup() throws Exception {
         TestHelper.addCannedResponses(getClass(), "users.json");
-        ApiSyncer.Result result = sync(Content.USER_LOOKUP.forQuery("308291,792584,1255758"));
+        Result result = sync(Content.USER_LOOKUP.forQuery("308291,792584,1255758"));
         expect(result.success).toBe(true);
-        expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
+        expect(result.change).toEqual(Result.CHANGED);
         expect(Content.USERS).toHaveCount(3);
     }
 
     @Test
     public void shouldSetSyncResultData() throws Exception {
         TestHelper.addCannedResponses(getClass(), "e1_activities_1_oldest.json");
-        ApiSyncer.Result result = sync(Content.ME_ACTIVITIES.uri);
-        expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
+        Result result = sync(Content.ME_ACTIVITIES.uri);
+        expect(result.change).toEqual(Result.CHANGED);
         expect(result.new_size).toEqual(7);
         expect(result.synced_at).not.toEqual(0l);
     }
@@ -148,16 +152,16 @@ public class ApiSyncerTest {
         addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
         addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
 
-        ApiSyncer.Result result = sync(Content.ME_TRACKS.uri);
+        Result result = sync(Content.ME_TRACKS.uri);
         expect(result.success).toBe(true);
-        expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
+        expect(result.change).toEqual(Result.CHANGED);
 
         addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
         addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
 
         result = sync(Content.ME_TRACKS.uri);
         expect(result.success).toBe(true);
-        expect(result.change).toEqual(ApiSyncer.Result.UNCHANGED);
+        expect(result.change).toEqual(Result.UNCHANGED);
         expect(result.extra).toBeNull();
     }
 
@@ -253,7 +257,7 @@ public class ApiSyncerTest {
     }
 
 
-    private ApiSyncer.Result sync(Uri uri,  String... fixtures) throws IOException {
+    private Result sync(Uri uri,  String... fixtures) throws IOException {
         addCannedResponses(getClass(), fixtures);
         ApiSyncer syncer = new ApiSyncer(Robolectric.application);
         return syncer.syncContent(uri, Intent.ACTION_SYNC);

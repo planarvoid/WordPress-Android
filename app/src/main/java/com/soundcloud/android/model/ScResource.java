@@ -70,6 +70,4 @@ public abstract class ScResource extends ScModel {
     public static class ScResourceHolder extends CollectionHolder<ScResource> {
     }
 
-    public static class CommentHolder extends CollectionHolder<Comment> {
-    }
 }

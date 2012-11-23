@@ -36,7 +36,6 @@ public enum Content  {
     ME_FOLLOWER("me/followers/#", null, 106, User.class, -1, null),
     ME_LIKES("me/likes", Endpoints.MY_FAVORITES, 107, Track.class, TRACK_LIKE, Table.COLLECTION_ITEMS),
     ME_LIKE("me/likes/#", null, 108, Track.class, TRACK_LIKE, null),
-    ME_GROUPS("me/groups", null, 109, null, -1, null),
     ME_PLAYLISTS("me/playlists", null, 110, null, -1, null),
     ME_USERID("me/userid", null, 111, null, -1, null),
     ME_REPOSTS("me/reposts", TempEndpoints.e1.MY_REPOSTS, 112, Track.class, -1, Table.COLLECTION_ITEMS),
@@ -50,7 +49,7 @@ public enum Content  {
 
     // the ids of the following entries should not be changed, they are referenced in th db
     ME_SOUND_STREAM("me/activities/tracks", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),
-    ME_EXCLUSIVE_STREAM("me/activities/tracks/exclusive", TempEndpoints.e1.MY_EXCLUSIVE_STREAM, 141, Activity.class, -1, Table.ACTIVITIES),
+    @Deprecated ME_EXCLUSIVE_STREAM("me/activities/tracks/exclusive", TempEndpoints.e1.MY_EXCLUSIVE_STREAM, 141, Activity.class, -1, Table.ACTIVITIES),
     ME_ACTIVITIES("me/activities/all/own", TempEndpoints.e1.MY_ACTIVITIES, 142, Activity.class, -1, Table.ACTIVITIES),
     ME_ALL_ACTIVITIES("me/activities", null, 150, Activity.class, -1, Table.ACTIVITIES),
 
@@ -86,14 +85,6 @@ public enum Content  {
 
     PLAYLISTS("playlists", null, 501, null, -1, Table.SOUNDS),
     PLAYLIST("playlists/#", null, 502, null, -1, Table.SOUNDS),
-
-    GROUPS("groups", null, 600, null, -1, null),
-    GROUP("groups/#", null, 602, null, -1, null),
-    GROUP_USERS("groups/#/users", null, 603, User.class, -1, null),
-    GROUP_MODERATORS("groups/#/moderators", null, 604, User.class, -1, null),
-    GROUP_MEMBERS("groups/#/members", null, 605, User.class, -1, null),
-    GROUP_CONTRIBUTORS("groups/#/contributors", null, 606, User.class, -1, null),
-    GROUP_TRACKS("groups/#/tracks", null, 607, Track.class, -1, null),
 
     // LOCAL URIS
     COLLECTIONS("collections", null, 1000, null, -1, Table.COLLECTIONS),

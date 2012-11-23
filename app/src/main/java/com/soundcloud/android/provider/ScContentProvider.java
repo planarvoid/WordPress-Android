@@ -917,6 +917,9 @@ public class ScContentProvider extends ContentProvider {
     };
 
 
+    /**
+     *
+     */
     public interface CollectionItemTypes {
         int TRACK           = 0;
         int TRACK_LIKE      = 1;

@@ -6,14 +6,17 @@ import com.soundcloud.android.provider.ScContentProvider;
 
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Parcel;
 
 import java.util.Date;
 
-public class SoundAssociation extends ScResource{
+/**
+ * Maps to stream item on backend
+ */
+public class SoundAssociation extends ScResource {
 
     public int associationType;
+    public String type;
     public Date created_at;
 
     public Track track;
@@ -44,7 +47,6 @@ public class SoundAssociation extends ScResource{
         dest.writeParcelable(playlist,0);
         dest.writeParcelable(user,0);
     }
-
 
 
     @Override
@@ -80,9 +82,8 @@ public class SoundAssociation extends ScResource{
             associationType = ScContentProvider.CollectionItemTypes.PLAYLIST_REPOST;
         } else if (type.equalsIgnoreCase("playlist_like")) {
             associationType = ScContentProvider.CollectionItemTypes.PLAYLIST_LIKE;
-
         }
-
+        this.type = type;
     }
 
     public long getOriginId() {

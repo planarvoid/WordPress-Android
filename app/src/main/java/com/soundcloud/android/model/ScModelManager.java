@@ -24,7 +24,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -97,9 +96,7 @@ public class ScModelManager {
      * @return the Resource Collection
      * @throws IOException
      */
-    public
-    @NotNull
-    <T extends ScResource> CollectionHolder<T> getCollectionFromStream(InputStream is) throws IOException {
+    public @NotNull <T extends ScResource> CollectionHolder<T> getCollectionFromStream(InputStream is) throws IOException {
 
         List<ScResource> items = new ArrayList<ScResource>();
         CollectionHolder holder = mMapper.readValue(is, ScResource.ScResourceHolder.class);
@@ -358,14 +355,14 @@ public class ScModelManager {
         return user;
     }
 
-    private static List<ScResource> doBatchLookup(AndroidCloudAPI api, List<Long> ids, Content content) throws IOException {
+    private static List<ScResource> doBatchLookup(AndroidCloudAPI api, List<Long> ids, String path) throws IOException {
         List<ScResource> resources = new ArrayList<ScResource>();
         int i = 0;
         while (i < ids.size()) {
             List<Long> batch = ids.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, ids.size()));
             InputStream is = validateResponse(
                     api.get(
-                            Request.to(content.remoteUri)
+                            Request.to(path)
                                     .add("linked_partitioning", "1")
                                     .add("limit", API_LOOKUP_BATCH_SIZE)
                                     .add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
@@ -388,20 +385,13 @@ public class ScModelManager {
         return response;
     }
 
-    public int writeMissingCollectionItems(AndroidCloudAPI api,
-                                               List<Long> modelIds,
-                                               Content content,
-                                               boolean ignoreStored) throws IOException {
-        return writeMissingCollectionItems(api, modelIds, content, ignoreStored, -1);
-    }
-
     /**
      * @param modelIds     a list of model ids
      * @param ignoreStored if it should ignore stored ids
      * @return a list of models which are not stored in the database
      * @throws java.io.IOException
      */
-    public int writeMissingCollectionItems(AndroidCloudAPI api,
+    public int fetchMissingCollectionItems(AndroidCloudAPI api,
                                            List<Long> modelIds,
                                            Content content,
                                            boolean ignoreStored, int maxToFetch) throws IOException {
@@ -418,7 +408,8 @@ public class ScModelManager {
         List<Long> fetchIds = (maxToFetch > -1) ? new ArrayList<Long>(ids.subList(0, Math.min(ids.size(), maxToFetch)))
                     : ids;
 
-        return SoundCloudDB.bulkInsertModels(mResolver, doBatchLookup(api, fetchIds, Track.class.equals(content.modelType) ? Content.TRACKS : Content.USERS));
+        return SoundCloudDB.bulkInsertModels(mResolver, doBatchLookup(api, fetchIds,
+                Track.class.equals(content.modelType) ? Content.TRACKS.remoteUri : Content.USERS.remoteUri));
     }
 
     /**
