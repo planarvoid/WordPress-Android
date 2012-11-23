@@ -125,8 +125,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             }
         });
 
-        getSupportActionBar().setTitle(null);
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         configureCustomView();
 
         if (savedInstanceState == null) {
