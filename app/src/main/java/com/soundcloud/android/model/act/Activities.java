@@ -24,6 +24,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -366,6 +367,16 @@ public class Activities extends CollectionHolder<Activity> {
     public static Activities get(ContentResolver resolver, Uri uri, @Nullable String[] projection,
                                  @Nullable String where, @Nullable String[] whereArgs, @Nullable String sort) {
         return SoundCloudApplication.MODEL_MANAGER.getActivitiesFromCursor(resolver.query(uri, projection, where, whereArgs, sort));
+    }
+
+    public static int getCountSince(SoundCloudApplication app, long since, Content content){
+        ContentResolver resolver = app.getContentResolver();
+        Cursor c = resolver.query(content.uri,
+                    new String[]{BaseColumns._ID},
+                    DBHelper.ActivityView.CONTENT_ID + " = ? AND " + DBHelper.ActivityView.CREATED_AT + "> ?",
+                    new String[]{String.valueOf(content.id), String.valueOf(since)},
+                    null);
+        return c != null ? c.getCount() : 0;
     }
 
     public ContentValues[] buildContentValues(final int contentId) {

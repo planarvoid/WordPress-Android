@@ -2,7 +2,6 @@ package com.soundcloud.android.activity;
 
 import static com.actionbarsherlock.internal.view.menu.ActionMenuView.OnClickListener;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.internal.view.menu.ActionMenuView;
 import com.actionbarsherlock.view.Menu;
@@ -37,9 +36,11 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.SearchManager;
 import android.app.SearchableInfo;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.media.AudioManager;
@@ -209,12 +210,16 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     protected void onStart() {
         super.onStart();
         connectivityListener.startListening(this);
+        IntentFilter f = new IntentFilter();
+        f.addAction(Consts.GeneralIntents.ACTIVITIES_UNSEEN_CHANGED);
+        registerReceiver(mGeneralIntentListener, new IntentFilter(f));
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         connectivityListener.stopListening();
+        unregisterReceiver(mGeneralIntentListener);
     }
 
     @Override
@@ -634,4 +639,14 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             }
         });
     }
+
+    private final BroadcastReceiver mGeneralIntentListener = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (action.equals(Consts.GeneralIntents.ACTIVITIES_UNSEEN_CHANGED)) {
+                    mRootView.getMenu().refresh();
+                }
+            }
+    };
 }

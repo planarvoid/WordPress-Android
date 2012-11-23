@@ -1022,7 +1022,7 @@ public class RootView extends ViewGroup {
      * @return The View representing the handle of the menu, identified by
      *         the "handle" id in XML.
      */
-    public View getMenu() {
+    public MainMenu getMenu() {
         return mMenu;
     }
 

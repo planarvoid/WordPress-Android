@@ -5,6 +5,7 @@ import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -38,6 +39,10 @@ public class MainMenu extends LinearLayout {
     private ListView mList;
     private MenuAdapter mMenuAdapter;
     private OnMenuItemClickListener mClickListener;
+
+    public void refresh() {
+       mMenuAdapter.notifyDataSetChanged();
+    }
 
     /**
      * Callback invoked when a menu item is clicked.
@@ -223,11 +228,35 @@ public class MainMenu extends LinearLayout {
                 holder = new ViewHolder();
                 holder.image = (ImageView) convertView.findViewById(R.id.main_menu_item_icon);
                 holder.text = (TextView) convertView.findViewById(R.id.main_menu_item_text);
+                holder.counter = (TextView) convertView.findViewById(R.id.main_menu_dashboard_counter);
 
                 convertView.setTag(holder);
 
             } else {
                 holder = (ViewHolder) convertView.getTag();
+            }
+
+            switch (menuItem.id) {
+                case (R.id.nav_stream):
+                    final Integer streamCount = SoundCloudApplication.unseenActivities.get(Content.ME_SOUND_STREAM);
+                    if (streamCount > 0){
+                        holder.counter.setText(streamCount > 99 ? "99+" : streamCount.toString());
+                        holder.counter.setVisibility(View.VISIBLE);
+                    } else {
+                        holder.counter.setVisibility(View.GONE);
+                    }
+                    break;
+                case (R.id.nav_news):
+                    final Integer activitiesCount = SoundCloudApplication.unseenActivities.get(Content.ME_ACTIVITIES);
+                    if (activitiesCount > 0){
+                        holder.counter.setText(activitiesCount > 99 ? "99+" : activitiesCount.toString());
+                        holder.counter.setVisibility(View.VISIBLE);
+                    } else {
+                        holder.counter.setVisibility(View.GONE);
+                    }
+                    break;
+                default:
+                    if (holder.counter != null) holder.counter.setVisibility(View.GONE);
             }
 
             boolean setDefaultImage = true;
@@ -269,6 +298,7 @@ public class MainMenu extends LinearLayout {
 
         private static class ViewHolder {
             TextView text;
+            TextView counter;
             ImageView image;
         }
     }
