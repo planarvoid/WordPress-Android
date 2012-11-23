@@ -6,7 +6,7 @@
       android:versionCode="49">
 
     <supports-screens android:anyDensity="true" />
-    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="15"/>
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16"/>
 
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>

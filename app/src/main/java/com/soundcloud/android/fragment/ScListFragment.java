@@ -490,10 +490,6 @@ public class ScListFragment extends SherlockListFragment
         }
     }
 
-    @Override
-    public void onRefresh() {
-        refresh(true);
-    }
 
     private Handler connHandler = new Handler() {
             @Override
@@ -561,6 +557,10 @@ public class ScListFragment extends SherlockListFragment
         getListAdapter().setIsLoadingData(true);
     }
 
+    @Override
+    public void onRefresh(PullToRefreshBase refreshView) {
+        refresh(true);
+    }
 
     private class ChangeObserver extends ContentObserver {
         public ChangeObserver() {
