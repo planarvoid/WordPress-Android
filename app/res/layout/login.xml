@@ -2,7 +2,7 @@
 <com.soundcloud.android.activity.auth.Login xmlns:android="http://schemas.android.com/apk/res/android"
                                             android:layout_width="fill_parent"
                                             android:layout_height="fill_parent">
-<View style="@style/SignUp.Overlay"/>
+    <View style="@style/SignUp.Overlay"/>
 
     <ScrollView android:layout_width="fill_parent"
                 android:layout_height="fill_parent">
