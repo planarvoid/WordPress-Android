@@ -140,8 +140,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             C2DMReceiver.register(this, getLoggedInUser());
         }
 
-        unseenActivities.put(Content.ME_SOUND_STREAM, Activities.getCountSince(this,getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN),Content.ME_SOUND_STREAM));
-        unseenActivities.put(Content.ME_ACTIVITIES, Activities.getCountSince(this, getAccountDataLong(User.DataKeys.LAST_OWN_SEEN), Content.ME_ACTIVITIES));
+        unseenActivities.put(Content.ME_SOUND_STREAM, Activities.getCountSince(getContentResolver(),
+                getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN),Content.ME_SOUND_STREAM));
+        unseenActivities.put(Content.ME_ACTIVITIES, Activities.getCountSince(getContentResolver(),
+                getAccountDataLong(User.DataKeys.LAST_OWN_SEEN), Content.ME_ACTIVITIES));
 
 //        setupStrictMode();
 
@@ -557,7 +559,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 }
                 break;
             case ME_ACTIVITIES:
-                if (count != SoundCloudApplication.unseenActivities.get(Content.ME_SOUND_STREAM)) {
+                if (count != SoundCloudApplication.unseenActivities.get(Content.ME_ACTIVITIES)) {
                     SoundCloudApplication.unseenActivities.put(Content.ME_ACTIVITIES, count);
                     sendBroadcast(new Intent(Consts.GeneralIntents.ACTIVITIES_UNSEEN_CHANGED));
                 }

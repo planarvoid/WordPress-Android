@@ -369,14 +369,13 @@ public class Activities extends CollectionHolder<Activity> {
         return SoundCloudApplication.MODEL_MANAGER.getActivitiesFromCursor(resolver.query(uri, projection, where, whereArgs, sort));
     }
 
-    public static int getCountSince(SoundCloudApplication app, long since, Content content){
-        ContentResolver resolver = app.getContentResolver();
-        Cursor c = resolver.query(content.uri,
-                    new String[]{BaseColumns._ID},
+    public static int getCountSince(ContentResolver contentResolver, long since, Content content){
+        Cursor c = contentResolver.query(content.uri,
+                    new String[]{"Count("+BaseColumns._ID+") as unseen"},
                     DBHelper.ActivityView.CONTENT_ID + " = ? AND " + DBHelper.ActivityView.CREATED_AT + "> ?",
                     new String[]{String.valueOf(content.id), String.valueOf(since)},
                     null);
-        return c != null ? c.getCount() : 0;
+        return c != null && c.moveToFirst() ? c.getInt(c.getColumnIndex("unseen")) : 0;
     }
 
     public ContentValues[] buildContentValues(final int contentId) {
