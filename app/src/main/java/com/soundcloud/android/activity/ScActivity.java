@@ -22,7 +22,6 @@ import com.soundcloud.android.activity.landing.SuggestedUsers;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
-import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
@@ -73,7 +72,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     private NowPlayingIndicator mNowPlaying;
     private SuggestionsAdapter mSuggestionsAdapter;
-    private ViewGroup mActionBarCustomView, mSearchCustomView;
+    private View mActionBarCustomView;
+    private ViewGroup mSearchCustomView;
     private SearchView mSearchView;
 
     @Override
@@ -125,8 +125,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             }
         });
 
-        getSupportActionBar().setTitle(null);
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         configureCustomView();
 
         if (savedInstanceState == null) {
@@ -509,7 +507,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private View getDefaultCustomView() {
         if (mActionBarCustomView == null) {
             final boolean inPlayer = (this instanceof ScPlayer);
-            mActionBarCustomView = (RelativeLayout) View.inflate(this, inPlayer ? R.layout.action_bar_custom_logo : R.layout.action_bar_custom_view, null);
+            mActionBarCustomView = View.inflate(this, inPlayer ? R.layout.action_bar_custom_logo : R.layout.action_bar_custom_view, null);
             mActionBarCustomView.findViewById(R.id.custom_home).setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -555,6 +553,14 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         mInSearchMode = !mInSearchMode;
         configureCustomView();
         invalidateOptionsMenu();
+
+        if (useFullScreenSearch()) {
+            if (!mInSearchMode) {
+                mRootView.unBlock();
+            } else {
+                mRootView.block();
+            }
+        }
     }
 
     private void closeSearch() {
@@ -563,37 +569,31 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         if (mInSearchMode) toggleSearch();
     }
 
+    private boolean useFullScreenSearch(){
+        return (getResources().getConfiguration().screenLayout &
+                                Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE;
+    }
+
     /**
      * Configure search view to funciton how we want it
-     * @param searchView
+     * @param searchView the search view
      */
     private void setupSearchView(SearchView searchView) {
-
-        final boolean isFullScreen = (getResources().getConfiguration().screenLayout &
-                Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
-
         searchView.setIconifiedByDefault(false);
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    if (!isFullScreen) mRootView.block();
-                } else {
+                if (!hasFocus) {
                     closeSearch();
                 }
             }
         });
 
         /* find and configure the search autocompletetextview */
-
         // actionbarsherlock view
         AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
         if (search_text != null) {
-            if (isFullScreen) {
-                // on a large screen device, just anchor to the search bar itself
-                if (findViewById(R.id.abs__search_bar) != null) search_text.setDropDownAnchor(R.id.abs__search_bar);
-                search_text.setDropDownWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
-            } else {
+            if (useFullScreenSearch()) {
                 // on a normal size device, use the whole action bar
                 final int identifier = getResources().getIdentifier("action_bar", "id", "android");
                 if (findViewById(identifier) != null) {
@@ -604,6 +604,10 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     search_text.setDropDownAnchor(R.id.abs__action_bar);
                 }
                 search_text.setDropDownWidth(ViewGroup.LayoutParams.FILL_PARENT);
+            } else {
+                // on a large screen device, just anchor to the search bar itself
+                if (findViewById(R.id.abs__search_bar) != null) search_text.setDropDownAnchor(R.id.abs__search_bar);
+                search_text.setDropDownWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
             }
 
         }

@@ -68,6 +68,7 @@
               android:layout_height="wrap_content"
               android:layout_below="@id/user"
               android:maxLines="2"
+              style="@style/txt_list_main"
               android:ellipsize="marquee"
               android:text="@string/track"/>
     <RelativeLayout

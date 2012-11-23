@@ -19,6 +19,7 @@
                 android:layout_height="67dip"
                 android:layout_marginRight="@dimen/list_icon_margin_right"
                 android:layout_marginLeft="@dimen/list_icon_margin_left"
+                android:scaleType="fitCenter"
                 android:src="@drawable/avatar_badge_large"
                 android:gravity="top"/>
         <RelativeLayout android:layout_width="0dp"

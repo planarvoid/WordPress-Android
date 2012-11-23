@@ -211,7 +211,6 @@ public class RootView extends ViewGroup {
             mBlocker.setClickable(true);
             Animation animation = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_in);
             animation.setDuration(200);
-            animation.setStartOffset(300);
             mBlocker.startAnimation(animation);
         }
     }
