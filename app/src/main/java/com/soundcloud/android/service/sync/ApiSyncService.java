@@ -112,7 +112,6 @@ public class ApiSyncService extends Service {
     }
 
     private class ApiTask extends AsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> {
-
         public final AsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> executeOnThreadPool(
                 CollectionSyncRequest... params) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
