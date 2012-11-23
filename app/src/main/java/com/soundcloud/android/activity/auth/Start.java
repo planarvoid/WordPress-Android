@@ -1,5 +1,8 @@
 package com.soundcloud.android.activity.auth;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -11,6 +14,8 @@ import android.widget.RadioGroup;
 
 import com.soundcloud.android.*;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.task.GetTokensTask;
+import com.soundcloud.android.task.SignupTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -315,7 +320,66 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     @Override
-    public void onSignUp(String email, String password) {
+    public void onSignUp(final String email, final String password) {
+        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+
+        new SignupTask(app) {
+            ProgressDialog progress;
+            @Override
+            protected void onPreExecute() {
+                progress = AndroidUtils.showProgress(Start.this,
+                                                     R.string.authentication_signup_progress_message);
+            }
+
+            @Override
+            protected void onPostExecute(final User user) {
+                if (!isFinishing()) {
+                    try {
+                        progress.dismiss();
+                    } catch (IllegalArgumentException ignored) {}
+                }
+
+                if (user != null) {
+                    writeNewSignupToLog();
+
+                    // need to create user account as soon as possible, so the executeRefreshTask logic in
+                    // SoundCloudApplication works properly
+                    final boolean signedUp = app.addUserAccount(user, app.getToken(), SignupVia.API);
+
+                    final Bundle param = new Bundle();
+                    param.putString("username", email);
+                    param.putString("password", password);
+                    new GetTokensTask(mApi) {
+                        @Override protected void onPostExecute(Token token) {
+                            if (token != null) {
+                                startActivityForResult(new Intent(Start.this, SignupDetails.class)
+                                        .putExtra(SignupVia.EXTRA, signedUp ? SignupVia.API.name : null)
+                                        .putExtra("user", user)
+                                        .putExtra("token", token), 0);
+                            } else {
+                                signupFail(null);
+                            }
+                        }
+                    }.execute(param);
+                } else {
+                    signupFail(getFirstError());
+                }
+            }
+        }.execute(email, password);
+    }
+
+    protected void signupFail(@Nullable String error) {
+        if (!isFinishing()) {
+            new AlertDialog.Builder(this)
+                    .setTitle(error != null ? R.string.authentication_signup_failure_title :  R.string.authentication_signup_error_title)
+                    .setMessage(error != null ? error : getString(R.string.authentication_signup_error_message))
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    })
+                    .show();
+        }
     }
 
     @Override
