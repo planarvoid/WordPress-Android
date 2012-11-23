@@ -67,7 +67,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
 
     // public service actions
-    public static final String PLAY_ACTION          = "com.soundcloud.android.playback.play";
+    public static final String PLAY_ACTION = "com.soundcloud.android.playback.start";
     public static final String TOGGLEPAUSE_ACTION   = "com.soundcloud.android.playback.togglepause";
     public static final String PAUSE_ACTION         = "com.soundcloud.android.playback.pause";
     public static final String NEXT_ACTION          = "com.soundcloud.android.playback.next";

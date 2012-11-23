@@ -1,12 +1,12 @@
 package com.soundcloud.android.utils;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.adapter.PlayableAdapter;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 
@@ -25,7 +25,9 @@ public class PlayUtils {
     public static void playTrack(Context c, PlayInfo info, boolean goToPlayer, boolean commentMode) {
 
         final Track t = info.getTrack();
-        Intent intent = new Intent(c, CloudPlaybackService.class).setAction(CloudPlaybackService.PLAY_ACTION);
+        Intent intent = goToPlayer ? new Intent(c, ScPlayer.class).setAction(Actions.PLAY) :
+                new Intent(c, CloudPlaybackService.class).setAction(CloudPlaybackService.PLAY_ACTION);
+
         if (CloudPlaybackService.getCurrentTrackId() != t.id) {
             // changing tracks
             intent.putExtra(CloudPlaybackService.PlayExtras.trackId, t.id);
@@ -40,19 +42,28 @@ public class PlayUtils {
                         .putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true);
             }
         }
-        c.startService(intent);
+
 
         if (goToPlayer) {
-            launchPlayer(c, commentMode);
-        }
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            intent.putExtra("commentMode", commentMode);
+            c.startActivity(intent);
 
+        } else {
+            c.startService(intent);
+        }
     }
 
-    private static void launchPlayer(Context c, boolean commentMode) {
-        Intent i = new Intent(c, ScPlayer.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        i.putExtra("commentMode", commentMode);
-        c.startActivity(i);
+    public static Track getTrackFromIntent(Intent intent){
+        if (intent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferCache,false)){
+            final int position = intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition,-1);
+            if (position > -1 && position < CloudPlaybackService.playlistXfer.size()){
+                return  CloudPlaybackService.playlistXfer.get(position).getTrack();
+            }
+        } else if (intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l) > 0) {
+            return SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l));
+        }
+        return null;
     }
 
     public static void playFromAdapter(Context c, PlayableAdapter adapter, List<? extends ScModel> data, int position, long id) {
