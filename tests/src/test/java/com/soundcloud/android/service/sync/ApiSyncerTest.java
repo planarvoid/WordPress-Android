@@ -27,8 +27,7 @@ import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncerTest {
-
-    static final long USER_ID = 133201L;
+    private static final long USER_ID = 133201L;
     private ContentResolver resolver;
 
     @Before
@@ -37,75 +36,19 @@ public class ApiSyncerTest {
         resolver = DefaultTestRunner.application.getContentResolver();
     }
 
-    @Test(expected = IOException.class)
-    public void shouldThrowIOException() throws Exception {
-        Robolectric.setDefaultHttpResponse(500, "error");
-        sync(Content.ME_FOLLOWERS.uri);
-    }
-
-    @Test
-    public void shouldUpdateLocalUser() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "me.json");
-        ApiSyncer.Result result = sync(Content.ME.uri);
-        expect(result.success).toBe(true);
-        expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
-    }
-
-    @Test
-    public void shouldSyncActivities() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "e1_activities_1_oldest.json");
-        ApiSyncer.Result result = sync(Content.ME_ACTIVITIES.uri);
-        expect(result.success).toBe(true);
-    }
-
-    @Test
-    public void shouldSetSyncResultData() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "e1_activities_1_oldest.json");
-        ApiSyncer.Result result = sync(Content.ME_ACTIVITIES.uri);
-        expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
-        expect(result.new_size).toEqual(7);
-        expect(result.synced_at).not.toEqual(0l);
-    }
-
-    @Test
-    public void shouldSyncContent() throws Exception {
-        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
-        ApiSyncer.Result result = sync(Content.ME_TRACKS.uri);
-        expect(result.success).toBe(true);
-        expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
-        expect(result.extra).toEqual("0");
-    }
-
     @Test
     public void shouldSyncMe() throws Exception {
         addCannedResponses(getClass(), "me.json");
         expect(Content.ME).toBeEmpty();
-        sync(Content.ME.uri);
+        ApiSyncer.Result result = sync(Content.ME.uri);
         expect(Content.ME).toHaveCount(1);
         expect(Content.USERS).toHaveCount(1);
+        expect(result.success).toBe(true);
+        expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
     }
 
     @Test
-    public void shouldSyncActivitiesOwn() throws Exception {
-        sync(Content.ME_ACTIVITIES.uri,
-                "e1_activities_1.json",
-                "e1_activities_2.json");
-
-        expect(Content.ME_ACTIVITIES).toHaveCount(17);
-        expect(Content.COMMENTS).toHaveCount(5);
-
-        Activities own = Activities.getSince(Content.ME_ACTIVITIES, Robolectric.application.getContentResolver(), -1);
-        expect(own.size()).toEqual(17);
-
-        assertResolverNotified(Content.TRACKS.uri,
-                Content.USERS.uri,
-                Content.COMMENTS.uri,
-                Content.ME_ACTIVITIES.uri);
-    }
-
-    @Test
-    public void shouldSyncActivitiesIncoming() throws Exception {
+    public void shouldSyncStream() throws Exception {
         sync(Content.ME_SOUND_STREAM.uri,
                 "e1_stream.json",
                 "e1_stream_oldest.json");
@@ -121,6 +64,24 @@ public class ApiSyncerTest {
         expect(incoming.size()).toEqual(112);
         expect(incoming.getUniqueTracks().size()).toEqual(111); // currently excluding playlists
         assertResolverNotified(Content.ME_SOUND_STREAM.uri, Content.TRACKS.uri, Content.USERS.uri);
+    }
+
+    @Test
+    public void shouldSyncActivities() throws Exception {
+        sync(Content.ME_ACTIVITIES.uri,
+                "e1_activities_1.json",
+                "e1_activities_2.json");
+
+        expect(Content.ME_ACTIVITIES).toHaveCount(17);
+        expect(Content.COMMENTS).toHaveCount(5);
+
+        Activities own = Activities.getSince(Content.ME_ACTIVITIES, Robolectric.application.getContentResolver(), -1);
+        expect(own.size()).toEqual(17);
+
+        assertResolverNotified(Content.TRACKS.uri,
+                Content.USERS.uri,
+                Content.COMMENTS.uri,
+                Content.ME_ACTIVITIES.uri);
     }
 
     @Test
@@ -150,21 +111,9 @@ public class ApiSyncerTest {
     }
 
     @Test
-    public void shouldReturnUnchangedIfLocalStateEqualsRemote() throws Exception {
-        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+    public void shouldSyncSounds() throws Exception {
 
-        ApiSyncer.Result result = sync(Content.ME_TRACKS.uri);
-        expect(result.success).toBe(true);
-        expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
 
-        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
-
-        result = sync(Content.ME_TRACKS.uri);
-        expect(result.success).toBe(true);
-        expect(result.change).toEqual(ApiSyncer.Result.UNCHANGED);
-        expect(result.extra).toBeNull();
     }
 
     @Test
@@ -183,6 +132,33 @@ public class ApiSyncerTest {
         expect(result.success).toBe(true);
         expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
         expect(Content.USERS).toHaveCount(3);
+    }
+
+    @Test
+    public void shouldSetSyncResultData() throws Exception {
+        TestHelper.addCannedResponses(getClass(), "e1_activities_1_oldest.json");
+        ApiSyncer.Result result = sync(Content.ME_ACTIVITIES.uri);
+        expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
+        expect(result.new_size).toEqual(7);
+        expect(result.synced_at).not.toEqual(0l);
+    }
+
+    @Test
+    public void shouldReturnUnchangedIfLocalStateEqualsRemote() throws Exception {
+        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
+        addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+
+        ApiSyncer.Result result = sync(Content.ME_TRACKS.uri);
+        expect(result.success).toBe(true);
+        expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
+
+        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
+        addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+
+        result = sync(Content.ME_TRACKS.uri);
+        expect(result.success).toBe(true);
+        expect(result.change).toEqual(ApiSyncer.Result.UNCHANGED);
+        expect(result.extra).toBeNull();
     }
 
     @Test
@@ -243,11 +219,8 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldNotProduceDuplicatesWhenSyncing() throws Exception {
-        sync(Content.ME_SOUND_STREAM.uri,
-                "e1_stream_1_oldest.json");
-
-        sync(Content.ME_EXCLUSIVE_STREAM.uri,
-                "e1_stream_1_oldest.json");
+        sync(Content.ME_SOUND_STREAM.uri, "e1_stream_1_oldest.json");
+        sync(Content.ME_EXCLUSIVE_STREAM.uri, "e1_stream_1_oldest.json");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(20);
         expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(20);
@@ -258,8 +231,7 @@ public class ApiSyncerTest {
     public void shouldFilterOutDuplicateTrackAndSharingsAndKeepSharings() throws Exception {
         // TODO, removed duplicate handling. Figure out how to handle with reposts now
         //  1 unrelated track + 2 track-sharing/track with same id
-        sync(Content.ME_SOUND_STREAM.uri,
-                "track_and_track_sharing.json");
+        sync(Content.ME_SOUND_STREAM.uri, "track_and_track_sharing.json");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(3);
         Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
@@ -268,11 +240,18 @@ public class ApiSyncerTest {
         Activity a1 = incoming.get(0);
         Activity a2 = incoming.get(1);
 
-        expect(a1 instanceof TrackActivity).toBeTrue();
+        expect(a1).toBeInstanceOf(TrackActivity.class);
         expect(a1.getTrack().permalink).toEqual("bastard-amo1-edit");
-        expect(a2 instanceof TrackSharingActivity).toBeTrue();
+        expect(a2).toBeInstanceOf(TrackSharingActivity.class);
         expect(a2.getTrack().permalink).toEqual("leotrax06-leo-zero-boom-bam");
     }
+
+    @Test(expected = IOException.class)
+    public void shouldThrowIOException() throws Exception {
+        Robolectric.setDefaultHttpResponse(500, "error");
+        sync(Content.ME_FOLLOWERS.uri);
+    }
+
 
     private ApiSyncer.Result sync(Uri uri,  String... fixtures) throws IOException {
         addCannedResponses(getClass(), fixtures);
