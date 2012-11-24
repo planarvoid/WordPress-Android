@@ -299,6 +299,7 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_SHORTCUTS:
+            case ME_CONNECTIONS:
                 qb.setTables(content.table.name);
                 break;
 
@@ -654,6 +655,7 @@ public class ScContentProvider extends ContentProvider {
 
 
             case ME_SHORTCUTS:
+            case ME_CONNECTIONS:
                 recreateTable = true;
 
             default:

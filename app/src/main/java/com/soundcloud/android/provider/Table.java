@@ -33,6 +33,7 @@ public enum Table {
     COLLECTION_PAGES("CollectionPages", false, DBHelper.DATABASE_CREATE_COLLECTION_PAGES),
 
     SUGGESTIONS("Suggestions", false, DBHelper.DATABASE_CREATE_SUGGESTIONS, DBHelper.Suggestions.ALL_FIELDS),
+    CONNECTIONS("Connections", false, DBHelper.DATABASE_CREATE_CONNECTIONS),
 
     // views
     SOUND_VIEW("SoundView", true, DBHelper.DATABASE_CREATE_SOUND_VIEW),

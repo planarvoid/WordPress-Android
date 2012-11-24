@@ -10,7 +10,7 @@ import com.google.android.imageloader.PrefetchHandler;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.c2dm.C2DMReceiver;
-import com.soundcloud.android.cache.Connections;
+import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Comment;
@@ -19,7 +19,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.service.sync.SyncConfig;
 import com.soundcloud.android.tracking.ATTracker;
 import com.soundcloud.android.tracking.Click;
@@ -116,7 +115,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         MODEL_MANAGER = new ScModelManager(this, mCloudApi.getMapper());
 
         if (account != null) {
-            Connections.initialize(this, "connections-"+getCurrentUserId());
 
             if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
                 enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
@@ -191,7 +189,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         User.clearLoggedInUserFromStorage(this);
         C2DMReceiver.unregister(this);
         FollowStatus.set(null);
-        Connections.set(null);
+        ConnectionsCache.set(null);
         mLoggedInUser = null;
         mCloudApi.invalidateToken();
     }

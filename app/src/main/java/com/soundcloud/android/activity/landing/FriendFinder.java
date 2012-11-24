@@ -3,14 +3,11 @@ package com.soundcloud.android.activity.landing;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.cache.Connections;
+import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.fragment.FriendFinderFragment;
-import com.soundcloud.android.fragment.ScListFragment;
-import com.soundcloud.android.provider.Content;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.view.Gravity;
 import android.widget.Toast;
 
@@ -52,7 +49,7 @@ public class FriendFinder extends ScActivity implements ScLandingPage {
                     toast.show();
 
                     if (success) {
-                        Connections.get().requestUpdate(getApp(), true, mFragment);
+                        ConnectionsCache.get(this).requestConnections(mFragment);
 
                         if (mFragment != null) {
                             mFragment.setState(FriendFinderFragment.States.LOADING, false);

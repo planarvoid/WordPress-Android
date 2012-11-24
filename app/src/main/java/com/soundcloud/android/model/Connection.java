@@ -4,8 +4,14 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -16,9 +22,10 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Connection implements Comparable<Connection>, Parcelable {
+public class Connection extends ScResource implements Comparable<Connection>, Parcelable {
     private boolean active = true;
     private Service _service;
 
@@ -28,13 +35,25 @@ public class Connection implements Comparable<Connection>, Parcelable {
     public boolean post_publish;
     @JsonProperty("post_favorite") public boolean post_like;
     public String service;
-    public URI uri;
+    public Uri uri;
 
     public Connection() {}
+
     public Connection(Service s) {
         this._service = s;
         this.display_name = s.toString();
         this.active = false;
+    }
+
+    public Connection(Cursor c){
+        service = c.getString(c.getColumnIndex(DBHelper.Connections.SERVICE));
+        _service = Service.fromString(service);
+        created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.Connections.CREATED_AT)));
+        display_name = c.getString(c.getColumnIndex(DBHelper.Connections.DISPLAY_NAME));
+        active = c.getInt(c.getColumnIndex(DBHelper.Connections.ACTIVE)) == 1;
+        post_publish = c.getInt(c.getColumnIndex(DBHelper.Connections.POST_PUBLISH)) == 1;
+        post_like = c.getInt(c.getColumnIndex(DBHelper.Connections.POST_LIKE)) == 1;
+        uri = Uri.parse(c.getString(c.getColumnIndex(DBHelper.Connections.URI)));
     }
 
     public boolean isActive() { return active; }
@@ -48,6 +67,35 @@ public class Connection implements Comparable<Connection>, Parcelable {
         int rank1 = service().ordinal();
         int rank2 = another.service().ordinal();
         return (rank1 > rank2) ? 1 : ((rank1 < rank2) ? -1 : 0);
+    }
+
+    @Override
+    public ContentValues buildContentValues() {
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.Connections.USER_ID, SoundCloudApplication.getUserId());
+        cv.put(DBHelper.Connections.SERVICE, service);
+        cv.put(DBHelper.Connections.CREATED_AT, created_at.getTime());
+        cv.put(DBHelper.Connections.DISPLAY_NAME, display_name);
+        cv.put(DBHelper.Connections.ACTIVE, active);
+        cv.put(DBHelper.Connections.POST_PUBLISH, post_publish);
+        cv.put(DBHelper.Connections.POST_LIKE, post_like);
+        cv.put(DBHelper.Connections.URI, uri.toString());
+        return cv;
+    }
+
+    @Override
+    public Uri getBulkInsertUri() {
+        return Content.ME_CONNECTIONS.uri;
+    }
+
+    @Override
+    public User getUser() {
+        return null;
+    }
+
+    @Override
+    public Sound getSound() {
+        return null;
     }
 
     @Override
@@ -77,7 +125,7 @@ public class Connection implements Comparable<Connection>, Parcelable {
             connection.post_like = source.readInt() == 1;
             connection.service = source.readString();
             String uri = source.readString();
-            connection.uri = uri == null ? null : URI.create(uri);
+            connection.uri = uri == null ? null : Uri.parse(uri);
             return connection;
         }
 
@@ -136,7 +184,7 @@ public class Connection implements Comparable<Connection>, Parcelable {
         }
     }
 
-    public static List<Connection> addUnused(List<Connection> connections) {
+    public static List<Connection> addUnused(Set<Connection> connections) {
         List<Connection> all = new ArrayList<Connection>(connections);
 
         EnumSet<Service> networks = EnumSet.allOf(Service.class);
@@ -151,7 +199,7 @@ public class Connection implements Comparable<Connection>, Parcelable {
         return all;
     }
 
-    public static boolean checkConnectionListForService(List<Connection> haystack, Connection.Service needle) {
+    public static boolean checkConnectionListForService(Set<Connection> haystack, Service needle) {
         if (haystack != null) {
             for (Connection c : haystack){
                 if (c.service() == needle){

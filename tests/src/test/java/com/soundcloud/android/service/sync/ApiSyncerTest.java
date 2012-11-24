@@ -125,6 +125,12 @@ public class ApiSyncerTest {
     }
 
     @Test
+    public void shouldSyncConnections() throws Exception {
+        addResourceResponse("/me/connections.json?linked_partitioning=1", "connections.json");
+        sync(Content.ME_CONNECTIONS.uri);
+    }
+
+    @Test
     public void shouldDoTrackLookup() throws Exception {
         TestHelper.addCannedResponses(getClass(), "tracks.json");
         Result result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));

@@ -7,8 +7,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Shortcut;
-import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
@@ -102,11 +100,16 @@ public class ApiSyncer {
                     break;
 
                 case ME_SHORTCUTS:
-                    result = syncShortcuts(c);
-                    PreferenceManager.getDefaultSharedPreferences(mContext)
-                            .edit()
-                            .putLong(Consts.PrefKeys.LAST_SHORTCUT_SYNC, System.currentTimeMillis())
-                            .commit();
+                case ME_CONNECTIONS:
+                    result = syncMyGenericResource(c);
+
+                    // TODO, this is unnecessary. we have the sync metadata in the local collection already
+                    if (c == Content.ME_SHORTCUTS) {
+                        PreferenceManager.getDefaultSharedPreferences(mContext)
+                                .edit()
+                                .putLong(Consts.PrefKeys.LAST_SHORTCUT_SYNC, System.currentTimeMillis())
+                                .commit();
+                    }
                     break;
             }
         } else {
@@ -319,23 +322,30 @@ public class ApiSyncer {
         return result;
     }
 
-    private Result syncShortcuts(Content c) throws IOException {
-        log("Syncing shortcuts");
+    /**
+     * Good for syncing any generic item that doesn't require special ordering or cache handling
+     * e.g. Shortcuts, Connections
+     * @param c
+     * @return
+     * @throws IOException
+     */
+    private Result syncMyGenericResource(Content c) throws IOException {
+        log("Syncing generic resource " + c.uri);
 
         Result result = new Result(c.uri);
         HttpResponse resp = mApi.get(c.request());
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            Shortcut[] shortcuts = mApi.getMapper().readValue(resp.getEntity().getContent(), Shortcut[].class);
+            ScResource[] resources = mApi.getMapper().readValue(resp.getEntity().getContent(), ScResource[].class);
 
-            List<ContentValues> cvs = new ArrayList<ContentValues>(shortcuts.length);
-            for (Shortcut shortcut : shortcuts) {
-                ContentValues cv = shortcut.buildContentValues();
+            List<ContentValues> cvs = new ArrayList<ContentValues>(resources.length);
+            for (ScResource resource : resources) {
+                ContentValues cv = resource.buildContentValues();
                 if (cv != null) cvs.add(cv);
             }
 
             if (!cvs.isEmpty()) {
                 int inserted = mResolver.bulkInsert(c.uri, cvs.toArray(new ContentValues[cvs.size()]));
-                Log.d(TAG, "inserted " +inserted + " shortcuts");
+                Log.d(TAG, "inserted " +inserted + " generic resources");
             }
 
             result.success = true;

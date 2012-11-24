@@ -1,6 +1,7 @@
 [
   {
     "type": "twitter",
+    "kind": "connection",
     "post_publish": true,
     "post_favorite": false,
     "display_name": "foo",
@@ -11,6 +12,7 @@
   },
   {
     "type": "twitter",
+    "kind": "connection",
     "post_publish": false,
     "post_favorite": false,
     "display_name": "bar",
@@ -21,6 +23,7 @@
   },
   {
     "type": "facebook_profile",
+    "kind": "connection",
     "post_publish": false,
     "post_favorite": false,
     "display_name": "bar",
@@ -31,6 +34,7 @@
   },
   {
     "type": "facebook_page",
+    "kind": "connection",
     "post_publish": false,
     "post_favorite": false,
     "display_name": "bar",
@@ -41,6 +45,7 @@
   },
   {
     "type": "foursquare",
+    "kind": "connection",
     "post_publish": false,
     "post_favorite": false,
     "display_name": "bar",
@@ -51,6 +56,7 @@
   },
   {
     "type": "retardr",
+    "kind": "connection",
     "post_publish": false,
     "post_favorite": false,
     "display_name": "bar",
