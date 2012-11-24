@@ -67,10 +67,9 @@ public class ScListFragment extends SherlockListFragment
 
     @Nullable
     protected ScListView mListView;
-    @NotNull
-    protected EmptyCollection mEmptyCollection;
-
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
+
+    protected @Nullable EmptyCollection mEmptyCollection;
     private @Nullable Content mContent;
     private @NotNull Uri mContentUri;
 
@@ -109,7 +108,6 @@ public class ScListFragment extends SherlockListFragment
         mKeepGoing = true;
 
         if (mContent.isSyncable()) {
-
             final ContentResolver contentResolver = getActivity().getContentResolver();
             // TODO :  Move off the UI thread.
             mLocalCollection = LocalCollection.fromContentUri(mContentUri, contentResolver, true);
@@ -119,6 +117,14 @@ public class ScListFragment extends SherlockListFragment
             mObservingContent = true;
             contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);
             refreshSyncData();
+        }
+    }
+
+    public void setEmptyCollection(EmptyCollection emptyCollection){
+        mEmptyCollection = emptyCollection;
+        configureEmptyCollection();
+        if (getView() != null && getListView() != null) {
+            getListView().setEmptyView(emptyCollection);
         }
     }
 
@@ -200,10 +206,10 @@ public class ScListFragment extends SherlockListFragment
         mListView = buildList();
         mListView.setOnRefreshListener(this);
         mListView.setOnScrollListener(this);
+        setEmptyCollection((mEmptyCollection == null) ?
+                EmptyCollection.fromContent(context, mContent) : mEmptyCollection);
 
 
-        mEmptyCollection = EmptyCollection.fromContent(context, mContent);
-        configureEmptyCollection();
         mListView.setEmptyView(mEmptyCollection);
 
         if (isRefreshing() || waitingOnInitialSync()){
@@ -347,6 +353,7 @@ public class ScListFragment extends SherlockListFragment
     }
 
     protected void doneRefreshing() {
+        Log.i("asdf","DONE REFRESHINGGGG");
         if (isSyncable()) setListLastUpdated();
         if (mListView != null) {
             mListView.onRefreshComplete();

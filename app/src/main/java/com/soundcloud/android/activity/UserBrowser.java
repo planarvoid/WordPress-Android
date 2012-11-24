@@ -251,7 +251,10 @@ public class UserBrowser extends ScActivity implements
 
         @Override
         public ScListFragment getItem(int position) {
-            return ScListFragment.newInstance(isYou() ? Tab.values()[position].youContent.uri : Tab.values()[position].userContent.forId(mUser.id));
+            ScListFragment listFragment = ScListFragment.newInstance(isYou() ?
+                    Tab.values()[position].youContent.uri : Tab.values()[position].userContent.forId(mUser.id));
+            listFragment.setEmptyCollection(getEmptyScreenFromContent(position));
+            return listFragment;
 
         }
 
@@ -263,6 +266,108 @@ public class UserBrowser extends ScActivity implements
         @Override
         public CharSequence getPageTitle(int position) {
             return getResources().getString(isYou() ? Tab.values()[position].youTitle : Tab.values()[position].userTitle);
+        }
+    }
+
+    private EmptyCollection getEmptyScreenFromContent(int position) {
+        switch (isYou() ? Tab.values()[position].youContent : Tab.values()[position].userContent){
+            case ME_TRACKS:
+                return new EmptyCollection(this).setMessageText(R.string.list_empty_user_sounds_message)
+                        .setActionText(R.string.list_empty_user_sounds_action)
+                        .setImage(R.drawable.empty_rec)
+                        .setButtonActionListener(new EmptyCollection.ActionListener() {
+                            @Override
+                            public void onAction() {
+                                startActivity(new Intent(Actions.RECORD));
+                            }
+
+                            @Override
+                            public void onSecondaryAction() {
+                            }
+                        });
+            case USER_TRACKS:
+                return new EmptyCollection(this).setMessageText(getString(R.string.empty_user_tracks_text,
+                        mUser.username == null ? getResources().getString(R.string.this_user)
+                                : mUser.username));
+
+            case ME_LIKES:
+                return new EmptyCollection(this).setMessageText(R.string.list_empty_user_likes_message)
+                        .setActionText(R.string.list_empty_user_likes_action)
+                        .setImage(R.drawable.empty_like)
+                        .setButtonActionListener(new EmptyCollection.ActionListener() {
+                            @Override
+                            public void onAction() {
+                                startActivity(new Intent(Actions.FRIEND_FINDER));
+                            }
+
+                            @Override
+                            public void onSecondaryAction() {
+                                startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101")));
+                            }
+                        });
+            case USER_LIKES:
+                return new EmptyCollection(this).setMessageText(getString(R.string.empty_user_likes_text,
+                        mUser.username == null ? getResources().getString(R.string.this_user)
+                                : mUser.username));
+
+            case ME_FOLLOWERS:
+                User loggedInUser = getApp().getLoggedInUser();
+                if (loggedInUser == null || loggedInUser.track_count > 0) {
+                    return new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_message)
+                            .setActionText(R.string.list_empty_user_followers_action)
+                            .setImage(R.drawable.empty_rec)
+                            .setButtonActionListener(new EmptyCollection.ActionListener() {
+                                @Override
+                                public void onAction() {
+                                    startActivity(new Intent(Actions.YOUR_SOUNDS));
+                                }
+
+                                @Override
+                                public void onSecondaryAction() {
+                                }
+                            });
+                } else {
+                    return new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_nosounds_message)
+                            .setActionText(R.string.list_empty_user_followers_nosounds_action)
+                            .setImage(R.drawable.empty_share)
+                            .setButtonActionListener(new EmptyCollection.ActionListener() {
+                                @Override
+                                public void onAction() {
+                                    startActivity(new Intent(Actions.RECORD));
+                                }
+
+                                @Override
+                                public void onSecondaryAction() {
+                                }
+                            });
+                }
+
+            case USER_FOLLOWERS:
+                return new EmptyCollection(this).setMessageText(getString(R.string.empty_user_followers_text,
+                        mUser.username == null ? getResources().getString(R.string.this_user)
+                                : mUser.username));
+
+            case ME_FOLLOWINGS:
+                return new EmptyCollection(this).setMessageText(R.string.list_empty_user_following_message)
+                        .setActionText(R.string.list_empty_user_following_action)
+                        .setImage(R.drawable.empty_follow_3row)
+                        .setButtonActionListener(new EmptyCollection.ActionListener() {
+                            @Override
+                            public void onAction() {
+                                startActivity(new Intent(Actions.FRIEND_FINDER));
+                            }
+
+                            @Override
+                            public void onSecondaryAction() {
+                            }
+                        });
+
+            case USER_FOLLOWINGS:
+                return new EmptyCollection(this).setMessageText(getString(R.string.empty_user_followings_text,
+                        mUser.username == null ? getResources().getString(R.string.this_user)
+                                : mUser.username));
+            default:
+                return new EmptyCollection(this);
         }
     }
 

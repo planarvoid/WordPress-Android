@@ -671,6 +671,7 @@
     <style name="btn_empty_collection" parent="txt_empty_collection_message">
         <item name="android:paddingLeft">30dp</item>
         <item name="android:paddingRight">30dp</item>
+        <item name="android:singleLine">false</item>
         <item name="android:layout_marginTop">5dp</item>
         <item name="android:layout_marginBottom">5dp</item>
         <item name="android:layout_marginLeft">10dp</item>

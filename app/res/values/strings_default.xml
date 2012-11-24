@@ -213,10 +213,10 @@
   <string name="email_confirmation_you_need_to_confirm">To get the most out of SoundCloud you need to confirm your email address.</string>
   <string name="email_picker_clear">Clear</string>
   <string name="empty_list">No Results</string>
-  <string name="empty_user_likes_text">%1$s hasn\'t chosen any likes yet.</string>
-  <string name="empty_user_followers_text">%1$s isn\'t being followed by anyone yet.</string>
-  <string name="empty_user_followings_text">%1$s isn\'t following anyone yet.</string>
-  <string name="empty_user_tracks_text">%1$s hasn\'t uploaded any public sounds yet.</string>
+  <string name="empty_user_likes_text">%1$s hasn\'t\nchosen any likes yet.</string>
+  <string name="empty_user_followers_text">%1$s isn\'t\nbeing followed by anyone yet.</string>
+  <string name="empty_user_followings_text">%1$s isn\'t\nfollowing anyone yet.</string>
+  <string name="empty_user_tracks_text">%1$s hasn\'t uploaded\nany public sounds yet.</string>
   <string name="error_change_following_status">Error changing following status</string>
   <string name="error_creating_account">Error creating account</string>
   <string name="error_getting_recording">Error getting recording</string>
