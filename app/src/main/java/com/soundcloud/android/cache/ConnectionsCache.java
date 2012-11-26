@@ -73,7 +73,7 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
         if (listener != null) addListener(listener);
         mLocalCollection = LocalCollection.fromContentUri(Content.ME_CONNECTIONS.uri, mContext.getContentResolver(), true);
         asyncQueryHandler = new ConnectionsQueryHandler(mContext, this);
-        asyncQueryHandler.startQuery(0, null, Content.ME_CONNECTIONS.uri, new String[]{DBHelper.CollectionItems.ITEM_ID}, null, null, null);
+        asyncQueryHandler.startQuery(0, null, Content.ME_CONNECTIONS.uri, null, null, null, null);
     }
 
     public void addListener(Listener l) {
