@@ -129,9 +129,18 @@ public class ScContentProvider extends ContentProvider {
             case ME_FRIENDS:
             case SUGGESTED_USERS:
                 qb.setTables(makeCollectionJoin(Table.USERS));
-                if (_columns == null) _columns = formatWithUser(fullUserColumns, userId);
+                if (_columns == null){
+                    _columns = formatWithUser(fullUserColumns, userId);
+                    if (content == Content.ME_FRIENDS) {
+                        _sortOrder = makeCollectionSort(uri, sortOrder == null ?
+                                DBHelper.Users.USER_FOLLOWING + " ASC, " + DBHelper.Users._ID + " ASC" : sortOrder);
+                    } else {
+                        _sortOrder = makeCollectionSort(uri, sortOrder);
+                    }
+                } else {
+                    _sortOrder = makeCollectionSort(uri, sortOrder);
+                }
                 makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
-                _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case ME_USERID:
@@ -306,6 +315,8 @@ public class ScContentProvider extends ContentProvider {
             case ME_SHORTCUTS:
             case ME_CONNECTIONS:
                 qb.setTables(content.table.name);
+
+
                 break;
 
             case UNKNOWN:
@@ -314,7 +325,7 @@ public class ScContentProvider extends ContentProvider {
         }
 
         if (query == null) {
-            query = qb.buildQuery(_columns, _selection, null /* selectionArgs passed further down */, null, _sortOrder, null);
+            query = qb.buildQuery(_columns, _selection, null /* selectionArgs passed further down */, null,_sortOrder, null);
         }
         log("query: "+query);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
