@@ -9,6 +9,8 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.ViewStub;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -185,6 +187,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
             mLogin = (Login) stub.inflate();
             mLogin.setLoginHandler(this);
+            mLogin.setVisibility(View.GONE);
         }
 
         return mLogin;
@@ -196,6 +199,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
             mSignUp = (SignUp) stub.inflate();
             mSignUp.setSignUpHandler(this);
+            mSignUp.setVisibility(View.GONE);
         }
 
         return mSignUp;
@@ -390,39 +394,90 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
         switch (mState) {
             case TOUR:
-                setForegroundViewVisibility(View.VISIBLE);
+                fadeInForegroundViews();
 
-                getLogin().setVisibility(View.GONE);
-                getSignUp().setVisibility(View.GONE);
+                fadeOut(getLogin());
+                fadeOut(getSignUp());
                 return;
 
             case LOGIN:
-                setForegroundViewVisibility(View.GONE);
+                fadeOutForegroundViews();
 
-                getLogin().setVisibility(View.VISIBLE);
-                getSignUp().setVisibility(View.GONE);
+                fadeIn(getLogin());
+                fadeOut(getSignUp());
                 return;
 
             case SIGN_UP:
-                setForegroundViewVisibility(View.GONE);
+                fadeOutForegroundViews();
 
-                getLogin().setVisibility(View.GONE);
-                getSignUp().setVisibility(View.VISIBLE);
+                fadeOut(getLogin());
+                fadeIn(getSignUp());
                 return;
         }
     }
 
-    private void setForegroundViewVisibility(int visibility) {
-        mTourBottomBar.setVisibility(visibility);
+    private void fadeInForegroundViews() {
+        fadeIn(mTourBottomBar);
 
-        TourLayout layout = mTourPages[mViewPager.getCurrentItem()];
-        for (View view : allChildViewsOf(layout)) {
-            if (!isForegroundView(view)) continue;
-
-            if (view.getVisibility() == visibility) continue;
-
-            view.setVisibility(visibility);
+        for (View view : allChildViewsOf(getCurrentTourLayout())) {
+            if (isForegroundView(view)) fadeIn(view);
         }
+    }
+
+    private void fadeOutForegroundViews() {
+        fadeOut(mTourBottomBar);
+
+        for (View view : allChildViewsOf(getCurrentTourLayout())) {
+            if (isForegroundView(view)) fadeOut(view);
+        }
+    }
+
+    private void fadeIn(final View view) {
+        if (view.getVisibility() == View.VISIBLE) return;
+
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                view.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                view.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+
+        view.startAnimation(animation);
+    }
+
+    private void fadeOut(final View view) {
+        if (view.getVisibility() == View.GONE) return;
+
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_out);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                view.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                view.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+
+        view.startAnimation(animation);
+    }
+
+    private TourLayout getCurrentTourLayout() {
+        return mTourPages[mViewPager.getCurrentItem()];
     }
 
     private static boolean isForegroundView(View view) {
