@@ -180,6 +180,20 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putSerializable("state", mState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        setState((StartState) savedInstanceState.getSerializable("state"), false);
+    }
+
     public Login getLogin() {
         if (mLogin == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.login_stub);
@@ -389,28 +403,32 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     public void setState(StartState state) {
+        setState(state, true);
+    }
+
+    public void setState(StartState state, boolean animated) {
         mState = state;
 
         switch (mState) {
             case TOUR:
-                showForegroundViews(true);
+                showForegroundViews(animated);
 
-                hideView(getLogin(),  true);
-                hideView(getSignUp(), true);
+                hideView(getLogin(),  animated);
+                hideView(getSignUp(), animated);
                 return;
 
             case LOGIN:
-                hideForegroundViews(true);
+                hideForegroundViews(animated);
 
-                showView(getLogin(),  true);
-                hideView(getSignUp(), true);
+                showView(getLogin(),  animated);
+                hideView(getSignUp(), animated);
                 return;
 
             case SIGN_UP:
-                hideForegroundViews(true);
+                hideForegroundViews(animated);
 
-                hideView(getLogin(),  true);
-                showView(getSignUp(), true);
+                hideView(getLogin(),  animated);
+                showView(getSignUp(), animated);
                 return;
         }
     }
