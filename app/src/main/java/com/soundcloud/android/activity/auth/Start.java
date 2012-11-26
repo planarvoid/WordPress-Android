@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity.auth;
 
+import android.*;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -13,6 +14,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.soundcloud.android.*;
+import com.soundcloud.android.R;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.GetTokensTask;
@@ -40,6 +42,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.*;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler {
 
@@ -63,6 +66,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     private StartState mState = StartState.TOUR;
 
     private ViewPager mViewPager;
+    private ViewGroup mRootView;
 
     private TourLayout[] mTourPages;
     @Nullable private Login  mLogin;
@@ -73,6 +77,8 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         setContentView(R.layout.start);
 
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+
+        mRootView = (ViewGroup) findViewById(android.R.id.content);
 
         mViewPager = (ViewPager) findViewById(R.id.tour_view);
         mTourPages = new TourLayout[]{
@@ -382,20 +388,38 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
         switch (mState) {
             case TOUR:
+                setForegroundViewVisibility(View.VISIBLE);
+
                 getLogin().setVisibility(View.GONE);
                 getSignUp().setVisibility(View.GONE);
                 return;
 
             case LOGIN:
+                setForegroundViewVisibility(View.GONE);
+
                 getLogin().setVisibility(View.VISIBLE);
                 getSignUp().setVisibility(View.GONE);
                 return;
 
             case SIGN_UP:
+                setForegroundViewVisibility(View.GONE);
+
                 getLogin().setVisibility(View.GONE);
                 getSignUp().setVisibility(View.VISIBLE);
                 return;
         }
+    }
+
+    private void setForegroundViewVisibility(int visibility) {
+        for (View view : allChildViewsOf(mRootView)) {
+            if (isForegroundView(view)) view.setVisibility(visibility);
+        }
+    }
+
+    private static boolean isForegroundView(View view) {
+        Object tag = view.getTag();
+
+        return "foreground".equals(tag) || "parallax".equals(tag);
     }
 
     protected void presentError(@Nullable String error) {
