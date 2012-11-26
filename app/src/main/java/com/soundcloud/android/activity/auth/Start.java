@@ -42,25 +42,32 @@ import java.io.*;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler {
-    private static final int RECOVER_CODE    = 1;
-    private static final int SUGGESTED_USERS = 2;
 
+
+    protected enum StartState {
+        TOUR, LOGIN, SIGN_UP;
+    }
+    private static final int RECOVER_CODE    = 1;
+
+    private static final int SUGGESTED_USERS = 2;
     private static final File SIGNUP_LOG = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".dr");
 
     public static final String FB_CONNECTED_EXTRA    = "facebook_connected";
-    public static final String TOUR_BACKGROUND_EXTRA = "tour_background";
 
+    public static final String TOUR_BACKGROUND_EXTRA = "tour_background";
     private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
 
     public static final int THROTTLE_WINDOW = 60 * 60 * 1000;
+
     public static final int THROTTLE_AFTER_ATTEMPT = 3;
+    private StartState mState = StartState.TOUR;
 
     private ViewPager mViewPager;
+
     private TourLayout[] mTourPages;
-
     @Nullable private Login  mLogin;
-    @Nullable private SignUp mSignUp;
 
+    @Nullable private SignUp mSignUp;
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.start);
@@ -133,7 +140,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             public void onClick(View v) {
                 app.track(Click.Login);
 
-                getLogin().setVisibility(View.VISIBLE);
+                setState(StartState.LOGIN);
             }
         });
 
@@ -143,9 +150,10 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                 app.track(Click.Signup_Signup);
 
                 if (shouldThrottleSignup(Start.this)) {
-
+                    // TODO: bring up mobile website
+                    setState(StartState.TOUR);
                 } else {
-                    getSignUp().setVisibility(View.VISIBLE);
+                    setState(StartState.SIGN_UP);
                 }
             }
         });
@@ -349,6 +357,45 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                 }
             }
         }.execute(email, password);
+    }
+
+    @Override
+    public void onBackPressed() {
+        switch (getState()) {
+            case LOGIN:
+            case SIGN_UP:
+                setState(StartState.TOUR);
+                return;
+
+            case TOUR:
+                super.onBackPressed();
+                return;
+        }
+    }
+
+    public StartState getState() {
+        return mState;
+    }
+
+    public void setState(StartState state) {
+        mState = state;
+
+        switch (mState) {
+            case TOUR:
+                getLogin().setVisibility(View.GONE);
+                getSignUp().setVisibility(View.GONE);
+                return;
+
+            case LOGIN:
+                getLogin().setVisibility(View.VISIBLE);
+                getSignUp().setVisibility(View.GONE);
+                return;
+
+            case SIGN_UP:
+                getLogin().setVisibility(View.GONE);
+                getSignUp().setVisibility(View.VISIBLE);
+                return;
+        }
     }
 
     protected void presentError(@Nullable String error) {
