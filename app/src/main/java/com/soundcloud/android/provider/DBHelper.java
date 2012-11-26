@@ -179,7 +179,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     static final String DATABASE_CREATE_USERS = "("+
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            "_type INTEGER," +
+            "_type INTEGER DEFAULT 0," +
             // mini representation
             "username VARCHAR(255)," +
             "avatar_url VARCHAR(255)," +
@@ -951,7 +951,8 @@ public class DBHelper extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo19(SQLiteDatabase db, int oldVersion) {
         try {
-            Table.SOUNDS.alterColumns(db);
+            Table.SOUNDS.alterColumns(db); // added playlist support
+            Table.USERS.alterColumns(db); // added type column
             Table.ACTIVITIES.alterColumns(db);
             Table.SOUND_VIEW.recreate(db);
             Table.ACTIVITY_VIEW.recreate(db);
