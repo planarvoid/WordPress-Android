@@ -4,10 +4,12 @@ import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -110,7 +112,7 @@ public class TrackInfoBar extends LazyRow {
                 mIcon.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (mAdapter != null && mIcon != null && mPlayable != null && mPlayable.getTrack() != null){
+                        if (mIcon != null && mPlayable != null && mPlayable.getTrack() != null){
                             quickTrackMenu.show(mIcon, mPlayable.getTrack());
                         }
                     }
@@ -196,16 +198,29 @@ public class TrackInfoBar extends LazyRow {
 
         mUser.setText(track.user != null ? track.user.username : "");
         mCreatedAt.setText(p.getTimeSinceCreated(context));
+        mReposter.setVisibility(View.GONE);
 
         if (mPlayable instanceof TrackRepostActivity) {
             mReposter.setText(((TrackRepostActivity) mPlayable).user.username);
             mReposter.setVisibility(View.VISIBLE);
-        } else if (mPlayable instanceof SoundAssociation && ((SoundAssociation) mPlayable).associationType == ScContentProvider.CollectionItemTypes.TRACK_REPOST) {
+        } else if (mPlayable instanceof SoundAssociation) {
 
-            mReposter.setText(((SoundAssociation) mPlayable).user.username);
-            mReposter.setVisibility(View.VISIBLE);
-        } else {
-            mReposter.setVisibility(View.GONE);
+            SoundAssociation sa = (SoundAssociation) mPlayable;
+
+            if (sa.associationType == ScContentProvider.CollectionItemTypes.REPOST) {
+                mReposter.setVisibility(View.VISIBLE);
+                User reposter = null;
+
+                if (sa.user == null)  {
+                    // currently active user
+                    if (getContext() instanceof UserBrowser) {
+                        reposter = ((UserBrowser)getContext()).getUser();
+                    }
+                }
+                if (reposter !=  null && reposter.id != currentUserId) {
+                    mReposter.setText(reposter.username);
+                }
+            }
         }
 
         if (track.isPublic()) {
@@ -306,7 +321,7 @@ public class TrackInfoBar extends LazyRow {
     @Override
     protected boolean getChildStaticTransformation(View child, Transformation t) {
          super.getChildStaticTransformation(child, t);
-         t.setAlpha((float) 0.4);
+         t.setAlpha(0.4f);
          return true;
 
      }

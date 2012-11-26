@@ -17,6 +17,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -110,7 +111,7 @@ public class ApiSyncerTest {
         assertFirstIdToBe(Content.ME_FOLLOWERS, 308291);
     }
 
-    @Test
+    @Test @Ignore // no longer used
     public void shouldSyncTracks() throws Exception {
         addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
         addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");

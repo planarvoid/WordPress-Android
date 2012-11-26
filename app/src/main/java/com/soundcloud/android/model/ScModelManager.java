@@ -452,6 +452,7 @@ public class ScModelManager {
         return writeCollection(items, null, -1l, updateMode);
     }
 
+
     public <T extends ScResource> int writeCollection(List<T> items, Uri localUri, long userId, ScResource.CacheUpdateMode updateMode) {
         if (items.isEmpty()) return 0;
 

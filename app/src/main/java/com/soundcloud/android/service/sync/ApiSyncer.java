@@ -143,6 +143,7 @@ public class ApiSyncer {
 
             result.setSyncData(System.currentTimeMillis(), holder.collection.size(), null);
             result.success = true;
+            result.change = Result.CHANGED;
         }
         return result;
     }

@@ -17,6 +17,7 @@ import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.PlayableAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.adapter.SearchAdapter;
+import com.soundcloud.android.adapter.SoundAssociationAdapter;
 import com.soundcloud.android.adapter.TrackAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.cache.FollowStatus;
@@ -164,6 +165,11 @@ public class ScListFragment extends SherlockListFragment
                 case TRACK_COMMENTS:
                     adapter = new CommentAdapter(getActivity(), mContentUri);
                     break;
+
+                case USER_SOUNDS:
+                    adapter = new SoundAssociationAdapter(getActivity(), mContentUri);
+                    break;
+
 
                  default:
                      adapter = new TrackAdapter(getActivity(), mContentUri);

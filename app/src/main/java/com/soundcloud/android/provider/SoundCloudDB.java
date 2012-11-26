@@ -91,41 +91,41 @@ public class SoundCloudDB {
         return uri;
     }
 
-    public static int bulkInsertModels(ContentResolver resolver, List<? extends ScResource> items) {
-            return bulkInsertModels(resolver, items, null, -1);
-        }
+    public static int bulkInsertModels(ContentResolver resolver, List<? extends ScResource> models) {
+        return bulkInsertModels(resolver, models, null, -1);
+    }
+
     public static int bulkInsertModels(ContentResolver resolver,
-                                       List<? extends ScResource> items,
+                                       List<? extends ScResource> models,
                                        @Nullable Uri uri,
                                        long ownerId) {
         if (uri != null && ownerId < 0) {
             throw new IllegalArgumentException("need valid ownerId for collection");
         }
 
-        if (items == null) return 0;
+        if (models == null) return 0;
 
         Set<User> usersToInsert = new HashSet<User>();
         Set<Sound> soundsToInsert = new HashSet<Sound>();
 
-        ContentValues[] bulkValues = uri == null ? null : new ContentValues[items.size()];
+        ContentValues[] bulkValues = uri == null ? null : new ContentValues[models.size()];
 
         int index = 0;
-        for (int i=0; i <items.size(); i++) {
+        for (int i=0; i <models.size(); i++) {
 
-            ScResource p = items.get(i);
-            if (p != null) {
-
-                Sound sound = p.getSound();
+            ScResource r = models.get(i);
+            if (r != null) {
+                Sound sound = r.getSound();
                 if (sound != null) {
                     soundsToInsert.add(sound);
                 }
 
-                User user = p.getUser();
+                User user = r.getUser();
                 if (user != null) {
                     usersToInsert.add(user);
                 }
 
-                long id = p.id;
+                long id = r.id;
                 if (uri != null) {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, ownerId);

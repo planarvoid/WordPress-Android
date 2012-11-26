@@ -5,8 +5,11 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
@@ -16,15 +19,17 @@ import java.util.Date;
 /**
  * Maps to stream item on backend
  */
-public class SoundAssociation extends ScResource {
+public class SoundAssociation extends ScResource implements Playable {
+
+    private CharSequence _elapsedTime;
 
     enum Type {
         TRACK("track", ScContentProvider.CollectionItemTypes.TRACK),
-        TRACK_REPOST("track_repost", ScContentProvider.CollectionItemTypes.TRACK_REPOST),
-        TRACK_LIKE("track_like", ScContentProvider.CollectionItemTypes.TRACK_LIKE),
+        TRACK_REPOST("track_repost", ScContentProvider.CollectionItemTypes.REPOST),
+        TRACK_LIKE("track_like", ScContentProvider.CollectionItemTypes.LIKE),
         PLAYLIST("playlist", ScContentProvider.CollectionItemTypes.PLAYLIST),
-        PLAYLIST_REPOST("playlist_repost", ScContentProvider.CollectionItemTypes.PLAYLIST_REPOST),
-        PLAYLIST_LIKE("playlist_like", ScContentProvider.CollectionItemTypes.PLAYLIST_LIKE);
+        PLAYLIST_REPOST("playlist_repost", ScContentProvider.CollectionItemTypes.REPOST),
+        PLAYLIST_LIKE("playlist_like", ScContentProvider.CollectionItemTypes.LIKE);
 
         Type(String type, int collectionType) {
             this.type = type;
@@ -39,16 +44,24 @@ public class SoundAssociation extends ScResource {
     public String type;
     public Date created_at;
 
-    public Track track;
-    public Playlist playlist;
-    public User user;
+    public @Nullable Track track;
+    public @Nullable Playlist playlist;
+    public @Nullable User user;
 
-    public SoundAssociation() { //for deserialization
+    @SuppressWarnings("UnusedDeclaration") //for deserialization
+    public SoundAssociation() {
     }
 
     public SoundAssociation(Cursor cursor) {
         associationType = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE));
         created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP)));
+
+        switch (associationType) {
+            case ScContentProvider.CollectionItemTypes.REPOST:
+            case ScContentProvider.CollectionItemTypes.TRACK:
+            case ScContentProvider.CollectionItemTypes.LIKE:
+                track = new Track(cursor);
+        }
     }
 
     public SoundAssociation(Parcel in) {
@@ -79,7 +92,6 @@ public class SoundAssociation extends ScResource {
         dest.writeParcelable(user, 0);
     }
 
-
     @Override
     public Uri getBulkInsertUri() {
         return Content.COLLECTION_ITEMS.uri;
@@ -107,5 +119,23 @@ public class SoundAssociation extends ScResource {
             }
         }
         this.type = type;
+    }
+
+    @Override @Nullable
+    public Track getTrack() {
+        return track;
+    }
+
+    @Override
+    public CharSequence getTimeSinceCreated(Context context) {
+        if (_elapsedTime == null) {
+            _elapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
+        }
+        return _elapsedTime;
+    }
+
+    @Override
+    public void refreshTimeSinceCreated(Context context) {
+        _elapsedTime = null;
     }
 }
