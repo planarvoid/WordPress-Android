@@ -12,7 +12,8 @@
                                                         android:layout_height="fill_parent"/>
     </LinearLayout>
 
-    <LinearLayout android:layout_width="fill_parent"
+    <LinearLayout android:id="@+id/tour_bottom_bar"
+                  android:layout_width="fill_parent"
                   android:layout_height="@dimen/tour_bottom_bar_height"
                   android:orientation="vertical"
                   android:tag="foreground"

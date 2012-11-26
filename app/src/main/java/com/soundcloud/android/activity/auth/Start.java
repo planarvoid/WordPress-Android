@@ -63,22 +63,24 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     public static final int THROTTLE_WINDOW = 60 * 60 * 1000;
 
     public static final int THROTTLE_AFTER_ATTEMPT = 3;
+
     private StartState mState = StartState.TOUR;
 
-    private ViewPager mViewPager;
-    private ViewGroup mRootView;
+    private View mTourBottomBar;
 
     private TourLayout[] mTourPages;
-    @Nullable private Login  mLogin;
+    private ViewPager mViewPager;
 
+    @Nullable private Login  mLogin;
     @Nullable private SignUp mSignUp;
+
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.start);
 
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
-        mRootView = (ViewGroup) findViewById(android.R.id.content);
+        mTourBottomBar = findViewById(R.id.tour_bottom_bar);
 
         mViewPager = (ViewPager) findViewById(R.id.tour_view);
         mTourPages = new TourLayout[]{
@@ -411,8 +413,15 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     private void setForegroundViewVisibility(int visibility) {
-        for (View view : allChildViewsOf(mRootView)) {
-            if (isForegroundView(view)) view.setVisibility(visibility);
+        mTourBottomBar.setVisibility(visibility);
+
+        TourLayout layout = mTourPages[mViewPager.getCurrentItem()];
+        for (View view : allChildViewsOf(layout)) {
+            if (!isForegroundView(view)) continue;
+
+            if (view.getVisibility() == visibility) continue;
+
+            view.setVisibility(visibility);
         }
     }
 
