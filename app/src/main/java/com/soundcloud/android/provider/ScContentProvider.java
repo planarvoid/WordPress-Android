@@ -496,6 +496,7 @@ public class ScContentProvider extends ContentProvider {
             case USER_REPOSTS:
             case USER_FOLLOWINGS:
             case USER_FOLLOWERS:
+            case ME_FRIENDS:
                 final String whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + SoundCloudApplication.getUserIdFromContext(getContext())
                         + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + content.collectionType;
                 where = TextUtils.isEmpty(where) ? whereAppend

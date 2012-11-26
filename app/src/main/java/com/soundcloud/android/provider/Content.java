@@ -56,7 +56,7 @@ public enum Content  {
     ME_ACTIVITIES("me/activities/all/own", TempEndpoints.e1.MY_ACTIVITIES, 142, Activity.class, -1, Table.ACTIVITIES),
     ME_ALL_ACTIVITIES("me/activities", null, 150, Activity.class, -1, Table.ACTIVITIES),
 
-    ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, User.class, FRIEND, null),
+    ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, User.class, FRIEND, Table.COLLECTION_ITEMS),
     SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 161, User.class, SUGGESTED_USER, null),
 
     SOUNDS("sounds", null, 200, Sound.class, -1, Table.SOUNDS),

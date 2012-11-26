@@ -125,6 +125,19 @@ public class ApiSyncerTest {
     }
 
     @Test
+    public void shouldSyncFriends() throws Exception {
+        addIdResponse("/me/connections/friends/ids?linked_partitioning=1", 792584, 1255758, 308291);
+        addResourceResponse("/users?linked_partitioning=1&limit=200&ids=308291%2C792584%2C1255758", "users.json");
+
+        sync(Content.ME_FRIENDS.uri);
+
+        // make sure tracks+users got written
+        expect(Content.USERS).toHaveCount(3);
+        expect(Content.ME_FRIENDS).toHaveCount(3);
+        assertFirstIdToBe(Content.ME_FRIENDS, 792584);
+    }
+
+    @Test
     public void shouldSyncConnections() throws Exception {
         TestHelper.addCannedResponses(getClass(), "connections.json");
         sync(Content.ME_CONNECTIONS.uri);
