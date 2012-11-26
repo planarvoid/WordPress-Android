@@ -696,7 +696,7 @@ public class ScContentProvider extends ContentProvider {
             if (content == Content.ME_SHORTCUTS) {
                 db.execSQL("INSERT OR IGNORE INTO " + Table.USERS.name + " (_id, username, avatar_url, permalink_url) " +
                         " SELECT id, text, icon_url, permalink_url FROM " + Table.SUGGESTIONS.name + " where kind = 'following'");
-                db.execSQL("INSERT OR IGNORE INTO " + Table.SOUNDS.name + " (_id, title, artwork_url, permalink_url, ) " +
+                db.execSQL("INSERT OR IGNORE INTO " + Table.SOUNDS.name + " (_id, title, artwork_url, permalink_url) " +
                         " SELECT id, text, icon_url, permalink_url FROM " + Table.SUGGESTIONS.name + " where kind = 'like'");
             }
 

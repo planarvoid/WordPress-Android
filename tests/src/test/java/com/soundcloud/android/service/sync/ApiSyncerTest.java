@@ -138,6 +138,18 @@ public class ApiSyncerTest {
     }
 
     @Test
+    public void shouldSyncMyShortcuts() throws Exception {
+
+        TestHelper.addCannedResponses(getClass(), "all_shortcuts.json");
+        sync(Content.ME_SHORTCUTS.uri);
+        expect(Content.ME_SHORTCUTS).toHaveCount(461);
+
+        // make sure tracks+users got written
+        expect(Content.USERS).toHaveCount(318);
+        expect(Content.TRACKS).toHaveCount(143);
+    }
+
+    @Test
     public void shouldSyncConnections() throws Exception {
         TestHelper.addCannedResponses(getClass(), "connections.json");
         sync(Content.ME_CONNECTIONS.uri);

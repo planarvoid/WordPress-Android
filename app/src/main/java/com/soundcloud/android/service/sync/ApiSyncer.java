@@ -6,6 +6,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.model.act.Activities;
@@ -33,6 +34,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -336,17 +338,18 @@ public class ApiSyncer {
         Result result = new Result(c.uri);
         HttpResponse resp = mApi.get(c.request());
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            ScResource[] resources = mApi.getMapper().readValue(resp.getEntity().getContent(), ScResource[].class);
+            List<ScModel> models = mApi.getMapper().readValue(resp.getEntity().getContent(),
+                    mApi.getMapper().getTypeFactory().constructCollectionType(List.class, c.modelType));
 
-            List<ContentValues> cvs = new ArrayList<ContentValues>(resources.length);
-            for (ScResource resource : resources) {
-                ContentValues cv = resource.buildContentValues();
+            List<ContentValues> cvs = new ArrayList<ContentValues>(models.size());
+            for (ScModel model : models) {
+                ContentValues cv = model.buildContentValues();
                 if (cv != null) cvs.add(cv);
             }
 
             if (!cvs.isEmpty()) {
                 int inserted = mResolver.bulkInsert(c.uri, cvs.toArray(new ContentValues[cvs.size()]));
-                Log.d(TAG, "inserted " +inserted + " generic resources");
+                Log.d(TAG, "inserted " +inserted + " generic models");
             }
 
             result.success = true;

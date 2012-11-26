@@ -5,6 +5,7 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Connection;
+import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
@@ -56,8 +57,8 @@ public enum Content  {
     ME_ACTIVITIES("me/activities/all/own", TempEndpoints.e1.MY_ACTIVITIES, 142, Activity.class, -1, Table.ACTIVITIES),
     ME_ALL_ACTIVITIES("me/activities", null, 150, Activity.class, -1, Table.ACTIVITIES),
 
-    ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, User.class, FRIEND, Table.COLLECTION_ITEMS),
-    SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 161, User.class, SUGGESTED_USER, null),
+    ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, Friend.class, FRIEND, Table.COLLECTION_ITEMS),
+
 
     SOUNDS("sounds", null, 200, Sound.class, -1, Table.SOUNDS),
 
@@ -115,6 +116,8 @@ public enum Content  {
     SEARCH("search", null, 1500, ScResource.class, -1, null),
     SEARCH_ITEM("search/*", null, 1501, ScResource.class, -1, null),
 
+    SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 1600, User.class, SUGGESTED_USER, null),
+
     PLAY_QUEUE("play_queue", null, 2000, null, -1, Table.PLAY_QUEUE),
     PLAY_QUEUE_ITEM("play_queue/#", null, 2001, null, -1, Table.PLAY_QUEUE),
 
@@ -157,7 +160,6 @@ public enum Content  {
     static final private SparseArray<Content> sMap = new SparseArray<Content>();
     static final private Map<Uri, Content> sUris = new HashMap<Uri, Content>();
 
-    public static final int SYNCABLE_CEILING = 150;
     public static final int MINE_CEILING = 200;
 
     public static final EnumSet<Content> ACTIVITIES = EnumSet.of(
@@ -177,7 +179,7 @@ public enum Content  {
     }
 
     public boolean isSyncable() {
-        return id < SYNCABLE_CEILING;
+        return id < MINE_CEILING;
     }
 
     public boolean isCollectionItem() {
