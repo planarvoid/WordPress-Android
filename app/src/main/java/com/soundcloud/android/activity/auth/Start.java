@@ -30,7 +30,6 @@ import com.soundcloud.api.Token;
 import net.hockeyapp.android.UpdateManager;
 
 import android.accounts.AccountAuthenticatorActivity;
-import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -295,7 +294,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                         }
                     }.execute(Request.to(Endpoints.MY_DETAILS));
                 } else { // no tokens obtained
-//                    loginFail(mException);
+                    presentError(mException.getLocalizedMessage());
                 }
             }
         }.execute(param);
@@ -344,18 +343,18 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                                     .putExtra("user", user)
                                     .putExtra("token", token), 0);
                             } else {
-                                signupFail(null);
+                                presentError(null);
                             }
                         }
                     }.execute(param);
                 } else {
-                    signupFail(getFirstError());
+                    presentError(getFirstError());
                 }
             }
         }.execute(email, password);
     }
 
-    protected void signupFail(@Nullable String error) {
+    protected void presentError(@Nullable String error) {
         if (!isFinishing()) {
             new AlertDialog.Builder(this)
                     .setTitle(error != null ? R.string.authentication_signup_failure_title :  R.string.authentication_signup_error_title)
