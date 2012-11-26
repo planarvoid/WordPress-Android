@@ -289,7 +289,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                                 startActivityForResult(new Intent(Start.this, Home.class), 0);
                                 Start.this.finish();
                             } else { // user request failed
-                                loginFail(null);
+                                presentError(null);
                             }
                         }
                     }.execute(Request.to(Endpoints.MY_DETAILS));
@@ -298,9 +298,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                 }
             }
         }.execute(param);
-    }
-
-    protected void loginFail(@Nullable String error) {
     }
 
     @Override
