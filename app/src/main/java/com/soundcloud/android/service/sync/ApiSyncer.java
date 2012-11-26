@@ -347,11 +347,13 @@ public class ApiSyncer {
                 if (cv != null) cvs.add(cv);
             }
 
+            int inserted = 0;
             if (!cvs.isEmpty()) {
-                int inserted = mResolver.bulkInsert(c.uri, cvs.toArray(new ContentValues[cvs.size()]));
-                Log.d(TAG, "inserted " +inserted + " generic models");
+                inserted = mResolver.bulkInsert(c.uri, cvs.toArray(new ContentValues[cvs.size()]));
+                Log.d(TAG, "inserted " + inserted + " generic models");
             }
 
+            result.setSyncData(System.currentTimeMillis(), inserted, null);
             result.success = true;
         }
         return result;

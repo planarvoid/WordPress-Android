@@ -59,6 +59,8 @@ public enum Content  {
 
     ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, Friend.class, FRIEND, Table.COLLECTION_ITEMS),
 
+    SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 190, User.class, SUGGESTED_USER, null),
+
 
     SOUNDS("sounds", null, 200, Sound.class, -1, Table.SOUNDS),
 
@@ -116,8 +118,6 @@ public enum Content  {
     SEARCH("search", null, 1500, ScResource.class, -1, null),
     SEARCH_ITEM("search/*", null, 1501, ScResource.class, -1, null),
 
-    SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 1600, User.class, SUGGESTED_USER, null),
-
     PLAY_QUEUE("play_queue", null, 2000, null, -1, Table.PLAY_QUEUE),
     PLAY_QUEUE_ITEM("play_queue/#", null, 2001, null, -1, Table.PLAY_QUEUE),
 
@@ -160,6 +160,7 @@ public enum Content  {
     static final private SparseArray<Content> sMap = new SparseArray<Content>();
     static final private Map<Uri, Content> sUris = new HashMap<Uri, Content>();
 
+    public static final int SYNCABLE_CEILING = 190;
     public static final int MINE_CEILING = 200;
 
     public static final EnumSet<Content> ACTIVITIES = EnumSet.of(
@@ -179,7 +180,7 @@ public enum Content  {
     }
 
     public boolean isSyncable() {
-        return id < MINE_CEILING;
+        return id < SYNCABLE_CEILING;
     }
 
     public boolean isCollectionItem() {

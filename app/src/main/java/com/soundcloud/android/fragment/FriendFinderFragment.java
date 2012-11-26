@@ -10,6 +10,7 @@ import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.create.NewConnectionTask;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.FriendFinderEmptyCollection;
 
@@ -48,9 +49,8 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
     public FriendFinderFragment(SoundCloudApplication app) {
         super();
 
-        final ConnectionsCache connectionsCache = ConnectionsCache.get(getActivity());
+        final ConnectionsCache connectionsCache = ConnectionsCache.get(app);
         mConnections = connectionsCache.getConnections();
-
         if (mConnections == null){
             setState(States.LOADING, false);
         } else {
@@ -62,32 +62,36 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
-        mEmptyCollection.setButtonActionListener(new EmptyCollection.ActionListener() {
-            @Override
-            public void onAction() {
-                setState(States.LOADING, false);
-                final ScActivity scActivity = getScActivity();
-                mConnectionTask = new NewConnectionTask(scActivity.getApp()) {
-                    @Override
-                    protected void onPostExecute(Uri uri) {
-                        if (uri != null) {
-                            scActivity.startActivityForResult(
-                                    (new Intent(scActivity, Connect.class))
-                                            .putExtra("service", Connection.Service.Facebook.name())
-                                            .setData(uri),
-                                    Consts.RequestCodes.MAKE_CONNECTION);
-                        } else {
-                            scActivity.showToast(R.string.new_connection_error);
-                            setState(States.NO_FB_CONNECTION, false);
-                        }
+        if (mEmptyCollection != null) {
+            mEmptyCollection.setButtonActionListener(new EmptyCollection.ActionListener() {
+                @Override
+                public void onAction() {
+                    if (AndroidUtils.isTaskFinished(mConnectionTask)) {
+                        setState(States.LOADING, false);
+                        final ScActivity scActivity = getScActivity();
+                        mConnectionTask = new NewConnectionTask(scActivity.getApp()) {
+                            @Override
+                            protected void onPostExecute(Uri uri) {
+                                if (uri != null) {
+                                    scActivity.startActivityForResult(
+                                            (new Intent(scActivity, Connect.class))
+                                                    .putExtra("service", Connection.Service.Facebook.name())
+                                                    .setData(uri),
+                                            Consts.RequestCodes.MAKE_CONNECTION);
+                                } else {
+                                    scActivity.showToast(R.string.new_connection_error);
+                                    setState(States.NO_FB_CONNECTION, false);
+                                }
+                            }
+                        }.execute(Connection.Service.Facebook);
                     }
-                }.execute(Connection.Service.Facebook);
-            }
+                }
 
-            @Override
-            public void onSecondaryAction() {
-            }
-        });
+                @Override
+                public void onSecondaryAction() {
+                }
+            });
+        }
         return v;
     }
 

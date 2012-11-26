@@ -66,7 +66,7 @@ public class ScListFragment extends SherlockListFragment
 
     @Nullable
     protected ScListView mListView;
-    @NotNull
+    @Nullable
     protected EmptyCollection mEmptyCollection;
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());

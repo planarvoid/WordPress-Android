@@ -156,14 +156,13 @@ public class ScModelManager {
             while (itemsCursor.moveToNext())
                 if (Track.class.equals(resourceType)) {
                     items.add(getTrackFromCursor(itemsCursor));
-                } else if (User.class.equals(resourceType)) {
+                } else if (User.class.equals(resourceType) || Friend.class.equals(resourceType)) {
                     items.add(getUserFromCursor(itemsCursor));
                 } else if (SoundAssociation.class.equals(resourceType)) {
                     SoundAssociation soundAssociation = new SoundAssociation(itemsCursor);
                     soundAssociation.track = getTrackFromCursor(itemsCursor, DBHelper.SoundAssociationView._ID);
                     soundAssociation.user = getCachedUserFromCursor(itemsCursor, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID);
                     items.add(soundAssociation);
-
                 } else {
                     throw new IllegalArgumentException("NOT HANDLED YET " + resourceType);
                 }
