@@ -46,8 +46,7 @@ import java.util.Set;
  */
 public class ApiSyncer {
     public static final String TAG = ApiSyncService.LOG_TAG;
-
-    public static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
+    private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
 
     private final AndroidCloudAPI mApi;
     private final ContentResolver mResolver;
