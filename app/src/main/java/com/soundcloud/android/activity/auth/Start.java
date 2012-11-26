@@ -459,13 +459,11 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             animation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
-                    view.setVisibility(View.GONE);
+                    view.setVisibility(View.VISIBLE);
                 }
 
                 @Override
-                public void onAnimationEnd(Animation animation) {
-                    view.setVisibility(View.VISIBLE);
-                }
+                public void onAnimationEnd(Animation animation) {}
 
                 @Override
                 public void onAnimationRepeat(Animation animation) {}
@@ -484,9 +482,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_out);
             animation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
-                public void onAnimationStart(Animation animation) {
-                    view.setVisibility(View.VISIBLE);
-                }
+                public void onAnimationStart(Animation animation) {}
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
