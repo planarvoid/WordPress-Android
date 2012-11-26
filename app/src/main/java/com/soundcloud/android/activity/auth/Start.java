@@ -1,6 +1,5 @@
 package com.soundcloud.android.activity.auth;
 
-import android.*;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -394,86 +393,94 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
         switch (mState) {
             case TOUR:
-                fadeInForegroundViews();
+                showForegroundViews(true);
 
-                fadeOut(getLogin());
-                fadeOut(getSignUp());
+                hideView(getLogin(),  true);
+                hideView(getSignUp(), true);
                 return;
 
             case LOGIN:
-                fadeOutForegroundViews();
+                hideForegroundViews(true);
 
-                fadeIn(getLogin());
-                fadeOut(getSignUp());
+                showView(getLogin(),  true);
+                hideView(getSignUp(), true);
                 return;
 
             case SIGN_UP:
-                fadeOutForegroundViews();
+                hideForegroundViews(true);
 
-                fadeOut(getLogin());
-                fadeIn(getSignUp());
+                hideView(getLogin(),  true);
+                showView(getSignUp(), true);
                 return;
         }
     }
 
-    private void fadeInForegroundViews() {
-        fadeIn(mTourBottomBar);
+    private void showForegroundViews(boolean animated) {
+        showView(mTourBottomBar, animated);
 
         for (View view : allChildViewsOf(getCurrentTourLayout())) {
-            if (isForegroundView(view)) fadeIn(view);
+            if (isForegroundView(view)) showView(view, animated);
         }
     }
 
-    private void fadeOutForegroundViews() {
-        fadeOut(mTourBottomBar);
+    private void hideForegroundViews(boolean animated) {
+        hideView(mTourBottomBar, animated);
 
         for (View view : allChildViewsOf(getCurrentTourLayout())) {
-            if (isForegroundView(view)) fadeOut(view);
+            if (isForegroundView(view)) hideView(view, animated);
         }
     }
 
-    private void fadeIn(final View view) {
+    private void showView(final View view, boolean animated) {
         if (view.getVisibility() == View.VISIBLE) return;
 
-        Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                view.setVisibility(View.GONE);
-            }
+        if (!animated) {
+            view.setVisibility(View.VISIBLE);
+        } else {
+            Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                    view.setVisibility(View.GONE);
+                }
 
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                view.setVisibility(View.VISIBLE);
-            }
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    view.setVisibility(View.VISIBLE);
+                }
 
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-        });
+                @Override
+                public void onAnimationRepeat(Animation animation) {}
+            });
 
-        view.startAnimation(animation);
+            view.startAnimation(animation);
+        }
     }
 
-    private void fadeOut(final View view) {
+    private void hideView(final View view, boolean animated) {
         if (view.getVisibility() == View.GONE) return;
 
-        Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_out);
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                view.setVisibility(View.VISIBLE);
-            }
+        if (!animated) {
+            view.setVisibility(View.GONE);
+        } else {
+            Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_out);
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                    view.setVisibility(View.VISIBLE);
+                }
 
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                view.setVisibility(View.GONE);
-            }
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    view.setVisibility(View.GONE);
+                }
 
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-        });
+                @Override
+                public void onAnimationRepeat(Animation animation) {}
+            });
 
-        view.startAnimation(animation);
+            view.startAnimation(animation);
+        }
     }
 
     private TourLayout getCurrentTourLayout() {
