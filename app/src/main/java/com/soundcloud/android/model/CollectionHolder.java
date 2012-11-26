@@ -15,6 +15,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -79,6 +80,10 @@ public class CollectionHolder<T> implements Iterable<T> {
 
     public boolean isEmpty() {
         return size() == 0;
+    }
+
+    public int insert(ContentResolver resolver) {
+        return 0;
     }
 
     public String getCursor() {

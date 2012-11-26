@@ -481,4 +481,15 @@ public class ScModelManager {
         mTrackCache.clear();
         mUserCache.clear();
     }
+
+    public int writeCollection(CollectionHolder<? extends ScResource> models,
+                               Uri uri,
+                               long userId,
+                               ScResource.CacheUpdateMode mode) {
+        if (models.isEmpty()) return 0;
+        for (ScResource m : models) {
+            cache(m, mode);
+        }
+        return models.insert(mResolver);
+    }
 }
