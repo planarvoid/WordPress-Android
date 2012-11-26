@@ -21,6 +21,7 @@ import com.soundcloud.android.adapter.TrackAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -288,6 +289,20 @@ public class ScListFragment extends SherlockListFragment
     @Override
     public void onResume() {
         super.onResume();
+
+        if (getActivity() != null) {
+            final SoundCloudApplication app = SoundCloudApplication.fromContext(getActivity());
+            switch (mContent) {
+                case ME_SOUND_STREAM:
+                    app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, System.currentTimeMillis());
+                    app.updateActivityUnseenCount(mContent, 0);
+                    break;
+                case ME_ACTIVITIES:
+                    app.setAccountData(User.DataKeys.LAST_OWN_SEEN, System.currentTimeMillis());
+                    app.updateActivityUnseenCount(mContent, 0);
+                    break;
+            }
+        }
         if (getListAdapter() != null) getListAdapter().onResume();
     }
 
@@ -561,7 +576,6 @@ public class ScListFragment extends SherlockListFragment
     public void onRefresh(PullToRefreshBase refreshView) {
         refresh(true);
     }
-
 
     private class ChangeObserver extends ContentObserver {
         public ChangeObserver() {

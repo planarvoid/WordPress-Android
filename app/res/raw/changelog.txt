@@ -2,7 +2,11 @@ $ 49
   % v current
   _ 2012-11-19
   ! Next
-    * Even more Search Styling
+    * Added dashboard counters
+    * Upgraded pull to refresh listview
+    * Faster transition to player activity
+    * minor UI fixes
+    - Even more Search Styling
     - Parallax in start page tour
     - Fancificated login overlay
     - Fixed a recurring search crash

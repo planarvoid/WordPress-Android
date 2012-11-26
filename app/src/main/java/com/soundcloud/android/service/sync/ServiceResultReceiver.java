@@ -11,6 +11,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.os.Handler;
@@ -86,6 +87,11 @@ class ServiceResultReceiver extends ResultReceiver {
         final int totalUnseen = Activities.getUniqueTrackCount(incoming, exclusive);
         final boolean hasIncoming = !incoming.isEmpty();
         final boolean hasExclusive = !exclusive.isEmpty();
+
+        if (totalUnseen > 0) {
+            app.updateActivityUnseenCount(Content.ME_SOUND_STREAM,totalUnseen);
+        }
+
         if (hasIncoming || hasExclusive) {
             final CharSequence title, message, ticker;
             String artwork_url = null;
@@ -134,6 +140,8 @@ class ServiceResultReceiver extends ResultReceiver {
 
     private boolean maybeNotifyOwn(SoundCloudApplication app, Activities activities, Bundle extras) {
         if (!activities.isEmpty()) {
+            app.updateActivityUnseenCount(Content.ME_ACTIVITIES,activities.size());
+
             boolean likeEnabled = SyncConfig.isLikeEnabled(app, extras);
             final boolean commentsEnabled = SyncConfig.isCommentsEnabled(app, extras);
 
