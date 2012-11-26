@@ -46,8 +46,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler {
-
-
     protected enum StartState {
         TOUR, LOGIN, SIGN_UP;
     }
@@ -456,19 +454,8 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             view.setVisibility(View.VISIBLE);
         } else {
             Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
-            animation.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                    view.setVisibility(View.VISIBLE);
-                }
 
-                @Override
-                public void onAnimationEnd(Animation animation) {}
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {}
-            });
-
+            view.setVisibility(View.VISIBLE);
             view.startAnimation(animation);
         }
     }
