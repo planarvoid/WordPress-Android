@@ -35,7 +35,7 @@ public class ConnectionListTest {
         adapter.load(Robolectric.application);
 
         assertEquals(1, list.postToServiceIds().size());
-        int id = list.postToServiceIds().iterator().next();
+        long id = list.postToServiceIds().iterator().next();
         assertEquals(41335, id);
     }
 

@@ -126,8 +126,9 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncConnections() throws Exception {
-        addResourceResponse("/me/connections.json?linked_partitioning=1", "connections.json");
+        TestHelper.addCannedResponses(getClass(), "connections.json");
         sync(Content.ME_CONNECTIONS.uri);
+        expect(Content.ME_CONNECTIONS).toHaveCount(6);
     }
 
     @Test

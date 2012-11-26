@@ -47,7 +47,8 @@ public enum Content  {
     ME_SHORTCUTS_ICON("me/shortcut_icon/#", null, 116, null, -1, Table.SUGGESTIONS),
 
     ME_SOUNDS("me/sounds", TempEndpoints.e1.MY_SOUNDS, 120, Sound.class, -1, Table.USERS),
-    ME_CONNECTIONS("me/connections",Endpoints.MY_CONNECTIONS, 130, Connection.class, -1, null),
+    ME_CONNECTION("me/connections/#",Endpoints.MY_CONNECTIONS, 130, Connection.class, -1, Table.CONNECTIONS),
+    ME_CONNECTIONS("me/connections",Endpoints.MY_CONNECTIONS, 131, Connection.class, -1, Table.CONNECTIONS),
 
     // the ids of the following entries should not be changed, they are referenced in th db
     ME_SOUND_STREAM("me/activities/tracks", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),

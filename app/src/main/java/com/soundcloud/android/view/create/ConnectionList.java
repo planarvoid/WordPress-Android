@@ -82,8 +82,8 @@ public class ConnectionList extends LinearLayout {
         return this.listAdapter;
     }
 
-    public List<Integer> postToServiceIds() {
-        List<Integer> ids = new ArrayList<Integer>();
+    public List<Long> postToServiceIds() {
+        List<Long> ids = new ArrayList<Long>();
         for (int i = 0; i < getChildCount(); i++) {
             View v = getChildAt(i);
             if (v instanceof ConnectionItem && v.isEnabled()) {

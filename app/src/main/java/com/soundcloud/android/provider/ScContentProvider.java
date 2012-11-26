@@ -298,6 +298,11 @@ public class ScContentProvider extends ContentProvider {
                 qb.appendWhere(Table.SUGGESTIONS.id + " = " + uri.getLastPathSegment());
                 break;
 
+            case ME_CONNECTION:
+                qb.setTables(content.table.name);
+                qb.appendWhere(Table.CONNECTIONS.id + " = " + uri.getLastPathSegment());
+                break;
+
             case ME_SHORTCUTS:
             case ME_CONNECTIONS:
                 qb.setTables(content.table.name);
@@ -657,6 +662,8 @@ public class ScContentProvider extends ContentProvider {
             case ME_SHORTCUTS:
             case ME_CONNECTIONS:
                 recreateTable = true;
+                table = content.table;
+                break;
 
             default:
                 table = content.table;

@@ -29,7 +29,8 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     private boolean active = true;
     private Service _service;
 
-    public int id;
+    public long id;
+    public String type;
     public Date created_at;
     public String display_name;
     public boolean post_publish;
@@ -46,14 +47,21 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     }
 
     public Connection(Cursor c){
+        id = c.getLong(c.getColumnIndex(DBHelper.Connections._ID));
         service = c.getString(c.getColumnIndex(DBHelper.Connections.SERVICE));
         _service = Service.fromString(service);
+        type = c.getString(c.getColumnIndex(DBHelper.Connections.TYPE));
         created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.Connections.CREATED_AT)));
         display_name = c.getString(c.getColumnIndex(DBHelper.Connections.DISPLAY_NAME));
         active = c.getInt(c.getColumnIndex(DBHelper.Connections.ACTIVE)) == 1;
         post_publish = c.getInt(c.getColumnIndex(DBHelper.Connections.POST_PUBLISH)) == 1;
         post_like = c.getInt(c.getColumnIndex(DBHelper.Connections.POST_LIKE)) == 1;
         uri = Uri.parse(c.getString(c.getColumnIndex(DBHelper.Connections.URI)));
+    }
+
+    @JsonProperty("uri")
+    public void setUri(String uriString){
+        uri = Uri.parse(uriString);
     }
 
     public boolean isActive() { return active; }
@@ -72,8 +80,10 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     @Override
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Connections.USER_ID, SoundCloudApplication.getUserId());
+        cv.put(DBHelper.Connections._ID, id);
+        cv.put(DBHelper.Connections.USER_ID, SoundCloudApplication.getUserId()); // not sure if we should infer the user id here
         cv.put(DBHelper.Connections.SERVICE, service);
+        cv.put(DBHelper.Connections.TYPE, type);
         cv.put(DBHelper.Connections.CREATED_AT, created_at.getTime());
         cv.put(DBHelper.Connections.DISPLAY_NAME, display_name);
         cv.put(DBHelper.Connections.ACTIVE, active);
@@ -105,12 +115,13 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
+        dest.writeLong(id);
         dest.writeLong(created_at == null ? 0 : created_at.getTime());
         dest.writeString(display_name);
         dest.writeInt(post_publish ? 1 : 0);
         dest.writeInt(post_like ? 1 : 0);
         dest.writeString(service);
+        dest.writeString(type);
         dest.writeString(uri == null ? null : uri.toString());
     }
 
@@ -118,12 +129,13 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
         @Override
         public Connection createFromParcel(Parcel source) {
             Connection connection = new Connection();
-            connection.id = source.readInt();
+            connection.id = source.readLong();
             connection.created_at = new Date(source.readLong());
             connection.display_name = source.readString();
             connection.post_publish = source.readInt() == 1;
             connection.post_like = source.readInt() == 1;
             connection.service = source.readString();
+            connection.type = source.readString();
             String uri = source.readString();
             connection.uri = uri == null ? null : Uri.parse(uri);
             return connection;
@@ -145,6 +157,7 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
                 ", post_publish=" + post_publish +
                 ", post_like=" + post_like +
                 ", service='" + service + '\'' +
+                ", type='" + type + '\'' +
                 ", uri=" + uri +
                 '}';
     }

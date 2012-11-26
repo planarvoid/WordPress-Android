@@ -435,6 +435,7 @@ public class DBHelper extends SQLiteOpenHelper {
     static final String DATABASE_CREATE_CONNECTIONS = "("+
                 "_id INTEGER PRIMARY KEY," +
                 "user_id        INTEGER, "+
+                "type           VARCHAR(255)," +
                 "service        VARCHAR(255)," +
                 "created_at     INTEGER," +
                 "display_name   VARCHAR(255)," +
@@ -448,6 +449,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static class Connections implements BaseColumns {
         public static final String USER_ID = "user_id";
         public static final String SERVICE = "service";
+        public static final String TYPE = "type";
         public static final String CREATED_AT = "created_at";
         public static final String DISPLAY_NAME = "display_name";
         public static final String ACTIVE = "active";
