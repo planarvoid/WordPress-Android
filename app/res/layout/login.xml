@@ -7,7 +7,7 @@
     <LinearLayout style="@style/SignUp.Content">
 
         <TextView style="@style/SignUp.Header"
-                  android:text="Log in with your account"
+                  android:text="@string/tour_login_header"
 
                   android:layout_marginTop="20dp"
                   android:layout_marginBottom="20dp"/>
@@ -15,7 +15,7 @@
         <TableLayout style="@style/SignUp.LoginForm">
             <TableRow style="@style/SignUp.LabelRow">
                 <TextView style="@style/SignUp.Label"
-                          android:text="Email" />
+                          android:text="@string/email" />
 
                 <com.soundcloud.android.view.ClearText android:id="@+id/txt_email_address"
                                                        android:hint="@string/authentication_your_email_address"
@@ -30,7 +30,7 @@
 
             <TableRow style="@style/SignUp.LabelRow">
                 <TextView style="@style/SignUp.Label"
-                          android:text="Password" />
+                          android:text="@string/password" />
 
                 <com.soundcloud.android.view.ClearText style="@style/SignUp.PasswordEntry"
                                                        android:id="@+id/txt_password"

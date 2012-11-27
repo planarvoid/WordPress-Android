@@ -74,5 +74,9 @@
     <string name="search_for_query">Search for \'%s\'</string>
     <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link that\'ll allow you to change your password. Problems? Contact support.</string>
     <string name="done">Done</string>
+    <string name="tour_signup_header">Sign up with your account</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="tour_login_header">Log in with your account</string>
 
 </resources>
