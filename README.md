@@ -2,10 +2,11 @@
 
 ## Building
 
-Make sure the [Android SDK][], [Android NDK][] and Maven are installed:
+Make sure the [Android SDK][], [Android NDK][] and Maven (3.x required) are installed:
 
     $ brew install android-sdk android-ndk # OSX - you'll also need XCode CLI tools
     $ mvn -version
+    Apache Maven 3.0.3 (r1075438; 2011-02-28 18:31:09+0100)
 
 Add thess lines to your .zshrc (or bash or whatever) [version numbers may change]
 
@@ -47,7 +48,7 @@ Change the default JUnit Run/Debug configuration to look like this:
 
 Add a file `local.properties` to the app directory containing the path to the Android SDK:
 
-    $ echo "sdk.dir=/usr/local/Cellar/android-sdk/r16" > app/local.properties
+    $ echo "sdk.dir=/usr/local/Cellar/android-sdk/r20" > app/local.properties
 
 ## Betas and releasing
 
