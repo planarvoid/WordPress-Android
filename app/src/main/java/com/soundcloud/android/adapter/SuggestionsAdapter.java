@@ -351,8 +351,9 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     private void setIcon(SearchTag tag, String iconUri, boolean isUser) {
         if (ImageUtils.checkIconShouldLoad(iconUri)) {
-            ImageLoader.BindResult result = mImageLoader.bind(this, tag.iv_icon,
-                    GraphicSize.formatUriForSearchSuggestionsList(mContext, iconUri)
+            ImageLoader.BindResult result = mImageLoader.bind(tag.iv_icon,
+                    GraphicSize.formatUriForSearchSuggestionsList(mContext, iconUri),
+                    null
             );
             if (result == ImageLoader.BindResult.OK) return;
         } else {
