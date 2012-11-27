@@ -4,6 +4,7 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
@@ -29,17 +30,17 @@ import java.util.Map;
 
 public enum Content  {
     ME("me", Endpoints.MY_DETAILS, 100, User.class, -1, Table.USERS),
-    ME_TRACKS("me/tracks", Endpoints.MY_TRACKS, 101, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.COLLECTION_ITEMS),
+    @Deprecated ME_TRACKS("me/tracks", Endpoints.MY_TRACKS, 101, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.COLLECTION_ITEMS),
     ME_COMMENTS("me/comments", null, 102, Comment.class, -1, Table.COMMENTS),
     ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, User.class, FOLLOWING, Table.COLLECTION_ITEMS),
     ME_FOLLOWING("me/followings/#", null, 104, User.class, -1, null),
     ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, User.class, FOLLOWER, Table.COLLECTION_ITEMS),
     ME_FOLLOWER("me/followers/#", null, 106, User.class, -1, null),
-    ME_LIKES("me/likes", Endpoints.MY_FAVORITES, 107, Track.class, LIKE, Table.COLLECTION_ITEMS),
+    ME_LIKES("me/likes", TempEndpoints.e1.MY_LIKES, 107, SoundAssociation.class, LIKE, Table.COLLECTION_ITEMS),
     ME_LIKE("me/likes/#", null, 108, Track.class, LIKE, null),
-    ME_PLAYLISTS("me/playlists", null, 110, null, -1, null),
+    ME_PLAYLISTS("me/playlists", null, 110, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
     ME_USERID("me/userid", null, 111, null, -1, null),
-    ME_REPOSTS("me/reposts", TempEndpoints.e1.MY_REPOSTS, 112, Track.class, -1, Table.COLLECTION_ITEMS),
+    ME_REPOSTS("me/reposts", TempEndpoints.e1.MY_REPOSTS, 112, SoundAssociation.class, REPOST, Table.COLLECTION_ITEMS),
     ME_REPOST("me/reposts/#",null, 113, Track.class, -1, null),
 
     ME_SHORTCUT("me/shortcuts/#", TempEndpoints.i1.MY_SHORTCUTS, 114, Shortcut.class, -1, Table.SUGGESTIONS),
@@ -85,8 +86,8 @@ public enum Content  {
     COMMENTS("comments", null, 400, Comment.class, -1, Table.COMMENTS),
     COMMENT("comments/#", null, 401, Comment.class, -1, Table.COMMENTS),
 
-    PLAYLISTS("playlists", null, 501, null, -1, Table.SOUNDS),
-    PLAYLIST("playlists/#", null, 502, null, -1, Table.SOUNDS),
+    PLAYLISTS("playlists", null, 501, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
+    PLAYLIST("playlists/#", null, 502, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
 
     // LOCAL URIS
     COLLECTIONS("collections", null, 1000, null, -1, Table.COLLECTIONS),

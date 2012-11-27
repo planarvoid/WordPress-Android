@@ -79,12 +79,15 @@ public class ApiSyncer {
                     result.success = true;
                     break;
 
+                case ME_LIKES:
+                    result = syncLikes(uri);
+                    break;
+
                 case ME_SOUNDS:
                     result = syncSounds(uri);
                     break;
 
                 case ME_TRACKS:
-                case ME_LIKES:
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
                 case ME_REPOSTS:
@@ -126,6 +129,24 @@ public class ApiSyncer {
                     Log.w(TAG, "no remote URI defined for " + c);
             }
 
+        }
+        return result;
+    }
+
+    private Result syncLikes(Uri uri) throws IOException {
+        Result result = new Result(uri);
+        log("syncLikes(" + uri + ")");
+
+        SoundAssociationHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
+                Request.to(TempEndpoints.e1.MY_LIKES).with("limit", 200),
+                SoundAssociationHolder.class);
+
+        if (holder != null) {
+            holder.insert(mResolver);
+
+            result.setSyncData(System.currentTimeMillis(), holder.collection.size(), null);
+            result.success = true;
+            result.change = Result.CHANGED;
         }
         return result;
     }
@@ -226,18 +247,6 @@ public class ApiSyncer {
 
                 startPosition = firstUsers.size();
                 break;
-
-            case ME_TRACKS:
-                // ensure the first couple of pages of items for quick loading
-                added = SoundCloudApplication.MODEL_MANAGER.fetchMissingCollectionItems(
-                        mApi,
-                        remote,
-                        Content.TRACKS,
-                        false,
-                        -1
-                );
-                break;
-
             default:
                 // ensure the first couple of pages of items for quick loading
                 added = SoundCloudApplication.MODEL_MANAGER.fetchMissingCollectionItems(

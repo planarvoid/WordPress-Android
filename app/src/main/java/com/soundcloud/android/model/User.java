@@ -46,8 +46,6 @@ public class User extends ScResource implements Refreshable {
     @Nullable public String city;
     @Nullable public String country;
 
-
-
     @Nullable public String plan;      // free|lite|solo|pro|pro plus
 
     @Nullable public String website;
@@ -307,7 +305,6 @@ public class User extends ScResource implements Refreshable {
 
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
         String SEEN_CREATE_AUTOSAVE           = "seenCreateAutoSave";
-
     }
 
     @Override

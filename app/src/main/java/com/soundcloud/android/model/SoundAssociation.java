@@ -108,7 +108,7 @@ public class SoundAssociation extends ScResource implements Playable {
     }
 
     public int getResourceType() {
-        return playlist != null ? Sound.DB_TYPE_PLAYLIST : Sound.DB_TYPE_TRACK;
+        return playlist != null ? playlist.getTypeId() : track.getTypeId();
     }
 
     @JsonProperty("type")
@@ -124,6 +124,11 @@ public class SoundAssociation extends ScResource implements Playable {
     @Override @Nullable
     public Track getTrack() {
         return track;
+    }
+
+    @Nullable
+    public Playlist getPlaylist() {
+        return playlist;
     }
 
     @Override

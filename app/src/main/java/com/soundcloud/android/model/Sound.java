@@ -18,8 +18,7 @@ import android.text.TextUtils;
 import java.util.Date;
 
 public abstract class Sound extends ScResource implements Playable, Refreshable, Parcelable {
-
-    public static final int DB_TYPE_TRACK = 0;
+    public static final int DB_TYPE_TRACK    = 0; // TODO should not be exposed
     public static final int DB_TYPE_PLAYLIST = 1;
 
     public abstract Date getCreatedAt();
@@ -219,6 +218,7 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
         ContentValues cv = super.buildContentValues();
 
         cv.put(DBHelper.Sounds.PERMALINK, permalink);
+        cv.put(DBHelper.Sounds._TYPE, getTypeId());
 
         // account for partial objects, don't overwrite local full objects
         if (title != null) cv.put(DBHelper.Sounds.TITLE, title);
@@ -267,4 +267,6 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
 
         return this;
     }
+
+    public abstract int getTypeId();
 }

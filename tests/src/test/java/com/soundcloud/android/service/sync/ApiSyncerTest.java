@@ -111,21 +111,6 @@ public class ApiSyncerTest {
         assertFirstIdToBe(Content.ME_FOLLOWERS, 308291);
     }
 
-    @Test @Ignore // no longer used
-    public void shouldSyncTracks() throws Exception {
-        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
-
-        Result result = sync(Content.ME_TRACKS.uri);
-        expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(0l);
-
-        // make sure tracks+users got written
-        expect(Content.TRACKS).toHaveCount(3);
-        expect(Content.USERS).toHaveCount(1);
-        assertResolverNotified(Content.ME_TRACKS.uri, Content.TRACKS.uri, Content.USERS.uri);
-    }
-
     @Test
     public void shouldSyncSounds() throws Exception {
         addResourceResponse("/e1/me/sounds/mini?limit=200&linked_partitioning=1", "me_sounds_mini.json");
@@ -136,7 +121,18 @@ public class ApiSyncerTest {
 
         expect(Content.TRACKS).toHaveCount(48);
         expect(Content.ME_SOUNDS).toHaveCount(48);
+    }
 
+    @Test
+    public void shouldSyncLikes() throws Exception {
+        addResourceResponse("/e1/me/likes?limit=200&linked_partitioning=1", "e1_likes.json");
+
+        Result result = sync(Content.ME_LIKES.uri);
+        expect(result.success).toBeTrue();
+        expect(result.synced_at).toBeGreaterThan(0l);
+
+        expect(Content.TRACKS).toHaveCount(2);    // 2 sounds + 1 playlist
+        expect(Content.ME_LIKES).toHaveCount(2);  // ditto
     }
 
     @Test

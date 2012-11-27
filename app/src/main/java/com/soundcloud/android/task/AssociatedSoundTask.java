@@ -2,7 +2,7 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Sound;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
@@ -10,15 +10,15 @@ import android.os.AsyncTask;
 
 import java.io.IOException;
 
-public abstract class AssociatedTrackTask extends AsyncTask<String, String, Boolean> {
+public abstract class AssociatedSoundTask extends AsyncTask<String, String, Boolean> {
     protected AndroidCloudAPI mApi;
     private AssociatedListener mAssociatedListener;
 
-    protected Track track;
+    protected Sound sound;
 
-    public AssociatedTrackTask(AndroidCloudAPI api, Track track) {
+    public AssociatedSoundTask(AndroidCloudAPI api, Sound sound) {
         this.mApi = api;
-        this.track = track;
+        this.sound = sound;
     }
 
     public void setOnAssociatedListener(AssociatedListener likeListener){
@@ -28,7 +28,7 @@ public abstract class AssociatedTrackTask extends AsyncTask<String, String, Bool
     @Override
     protected Boolean doInBackground(String... params) {
         try {
-            return isAssociated(executeResponse(Request.to(params[0], track.id)));
+            return isAssociated(executeResponse(Request.to(params[0], sound.id)));
         } catch (IOException e) {
             return isAssociated(HttpStatus.SC_NOT_MODIFIED);
         }
@@ -36,18 +36,18 @@ public abstract class AssociatedTrackTask extends AsyncTask<String, String, Bool
 
     protected abstract int executeResponse(Request request) throws IOException;
 
-    protected boolean isAssociated(int i){
+    protected boolean isAssociated(int i) {
         return false;
     }
 
     @Override
     protected void onPostExecute(Boolean associated) {
         if (mAssociatedListener != null) {
-            mAssociatedListener.onNewStatus(track, associated);
+            mAssociatedListener.onNewStatus(sound, associated);
         }
     }
 
     public interface AssociatedListener {
-        void onNewStatus(Track track, boolean isAssociated);
+        void onNewStatus(Sound sound, boolean isAssociated);
     }
 }

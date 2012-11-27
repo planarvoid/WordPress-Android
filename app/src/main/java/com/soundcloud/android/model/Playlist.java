@@ -62,7 +62,6 @@ public class Playlist extends Sound {
 
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
-        cv.put(DBHelper.Sounds._TYPE, Sound.DB_TYPE_PLAYLIST);
         cv.put(DBHelper.Sounds.TRACKS_URI, tracks_uri);
         return cv;
     }
@@ -111,5 +110,10 @@ public class Playlist extends Sound {
     @Override
     public Track getTrack() {
         return null;
+    }
+
+    @Override
+    public int getTypeId() {
+        return DB_TYPE_PLAYLIST;
     }
 }
