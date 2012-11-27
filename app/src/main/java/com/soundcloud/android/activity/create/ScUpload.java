@@ -59,7 +59,7 @@ public class ScUpload extends ScActivity {
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
-        getSupportActionBar().setTitle(R.string.share);
+        setTitle(R.string.share);
 
         final Intent intent = getIntent();
         if (intent != null && (mRecording = Recording.fromIntent(intent, getContentResolver(), getCurrentUserId())) != null) {

@@ -58,6 +58,7 @@ import android.view.WindowManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
@@ -166,6 +167,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         layout.setBackgroundDrawable(getWindow().getDecorView().getBackground());
         layout.setDrawingCacheBackgroundColor(Color.WHITE);
         mRootView.setContent(layout);
+    }
+
+    @Override
+    protected void onTitleChanged(CharSequence title, int color) {
+        super.onTitleChanged(title, color);
+        ((TextView) getDefaultCustomView().findViewById(R.id.title)).setText(title);
     }
 
     @Override
@@ -629,7 +636,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         mSuggestionsAdapter = new SuggestionsAdapter(this, null, getApp());
         searchView.setSuggestionsAdapter(mSuggestionsAdapter);
-
         searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
             public boolean onSuggestionSelect(int position) {
