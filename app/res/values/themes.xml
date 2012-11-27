@@ -82,6 +82,12 @@
     <style name="next_DropDownListView" parent="@style/Widget.Sherlock.ListView.DropDown">
         <item name="android:paddingTop">1dp</item>
         <item name="android:paddingBottom">1dp</item>
+        <item name="android:cacheColorHint">#222222</item>
+        <item name="android:background">#222222</item>
+        <item name="android:headerDividersEnabled">true</item>
+        <item name="android:footerDividersEnabled">true</item>
+        <item name="android:dividerHeight">1px</item>
+        <item name="android:divider">#333333</item>
     </style>
 
     <style name="next_ActionBarTabStyle" parent="@style/Widget.Sherlock.ActionBar.TabView">
