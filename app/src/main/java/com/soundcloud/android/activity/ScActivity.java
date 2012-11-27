@@ -2,6 +2,7 @@ package com.soundcloud.android.activity;
 
 import static com.actionbarsherlock.internal.view.menu.ActionMenuView.OnClickListener;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.internal.view.menu.ActionMenuView;
 import com.actionbarsherlock.view.Menu;
@@ -518,13 +519,14 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
      */
 
     private void configureCustomView(){
-        getSupportActionBar().setCustomView(mInSearchMode ? getSearchCustomView() : getDefaultCustomView());
+        getSupportActionBar().setCustomView(mInSearchMode ? getSearchCustomView() : getDefaultCustomView(),
+                new ActionBar.LayoutParams(Gravity.FILL_HORIZONTAL));
     }
 
     private View getDefaultCustomView() {
         if (mActionBarCustomView == null) {
             final boolean inPlayer = (this instanceof ScPlayer);
-            mActionBarCustomView = View.inflate(this, inPlayer ? R.layout.action_bar_custom_logo : R.layout.action_bar_custom_view, null);
+            mActionBarCustomView = View.inflate(this, R.layout.action_bar_custom_view, null);
             mActionBarCustomView.findViewById(R.id.custom_home).setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -539,6 +541,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         goToPlayer();
                     }
                 });
+            } else {
+                mActionBarCustomView.findViewById(R.id.waveform_progress).setVisibility(View.GONE);
             }
             mMenuIndicator = mActionBarCustomView.findViewById(R.id.custom_up);
         }
