@@ -42,7 +42,6 @@ public abstract class AbstractLoginActivity extends Activity {
 
     protected abstract void build();
 
-
     protected void login(String username, String password) {
         final Bundle param = new Bundle();
         param.putString(USERNAME_EXTRA, username);

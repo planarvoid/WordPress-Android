@@ -1,45 +1,85 @@
 package com.soundcloud.android.activity.auth;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.net.Uri;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
+import android.view.ViewStub;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.soundcloud.android.Actions;
+import com.soundcloud.android.*;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.task.GetTokensTask;
+import com.soundcloud.android.task.SignupTask;
+import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.tour.TourLayout;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Env;
+import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 import net.hockeyapp.android.UpdateManager;
 
 import android.accounts.AccountAuthenticatorActivity;
-import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import org.jetbrains.annotations.Nullable;
 
-public class Start extends AccountAuthenticatorActivity {
+import java.io.*;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
+
+public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler {
+    protected enum StartState {
+        TOUR, LOGIN, SIGN_UP;
+    }
     private static final int RECOVER_CODE    = 1;
+
     private static final int SUGGESTED_USERS = 2;
+    private static final File SIGNUP_LOG = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".dr");
 
     public static final String FB_CONNECTED_EXTRA    = "facebook_connected";
-    public static final String TOUR_BACKGROUND_EXTRA = "tour_background";
 
-    private ViewPager mViewPager;
+    public static final String TOUR_BACKGROUND_EXTRA = "tour_background";
+    private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
+
+    public static final int THROTTLE_WINDOW = 60 * 60 * 1000;
+
+    public static final int THROTTLE_AFTER_ATTEMPT = 3;
+
+    private StartState mState = StartState.TOUR;
+
+    private View mTourBottomBar;
+
     private TourLayout[] mTourPages;
+    private ViewPager mViewPager;
+
+    @Nullable private Login  mLogin;
+    @Nullable private SignUp mSignUp;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.start);
 
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+
+        mTourBottomBar = findViewById(R.id.tour_bottom_bar);
 
         mViewPager = (ViewPager) findViewById(R.id.tour_view);
         mTourPages = new TourLayout[]{
@@ -98,8 +138,7 @@ public class Start extends AccountAuthenticatorActivity {
         findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                app.track(Click.Login_with_facebook);
-                startActivityForResult(new Intent(Start.this, Facebook.class), 0);
+               onFacebookLogin();
             }
         });
 
@@ -108,11 +147,7 @@ public class Start extends AccountAuthenticatorActivity {
             public void onClick(View v) {
                 app.track(Click.Login);
 
-                Intent loginIntent = new Intent(Start.this, Login.class);
-                loginIntent.putExtra(TOUR_BACKGROUND_EXTRA, getBackgroundId());
-
-                startActivityForResult(loginIntent, 0);
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                setState(StartState.LOGIN);
             }
         });
 
@@ -121,11 +156,12 @@ public class Start extends AccountAuthenticatorActivity {
             public void onClick(View v) {
                 app.track(Click.Signup_Signup);
 
-                Intent signUpIntent = new Intent(Start.this, SignUp.class);
-                signUpIntent.putExtra(TOUR_BACKGROUND_EXTRA, getBackgroundId());
-
-                startActivityForResult(signUpIntent, 0);
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                if (shouldThrottleSignup(Start.this)) {
+                    // TODO: bring up mobile website
+                    setState(StartState.TOUR);
+                } else {
+                    setState(StartState.SIGN_UP);
+                }
             }
         });
 
@@ -143,78 +179,359 @@ public class Start extends AccountAuthenticatorActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (resultCode) {
-            case RESULT_OK:
-                handleActivityResult(requestCode, data);
-                break;
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putSerializable("state", mState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        setState((StartState) savedInstanceState.getSerializable("state"), false);
+    }
+
+    public Login getLogin() {
+        if (mLogin == null) {
+            ViewStub stub = (ViewStub) findViewById(R.id.login_stub);
+
+            mLogin = (Login) stub.inflate();
+            mLogin.setLoginHandler(this);
+            mLogin.setVisibility(View.GONE);
         }
+
+        return mLogin;
     }
 
-    private void handleActivityResult(int requestCode, Intent data) {
-        switch (requestCode) {
-            case 0:
-                SoundCloudApplication app = (SoundCloudApplication) getApplication();
-                final String error = data.getStringExtra("error");
-                if (error == null) {
-                    final User user = data.getParcelableExtra("user");
-                    final Token token = (Token) data.getSerializableExtra("token");
+    public View getSignUp() {
+        if (mSignUp == null) {
+            ViewStub stub = (ViewStub) findViewById(R.id.sign_up_stub);
 
-                    SignupVia via = SignupVia.fromIntent(data);
-                    // API signup will already have created the account
-                    if (SignupVia.API == via || app.addUserAccount(user, token, via)) {
-                        final Bundle result = new Bundle();
-                        result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
-                        result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
-                        setAccountAuthenticatorResult(result);
-
-                        sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
-                                .putExtra("user", user)
-                                .putExtra("signed_up", via.name));
-
-                        if (via != SignupVia.UNKNOWN) {
-                            startActivityForResult(
-                                new Intent(this, SuggestedUsers.class).putExtra(FB_CONNECTED_EXTRA, via.isFacebook()),
-                                    SUGGESTED_USERS);
-                        } else {
-                            finish();
-                        }
-                    } else {
-                        AndroidUtils.showToast(this, R.string.error_creating_account);
-                    }
-                } else {
-                    AndroidUtils.showToast(this, error);
-                }
-                break;
-            case SUGGESTED_USERS:
-                handleSuggestedUsersReturned(data);
-                break;
-
-            case RECOVER_CODE:
-                handleRecoverResult(this, data);
-                break;
+            mSignUp = (SignUp) stub.inflate();
+            mSignUp.setSignUpHandler(this);
+            mSignUp.setVisibility(View.GONE);
         }
+
+        return mSignUp;
     }
 
-    private void handleSuggestedUsersReturned(Intent data) {
-        finish();
-    }
+    static boolean shouldThrottleSignup(Context context) {
+        AndroidCloudAPI api = (AndroidCloudAPI) context.getApplicationContext();
+        // don't throttle sandbox requests - we need it for integration testing
+        if (api.getEnv() ==  Env.SANDBOX) return false;
 
-    static void handleRecoverResult(Context context, Intent data) {
-        final boolean success = data.getBooleanExtra("success", false);
-        if (success) {
-            AndroidUtils.showToast(context, R.string.authentication_recover_password_success);
+        final long[] signupLog = readLog();
+        if (signupLog == null) {
+            return false;
         } else {
-            String error = data.getStringExtra("error");
-            AndroidUtils.showToast(context,
-                    error == null ?
-                            context.getString(R.string.authentication_recover_password_failure) :
-                            context.getString(R.string.authentication_recover_password_failure_reason, error));
+            int i = signupLog.length - 1;
+            while (i >= 0 &&
+                    System.currentTimeMillis() - signupLog[i] < THROTTLE_WINDOW &&
+                    signupLog.length - i <= THROTTLE_AFTER_ATTEMPT) {
+                i--;
+            }
+            return signupLog.length - i > THROTTLE_AFTER_ATTEMPT;
         }
     }
 
-    public int getBackgroundId() {
-        return mTourPages[mViewPager.getCurrentItem()].getBgResId();
+    static boolean writeNewSignupToLog() {
+        return writeNewSignupToLog(System.currentTimeMillis());
+    }
+
+    static boolean writeNewSignupToLog(long timestamp) {
+        long[] toWrite, current = readLog();
+        if (current == null) {
+            toWrite = new long[1];
+        } else {
+            toWrite = new long[current.length + 1];
+            System.arraycopy(current, 0, toWrite, 0, current.length);
+        }
+        toWrite[toWrite.length - 1] = timestamp;
+        return writeLog(toWrite);
+    }
+
+    static boolean writeLog(long[] toWrite) {
+        try {
+            IOUtils.mkdirs(SIGNUP_LOG.getParentFile());
+
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(SIGNUP_LOG));
+            out.writeObject(toWrite);
+            out.close();
+            return true;
+        } catch (IOException e) {
+            Log.w(SoundCloudApplication.TAG, "Error writing to sign up log ", e);
+            return false;
+        }
+    }
+
+    @Nullable static long[] readLog() {
+
+        try {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(SIGNUP_LOG));
+            return (long[]) in.readObject();
+        } catch (IOException e) {
+            Log.e(SoundCloudApplication.TAG, "Error reading sign up log ", e);
+        } catch (ClassNotFoundException e) {
+            Log.e(SoundCloudApplication.TAG, "Error reading sign up log ", e);
+        }
+        return null;
+    }
+
+    @Override
+    public void onLogin(String email, String password) {
+        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+        final Bundle param = new Bundle();
+        param.putString("username", email);
+        param.putString("password", password);
+
+        new GetTokensTask(app) {
+            ProgressDialog progress;
+
+            @Override
+            protected void onPreExecute() {
+                if (!isFinishing()) {
+                    progress = AndroidUtils.showProgress(Start.this,
+                                                         R.string.authentication_login_progress_message);
+                }
+            }
+
+            @Override
+            protected void onPostExecute(final Token token) {
+                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+token+")");
+
+                if (!isFinishing()) {
+                    try {
+                        progress.dismiss();
+                    } catch (IllegalArgumentException ignored) {}
+                }
+
+                if (token != null) {
+                    new FetchUserTask(app) {
+                        @Override
+                        protected void onPostExecute(User user) {
+                            // need to create user account as soon as possible, so the executeRefreshTask logic in
+                            // SoundCloudApplication works properly
+                            final boolean signedUp = app.addUserAccount(user, app.getToken(), SignupVia.API);
+
+                            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
+
+                            if (user != null) {
+                                startActivityForResult(new Intent(Start.this, Home.class), 0);
+                                Start.this.finish();
+                            } else { // user request failed
+                                presentError(null);
+                            }
+                        }
+                    }.execute(Request.to(Endpoints.MY_DETAILS));
+                } else { // no tokens obtained
+                    presentError(mException.getLocalizedMessage());
+                }
+            }
+        }.execute(param);
+    }
+
+    @Override
+    public void onSignUp(final String email, final String password) {
+        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+        final Bundle param = new Bundle();
+        param.putString("username", email);
+        param.putString("password", password);
+
+
+        new SignupTask(app) {
+            ProgressDialog progress;
+
+            @Override
+            protected void onPreExecute() {
+                progress = AndroidUtils.showProgress(Start.this,
+                                                     R.string.authentication_signup_progress_message);
+            }
+
+            @Override
+            protected void onPostExecute(final User user) {
+                if (!isFinishing()) {
+                    try {
+                        progress.dismiss();
+                    } catch (IllegalArgumentException ignored) {}
+                }
+
+                if (user != null) {
+                    writeNewSignupToLog();
+
+                    // need to create user account as soon as possible, so the executeRefreshTask logic in
+                    // SoundCloudApplication works properly
+                    final boolean signedUp = app.addUserAccount(user, app.getToken(), SignupVia.API);
+
+                    new GetTokensTask(mApi) {
+                        @Override protected void onPostExecute(Token token) {
+                            if (token != null) {
+                                startActivityForResult(new Intent(Start.this, SignupDetails.class)
+                                    .putExtra(SignupVia.EXTRA, signedUp ? SignupVia.API.name : null)
+                                    .putExtra("user", user)
+                                    .putExtra("token", token), 0);
+                            } else {
+                                presentError(null);
+                            }
+                        }
+                    }.execute(param);
+                } else {
+                    presentError(getFirstError());
+                }
+            }
+        }.execute(email, password);
+    }
+
+    @Override
+    public void onBackPressed() {
+        switch (getState()) {
+            case LOGIN:
+            case SIGN_UP:
+                setState(StartState.TOUR);
+                return;
+
+            case TOUR:
+                super.onBackPressed();
+                return;
+        }
+    }
+
+    public StartState getState() {
+        return mState;
+    }
+
+    public void setState(StartState state) {
+        setState(state, true);
+    }
+
+    public void setState(StartState state, boolean animated) {
+        mState = state;
+
+        switch (mState) {
+            case TOUR:
+                showForegroundViews(animated);
+
+                hideView(getLogin(),  animated);
+                hideView(getSignUp(), animated);
+                return;
+
+            case LOGIN:
+                hideForegroundViews(animated);
+
+                showView(getLogin(),  animated);
+                hideView(getSignUp(), animated);
+                return;
+
+            case SIGN_UP:
+                hideForegroundViews(animated);
+
+                hideView(getLogin(),  animated);
+                showView(getSignUp(), animated);
+                return;
+        }
+    }
+
+    private void showForegroundViews(boolean animated) {
+        showView(mTourBottomBar, animated);
+
+        for (View view : allChildViewsOf(getCurrentTourLayout())) {
+            if (isForegroundView(view)) showView(view, animated);
+        }
+    }
+
+    private void hideForegroundViews(boolean animated) {
+        hideView(mTourBottomBar, animated);
+
+        for (View view : allChildViewsOf(getCurrentTourLayout())) {
+            if (isForegroundView(view)) hideView(view, animated);
+        }
+    }
+
+    private void showView(final View view, boolean animated) {
+        if (view.getVisibility() == View.VISIBLE) return;
+
+        if (!animated) {
+            view.setVisibility(View.VISIBLE);
+        } else {
+            Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+
+            view.setVisibility(View.VISIBLE);
+            view.startAnimation(animation);
+        }
+    }
+
+    private void hideView(final View view, boolean animated) {
+        if (view.getVisibility() == View.GONE) return;
+
+        if (!animated) {
+            view.setVisibility(View.GONE);
+        } else {
+            Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_out);
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {}
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    view.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {}
+            });
+
+            view.startAnimation(animation);
+        }
+    }
+
+    private TourLayout getCurrentTourLayout() {
+        return mTourPages[mViewPager.getCurrentItem()];
+    }
+
+    private static boolean isForegroundView(View view) {
+        Object tag = view.getTag();
+
+        return "foreground".equals(tag) || "parallax".equals(tag);
+    }
+
+    protected void presentError(@Nullable String error) {
+        if (!isFinishing()) {
+            new AlertDialog.Builder(this)
+                    .setTitle(error != null ? R.string.authentication_signup_failure_title :  R.string.authentication_signup_error_title)
+                    .setMessage(error != null ? error : getString(R.string.authentication_signup_error_message))
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    })
+                    .show();
+        }
+    }
+
+    @Override
+    public void onFacebookLogin() {
+        SoundCloudApplication app = (SoundCloudApplication) getApplication();
+
+        app.track(Click.Login_with_facebook);
+        startActivityForResult(new Intent(this, Facebook.class), 0);
+    }
+
+    @Override
+    public void onTermsOfUse() {
+        SoundCloudApplication app = (SoundCloudApplication) getApplication();
+
+        app.track(Click.Signup_Signup_terms);
+        startActivity(new Intent(Intent.ACTION_VIEW, TERMS_OF_USE_URL));
+    }
+
+    @Override
+    public void onRecover(String email) {
+        Intent recoveryIntent = new Intent(this, Recover.class);
+
+        if (email != null && email.length() > 0) {
+            recoveryIntent.putExtra("email", email);
+        }
+
+        startActivityForResult(recoveryIntent, 0);
     }
 }
