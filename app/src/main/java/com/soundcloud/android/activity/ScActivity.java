@@ -42,6 +42,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
@@ -50,6 +51,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -569,14 +571,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         mInSearchMode = !mInSearchMode;
         configureCustomView();
         invalidateOptionsMenu();
-
-        if (useFullScreenSearch()) {
-            if (!mInSearchMode) {
-                mRootView.unBlock();
-            } else {
-                mRootView.block();
-            }
-        }
     }
 
     private void closeSearch() {
@@ -607,7 +601,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         /* find and configure the search autocompletetextview */
         // actionbarsherlock view
-        AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
+        final AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
         if (search_text != null) {
             if (useFullScreenSearch()) {
                 // on a normal size device, use the whole action bar
@@ -626,7 +620,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                 if (findViewById(R.id.abs__search_bar) != null) search_text.setDropDownAnchor(R.id.abs__search_bar);
                 search_text.setDropDownWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
             }
-
         }
 
 
@@ -650,6 +643,36 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                 return true;
             }
         });
+
+        // listeners for showing and hiding the content blocker
+        if (useFullScreenSearch()) {
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    mRootView.unBlock();
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    if (TextUtils.isEmpty(newText)) mRootView.unBlock();
+                    return false;
+                }
+            });
+            if (search_text != null) {
+                mSuggestionsAdapter.registerDataSetObserver(new DataSetObserver() {
+                    @Override
+                    public void onChanged() {
+                        if (mSuggestionsAdapter.getCount() > 0 && !TextUtils.isEmpty(search_text.getText())) {
+                            mRootView.block();
+                        } else {
+                            mRootView.unBlock();
+                        }
+                    }
+                });
+            }
+        }
+
     }
 
     private final BroadcastReceiver mGeneralIntentListener = new BroadcastReceiver() {
