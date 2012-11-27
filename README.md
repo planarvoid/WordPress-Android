@@ -47,7 +47,7 @@ Change the default JUnit Run/Debug configuration to look like this:
 
 Add a file `local.properties` to the app directory containing the path to the Android SDK:
 
-    $ echo "sdk.dir=//usr/local/Cellar/android-sdk/r16" > app/local.properties
+    $ echo "sdk.dir=/usr/local/Cellar/android-sdk/r16" > app/local.properties
 
 ## Betas and releasing
 
