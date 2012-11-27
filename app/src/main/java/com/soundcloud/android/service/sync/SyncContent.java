@@ -36,7 +36,7 @@ enum SyncContent {
     public final int[] backoffMultipliers;
 
     public boolean isEnabled(SharedPreferences prefs) {
-        return (!SoundCloudApplication.DALVIK || this != MyFollowers) /* handled by push */
+        return (this != MyFollowers) /* handled by push */
                 && prefs.getBoolean(prefSyncEnabledKey, true);
     }
 
