@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
@@ -25,8 +26,8 @@ public class AssociationManagerTest {
 
     @Before
     public void before() {
-        modelManager = new ScModelManager(Robolectric.application, AndroidCloudAPI.Mapper);
-        associationManager = new AssociationManager(Robolectric.application, modelManager);
+        modelManager = SoundCloudApplication.MODEL_MANAGER; // new ScModelManager(Robolectric.application, AndroidCloudAPI.Mapper);
+        associationManager = new AssociationManager(Robolectric.application);
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
     }
 

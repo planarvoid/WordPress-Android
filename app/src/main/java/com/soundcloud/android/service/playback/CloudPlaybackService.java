@@ -177,7 +177,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public void onCreate() {
         super.onCreate();
         mPlayQueueManager = new PlayQueueManager(this, SoundCloudApplication.getUserId());
-        mAssociationManager = new AssociationManager(this, SoundCloudApplication.MODEL_MANAGER);
+        mAssociationManager = new AssociationManager(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         IntentFilter commandFilter = new IntentFilter();

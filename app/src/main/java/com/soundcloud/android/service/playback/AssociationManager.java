@@ -21,9 +21,9 @@ public class AssociationManager {
     private Context mContext;
     private ScModelManager mModelManager;
 
-    public AssociationManager(Context context, ScModelManager modelManager) {
+    public AssociationManager(Context context) {
         mContext = context;
-        mModelManager = modelManager;
+        mModelManager = SoundCloudApplication.MODEL_MANAGER;
     }
 
     void addLike(@Nullable Sound sound) {
