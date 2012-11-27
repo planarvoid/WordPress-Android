@@ -15,6 +15,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.Collections;
@@ -86,7 +87,6 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
 
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
-        mLocalCollection = LocalCollection.fromContentUri(Content.ME_CONNECTIONS.uri, mContext.getContentResolver(), true);
         doQuery(null);
     }
 

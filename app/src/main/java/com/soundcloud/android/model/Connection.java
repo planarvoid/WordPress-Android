@@ -222,4 +222,28 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
         }
         return false;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Connection)) return false;
+        if (!super.equals(o)) return false;
+
+        Connection that = (Connection) o;
+
+        if (_service != that._service) return false;
+        if (display_name != null ? !display_name.equals(that.display_name) : that.display_name != null) return false;
+        if (type != null ? !type.equals(that.type) : that.type != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (_service != null ? _service.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (display_name != null ? display_name.hashCode() : 0);
+        return result;
+    }
 }
