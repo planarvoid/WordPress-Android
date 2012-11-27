@@ -2,7 +2,7 @@
 <resources>
     <dimen name="tab_text_size">12sp</dimen>
 
-    <dimen name="next_home_width">48dp</dimen>
+    <dimen name="next_home_width">74dp</dimen>
 
     <dimen name="notification_image_width">65dip</dimen>
     <dimen name="notification_image_height">65dip</dimen>
@@ -13,8 +13,13 @@
     <dimen name="list_icon_width">47dip</dimen>
     <dimen name="list_icon_height">47dip</dimen>
 
-    <dimen name="list_icon_margin_left">5dip</dimen>
+    <dimen name="list_item_padding_left">16dip</dimen>
+    <dimen name="list_item_padding_top">12dip</dimen>
+    <dimen name="list_item_padding_right">16dip</dimen>
+    <dimen name="list_item_padding_bottom">12dip</dimen>
+
     <dimen name="list_icon_margin_right">5dip</dimen>
+
     <dimen name="list_txt_pull_size">16sp</dimen>
     <dimen name="list_txt_main_size">14sp</dimen>
     <dimen name="list_txt_sub_size">12sp</dimen>
@@ -23,7 +28,6 @@
     <dimen name="comment_panel_created_at_size">12sp</dimen>
 
     <dimen name="list_text_margin_left">5dip</dimen>
-    <dimen name="list_text_margin_right">5dip</dimen>
 
     <dimen name="user_browser_info_username_margin_bottom">0dip</dimen>
 
@@ -94,6 +98,6 @@
     <dimen name="search_header_padding_topbottom">10dp</dimen>
     <dimen name="search_header_padding_leftright">8dp</dimen>
 
-    <dimen name="header_footer_left_right_padding">@dimen/list_icon_margin_left</dimen>
+    <dimen name="header_footer_left_right_padding">@dimen/list_item_padding_left</dimen>
     <dimen name="header_footer_internal_padding">10dp</dimen>
 </resources>

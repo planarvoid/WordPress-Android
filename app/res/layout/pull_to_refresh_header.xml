@@ -3,8 +3,8 @@
     <FrameLayout
         android:layout_width="@dimen/list_icon_width"
         android:layout_height="wrap_content"
-        android:layout_marginRight="@dimen/list_icon_margin_left"
-        android:layout_marginLeft="@dimen/list_icon_margin_right">
+        android:layout_marginRight="@dimen/list_icon_margin_right"
+        android:layout_marginLeft="@dimen/list_item_padding_left">
 
         <ImageView
             android:id="@+id/pull_to_refresh_image"

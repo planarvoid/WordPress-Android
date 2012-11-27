@@ -72,6 +72,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private boolean mIsForeground, mInSearchMode;
 
     private NowPlayingIndicator mNowPlaying;
+    private View mMenuIndicator;
     private SuggestionsAdapter mSuggestionsAdapter;
     private View mActionBarCustomView;
     private ViewGroup mSearchCustomView;
@@ -476,6 +477,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onMenuOpenLeft() {
+        if (mMenuIndicator != null) mMenuIndicator.setVisibility(View.GONE);
     }
 
     @Override
@@ -484,6 +486,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onMenuClosed() {
+        if (mMenuIndicator != null) mMenuIndicator.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -528,6 +531,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     }
                 });
             }
+            mMenuIndicator = mActionBarCustomView.findViewById(R.id.custom_up);
         }
         return mActionBarCustomView;
     }
