@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -22,8 +23,8 @@ import org.jetbrains.annotations.Nullable;
 public class Login extends RelativeLayout {
     public interface LoginHandler {
         void onLogin(String email, String password);
+        void onCancelLogin();
         void onRecover(String email);
-        void onFacebookLogin();
     }
 
     @Nullable private LoginHandler mLoginHandler;
@@ -50,16 +51,16 @@ public class Login extends RelativeLayout {
         final EditText emailField     = (EditText) findViewById(R.id.txt_email_address);
         final EditText passwordField  = (EditText) findViewById(R.id.txt_password);
         final Button   loginButton    = (Button)   findViewById(R.id.btn_login);
-        final Button   facebookButton = (Button)   findViewById(R.id.facebook_btn);
+        final Button   cancelButton   = (Button)   findViewById(R.id.btn_cancel);
 
         emailField.setText(AndroidUtils.suggestEmail(context));
 
         passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @SuppressWarnings({"SimplifiableIfStatement"})
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean done         = actionId == EditorInfo.IME_ACTION_DONE;
+                boolean done = actionId == EditorInfo.IME_ACTION_DONE;
                 boolean pressedEnter = event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER;
-                boolean downAction   = event != null && event.getAction() == KeyEvent.ACTION_DOWN;
+                boolean downAction = event != null && event.getAction() == KeyEvent.ACTION_DOWN;
 
                 if (done || pressedEnter && downAction) {
                     return loginButton.performClick();
@@ -80,19 +81,23 @@ public class Login extends RelativeLayout {
                     final String email = emailField.getText().toString();
                     final String password = passwordField.getText().toString();
 
-                    if (mLoginHandler != null) {
-                        mLoginHandler.onLogin(email, password);
+                    if (getLoginHandler() != null) {
+                        getLoginHandler().onLogin(email, password);
                     }
                 }
             }
         });
 
-        facebookButton.setOnClickListener(new View.OnClickListener() {
+        cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mLoginHandler != null) {
-                    mLoginHandler.onFacebookLogin();
+                if (getLoginHandler() != null) {
+                    getLoginHandler().onCancelLogin();
                 }
+
+                InputMethodManager imm = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(passwordField.getWindowToken(), 0);
+                imm.hideSoftInputFromWindow(emailField.getWindowToken(), 0);
             }
         });
 
@@ -101,8 +106,8 @@ public class Login extends RelativeLayout {
                 new ScTextUtils.ClickSpan.OnClickListener() {
                     @Override
                     public void onClick() {
-                        if (mLoginHandler != null) {
-                            mLoginHandler.onRecover(emailField.getText().toString());
+                        if (getLoginHandler() != null) {
+                            getLoginHandler().onRecover(emailField.getText().toString());
                         }
                     }
                 }, true);

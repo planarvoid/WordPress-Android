@@ -332,6 +332,11 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     @Override
+    public void onCancelLogin() {
+        setState(StartState.TOUR);
+    }
+
+    @Override
     public void onSignUp(final String email, final String password) {
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
         final Bundle param = new Bundle();
@@ -380,6 +385,11 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                 }
             }
         }.execute(email, password);
+    }
+
+    @Override
+    public void onCancelSignUp() {
+        setState(StartState.TOUR);
     }
 
     @Override
@@ -448,6 +458,8 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     private void showView(final View view, boolean animated) {
+        view.clearAnimation();
+
         if (view.getVisibility() == View.VISIBLE) return;
 
         if (!animated) {
@@ -461,6 +473,8 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     private void hideView(final View view, boolean animated) {
+        view.clearAnimation();
+
         if (view.getVisibility() == View.GONE) return;
 
         if (!animated) {
@@ -469,15 +483,19 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_out);
             animation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
-                public void onAnimationStart(Animation animation) {}
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    view.setVisibility(View.GONE);
+                public void onAnimationStart(Animation animation) {
                 }
 
                 @Override
-                public void onAnimationRepeat(Animation animation) {}
+                public void onAnimationEnd(Animation animation) {
+                    if (animation == view.getAnimation()) {
+                        view.setVisibility(View.GONE);
+                    }
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+                }
             });
 
             view.startAnimation(animation);
@@ -508,7 +526,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         }
     }
 
-    @Override
     public void onFacebookLogin() {
         SoundCloudApplication app = (SoundCloudApplication) getApplication();
 

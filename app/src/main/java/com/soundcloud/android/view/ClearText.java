@@ -11,6 +11,8 @@ import android.view.View;
 import android.widget.EditText;
 import com.soundcloud.android.R;
 
+import static com.soundcloud.android.view.CustomFontLoader.applyCustomFont;
+
 public class ClearText extends EditText{
 
     private Drawable mOriginalRightDrawable;
@@ -24,11 +26,15 @@ public class ClearText extends EditText{
     public ClearText(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
+
+        applyCustomFont(context, this, attrs);
     }
 
     public ClearText(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
+
+        applyCustomFont(context, this, attrs);
     }
 
     public void setDefaultDrawableClickListener(OnClickListener listener){
