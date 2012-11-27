@@ -7,8 +7,8 @@
         <item name="actionBarItemBackground">@drawable/action_bar_item_selector</item>
         <item name="android:actionBarItemBackground">@drawable/action_bar_item_selector</item>
 
-        <item name="android:windowAnimationStyle">@style/Theme.Next.WindowFadeTransition</item>
-        <item name="android:popupAnimationStyle">@style/Theme.Next.PopupFadeTransition</item>
+        <item name="android:windowAnimationStyle">@style/Theme.Next.Animation.Activity</item>
+        <item name="android:popupAnimationStyle">@style/Theme.Next.Animation.Popup</item>
 
         <item name="popupMenuStyle">@style/next_PopupMenu</item>
         <item name="android:popupMenuStyle">@style/next_PopupMenu</item>
@@ -69,14 +69,19 @@
         <item name="android:windowBackground">@drawable/bg_rec</item>
     </style>
 
-    <style name="Theme.Next.WindowFadeTransition">
-        <item name="@android:windowEnterAnimation">@anim/fade_in</item>
-        <item name="@android:windowExitAnimation">@anim/hold</item>
-    </style>
-
-    <style name="Theme.Next.PopupFadeTransition">
+    <style name="Theme.Next.Animation.Popup">
         <item name="@android:windowEnterAnimation">@anim/fade_in</item>
         <item name="@android:windowExitAnimation">@anim/fade_out</item>
+    </style>
+
+    <style name="Theme.Next.Animation">
+    </style>
+
+    <style name="Theme.Next.Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/activity_open_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/activity_open_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/activity_close_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/activity_close_exit</item>
     </style>
 
     <!-- ****** ActionBar ****** -->
