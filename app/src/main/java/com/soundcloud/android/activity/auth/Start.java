@@ -458,6 +458,8 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     private void showView(final View view, boolean animated) {
+        view.clearAnimation();
+
         if (view.getVisibility() == View.VISIBLE) return;
 
         if (!animated) {
@@ -471,6 +473,8 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     private void hideView(final View view, boolean animated) {
+        view.clearAnimation();
+
         if (view.getVisibility() == View.GONE) return;
 
         if (!animated) {
@@ -484,7 +488,9 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    view.setVisibility(View.GONE);
+                    if (animation == view.getAnimation()) {
+                        view.setVisibility(View.GONE);
+                    }
                 }
 
                 @Override
