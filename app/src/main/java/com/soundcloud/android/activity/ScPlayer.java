@@ -34,7 +34,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -51,7 +51,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private static final long TRACK_NAV_DELAY = 500;
 
     private long mSeekPos = -1;
-    private boolean mActivityPaused, mIsCommenting, mChangeTrackFast, mShouldShowComments;
+    private boolean mActivityPaused, mIsCommenting, mChangeTrackFast, mShouldShowComments, mConfigureFromService = true;
     private RelativeLayout mContainer;
     private PlayerTrackPager mTrackPager;
     private TransportBar mTransportBar;
@@ -98,11 +98,38 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     private void handleIntent(Intent intent){
-        if (intent.getData() != null){
-            Track track = Track.fromUri(intent.getData(),getContentResolver());
-            if (track != null) startService(track.getPlayIntent());
+
+        final String action = intent.getAction();
+        if (!TextUtils.isEmpty(action)){
+            Track displayTrack = null;
+            if (action == Actions.PLAY){
+                // play from a normal play intent (created by PlayUtils)
+                startService(
+                        new Intent(this, CloudPlaybackService.class)
+                                .setAction(CloudPlaybackService.PLAY_ACTION)
+                                .setData(intent.getData())
+                                .putExtras(intent)
+                );
+                displayTrack = PlayUtils.getTrackFromIntent(intent);
+
+            } else if (action == Intent.ACTION_VIEW) {
+                // Play from a View Intent, this probably came from quicksearch
+                if (intent.getData() != null) {
+                    displayTrack = Track.fromUri(intent.getData(), getContentResolver());
+                    if (displayTrack != null) {
+                        startService(displayTrack.getPlayIntent());
+                    }
+                }
+            }
+            if (displayTrack != null) {
+                mTrackPager.configureFromTrack(this, displayTrack,
+                        intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition, 0));
+                mConfigureFromService = false;
+            }
         }
     }
+
+
 
     @Override
     protected int getSelectedMenuId() {
@@ -528,7 +555,10 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         f.addAction(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED);
         f.addAction(Actions.COMMENT_ADDED);
         registerReceiver(mStatusListener, new IntentFilter(f));
-        setTrackDisplayFromService(mPendingPlayPosition);
+
+        if (mConfigureFromService) {
+            setTrackDisplayFromService(mPendingPlayPosition);
+        }
     }
 
     @Override
@@ -570,7 +600,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         if (mIsCommenting) toggleCommentMode(0);
         mTransportBar.setNavEnabled(queueLength > 1);
         refreshCurrentViewedTrackData();
-
     }
 
 

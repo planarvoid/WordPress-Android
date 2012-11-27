@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -578,7 +579,7 @@ public class Track extends Sound implements Playable {
     }
 
     public Intent getPlayIntent() {
-        return new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(EXTRA, this);
+        return new Intent(Actions.PLAY).putExtra(EXTRA, this);
     }
 
     public void setUpdated() {

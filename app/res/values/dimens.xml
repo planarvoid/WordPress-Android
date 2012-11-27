@@ -94,4 +94,7 @@
     <dimen name="search_header_padding_topbottom">10dp</dimen>
     <dimen name="search_header_padding_leftright">8dp</dimen>
 
+    <dimen name="header_footer_left_right_padding">@dimen/list_icon_margin_left</dimen>
+    <dimen name="header_footer_internal_padding">10dp</dimen>
+
 </resources>

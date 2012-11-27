@@ -38,10 +38,13 @@
         <item name="android:spinnerItemStyle">@style/next_SpinnerItem</item>-->
 
         <item name="ptrLoadingProgressStyle">@style/ScProgressBarHolo</item>
+        <item name="ptrAnimationStyle">flip</item>
+
         <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
 
         <item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>
+
     </style>
     <style name="Theme.Next.NoActionBar" parent="Theme.Sherlock.NoActionBar"/>
     <style name="Theme.ScDialog" parent="android:Theme.Dialog"/>
@@ -64,19 +67,13 @@
         <item name="android:windowBackground">@drawable/bg_rec</item>
     </style>
 
+    <!-- ****** ActionBar ****** -->
+
     <style name="next_solid_ActionBar" parent="@style/Widget.Sherlock.Light.ActionBar.Solid.Inverse">
         <item name="background">@drawable/action_bar_background</item>
         <item name="android:background">@drawable/action_bar_background</item>
-
         <item name="android:textColor">#FFFFFF</item>
-    </style>
-
-    <style name="next_transparent_ActionBar" parent="@style/Widget.Sherlock.ActionBar">
-        <item name="background">@drawable/action_bar_background</item>
-        <item name="progressBarStyle">@style/next_ProgressBar</item>
-
-        <item name="android:background">@drawable/action_bar_background</item>
-        <item name="android:progressBarStyle">@style/next_ProgressBar</item>
+        <item name="android:displayOptions">showCustom</item>
     </style>
 
     <style name="next_PopupMenu" parent="@style/Widget.Sherlock.ListPopupWindow">
