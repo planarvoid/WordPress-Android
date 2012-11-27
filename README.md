@@ -38,6 +38,17 @@ Select Next and confirm the import of the parent project.
 IDEA will automatically download and manage all dependencies. When switching branches you might need to reimport
 the Maven project.
 
+## Running tests
+
+### Unit
+
+Change the default JUnit Run/Debug configuration to look like this:
+!(http://f.cl.ly/items/153m2C2d001j0Y1L1K02/Screen%20Shot%202012-11-27%20at%2012.57.25%20PM.png)
+
+Add a file `local.properties` to the app directory containing the path to the Android SDK:
+
+    $ echo "sdk.dir=//usr/local/Cellar/android-sdk/r16" > app/local.properties
+
 ## Betas and releasing
 
 Documented on the wiki: [releasing][], [betas][].
