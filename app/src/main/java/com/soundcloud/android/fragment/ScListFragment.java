@@ -80,7 +80,7 @@ public class ScListFragment extends SherlockListFragment
     protected @Nullable LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
 
-    private boolean mContentInvalid, mObservingContent, mIgnorePlaybackStatus, mKeepGoing;
+    private boolean mContentInvalid, mObservingContent, mIgnorePlaybackStatus, mKeepGoing, mPendingSync;
     protected String mNextHref;
     private CollectionTask mAppendTask;
 
@@ -310,6 +310,11 @@ public class ScListFragment extends SherlockListFragment
             }
         }
         if (getListAdapter() != null) getListAdapter().onResume();
+
+        if (mPendingSync){
+            mPendingSync = false;
+            requestSync();
+        }
     }
 
     protected void onDataConnectionUpdated(boolean isConnected) {
@@ -321,11 +326,15 @@ public class ScListFragment extends SherlockListFragment
     }
 
     protected void requestSync() {
-        Intent intent = new Intent(getActivity(), ApiSyncService.class)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
-                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .setData(mContent.uri);
-        getActivity().startService(intent);
+        if (getActivity() != null){
+            Intent intent = new Intent(getActivity(), ApiSyncService.class)
+                    .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
+                    .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                    .setData(mContent.uri);
+            getActivity().startService(intent);
+        } else {
+            mPendingSync = true;
+        }
     }
 
     public boolean isRefreshing() {
@@ -449,6 +458,7 @@ public class ScListFragment extends SherlockListFragment
     }
 
     public void refresh(final boolean userRefresh) {
+
         if (userRefresh) {
             if (getListAdapter() instanceof FollowStatus.Listener) {
                 FollowStatus.get(getActivity()).requestUserFollowings((FollowStatus.Listener) getListAdapter());

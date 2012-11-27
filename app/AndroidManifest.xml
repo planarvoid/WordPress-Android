@@ -143,14 +143,15 @@
         <activity android:name=".activity.auth.SuggestedUsers" android:label="@string/app_name" android:configChanges="orientation"/>
 
         <activity android:name=".activity.auth.Connect"
-            android:label="Connect"
-            android:configChanges="orientation|keyboardHidden">
+                  android:theme="@style/Theme.Next.NoActionBar"
+                  android:label="Connect"
+                  android:configChanges="orientation|keyboardHidden">
 
             <intent-filter>
-              <action android:name="android.intent.action.VIEW" />
-              <category android:name="android.intent.category.DEFAULT" />
-              <category android:name="android.intent.category.BROWSABLE" />
-              <data android:scheme="soundcloud" android:host="auth" />
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="soundcloud" android:host="auth"/>
             </intent-filter>
         </activity>
 

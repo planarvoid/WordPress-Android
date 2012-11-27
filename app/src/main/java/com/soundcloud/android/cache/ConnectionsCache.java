@@ -3,7 +3,6 @@ package com.soundcloud.android.cache;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import org.jetbrains.annotations.Nullable;
@@ -15,7 +14,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.Collections;
@@ -92,7 +90,7 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
 
 
     public interface Listener {
-        void onChange(boolean success, ConnectionsCache status);
+        void onConnectionsRefreshed(Set<Connection> connections, boolean changed);
     }
 
 
@@ -109,20 +107,27 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
         protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
             if (mLocalCollection.hasSyncedBefore()) {
                 if (cursor != null) {
-                    if (mConnections == null){
-                        mConnections = Collections.synchronizedSet(new HashSet<Connection>());
-                    }
 
-                    mConnections.clear();
+                    Set<Connection> newConnections = new HashSet<Connection>();
                     if (cursor.moveToFirst()) {
                         do {
-                            mConnections.add(new Connection(cursor));
+                            newConnections.add(new Connection(cursor));
                         } while (cursor.moveToNext());
                     }
                     cursor.close();
 
+
+                    final boolean changed = newConnections.equals(mConnections);
+
+                    if (mConnections == null) {
+                        mConnections = Collections.synchronizedSet(new HashSet<Connection>());
+                    } else {
+                        mConnections.clear();
+                    }
+                    mConnections.addAll(newConnections);
+
                     if (connectionsCacheRef != null && connectionsCacheRef.get() != null) {
-                        connectionsCacheRef.get().onConnectionsChanged();
+                        connectionsCacheRef.get().onConnectionsChanged(changed);
                     }
                 }
             } else {
@@ -135,9 +140,9 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
         }
     }
 
-    public void onConnectionsChanged() {
+    public void onConnectionsChanged(boolean changed) {
         for (Listener l : listeners.keySet()) {
-            l.onChange(true, ConnectionsCache.this);
+            l.onConnectionsRefreshed(mConnections,changed);
         }
     }
 

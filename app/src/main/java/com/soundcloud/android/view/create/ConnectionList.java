@@ -204,8 +204,8 @@ public class ConnectionList extends LinearLayout {
             ConnectionsCache.get(context).requestConnections(
                     new ConnectionsCache.Listener() {
                         @Override
-                        public void onChange(boolean success, ConnectionsCache status) {
-                            final Set<Connection> connections1 = status.getConnections();
+                        public void onConnectionsRefreshed(Set<Connection> connections, boolean changed) {
+                            final Set<Connection> connections1 = connections;
                             if (connections1 != null) {
                                 setConnections(connections1, true);
                             } else {

@@ -9,6 +9,7 @@ import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.create.NewConnectionTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.EmptyCollection;
@@ -18,6 +19,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -109,12 +111,6 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
         }
     }
 
-    @Override
-    public void executeRefreshTask() {
-        ConnectionsCache.get(getActivity()).requestConnections(this);
-        setState(States.LOADING, true);
-    }
-
     public void setState(int state, boolean reset) {
         mCurrentState = state;
         configureEmptyCollection();
@@ -127,9 +123,9 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
     }
 
     @Override
-    public void onChange(boolean success, ConnectionsCache connectionsCache) {
-        mConnections = connectionsCache.getConnections();
-        onConnections(mConnections, true);
+    public void onConnectionsRefreshed(Set<Connection> connections, boolean changed) {
+        onConnections(connections, true);
+        refresh(false);
     }
 
     @Override
@@ -153,6 +149,5 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
                     break;
             }
         }
-
     }
 }
