@@ -104,12 +104,12 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_SOUNDS :
                 qb.setTables(makeCollectionJoin(Table.SOUND_ASSOCIATION_VIEW));
-                //qb.setTables(Table.SOUND_ASSOCIATION_VIEW.name);
 
                 if (_columns == null) _columns = formatWithUser(fullSoundAssociationColumns, userId);
                 makeSoundAssociationSelection(qb, String.valueOf(userId),
-                        new int[]{CollectionItemTypes.TRACK,CollectionItemTypes.TRACK_REPOST});
+                        new int[]{CollectionItemTypes.TRACK, CollectionItemTypes.REPOST});
                 makeCollectionSort(uri, "");// send empty string instead of null, we want the default order
+
                 break;
 
             case ME_TRACKS:
@@ -579,7 +579,7 @@ public class ScContentProvider extends ContentProvider {
                                     + "SELECT _id FROM "+ Table.SOUNDS.name + " WHERE EXISTS("
                                         + "SELECT 1 FROM CollectionItems WHERE "
                                         + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.TRACK+
-                                            " ," + CollectionItemTypes.TRACK_LIKE + ") "
+                                            " ," + CollectionItemTypes.LIKE + ") "
                                         + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
                                         + " AND  " + DBHelper.CollectionItems.ITEM_ID + " =  " + DBHelper.Sounds._ID
                                     + " UNION SELECT DISTINCT " + DBHelper.ActivityView.SOUND_ID + " FROM "+ Table.ACTIVITIES.name
@@ -778,10 +778,15 @@ public class ScContentProvider extends ContentProvider {
         return b.toString();
     }
 
-    static String makeCollectionJoin(Table table){
-        return table.name + " INNER JOIN " + Table.COLLECTION_ITEMS.name +
-            " ON (" + table.id +" = " + DBHelper.CollectionItems.ITEM_ID+ " AND " +
-                table.type +" = " + DBHelper.CollectionItems.RESOURCE_TYPE + ")";
+    static String makeCollectionJoin(Table table) {
+        String join = table.name + " INNER JOIN " + Table.COLLECTION_ITEMS.name +
+                " ON (" + table.id + " = " + DBHelper.CollectionItems.ITEM_ID;
+        // XXX hackz
+        if (table == Table.SOUNDS) {
+            join += "AND " + table.type + " = " + DBHelper.CollectionItems.RESOURCE_TYPE;
+        }
+        join += ")";
+        return join;
     }
 
     static SCQueryBuilder makeCollectionSelection(SCQueryBuilder qb, String userId, int collectionType) {
@@ -890,38 +895,45 @@ public class ScContentProvider extends ContentProvider {
         return columns;
     }
 
+
     public static String[] fullTrackColumns = new String[]{
             Table.SOUND_VIEW + ".*",
+
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                     + " WHERE " + Table.SOUND_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + TRACK_LIKE
+                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + LIKE
                     + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.SoundView.USER_LIKE,
+
+
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                                 + " WHERE " + Table.SOUND_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID
-                                + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + CollectionItemTypes.TRACK_REPOST
+                                + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + CollectionItemTypes.REPOST
                                 + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.SoundView.USER_REPOST
     };
     public static String[] fullSoundAssociationColumns = new String[]{
                 Table.SOUND_ASSOCIATION_VIEW + ".*",
                 "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                         + " WHERE " + Table.SOUND_ASSOCIATION_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID
-                        + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + TRACK_LIKE
+                        + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + LIKE
                         + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.SoundView.USER_LIKE,
                 "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                                     + " WHERE " + Table.SOUND_ASSOCIATION_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID
-                                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + CollectionItemTypes.TRACK_REPOST
+                                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + CollectionItemTypes.REPOST
                                     + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.SoundView.USER_REPOST
         };
+
+
+
 
     public static String[] fullActivityColumns = new String[]{
             Table.ACTIVITY_VIEW + ".*",
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                     + " WHERE " + DBHelper.ActivityView.SOUND_ID + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + TRACK_LIKE
+                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + LIKE
                     + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.SoundView.USER_LIKE,
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                     + " WHERE " + DBHelper.ActivityView.SOUND_ID + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + TRACK_REPOST
+                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + REPOST
                     + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.SoundView.USER_REPOST
     };
 
@@ -939,25 +951,18 @@ public class ScContentProvider extends ContentProvider {
 
 
     /**
-     *
+     * Roughly corresponds to locally synced collections.
      */
     public interface CollectionItemTypes {
         int TRACK           = 0;
-        int TRACK_LIKE      = 1;
+        int LIKE            = 1;
         int FOLLOWING       = 2;
         int FOLLOWER        = 3;
         int FRIEND          = 4;
         int SUGGESTED_USER  = 5;
         int SEARCH          = 6;
-        int TRACK_REPOST    = 7;
+        int REPOST          = 7;
         int PLAYLIST        = 8;
-        int PLAYLIST_REPOST = 9;
-        int PLAYLIST_LIKE   = 10;
-    }
-
-    public interface SoundAssociationTypes {
-        int REPOST = 0;
-        int LIKE = 1;
     }
 
     private static void log(String message) {

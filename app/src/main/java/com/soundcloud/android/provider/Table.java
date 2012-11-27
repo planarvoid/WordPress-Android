@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 public enum Table {
-    SOUNDS("Sounds", false, DBHelper.DATABASE_CREATE_TRACKS, DBHelper.Sounds.ALL_FIELDS),
+    SOUNDS("Sounds", false, DBHelper.DATABASE_CREATE_SOUNDS, DBHelper.Sounds.ALL_FIELDS),
     TRACK_PLAYS("TrackPlays", false, null),
     TRACK_METADATA("TrackMetadata", false, DBHelper.DATABASE_CREATE_TRACK_METADATA, DBHelper.TrackMetadata.ALL_FIELDS),
     USERS("Users", false, DBHelper.DATABASE_CREATE_USERS, DBHelper.Users.ALL_FIELDS),

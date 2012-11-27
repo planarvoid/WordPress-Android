@@ -57,10 +57,9 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
     @Test
     public void shouldSyncLocalCollections() throws Exception {
         SyncContent.MySounds.setEnabled(Robolectric.application, true);
+        TestHelper.addCannedResponse(getClass(), "/e1/me/sounds/mini?limit=200&linked_partitioning=1" + NON_INTERACTIVE, "me_sounds_mini.json");
 
-        TestHelper.addIdResponse("/me/tracks/ids?linked_partitioning=1" + NON_INTERACTIVE, 1, 2, 3);
-        TestHelper.addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3" + NON_INTERACTIVE, "tracks.json");
-
+        // dashboard
         addCannedActivities(
                 "empty_events.json",
                 "empty_events.json",
@@ -68,11 +67,11 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
 
         doPerformSync(DefaultTestRunner.application, false, null);
 
-        LocalCollection lc = LocalCollection.fromContent(Content.ME_TRACKS, Robolectric.application.getContentResolver(), false);
+        LocalCollection lc = LocalCollection.fromContent(Content.ME_SOUNDS, Robolectric.application.getContentResolver(), false);
         expect(lc).not.toBeNull();
-        expect(lc.extra).toEqual("0");
-        expect(lc.size).toEqual(3);
-        expect(lc.last_sync_success).not.toEqual(0L);
+        expect(lc.extra).toBeNull();
+        expect(lc.size).toEqual(50);
+        expect(lc.last_sync_success).toBeGreaterThan(0L);
 
         // reset sync time & rerun sync
         addCannedActivities(
@@ -84,11 +83,11 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
 
         doPerformSync(DefaultTestRunner.application, false, null);
 
-        lc = LocalCollection.fromContent(Content.ME_TRACKS, Robolectric.application.getContentResolver(), false);
+        lc = LocalCollection.fromContent(Content.ME_SOUNDS, Robolectric.application.getContentResolver(), false);
         expect(lc).not.toBeNull();
-        expect(lc.extra).toEqual("1");    // 1 miss
-        expect(lc.size).toEqual(3);
-        expect(lc.last_sync_success).not.toEqual(0L);
+        expect(lc.extra).toBeNull();
+        expect(lc.size).toEqual(50);
+        expect(lc.last_sync_success).toBeGreaterThan(0L);
     }
 
     @Test

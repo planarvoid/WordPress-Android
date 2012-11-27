@@ -47,11 +47,10 @@ public class SoundAssociationTest {
         expect(sounds).not.toBeNull();
         expect(sounds.size()).toEqual(38);
 
-        expect((int) manager.writeCollection(sounds.collection,
+        expect(manager.writeCollection(sounds,
                 Content.ME_SOUNDS.uri,
                 100l,
                 ScResource.CacheUpdateMode.NONE)).toEqual(41); // 38 tracks and 3 diff users
-
 
         CollectionHolder<SoundAssociation> newItems = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(
                 DefaultTestRunner.application.getContentResolver(), SoundAssociation.class, Content.ME_SOUNDS.uri);

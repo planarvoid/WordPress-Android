@@ -15,9 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 enum SyncContent {
-    MySounds    (Content.ME_TRACKS,     SyncConfig.TRACK_STALE_TIME, SyncConfig.TRACK_BACKOFF_MULTIPLIERS),
-    MyLikes     (Content.ME_LIKES,  SyncConfig.TRACK_STALE_TIME, SyncConfig.TRACK_BACKOFF_MULTIPLIERS),
-    MyReposts   (Content.ME_REPOSTS,    SyncConfig.TRACK_STALE_TIME, SyncConfig.TRACK_BACKOFF_MULTIPLIERS),
+    MySounds    (Content.ME_SOUNDS,     SyncConfig.TRACK_STALE_TIME, SyncConfig.TRACK_BACKOFF_MULTIPLIERS),
+    MyLikes     (Content.ME_LIKES,      SyncConfig.TRACK_STALE_TIME, SyncConfig.TRACK_BACKOFF_MULTIPLIERS),
     MyFollowings(Content.ME_FOLLOWINGS, SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS),
     MyFollowers (Content.ME_FOLLOWERS,  SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS),
     MyConnections (Content.ME_CONNECTIONS,  SyncConfig.CONNECTIONS_STALE_TIME,  null),
@@ -55,7 +54,7 @@ enum SyncContent {
      * Returns a list of uris to be synced, based on recent changes. The idea is that collections which don't change
      * very often don't get synced as frequently as collections which do.
      *
-     * @param manual manual sync {@link android.content.ContentResolver.SYNC_EXTRAS_MANUAL}
+     * @param manual manual sync {@link android.content.ContentResolver#SYNC_EXTRAS_MANUAL}
      */
     public static List<Uri> getCollectionsDueForSync(Context c, boolean manual) {
         List<Uri> urisToSync = new ArrayList<Uri>();

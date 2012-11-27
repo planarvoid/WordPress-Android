@@ -127,7 +127,7 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    static final String DATABASE_CREATE_TRACKS = "("+
+    static final String DATABASE_CREATE_SOUNDS = "("+
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "_type INTEGER DEFAULT 0," +
             "last_updated INTEGER," +
@@ -466,7 +466,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper#DATABASE_CREATE_TRACKS}
+     * {@link DBHelper#DATABASE_CREATE_SOUNDS}
      */
     public static class Sounds extends ResourceTable  {
         public static final String DURATION = "duration";

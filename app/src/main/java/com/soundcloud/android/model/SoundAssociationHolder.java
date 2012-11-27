@@ -6,7 +6,9 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
 
@@ -17,21 +19,37 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
         super(collection);
     }
 
-
+    public Set<User> getUsers() {
+        Set<User> users = new HashSet<User>();
+        for (SoundAssociation a : this)  {
+            if (a.getUser() != null) users.add(a.getUser());
+        }
+        return users;
+    }
 
     public int insert(ContentResolver resolver) {
         List<ContentValues> sounds = new ArrayList<ContentValues>();
+        List<ContentValues> users = new ArrayList<ContentValues>();
         List<ContentValues> items = new ArrayList<ContentValues>();
 
         for (SoundAssociation a : this) {
-            if (a.track != null) sounds.add(a.track.buildContentValues());
+            if (a.getTrack() != null) {
+                sounds.add(a.getTrack().buildContentValues());
+            }
             items.add(a.buildContentValues());
         }
-
-        if (!sounds.isEmpty()) {
-            resolver.bulkInsert(Content.TRACKS.uri, sounds.toArray(new ContentValues[sounds.size()]));
-            resolver.bulkInsert(Content.COLLECTION_ITEMS.uri, items.toArray(new ContentValues[items.size()]));
+        for (User u : getUsers()) {
+            users.add(u.buildContentValues());
         }
-        return sounds.size();
+
+        int inserted = 0;
+        if (!sounds.isEmpty()) {
+            inserted += resolver.bulkInsert(Content.TRACKS.uri, sounds.toArray(new ContentValues[sounds.size()]));
+        }
+        if (!users.isEmpty())  {
+            inserted += resolver.bulkInsert(Content.USERS.uri, users.toArray(new ContentValues[users.size()]));
+        }
+        resolver.bulkInsert(Content.COLLECTION_ITEMS.uri, items.toArray(new ContentValues[items.size()]));
+        return inserted;
     }
 }

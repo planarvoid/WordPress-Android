@@ -26,7 +26,6 @@ public class DefaultTestRunner extends RobolectricTestRunner {
 
     public DefaultTestRunner(Class testClass) throws InitializationError {
         super(testClass,new RobolectricConfig(new File("../app")));
-
 /*
         super(testClass,  new RobolectricConfig(new File("../app")), new SQLiteMap(){
             @Override
@@ -35,7 +34,6 @@ public class DefaultTestRunner extends RobolectricTestRunner {
             }
         });
 */
-
         // remove native calls + replace with shadows
         addClassOrPackageToInstrument("com.soundcloud.android.jni.VorbisEncoder");
         addClassOrPackageToInstrument("com.soundcloud.android.jni.VorbisDecoder");
@@ -53,7 +51,6 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         ShadowApplication shadowApplication = shadowOf(application);
         shadowApplication.setPackageName(robolectricConfig.getPackageName());
         shadowApplication.setPackageManager(new RobolectricPackageManager(application, robolectricConfig));
-//        TestHelper.setSdkVersion(Build.VERSION_CODES.ECLAIR_MR1);
         application.onCreate();
         // delegate content provider methods
         ContentProvider provider = new ScContentProvider();
@@ -69,9 +66,9 @@ public class DefaultTestRunner extends RobolectricTestRunner {
 
     @Override
     protected void resetStaticState() {
-        SoundCloudApplication.MODEL_MANAGER.TRACK_CACHE.clear();
-        SoundCloudApplication.MODEL_MANAGER.USER_CACHE.clear();
-
+        if (SoundCloudApplication.MODEL_MANAGER != null) {
+            SoundCloudApplication.MODEL_MANAGER.clear();
+        }
         ShadowVorbisEncoder.reset();
         ShadowNativeAmplitudeAnalyzer.reset();
     }

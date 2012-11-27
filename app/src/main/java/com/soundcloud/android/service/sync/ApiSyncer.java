@@ -5,16 +5,17 @@ import static com.soundcloud.android.model.ScModelManager.validateResponse;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociationHolder;
-import com.soundcloud.android.model.act.Activities;
-import com.soundcloud.android.model.act.Activity;
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -34,7 +35,6 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -46,8 +46,7 @@ import java.util.Set;
  */
 public class ApiSyncer {
     public static final String TAG = ApiSyncService.LOG_TAG;
-
-    public static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
+    private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
 
     private final AndroidCloudAPI mApi;
     private final ContentResolver mResolver;
@@ -100,6 +99,7 @@ public class ApiSyncer {
                 case USER:
                     result = doLookupAndInsert(c, uri.getLastPathSegment());
                     result.success = true;
+                    result.synced_at = System.currentTimeMillis();
                     break;
 
                 case ME_SHORTCUTS:
@@ -141,7 +141,7 @@ public class ApiSyncer {
         log("syncSounds(" + uri + ")");
 
         SoundAssociationHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
-                Request.to("/e1/me/sounds/mini").with("limit", 200),
+                Request.to(TempEndpoints.e1.MY_SOUNDS_MINI).with("limit", 200),
                 SoundAssociationHolder.class);
 
         if (holder != null) {
@@ -149,9 +149,8 @@ public class ApiSyncer {
 
             result.setSyncData(System.currentTimeMillis(), holder.collection.size(), null);
             result.success = true;
+            result.change = Result.CHANGED;
         }
-
-
         return result;
     }
 
@@ -320,6 +319,7 @@ public class ApiSyncer {
 
         SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
 
+        result.synced_at = System.currentTimeMillis();
         result.change = Result.CHANGED;
         result.success = user != null;
         return result;
