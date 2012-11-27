@@ -6,6 +6,7 @@ import static com.soundcloud.android.service.sync.ApiSyncer.Result;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -167,8 +168,20 @@ public class ApiSyncerTest {
     @Test
     public void shouldSyncConnections() throws Exception {
         TestHelper.addCannedResponses(getClass(), "connections.json");
-        sync(Content.ME_CONNECTIONS.uri);
+        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
+        expect(Content.ME_CONNECTIONS).toHaveCount(4);
+
+        TestHelper.addCannedResponses(getClass(), "connections.json");
+        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.UNCHANGED);
+        expect(Content.ME_CONNECTIONS).toHaveCount(4);
+
+        TestHelper.addCannedResponses(getClass(), "connections_add.json");
+        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
         expect(Content.ME_CONNECTIONS).toHaveCount(6);
+
+        TestHelper.addCannedResponses(getClass(), "connections_delete.json");
+        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
+        expect(Content.ME_CONNECTIONS).toHaveCount(3);
     }
 
     @Test

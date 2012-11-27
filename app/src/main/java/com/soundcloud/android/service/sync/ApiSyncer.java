@@ -6,7 +6,9 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
@@ -29,6 +31,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncResult;
+import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -103,15 +106,18 @@ public class ApiSyncer {
                     break;
 
                 case ME_SHORTCUTS:
-                case ME_CONNECTIONS:
                     result = syncMyGenericResource(c);
+                    PreferenceManager.getDefaultSharedPreferences(mContext)
+                            .edit()
+                            .putLong(Consts.PrefKeys.LAST_SHORTCUT_SYNC, System.currentTimeMillis())
+                            .commit();
+                    break;
 
-                    // TODO, this is unnecessary. we have the sync metadata in the local collection already
-                    if (c == Content.ME_SHORTCUTS) {
-                        PreferenceManager.getDefaultSharedPreferences(mContext)
-                                .edit()
-                                .putLong(Consts.PrefKeys.LAST_SHORTCUT_SYNC, System.currentTimeMillis())
-                                .commit();
+                case ME_CONNECTIONS:
+                    result = syncMyConnections();
+                    if (result.change == Result.CHANGED){
+                        // connections changed so make sure friends gets auto synced next opportunity
+                        LocalCollection.forceToStale(Content.ME_FRIENDS.uri, mResolver);
                     }
                     break;
             }
@@ -358,6 +364,59 @@ public class ApiSyncer {
         }
         return result;
     }
+
+    private Result syncMyConnections() throws IOException {
+            log("Syncing my connections");
+
+            Result result = new Result(Content.ME_CONNECTIONS.uri);
+            HttpResponse resp = mApi.get(Content.ME_CONNECTIONS.request());
+            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+
+                // compare local vs remote connections
+                HashSet<Connection> remoteConnections = mApi.getMapper().readValue(resp.getEntity().getContent(),
+                        mApi.getMapper().getTypeFactory().constructCollectionType(Set.class, Content.ME_CONNECTIONS.modelType));
+
+                Cursor c = mResolver.query(Content.ME_CONNECTIONS.uri, null, null, null, null);
+                HashSet<Connection> storedConnections = new HashSet<Connection>();
+                if (c != null && c.moveToFirst()){
+                    do {
+                        storedConnections.add(new Connection(c));
+                    } while (c.moveToNext());
+                }
+
+                if (storedConnections.equals(remoteConnections)){
+                    result.change = Result.UNCHANGED;
+                } else {
+                    result.change = Result.CHANGED;
+                    // remove unneeded connections
+                    storedConnections.removeAll(remoteConnections);
+                    List<Long> toRemove = new ArrayList<Long>();
+                    for (Connection storedConnection : storedConnections) {
+                        toRemove.add(storedConnection.id);
+                    }
+                    if (!toRemove.isEmpty()){
+                        mResolver.delete(Content.ME_CONNECTIONS.uri, DBHelper.getWhereInClause(DBHelper.Connections._ID, toRemove), ScModelManager.longListToStringArr(toRemove));
+                    }
+                }
+
+                // write anyways to update connections
+                List<ContentValues> cvs = new ArrayList<ContentValues>(remoteConnections.size());
+                for (Connection connection : remoteConnections) {
+                    ContentValues cv = connection.buildContentValues();
+                    if (cv != null) cvs.add(cv);
+                }
+
+                int inserted = 0;
+                if (!cvs.isEmpty()) {
+                    inserted = mResolver.bulkInsert(Content.ME_CONNECTIONS.uri, cvs.toArray(new ContentValues[cvs.size()]));
+                    Log.d(TAG, "inserted " + inserted + " generic models");
+                }
+
+                result.setSyncData(System.currentTimeMillis(), inserted, null);
+                result.success = true;
+            }
+            return result;
+        }
 
     private Result doLookupAndInsert(Content content, String ids) throws IOException {
         Result result = new Result(content.uri);

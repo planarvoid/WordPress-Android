@@ -472,6 +472,11 @@ public class ScContentProvider extends ContentProvider {
             case COLLECTIONS:
             case COLLECTION_PAGES:
             case SEARCHES:
+            case RECORDINGS:
+            case PLAY_QUEUE:
+            case ME_CONNECTIONS:
+            case PLAYLISTS:
+            case ME_ALL_ACTIVITIES:
                 break;
 
             case TRACK:
@@ -479,10 +484,6 @@ public class ScContentProvider extends ContentProvider {
                 break;
             case USER:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                break;
-            case PLAYLISTS:
-                break;
-            case ME_ALL_ACTIVITIES:
                 break;
             case ME_ACTIVITIES:
             case ME_SOUND_STREAM:
@@ -493,10 +494,7 @@ public class ScContentProvider extends ContentProvider {
             case RECORDING:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 break;
-            case RECORDINGS:
-                break;
-            case PLAY_QUEUE:
-                break;
+
             case ME_TRACKS:
             case ME_LIKES:
             case ME_REPOSTS:
@@ -672,7 +670,6 @@ public class ScContentProvider extends ContentProvider {
 
 
             case ME_SHORTCUTS:
-            case ME_CONNECTIONS:
                 recreateTable = true;
                 table = content.table;
                 break;
