@@ -71,8 +71,7 @@
                 android:layout_marginLeft="@dimen/abs__dropdownitem_text_padding_left"
                 android:layout_gravity="center_vertical"
                 android:src="?attr/searchViewSearchIcon"
-                android:visibility="gone"
-                />
+                android:visibility="gone" />
 
         <!-- Inner layout contains the app icon, button(s) and EditText -->
         <LinearLayout
@@ -106,6 +105,7 @@
                   android:textColorHint="#666666"
                   android:textColor="#FFFFFF"
                   android:dropDownHorizontalOffset="0dip"
+                  android:dropDownVerticalOffset="1dip"
                   android:contentDescription="@string/abs__searchview_description_query"/>
 
             <!-- width = 0. mike only wants one clear button (in action bar), and we aren't patching abs yet -->

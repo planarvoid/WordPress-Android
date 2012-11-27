@@ -604,15 +604,16 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         if (search_text != null) {
             if (useFullScreenSearch()) {
                 // on a normal size device, use the whole action bar
-                final int identifier = getResources().getIdentifier("action_bar", "id", "android");
+                final int identifier = getResources().getIdentifier("action_bar_container", "id", "android");
                 if (findViewById(identifier) != null) {
                     // native action bar (>= Honeycomb)
                     search_text.setDropDownAnchor(identifier);
-                } else if (findViewById(R.id.abs__action_bar) != null) {
+                } else if (findViewById(R.id.abs__action_bar_container) != null) {
                     // abs action bar (< Honeycomb)
-                    search_text.setDropDownAnchor(R.id.abs__action_bar);
+                    search_text.setDropDownAnchor(R.id.abs__action_bar_container);
                 }
                 search_text.setDropDownWidth(ViewGroup.LayoutParams.FILL_PARENT);
+
             } else {
                 // on a large screen device, just anchor to the search bar itself
                 if (findViewById(R.id.abs__search_bar) != null) search_text.setDropDownAnchor(R.id.abs__search_bar);
@@ -628,6 +629,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         mSuggestionsAdapter = new SuggestionsAdapter(this, null, getApp());
         searchView.setSuggestionsAdapter(mSuggestionsAdapter);
+
         searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
             public boolean onSuggestionSelect(int position) {

@@ -5,10 +5,10 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:layout_marginTop="@dimen/list_item_padding_top"
-                android:layout_marginLeft="@dimen/list_item_padding_left"
-                android:layout_marginRight="@dimen/list_item_padding_right"
-                android:layout_marginBottom="@dimen/list_item_padding_bottom">
+                android:paddingTop="@dimen/list_item_padding_top"
+                android:paddingLeft="@dimen/list_item_padding_left"
+                android:paddingRight="@dimen/list_item_padding_right"
+                android:paddingBottom="@dimen/list_item_padding_bottom">
     <ImageView android:id="@+id/icon"
                android:layout_alignParentLeft="true"
                android:layout_alignParentTop="true"
