@@ -99,6 +99,10 @@
         <item name="android:layout_centerInParent">true</item>
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">10dp</item>
+
+        <item name="android:orientation">vertical</item>
+
     </style>
 
     <style name="SignUp.Content" parent="SignUp.Content.Base">

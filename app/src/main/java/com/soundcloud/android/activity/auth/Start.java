@@ -388,6 +388,11 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     @Override
+    public void onCancelSignUp() {
+        setState(StartState.TOUR);
+    }
+
+    @Override
     public void onBackPressed() {
         switch (getState()) {
             case LOGIN:
@@ -474,7 +479,8 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_out);
             animation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
-                public void onAnimationStart(Animation animation) {}
+                public void onAnimationStart(Animation animation) {
+                }
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
@@ -482,7 +488,8 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                 }
 
                 @Override
-                public void onAnimationRepeat(Animation animation) {}
+                public void onAnimationRepeat(Animation animation) {
+                }
             });
 
             view.startAnimation(animation);
@@ -513,7 +520,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         }
     }
 
-    @Override
     public void onFacebookLogin() {
         SoundCloudApplication app = (SoundCloudApplication) getApplication();
 

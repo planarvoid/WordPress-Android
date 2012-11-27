@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -18,8 +19,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class SignUp extends RelativeLayout {
     public interface SignUpHandler {
-        void onFacebookLogin();
         void onSignUp(String email, String password);
+        void onCancelSignUp();
         void onTermsOfUse();
     }
 
@@ -49,27 +50,27 @@ public class SignUp extends RelativeLayout {
         final EditText emailField          = (EditText) findViewById(R.id.txt_email_address);
         final EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
         final EditText repeatPasswordField = (EditText) findViewById(R.id.txt_repeat_your_password);
-        final Button   signupButtton       = (Button)   findViewById(R.id.btn_signup);
-        final Button   facebookButton      = (Button)   findViewById(R.id.facebook_btn);
+        final Button   signUpButton       = (Button)   findViewById(R.id.btn_signup);
+        final Button   cancelButton       = (Button)   findViewById(R.id.btn_cancel);
 
         emailField.setText(AndroidUtils.suggestEmail(context));
 
         repeatPasswordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @SuppressWarnings({"SimplifiableIfStatement"})
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean done         = actionId == EditorInfo.IME_ACTION_DONE;
+                boolean done = actionId == EditorInfo.IME_ACTION_DONE;
                 boolean pressedEnter = event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER;
-                boolean downAction   = event != null && event.getAction() == KeyEvent.ACTION_DOWN;
+                boolean downAction = event != null && event.getAction() == KeyEvent.ACTION_DOWN;
 
                 if (done || pressedEnter && downAction) {
-                    return signupButtton.performClick();
+                    return signUpButton.performClick();
                 } else {
                     return false;
                 }
             }
         });
 
-        signupButtton.setOnClickListener(new View.OnClickListener() {
+        signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 app.track(Click.Signup_Signup_done);
@@ -95,12 +96,17 @@ public class SignUp extends RelativeLayout {
             }
         });
 
-        facebookButton.setOnClickListener(new View.OnClickListener() {
+        cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mSignUpHandler != null) {
-                    mSignUpHandler.onFacebookLogin();
+                if (getSignUpHandler() != null) {
+                    getSignUpHandler().onCancelSignUp();
                 }
+
+                InputMethodManager imm = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(emailField.getWindowToken(), 0);
+                imm.hideSoftInputFromWindow(choosePasswordField.getWindowToken(), 0);
+                imm.hideSoftInputFromWindow(repeatPasswordField.getWindowToken(), 0);
             }
         });
 
@@ -111,7 +117,8 @@ public class SignUp extends RelativeLayout {
                     public void onClick() {
                         if (mSignUpHandler != null) {
                             mSignUpHandler.onTermsOfUse();
-                        };
+                        }
+                        ;
                     }
                 }, true);
     }
