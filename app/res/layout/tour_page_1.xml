@@ -27,6 +27,7 @@
         <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.Headline"
                                                          android:text="@string/tour_title_1"/>
         <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.CallToAction"
+
                                                          android:text="@string/tour_text_1" />
 
     </LinearLayout>

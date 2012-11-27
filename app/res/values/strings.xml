@@ -63,13 +63,13 @@
     <string name="started_following_you">started following you</string>
 
     <string name="tour_title_1">Hear the world\'s sounds</string>
-    <string name="tour_text_1">Explore the largest community of artists, bands, podcasters and creators of music &amp; audio</string>
+    <string name="tour_text_1">Explore the largest community\nofartists, bands, podcasters and\ncreators of music &amp; audio</string>
 
     <string name="tour_title_2">Discover</string>
-    <string name="tour_text_2">All kinds of new and unique music &amp; audio</string>
+    <string name="tour_text_2">All kinds of new and\nunique music &amp; audio</string>
 
     <string name="tour_title_3">Connect &amp; Share</string>
-    <string name="tour_text_3">Find followers and let them hear the sounds you love</string>
+    <string name="tour_text_3">Find followers and\nlet them hear the\nsounds you love</string>
 
     <string name="search_for_query">Search for \'%s\'</string>
     <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link that\'ll allow you to change your password. Problems? Contact support.</string>
