@@ -332,6 +332,11 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     @Override
+    public void onCancelLogin() {
+        setState(StartState.TOUR);
+    }
+
+    @Override
     public void onSignUp(final String email, final String password) {
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
         final Bundle param = new Bundle();

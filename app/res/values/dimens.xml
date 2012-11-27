@@ -96,5 +96,4 @@
 
     <dimen name="header_footer_left_right_padding">@dimen/list_icon_margin_left</dimen>
     <dimen name="header_footer_internal_padding">10dp</dimen>
-
 </resources>

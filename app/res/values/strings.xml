@@ -73,5 +73,6 @@
 
     <string name="search_for_query">Search for \'%s\'</string>
     <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link that\'ll allow you to change your password. Problems? Contact support.</string>
+    <string name="done">Done</string>
 
 </resources>
