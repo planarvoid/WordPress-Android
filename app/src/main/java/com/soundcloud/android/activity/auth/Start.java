@@ -216,6 +216,16 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         setState((StartState) savedInstanceState.getSerializable(BUNDLE_STATE), false);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        for (TourLayout layout : mTourPages) {
+            layout.recycle();
+        }
+    }
+
+
     public Login getLogin() {
         if (mLogin == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.login_stub);
