@@ -2,6 +2,8 @@ package com.soundcloud.android.activity.auth;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
@@ -21,12 +23,14 @@ import android.view.inputmethod.EditorInfo;
 import org.jetbrains.annotations.Nullable;
 
 public class Login extends RelativeLayout {
+    private static final String BUNDLE_EMAIL    = "BUNDLE_EMAIL";
+    private static final String BUNDLE_PASSWORD = "BUNDLE_PASSWORD";
+
     public interface LoginHandler {
         void onLogin(String email, String password);
         void onCancelLogin();
         void onRecover(String email);
     }
-
     @Nullable private LoginHandler mLoginHandler;
 
     public Login(Context context) {
@@ -78,7 +82,7 @@ public class Login extends RelativeLayout {
                 } else {
                     app.track(Click.Login_Login_done);
 
-                    final String email = emailField.getText().toString();
+                    final String email    = emailField.getText().toString();
                     final String password = passwordField.getText().toString();
 
                     if (getLoginHandler() != null) {
@@ -119,5 +123,25 @@ public class Login extends RelativeLayout {
 
     public void setLoginHandler(LoginHandler mLoginHandler) {
         this.mLoginHandler = mLoginHandler;
+    }
+
+    public Bundle getStateBundle() {
+        EditText emailField    = (EditText) findViewById(R.id.txt_email_address);
+        EditText passwordField = (EditText) findViewById(R.id.txt_password);
+
+        Bundle bundle = new Bundle();
+        bundle.putCharSequence(BUNDLE_EMAIL,    emailField.getText());
+        bundle.putCharSequence(BUNDLE_PASSWORD, passwordField.getText());
+        return bundle;
+    }
+
+    public void setState(@Nullable Bundle bundle) {
+        if (bundle == null) return;
+
+        EditText emailField    = (EditText) findViewById(R.id.txt_email_address);
+        EditText passwordField = (EditText) findViewById(R.id.txt_password);
+
+        emailField.setText(bundle.getCharSequence(BUNDLE_EMAIL));
+        passwordField.setText(bundle.getCharSequence(BUNDLE_PASSWORD));
     }
 }

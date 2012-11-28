@@ -146,7 +146,7 @@
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@drawable/text_field</item>
-        <item name="android:stretchColumns">1</item>
+
     </style>
 
     <style name="SignUp.LabelRow">
@@ -165,8 +165,9 @@
     </style>
 
     <style name="SignUp.Label">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">0</item>
 
         <item name="android:padding">4dp</item>
         <item name="android:layout_margin">4dp</item>
@@ -181,7 +182,34 @@
         <item name="custom_font">fonts/Interstate-Regular.ttf</item>
     </style>
 
+    <style name="SignUp.AddImageLabel">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+
+        <item name="android:padding">10dp</item>
+
+        <item name="android:background">@drawable/rec_upload_image_bg</item>
+        <item name="android:clickable">true</item>
+        <item name="android:gravity">center</item>
+
+        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textSize">16dp</item>
+        <item name="android:textStyle">bold</item>
+
+        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
+    </style>
+
+    <style name="SignUp.MultiLineInfoLabel" parent="SignUp.Label">
+        <item name="android:singleLine">false</item>
+        <item name="android:lines">2</item>
+
+        <item name="custom_font">fonts/Interstate-Light.ttf</item>
+    </style>
+
     <style name="SignUp.TextEntry" parent="SignUp.Label">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+
         <item name="android:imeOptions">actionNext</item>
         <item name="android:cursorVisible">true</item>
         <item name="android:textCursorDrawable">@null</item>
