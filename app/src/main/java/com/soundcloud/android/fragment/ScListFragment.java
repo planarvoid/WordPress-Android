@@ -353,7 +353,6 @@ public class ScListFragment extends SherlockListFragment
     }
 
     protected void doneRefreshing() {
-        Log.i("asdf","DONE REFRESHINGGGG");
         if (isSyncable()) setListLastUpdated();
         if (mListView != null) {
             mListView.onRefreshComplete();
