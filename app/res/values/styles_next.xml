@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+
+    <style name="txt_list_track_user">
+        <item name="android:textColor">@drawable/txt_list_track_user_states</item>
+        <item name="android:textSize">@dimen/list_txt_sub_size</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">marquee</item>
+    </style>
+
+
     <style name="Tour"/>
     <style name="Tour.Button">
         <item name="android:layout_width">0dp</item>
