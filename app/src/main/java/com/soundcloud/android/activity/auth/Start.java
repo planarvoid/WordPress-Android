@@ -28,7 +28,6 @@ import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.tour.TourLayout;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Env;
@@ -49,7 +48,7 @@ import java.io.*;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
-public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler, SignUpDetails.SignUpDetailsHandler {
+public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
     protected enum StartState {
         TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS;
     }
@@ -82,9 +81,9 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
     @Nullable private Login  mLogin;
     @Nullable private SignUp mSignUp;
-    @Nullable private SignUpDetails mSignUpDetails;
+    @Nullable private UserDetails mUserDetails;
 
-    @Nullable private Bundle mLoginBundle, mSignUpBundle, mSignUpDetailsBundle;
+    @Nullable private Bundle mLoginBundle, mSignUpBundle, mUserDetailsBundle;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -198,9 +197,9 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         outState.putSerializable(BUNDLE_STATE, getState());
         outState.putParcelable(BUNDLE_USER,    mUser);
 
-        if (mLogin         != null) outState.putBundle(BUNDLE_LOGIN,           mLogin.getStateBundle());
-        if (mSignUp        != null) outState.putBundle(BUNDLE_SIGN_UP,         mSignUp.getStateBundle());
-        if (mSignUpDetails != null) outState.putBundle(BUNDLE_SIGN_UP_DETAILS, mSignUpDetails.getStateBundle());
+        if (mLogin         != null) outState.putBundle(BUNDLE_LOGIN, mLogin.getStateBundle());
+        if (mSignUp        != null) outState.putBundle(BUNDLE_SIGN_UP, mSignUp.getStateBundle());
+        if (mUserDetails != null) outState.putBundle(BUNDLE_SIGN_UP_DETAILS, mUserDetails.getStateBundle());
     }
 
     @Override
@@ -211,7 +210,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
         mLoginBundle         = savedInstanceState.getBundle(BUNDLE_LOGIN);
         mSignUpBundle        = savedInstanceState.getBundle(BUNDLE_SIGN_UP);
-        mSignUpDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
+        mUserDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
 
         setState((StartState) savedInstanceState.getSerializable(BUNDLE_STATE), false);
     }
@@ -252,17 +251,17 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         return mSignUp;
     }
 
-    public SignUpDetails getSignUpDetails() {
-        if (mSignUpDetails == null) {
-            ViewStub stub = (ViewStub) findViewById(R.id.sign_up_details_stub);
+    public UserDetails getUserDetails() {
+        if (mUserDetails == null) {
+            ViewStub stub = (ViewStub) findViewById(R.id.user_details_stub);
 
-            mSignUpDetails = (SignUpDetails) stub.inflate();
-            mSignUpDetails.setSignUpDetailsHandler(this);
-            mSignUpDetails.setVisibility(View.GONE);
-            mSignUpDetails.setState(mSignUpDetailsBundle);
+            mUserDetails = (UserDetails) stub.inflate();
+            mUserDetails.setUserDetailsHandler(this);
+            mUserDetails.setVisibility(View.GONE);
+            mUserDetails.setState(mUserDetailsBundle);
         }
 
-        return mSignUpDetails;
+        return mUserDetails;
     }
 
     static boolean shouldThrottleSignup(Context context) {
@@ -512,7 +511,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
                 hideView(getLogin(),         animated);
                 hideView(getSignUp(),        animated);
-                hideView(getSignUpDetails(), animated);
+                hideView(getUserDetails(), animated);
                 return;
 
             case LOGIN:
@@ -520,7 +519,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
                 showView(getLogin(),         animated);
                 hideView(getSignUp(),        animated);
-                hideView(getSignUpDetails(), animated);
+                hideView(getUserDetails(), animated);
                 return;
 
             case SIGN_UP:
@@ -528,7 +527,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
                 hideView(getLogin(),         animated);
                 showView(getSignUp(),        animated);
-                hideView(getSignUpDetails(), animated);
+                hideView(getUserDetails(), animated);
                 return;
 
             case SIGN_UP_DETAILS:
@@ -536,7 +535,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
                 hideView(getLogin(),         animated);
                 hideView(getSignUp(), animated);
-                showView(getSignUpDetails(), animated);
+                showView(getUserDetails(), animated);
                 return;
         }
     }
@@ -656,20 +655,20 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         switch (requestCode) {
             case Consts.RequestCodes.GALLERY_IMAGE_PICK:
-                if (getSignUpDetails() != null) {
-                    getSignUpDetails().onImagePick(resultCode, result);
+                if (getUserDetails() != null) {
+                    getUserDetails().onImagePick(resultCode, result);
                 }
                 break;
 
             case Consts.RequestCodes.GALLERY_IMAGE_TAKE:
-                if (getSignUpDetails() != null) {
-                    getSignUpDetails().onImageTake(resultCode, result);
+                if (getUserDetails() != null) {
+                    getUserDetails().onImageTake(resultCode, result);
                 }
                 break;
 
             case Consts.RequestCodes.IMAGE_CROP: {
-                if (getSignUpDetails() != null) {
-                    getSignUpDetails().onImageCrop(resultCode, result);
+                if (getUserDetails() != null) {
+                    getUserDetails().onImageCrop(resultCode, result);
                 }
                 break;
             }

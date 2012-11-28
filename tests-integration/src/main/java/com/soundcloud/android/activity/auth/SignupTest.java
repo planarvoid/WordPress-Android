@@ -117,7 +117,7 @@ public class SignupTest extends ActivityTestCase<News> {
 
             assertTrue(solo.waitForActivity("CropImage"));
             solo.clickOnText("Save");
-            solo.assertActivity(SignUpDetails.class);
+            solo.assertActivity(UserDetails.class);
 
             // make sure add image prompt is gone
             assertFalse(solo.searchText(solo.getString(R.string.add_image), true));

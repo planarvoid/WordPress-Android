@@ -5,27 +5,19 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.*;
-import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.AddUserInfoTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
-import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -35,27 +27,27 @@ import java.io.File;
 import java.io.IOException;
 
 @Tracking(page = Page.Entry_signup__details)
-public class SignUpDetails extends RelativeLayout {
+public class UserDetails extends RelativeLayout {
     private static final String BUNDLE_USERNAME = "BUNDLE_USERNAME";
     private static final String BUNDLE_FILE     = "BUNDLE_FILE";
 
-    public interface SignUpDetailsHandler {
+    public interface UserDetailsHandler {
         void onSubmitDetails(String username, File avatarFile);
         void onSkipDetails();
     }
-    public SignUpDetails(Context context) {
+    public UserDetails(Context context) {
         super(context);
     }
 
-    public SignUpDetails(Context context, AttributeSet attrs) {
+    public UserDetails(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public SignUpDetails(Context context, AttributeSet attrs, int defStyle) {
+    public UserDetails(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
-    @Nullable private SignUpDetailsHandler mSignUpDetailsHandler;
+    @Nullable private UserDetailsHandler mUserDetailsHandler;
 
     @Nullable private File mAvatarFile;
     @Override
@@ -92,8 +84,8 @@ public class SignUpDetails extends RelativeLayout {
             public void onClick(View v) {
                 app.track(Click.Signup_Signup_details_skip);
 
-                if (getSignUpDetailsHandler() != null) {
-                    getSignUpDetailsHandler().onSkipDetails();
+                if (getUserDetailsHandler() != null) {
+                    getUserDetailsHandler().onSkipDetails();
                 }
             }
         });
@@ -103,8 +95,8 @@ public class SignUpDetails extends RelativeLayout {
             public void onClick(View v) {
                 app.track(Click.Signup_Signup_details_next);
 
-                if (getSignUpDetailsHandler() != null) {
-                    getSignUpDetailsHandler().onSubmitDetails(username.getText().toString(), mAvatarFile);
+                if (getUserDetailsHandler() != null) {
+                    getUserDetailsHandler().onSubmitDetails(username.getText().toString(), mAvatarFile);
                 }
             }
         });
@@ -178,12 +170,12 @@ public class SignUpDetails extends RelativeLayout {
     }
 
     @Nullable
-    public SignUpDetailsHandler getSignUpDetailsHandler() {
-        return mSignUpDetailsHandler;
+    public UserDetailsHandler getUserDetailsHandler() {
+        return mUserDetailsHandler;
     }
 
-    public void setSignUpDetailsHandler(@Nullable SignUpDetailsHandler mSignUpDetailsHandler) {
-        this.mSignUpDetailsHandler = mSignUpDetailsHandler;
+    public void setUserDetailsHandler(@Nullable UserDetailsHandler mUserDetailsHandler) {
+        this.mUserDetailsHandler = mUserDetailsHandler;
     }
 
     public Bundle getStateBundle() {

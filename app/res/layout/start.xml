@@ -35,7 +35,7 @@
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"/>
 
-    <ViewStub android:id="@+id/sign_up_details_stub"
+    <ViewStub android:id="@+id/user_details_stub"
               android:layout="@layout/signup_details"
 
               android:layout_width="fill_parent"
