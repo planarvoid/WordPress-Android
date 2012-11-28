@@ -58,7 +58,6 @@ public class PlayerTrackView extends LinearLayout implements
     private ScPlayer mPlayer;
 
     private ImageView mArtwork, mAvatar;
-    private ImageButton mLikeButton, mCommentButton;
     private ImageLoader.BindResult mCurrentArtBindResult;
 
     private WaveformController mWaveformController;
@@ -192,25 +191,36 @@ public class PlayerTrackView extends LinearLayout implements
         mToggleComment.setTextOff(commentCount);
         mToggleComment.setTextOn(commentCount);
         mToggleComment.setChecked(mIsCommenting);
+        mToggleComment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (buttonView.isChecked() != mIsCommenting) setCommentMode(isChecked, true);
+            }
+        });
 
         final String repostsCount = mTrack.reposts_count > 0 ? String.valueOf(mTrack.reposts_count) : "0";
         mToggleRepost.setTextOff(repostsCount);
         mToggleRepost.setTextOn(repostsCount);
         mToggleRepost.setChecked(mTrack.user_repost);
+        mToggleLike.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mTrack.user_repost != isChecked) mPlayer.toggleRepost(mTrack);
+            }
+        });
 
         final String likesCount = mTrack.likes_count > 0 ? String.valueOf(mTrack.likes_count) : "0";
         mToggleLike.setTextOff(likesCount);
         mToggleLike.setTextOn(likesCount);
         mToggleLike.setChecked(mTrack.user_like);
-
-        mToggleComment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mToggleLike.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (buttonView.isChecked() != mIsCommenting) setCommentMode(isChecked,true);
+                if (mTrack.user_like != isChecked) mPlayer.toggleLike(mTrack);
             }
         });
 
-        setLikeStatus();
+        setAssociationStatus();
 
         mTrack.refreshInfoAsync(mPlayer.getApp(),this);
 
@@ -353,20 +363,12 @@ public class PlayerTrackView extends LinearLayout implements
         }
     }
 
-    private void setLikeStatus() {
-        if (mTrack == null || mLikeButton == null) {
-            return;
-        }
-
-        if (mTrack.user_like) {
-            if (mLikedDrawable == null) mLikedDrawable = getResources().getDrawable(R.drawable.ic_liked_states_v1);
-            mLikeButton.setImageDrawable(mLikedDrawable);
-        } else {
-            if (mLikeDrawable == null) mLikeDrawable = getResources().getDrawable(R.drawable.ic_like_states_v1);
-            mLikeButton.setImageDrawable(mLikeDrawable);
+    private void setAssociationStatus() {
+        if (mTrack != null){
+            mToggleLike.setChecked(mTrack.user_like);
+            mToggleRepost.setChecked(mTrack.user_repost);
         }
     }
-
 
     /**
      * Handle text dragging for viewing of long track names
@@ -473,14 +475,6 @@ public class PlayerTrackView extends LinearLayout implements
         mIsCommenting = isCommenting;
         getWaveformController().setCommentMode(isCommenting);
         if (mIsCommenting != mToggleComment.isChecked()) mToggleComment.setChecked(mIsCommenting);
-
-        if (mCommentButton != null) {
-            if (isCommenting) {
-                mCommentButton.setImageResource(R.drawable.ic_commenting_states_v1);
-            } else {
-                mCommentButton.setImageResource(R.drawable.ic_comment_states_v1);
-            }
-        }
 
         if (!mLandscape){
             if (animated) {
@@ -605,7 +599,8 @@ public class PlayerTrackView extends LinearLayout implements
         } else if (action.equals(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED)) {
             if (mTrack != null && mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
                 mTrack.user_like = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false);
-                setLikeStatus();
+                mTrack.user_repost = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isRepost, false);
+                setAssociationStatus();
             }
         } else if (action.equals(CloudPlaybackService.BUFFERING)) {
             onBuffering();

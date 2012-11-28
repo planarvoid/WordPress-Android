@@ -426,7 +426,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_LIKES:
             case ME_REPOSTS:
-                id = Table.SOUNDS.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = Table.SOUNDS.upsertSingle(db, values);
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, userId);
