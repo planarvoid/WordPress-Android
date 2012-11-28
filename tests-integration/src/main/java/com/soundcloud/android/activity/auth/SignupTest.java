@@ -5,9 +5,7 @@ import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
-import android.test.FlakyTest;
 import android.test.suitebuilder.annotation.Suppress;
-import android.text.Html;
 import android.widget.EditText;
 
 import java.util.UUID;
@@ -119,7 +117,7 @@ public class SignupTest extends ActivityTestCase<News> {
 
             assertTrue(solo.waitForActivity("CropImage"));
             solo.clickOnText("Save");
-            solo.assertActivity(SignupDetails.class);
+            solo.assertActivity(SignUpDetails.class);
 
             // make sure add image prompt is gone
             assertFalse(solo.searchText(solo.getString(R.string.add_image), true));

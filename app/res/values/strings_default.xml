@@ -438,7 +438,7 @@
   <string name="user_browser_tab_sounds">Sounds</string>
   <string name="userlist_empty">No people available</string>
   <string name="userlist_error">Unable to get people</string>
-  <string name="username">username</string>
+  <string name="username">Username</string>
   <string name="wait_for_upload_to_finish">You can only upload one sound at a time</string>
   <string name="website">Website</string>
   <string name="what_hint">What</string>

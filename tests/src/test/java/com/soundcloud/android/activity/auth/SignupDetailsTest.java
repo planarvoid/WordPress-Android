@@ -15,11 +15,11 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(DefaultTestRunner.class)
-public class SignupDetailsTest  {
+public class SignUpDetailsTest {
 
     @Test
     public void testAddUserInfoSuccess() throws Exception {
-        SignupDetails info = new SignupDetails();
+        SignUpDetails info = new SignUpDetails();
         User user = new User();
 
         TestHelper.addCannedResponses(getClass(), "user.json");
@@ -36,7 +36,7 @@ public class SignupDetailsTest  {
     @Test
     @DisableStrictI18n
     public void testAddUserInfoFail() throws Exception {
-        SignupDetails info = new SignupDetails();
+        SignUpDetails info = new SignUpDetails();
 
         addPendingHttpResponse(422, "{\"error\":\"Failz\"}");
         info.addUserInfo(new User(), "foobaz", null);

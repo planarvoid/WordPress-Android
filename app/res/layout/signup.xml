@@ -6,16 +6,16 @@
 
     <LinearLayout style="@style/SignUp.Content">
 
-        <TextView style="@style/SignUp.Header"
-                  android:text="@string/tour_signup_header"
+        <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.Header"
+                                                        android:text="@string/tour_signup_header"
 
-                  android:layout_marginTop="20dp"
-                  android:layout_marginBottom="20dp"/>
+                                                        android:layout_marginTop="20dp"
+                                                        android:layout_marginBottom="20dp"/>
 
         <TableLayout style="@style/SignUp.LoginForm">
             <TableRow style="@style/SignUp.LabelRow">
-                <TextView style="@style/SignUp.Label"
-                          android:text="@string/email" />
+                <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.Label"
+                                                                android:text="@string/email" />
                 <com.soundcloud.android.view.ClearText android:id="@+id/txt_email_address"
                                                        android:hint="@string/authentication_your_email_address"
                                                        style="@style/SignUp.EmailEntry">
@@ -28,8 +28,8 @@
             </TableRow>
 
             <TableRow style="@style/SignUp.LabelRow">
-                <TextView style="@style/SignUp.Label"
-                          android:text="@string/password" />
+                <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.Label"
+                                                                android:text="@string/password" />
 
                 <com.soundcloud.android.view.ClearText style="@style/SignUp.PasswordEntry"
                                                        android:id="@+id/txt_choose_a_password"
@@ -42,8 +42,8 @@
             </TableRow>
 
             <TableRow style="@style/SignUp.LabelRow">
-                <TextView style="@style/SignUp.Label"
-                          android:text="@string/password" />
+                <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.Label"
+                                                                android:text="@string/confirm" />
 
                 <com.soundcloud.android.view.ClearText android:id="@+id/txt_repeat_your_password"
                                                        style="@style/SignUp.PasswordEntry"

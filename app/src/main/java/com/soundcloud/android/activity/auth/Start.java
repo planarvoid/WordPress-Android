@@ -25,6 +25,7 @@ import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.tour.TourLayout;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Env;
@@ -45,9 +46,10 @@ import java.io.*;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
-public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler {
+public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler, SignUpDetails.SignUpDetailsHandler {
+
     protected enum StartState {
-        TOUR, LOGIN, SIGN_UP;
+        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS;
     }
     private static final int RECOVER_CODE    = 1;
 
@@ -58,7 +60,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
     public static final String TOUR_BACKGROUND_EXTRA = "tour_background";
     private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
-
     public static final int THROTTLE_WINDOW = 60 * 60 * 1000;
 
     public static final int THROTTLE_AFTER_ATTEMPT = 3;
@@ -68,11 +69,12 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     private View mTourBottomBar;
 
     private TourLayout[] mTourPages;
+
     private ViewPager mViewPager;
-
     @Nullable private Login  mLogin;
-    @Nullable private SignUp mSignUp;
 
+    @Nullable private SignUp mSignUp;
+    @Nullable private SignUpDetails mSignUpDetails;
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.start);
@@ -214,6 +216,18 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         }
 
         return mSignUp;
+    }
+
+    public View getSignUpDetails() {
+        if (mSignUpDetails == null) {
+            ViewStub stub = (ViewStub) findViewById(R.id.sign_up_details_stub);
+
+            mSignUpDetails = (SignUpDetails) stub.inflate();
+            mSignUpDetails.setSignUpDetailsHandler(this);
+            mSignUpDetails.setVisibility(View.GONE);
+        }
+
+        return mSignUpDetails;
     }
 
     static boolean shouldThrottleSignup(Context context) {
@@ -371,10 +385,14 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                     new GetTokensTask(mApi) {
                         @Override protected void onPostExecute(Token token) {
                             if (token != null) {
-                                startActivityForResult(new Intent(Start.this, SignupDetails.class)
-                                    .putExtra(SignupVia.EXTRA, signedUp ? SignupVia.API.name : null)
-                                    .putExtra("user", user)
-                                    .putExtra("token", token), 0);
+                                setState(StartState.SIGN_UP_DETAILS);
+
+//                                Previously:
+//
+//                                startActivityForResult(new Intent(Start.this, SignUpDetails.class)
+//                                    .putExtra(SignupVia.EXTRA, signedUp ? SignupVia.API.name : null)
+//                                    .putExtra("user", user)
+//                                    .putExtra("token", token), 0);
                             } else {
                                 presentError(null);
                             }
@@ -393,11 +411,25 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     @Override
+    public void onSubmitDetails(String username, File avatarFile) {
+        finish();
+    }
+
+    @Override
+    public void onSkipDetails() {
+        finish();
+    }
+
+    @Override
     public void onBackPressed() {
         switch (getState()) {
             case LOGIN:
             case SIGN_UP:
                 setState(StartState.TOUR);
+                return;
+
+            case SIGN_UP_DETAILS:
+                finish();
                 return;
 
             case TOUR:
@@ -421,22 +453,33 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             case TOUR:
                 showForegroundViews(animated);
 
-                hideView(getLogin(),  animated);
-                hideView(getSignUp(), animated);
+                hideView(getLogin(),         animated);
+                hideView(getSignUp(),        animated);
+                hideView(getSignUpDetails(), animated);
                 return;
 
             case LOGIN:
                 hideForegroundViews(animated);
 
-                showView(getLogin(),  animated);
-                hideView(getSignUp(), animated);
+                showView(getLogin(),         animated);
+                hideView(getSignUp(),        animated);
+                hideView(getSignUpDetails(), animated);
                 return;
 
             case SIGN_UP:
                 hideForegroundViews(animated);
 
-                hideView(getLogin(),  animated);
-                showView(getSignUp(), animated);
+                hideView(getLogin(),         animated);
+                showView(getSignUp(),        animated);
+                hideView(getSignUpDetails(), animated);
+                return;
+
+            case SIGN_UP_DETAILS:
+                hideForegroundViews(animated);
+
+                hideView(getLogin(),         animated);
+                hideView(getSignUp(), animated);
+                showView(getSignUpDetails(), animated);
                 return;
         }
     }
@@ -551,4 +594,24 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
         startActivityForResult(recoveryIntent, 0);
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent result) {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case Consts.RequestCodes.GALLERY_IMAGE_PICK:
+//                    mAvatarFile = createTempAvatarFile();
+//                    ImageUtils.sendCropIntent(this, result.getData(), Uri.fromFile(mAvatarFile));
+                    break;
+                case Consts.RequestCodes.GALLERY_IMAGE_TAKE:
+//                    ImageUtils.sendCropIntent(this, Uri.fromFile(mAvatarFile));
+                    break;
+                case Consts.RequestCodes.IMAGE_CROP: {
+//                    setImage(mAvatarFile);
+                    break;
+                }
+            }
+        }
+    }
+
 }
