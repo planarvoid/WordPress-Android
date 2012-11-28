@@ -534,6 +534,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             });
             if (!inPlayer) {
                 mNowPlaying = (NowPlayingIndicator) mActionBarCustomView.findViewById(R.id.waveform_progress);
+                mNowPlaying.resume();
                 mActionBarCustomView.findViewById(R.id.waveform_holder).setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
