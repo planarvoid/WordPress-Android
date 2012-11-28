@@ -77,9 +77,9 @@ public enum Content  {
 
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
     USER("users/#", null, 302, User.class, -1, Table.USERS),
-    USER_TRACKS("users/#/tracks", Endpoints.USER_TRACKS, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.SOUNDS),
+    @Deprecated USER_TRACKS("users/#/tracks", Endpoints.USER_TRACKS, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.SOUNDS),
     USER_SOUNDS("users/#/sounds", TempEndpoints.e1.USER_SOUNDS, 311, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
-    USER_LIKES("users/#/likes", Endpoints.USER_FAVORITES, 304, Track.class, LIKE, null),
+    USER_LIKES("users/#/likes", TempEndpoints.e1.USER_LIKES, 304, Track.class, LIKE, null),
     USER_FOLLOWERS("users/#/followers", Endpoints.USER_FOLLOWERS, 305, User.class, FOLLOWER, null),
     USER_FOLLOWINGS("users/#/followings", Endpoints.USER_FOLLOWINGS, 306, User.class, FOLLOWING, null),
     USER_COMMENTS("users/#/comments", null, 307, Comment.class, -1, null),

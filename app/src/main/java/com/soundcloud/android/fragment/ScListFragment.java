@@ -152,14 +152,13 @@ public class ScListFragment extends SherlockListFragment
                     adapter = new FriendAdapter(getActivity(), mContentUri);
                     break;
 
-                case ME_TRACKS:
                 case ME_SOUNDS:
                     adapter = new MyTracksAdapter(getScActivity(), mContentUri);
                     break;
 
                 case ME_LIKES:
                 case USER_LIKES:
-                    adapter = new TrackAdapter(getActivity(), mContentUri);
+                    adapter = new SoundAssociationAdapter(getActivity(), mContentUri);
                     break;
 
                 case SEARCH:

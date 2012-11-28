@@ -365,7 +365,7 @@ public class User extends ScResource implements Refreshable {
         final ContentResolver resolver = context.getContentResolver();
         // TODO move to model
         for (Content c : EnumSet.of(
-                Content.ME_TRACKS,
+                Content.ME_SOUNDS,
                 Content.ME_LIKES,
                 Content.ME_FOLLOWINGS,
                 Content.ME_FOLLOWERS)) {

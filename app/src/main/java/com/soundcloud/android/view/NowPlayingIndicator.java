@@ -98,9 +98,6 @@ public class NowPlayingIndicator extends ProgressBar {
         mForegroundPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
 
         setIndeterminate(false);
-
-        // because the action bar gets created on demand, we can start the foreground lifecycle
-        resume();
     }
 
     void startListening(){
@@ -128,7 +125,7 @@ public class NowPlayingIndicator extends ProgressBar {
     }
 
     private void startRefreshing() {
-        if (mTrack != null && getWidth() > 0){
+        if (mTrack != null && mTrack.duration > 0 && getWidth() > 0){
             mRefreshDelay = mTrack.duration / getWidth();
             if (CloudPlaybackService.getState().isSupposedToBePlaying()) queueNextRefresh(refreshNow());
         }

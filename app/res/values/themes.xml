@@ -90,6 +90,7 @@
         <item name="background">@drawable/action_bar_background</item>
         <item name="android:background">@drawable/action_bar_background</item>
         <item name="android:textColor">#FFFFFF</item>
+        <item name="displayOptions">showCustom</item>
         <item name="android:displayOptions">showCustom</item>
     </style>
 

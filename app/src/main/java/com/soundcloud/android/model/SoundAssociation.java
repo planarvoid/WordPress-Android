@@ -143,4 +143,16 @@ public class SoundAssociation extends ScResource implements Playable {
     public void refreshTimeSinceCreated(Context context) {
         _elapsedTime = null;
     }
+
+    @Override
+    public String toString() {
+        return "SoundAssociation{" +
+                "associationType=" + associationType +
+                ", type='" + type + '\'' +
+                ", created_at=" + created_at +
+                ", track=" + track +
+                ", playlist=" + playlist +
+                ", user=" + user +
+                '}';
+    }
 }
