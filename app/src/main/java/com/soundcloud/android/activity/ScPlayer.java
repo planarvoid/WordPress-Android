@@ -51,7 +51,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private static final long TRACK_NAV_DELAY = 500;
 
     private long mSeekPos = -1;
-    private boolean mActivityPaused, mIsCommenting, mChangeTrackFast, mShouldShowComments, mConfigureFromService = true;
+    private boolean mActivityPaused, mChangeTrackFast, mShouldShowComments, mConfigureFromService = true;
     private RelativeLayout mContainer;
     private PlayerTrackPager mTrackPager;
     private TransportBar mTransportBar;
@@ -137,23 +137,10 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         return -1;
     }
 
-    public void toggleCommentMode(int playPos) {
-        setCommentMode(!mIsCommenting, playPos);
-    }
-
-    public void setCommentMode(boolean mIsCommenting, int playPos) {
-        this.mIsCommenting = mIsCommenting;
-
-        final PlayerTrackView ptv = getTrackView(playPos);
-        if (ptv != null) {
-            ptv.setCommentMode(mIsCommenting);
-        }
-
+    public void setCommentMode(boolean mIsCommenting) {
         if (mPlaybackService != null) {
             mPlaybackService.setAutoAdvance(!mIsCommenting);
         }
-
-        invalidateOptionsMenu();
     }
 
     public ViewGroup getCommentHolder() {
@@ -169,14 +156,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     public void onTrackPageChanged(PlayerTrackView newTrackView) {
         final PlayQueueManager playQueueManager = CloudPlaybackService.getPlayQueueManager();
         if (playQueueManager != null) {
-            int currentQueuePosition = playQueueManager.getPosition();
-
-            if (currentQueuePosition != newTrackView.getPlayPosition()) {
-                setCommentMode(false, currentQueuePosition);
-            }
 
             refreshCurrentViewedTrackData();
-
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
             mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
                     mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
@@ -265,33 +246,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     public boolean onOptionsItemSelected(MenuItem item) {
 
         final PlayerTrackView currentTrackView = mTrackPager.getCurrentTrackView();
-        final Track displayedTrack = currentTrackView == null ? null : currentTrackView.getTrack();
-
         switch (item.getItemId()) {
-
-            case R.id.action_bar_comment:
-                if (displayedTrack != null){
-                    toggleCommentMode(currentTrackView.getPlayPosition());
-                    track(Click.Comment, displayedTrack);
-                    invalidateOptionsMenu();
-                }
-                return true;
-
-            case R.id.action_bar_like:
-                if (displayedTrack != null){
-                    toggleLike(displayedTrack);
-                    track(Click.Like, displayedTrack);
-                }
-                return true;
-
-            case R.id.action_bar_repost:
-                if (displayedTrack != null) {
-                    toggleRepost(displayedTrack);
-                    track(Click.Repost, displayedTrack);
-                    invalidateOptionsMenu();
-                }
-                return true;
-
             case R.id.action_bar_info:
                 if (currentTrackView != null) {
                     currentTrackView.onTrackInfoFlip();
@@ -597,8 +552,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
         final PlayQueueManager playQueueManager = CloudPlaybackService.getPlayQueueManager();
         final long queueLength = playQueueManager == null ? 1 :playQueueManager.length();
-
-        if (mIsCommenting) toggleCommentMode(0);
         mTransportBar.setNavEnabled(queueLength > 1);
         refreshCurrentViewedTrackData();
     }
@@ -648,60 +601,46 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     @Override
+    protected int getMenuResourceId() {
+        return R.menu.player;
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
 
-        getSupportMenuInflater().inflate(R.menu.player, menu);
 
-        final MenuItem likeItem = menu.findItem(R.id.action_bar_like);
-        final MenuItem repostItem = menu.findItem(R.id.action_bar_repost);
-        final MenuItem commentItem = menu.findItem(R.id.action_bar_comment);
-        final MenuItem shareItem = menu.findItem(R.id.action_bar_share);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             menu.removeItem(R.id.action_bar_info);
         }
 
-        Track track = getCurrentDisplayedTrack();
-        if (track == null){ // possibly before layout
-            track = CloudPlaybackService.getCurrentTrack();
+        final MenuItem shareItem = menu.findItem(R.id.action_bar_share);
+        if (shareItem != null) {
+            Track track = getCurrentDisplayedTrack();
+            if (track == null) { // possibly before layout
+                track = CloudPlaybackService.getCurrentTrack();
+            }
+
+            if (track != null && track.isPublic()) {
+                shareItem.setEnabled(true);
+
+                ShareActionProvider shareActionProvider = (ShareActionProvider) shareItem.getActionProvider();
+
+                Intent shareIntent = track.getShareIntent();
+                shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT,
+                        track.title + (track.user != null ? " by " + track.user.username : "") + " on SoundCloud");
+                shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, track.permalink_url);
+
+                shareActionProvider.setShareIntent(shareIntent);
+            } else {
+                shareItem.setEnabled(false);
+
+                ShareActionProvider shareActionProvider = (ShareActionProvider) shareItem.getActionProvider();
+                shareActionProvider.setShareIntent(null);
+            }
         }
 
-        if (track != null && track.user_like) {
-            likeItem.setIcon(R.drawable.ic_like_orange);
-        } else {
-            likeItem.setIcon(R.drawable.ic_like_white);
-        }
-
-        if (track != null && track.user_repost) {
-            repostItem.setIcon(R.drawable.ic_repost_orange);
-        } else {
-            repostItem.setIcon(R.drawable.ic_repost_white);
-        }
-
-        if (mIsCommenting){
-            commentItem.setIcon(R.drawable.ic_comment_orange);
-        } else {
-            commentItem.setIcon(R.drawable.ic_comment_white);
-        }
-
-
-        if (track != null && track.isPublic()) {
-            shareItem.setEnabled(true);
-
-            ShareActionProvider shareActionProvider = (ShareActionProvider) shareItem.getActionProvider();
-
-            Intent shareIntent = track.getShareIntent();
-            shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT,
-                    track.title + (track.user != null ? " by " + track.user.username : "") + " on SoundCloud");
-            shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, track.permalink_url);
-
-            shareActionProvider.setShareIntent(shareIntent);
-        } else {
-            shareItem.setEnabled(false);
-
-            ShareActionProvider shareActionProvider = (ShareActionProvider) shareItem.getActionProvider();
-            shareActionProvider.setShareIntent(null);
-        }
 
         return true;
     }

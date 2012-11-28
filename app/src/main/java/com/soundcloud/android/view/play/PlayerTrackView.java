@@ -1,6 +1,5 @@
 package com.soundcloud.android.view.play;
 
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
@@ -14,14 +13,11 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.LoadCommentsTask;
-import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -39,12 +35,14 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewStub;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
 
 import java.util.List;
@@ -86,6 +84,10 @@ public class PlayerTrackView extends LinearLayout implements
     private boolean mLandscape, mOnScreen;
     private boolean mIsCommenting;
 
+    private ToggleButton mToggleLike;
+    private ToggleButton mToggleComment;
+    private ToggleButton mToggleRepost;
+
     private View mTrackInfoOverlay;
     private View mArtworkOverlay;
 
@@ -103,8 +105,8 @@ public class PlayerTrackView extends LinearLayout implements
         mTrackInfoBar.setEnabled(false);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
 
-        mTrackInfoBar.addTextShadows();
 
+        mTrackInfoBar.addTextShadows();
         mArtwork = (ImageView) findViewById(R.id.artwork);
         if (mArtwork != null) {
             mArtwork.setVisibility(View.INVISIBLE);
@@ -113,12 +115,8 @@ public class PlayerTrackView extends LinearLayout implements
             mLandscape = true;
         }
 
-        mTrackInfoOverlay = findViewById(R.id.track_info_overlay);
-        mArtworkOverlay   = findViewById(R.id.artwork_overlay);
-
         mAvatar = (ImageView) findViewById(R.id.icon);
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
-
         findViewById(R.id.track_info_clicker).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (mTrack != null) {
@@ -134,7 +132,25 @@ public class PlayerTrackView extends LinearLayout implements
             }
         });
 
+        mTrackInfoOverlay = findViewById(R.id.track_info_overlay);
+        mArtworkOverlay   = findViewById(R.id.artwork_overlay);
+
+        final OnClickListener closeCommentListener = new OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if (mIsCommenting) setCommentMode(false);
+            }
+        };
+
+
+        if (mTrackInfo != null) mTrackInfoOverlay.setOnClickListener(closeCommentListener);
+        if (mArtworkOverlay != null) mArtworkOverlay.setOnClickListener(closeCommentListener);
+
         findViewById(R.id.private_indicator).setVisibility(View.GONE);
+
+        mToggleLike = (ToggleButton) findViewById(R.id.toggle_like);
+        mToggleComment = (ToggleButton) findViewById(R.id.toggle_comment);
+        mToggleRepost = (ToggleButton) findViewById(R.id.toggle_repost);
 
         ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
         mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
@@ -164,13 +180,35 @@ public class PlayerTrackView extends LinearLayout implements
         if (changed && !mLandscape) updateArtwork(priority);
         mWaveformController.updateTrack(mTrack, queuePosition, priority);
 
-        mTrackInfoBar.display(mTrack, false, -1, true, mPlayer.getCurrentUserId());
+        mTrackInfoBar.display(mTrack, -1, false, true, false);
         if (mTrackInfo != null) mTrackInfo.setPlayingTrack(mTrack);
         updateAvatar(priority);
 
         if (mDuration != mTrack.duration) {
             mDuration = mTrack.duration;
         }
+
+        final String commentCount = mTrack.comment_count > 0 ? String.valueOf(mTrack.comment_count) : "0";
+        mToggleComment.setTextOff(commentCount);
+        mToggleComment.setTextOn(commentCount);
+        mToggleComment.setChecked(mIsCommenting);
+
+        final String repostsCount = mTrack.reposts_count > 0 ? String.valueOf(mTrack.reposts_count) : "0";
+        mToggleRepost.setTextOff(repostsCount);
+        mToggleRepost.setTextOn(repostsCount);
+        mToggleRepost.setChecked(mTrack.user_repost);
+
+        final String likesCount = mTrack.likes_count > 0 ? String.valueOf(mTrack.likes_count) : "0";
+        mToggleLike.setTextOff(likesCount);
+        mToggleLike.setTextOn(likesCount);
+        mToggleLike.setChecked(mTrack.user_like);
+
+        mToggleComment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (buttonView.isChecked() != mIsCommenting) setCommentMode(isChecked,true);
+            }
+        });
 
         setLikeStatus();
 
@@ -427,15 +465,17 @@ public class PlayerTrackView extends LinearLayout implements
         return null;
     }
 
-    public void setCommentMode(boolean  mIsCommenting) {
-        setCommentMode(mIsCommenting, true);
+    public void setCommentMode(boolean  isCommenting) {
+        setCommentMode(isCommenting, true);
     }
 
-    public void setCommentMode(boolean mIsCommenting, boolean animated) {
-        getWaveformController().setCommentMode(mIsCommenting);
+    public void setCommentMode(boolean isCommenting, boolean animated) {
+        mIsCommenting = isCommenting;
+        getWaveformController().setCommentMode(isCommenting);
+        if (mIsCommenting != mToggleComment.isChecked()) mToggleComment.setChecked(mIsCommenting);
 
         if (mCommentButton != null) {
-            if (mIsCommenting) {
+            if (isCommenting) {
                 mCommentButton.setImageResource(R.drawable.ic_commenting_states_v1);
             } else {
                 mCommentButton.setImageResource(R.drawable.ic_comment_states_v1);
@@ -444,7 +484,7 @@ public class PlayerTrackView extends LinearLayout implements
 
         if (!mLandscape){
             if (animated) {
-                if (mIsCommenting) {
+                if (isCommenting) {
                     mTrackInfoOverlay.setVisibility(VISIBLE);
                     runFadeInAnimationOn(mPlayer, mTrackInfoOverlay);
 
@@ -661,9 +701,9 @@ public class PlayerTrackView extends LinearLayout implements
 
     @Override
     public void onSuccess(Track t, String action) {
-
         t.setUpdated();
         t = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(t, ScResource.CacheUpdateMode.FULL);
+
 
         if (t.id != mTrack.id) return;
 
