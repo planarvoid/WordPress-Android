@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity.landing;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;

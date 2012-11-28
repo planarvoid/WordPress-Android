@@ -283,7 +283,7 @@ public class ApiSyncer {
                     result.change = Result.CHANGED;
                     result.extra = "0"; // reset sync misses
                 } else {
-                    result.change = Result.REORDERED; // always mark users as reordered so we get the first page
+                    result.change = remoteSet.isEmpty() ? Result.UNCHANGED : Result.REORDERED; // always mark users as reordered so we get the first page
                 }
                 break;
             default:
