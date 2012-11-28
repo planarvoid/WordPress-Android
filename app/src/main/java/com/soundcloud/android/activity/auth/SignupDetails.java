@@ -161,12 +161,16 @@ public class SignUpDetails extends RelativeLayout {
     }
 
     public void onImagePick(int resultCode, Intent result) {
-        mAvatarFile = createTempAvatarFile();
-        ImageUtils.sendCropIntent((Activity) getContext(), result.getData(), Uri.fromFile(mAvatarFile));
+        if (resultCode == Activity.RESULT_OK) {
+            mAvatarFile = createTempAvatarFile();
+            ImageUtils.sendCropIntent((Activity) getContext(), result.getData(), Uri.fromFile(mAvatarFile));
+        }
     }
 
     public void onImageTake(int resultCode, Intent result) {
-        ImageUtils.sendCropIntent((Activity) getContext(), Uri.fromFile(mAvatarFile));
+        if (resultCode == Activity.RESULT_OK) {
+            ImageUtils.sendCropIntent((Activity) getContext(), Uri.fromFile(mAvatarFile));
+        }
     }
 
     public void onImageCrop(int resultCode, Intent result) {
