@@ -11,7 +11,7 @@ import android.widget.EditText;
 import java.util.UUID;
 
 @Suppress
-public class SignupTest extends ActivityTestCase<News> {
+public class SignUpTest extends ActivityTestCase<News> {
 
 
     public SignupTest() {
