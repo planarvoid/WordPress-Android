@@ -29,7 +29,6 @@ import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.task.collection.CollectionTask;
 import com.soundcloud.android.task.collection.ReturnData;
-import com.soundcloud.android.task.collection.UpdateCollectionTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
@@ -75,7 +74,6 @@ public class ScListFragment extends SherlockListFragment
 
     private NetworkConnectivityListener connectivityListener;
     private @Nullable CollectionTask mRefreshTask;
-    private @Nullable UpdateCollectionTask mUpdateCollectionTask;
     protected @Nullable LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
 
@@ -494,7 +492,6 @@ public class ScListFragment extends SherlockListFragment
         mNextHref = "";
         mKeepGoing = true;
         clearRefreshTask();
-        clearUpdateTask();
         configureEmptyCollection();
 
         final ScBaseAdapter adp = getListAdapter();
@@ -510,12 +507,6 @@ public class ScListFragment extends SherlockListFragment
     protected void clearRefreshTask() {
         if (mRefreshTask != null && !AndroidUtils.isTaskFinished(mRefreshTask)) mRefreshTask.cancel(true);
         mRefreshTask = null;
-    }
-
-    protected void clearUpdateTask() {
-        if (mUpdateCollectionTask != null && !AndroidUtils.isTaskFinished(mUpdateCollectionTask))
-            mUpdateCollectionTask.cancel(true);
-        mUpdateCollectionTask = null;
     }
 
     @Override
