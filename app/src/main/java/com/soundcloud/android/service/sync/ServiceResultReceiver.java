@@ -5,7 +5,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
@@ -51,10 +51,9 @@ class ServiceResultReceiver extends ResultReceiver {
                 // notification related
                 if (SyncConfig.shouldUpdateDashboard(app)) {
                     final long frequency = SyncConfig.getNotificationsFrequency(app);
-                    final long delta = System.currentTimeMillis() -
-                            app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_AT);
+                    final long delta = System.currentTimeMillis() - ContentStats.getLastNotified(app, Content.ME_SOUND_STREAM);
                     if (delta > frequency) {
-                        final long lastIncomingSeen = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
+                        final long lastIncomingSeen = ContentStats.getLastSeen(app, Content.ME_SOUND_STREAM);
                         final Activities incoming = !SyncConfig.isIncomingEnabled(app, extras) ? Activities.EMPTY :
                                 Activities.getSince(Content.ME_SOUND_STREAM, app.getContentResolver(), lastIncomingSeen);
 
@@ -64,7 +63,7 @@ class ServiceResultReceiver extends ResultReceiver {
                             Log.d(SyncAdapterService.TAG, "skipping incoming notification, delta "+delta+" < frequency="+frequency);
                     }
 
-                    final long lastOwnSeen = app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN);
+                    final long lastOwnSeen = ContentStats.getLastSeen(app, Content.ME_ACTIVITIES);
                     final Activities news = !SyncConfig.isActivitySyncEnabled(app, extras) ? Activities.EMPTY :
                             Activities.getSince(Content.ME_ACTIVITIES, app.getContentResolver(), lastOwnSeen);
                     maybeNotifyOwn(app, news, extras);
@@ -81,7 +80,7 @@ class ServiceResultReceiver extends ResultReceiver {
         final boolean hasIncoming = !incoming.isEmpty();
 
         if (totalUnseen > 0) {
-            app.updateActivityUnseenCount(Content.ME_SOUND_STREAM,totalUnseen);
+            ContentStats.updateCount(app, Content.ME_SOUND_STREAM, totalUnseen);
         }
 
         if (hasIncoming) {
@@ -102,14 +101,14 @@ class ServiceResultReceiver extends ResultReceiver {
             message = Message.getIncomingNotificationMessage(app, incoming);
             String artwork_url = incoming.getFirstAvailableArtwork();
 
-            if (incoming.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM))) {
+            if (incoming.newerThan(ContentStats.getLastNotified(app, Content.ME_SOUND_STREAM))) {
                 prefetchArtwork(app, incoming);
 
                 Message.showDashboardNotification(app, ticker, title, message, Message.createNotificationIntent(Actions.STREAM),
                         Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID, artwork_url);
 
-                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, System.currentTimeMillis());
-                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, incoming.getTimestamp());
+                ContentStats.setLastNotified(app, Content.ME_SOUND_STREAM, System.currentTimeMillis());
+                ContentStats.setLastNotifiedItem(app, Content.ME_SOUND_STREAM, incoming.getTimestamp());
 
                 return true;
             } else return false;
@@ -121,7 +120,7 @@ class ServiceResultReceiver extends ResultReceiver {
 
     private boolean maybeNotifyOwn(SoundCloudApplication app, Activities activities, Bundle extras) {
         if (!activities.isEmpty()) {
-            app.updateActivityUnseenCount(Content.ME_ACTIVITIES,activities.size());
+            ContentStats.updateCount(app, Content.ME_ACTIVITIES, activities.size());
 
             boolean likeEnabled = SyncConfig.isLikeEnabled(app, extras);
             final boolean commentsEnabled = SyncConfig.isCommentsEnabled(app, extras);
@@ -141,7 +140,7 @@ class ServiceResultReceiver extends ResultReceiver {
             if (notifyable == null || notifyable.isEmpty()) return false;
             Message msg = new Message(app.getResources(), notifyable, favoritings, comments);
 
-            if (activities.newerThan(app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM))) {
+            if (activities.newerThan(ContentStats.getLastNotifiedItem(app, Content.ME_ACTIVITIES))) {
                 prefetchArtwork(app, activities);
 
                 Message.showDashboardNotification(app, msg.ticker, msg.title, msg.message,
@@ -149,7 +148,7 @@ class ServiceResultReceiver extends ResultReceiver {
                         Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID,
                         activities.getFirstAvailableAvatar());
 
-                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, activities.getTimestamp());
+                ContentStats.setLastNotifiedItem(app, Content.ME_ACTIVITIES, activities.getTimestamp());
                 return true;
             } else return false;
         } else return false;

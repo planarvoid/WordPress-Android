@@ -5,8 +5,9 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 
@@ -187,7 +188,6 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
                 .toEqual("99+ new sounds");
     }
 
-
     @Test
     public void shouldUseCachedActivitiesToUpdateNotificationsWhenUserHasSeen() throws Exception {
         addCannedActivities("empty_events.json", "e1_activities_1_oldest.json");
@@ -198,13 +198,10 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
         expect(first.getInfo().getContentText().toString()).toEqual("Comments and likes from Liraz Axelrad, UnoFuego and others");
 
         // user has already seen some stuff
-        DefaultTestRunner.application.setAccountData(
-                User.DataKeys.LAST_OWN_SEEN,
-                AndroidCloudAPI.CloudDateFormat.fromString("2011/07/23 11:51:29 +0000").getTime()
-        );
+        ContentStats.setLastSeen(DefaultTestRunner.application, Content.ME_ACTIVITIES,
+                AndroidCloudAPI.CloudDateFormat.fromString("2011/07/23 11:51:29 +0000").getTime());
 
-        addCannedActivities("empty_events.json", "e1_activities_2.json"
-        );
+        addCannedActivities("empty_events.json", "e1_activities_2.json");
         SyncOutcome second = doPerformSync(DefaultTestRunner.application, false, null);
 
         expect(second.getTicker()).toEqual("9 new activities");
@@ -235,8 +232,9 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
                 resource
         );
         SoundCloudApplication app = DefaultTestRunner.application;
-        app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
-        app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1l);
+
+        ContentStats.setLastSeen(app, Content.ME_SOUND_STREAM, 1);
+        ContentStats.setLastSeen(app, Content.ME_ACTIVITIES, 1);
         List<NotificationInfo> notifications = doPerformSync(app, false, null).notifications;
         expect(notifications.size()).toEqual(1);
         NotificationInfo n = notifications.get(0);
