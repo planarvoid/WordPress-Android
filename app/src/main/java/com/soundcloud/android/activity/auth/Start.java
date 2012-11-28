@@ -206,7 +206,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         return mLogin;
     }
 
-    public View getSignUp() {
+    public SignUp getSignUp() {
         if (mSignUp == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.sign_up_stub);
 
@@ -218,7 +218,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         return mSignUp;
     }
 
-    public View getSignUpDetails() {
+    public SignUpDetails getSignUpDetails() {
         if (mSignUpDetails == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.sign_up_details_stub);
 
@@ -597,19 +597,24 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
-        if (resultCode == RESULT_OK) {
-            switch (requestCode) {
-                case Consts.RequestCodes.GALLERY_IMAGE_PICK:
-//                    mAvatarFile = createTempAvatarFile();
-//                    ImageUtils.sendCropIntent(this, result.getData(), Uri.fromFile(mAvatarFile));
-                    break;
-                case Consts.RequestCodes.GALLERY_IMAGE_TAKE:
-//                    ImageUtils.sendCropIntent(this, Uri.fromFile(mAvatarFile));
-                    break;
-                case Consts.RequestCodes.IMAGE_CROP: {
-//                    setImage(mAvatarFile);
-                    break;
+        switch (requestCode) {
+            case Consts.RequestCodes.GALLERY_IMAGE_PICK:
+                if (getSignUpDetails() != null) {
+                    getSignUpDetails().onImagePick(resultCode, result);
                 }
+                break;
+
+            case Consts.RequestCodes.GALLERY_IMAGE_TAKE:
+                if (getSignUpDetails() != null) {
+                    getSignUpDetails().onImageTake(resultCode, result);
+                }
+                break;
+
+            case Consts.RequestCodes.IMAGE_CROP: {
+                if (getSignUpDetails() != null) {
+                    getSignUpDetails().onImageCrop(resultCode, result);
+                }
+                break;
             }
         }
     }

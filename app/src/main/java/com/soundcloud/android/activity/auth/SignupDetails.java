@@ -111,12 +111,11 @@ public class SignUpDetails extends RelativeLayout {
             }
         });
 
-        avatarText.setOnClickListener(new View.OnClickListener() {
+        avatarText.setOnClickListener(new ImageUtils.ImagePickListener((Activity) context) {
             @Override
-            public void onClick(View v) {
-
-
-
+            protected File getFile() {
+                mAvatarFile = createTempAvatarFile();
+                return mAvatarFile;
             }
         });
 
@@ -158,6 +157,21 @@ public class SignUpDetails extends RelativeLayout {
         } catch (IOException e) {
             Log.w(TAG, "error creating avatar temp file", e);
             return null;
+        }
+    }
+
+    public void onImagePick(int resultCode, Intent result) {
+        mAvatarFile = createTempAvatarFile();
+        ImageUtils.sendCropIntent((Activity) getContext(), result.getData(), Uri.fromFile(mAvatarFile));
+    }
+
+    public void onImageTake(int resultCode, Intent result) {
+        ImageUtils.sendCropIntent((Activity) getContext(), Uri.fromFile(mAvatarFile));
+    }
+
+    public void onImageCrop(int resultCode, Intent result) {
+        if (resultCode == Activity.RESULT_OK) {
+            setImage(mAvatarFile);
         }
     }
 
