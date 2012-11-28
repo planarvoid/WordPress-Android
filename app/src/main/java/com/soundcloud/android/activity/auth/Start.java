@@ -394,13 +394,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                                 mUser = user;
 
                                 setState(StartState.SIGN_UP_DETAILS);
-
-//                                Previously:
-//
-//                                startActivityForResult(new Intent(Start.this, SignUpDetails.class)
-//                                    .putExtra(SignupVia.EXTRA, signedUp ? SignupVia.API.name : null)
-//                                    .putExtra("user", user)
-//                                    .putExtra("token", token), 0);
                             } else {
                                 presentError(null);
                             }
