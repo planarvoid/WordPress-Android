@@ -438,7 +438,7 @@ public class ScContentProvider extends ContentProvider {
                     cv.put(DBHelper.CollectionItems.POSITION, System.currentTimeMillis());
                     cv.put(DBHelper.CollectionItems.ITEM_ID, (Long) values.get(DBHelper.Sounds._ID));
                     cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, content.collectionType);
-                    id = Table.COLLECTION_ITEMS.insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_ABORT);
+                    id = Table.COLLECTION_ITEMS.insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_IGNORE);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null, false);
                     return result;

@@ -75,7 +75,6 @@ public class PlayerTrackView extends LinearLayout implements
     private int mTouchSlop;
 
     private ImageLoader.BindResult mCurrentAvatarBindResult;
-    private Drawable mLikeDrawable, mLikedDrawable;
 
     public Track mTrack;
     private int mQueuePosition;
@@ -148,8 +147,28 @@ public class PlayerTrackView extends LinearLayout implements
         findViewById(R.id.private_indicator).setVisibility(View.GONE);
 
         mToggleLike = (ToggleButton) findViewById(R.id.toggle_like);
-        mToggleComment = (ToggleButton) findViewById(R.id.toggle_comment);
+        mToggleLike.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mTrack.user_like != isChecked) mPlayer.toggleLike(mTrack);
+            }
+        });
+
         mToggleRepost = (ToggleButton) findViewById(R.id.toggle_repost);
+        mToggleRepost.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mTrack.user_repost != isChecked) mPlayer.toggleRepost(mTrack);
+            }
+        });
+
+        mToggleComment = (ToggleButton) findViewById(R.id.toggle_comment);
+        mToggleComment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (buttonView.isChecked() != mIsCommenting) setCommentMode(isChecked, true);
+            }
+        });
 
         ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
         mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
@@ -191,34 +210,18 @@ public class PlayerTrackView extends LinearLayout implements
         mToggleComment.setTextOff(commentCount);
         mToggleComment.setTextOn(commentCount);
         mToggleComment.setChecked(mIsCommenting);
-        mToggleComment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (buttonView.isChecked() != mIsCommenting) setCommentMode(isChecked, true);
-            }
-        });
 
         final String repostsCount = mTrack.reposts_count > 0 ? String.valueOf(mTrack.reposts_count) : "0";
         mToggleRepost.setTextOff(repostsCount);
         mToggleRepost.setTextOn(repostsCount);
         mToggleRepost.setChecked(mTrack.user_repost);
-        mToggleLike.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (mTrack.user_repost != isChecked) mPlayer.toggleRepost(mTrack);
-            }
-        });
+
 
         final String likesCount = mTrack.likes_count > 0 ? String.valueOf(mTrack.likes_count) : "0";
         mToggleLike.setTextOff(likesCount);
         mToggleLike.setTextOn(likesCount);
         mToggleLike.setChecked(mTrack.user_like);
-        mToggleLike.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (mTrack.user_like != isChecked) mPlayer.toggleLike(mTrack);
-            }
-        });
+
 
         setAssociationStatus();
 
