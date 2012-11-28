@@ -260,7 +260,7 @@
         <activity android:name=".activity.create.EmailPicker" android:theme="@style/Theme.Next.NoActionBar"/>
         <activity android:name=".activity.create.LocationPicker" android:theme="@style/Theme.Next.NoActionBar"/>
         <activity android:name=".activity.auth.EmailConfirm"/>
-        <activity android:name=".cropimage.CropImage" />
+        <activity android:name=".cropimage.CropImage" android:hardwareAccelerated="false"/>
 
         <activity android:name=".activity.settings.About" android:theme="@style/Theme.Next.NoActionBar"/>
 
