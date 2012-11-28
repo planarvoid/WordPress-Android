@@ -3,4 +3,12 @@
     <style name="SignUp.Content" parent="SignUp.Content.Base">
         <item name="android:layout_width">420dp</item>
     </style>
+
+    <style name="Tour.CallToAction" parent="Tour.CallToAction.Base">
+        <item name="android:textSize">25dp</item>
+    </style>
+
+    <style name="Tour.Headline" parent="Tour.Headline.Base">
+        <item name="android:textSize">35dp</item>
+    </style>
 </resources>
