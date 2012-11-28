@@ -6,6 +6,7 @@ import static com.soundcloud.android.service.sync.ApiSyncer.Result;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;

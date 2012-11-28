@@ -271,7 +271,7 @@ public class UserBrowser extends ScActivity implements
 
     private EmptyCollection getEmptyScreenFromContent(int position) {
         switch (isYou() ? Tab.values()[position].youContent : Tab.values()[position].userContent){
-            case ME_TRACKS:
+            case ME_SOUNDS:
                 return new EmptyCollection(this).setMessageText(R.string.list_empty_user_sounds_message)
                         .setActionText(R.string.list_empty_user_sounds_action)
                         .setImage(R.drawable.empty_rec)

@@ -8,8 +8,10 @@ import static com.soundcloud.android.provider.ScContentProvider.Parameter.RANDOM
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.Like;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Shortcut;
+import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackHolder;
 import com.soundcloud.android.model.User;
@@ -61,23 +63,46 @@ public class ScContentProviderTest {
     }
 
     @Test
-    public void shouldInsertQueryAndDeleteFavorites() throws Exception {
-        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("user_favorites.json"),
-                TrackHolder.class);
-        for (Track t : tracks) {
-            expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();
+    public void shouldInsertAndQueryLikes() throws Exception {
+        SoundAssociationHolder collection  = AndroidCloudAPI.Mapper.readValue(
+                ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
+                SoundAssociationHolder.class);
+
+        collection.insert(resolver);
+        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(2); // actually 3, playlist filered
+
+        List<Like> likes = new ArrayList<Like>();
+        while (c.moveToNext()) {
+            Like like = new Like(c);
+            likes.add(like);
         }
 
-        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(15);
+        expect(likes.get(0).getTrack().title).toEqual("freddie evans at Excel Exhibition Centre");
+        expect(likes.get(1).getTrack().title).toEqual("sing-a-long time at London 2012 Live Site - Hyde Park");
+    }
 
-        resolver.delete(Content.ME_LIKES.uri, DBHelper.CollectionItems.ITEM_ID + " = ?",
-                new String[]{String.valueOf(tracks.get(0).id)});
+    @Test
+    public void shouldInsertQueryAndDeleteLikes() throws Exception {
+        SoundAssociationHolder collection = AndroidCloudAPI.Mapper.readValue(
+                ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
+                SoundAssociationHolder.class);
+
+        collection.insert(resolver);
+
+        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(2);
+
+        List<Like> likes = new ArrayList<Like>();
+        while (c.moveToNext()) {
+            Like like = new Like(c);
+            likes.add(like);
+        }
+        expect(resolver.delete(Content.ME_LIKES.uri, DBHelper.CollectionItems.ITEM_ID + " = ?",
+                new String[]{String.valueOf(likes.get(0).getTrack().id)})).toEqual(1);
 
         c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(14);
+        expect(c.getCount()).toEqual(1);
     }
 
     @Test

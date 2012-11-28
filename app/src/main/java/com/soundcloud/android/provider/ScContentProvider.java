@@ -10,6 +10,7 @@ import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
 import android.app.SearchManager;
@@ -108,17 +109,21 @@ public class ScContentProvider extends ContentProvider {
                 if (_columns == null) _columns = formatWithUser(fullSoundAssociationColumns, userId);
                 makeSoundAssociationSelection(qb, String.valueOf(userId),
                         new int[]{CollectionItemTypes.TRACK, CollectionItemTypes.REPOST});
-                makeCollectionSort(uri, "");// send empty string instead of null, we want the default order
+                _sortOrder = makeCollectionSort(uri, DBHelper.CollectionItems.POSITION + " DESC");
 
                 break;
 
             case ME_TRACKS:
             case ME_LIKES:
             case ME_REPOSTS:
-                qb.setTables(makeCollectionJoin(Table.SOUND_VIEW));
-                if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
-                makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
-                _sortOrder = makeCollectionSort(uri, sortOrder);
+                qb.setTables(makeCollectionJoin(Table.SOUND_ASSOCIATION_VIEW));
+                if (_columns == null) _columns = formatWithUser(fullSoundAssociationColumns, userId);
+
+                makeSoundAssociationSelection(qb, String.valueOf(userId),
+                        new int[]{content.collectionType});
+
+                _sortOrder = makeCollectionSort(uri, DBHelper.CollectionItems.POSITION + " DESC");
+
                 if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
                     qb.appendWhere(" AND "+ DBHelper.SoundView.CACHED + "= 1");
                 }
@@ -749,12 +754,12 @@ public class ScContentProvider extends ContentProvider {
         }
     }
 
-    static String makeCollectionSort(Uri uri, String sortCol) {
+    static String makeCollectionSort(Uri uri, @Nullable String sortCol) {
         StringBuilder b = new StringBuilder();
         if ("1".equals(uri.getQueryParameter(Parameter.RANDOM))) {
             b.append("RANDOM()");
         }  else {
-            b.append(sortCol == null ? DBHelper.CollectionItems.POSITION : sortCol);
+            b.append(TextUtils.isEmpty(sortCol) ? DBHelper.CollectionItems.POSITION : sortCol);
         }
         String limit = uri.getQueryParameter(Parameter.LIMIT);
         if (!TextUtils.isEmpty(limit)) b.append(" LIMIT ").append(limit);
