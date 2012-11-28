@@ -31,14 +31,14 @@ public class ConnectionTest {
         Connection[] connections = AndroidCloudAPI.Mapper
                 .readValue(ApiSyncerTest.class.getResourceAsStream("connections.json"), Connection[].class);
         expect(connections).not.toBeNull();
-        expect(connections.length).toEqual(6);
+        expect(connections.length).toEqual(4);
         Connection c = connections[0];
 
         ContentValues[] values = new ContentValues[connections.length];
         for ( int i = 0; i < connections.length; i++){
             values[i] = connections[i].buildContentValues();
         }
-        expect(DefaultTestRunner.application.getContentResolver().bulkInsert(Content.ME_CONNECTIONS.uri, values)).toEqual(6);
+        expect(DefaultTestRunner.application.getContentResolver().bulkInsert(Content.ME_CONNECTIONS.uri, values)).toEqual(connections.length);
 
         final Cursor cursor = DefaultTestRunner.application.getContentResolver().query(Content.ME_CONNECTIONS.forId(c.id), null, null, null, null);
         expect(cursor.moveToFirst()).toBeTrue();
