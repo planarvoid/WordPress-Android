@@ -136,7 +136,6 @@ public class ScListFragment extends SherlockListFragment
         if (getListAdapter() == null && mContent != null) {
             switch (mContent) {
                 case ME_SOUND_STREAM:
-                case ME_EXCLUSIVE_STREAM:
                 case ME_ACTIVITIES:
                     adapter = new ActivityAdapter(getActivity(), mContentUri);
                     break;

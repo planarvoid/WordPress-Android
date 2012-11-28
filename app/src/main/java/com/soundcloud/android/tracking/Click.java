@@ -24,7 +24,6 @@ public enum Click implements Event {
 
     Stream_main_stream_setting      ("Stream_main", "stream_setting",        Type.action, Level2.Stream),
     Stream_box_stream_all_tracks    ("Stream_box",  "stream_all_tracks",     Type.action, Level2.Stream),
-    Stream_box_stream_only_Exclusive("Stream_box",  "stream_only_exclusive", Type.action, Level2.Stream),
     Stream_box_stream_cancel        ("Stream_box",  "stream_cancel",         Type.action, Level2.Stream),
 
     // New recording keys

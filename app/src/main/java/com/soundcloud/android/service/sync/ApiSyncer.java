@@ -76,7 +76,6 @@ public class ApiSyncer {
                     break;
                 case ME_ALL_ACTIVITIES:
                 case ME_ACTIVITIES:
-                case ME_EXCLUSIVE_STREAM:
                 case ME_SOUND_STREAM:
                     result = syncActivities(uri, action);
                     result.success = true;
