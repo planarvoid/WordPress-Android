@@ -54,9 +54,7 @@
                 <com.soundcloud.android.view.ClearText android:id="@+id/txt_username"
                                                        android:hint="@string/authentication_add_info_username_hint"
                                                        style="@style/SignUp.TextEntry"
-                                                       android:imeOptions="actionDone">
-                    <requestFocus/>
-                </com.soundcloud.android.view.ClearText>
+                                                       android:imeOptions="actionDone"/>
             </TableRow>
         </TableLayout>
 
