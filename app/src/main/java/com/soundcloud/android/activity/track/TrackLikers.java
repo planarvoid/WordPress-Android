@@ -11,7 +11,7 @@ public class TrackLikers extends TrackInfoCollection {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().setTitle(R.string.list_header_track_likers);
+        setTitle(R.string.list_header_track_likers);
     }
 
     @Override

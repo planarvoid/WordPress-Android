@@ -1,16 +1,10 @@
 package com.soundcloud.android.model;
 
-import android.content.ContentValues;
-import android.net.Uri;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.net.Uri;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -25,6 +19,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = SoundAssociation.class, name = "stream_item"),
         @JsonSubTypes.Type(value = Shortcut.class, name = "shortcut"),
         @JsonSubTypes.Type(value = Connection.class, name = "connection"),
+        @JsonSubTypes.Type(value = Like.class, name = "like"),
         @JsonSubTypes.Type(value = Friend.class, name = "friend")})
 public abstract class ScResource extends ScModel {
 

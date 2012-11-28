@@ -27,24 +27,32 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
         return users;
     }
 
+    public Set<Track> getTracks() {
+        Set<Track> tracks = new HashSet<Track>();
+        for (SoundAssociation a : this)  {
+            if (a.getTrack() != null) tracks.add(a.getTrack());
+        }
+        return tracks;
+    }
+
     public int insert(ContentResolver resolver) {
-        List<ContentValues> sounds = new ArrayList<ContentValues>();
+        List<ContentValues> tracks = new ArrayList<ContentValues>();
         List<ContentValues> users = new ArrayList<ContentValues>();
         List<ContentValues> items = new ArrayList<ContentValues>();
 
         for (SoundAssociation a : this) {
-            if (a.getTrack() != null) {
-                sounds.add(a.getTrack().buildContentValues());
-            }
             items.add(a.buildContentValues());
         }
         for (User u : getUsers()) {
             users.add(u.buildContentValues());
         }
+        for (Track t : getTracks()) {
+            tracks.add(t.buildContentValues());
+        }
 
         int inserted = 0;
-        if (!sounds.isEmpty()) {
-            inserted += resolver.bulkInsert(Content.TRACKS.uri, sounds.toArray(new ContentValues[sounds.size()]));
+        if (!tracks.isEmpty()) {
+            inserted += resolver.bulkInsert(Content.TRACKS.uri, tracks.toArray(new ContentValues[tracks.size()]));
         }
         if (!users.isEmpty())  {
             inserted += resolver.bulkInsert(Content.USERS.uri, users.toArray(new ContentValues[users.size()]));

@@ -351,8 +351,9 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     private void setIcon(SearchTag tag, String iconUri, boolean isUser) {
         if (ImageUtils.checkIconShouldLoad(iconUri)) {
-            ImageLoader.BindResult result = mImageLoader.bind(this, tag.iv_icon,
-                    GraphicSize.formatUriForSearchSuggestionsList(mContext, iconUri)
+            ImageLoader.BindResult result = mImageLoader.bind(tag.iv_icon,
+                    GraphicSize.formatUriForSearchSuggestionsList(mContext, iconUri),
+                    null
             );
             if (result == ImageLoader.BindResult.OK) return;
         } else {
@@ -371,6 +372,11 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private Spanned highlight(String original) {
         final SpannableString s = new SpannableString(original);
         Matcher m = mCurrentPattern.matcher(original);
+
+        s.setSpan(new ForegroundColorSpan(0xFF666666),
+                0, s.length(),
+                Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+
         if (m.find()) {
             s.setSpan(new ForegroundColorSpan(Color.WHITE),
                     m.start(2), m.end(2),

@@ -180,7 +180,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mAssociationManager = new AssociationManager(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
-
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(TOGGLEPAUSE_ACTION);
         commandFilter.addAction(PAUSE_ACTION);

@@ -306,7 +306,7 @@ public class UploadService extends Service {
         String message = getString(R.string.cloud_uploader_notification_transcoding_error_message, track.title);
         String tickerText = getString(R.string.cloud_uploader_notification_transcoding_error_ticker);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(Actions.MY_PROFILE).putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks),
+                new Intent(Actions.YOUR_SOUNDS),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification notification = new Notification(R.drawable.ic_notification_cloud, tickerText, System.currentTimeMillis());
@@ -494,8 +494,7 @@ public class UploadService extends Service {
             message = getString(R.string.cloud_uploader_notification_finished_message, recording.title);
             tickerText = getString(R.string.cloud_uploader_notification_finished_ticker);
             contentIntent = PendingIntent.getActivity(this, 0,
-                    new Intent(Actions.MY_PROFILE).putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks),
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                    new Intent(Actions.YOUR_SOUNDS),PendingIntent.FLAG_UPDATE_CURRENT);
 
         } else if (recording.isError()) {
             title = getString(R.string.cloud_uploader_notification_error_title);

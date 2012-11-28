@@ -2,7 +2,6 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.cache.UserCache;
 import com.soundcloud.android.model.act.Activities;
@@ -49,18 +48,6 @@ public class ScModelManager {
         mMapper = mapper;
     }
 
-    private User getLoggedInUser() {
-        User user = getUser(SoundCloudApplication.getUserId());
-        if (user != null){
-            return user;
-        } else {
-            user = new User();
-            user.id = SoundCloudApplication.getUserId();
-            return (User) cache(user);
-        }
-
-    }
-
     public Activity getActivityFromCursor(Cursor cursor){
         Activity a = Activity.Type.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE))).fromCursor(cursor);
         if (a != null) {
@@ -83,8 +70,8 @@ public class ScModelManager {
     public Activities getActivitiesFromJson(InputStream is) throws IOException {
         Activities activities = mMapper.readValue(is, Activities.class);
         for (Activity a : activities) {
-            a.setCachedTrack(SoundCloudApplication.MODEL_MANAGER.cache(a.getTrack(), ScResource.CacheUpdateMode.MINI));
-            a.setCachedUser(SoundCloudApplication.MODEL_MANAGER.cache(a.getUser(), ScResource.CacheUpdateMode.MINI));
+            a.setCachedTrack(cache(a.getTrack(), ScResource.CacheUpdateMode.MINI));
+            a.setCachedUser(cache(a.getUser(), ScResource.CacheUpdateMode.MINI));
         }
         return activities;
     }
@@ -240,15 +227,6 @@ public class ScModelManager {
         return u;
     }
 
-    public ScResource getCachedModel(Class<? extends ScResource> modelClass, long id) {
-        if (Track.class.equals(modelClass)) {
-            return getCachedTrack(id);
-        } else if (User.class.equals(modelClass)) {
-            return getCachedUser(id);
-        }
-        return null;
-    }
-
     public Track getCachedTrack(long id) {
         return mTrackCache.get(id);
     }
@@ -354,7 +332,7 @@ public class ScModelManager {
         return user;
     }
 
-    private static List<ScResource> doBatchLookup(AndroidCloudAPI api, List<Long> ids, String path) throws IOException {
+    private List<ScResource> doBatchLookup(AndroidCloudAPI api, List<Long> ids, String path) throws IOException {
         List<ScResource> resources = new ArrayList<ScResource>();
         int i = 0;
         while (i < ids.size()) {
@@ -366,7 +344,7 @@ public class ScModelManager {
                                     .add("limit", API_LOOKUP_BATCH_SIZE)
                                     .add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
 
-            resources.addAll(SoundCloudApplication.MODEL_MANAGER.getCollectionFromStream(is).collection);
+            resources.addAll(getCollectionFromStream(is).collection);
 
             i += API_LOOKUP_BATCH_SIZE;
         }

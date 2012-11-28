@@ -2,6 +2,7 @@ package com.soundcloud.android.activity;
 
 import static com.actionbarsherlock.internal.view.menu.ActionMenuView.OnClickListener;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.internal.view.menu.ActionMenuView;
 import com.actionbarsherlock.view.Menu;
@@ -42,6 +43,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
@@ -58,6 +60,7 @@ import android.view.WindowManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
@@ -72,6 +75,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private boolean mIsForeground, mInSearchMode;
 
     private NowPlayingIndicator mNowPlaying;
+    private View mMenuIndicator;
     private SuggestionsAdapter mSuggestionsAdapter;
     private View mActionBarCustomView;
     private ViewGroup mSearchCustomView;
@@ -165,6 +169,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         layout.setBackgroundDrawable(getWindow().getDecorView().getBackground());
         layout.setDrawingCacheBackgroundColor(Color.WHITE);
         mRootView.setContent(layout);
+    }
+
+    @Override
+    protected void onTitleChanged(CharSequence title, int color) {
+        super.onTitleChanged(title, color);
+        ((TextView) getDefaultCustomView().findViewById(R.id.title)).setText(title);
     }
 
     @Override
@@ -476,6 +486,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onMenuOpenLeft() {
+        if (mMenuIndicator != null) mMenuIndicator.setVisibility(View.GONE);
     }
 
     @Override
@@ -484,6 +495,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onMenuClosed() {
+        if (mMenuIndicator != null) mMenuIndicator.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -506,15 +518,14 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
      */
 
     private void configureCustomView(){
-        if (getSupportActionBar() != null){
-            getSupportActionBar().setCustomView(mInSearchMode ? getSearchCustomView() : getDefaultCustomView());
-        }
+        getSupportActionBar().setCustomView(mInSearchMode ? getSearchCustomView() : getDefaultCustomView(),
+                new ActionBar.LayoutParams(Gravity.FILL_HORIZONTAL));
     }
 
     private View getDefaultCustomView() {
         if (mActionBarCustomView == null) {
             final boolean inPlayer = (this instanceof ScPlayer);
-            mActionBarCustomView = View.inflate(this, inPlayer ? R.layout.action_bar_custom_logo : R.layout.action_bar_custom_view, null);
+            mActionBarCustomView = View.inflate(this, R.layout.action_bar_custom_view, null);
             mActionBarCustomView.findViewById(R.id.custom_home).setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -529,7 +540,10 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         goToPlayer();
                     }
                 });
+            } else {
+                mActionBarCustomView.findViewById(R.id.waveform_progress).setVisibility(View.GONE);
             }
+            mMenuIndicator = mActionBarCustomView.findViewById(R.id.custom_up);
         }
         return mActionBarCustomView;
     }
@@ -560,14 +574,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         mInSearchMode = !mInSearchMode;
         configureCustomView();
         invalidateOptionsMenu();
-
-        if (useFullScreenSearch()) {
-            if (!mInSearchMode) {
-                mRootView.unBlock();
-            } else {
-                mRootView.block();
-            }
-        }
     }
 
     private void closeSearch() {
@@ -598,25 +604,25 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         /* find and configure the search autocompletetextview */
         // actionbarsherlock view
-        AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
+        final AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
         if (search_text != null) {
             if (useFullScreenSearch()) {
                 // on a normal size device, use the whole action bar
-                final int identifier = getResources().getIdentifier("action_bar", "id", "android");
+                final int identifier = getResources().getIdentifier("action_bar_container", "id", "android");
                 if (findViewById(identifier) != null) {
                     // native action bar (>= Honeycomb)
                     search_text.setDropDownAnchor(identifier);
-                } else if (findViewById(R.id.abs__action_bar) != null) {
+                } else if (findViewById(R.id.abs__action_bar_container) != null) {
                     // abs action bar (< Honeycomb)
-                    search_text.setDropDownAnchor(R.id.abs__action_bar);
+                    search_text.setDropDownAnchor(R.id.abs__action_bar_container);
                 }
                 search_text.setDropDownWidth(ViewGroup.LayoutParams.FILL_PARENT);
+
             } else {
                 // on a large screen device, just anchor to the search bar itself
                 if (findViewById(R.id.abs__search_bar) != null) search_text.setDropDownAnchor(R.id.abs__search_bar);
                 search_text.setDropDownWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
             }
-
         }
 
 
@@ -640,6 +646,36 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                 return true;
             }
         });
+
+        // listeners for showing and hiding the content blocker
+        if (useFullScreenSearch()) {
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    mRootView.unBlock();
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    if (TextUtils.isEmpty(newText)) mRootView.unBlock();
+                    return false;
+                }
+            });
+            if (search_text != null) {
+                mSuggestionsAdapter.registerDataSetObserver(new DataSetObserver() {
+                    @Override
+                    public void onChanged() {
+                        if (mSuggestionsAdapter.getCount() > 0 && !TextUtils.isEmpty(search_text.getText())) {
+                            mRootView.block();
+                        } else {
+                            mRootView.unBlock();
+                        }
+                    }
+                });
+            }
+        }
+
     }
 
     private final BroadcastReceiver mGeneralIntentListener = new BroadcastReceiver() {

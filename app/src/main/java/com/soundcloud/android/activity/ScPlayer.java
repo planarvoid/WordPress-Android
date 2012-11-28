@@ -69,6 +69,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         setContentView(R.layout.sc_player);
+        setTitle("");
 
         mContainer = (RelativeLayout) findViewById(R.id.container);
         mTrackPager = (PlayerTrackPager) findViewById(R.id.track_view);

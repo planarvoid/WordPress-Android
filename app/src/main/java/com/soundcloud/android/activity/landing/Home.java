@@ -35,7 +35,7 @@ public class Home extends ScActivity implements ScLandingPage {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-
+        setTitle(getString(R.string.side_menu_stream));
         mChangeLog = new ChangeLog(this);
 
         final SoundCloudApplication app = getApp();

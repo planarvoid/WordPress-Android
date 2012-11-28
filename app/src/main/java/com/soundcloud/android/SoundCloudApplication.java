@@ -140,9 +140,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
 
         unseenActivities.put(Content.ME_SOUND_STREAM, Activities.getCountSince(getContentResolver(),
-                getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN),Content.ME_SOUND_STREAM));
+                0,Content.ME_SOUND_STREAM));
         unseenActivities.put(Content.ME_ACTIVITIES, Activities.getCountSince(getContentResolver(),
-                getAccountDataLong(User.DataKeys.LAST_OWN_SEEN), Content.ME_ACTIVITIES));
+                0, Content.ME_ACTIVITIES));
 
 //        setupStrictMode();
 

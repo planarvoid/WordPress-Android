@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity.landing;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
@@ -21,7 +22,7 @@ public class FriendFinder extends ScActivity implements ScLandingPage {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        getSupportActionBar().setTitle(getString(R.string.side_menu_friend_finder));
+        setTitle(getString(R.string.side_menu_friend_finder));
 
         if (state == null) {
             mFragment = FriendFinderFragment.newInstance(getApp());

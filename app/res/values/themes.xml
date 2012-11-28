@@ -7,6 +7,9 @@
         <item name="actionBarItemBackground">@drawable/action_bar_item_selector</item>
         <item name="android:actionBarItemBackground">@drawable/action_bar_item_selector</item>
 
+        <item name="android:windowAnimationStyle">@style/Theme.Next.Animation.Activity</item>
+        <item name="android:popupAnimationStyle">@style/Theme.Next.Animation.Popup</item>
+
         <item name="popupMenuStyle">@style/next_PopupMenu</item>
         <item name="android:popupMenuStyle">@style/next_PopupMenu</item>
 
@@ -60,11 +63,25 @@
     <style name="Theme.ScAuth" parent="Theme.Next.NoActionBar">
         <item name="android:buttonStyle">@style/btn_default</item>
         <item name="android:windowBackground">@color/darkBg</item>
-        <item name="android:windowSoftInputMode">adjustResize</item>
     </style>
 
     <style name="Theme.ScCreate" parent="Theme.Next">
         <item name="android:windowBackground">@drawable/bg_rec</item>
+    </style>
+
+    <style name="Theme.Next.Animation.Popup">
+        <item name="@android:windowEnterAnimation">@anim/fade_in</item>
+        <item name="@android:windowExitAnimation">@anim/fade_out</item>
+    </style>
+
+    <style name="Theme.Next.Animation">
+    </style>
+
+    <style name="Theme.Next.Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/activity_open_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/activity_open_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/activity_close_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/activity_close_exit</item>
     </style>
 
     <!-- ****** ActionBar ****** -->
@@ -77,12 +94,18 @@
     </style>
 
     <style name="next_PopupMenu" parent="@style/Widget.Sherlock.ListPopupWindow">
-        <!-- keep for now -->
+
     </style>
 
     <style name="next_DropDownListView" parent="@style/Widget.Sherlock.ListView.DropDown">
         <item name="android:paddingTop">1dp</item>
         <item name="android:paddingBottom">1dp</item>
+        <item name="android:cacheColorHint">#222222</item>
+        <item name="android:headerDividersEnabled">true</item>
+        <item name="android:footerDividersEnabled">true</item>
+        <item name="android:dividerHeight">1px</item>
+        <item name="android:divider">#333333</item>
+        <item name="android:popupAnimationStyle">@anim/fade_in</item>
     </style>
 
     <style name="next_ActionBarTabStyle" parent="@style/Widget.Sherlock.ActionBar.TabView">

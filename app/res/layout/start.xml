@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent">
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:layout_width="fill_parent"
                   android:layout_height="fill_parent"
@@ -12,9 +12,11 @@
                                                         android:layout_height="fill_parent"/>
     </LinearLayout>
 
-    <LinearLayout android:layout_width="fill_parent"
+    <LinearLayout android:id="@+id/tour_bottom_bar"
+                  android:layout_width="fill_parent"
                   android:layout_height="@dimen/tour_bottom_bar_height"
                   android:orientation="vertical"
+                  android:tag="foreground"
                   android:layout_alignParentBottom="true"
 
                   android:layout_margin="10dp">
@@ -22,4 +24,14 @@
         <include layout="@layout/tour_radio_group"/>
         <include layout="@layout/tour_buttons"/>
     </LinearLayout>
+
+    <ViewStub android:id="@+id/login_stub"
+              android:layout="@layout/login"
+               android:layout_width="fill_parent"
+              android:layout_height="fill_parent"/>
+
+    <ViewStub android:id="@+id/sign_up_stub"
+              android:layout="@layout/signup"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"/>
 </RelativeLayout>

@@ -1,9 +1,14 @@
 package com.soundcloud.android;
 
-import android.content.Intent;
-
 public final class Actions {
     // public intent API (do not change)
+    public static final String WHO_TO_FOLLOW    = "com.soundcloud.android.action.WHO_TO_FOLLOW";
+    public static final String FRIEND_FINDER    = "com.soundcloud.android.action.FRIEND_FINDER";
+    public static final String YOU              = "com.soundcloud.android.action.YOU";
+    public static final String YOUR_SOUNDS      = "com.soundcloud.android.action.YOUR_SOUNDS";
+    public static final String YOUR_LIKES       = "com.soundcloud.android.action.YOUR_LIKES";
+    public static final String YOUR_FOLLOWINGS  = "com.soundcloud.android.action.YOUR_FOLLOWINGS";
+    public static final String YOUR_FOLLOWERS   = "com.soundcloud.android.action.YOUR_FOLLOWERS";
     public static final String RECORD       = "com.soundcloud.android.action.RECORD";
     public static final String RECORD_START = "com.soundcloud.android.action.RECORD_START";
     public static final String RECORD_STOP  = "com.soundcloud.android.action.RECORD_STOP";
@@ -12,15 +17,10 @@ public final class Actions {
     public static final String SEARCH       = "com.soundcloud.android.action.SEARCH";
     public static final String PLAY         = "com.soundcloud.android.action.PLAY";
     public static final String PLAYER       = "com.soundcloud.android.action.PLAYER";
-    public static final String MY_PROFILE   = "com.soundcloud.android.action.MY_PROFILE";
     public static final String SHARE        = "com.soundcloud.android.SHARE";
     public static final String EDIT         = "com.soundcloud.android.EDIT";
     public static final String ACCOUNT_PREF = "com.soundcloud.android.action.ACCOUNT_PREF";
     public static final String USER_BROWSER = "com.soundcloud.android.action.USER_BROWSER";
-
-    public static final String RECORDING_PROCESS   = "com.soundcloud.android.recording.PROCESS";
-    public static final String RECORDING_EXTRA_IN  = "com.soundcloud.android.recording.extra.in";
-    public static final String RECORDING_EXTRA_OUT = "com.soundcloud.android.recording.extra.out";
 
     public static final String UPLOAD_EXTRA_UPLOADING = "com.soundcloud.android.upload.uploading";
 

@@ -12,6 +12,7 @@ public interface TempEndpoints {
         String USER_REPOSTS      = "/e1/users/%d/reposts";
         String MY_SOUNDS         = "/e1/me/sounds";
         String MY_SOUNDS_MINI    = "/e1/me/sounds/mini";
+        String MY_LIKES          = "/e1/me/likes";
         String USER_SOUNDS       = "/e1/users/%d/sounds";
         String TRACK_REPOSTERS   = "/e1/tracks/%d/reposters";
     }

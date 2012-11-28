@@ -1,10 +1,19 @@
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.activity.landing.FriendFinder;
+import com.soundcloud.android.activity.landing.You;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -107,9 +116,10 @@ public class EmptyCollection extends FrameLayout {
         return this;
     }
 
-    public void setMessageText(String s) {
+    public EmptyCollection setMessageText(String s) {
         mTxtMessage.setText(s);
         mTxtMessage.setVisibility(View.VISIBLE);
+        return this;
     }
 
     public EmptyCollection setSecondaryText(int secondaryTextId){
@@ -155,22 +165,62 @@ public class EmptyCollection extends FrameLayout {
         void onSecondaryAction();
     }
 
-    public static EmptyCollection fromContent(Context context, Content content) {
+    public static EmptyCollection fromContent(final Context context, final Content content) {
         switch (content) {
-            case ME_LIKES:
-                return new EmptyCollection(context).setMessageText(R.string.list_empty_user_following_message)
-                        .setActionText(R.string.list_empty_user_following_action)
-                        .setImage(R.drawable.empty_follow_3row)
-                        .setButtonActionListener(new EmptyCollection.ActionListener() {
-                            @Override
-                            public void onAction() {
-                                // go to friend finder
-                            }
+            case ME_SOUND_STREAM:
+                return new EmptyCollection(context).setMessageText(R.string.list_empty_stream_message)
+                                        .setImage(R.drawable.empty_follow)
+                                        .setActionText(R.string.list_empty_stream_action)
+                                        .setSecondaryText(R.string.list_empty_stream_secondary)
+                                        .setButtonActionListener(new EmptyCollection.ActionListener() {
+                                            @Override
+                                            public void onAction() {
+                                                context.startActivity(new Intent(Actions.FRIEND_FINDER));
+                                            }
 
-                            @Override
-                            public void onSecondaryAction() {
-                            }
-                        });
+                                            @Override
+                                            public void onSecondaryAction() {
+                                                context.startActivity(new Intent(Actions.FRIEND_FINDER));
+                                            }
+                                        });
+            case ME_ACTIVITIES:
+                User loggedInUser = SoundCloudApplication.fromContext(context).getLoggedInUser();
+                if (loggedInUser == null || loggedInUser.track_count > 0) {
+                                   return new EmptyCollection(context).setMessageText(R.string.list_empty_activity_message)
+                                           .setImage(R.drawable.empty_share)
+                                           .setActionText(R.string.list_empty_activity_action)
+                                           .setSecondaryText(R.string.list_empty_activity_secondary)
+                                           .setButtonActionListener(new EmptyCollection.ActionListener() {
+                                               @Override
+                                               public void onAction() {
+                                                   context.startActivity(new Intent(Actions.YOUR_SOUNDS));
+                                               }
+
+                                               @Override
+                                               public void onSecondaryAction() {
+                                                   goTo101s(context);
+                                               }
+                                           });
+                               } else {
+                                   final EmptyCollection.ActionListener record = new EmptyCollection.ActionListener() {
+                                       @Override
+                                       public void onAction() {
+                                           context.startActivity(new Intent(Actions.RECORD));
+                                       }
+
+                                       @Override
+                                       public void onSecondaryAction() {
+                                           goTo101s(context);
+                                       }
+                                   };
+
+                                   return new EmptyCollection(context).setMessageText(R.string.list_empty_activity_nosounds_message)
+                                           .setImage(R.drawable.empty_rec)
+                                           .setActionText(R.string.list_empty_activity_nosounds_action)
+                                           .setSecondaryText(R.string.list_empty_activity_nosounds_secondary)
+                                           .setButtonActionListener(record)
+                                           .setImageActionListener(record);
+                               }
 
             case ME_FRIENDS:
                 return new FriendFinderEmptyCollection(context).setMessageText(R.string.list_empty_user_following_message)
@@ -180,6 +230,10 @@ public class EmptyCollection extends FrameLayout {
             default:
                 return new EmptyCollection(context);
         }
+    }
+
+    private static void goTo101s(Context context){
+        context.startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101")));
     }
 
 }

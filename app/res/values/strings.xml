@@ -62,16 +62,21 @@
 
     <string name="started_following_you">started following you</string>
 
-    <string name="tour_title_1">Welcome to SoundCloud!</string>
-    <string name="tour_text_1">Get ready to discover, connect and share all kinds of music and audio.</string>
+    <string name="tour_title_1">Hear the world\'s sounds</string>
+    <string name="tour_text_1">Explore the largest community\nof artists, bands, podcasters and\ncreators of music &amp; audio</string>
 
-    <string name="tour_title_2">Discover &amp; Listen</string>
-    <string name="tour_text_2">Use the search to explore and discover all kinds of music and audio. Like favorites so you can easily play them again.</string>
+    <string name="tour_title_2">Discover</string>
+    <string name="tour_text_2">All kinds of new and\nunique music &amp; audio</string>
 
-    <string name="tour_title_3">Find and follow people</string>
-    <string name="tour_text_3">Connect with music and audio creators to hear their sounds.</string>
+    <string name="tour_title_3">Connect &amp; Share</string>
+    <string name="tour_text_3">Find followers and\nlet them hear the\nsounds you love</string>
 
     <string name="search_for_query">Search for \'%s\'</string>
     <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link that\'ll allow you to change your password. Problems? Contact support.</string>
+    <string name="done">Done</string>
+    <string name="tour_signup_header">Sign up with your account</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="tour_login_header">Log in with your account</string>
 
 </resources>
