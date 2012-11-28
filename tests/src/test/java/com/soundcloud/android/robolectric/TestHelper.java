@@ -3,6 +3,9 @@ package com.soundcloud.android.robolectric;
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.*;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.Robolectric;
@@ -28,6 +31,14 @@ import java.util.Set;
 
 public class TestHelper {
     private TestHelper() {}
+
+
+    public static <T> T readJson(Class<T> klazz, String path) throws IOException {
+        InputStream is = TestHelper.class.getResourceAsStream(path);
+        expect(is).not.toBeNull();
+        return AndroidCloudAPI.Mapper.readValue(is, klazz);
+    }
+
 
     // TODO: rename to addPendingHttpResponse
     public static void addCannedResponses(Class klazz, String... resources) throws IOException {

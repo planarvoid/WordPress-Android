@@ -4,13 +4,14 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.provider.ScContentProvider.Parameter.CACHED;
 import static com.soundcloud.android.provider.ScContentProvider.Parameter.LIMIT;
 import static com.soundcloud.android.provider.ScContentProvider.Parameter.RANDOM;
+import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Like;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Shortcut;
+import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackHolder;
@@ -20,7 +21,6 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
-import com.soundcloud.android.service.sync.ApiSyncerTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,9 +64,8 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldInsertAndQueryLikes() throws Exception {
-        SoundAssociationHolder collection  = AndroidCloudAPI.Mapper.readValue(
-                ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
-                SoundAssociationHolder.class);
+        SoundAssociationHolder collection = readJson(SoundAssociationHolder.class,
+                "/com/soundcloud/android/service/sync/e1_likes.json");
 
         collection.insert(resolver);
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
@@ -84,11 +83,10 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldInsertQueryAndDeleteLikes() throws Exception {
-        SoundAssociationHolder collection = AndroidCloudAPI.Mapper.readValue(
-                ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
-                SoundAssociationHolder.class);
+        SoundAssociationHolder collection = readJson(SoundAssociationHolder.class,
+                "/com/soundcloud/android/service/sync/e1_likes.json");
 
-        collection.insert(resolver);
+        expect(collection.insert(resolver)).toEqual(4);
 
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(2);
@@ -106,10 +104,27 @@ public class ScContentProviderTest {
     }
 
     @Test
+    public void shouldQuerySounds() throws Exception {
+        SoundAssociationHolder collection = readJson(SoundAssociationHolder.class,
+                "/com/soundcloud/android/provider/e1_sounds.json");
+
+        expect(collection.insert(resolver)).toEqual(51);
+        Cursor c = resolver.query(Content.ME_SOUNDS.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(50);
+
+        List<SoundAssociation> associations = new ArrayList<SoundAssociation>();
+        while (c.moveToNext()) {
+            associations.add(new SoundAssociation(c));
+        }
+        expect(associations).toNumber(50);
+
+        expect(associations.get(0).getTrack().title).toEqual("A trimmed test upload");
+        expect(associations.get(1).getTrack().title).toEqual("A faded + trimmed test upload");
+    }
+
+    @Test
     public void shouldCleanup() throws Exception {
-        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("user_favorites.json"),
-                TrackHolder.class);
+        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
@@ -119,9 +134,7 @@ public class ScContentProviderTest {
         expect(resolver.query(Content.TRACKS.uri, null, null, null, null).getCount()).toEqual(15);
         expect(resolver.query(Content.USERS.uri, null, null, null, null).getCount()).toEqual(14);
 
-        tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("tracks.json"),
-                TrackHolder.class);
+        tracks = readJson(TrackHolder.class, "/com/soundcloud/android/provider/tracks.json");
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
@@ -137,7 +150,6 @@ public class ScContentProviderTest {
         resolver.update(Content.USERS_CLEANUP.uri, null, null, null);
         expect(resolver.query(Content.USERS.uri, null, null, null, null).getCount()).toEqual(14);
     }
-
 
     @Test
     public void shouldIncludeUserPermalinkInTrackView() throws Exception {
@@ -161,8 +173,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldSupportAndroidGlobalSearch() throws Exception {
-        Shortcut[] shortcuts = AndroidCloudAPI.Mapper.readValue(ApiSyncerTest.class.getResourceAsStream("all_shortcuts.json"),
-                Shortcut[].class);
+        Shortcut[] shortcuts = readJson(Shortcut[].class, "/com/soundcloud/android/service/sync/all_shortcuts.json");
 
         List<ContentValues> cvs = new ArrayList<ContentValues>();
         for (Shortcut shortcut : shortcuts) {
@@ -238,9 +249,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveATracksEndpointWithRandom() throws Exception {
-        CollectionHolder<Track> tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("user_favorites.json"),
-                TrackHolder.class);
+        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
@@ -263,10 +272,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveATracksEndpointWhichReturnsOnlyCachedItems() throws Exception {
-        CollectionHolder<Track> tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("user_favorites.json"),
-                TrackHolder.class);
-
+        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
             expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();
@@ -309,9 +315,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveFavoriteEndpointWhichReturnsRandomItems() throws Exception {
-        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("user_favorites.json"),
-                TrackHolder.class);
+        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
@@ -421,8 +425,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldBulkInsertSuggestions() throws Exception {
-        Shortcut[] shortcuts = AndroidCloudAPI.Mapper.readValue(ApiSyncerTest.class.getResourceAsStream("all_shortcuts.json"),
-                Shortcut[].class);
+        Shortcut[] shortcuts = readJson(Shortcut[].class, "/com/soundcloud/android/service/sync/all_shortcuts.json");
 
         List<ContentValues> cvs = new ArrayList<ContentValues>();
         for (Shortcut shortcut : shortcuts) {
