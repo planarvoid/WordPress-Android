@@ -6,7 +6,9 @@ import android.content.DialogInterface;
 import android.net.Uri;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.view.ViewStub;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -18,6 +20,7 @@ import com.soundcloud.android.*;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.task.AddUserInfoTask;
 import com.soundcloud.android.task.GetTokensTask;
 import com.soundcloud.android.task.SignupTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
@@ -48,6 +51,7 @@ import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler, SignUpDetails.SignUpDetailsHandler {
 
+
     protected enum StartState {
         TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS;
     }
@@ -65,6 +69,8 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     public static final int THROTTLE_AFTER_ATTEMPT = 3;
 
     private StartState mState = StartState.TOUR;
+
+    @Nullable private User mUser;
 
     private View mTourBottomBar;
 
@@ -385,6 +391,8 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                     new GetTokensTask(mApi) {
                         @Override protected void onPostExecute(Token token) {
                             if (token != null) {
+                                mUser = user;
+
                                 setState(StartState.SIGN_UP_DETAILS);
 
 //                                Previously:
@@ -412,11 +420,38 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
     @Override
     public void onSubmitDetails(String username, File avatarFile) {
-        finish();
+        if (!TextUtils.isEmpty(username)) {
+            mUser.username  = username;
+            mUser.permalink = username;
+        }
+        new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
+            ProgressDialog dialog;
+            @Override protected void onPreExecute() {
+                dialog = AndroidUtils.showProgress(Start.this, R.string.authentication_add_info_progress_message);
+            }
+
+            @Override protected void onPostExecute(User user) {
+                if (!isFinishing()) {
+                    try {
+                        if (dialog != null) dialog.dismiss();
+                    } catch (IllegalArgumentException ignored) {
+                    }
+
+                    if (user != null) {
+                        startActivityForResult(new Intent(Start.this, Home.class), 0);
+                        finish();
+                    } else {
+                        presentError(getFirstError());
+                    }
+                }
+            }
+        }.execute(Pair.create(mUser, avatarFile));
+
     }
 
     @Override
     public void onSkipDetails() {
+        startActivityForResult(new Intent(Start.this, Home.class), 0);
         finish();
     }
 
