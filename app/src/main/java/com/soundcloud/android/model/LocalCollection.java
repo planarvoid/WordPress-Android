@@ -170,6 +170,7 @@ public class LocalCollection {
                 ", last_sync_attempt=" + last_sync_attempt +
                 ", last_sync_success=" + last_sync_success +
                 ", sync_state='" + sync_state + '\'' +
+                ", extra=" + extra +
                 ", size=" + size +
                 '}';
     }

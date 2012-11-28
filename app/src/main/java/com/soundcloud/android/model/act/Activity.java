@@ -46,7 +46,6 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = TrackSharingActivity.class, name = "track-sharing"),
         @JsonSubTypes.Type(value = CommentActivity.class, name = "comment")
 })
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class Activity extends ScModel implements Parcelable, Refreshable, Comparable<Activity> {
     @JsonProperty public String uuid;
@@ -139,7 +138,7 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         }
 
         if (getUser() != null) cv.put(DBHelper.Activities.USER_ID, getUser().id);
-        if (getTrack() != null) cv.put(DBHelper.Activities.TRACK_ID, getTrack().id);
+        if (getTrack() != null) cv.put(DBHelper.Activities.SOUND_ID, getTrack().id);
 
         return cv;
     }
@@ -233,13 +232,6 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
 
         return models;
     }
-
-//           TRACK("track", Track.class),
-//           TRACK_SHARING("track-sharing", TrackSharing.class),
-//           COMMENT("comment", Comment.class),
-//           FAVORITING("favoriting", Favoriting.class),
-//           PLAYLIST("playlist", Playlist.class);
-
 
     // todo : row types, upgrade DB
     public enum Type {

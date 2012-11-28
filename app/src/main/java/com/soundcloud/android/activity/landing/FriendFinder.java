@@ -23,7 +23,7 @@ public class FriendFinder extends ScActivity implements ScLandingPage {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        getSupportActionBar().setTitle(getString(R.string.side_menu_friend_finder));
+        setTitle(getString(R.string.side_menu_friend_finder));
 
         if (state == null) {
             mFragment = FriendFinderFragment.newInstance(getApp());

@@ -12,7 +12,7 @@ public class TrackComments extends TrackInfoCollection {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().setTitle(R.string.list_header_track_comments);
+        setTitle(R.string.list_header_track_comments);
     }
 
     @Override

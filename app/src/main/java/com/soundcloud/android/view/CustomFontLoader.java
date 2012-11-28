@@ -1,8 +1,12 @@
 package com.soundcloud.android.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Typeface;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.widget.TextView;
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,4 +39,15 @@ public class CustomFontLoader {
         }
     }
 
+    public static void applyCustomFont(Context context, TextView textView, AttributeSet attrs) {
+        TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.CustomFontTextView);
+        String path = array.getString(R.styleable.CustomFontTextView_custom_font);
+
+        if (path != null) {
+            Typeface typeface = CustomFontLoader.getFont(context, path);
+            textView.setTypeface(typeface);
+        }
+
+        array.recycle();
+    }
 }

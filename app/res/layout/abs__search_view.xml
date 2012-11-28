@@ -71,8 +71,7 @@
                 android:layout_marginLeft="@dimen/abs__dropdownitem_text_padding_left"
                 android:layout_gravity="center_vertical"
                 android:src="?attr/searchViewSearchIcon"
-                android:visibility="gone"
-                />
+                android:visibility="gone" />
 
         <!-- Inner layout contains the app icon, button(s) and EditText -->
         <LinearLayout
@@ -99,19 +98,20 @@
                   android:imeOptions="actionSearch"
                   android:dropDownHeight="wrap_content"
                   android:dropDownWidth="fill_parent"
-                  android:dropDownAnchor="@+id/abs__search_plate"
-                  android:dropDownVerticalOffset="5dip"
                   android:popupBackground="@drawable/search_drop_down_list_background"
                   android:iconifiedByDefault="false"
                   android:background="@null"
+                  android:textCursorDrawable="@drawable/white_cursor"
                   android:textColorHint="#666666"
-                  android:textCursorDrawable="@drawable/black_cursor"
+                  android:textColor="#FFFFFF"
                   android:dropDownHorizontalOffset="0dip"
+                  android:dropDownVerticalOffset="1dip"
                   android:contentDescription="@string/abs__searchview_description_query"/>
 
+            <!-- width = 0. mike only wants one clear button (in action bar), and we aren't patching abs yet -->
             <ImageView
                     android:id="@+id/abs__search_close_btn"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:paddingLeft="8dip"
                     android:paddingRight="8dip"

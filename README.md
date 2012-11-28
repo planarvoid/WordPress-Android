@@ -2,10 +2,11 @@
 
 ## Building
 
-Make sure the [Android SDK][], [Android NDK][] and Maven are installed:
+Make sure the [Android SDK][], [Android NDK][] and Maven (3.x required) are installed:
 
     $ brew install android-sdk android-ndk # OSX - you'll also need XCode CLI tools
     $ mvn -version
+    Apache Maven 3.0.3 (r1075438; 2011-02-28 18:31:09+0100)
 
 Add thess lines to your .zshrc (or bash or whatever) [version numbers may change]
 
@@ -38,6 +39,17 @@ Select Next and confirm the import of the parent project.
 IDEA will automatically download and manage all dependencies. When switching branches you might need to reimport
 the Maven project.
 
+## Running tests
+
+### Unit
+
+Change the default JUnit Run/Debug configuration to look like this:
+![JUnit default run config][JUnit default run config]
+
+Add a file `local.properties` to the app directory containing the path to the Android SDK:
+
+    $ echo "sdk.dir=/usr/local/Cellar/android-sdk/r20" > app/local.properties
+
 ## Betas and releasing
 
 Documented on the wiki: [releasing][], [betas][].
@@ -51,3 +63,4 @@ Documented on the [wiki][].
 [wiki]: https://github.com/soundcloud/SoundCloud-Android/wiki/
 [releasing]: https://github.com/soundcloud/SoundCloud-Android/wiki/Releasing
 [betas]: https://github.com/soundcloud/SoundCloud-Android/wiki/Betas
+[JUnit default run config]: http://f.cl.ly/items/153m2C2d001j0Y1L1K02/Screen%20Shot%202012-11-27%20at%2012.57.25%20PM.png

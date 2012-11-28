@@ -101,14 +101,14 @@ public class PlayerTrackInfo extends RelativeLayout{
         if (mPlayingTrack == null) return;
 
 
-        if (mPlayingTrack.favoritings_count == 0) {
+        if (mPlayingTrack.likes_count == 0) {
             mLikersText.setVisibility(View.GONE);
             mLikersHr.setVisibility(View.GONE);
         } else {
             mLikersText.setVisibility(View.VISIBLE);
             mLikersHr.setVisibility(View.VISIBLE);
             mLikersText.setText(getResources().getQuantityString(R.plurals.track_info_likers,
-                    mPlayingTrack.favoritings_count, mPlayingTrack.favoritings_count));
+                    mPlayingTrack.likes_count, mPlayingTrack.likes_count));
         }
 
         if (mPlayingTrack.comment_count == 0) {

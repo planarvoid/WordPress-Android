@@ -14,7 +14,7 @@ public class UnknownResource extends ScResource {
     }
 
     @Override
-    public Track getTrack() {
+    public Track getSound() {
         return null;
     }
 }

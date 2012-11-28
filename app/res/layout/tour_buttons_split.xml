@@ -10,6 +10,9 @@
             style="@style/Tour.FacebookButton"
             android:text="@string/authentication_log_in_with_facebook"
 
+            android:layout_width="0dp"
+            android:layout_weight="1"
+
             android:layout_marginRight="10dp">
         <requestFocus/>
     </Button>
@@ -18,9 +21,16 @@
             style="@style/Tour.Button"
             android:text="@string/authentication_sign_up"
 
+            android:layout_width="0dp"
+            android:layout_weight="1"
+
             android:layout_marginRight="10dp"/>
 
     <Button android:id="@+id/login_btn"
             style="@style/Tour.Button"
+
+            android:layout_width="0dp"
+            android:layout_weight="1"
+
             android:text="@string/authentication_log_in"/>
 </LinearLayout>

@@ -12,7 +12,7 @@ public class SuggestedUsers extends ScActivity implements ScLandingPage{
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        getSupportActionBar().setTitle(getString(R.string.side_menu_suggested_users));
+        setTitle(getString(R.string.side_menu_suggested_users));
 
         if (state == null) {
             getSupportFragmentManager().beginTransaction()

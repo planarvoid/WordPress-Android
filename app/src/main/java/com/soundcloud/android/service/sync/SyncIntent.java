@@ -20,7 +20,7 @@ import java.util.Set;
  *
  * The sync result is optionally communicated back to the caller via a {@link ResultReceiver}.
  *
- * The action of the passed intent is either {@link Intent.ACTION_SYNC} or {@link ApiSyncService.ACTION_APPEND}
+ * The action of the passed intent is either {@link Intent#ACTION_SYNC} or {@link ApiSyncService#ACTION_APPEND}
  * (for Activities).
  */
 /* package */  class SyncIntent {

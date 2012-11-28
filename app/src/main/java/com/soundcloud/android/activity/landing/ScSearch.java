@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.ScSearchFragment;
 import com.soundcloud.android.model.Search;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.view.ClearText;
@@ -45,7 +46,7 @@ public class ScSearch extends ScActivity {
     public void onCreate(Bundle state) {
         super.onCreate(state);
 
-        getSupportActionBar().setTitle(getString(R.string.title_search));
+        setTitle(getString(R.string.title_search));
 
         setContentView(R.layout.sc_search);
 
@@ -109,8 +110,14 @@ public class ScSearch extends ScActivity {
             String query = intent.getStringExtra(SearchManager.QUERY);
             pendingSearch = new Search(query, intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
         } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null) {
-            // probably came through quick search box, resolve intent through normal system
-            startActivity(new Intent(Intent.ACTION_VIEW).setData(intent.getData()));
+            Content c = Content.match(intent.getData());
+            if (c == Content.SEARCH_ITEM){
+                pendingSearch = new Search(intent.getData().getLastPathSegment(), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
+            } else {
+                // probably came through quick search box, resolve intent through normal system
+                startActivity(new Intent(Intent.ACTION_VIEW).setData(intent.getData()));
+            }
+
         }
     }
 

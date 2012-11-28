@@ -8,8 +8,6 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.LocalCollectionPage;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.provider.Content;
 
 import android.content.ContentResolver;
 import android.util.Log;
@@ -36,7 +34,7 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
 
         // if we already have all the data, this is a NOP
         try {
-            SoundCloudApplication.MODEL_MANAGER.writeMissingCollectionItems(api, localData.idList, params.getContent(), false);
+            SoundCloudApplication.MODEL_MANAGER.fetchMissingCollectionItems(api, localData.idList, params.getContent(), false, -1);
 
         } catch (IOException e) {
             Log.e(TAG, "error", e);

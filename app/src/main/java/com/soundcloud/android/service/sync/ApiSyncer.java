@@ -1,12 +1,15 @@
 package com.soundcloud.android.service.sync;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import static com.soundcloud.android.model.ScModelManager.validateResponse;
+
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Shortcut;
+import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.LocalCollection;
@@ -20,8 +23,6 @@ import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
@@ -29,14 +30,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncResult;
 import android.net.Uri;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -48,8 +46,7 @@ import java.util.Set;
  */
 public class ApiSyncer {
     public static final String TAG = ApiSyncService.LOG_TAG;
-
-    public static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
+    private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
 
     private final AndroidCloudAPI mApi;
     private final ContentResolver mResolver;
@@ -82,8 +79,15 @@ public class ApiSyncer {
                     result.success = true;
                     break;
 
-                case ME_TRACKS:
                 case ME_LIKES:
+                    result = syncLikes(uri);
+                    break;
+
+                case ME_SOUNDS:
+                    result = syncSounds(uri);
+                    break;
+
+                case ME_TRACKS:
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
                 case ME_REPOSTS:
@@ -97,6 +101,7 @@ public class ApiSyncer {
                 case USER:
                     result = doLookupAndInsert(c, uri.getLastPathSegment());
                     result.success = true;
+                    result.synced_at = System.currentTimeMillis();
                     break;
 
                 case ME_SHORTCUTS:
@@ -124,6 +129,42 @@ public class ApiSyncer {
                     Log.w(TAG, "no remote URI defined for " + c);
             }
 
+        }
+        return result;
+    }
+
+    private Result syncLikes(Uri uri) throws IOException {
+        Result result = new Result(uri);
+        log("syncLikes(" + uri + ")");
+
+        SoundAssociationHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
+                Request.to(TempEndpoints.e1.MY_LIKES).with("limit", 200),
+                SoundAssociationHolder.class);
+
+        if (holder != null) {
+            holder.insert(mResolver);
+
+            result.setSyncData(System.currentTimeMillis(), holder.collection.size(), null);
+            result.success = true;
+            result.change = Result.CHANGED;
+        }
+        return result;
+    }
+
+    private Result syncSounds(Uri uri) throws IOException {
+        Result result = new Result(uri);
+        log("syncSounds(" + uri + ")");
+
+        SoundAssociationHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
+                Request.to(TempEndpoints.e1.MY_SOUNDS_MINI).with("limit", 200),
+                SoundAssociationHolder.class);
+
+        if (holder != null) {
+            holder.insert(mResolver);
+
+            result.setSyncData(System.currentTimeMillis(), holder.collection.size(), null);
+            result.success = true;
+            result.change = Result.CHANGED;
         }
         return result;
     }
@@ -156,8 +197,7 @@ public class ApiSyncer {
                 mResolver.delete(c.uri, null, null);
             }
 
-            if (activities == null || activities.isEmpty() ||
-                    (activities.size() == 1 && activities.get(0).equals(Activities.getFirstActivity(c, mResolver)))) {
+            if (activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(Activities.getFirstActivity(c, mResolver)))) {
                 // this can happen at the beginning of the list if the api returns the first item incorrectly
                 inserted = 0;
             } else {
@@ -173,8 +213,9 @@ public class ApiSyncer {
 
     private Result syncContent(Content content, final long userId) throws IOException {
         Result result = new Result(content.uri);
+
         List<Long> local = SoundCloudApplication.MODEL_MANAGER.getLocalIds(content, userId);
-        List<Long> remote = getCollectionIds(mApi, content.remoteUri);
+        List<Long> remote = CollectionHolder.fetchAllResources(mApi, Request.to(content.remoteUri + "/ids"), IdHolder.class);
 
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
         result.setSyncData(System.currentTimeMillis(), remote.size(), null);
@@ -187,9 +228,8 @@ public class ApiSyncer {
         switch (content) {
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
-
-                // load the first page of items to getSince proper last_seen ordering
-                InputStream is = ScModelManager.validateResponse(mApi.get(Request.to(content.remoteUri)
+                // load the first page of items to get proper last_seen ordering
+                InputStream is = validateResponse(mApi.get(Request.to(content.remoteUri)
                         .add("linked_partitioning", "1")
                         .add("limit", Consts.COLLECTION_PAGE_SIZE)))
                         .getEntity().getContent();
@@ -201,25 +241,15 @@ public class ApiSyncer {
                 );
 
                 // remove items from master remote list and adjust start index
-                for (Parcelable u : firstUsers) {
-                    remote.remove(((User) u).id);
+                for (User u : firstUsers) {
+                    remote.remove(u.id);
                 }
+
                 startPosition = firstUsers.size();
                 break;
-
-            case ME_TRACKS:
-                // ensure the first couple of pages of items for quick loading
-                added = SoundCloudApplication.MODEL_MANAGER.writeMissingCollectionItems(
-                        mApi,
-                        remote,
-                        Content.TRACKS,
-                        false
-                );
-                break;
-
             default:
                 // ensure the first couple of pages of items for quick loading
-                added = SoundCloudApplication.MODEL_MANAGER.writeMissingCollectionItems(
+                added = SoundCloudApplication.MODEL_MANAGER.fetchMissingCollectionItems(
                         mApi,
                         remote,
                         Track.class.equals(content.modelType) ? Content.TRACKS : Content.USERS,
@@ -292,6 +322,7 @@ public class ApiSyncer {
 
         SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
 
+        result.synced_at = System.currentTimeMillis();
         result.change = Result.CHANGED;
         result.success = user != null;
         return result;
@@ -325,10 +356,10 @@ public class ApiSyncer {
         Result result = new Result(content.uri);
 
         List<ScResource> resources = new ArrayList<ScResource>();
-        InputStream is = ScModelManager.validateResponse(
+        InputStream is = validateResponse(
                 mApi.get(Request.to(Track.class.equals(content.modelType) ? Content.TRACKS.remoteUri : Content.USERS.remoteUri)
-                                .add("linked_partitioning", "1")
-                                .add("ids", ids))).getEntity().getContent();
+                        .add("linked_partitioning", "1")
+                        .add("ids", ids))).getEntity().getContent();
 
         resources.addAll(SoundCloudApplication.MODEL_MANAGER.getCollectionFromStream(is).collection);
 
@@ -339,56 +370,6 @@ public class ApiSyncer {
         return result;
     }
 
-    private static List<Long> getCollectionIds(AndroidCloudAPI app, String endpoint) throws IOException {
-        List<Long> items = new ArrayList<Long>();
-        IdHolder holder = null;
-        if (endpoint.contains("?")) endpoint = endpoint.substring(0,endpoint.indexOf("?"));
-        do {
-            Request request =  (holder == null) ? Request.to(endpoint + "/ids") : Request.to(holder.next_href);
-            request.add("linked_partitioning", "1");
-
-            holder = app.getMapper().readValue(ScModelManager.validateResponse(app.get(request)).getEntity().getContent(), IdHolder.class);
-            if (holder.collection != null) items.addAll(holder.collection);
-
-        } while (holder.next_href != null);
-        return items;
-    }
-
-
-    public static class IdHolder {
-        @JsonProperty
-        public List<Long> collection;
-
-        @JsonProperty
-        public String next_href;
-
-        public IdHolder() {
-        }
-
-        public boolean hasMore() {
-            return !TextUtils.isEmpty(next_href);
-        }
-
-        public Request getNextRequest() {
-            if (!hasMore()) {
-                throw new IllegalStateException("next_href is null");
-            } else {
-                return new Request(URI.create(next_href));
-            }
-        }
-
-        public String getCursor() {
-            if (next_href != null) {
-                List<NameValuePair> params = URLEncodedUtils.parse(URI.create(next_href), "UTF-8");
-                for (NameValuePair param : params) {
-                    if (param.getName().equalsIgnoreCase("cursor")) {
-                        return param.getValue();
-                    }
-                }
-            }
-            return null;
-        }
-    }
 
     public static class Result {
         public static final int UNCHANGED = 0;
@@ -449,4 +430,6 @@ public class ApiSyncer {
         }
     }
 
+    public static class IdHolder extends CollectionHolder<Long> {
+    }
 }

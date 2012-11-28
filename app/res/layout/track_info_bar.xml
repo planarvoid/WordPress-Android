@@ -2,12 +2,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="5dip"
-                android:paddingTop="5dip">
+                android:paddingTop="@dimen/list_item_padding_top"
+                android:paddingLeft="@dimen/list_item_padding_left"
+                android:paddingRight="@dimen/list_item_padding_right"
+                android:paddingBottom="@dimen/list_item_padding_bottom">
     <ImageView android:id="@+id/icon"
                android:layout_width="@dimen/list_icon_width"
                android:layout_height="@dimen/list_icon_height"
-               android:layout_marginLeft="@dimen/list_icon_margin_left"
                android:layout_marginRight="@dimen/list_icon_margin_right"
                android:background="@drawable/artwork_badge"
                android:scaleType="centerCrop"/>
@@ -24,14 +25,11 @@
                   android:layout_height="wrap_content"/>
 
     <TextView android:id="@+id/user"
+              style="@style/txt_list_track_user"
               android:layout_height="wrap_content"
-              style="@style/txt_list_sub"
-              android:text="@string/user"
-              android:singleLine="true"
-              android:ellipsize="marquee"
+              android:layout_width="wrap_content"
               android:layout_marginLeft="@dimen/list_text_margin_left"
               android:layout_marginRight="3dp"
-              android:layout_width="wrap_content"
               android:layout_alignTop="@id/icon"
               android:layout_toRightOf="@+id/icon"/>
 
@@ -53,7 +51,6 @@
               android:layout_height="wrap_content"
               android:gravity="right"
               style="@style/txt_list_created_at"
-              android:layout_marginRight="@dimen/list_text_margin_right"
               android:layout_alignTop="@id/icon"
               android:paddingLeft="0dip"
               android:singleLine="true"
@@ -61,13 +58,13 @@
               android:layout_alignParentRight="true"/>
 
     <TextView android:id="@+id/track"
-              android:layout_marginRight="@dimen/list_text_margin_right"
               android:layout_alignLeft="@id/user"
               android:layout_alignParentRight="true"
               android:layout_width="0dp"
               android:layout_height="wrap_content"
               android:layout_below="@id/user"
               android:maxLines="2"
+              style="@style/txt_list_main"
               android:ellipsize="marquee"
               android:text="@string/track"/>
     <RelativeLayout

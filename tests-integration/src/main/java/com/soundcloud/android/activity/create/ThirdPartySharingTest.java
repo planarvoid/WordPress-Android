@@ -68,8 +68,7 @@ public class ThirdPartySharingTest extends ActivityTestCase<ShareSound> {
         solo.assertText("Testing");
         solo.assertText("Somewhere");
 
-        //solo.assertText("Share To SoundCloud"); // share_to_soundcloud
-        solo.assertText(R.string.share_log_out);
+//        solo.assertText(R.string.share_log_out);
         solo.assertNoText(R.string.record_another_sound);
         solo.clickOnText(R.string.post);
 

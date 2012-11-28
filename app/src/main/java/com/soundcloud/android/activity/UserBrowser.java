@@ -9,7 +9,6 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.Connection;
@@ -46,12 +45,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
 import java.util.List;
@@ -93,9 +90,9 @@ public class UserBrowser extends ScActivity implements
 
     public enum Tab {
         //details(Page.Users_info, Page.You_info, Content.USER, Content.ME, R.string.tab_title_user_info, R.string.tab_title_my_info),
-        tracks(Actions.YOUR_SOUNDS, Page.Users_sounds, Page.You_sounds, Content.USER_TRACKS, Content.ME_TRACKS, R.string.tab_title_user_sounds, R.string.tab_title_my_sounds),
-        likes(Actions.YOUR_LIKES, Page.Users_likes, Page.You_likes, Content.USER_LIKES, Content.ME_LIKES, R.string.tab_title_user_likes, R.string.tab_title_my_likes),
-        followings(Actions.YOUR_FOLLOWINGS, Page.Users_following, Page.You_following, Content.USER_FOLLOWINGS, Content.ME_FOLLOWINGS, R.string.tab_title_user_followings, R.string.tab_title_my_followings),
+        tracks(Actions.YOUR_SOUNDS,Page.Users_sounds, Page.You_sounds, Content.USER_SOUNDS, Content.ME_SOUNDS, R.string.tab_title_user_sounds, R.string.tab_title_my_sounds),
+        likes(Actions.YOUR_LIKES,Page.Users_likes, Page.You_likes, Content.USER_LIKES, Content.ME_LIKES, R.string.tab_title_user_likes, R.string.tab_title_my_likes),
+        followings(Actions.YOUR_FOLLOWINGS,Page.Users_following, Page.You_following, Content.USER_FOLLOWINGS, Content.ME_FOLLOWINGS, R.string.tab_title_user_followings, R.string.tab_title_my_followings),
         followers(Actions.YOUR_FOLLOWERS, Page.Users_followers, Page.You_followers, Content.USER_FOLLOWERS, Content.ME_FOLLOWERS, R.string.tab_title_user_followers, R.string.tab_title_my_followers);
 
         public static final String EXTRA = "userBrowserTag";
@@ -161,7 +158,6 @@ public class UserBrowser extends ScActivity implements
         mMyspaceName = (TextView) mInfoView.findViewById(R.id.myspace_name);
         mDescription = (TextView) mInfoView.findViewById(R.id.description);
 
-        mIcon.setScaleType(ScaleType.CENTER_INSIDE);
         if (getResources().getDisplayMetrics().density > 1 || ImageUtils.isScreenXL(this)) {
             mIcon.getLayoutParams().width = 100;
             mIcon.getLayoutParams().height = 100;
@@ -502,6 +498,10 @@ public class UserBrowser extends ScActivity implements
         configureEmptyView();
     }
 
+    public User getUser() {
+        return mUser;
+    }
+
     private void configureEmptyView(){
         if (mDisplayedInfo && mEmptyInfoView != null && mEmptyInfoView.getParent() == mInfoView) {
             mInfoView.removeView(mEmptyInfoView);
@@ -599,10 +599,13 @@ public class UserBrowser extends ScActivity implements
 
         if (!isYou()){
             MenuItem followItem = menu.findItem(R.id.action_bar_follow);
-            final boolean following = isFollowing();
-            followItem.setIcon(following ? R.drawable.ic_remove_user_white : R.drawable.ic_add_user_white);
-            followItem.setTitle(getResources().getString(following ? R.string.action_bar_unfollow : R.string.action_bar_follow));
+            if (followItem != null) {
+                final boolean following = isFollowing();
+                followItem.setIcon(following ? R.drawable.ic_remove_user_white : R.drawable.ic_add_user_white);
+                followItem.setTitle(getResources().getString(following ? R.string.action_bar_unfollow : R.string.action_bar_follow));
+            }
         } else {
+
             menu.removeItem(R.id.action_bar_follow);
         }
         return true;

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -16,7 +17,7 @@ import com.soundcloud.android.activity.track.TracksByTag;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.DBHelper.Tracks;
+import com.soundcloud.android.provider.DBHelper.Sounds;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchModelTask;
@@ -52,7 +53,7 @@ import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends PlayableResource implements Playable {
+public class Track extends Sound implements Playable {
     private static final String TAG = "Track";
     public static final String EXTRA = "track";
 
@@ -64,13 +65,11 @@ public class Track extends PlayableResource implements Playable {
     @JsonView(Views.Full.class) public String video_url;
     @JsonView(Views.Full.class) public String track_type;
     @JsonView(Views.Full.class) public String key_signature;
-    @JsonView(Views.Full.class)
-    public float bpm;
+    @JsonView(Views.Full.class) public float bpm;
 
     @JsonView(Views.Full.class) public int playback_count;
     @JsonView(Views.Full.class) public int download_count;
     @JsonView(Views.Full.class) public int comment_count;
-    @JsonView(Views.Full.class) public int favoritings_count;
     @JsonView(Views.Full.class) public int reposts_count;
     @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
     public int shared_to_count;
@@ -99,8 +98,7 @@ public class Track extends PlayableResource implements Playable {
 
     // only shown to owner of track
     @JsonView(Views.Full.class)
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
-    public int downloads_remaining;
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT) public int downloads_remaining;
 
     @JsonView(Views.Full.class)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
@@ -134,6 +132,10 @@ public class Track extends PlayableResource implements Playable {
     }
 
     @Override @JsonIgnore
+    public Track getSound() {
+        return this;
+    }
+
     public Track getTrack() {
         return this;
     }
@@ -198,7 +200,6 @@ public class Track extends PlayableResource implements Playable {
         b.putInt("playback_count", playback_count);
         b.putInt("download_count", download_count);
         b.putInt("comment_count", comment_count);
-        b.putInt("favoritings_count", favoritings_count);
         b.putInt("reposts_count", reposts_count);
         b.putInt("shared_to_count", shared_to_count);
         b.putString("original_format", original_format);
@@ -304,7 +305,6 @@ public class Track extends PlayableResource implements Playable {
         playback_count = b.getInt("playback_count");
         download_count = b.getInt("download_count");
         comment_count = b.getInt("comment_count");
-        favoritings_count = b.getInt("favoritings_count");
         reposts_count = b.getInt("reposts_count");
         shared_to_count = b.getInt("shared_to_count");
         original_format = b.getString("original_format");
@@ -327,59 +327,50 @@ public class Track extends PlayableResource implements Playable {
     }
 
     Track(Cursor cursor) {
-        final int trackIdIdx = cursor.getColumnIndex(DBHelper.ActivityView.TRACK_ID);
-        if (trackIdIdx == -1) {
-            id = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView._ID));
-        } else {
-            id = cursor.getLong(cursor.getColumnIndex(DBHelper.ActivityView.TRACK_ID));
-        }
-        permalink = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.PERMALINK));
-        duration = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DURATION));
-        state = State.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.STATE)));
-        created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.CREATED_AT)));
-        tag_list = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TAG_LIST));
-        track_type = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TRACK_TYPE));
-        title = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TITLE));
-        permalink_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.PERMALINK_URL));
-        artwork_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.ARTWORK_URL));
-        waveform_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.WAVEFORM_URL));
-        downloadable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOADABLE)) == 1;
-        download_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOAD_URL));
-        streamable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.STREAMABLE)) == 1;
-        stream_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.STREAM_URL));
-        sharing = Sharing.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.SHARING)));
-        playback_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.PLAYBACK_COUNT));
-        download_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOAD_COUNT));
-        comment_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENT_COUNT));
-        favoritings_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.FAVORITINGS_COUNT));
-        reposts_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.REPOSTS_COUNT));
-        shared_to_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.SHARED_TO_COUNT));
-        user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
-        commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENTABLE)) == 1;
 
-        final long lastUpdated = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.LAST_UPDATED));
-        if (lastUpdated > 0) {
-            last_updated = lastUpdated;
-        }
+        super(cursor);
+        state = State.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.STATE)));
+        track_type = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.TRACK_TYPE));
 
-        // gets joined in
-        final int favIdx = cursor.getColumnIndex(DBHelper.TrackView.USER_LIKE);
-        if (favIdx != -1) {
-            user_like = cursor.getInt(favIdx) == 1;
-        }
-        final int repostIdx = cursor.getColumnIndex(DBHelper.TrackView.USER_REPOST);
-        if (repostIdx != -1) {
-            user_repost = cursor.getInt(repostIdx) == 1;
-        }
+        waveform_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.WAVEFORM_URL));
 
-        final int localPlayCountIdx = cursor.getColumnIndex(DBHelper.TrackView.USER_PLAY_COUNT);
+        download_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.DOWNLOAD_URL));
+
+        stream_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.STREAM_URL));
+        playback_count = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.PLAYBACK_COUNT));
+        download_count = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.DOWNLOAD_COUNT));
+        comment_count = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.COMMENT_COUNT));
+        shared_to_count = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.SHARED_TO_COUNT));
+        commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.COMMENTABLE)) == 1;
+
+        final int localPlayCountIdx = cursor.getColumnIndex(DBHelper.SoundView.USER_PLAY_COUNT);
         if (localPlayCountIdx != -1) {
             local_user_playback_count = cursor.getInt(localPlayCountIdx);
         }
-        final int cachedIdx = cursor.getColumnIndex(DBHelper.TrackView.CACHED);
+        final int cachedIdx = cursor.getColumnIndex(DBHelper.SoundView.CACHED);
         if (cachedIdx != -1) {
             local_cached = cursor.getInt(cachedIdx) == 1;
         }
+    }
+
+    public ContentValues buildContentValues() {
+        ContentValues cv = super.buildContentValues();
+
+
+        if (stream_url != null) cv.put(DBHelper.Sounds.STREAM_URL, stream_url);
+        if (state != null) cv.put(DBHelper.Sounds.STATE, state.name);
+        if (track_type != null) cv.put(DBHelper.Sounds.TRACK_TYPE, track_type);
+        if (waveform_url != null) cv.put(DBHelper.Sounds.WAVEFORM_URL, waveform_url);
+        if (download_url != null) cv.put(DBHelper.Sounds.DOWNLOAD_URL, download_url);
+        if (playback_count != -1) cv.put(DBHelper.Sounds.PLAYBACK_COUNT, playback_count);
+        if (download_count != -1) cv.put(DBHelper.Sounds.DOWNLOAD_COUNT, download_count);
+        if (comment_count != -1) cv.put(DBHelper.Sounds.COMMENT_COUNT, comment_count);
+        if (commentable) cv.put(DBHelper.Sounds.COMMENTABLE, commentable);
+        if (shared_to_count != -1) cv.put(DBHelper.Sounds.SHARED_TO_COUNT, shared_to_count);
+        if (isCompleteTrack()) {
+            cv.put(DBHelper.Sounds.LAST_UPDATED, System.currentTimeMillis());
+        }
+        return cv;
     }
 
     @Override
@@ -396,44 +387,6 @@ public class Track extends PlayableResource implements Playable {
 
     public void setAppFields(Track t) {
         comments = t.comments;
-    }
-
-    public ContentValues buildContentValues(){
-        ContentValues cv = super.buildContentValues();
-
-        cv.put(Tracks.PERMALINK, permalink);
-        // account for partial objects, don't overwrite local full objects
-        if (title != null) cv.put(Tracks.TITLE, title);
-        if (duration != 0) cv.put(Tracks.DURATION, duration);
-        if (stream_url != null) cv.put(Tracks.STREAM_URL, stream_url);
-        if (user_id != 0) {
-            cv.put(Tracks.USER_ID, user_id);
-        }  else if (user != null && user.isSaved()) {
-            cv.put(Tracks.USER_ID, user.id);
-        }
-
-        if (state != null) cv.put(Tracks.STATE, state.name);
-        if (created_at != null) cv.put(Tracks.CREATED_AT, created_at.getTime());
-        if (tag_list != null) cv.put(Tracks.TAG_LIST, tag_list);
-        if (track_type != null) cv.put(Tracks.TRACK_TYPE, track_type);
-        if (permalink_url != null) cv.put(Tracks.PERMALINK_URL, permalink_url);
-        if (artwork_url != null) cv.put(Tracks.ARTWORK_URL, artwork_url);
-        if (waveform_url != null) cv.put(Tracks.WAVEFORM_URL, waveform_url);
-        if (downloadable) cv.put(Tracks.DOWNLOADABLE, downloadable);
-        if (download_url != null) cv.put(Tracks.DOWNLOAD_URL, download_url);
-        if (streamable) cv.put(Tracks.STREAMABLE, streamable);
-        if (sharing != null) cv.put(Tracks.SHARING, sharing.value);
-        if (playback_count != -1) cv.put(Tracks.PLAYBACK_COUNT, playback_count);
-        if (download_count != -1) cv.put(Tracks.DOWNLOAD_COUNT, download_count);
-        if (comment_count != -1) cv.put(Tracks.COMMENT_COUNT, comment_count);
-        if (commentable) cv.put(Tracks.COMMENTABLE, commentable);
-        if (favoritings_count != -1) cv.put(Tracks.FAVORITINGS_COUNT, favoritings_count);
-        if (reposts_count != -1) cv.put(Tracks.REPOSTS_COUNT, reposts_count);
-        if (shared_to_count != -1) cv.put(Tracks.SHARED_TO_COUNT, shared_to_count);
-        if (isCompleteTrack()) {
-            cv.put(Tracks.LAST_UPDATED, System.currentTimeMillis());
-        }
-        return cv;
     }
 
     private boolean isCompleteTrack(){
@@ -626,7 +579,7 @@ public class Track extends PlayableResource implements Playable {
     }
 
     public Intent getPlayIntent() {
-        return new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(EXTRA, this);
+        return new Intent(Actions.PLAY).putExtra(EXTRA, this);
     }
 
     public void setUpdated() {
@@ -634,37 +587,16 @@ public class Track extends PlayableResource implements Playable {
     }
 
     public Track updateFrom(Track updatedItem, CacheUpdateMode cacheUpdateMode) {
-
-        id = updatedItem.id;
-        title = updatedItem.title;
-        permalink = updatedItem.permalink;
+        super.updateFrom(updatedItem,cacheUpdateMode);
         stream_url = updatedItem.stream_url;
-        user_id = updatedItem.user_id;
-        uri = updatedItem.uri;
-
         if (cacheUpdateMode == CacheUpdateMode.FULL){
-            duration = updatedItem.duration;
             commentable = updatedItem.commentable;
             state = updatedItem.state;
-            sharing = updatedItem.sharing;
-            streamable = updatedItem.streamable;
-            artwork_url = updatedItem.artwork_url;
             waveform_url = updatedItem.waveform_url;
-            user = updatedItem.user;
             playback_count = updatedItem.playback_count;
             comment_count = updatedItem.comment_count;
-            favoritings_count = updatedItem.favoritings_count;
-            reposts_count = updatedItem.reposts_count;
-            user_like = updatedItem.user_like;
             shared_to_count = updatedItem.shared_to_count;
-            created_at = updatedItem.created_at;
-            //user_repost = updatedItem.user_repost; THIS DOES NOT COME FROM THE API, ONLY UPDATE FROM DB
-
-            // these will get refreshed
-            mElapsedTime = null;
-            mArtworkUri = null;
         }
-
         return this;
     }
 
@@ -726,4 +658,8 @@ public class Track extends PlayableResource implements Playable {
         public boolean isFinished()   { return FINISHED == this; }
     }
 
+    @Override
+    public int getTypeId() {
+        return DB_TYPE_TRACK;
+    }
 }

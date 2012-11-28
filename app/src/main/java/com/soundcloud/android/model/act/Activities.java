@@ -24,6 +24,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -368,6 +369,15 @@ public class Activities extends CollectionHolder<Activity> {
         return SoundCloudApplication.MODEL_MANAGER.getActivitiesFromCursor(resolver.query(uri, projection, where, whereArgs, sort));
     }
 
+    public static int getCountSince(ContentResolver contentResolver, long since, Content content){
+        Cursor c = contentResolver.query(content.uri,
+                    new String[]{"Count("+BaseColumns._ID+") as unseen"},
+                    DBHelper.ActivityView.CONTENT_ID + " = ? AND " + DBHelper.ActivityView.CREATED_AT + "> ?",
+                    new String[]{String.valueOf(content.id), String.valueOf(since)},
+                    null);
+        return c != null && c.moveToFirst() ? c.getInt(c.getColumnIndex("unseen")) : 0;
+    }
+
     public ContentValues[] buildContentValues(final int contentId) {
         ContentValues[] cv = new ContentValues[size()];
         for (int i=0; i<size(); i++) {
@@ -417,9 +427,6 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public int insert(Content content, ContentResolver resolver) {
-//        SoundCloudApplication.MODEL_MANAGER.writeCollection(new ArrayList<ScResource>(getScResources()),
-//                ScModel.CacheUpdateMode.MINI);
-
         Set<ScResource> models = new HashSet<ScResource>();
         for (Activity a : this) {
             models.addAll(a.getDependentModels());

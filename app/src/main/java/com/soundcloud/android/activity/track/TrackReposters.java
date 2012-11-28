@@ -11,7 +11,7 @@ public class TrackReposters extends TrackInfoCollection {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().setTitle(R.string.list_header_track_reposters);
+        setTitle(R.string.list_header_track_reposters);
     }
 
     @Override

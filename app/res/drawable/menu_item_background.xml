@@ -8,7 +8,7 @@
 
     <item android:bottom="2px">
         <shape android:shape="rectangle">
-            <solid android:color="#222222" />
+            <solid android:color="@color/main_menu_bg" />
         </shape>
     </item>
 </layer-list>

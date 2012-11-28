@@ -1,7 +1,11 @@
 package com.soundcloud.android.provider;
 
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.Sound;
+import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.IOUtils;
@@ -87,50 +91,56 @@ public class SoundCloudDB {
         return uri;
     }
 
-    public static int bulkInsertModels(ContentResolver resolver, List<? extends ScResource> items) {
-            return bulkInsertModels(resolver, items, null, -1);
-        }
+    public static int bulkInsertModels(ContentResolver resolver, List<? extends ScResource> models) {
+        return bulkInsertModels(resolver, models, null, -1);
+    }
+
     public static int bulkInsertModels(ContentResolver resolver,
-                                       List<? extends ScResource> items,
+                                       List<? extends ScResource> models,
                                        @Nullable Uri uri,
                                        long ownerId) {
         if (uri != null && ownerId < 0) {
             throw new IllegalArgumentException("need valid ownerId for collection");
         }
 
-        if (items == null) return 0;
+        if (models == null) return 0;
 
         Set<User> usersToInsert = new HashSet<User>();
-        Set<Track> tracksToInsert = new HashSet<Track>();
-        ContentValues[] bulkValues = uri == null ? null : new ContentValues[items.size()];
+        Set<Sound> soundsToInsert = new HashSet<Sound>();
+
+        ContentValues[] bulkValues = uri == null ? null : new ContentValues[models.size()];
 
         int index = 0;
-        for (int i=0; i <items.size(); i++) {
+        for (int i=0; i <models.size(); i++) {
 
-            ScResource p = items.get(i);
-            if (p != null) {
-                long id = p.id;
-                Track track = p.getTrack();
-                if (track != null) {
-                    tracksToInsert.add(track);
+            ScResource r = models.get(i);
+            if (r != null) {
+                Sound sound = r.getSound();
+                if (sound != null) {
+                    soundsToInsert.add(sound);
                 }
 
-                User user = p.getUser();
+                User user = r.getUser();
                 if (user != null) {
                     usersToInsert.add(user);
                 }
 
+                long id = r.id;
                 if (uri != null) {
                     ContentValues cv = new ContentValues();
+                    cv.put(DBHelper.CollectionItems.USER_ID, ownerId);
                     switch (Content.match(uri)) {
                         case PLAY_QUEUE:
-                            cv.put(DBHelper.PlayQueue.USER_ID, ownerId);
                             cv.put(DBHelper.PlayQueue.POSITION, i);
                             cv.put(DBHelper.PlayQueue.TRACK_ID, id);
                             break;
 
+                        // this will not be necessary once we use e1 likes endpoint
+                        case ME_LIKES:
+                        case USER_LIKES:
+                            //cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, Track.DB_TYPE_TRACK);
+                            // fallthrough
                         default:
-                            cv.put(DBHelper.CollectionItems.USER_ID, ownerId);
                             cv.put(DBHelper.CollectionItems.POSITION, i);
                             cv.put(DBHelper.CollectionItems.ITEM_ID, id);
                             break;
@@ -142,19 +152,19 @@ public class SoundCloudDB {
             }
         }
 
-        ContentValues[] tracksCv = new ContentValues[tracksToInsert.size()];
+        ContentValues[] soundsCv = new ContentValues[soundsToInsert.size()];
         ContentValues[] usersCv = new ContentValues[usersToInsert.size()];
-        Track[] _tracksToInsert = tracksToInsert.toArray(new Track[tracksToInsert.size()]);
+        Sound[] _soundssToInsert = soundsToInsert.toArray(new Sound[soundsToInsert.size()]);
         User[] _usersToInsert = usersToInsert.toArray(new User[usersToInsert.size()]);
 
-        for (int i=0; i< _tracksToInsert.length; i++) {
-            tracksCv[i] = _tracksToInsert[i].buildContentValues();
+        for (int i=0; i< _soundssToInsert.length; i++) {
+            soundsCv[i] = _soundssToInsert[i].buildContentValues();
         }
         for (int i=0; i< _usersToInsert.length; i++) {
             usersCv[i] = _usersToInsert[i].buildContentValues();
         }
 
-        int tracksInserted = resolver.bulkInsert(Content.TRACKS.uri, tracksCv);
+        int tracksInserted = resolver.bulkInsert(Content.SOUNDS.uri, soundsCv);
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, tracksInserted + " tracks bulk inserted");
 
         int usersInserted = resolver.bulkInsert(Content.USERS.uri, usersCv);

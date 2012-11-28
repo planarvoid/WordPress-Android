@@ -1,5 +1,6 @@
 package com.soundcloud.android.adapter;
 
+import static android.os.Process.THREAD_PRIORITY_DEFAULT;
 import static com.soundcloud.android.Consts.GraphicSize;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
@@ -26,6 +27,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,8 +36,11 @@ import android.os.Looper;
 import android.os.Message;
 import android.provider.BaseColumns;
 import android.support.v4.widget.CursorAdapter;
-import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,8 +50,10 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class SuggestionsAdapter extends CursorAdapter implements  DetachableResultReceiver.Receiver {
+public class SuggestionsAdapter extends CursorAdapter implements DetachableResultReceiver.Receiver {
     private final ContentResolver mContentResolver;
     private final Context mContext;
     private final AndroidCloudAPI mApi;
@@ -56,19 +63,23 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
     private ImageLoader mImageLoader;
     private Handler handler = new Handler();
 
-    private final static int TYPE_TRACK = 0;
-    private final static int TYPE_USER  = 1;
+    private final static int TYPE_SEARCH_ITEM = 0;
+    private final static int TYPE_TRACK  = 1;
+    private final static int TYPE_USER  = 2;
 
     private static final int MAX_LOCAL  = 5;
     private static final int MAX_REMOTE = 5;
 
     static final private UriMatcher sMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
     private SuggestionsHandler mSuggestionsHandler;
     private HandlerThread mSuggestionsHandlerThread;
-    public String mCurrentConstraint;
+    private String mCurrentConstraint;
+    private Pattern mCurrentPattern;
 
     private Cursor mLocalSuggestions;
     private SearchSuggestions mRemoteSuggestions;
+
 
 
     public SuggestionsAdapter(Context context, Cursor c, AndroidCloudAPI api) {
@@ -78,15 +89,16 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
         mImageLoader = ImageLoader.get(mContext);
         mApi = api;
 
-        mSuggestionsHandlerThread = new HandlerThread("SuggestionsHandler", android.os.Process.THREAD_PRIORITY_DEFAULT);
+        mSuggestionsHandlerThread = new HandlerThread("SuggestionsHandler", THREAD_PRIORITY_DEFAULT);
         mSuggestionsHandlerThread.start();
         mSuggestionsHandler = new SuggestionsHandler(mSuggestionsHandlerThread.getLooper());
 
+        sMatcher.addURI(ScContentProvider.AUTHORITY, Content.SEARCH_ITEM.uriPath, Content.SEARCH_ITEM.id);
         sMatcher.addURI(ScContentProvider.AUTHORITY, Content.USER.uriPath, Content.USER.id);
         sMatcher.addURI(ScContentProvider.AUTHORITY, Content.TRACK.uriPath, Content.TRACK.id);
     }
 
-    public void onDestroy(){
+    public void onDestroy() {
         mSuggestionsHandler.removeMessages(0);
         mSuggestionsHandlerThread.getLooper().quit();
     }
@@ -114,24 +126,33 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
     }
 
     private int getUriType(Uri uri) {
-        return sMatcher.match(uri) != Content.USER.id ? TYPE_USER : TYPE_TRACK;
+        final int match = sMatcher.match(uri);
+        if (match == Content.SEARCH_ITEM.id) {
+            return TYPE_SEARCH_ITEM;
+        } else if (match == Content.USER.id) {
+            return TYPE_USER;
+        } else  {
+            return TYPE_TRACK;
+        }
     }
 
     @Override
     public int getViewTypeCount() {
-        return 2;
+        return 3;
     }
 
     @Override
     public Cursor runQueryOnBackgroundThread(@Nullable final CharSequence constraint) {
-        if (!TextUtils.isEmpty(constraint)) {
+        if (constraint != null && !TextUtils.isEmpty(constraint)) {
             mCurrentConstraint = constraint.toString();
+            mCurrentPattern = getHighlightPattern(mCurrentConstraint);
+
             mLocalSuggestions = fetchLocalSuggestions(mCurrentConstraint, MAX_LOCAL);
 
             mSuggestionsHandler.removeMessages(0);
             Message.obtain(mSuggestionsHandler,0,constraint).sendToTarget();
 
-            return mLocalSuggestions == null || mLocalSuggestions.getCount() == 0 ? getMixedCursor() : mLocalSuggestions;
+            return getMixedCursor();
 
         } else {
             mLocalSuggestions = null;
@@ -146,7 +167,6 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
     }
 
     private final class SuggestionsHandler extends Handler {
-
         public SuggestionsHandler(Looper looper) {
             super(looper);
         }
@@ -160,7 +180,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(),
                             SearchSuggestions.class);
-                    onRemoteSuggestions(constraint,searchSuggestions);
+                    onRemoteSuggestions(constraint, searchSuggestions);
                     return;
 
                 } else {
@@ -169,17 +189,15 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
             } catch (IOException e) {
                 Log.w(TAG, "error fetching suggestions", e);
             }
-
             onRemoteSuggestions(constraint, null);
-
         }
 
-        private void onRemoteSuggestions(final CharSequence constraint, final SearchSuggestions suggestions) {
+        private void onRemoteSuggestions(final CharSequence constraint, final @Nullable SearchSuggestions suggestions) {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
                     // make sure we are still relevant
-                    if (constraint == mCurrentConstraint) {
+                    if (constraint.equals(mCurrentConstraint)) {
                         mRemoteSuggestions = suggestions;
                         swapCursor(getMixedCursor());
 
@@ -209,7 +227,6 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
     }
 
     private Cursor getMixedCursor() {
-
         final MatrixCursor remote = new MatrixCursor(new String[]{
                 BaseColumns._ID,
                 SearchManager.SUGGEST_COLUMN_TEXT_1,
@@ -220,7 +237,7 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
             for (SearchSuggestions.Query q : mRemoteSuggestions) {
                 remote.addRow(new Object[]{
                         q.id,
-                        highlight(q.query,mCurrentConstraint),
+                        q.query,
                         q.getUriPath(),
                         q.getIconUri()
                 });
@@ -261,18 +278,27 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
                 SearchManager.SUGGEST_COLUMN_INTENT_DATA,
                 DBHelper.Suggestions.ICON_URL});
 
+        if (!TextUtils.isEmpty(mCurrentConstraint)) {
+            local.addRow(new Object[]{
+                    -1,
+                    mContext.getResources().getString(R.string.search_for_query,mCurrentConstraint),
+                    Content.SEARCH_ITEM.forQuery(mCurrentConstraint),
+                    ""
+            });
+        }
+
         final Cursor cursor = mContentResolver.query(
                 Content.ANDROID_SEARCH_SUGGEST.uri.buildUpon().appendQueryParameter("limit",
                         String.valueOf(max)).build(),
                 null,
                 null,
-                new String[] { constraint.toString() },
+                new String[] {constraint},
                 null);
 
         while (cursor.moveToNext()) {
             local.addRow(new Object[] {
                 cursor.getInt(cursor.getColumnIndex(BaseColumns._ID)),
-                highlight(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)),constraint),
+                cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)),
                 cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA)),
                 cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))
             });
@@ -298,25 +324,36 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
             tag = (SearchTag) view.getTag();
         }
 
-        final String data = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.INTENT_DATA));
-        Uri uri = Uri.parse(data);
-        boolean isUser = sMatcher.match(uri) == Content.USER.id;
-        setIcon(tag, GraphicSize.formatUriForList(mContext,
-                cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))), isUser);
-
-        tag.tv_main.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1))));
-        if (isUser) {
-            tag.iv_search_type.setImageResource(R.drawable.ic_search_user);
+        final long id = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
+        final String query = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1));
+        tag.tv_main.setText(id != -1 ? highlight(query) : query);
+        final int rowType = getItemViewType(cursor.getPosition());
+        if (rowType == TYPE_SEARCH_ITEM) {
+            tag.iv_icon.setVisibility(View.GONE);
+            tag.iv_search_type.setVisibility(View.GONE);
         } else {
-            tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
+            tag.iv_icon.setVisibility(View.VISIBLE);
+            tag.iv_search_type.setVisibility(View.VISIBLE);
+
+            boolean isUser = rowType == TYPE_USER;
+            setIcon(tag, GraphicSize.formatUriForList(mContext,
+                    cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))), isUser);
+
+            if (isUser) {
+                tag.iv_search_type.setImageResource(R.drawable.ic_search_user);
+            } else {
+                tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
+            }
+
         }
         return view;
     }
 
     private void setIcon(SearchTag tag, String iconUri, boolean isUser) {
         if (ImageUtils.checkIconShouldLoad(iconUri)) {
-            ImageLoader.BindResult result = mImageLoader.bind(this, tag.iv_icon,
-                    GraphicSize.formatUriForSearchSuggestionsList(mContext, iconUri)
+            ImageLoader.BindResult result = mImageLoader.bind(tag.iv_icon,
+                    GraphicSize.formatUriForSearchSuggestionsList(mContext, iconUri),
+                    null
             );
             if (result == ImageLoader.BindResult.OK) return;
         } else {
@@ -327,40 +364,35 @@ public class SuggestionsAdapter extends CursorAdapter implements  DetachableResu
     }
 
     static class SearchTag {
-
         ImageView iv_icon;
         ImageView iv_search_type;
         TextView tv_main;
     }
 
+    private Spanned highlight(String original) {
+        final SpannableString s = new SpannableString(original);
+        Matcher m = mCurrentPattern.matcher(original);
 
-    /**
-     * Match highlighting
-     */
-    private StringBuilder sbHighlightSource = new StringBuilder();
-    private StringBuilder sbHighlightSourceLower = new StringBuilder();
-    private CharSequence highlightTagOpen = "<font color='white'>";
-    private CharSequence highlightTagClose = "</font>";
+        s.setSpan(new ForegroundColorSpan(0xFF666666),
+                0, s.length(),
+                Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 
-    private String highlight(String original, String constraint) {
-        sbHighlightSource.setLength(0);
-        sbHighlightSource.trimToSize();
-        sbHighlightSource.append(original);
-
-        sbHighlightSourceLower.setLength(0);
-        sbHighlightSourceLower.trimToSize();
-        sbHighlightSourceLower.append(original.toLowerCase());
-
-        final String searchString = constraint.toLowerCase();
-        final String replacement = highlightTagOpen + constraint + highlightTagClose;
-
-        int idx = 0;
-        while ((idx = sbHighlightSourceLower.indexOf(searchString, idx)) != -1) {
-            sbHighlightSource.replace(idx, idx + searchString.length(), highlightTagOpen + sbHighlightSource.substring(idx,idx + searchString.length()) + highlightTagClose);
-            sbHighlightSourceLower.replace(idx, idx + searchString.length(), replacement);
-            idx += replacement.length();
+        if (m.find()) {
+            s.setSpan(new ForegroundColorSpan(Color.WHITE),
+                    m.start(2), m.end(2),
+                    Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         }
-        return sbHighlightSource.toString();
+        return s;
     }
 
+    /**
+     * @param query the search query
+     * @return a highlight pattern
+     *
+     * @see <a href="https://github.com/soundcloud/v2/blob/016de18498c410c4c9ff1875bc48286741df69e3/app/collections/shortcuts.js#L30">
+     *     Definition in next/v2</a>
+     */
+    /* package */ static Pattern getHighlightPattern(String query) {
+        return Pattern.compile("(^|[\\s.\\(\\)\\[\\]_-])(" +Pattern.quote(query)+")", Pattern.CASE_INSENSITIVE);
+    }
 }

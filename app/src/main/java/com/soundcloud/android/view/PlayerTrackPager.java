@@ -45,6 +45,26 @@ public class PlayerTrackPager extends ViewPager {
    		mTrackPageListener = listener;
    	}
 
+    public void configureFromTrack(ScPlayer player, Track track, int playPosition) {
+        mPlayerTrackViews.clear();
+
+        final PlayerTrackView ptv;
+        if (mViews.size() > 0) {
+            ptv = ((PlayerTrackView) mViews.get(0).getChildAt(0));
+            for (int i = 0; i < mViews.size() - 1; i++) mViews.removeLast();
+        } else {
+            ptv = new PlayerTrackView(player);
+            mViews.add(wrapPlayerTrackView(ptv));
+        }
+        mPlayerTrackViews.add(ptv);
+
+        ptv.setOnScreen(true);
+        ptv.setTrack(track, playPosition,true,true);
+        mPageViewAdapter.notifyDataSetChanged();
+        setCurrentItem(0);
+
+    }
+
     public void configureFromService(ScPlayer player, int playPosition) {
         PlayQueueManager playQueueManager = CloudPlaybackService.getPlayQueueManager();
         final long queueLength = playQueueManager == null ? 1 : playQueueManager.length();
