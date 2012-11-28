@@ -190,7 +190,8 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putSerializable("state", mState);
+        outState.putSerializable("state", getState());
+        outState.putParcelable("user",    mUser);
     }
 
     @Override
@@ -198,6 +199,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         super.onRestoreInstanceState(savedInstanceState);
 
         setState((StartState) savedInstanceState.getSerializable("state"), false);
+        mUser = savedInstanceState.getParcelable("user");
     }
 
     public Login getLogin() {
