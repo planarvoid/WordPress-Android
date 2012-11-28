@@ -50,19 +50,21 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler, SignUpDetails.SignUpDetailsHandler {
-
-
     protected enum StartState {
         TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS;
     }
-    private static final int RECOVER_CODE    = 1;
 
-    private static final int SUGGESTED_USERS = 2;
+    private static final String BUNDLE_STATE           = "BUNDLE_STATE";
+    private static final String BUNDLE_USER            = "BUNDLE_USER";
+    private static final String BUNDLE_LOGIN           = "BUNDLE_LOGIN";
+    private static final String BUNDLE_SIGN_UP         = "BUNDLE_SIGN_UP";
+    private static final String BUNDLE_SIGN_UP_DETAILS = "BUNDLE_SIGN_UP_DETAILS";
+
     private static final File SIGNUP_LOG = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".dr");
 
     public static final String FB_CONNECTED_EXTRA    = "facebook_connected";
-
     public static final String TOUR_BACKGROUND_EXTRA = "tour_background";
+
     private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
     public static final int THROTTLE_WINDOW = 60 * 60 * 1000;
 
@@ -77,10 +79,13 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     private TourLayout[] mTourPages;
 
     private ViewPager mViewPager;
-    @Nullable private Login  mLogin;
 
+    @Nullable private Login  mLogin;
     @Nullable private SignUp mSignUp;
     @Nullable private SignUpDetails mSignUpDetails;
+
+    @Nullable private Bundle mLoginBundle, mSignUpBundle, mSignUpDetailsBundle;
+
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.start);
@@ -190,16 +195,25 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putSerializable("state", getState());
-        outState.putParcelable("user",    mUser);
+        outState.putSerializable(BUNDLE_STATE, getState());
+        outState.putParcelable(BUNDLE_USER,    mUser);
+
+        if (mLogin         != null) outState.putBundle(BUNDLE_LOGIN,           mLogin.getStateBundle());
+        if (mSignUp        != null) outState.putBundle(BUNDLE_SIGN_UP,         mSignUp.getStateBundle());
+        if (mSignUpDetails != null) outState.putBundle(BUNDLE_SIGN_UP_DETAILS, mSignUpDetails.getStateBundle());
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        setState((StartState) savedInstanceState.getSerializable("state"), false);
-        mUser = savedInstanceState.getParcelable("user");
+        mUser = savedInstanceState.getParcelable(BUNDLE_USER);
+
+        mLoginBundle         = savedInstanceState.getBundle(BUNDLE_LOGIN);
+        mSignUpBundle        = savedInstanceState.getBundle(BUNDLE_SIGN_UP);
+        mSignUpDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
+
+        setState((StartState) savedInstanceState.getSerializable(BUNDLE_STATE), false);
     }
 
     public Login getLogin() {
@@ -209,6 +223,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             mLogin = (Login) stub.inflate();
             mLogin.setLoginHandler(this);
             mLogin.setVisibility(View.GONE);
+            mLogin.setState(mLoginBundle);
         }
 
         return mLogin;
@@ -221,6 +236,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             mSignUp = (SignUp) stub.inflate();
             mSignUp.setSignUpHandler(this);
             mSignUp.setVisibility(View.GONE);
+            mSignUp.setState(mSignUpBundle);
         }
 
         return mSignUp;
@@ -233,6 +249,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             mSignUpDetails = (SignUpDetails) stub.inflate();
             mSignUpDetails.setSignUpDetailsHandler(this);
             mSignUpDetails.setVisibility(View.GONE);
+            mSignUpDetails.setState(mSignUpDetailsBundle);
         }
 
         return mSignUpDetails;

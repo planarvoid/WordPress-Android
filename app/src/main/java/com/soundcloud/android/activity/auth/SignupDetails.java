@@ -4,8 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.Button;
-import android.widget.RelativeLayout;
+import android.widget.*;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -30,8 +29,6 @@ import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ImageView;
-import android.widget.TextView;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -39,12 +36,13 @@ import java.io.IOException;
 
 @Tracking(page = Page.Entry_signup__details)
 public class SignUpDetails extends RelativeLayout {
+    private static final String BUNDLE_USERNAME = "BUNDLE_USERNAME";
+    private static final String BUNDLE_FILE     = "BUNDLE_FILE";
 
     public interface SignUpDetailsHandler {
         void onSubmitDetails(String username, File avatarFile);
         void onSkipDetails();
     }
-
     public SignUpDetails(Context context) {
         super(context);
     }
@@ -58,8 +56,8 @@ public class SignUpDetails extends RelativeLayout {
     }
 
     @Nullable private SignUpDetailsHandler mSignUpDetailsHandler;
-    @Nullable private File mAvatarFile;
 
+    @Nullable private File mAvatarFile;
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
@@ -67,7 +65,7 @@ public class SignUpDetails extends RelativeLayout {
         final Context context = getContext();
         final SoundCloudApplication app = SoundCloudApplication.fromContext(context);
 
-        final TextView  username   = (TextView)  findViewById(R.id.txt_username);
+        final EditText  username   = (EditText)  findViewById(R.id.txt_username);
         final TextView  avatarText = (TextView)  findViewById(R.id.txt_artwork_bg);
         final ImageView avatarView = (ImageView) findViewById(R.id.artwork);
         final Button    skipButton = (Button)    findViewById(R.id.btn_skip);
@@ -186,5 +184,23 @@ public class SignUpDetails extends RelativeLayout {
 
     public void setSignUpDetailsHandler(@Nullable SignUpDetailsHandler mSignUpDetailsHandler) {
         this.mSignUpDetailsHandler = mSignUpDetailsHandler;
+    }
+
+    public Bundle getStateBundle() {
+        EditText username = (EditText) findViewById(R.id.txt_username);
+
+        Bundle bundle = new Bundle();
+        bundle.putCharSequence(BUNDLE_USERNAME, username.getText());
+        bundle.putSerializable(BUNDLE_FILE, mAvatarFile);
+        return bundle;
+    }
+
+    public void setState(@Nullable Bundle bundle) {
+        if (bundle == null) return;
+
+        EditText username = (EditText) findViewById(R.id.txt_username);
+
+        username.setText(bundle.getCharSequence(BUNDLE_USERNAME));
+        setImage((File) bundle.getSerializable(BUNDLE_FILE));
     }
 }
