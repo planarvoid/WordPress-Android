@@ -79,7 +79,7 @@ public class SoundAssociation extends ScResource implements Playable {
         cv.put(DBHelper.CollectionItems.USER_ID, SoundCloudApplication.getUserId());
         cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, associationType);
         cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, getResourceType());
-        cv.put(DBHelper.CollectionItems.POSITION, created_at.getTime());
+        cv.put(DBHelper.CollectionItems.CREATED_AT, created_at.getTime());
         return cv;
     }
 

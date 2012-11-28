@@ -109,7 +109,7 @@ public class ScContentProvider extends ContentProvider {
                 if (_columns == null) _columns = formatWithUser(fullSoundAssociationColumns, userId);
                 makeSoundAssociationSelection(qb, String.valueOf(userId),
                         new int[]{CollectionItemTypes.TRACK, CollectionItemTypes.REPOST});
-                _sortOrder = makeCollectionSort(uri, DBHelper.CollectionItems.POSITION + " DESC");
+                _sortOrder = makeCollectionSort(uri, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC");
 
                 break;
 
@@ -122,7 +122,7 @@ public class ScContentProvider extends ContentProvider {
                 makeSoundAssociationSelection(qb, String.valueOf(userId),
                         new int[]{content.collectionType});
 
-                _sortOrder = makeCollectionSort(uri, DBHelper.CollectionItems.POSITION + " DESC");
+                _sortOrder = makeCollectionSort(uri, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC");
 
                 if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
                     qb.appendWhere(" AND "+ DBHelper.SoundView.CACHED + "= 1");
@@ -435,7 +435,7 @@ public class ScContentProvider extends ContentProvider {
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, userId);
-                    cv.put(DBHelper.CollectionItems.POSITION, System.currentTimeMillis());
+                    cv.put(DBHelper.CollectionItems.CREATED_AT, System.currentTimeMillis());
                     cv.put(DBHelper.CollectionItems.ITEM_ID, (Long) values.get(DBHelper.Sounds._ID));
                     cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, content.collectionType);
                     id = Table.COLLECTION_ITEMS.insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_ABORT);

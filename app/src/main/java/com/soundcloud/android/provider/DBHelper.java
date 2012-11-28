@@ -1,9 +1,7 @@
 package com.soundcloud.android.provider;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.api.Endpoints;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -13,8 +11,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-import java.net.URI;
-import java.util.Date;
 import java.util.List;
 
 
@@ -319,8 +315,10 @@ public class DBHelper extends SQLiteOpenHelper {
             "collection_type INTEGER, " +
             "resource_type INTEGER DEFAULT 0, " +
             "position INTEGER, " +
+            "created_at INTEGER, " +
             "PRIMARY KEY(user_id, item_id, collection_type) ON CONFLICT REPLACE"+
             ");";
+
 
     static final String DATABASE_CREATE_SOUND_VIEW = "AS SELECT " +
             "Sounds." + Sounds._ID + " as " + SoundView._ID +
@@ -364,7 +362,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     /** A view which combines activity data + tracks/users/comments */
         static final String DATABASE_CREATE_SOUND_ASSOCIATION_VIEW = "AS SELECT " +
-            "CollectionItems." + CollectionItems.POSITION + " as " + SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP +
+            "CollectionItems." + CollectionItems.CREATED_AT + " as " + SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP +
             ", CollectionItems." + CollectionItems.COLLECTION_TYPE + " as " + SoundAssociationView.SOUND_ASSOCIATION_TYPE +
             ", CollectionItems." + CollectionItems.USER_ID + " as " + SoundAssociationView.SOUND_ASSOCIATION_USER_ID +
 
@@ -447,15 +445,15 @@ public class DBHelper extends SQLiteOpenHelper {
                 ");";
 
     public static class Connections implements BaseColumns {
-        public static final String USER_ID = "user_id";
-        public static final String SERVICE = "service";
-        public static final String TYPE = "type";
-        public static final String CREATED_AT = "created_at";
+        public static final String USER_ID      = "user_id";
+        public static final String SERVICE      = "service";
+        public static final String TYPE         = "type";
+        public static final String CREATED_AT   = "created_at";
         public static final String DISPLAY_NAME = "display_name";
-        public static final String ACTIVE = "active";
+        public static final String ACTIVE       = "active";
         public static final String POST_PUBLISH = "post_publish";
-        public static final String POST_LIKE = "post_like";
-        public static final String URI = "uri";
+        public static final String POST_LIKE    = "post_like";
+        public static final String URI          = "uri";
     }
 
     public static class ResourceTable implements BaseColumns {
@@ -469,29 +467,29 @@ public class DBHelper extends SQLiteOpenHelper {
      * {@link DBHelper#DATABASE_CREATE_SOUNDS}
      */
     public static class Sounds extends ResourceTable  {
-        public static final String DURATION = "duration";
-        public static final String TAG_LIST = "tag_list";
-        public static final String TRACK_TYPE = "track_type";
-        public static final String TITLE = "title";
-        public static final String PERMALINK_URL = "permalink_url";
-        public static final String ARTWORK_URL = "artwork_url";
-        public static final String WAVEFORM_URL = "waveform_url";
-        public static final String DOWNLOADABLE = "downloadable";
-        public static final String DOWNLOAD_URL = "download_url";
-        public static final String STREAM_URL = "stream_url";
-        public static final String STREAMABLE = "streamable";
-        public static final String COMMENTABLE = "commentable";
-        public static final String SHARING = "sharing";
-        public static final String PLAYBACK_COUNT = "playback_count";
-        public static final String DOWNLOAD_COUNT = "download_count";
-        public static final String COMMENT_COUNT = "comment_count";
-        public static final String LIKES_COUNT = "favoritings_count";
-        public static final String REPOSTS_COUNT = "reposts_count";
+        public static final String DURATION        = "duration";
+        public static final String TAG_LIST        = "tag_list";
+        public static final String TRACK_TYPE      = "track_type";
+        public static final String TITLE           = "title";
+        public static final String PERMALINK_URL   = "permalink_url";
+        public static final String ARTWORK_URL     = "artwork_url";
+        public static final String WAVEFORM_URL    = "waveform_url";
+        public static final String DOWNLOADABLE    = "downloadable";
+        public static final String DOWNLOAD_URL    = "download_url";
+        public static final String STREAM_URL      = "stream_url";
+        public static final String STREAMABLE      = "streamable";
+        public static final String COMMENTABLE     = "commentable";
+        public static final String SHARING         = "sharing";
+        public static final String PLAYBACK_COUNT  = "playback_count";
+        public static final String DOWNLOAD_COUNT  = "download_count";
+        public static final String COMMENT_COUNT   = "comment_count";
+        public static final String LIKES_COUNT     = "favoritings_count";
+        public static final String REPOSTS_COUNT   = "reposts_count";
         public static final String SHARED_TO_COUNT = "shared_to_count";
-        public static final String USER_ID = "user_id";
-        public static final String STATE = "state";
-        public static final String TRACKS_URI = "tracks_uri";
-        public static final String PLAYLIST_TYPE = "playlist_type";
+        public static final String USER_ID         = "user_id";
+        public static final String STATE           = "state";
+        public static final String TRACKS_URI      = "tracks_uri";
+        public static final String PLAYLIST_TYPE   = "playlist_type";
 
         public static final String[] ALL_FIELDS = {
                 _ID, _TYPE, DURATION, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL, ARTWORK_URL,
@@ -524,11 +522,12 @@ public class DBHelper extends SQLiteOpenHelper {
      * {@link DBHelper#DATABASE_CREATE_COLLECTION_ITEMS}
      */
     public static final class CollectionItems {
-        public static final String ITEM_ID = "item_id";
-        public static final String USER_ID = "user_id";     // "owner" of the item
+        public static final String ITEM_ID =       "item_id";
+        public static final String USER_ID         = "user_id";     // "owner" of the item
         public static final String COLLECTION_TYPE = "collection_type"; // the association
-        public static final String RESOURCE_TYPE = "resource_type";     // used by sounds to determine playlist or track
-        public static final String POSITION = "position";
+        public static final String RESOURCE_TYPE   = "resource_type";  // used by sounds to determine playlist or track
+        public static final String POSITION        = "position";
+        public static final String CREATED_AT      = "created_at";
         public static final String SORT_ORDER = POSITION + " ASC";
     }
 
@@ -536,26 +535,26 @@ public class DBHelper extends SQLiteOpenHelper {
      * {@link DBHelper#DATABASE_CREATE_USERS}
      */
     public static final class Users extends ResourceTable  {
-        public static final String USERNAME = "username";
-        public static final String AVATAR_URL = "avatar_url";
-        public static final String CITY = "city";
-        public static final String COUNTRY = "country";
+        public static final String USERNAME     = "username";
+        public static final String AVATAR_URL   = "avatar_url";
+        public static final String CITY         = "city";
+        public static final String COUNTRY      = "country";
         public static final String DISCOGS_NAME = "discogs_name";
-        public static final String FOLLOWERS_COUNT = "followers_count";
+        public static final String FOLLOWERS_COUNT  = "followers_count";
         public static final String FOLLOWINGS_COUNT = "followings_count";
-        public static final String FULL_NAME = "full_name";
-        public static final String MYSPACE_NAME = "myspace_name";
-        public static final String TRACK_COUNT = "track_count";
-        public static final String WEBSITE = "website";
-        public static final String WEBSITE_TITLE = "website_title";
-        public static final String DESCRIPTION = "description";
-        public static final String USER_FOLLOWING = "user_following";
-        public static final String USER_FOLLOWER = "user_follower";
-        public static final String PERMALINK_URL = "permalink_url";
+        public static final String FULL_NAME        = "full_name";
+        public static final String MYSPACE_NAME     = "myspace_name";
+        public static final String TRACK_COUNT      = "track_count";
+        public static final String WEBSITE          = "website";
+        public static final String WEBSITE_TITLE    = "website_title";
+        public static final String DESCRIPTION      = "description";
+        public static final String USER_FOLLOWING   = "user_following";
+        public static final String USER_FOLLOWER    = "user_follower";
+        public static final String PERMALINK_URL    = "permalink_url";
 
         public static final String PRIMARY_EMAIL_CONFIRMED = "primary_email_confirmed";
-        public static final String PUBLIC_LIKES_COUNT = "public_favorites_count";
-        public static final String PRIVATE_TRACKS_COUNT = "private_tracks_count";
+        public static final String PUBLIC_LIKES_COUNT      = "public_favorites_count";
+        public static final String PRIVATE_TRACKS_COUNT    = "private_tracks_count";
 
         public static final String PLAN = "plan";
 
@@ -720,8 +719,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public final static class SoundAssociationView extends SoundView {
         public static final String SOUND_ASSOCIATION_TIMESTAMP = "sound_association_timestamp";
-        public static final String SOUND_ASSOCIATION_TYPE = "sound_association_type";
-        public static final String SOUND_ASSOCIATION_USER_ID = "sound_association_user_id";
+        public static final String SOUND_ASSOCIATION_TYPE      = "sound_association_type";
+        public static final String SOUND_ASSOCIATION_USER_ID   = "sound_association_user_id";
     }
 
 
