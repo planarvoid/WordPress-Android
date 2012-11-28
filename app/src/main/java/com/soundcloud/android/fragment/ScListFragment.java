@@ -77,7 +77,7 @@ public class ScListFragment extends SherlockListFragment
     protected @Nullable LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
 
-    private boolean mContentInvalid, mObservingContent, mIgnorePlaybackStatus, mKeepGoing, mPendingSync;
+    private boolean mObservingContent, mIgnorePlaybackStatus, mKeepGoing, mPendingSync;
     protected String mNextHref;
     private CollectionTask mAppendTask;
 
@@ -376,7 +376,9 @@ public class ScListFragment extends SherlockListFragment
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_SYNC_ERROR: {
-                if (resultData != null && !resultData.getBoolean(mContentUri.toString()) && !isRefreshing()) {
+                final boolean changed = resultData != null && !resultData.getBoolean(mContentUri.toString());
+
+                if (changed && !isRefreshing()) {
                     doneRefreshing(); // nothing changed
 
                     // first time user with no account data. this will force the empty screen that was held back earlier
@@ -384,8 +386,7 @@ public class ScListFragment extends SherlockListFragment
                         mKeepGoing = true;
                         append(false);
                     }
-
-                } else if (mContentInvalid && !isRefreshTaskActive()) {
+                } else if (!isRefreshTaskActive()) {
                     executeRefreshTask();
                 }
                 break;
@@ -413,23 +414,20 @@ public class ScListFragment extends SherlockListFragment
     }
 
     protected void onContentChanged() {
-        mContentInvalid = true;
-        if (!(getListAdapter() instanceof ActivityAdapter) || ((ActivityAdapter) getListAdapter()).isExpired()){
-            executeRefreshTask();
-        }
     }
 
     public void executeRefreshTask() {
+        final Context context = getActivity();
+        if (context != null) {
+            mRefreshTask = buildTask(context);
+            mRefreshTask.execute(getTaskParams(true));
+        }
         configureEmptyCollection();
-        mEmptyCollection.setMode(EmptyCollection.Mode.WAITING_FOR_DATA);
-        mRefreshTask = buildTask();
-        mRefreshTask.execute(getTaskParams(true));
     }
 
-    protected CollectionTask buildTask() {
-        return new CollectionTask(SoundCloudApplication.fromContext(getActivity()), this);
+    protected CollectionTask buildTask(Context context) {
+        return new CollectionTask(SoundCloudApplication.fromContext(context), this);
     }
-
 
     protected CollectionParams getTaskParams(final boolean refresh) {
         CollectionParams params = getListAdapter().getParams(refresh);
@@ -559,7 +557,8 @@ public class ScListFragment extends SherlockListFragment
     }
 
     protected void configureEmptyCollection(){
-        mEmptyCollection.setMode(canAppend() || isRefreshing() || waitingOnInitialSync()? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.IDLE);
+        final boolean wait = canAppend() || isRefreshing() || waitingOnInitialSync();
+        mEmptyCollection.setMode(wait ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.IDLE);
     }
 
     @Override
@@ -582,10 +581,11 @@ public class ScListFragment extends SherlockListFragment
     }
 
     protected void append(boolean force) {
-        if (getActivity() == null) return; // has been detached
+        Context context = getActivity();
+        if (context == null) return; // has been detached
 
         if (force || isTaskFinished(mAppendTask)){
-            mAppendTask = buildTask();
+            mAppendTask = buildTask(context);
             mAppendTask.execute(getTaskParams(false));
         }
         getListAdapter().setIsLoadingData(true);

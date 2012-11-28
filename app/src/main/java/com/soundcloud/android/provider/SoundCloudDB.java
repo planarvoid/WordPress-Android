@@ -135,11 +135,6 @@ public class SoundCloudDB {
                             cv.put(DBHelper.PlayQueue.TRACK_ID, id);
                             break;
 
-                        // this will not be necessary once we use e1 likes endpoint
-                        case ME_LIKES:
-                        case USER_LIKES:
-                            //cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, Track.DB_TYPE_TRACK);
-                            // fallthrough
                         default:
                             cv.put(DBHelper.CollectionItems.POSITION, i);
                             cv.put(DBHelper.CollectionItems.ITEM_ID, id);

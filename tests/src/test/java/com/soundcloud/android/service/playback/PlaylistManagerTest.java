@@ -1,8 +1,8 @@
 package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
@@ -34,7 +34,6 @@ public class PlaylistManagerTest {
     public void before() {
         resolver = Robolectric.application.getContentResolver();
         pm = new PlayQueueManager(Robolectric.application, USER_ID);
-
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
     }
 
@@ -279,14 +278,8 @@ public class PlaylistManagerTest {
     }
 
     private void insertTracksAsUri(Uri uri) throws IOException {
-        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(getClass().getResourceAsStream("tracks.json"), TrackHolder.class);
-
-        for (Track t: tracks){
-            SoundCloudApplication.MODEL_MANAGER.cache(t, ScResource.CacheUpdateMode.FULL);
-        }
-
+        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/service/playback/tracks.json");
         expect(SoundCloudApplication.MODEL_MANAGER.writeCollection(tracks.collection, uri, USER_ID, ScResource.CacheUpdateMode.FULL)).toEqual(4);
-
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(3);
     }

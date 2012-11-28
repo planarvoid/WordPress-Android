@@ -53,31 +53,29 @@ class ServiceResultReceiver extends ResultReceiver {
                     final long frequency = SyncConfig.getNotificationsFrequency(app);
                     final long delta = System.currentTimeMillis() - ContentStats.getLastNotified(app, Content.ME_SOUND_STREAM);
                     if (delta > frequency) {
-                        final long lastIncomingSeen = ContentStats.getLastSeen(app, Content.ME_SOUND_STREAM);
-                        final Activities incoming = !SyncConfig.isIncomingEnabled(app, extras) ? Activities.EMPTY :
-                                Activities.getSince(Content.ME_SOUND_STREAM, app.getContentResolver(), lastIncomingSeen);
+                        final long lastStreamSeen = ContentStats.getLastSeen(app, Content.ME_SOUND_STREAM);
+                        final Activities stream = !SyncConfig.isIncomingEnabled(app, extras) ? Activities.EMPTY :
+                                Activities.getSince(Content.ME_SOUND_STREAM, app.getContentResolver(), lastStreamSeen);
 
 
-                        maybeNotifyIncoming(app, incoming);
+                        maybeNotifyStream(app, stream);
                     } else if (Log.isLoggable(SyncAdapterService.TAG, Log.DEBUG)) {
-                            Log.d(SyncAdapterService.TAG, "skipping incoming notification, delta "+delta+" < frequency="+frequency);
+                            Log.d(SyncAdapterService.TAG, "skipping stream notification, delta "+delta+" < frequency="+frequency);
                     }
 
                     final long lastOwnSeen = ContentStats.getLastSeen(app, Content.ME_ACTIVITIES);
                     final Activities news = !SyncConfig.isActivitySyncEnabled(app, extras) ? Activities.EMPTY :
                             Activities.getSince(Content.ME_ACTIVITIES, app.getContentResolver(), lastOwnSeen);
-                    maybeNotifyOwn(app, news, extras);
+                    maybeNotifyActivity(app, news, extras);
                 }
                 break;
             }
         }
     }
 
-    private boolean maybeNotifyIncoming(SoundCloudApplication app,
-                                             Activities incoming) {
-
-        final int totalUnseen = Activities.getUniqueTrackCount(incoming);
-        final boolean hasIncoming = !incoming.isEmpty();
+    private boolean maybeNotifyStream(SoundCloudApplication app, Activities stream) {
+        final int totalUnseen = Activities.getUniqueTrackCount(stream);
+        final boolean hasIncoming = !stream.isEmpty();
 
         if (totalUnseen > 0) {
             ContentStats.updateCount(app, Content.ME_SOUND_STREAM, totalUnseen);
@@ -98,17 +96,17 @@ class ServiceResultReceiver extends ResultReceiver {
             }
 
 
-            message = Message.getIncomingNotificationMessage(app, incoming);
-            String artwork_url = incoming.getFirstAvailableArtwork();
+            message = Message.getIncomingNotificationMessage(app, stream);
+            String artwork_url = stream.getFirstAvailableArtwork();
 
-            if (incoming.newerThan(ContentStats.getLastNotified(app, Content.ME_SOUND_STREAM))) {
-                prefetchArtwork(app, incoming);
+            if (stream.newerThan(ContentStats.getLastNotified(app, Content.ME_SOUND_STREAM))) {
+                prefetchArtwork(app, stream);
 
                 Message.showDashboardNotification(app, ticker, title, message, Message.createNotificationIntent(Actions.STREAM),
                         Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID, artwork_url);
 
                 ContentStats.setLastNotified(app, Content.ME_SOUND_STREAM, System.currentTimeMillis());
-                ContentStats.setLastNotifiedItem(app, Content.ME_SOUND_STREAM, incoming.getTimestamp());
+                ContentStats.setLastNotifiedItem(app, Content.ME_SOUND_STREAM, stream.getTimestamp());
 
                 return true;
             } else return false;
@@ -118,27 +116,27 @@ class ServiceResultReceiver extends ResultReceiver {
         }
     }
 
-    private boolean maybeNotifyOwn(SoundCloudApplication app, Activities activities, Bundle extras) {
+    private boolean maybeNotifyActivity(SoundCloudApplication app, Activities activities, Bundle extras) {
         if (!activities.isEmpty()) {
             ContentStats.updateCount(app, Content.ME_ACTIVITIES, activities.size());
 
             boolean likeEnabled = SyncConfig.isLikeEnabled(app, extras);
             final boolean commentsEnabled = SyncConfig.isCommentsEnabled(app, extras);
 
-            Activities favoritings = likeEnabled ? activities.trackLikes() : Activities.EMPTY;
+            Activities likes = likeEnabled ? activities.trackLikes() : Activities.EMPTY;
             Activities comments    = commentsEnabled ? activities.comments() : Activities.EMPTY;
 
             Activities notifyable = Activities.EMPTY;
             if (likeEnabled && commentsEnabled){
                 notifyable = activities.commentsAndTrackLikes();
             } else if (likeEnabled){
-                notifyable = favoritings;
+                notifyable = likes;
             } else if (commentsEnabled){
                 notifyable = comments;
             }
 
             if (notifyable == null || notifyable.isEmpty()) return false;
-            Message msg = new Message(app.getResources(), notifyable, favoritings, comments);
+            Message msg = new Message(app.getResources(), notifyable, likes, comments);
 
             if (activities.newerThan(ContentStats.getLastNotifiedItem(app, Content.ME_ACTIVITIES))) {
                 prefetchArtwork(app, activities);
