@@ -10,7 +10,7 @@ import com.google.android.imageloader.PrefetchHandler;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.c2dm.C2DMReceiver;
-import com.soundcloud.android.cache.Connections;
+import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Comment;
@@ -119,7 +119,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         MODEL_MANAGER = new ScModelManager(this, mCloudApi.getMapper());
 
         if (account != null) {
-            Connections.initialize(this, "connections-"+getCurrentUserId());
 
             if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
                 enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
@@ -141,9 +140,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
 
         unseenActivities.put(Content.ME_SOUND_STREAM, Activities.getCountSince(getContentResolver(),
-                getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN),Content.ME_SOUND_STREAM));
+                0,Content.ME_SOUND_STREAM));
         unseenActivities.put(Content.ME_ACTIVITIES, Activities.getCountSince(getContentResolver(),
-                getAccountDataLong(User.DataKeys.LAST_OWN_SEEN), Content.ME_ACTIVITIES));
+                0, Content.ME_ACTIVITIES));
 
 //        setupStrictMode();
 
@@ -199,7 +198,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         User.clearLoggedInUserFromStorage(this);
         C2DMReceiver.unregister(this);
         FollowStatus.set(null);
-        Connections.set(null);
+        ConnectionsCache.set(null);
         mLoggedInUser = null;
         mCloudApi.invalidateToken();
     }

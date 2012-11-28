@@ -191,31 +191,4 @@ class Message {
 
         }
     }
-
-    /* package */ static String getExclusiveNotificationMessage(SoundCloudApplication app, Activities activities) {
-        if (activities.size() == 1) {
-            return String.format(
-                    app.getString(R.string.dashboard_notifications_message_single_exclusive),
-                    activities.get(0).getTrack().user.username);
-
-        } else {
-            List<User> users = activities.getUniqueUsers();
-            assert !users.isEmpty();
-
-            switch (users.size()) {
-                case 1:
-                    return String.format(
-                            app.getString(R.string.dashboard_notifications_message_exclusive),
-                            users.get(0).username);
-                case 2:
-                    return String.format(
-                            app.getString(R.string.dashboard_notifications_message_exclusive_2),
-                            users.get(0).username, users.get(1).username);
-                default:
-                    return String.format(app
-                            .getString(R.string.dashboard_notifications_message_exclusive_others),
-                            users.get(0).username, users.get(1).username);
-            }
-        }
-    }
 }

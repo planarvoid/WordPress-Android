@@ -12,10 +12,6 @@
         <ImageView android:layout_height="fill_parent"
                    android:layout_width="wrap_content"
                    android:scaleType="centerInside"
-                   android:paddingBottom="13dp"
-                   android:paddingTop="13dp"
-                   android:paddingLeft="5dp"
-                   android:paddingRight="5dp"
                    android:layout_centerInParent="true"
                    android:src="@drawable/logo_white_transparent"/>
     </RelativeLayout>

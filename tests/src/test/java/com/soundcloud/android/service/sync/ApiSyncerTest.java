@@ -17,13 +17,11 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.content.SyncResult;
 import android.net.Uri;
 
 import java.io.IOException;
@@ -63,7 +61,6 @@ public class ApiSyncerTest {
 
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(112);
-        expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(0);
         expect(Content.TRACKS).toHaveCount(111);
         expect(Content.USERS).toHaveCount(28);
         //expect(Content.PLAYLISTS).toHaveCount(8);
@@ -133,6 +130,50 @@ public class ApiSyncerTest {
 
         expect(Content.TRACKS).toHaveCount(2);    // 2 sounds + 1 playlist
         expect(Content.ME_LIKES).toHaveCount(2);  // ditto
+    }
+
+    @Test
+    public void shouldSyncFriends() throws Exception {
+        addIdResponse("/me/connections/friends/ids?linked_partitioning=1", 792584, 1255758, 308291);
+        addResourceResponse("/users?linked_partitioning=1&limit=200&ids=792584%2C1255758%2C308291", "users.json");
+
+        sync(Content.ME_FRIENDS.uri);
+
+        // make sure tracks+users got written
+        expect(Content.USERS).toHaveCount(3);
+        expect(Content.ME_FRIENDS).toHaveCount(3);
+        assertFirstIdToBe(Content.ME_FRIENDS, 308291);
+    }
+
+    @Test
+    public void shouldSyncMyShortcuts() throws Exception {
+
+        TestHelper.addCannedResponses(getClass(), "all_shortcuts.json");
+        sync(Content.ME_SHORTCUTS.uri);
+        expect(Content.ME_SHORTCUTS).toHaveCount(461);
+
+        // make sure tracks+users got written
+        expect(Content.USERS).toHaveCount(318);
+        expect(Content.TRACKS).toHaveCount(143);
+    }
+
+    @Test
+    public void shouldSyncConnections() throws Exception {
+        TestHelper.addCannedResponses(getClass(), "connections.json");
+        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
+        expect(Content.ME_CONNECTIONS).toHaveCount(4);
+
+        TestHelper.addCannedResponses(getClass(), "connections.json");
+        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.UNCHANGED);
+        expect(Content.ME_CONNECTIONS).toHaveCount(4);
+
+        TestHelper.addCannedResponses(getClass(), "connections_add.json");
+        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
+        expect(Content.ME_CONNECTIONS).toHaveCount(6);
+
+        TestHelper.addCannedResponses(getClass(), "connections_delete.json");
+        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
+        expect(Content.ME_CONNECTIONS).toHaveCount(3);
     }
 
     @Test
@@ -236,18 +277,15 @@ public class ApiSyncerTest {
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(112);
         expect(Content.ME_ACTIVITIES).toHaveCount(17);
-        expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(0);
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(137);
     }
 
     @Test
     public void shouldNotProduceDuplicatesWhenSyncing() throws Exception {
         sync(Content.ME_SOUND_STREAM.uri, "e1_stream_1_oldest.json");
-        sync(Content.ME_EXCLUSIVE_STREAM.uri, "e1_stream_1_oldest.json");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(20);
-        expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(20);
-        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(44);
+        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(22);
     }
 
     @Test

@@ -4,8 +4,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.auth.Connect;
-import com.soundcloud.android.cache.Connections;
-import com.soundcloud.android.cache.ParcelCache;
+import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.task.create.NewConnectionTask;
 
@@ -24,6 +23,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 public class ConnectionList extends LinearLayout {
@@ -82,8 +82,8 @@ public class ConnectionList extends LinearLayout {
         return this.listAdapter;
     }
 
-    public List<Integer> postToServiceIds() {
-        List<Integer> ids = new ArrayList<Integer>();
+    public List<Long> postToServiceIds() {
+        List<Long> ids = new ArrayList<Long>();
         for (int i = 0; i < getChildCount(); i++) {
             View v = getChildAt(i);
             if (v instanceof ConnectionItem && v.isEnabled()) {
@@ -146,12 +146,12 @@ public class ConnectionList extends LinearLayout {
             return true;
         }
 
-        public void setConnections(List<Connection> connections) {
+        public void setConnections(Set<Connection> connections) {
             setConnections(connections, false);
         }
 
-        public void setConnections(List<Connection> connections, boolean addUnused) {
-            mConnections = addUnused ? Connection.addUnused(connections) : connections;
+        public void setConnections(Set<Connection> connections, boolean addUnused) {
+            mConnections = addUnused ? Connection.addUnused(connections) : (List<Connection>) connections;
             notifyDataSetChanged();
             mFailed = false;
         }
@@ -190,22 +190,24 @@ public class ConnectionList extends LinearLayout {
             };
         }
 
-        public Adapter loadIfNecessary() {
-            if (mFailed || mConnections == null) load();
+        public Adapter loadIfNecessary(Context context) {
+            if (mFailed || mConnections == null) load(context);
             return this;
         }
 
-        public Adapter load() {
+        public Adapter load(Context context) {
             // try to use cached connections first
-            final List<Connection> connections = Connections.get().getObjectsOrNull();
+            final Set<Connection> connections = ConnectionsCache.get(context).getConnections();
 
             if (connections != null) setConnections(connections, true);
             // request update, but only use it if no cached connections were fetched
-            Connections.get().requestUpdate(api, true,
-                new ParcelCache.Listener<Connection>() {
-                        @Override public void onChanged(List<Connection> objects, ParcelCache<Connection> cache) {
-                            if (objects != null) {
-                                setConnections(objects, true);
+            ConnectionsCache.get(context).requestConnections(
+                    new ConnectionsCache.Listener() {
+                        @Override
+                        public void onConnectionsRefreshed(Set<Connection> connections, boolean changed) {
+                            final Set<Connection> connections1 = connections;
+                            if (connections1 != null) {
+                                setConnections(connections1, true);
                             } else {
                                 mFailed = true;
                                 notifyDataSetChanged();

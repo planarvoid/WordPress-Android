@@ -123,19 +123,43 @@
 
         <activity android:name=".activity.landing.You">
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.YOUR_PROFILE"/>
+                <action android:name="com.soundcloud.android.action.YOU"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.YOUR_SOUNDS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.YOUR_LIKES"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.YOUR_FOLLOWERS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.YOUR_FOLLOWINGS"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.landing.SuggestedUsers" android:label="@string/side_menu_suggested_users" android:configChanges="orientation"/>
-        <activity android:name=".activity.landing.FriendFinder" android:label="@string/side_menu_friend_finder" android:configChanges="orientation"/>
+        <activity android:name=".activity.landing.SuggestedUsers" android:label="@string/side_menu_suggested_users">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.WHO_TO_FOLLOW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activity.landing.FriendFinder" android:label="@string/side_menu_friend_finder"
+                  android:configChanges="orientation">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.FRIEND_FINDER"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
 
 
         <activity android:name=".activity.auth.Start" android:label="@string/app_name" android:exported="true" android:theme="@style/Theme.ScAuth" />
-        <activity android:name=".activity.auth.Login" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScAuth"  />
-        <activity android:name=".activity.auth.SignUp" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScAuth"  />
-        <activity android:name=".activity.auth.SignUpDetails" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScAuth" />
         <activity android:name=".activity.auth.Recover" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScAuth"  />
         <activity android:name=".activity.auth.Facebook" android:theme="@style/Theme.Next.NoActionBar"/>
         <activity android:name=".activity.auth.FacebookWebFlow" android:theme="@style/Theme.Next.NoActionBar" android:label="@string/app_name" android:configChanges="orientation"/>
@@ -143,15 +167,9 @@
         <activity android:name=".activity.auth.SuggestedUsers" android:label="@string/app_name" android:configChanges="orientation"/>
 
         <activity android:name=".activity.auth.Connect"
-            android:label="Connect"
-            android:configChanges="orientation|keyboardHidden">
-
-            <intent-filter>
-              <action android:name="android.intent.action.VIEW" />
-              <category android:name="android.intent.category.DEFAULT" />
-              <category android:name="android.intent.category.BROWSABLE" />
-              <data android:scheme="soundcloud" android:host="auth" />
-            </intent-filter>
+                  android:theme="@style/Theme.Next.NoActionBar"
+                  android:label="Connect"
+                  android:configChanges="orientation|keyboardHidden">
         </activity>
 
         <activity android:name=".activity.ScPlayer"
@@ -163,6 +181,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".activity.landing.Home"/>
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>

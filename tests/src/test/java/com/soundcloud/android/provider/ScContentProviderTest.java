@@ -18,6 +18,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
+import com.soundcloud.android.service.sync.ApiSyncerTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -135,7 +136,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldSupportAndroidGlobalSearch() throws Exception {
-        Shortcut[] shortcuts = AndroidCloudAPI.Mapper.readValue(getClass().getResourceAsStream("all_shortcuts.json"),
+        Shortcut[] shortcuts = AndroidCloudAPI.Mapper.readValue(ApiSyncerTest.class.getResourceAsStream("all_shortcuts.json"),
                 Shortcut[].class);
 
         List<ContentValues> cvs = new ArrayList<ContentValues>();
@@ -395,7 +396,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldBulkInsertSuggestions() throws Exception {
-        Shortcut[] shortcuts = AndroidCloudAPI.Mapper.readValue(getClass().getResourceAsStream("all_shortcuts.json"),
+        Shortcut[] shortcuts = AndroidCloudAPI.Mapper.readValue(ApiSyncerTest.class.getResourceAsStream("all_shortcuts.json"),
                 Shortcut[].class);
 
         List<ContentValues> cvs = new ArrayList<ContentValues>();

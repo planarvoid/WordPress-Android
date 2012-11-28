@@ -118,7 +118,7 @@ public class UploadServiceTest {
         expect(notification).toHaveTicker("Upload Finished");
         expect(notification).toHaveText("testing has been uploaded");
         expect(notification).toHaveTitle("Upload Finished");
-        expect(notification).toMatchIntent(new Intent(Actions.MY_PROFILE));
+        expect(notification).toMatchIntent(new Intent(Actions.YOUR_SOUNDS));
         expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
 
         Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(12345l);
@@ -142,7 +142,7 @@ public class UploadServiceTest {
         expect(notification).toHaveTicker("Upload Finished");
         expect(notification).toHaveText("testing has been uploaded");
         expect(notification).toHaveTitle("Upload Finished");
-        expect(notification).toMatchIntent(new Intent(Actions.MY_PROFILE));
+        expect(notification).toMatchIntent(new Intent(Actions.YOUR_SOUNDS));
 
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(503, "ohnoez"));
         final Recording upload2 = TestApplication.getValidRecording();
@@ -299,12 +299,12 @@ public class UploadServiceTest {
         expect(first).toHaveTicker("Transcoding Error");
         expect(first).toHaveText("There was an error transcoding recording on sunday night");
         expect(first).toHaveTitle("Transcoding Error");
-        expect(first).toMatchIntent(new Intent(Actions.MY_PROFILE));
+        expect(first).toMatchIntent(new Intent(Actions.YOUR_SOUNDS));
 
         expect(second).toHaveTicker("Upload Finished");
         expect(second).toHaveText("testing has been uploaded");
         expect(second).toHaveTitle("Upload Finished");
-        expect(second).toMatchIntent(new Intent(Actions.MY_PROFILE));
+        expect(second).toMatchIntent(new Intent(Actions.YOUR_SOUNDS));
 
         expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
     }

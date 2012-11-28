@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.net.Uri;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class SyncContentTest {
     @Before
     public void before() {
         resolver = Robolectric.application.getContentResolver();
+        SyncContent.setAllSyncEnabledPrefs(Robolectric.application,true);
     }
 
     @Test

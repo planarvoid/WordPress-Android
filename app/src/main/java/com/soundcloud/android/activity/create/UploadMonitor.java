@@ -164,10 +164,7 @@ public class UploadMonitor extends Activity {
         } else {
             // idle state, kick them out to their track list
             // this should only happen if they try to resume this activity from their recents
-            startActivity(new Intent(Actions.MY_PROFILE)
-                    .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks)
-                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            );
+            startActivity(new Intent(Actions.YOUR_SOUNDS));
             finish();
         }
     }

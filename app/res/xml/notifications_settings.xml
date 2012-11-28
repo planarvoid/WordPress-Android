@@ -22,12 +22,6 @@
                 android:summary="@string/pref_notifications_incoming_description"
                 android:key="notificationsIncoming"
                 android:defaultValue="true"/>
-
-        <CheckBoxPreference
-                android:title="@string/pref_notifications_exclusive"
-                android:summary="@string/pref_notifications_exclusive_description"
-                android:key="notificationsExclusive"
-                android:defaultValue="true"/>
     </PreferenceCategory>
 
      <PreferenceCategory android:title="@string/pref_notifications_activity">

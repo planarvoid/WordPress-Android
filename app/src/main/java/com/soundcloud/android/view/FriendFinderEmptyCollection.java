@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 
 import android.content.Context;
 import android.view.View;
+import android.widget.LinearLayout;
 
 public class FriendFinderEmptyCollection extends EmptyCollection {
 
@@ -17,6 +18,11 @@ public class FriendFinderEmptyCollection extends EmptyCollection {
 
         mBtnAction.setBackgroundResource(R.drawable.next_button_blue);
         mBtnAction.setTextColor(getResources().getColorStateList(R.drawable.txt_btn_blue_states));
+
+        final float density = context.getResources().getDisplayMetrics().density;
+
+        // padding resets after you set a background in code
+        mBtnAction.setPadding((int) (20 * density),(int) (5 * density),(int) (20 * density),(int) (5 * density));
     }
 
     @Override

@@ -6,16 +6,18 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Shortcut;
-import com.soundcloud.android.model.SoundAssociationHolder;
-import com.soundcloud.android.model.act.Activities;
-import com.soundcloud.android.model.act.Activity;
+import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -29,6 +31,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncResult;
+import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -73,7 +76,6 @@ public class ApiSyncer {
                     break;
                 case ME_ALL_ACTIVITIES:
                 case ME_ACTIVITIES:
-                case ME_EXCLUSIVE_STREAM:
                 case ME_SOUND_STREAM:
                     result = syncActivities(uri, action);
                     result.success = true;
@@ -91,6 +93,7 @@ public class ApiSyncer {
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
                 case ME_REPOSTS:
+                case ME_FRIENDS:
                     result = syncContent(c, SoundCloudApplication.getUserIdFromContext(mContext));
                     result.success = true;
                     break;
@@ -105,11 +108,19 @@ public class ApiSyncer {
                     break;
 
                 case ME_SHORTCUTS:
-                    result = syncShortcuts(c);
+                    result = syncMyGenericResource(c);
                     PreferenceManager.getDefaultSharedPreferences(mContext)
                             .edit()
                             .putLong(Consts.PrefKeys.LAST_SHORTCUT_SYNC, System.currentTimeMillis())
                             .commit();
+                    break;
+
+                case ME_CONNECTIONS:
+                    result = syncMyConnections();
+                    if (result.change == Result.CHANGED){
+                        // connections changed so make sure friends gets auto synced next opportunity
+                        LocalCollection.forceToStale(Content.ME_FRIENDS.uri, mResolver);
+                    }
                     break;
             }
         } else {
@@ -283,7 +294,7 @@ public class ApiSyncer {
                     result.change = Result.CHANGED;
                     result.extra = "0"; // reset sync misses
                 } else {
-                    result.change = Result.REORDERED; // always mark users as reordered so we get the first page
+                    result.change = remoteSet.isEmpty() ? Result.UNCHANGED : Result.REORDERED; // always mark users as reordered so we get the first page
                 }
                 break;
             default:
@@ -328,29 +339,92 @@ public class ApiSyncer {
         return result;
     }
 
-    private Result syncShortcuts(Content c) throws IOException {
-        log("Syncing shortcuts");
+    /**
+     * Good for syncing any generic item that doesn't require special ordering or cache handling
+     * e.g. Shortcuts, Connections
+     * @param c
+     * @return
+     * @throws IOException
+     */
+    private Result syncMyGenericResource(Content c) throws IOException {
+        log("Syncing generic resource " + c.uri);
 
         Result result = new Result(c.uri);
         HttpResponse resp = mApi.get(c.request());
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            Shortcut[] shortcuts = mApi.getMapper().readValue(resp.getEntity().getContent(), Shortcut[].class);
+            List<ScModel> models = mApi.getMapper().readValue(resp.getEntity().getContent(),
+                    mApi.getMapper().getTypeFactory().constructCollectionType(List.class, c.modelType));
 
-            List<ContentValues> cvs = new ArrayList<ContentValues>(shortcuts.length);
-            for (Shortcut shortcut : shortcuts) {
-                ContentValues cv = shortcut.buildContentValues();
+            List<ContentValues> cvs = new ArrayList<ContentValues>(models.size());
+            for (ScModel model : models) {
+                ContentValues cv = model.buildContentValues();
                 if (cv != null) cvs.add(cv);
             }
 
+            int inserted = 0;
             if (!cvs.isEmpty()) {
-                int inserted = mResolver.bulkInsert(c.uri, cvs.toArray(new ContentValues[cvs.size()]));
-                Log.d(TAG, "inserted " +inserted + " shortcuts");
+                inserted = mResolver.bulkInsert(c.uri, cvs.toArray(new ContentValues[cvs.size()]));
+                Log.d(TAG, "inserted " + inserted + " generic models");
             }
 
+            result.setSyncData(System.currentTimeMillis(), inserted, null);
             result.success = true;
         }
         return result;
     }
+
+    private Result syncMyConnections() throws IOException {
+            log("Syncing my connections");
+
+            Result result = new Result(Content.ME_CONNECTIONS.uri);
+            HttpResponse resp = mApi.get(Content.ME_CONNECTIONS.request());
+            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+
+                // compare local vs remote connections
+                HashSet<Connection> remoteConnections = mApi.getMapper().readValue(resp.getEntity().getContent(),
+                        mApi.getMapper().getTypeFactory().constructCollectionType(Set.class, Content.ME_CONNECTIONS.modelType));
+
+                Cursor c = mResolver.query(Content.ME_CONNECTIONS.uri, null, null, null, null);
+                HashSet<Connection> storedConnections = new HashSet<Connection>();
+                if (c != null && c.moveToFirst()){
+                    do {
+                        storedConnections.add(new Connection(c));
+                    } while (c.moveToNext());
+                }
+
+                if (storedConnections.equals(remoteConnections)){
+                    result.change = Result.UNCHANGED;
+                } else {
+                    result.change = Result.CHANGED;
+                    // remove unneeded connections
+                    storedConnections.removeAll(remoteConnections);
+                    List<Long> toRemove = new ArrayList<Long>();
+                    for (Connection storedConnection : storedConnections) {
+                        toRemove.add(storedConnection.id);
+                    }
+                    if (!toRemove.isEmpty()){
+                        mResolver.delete(Content.ME_CONNECTIONS.uri, DBHelper.getWhereInClause(DBHelper.Connections._ID, toRemove), ScModelManager.longListToStringArr(toRemove));
+                    }
+                }
+
+                // write anyways to update connections
+                List<ContentValues> cvs = new ArrayList<ContentValues>(remoteConnections.size());
+                for (Connection connection : remoteConnections) {
+                    ContentValues cv = connection.buildContentValues();
+                    if (cv != null) cvs.add(cv);
+                }
+
+                int inserted = 0;
+                if (!cvs.isEmpty()) {
+                    inserted = mResolver.bulkInsert(Content.ME_CONNECTIONS.uri, cvs.toArray(new ContentValues[cvs.size()]));
+                    Log.d(TAG, "inserted " + inserted + " generic models");
+                }
+
+                result.setSyncData(System.currentTimeMillis(), inserted, null);
+                result.success = true;
+            }
+            return result;
+        }
 
     private Result doLookupAndInsert(Content content, String ids) throws IOException {
         Result result = new Result(content.uri);

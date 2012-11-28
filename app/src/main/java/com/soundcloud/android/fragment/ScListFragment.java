@@ -67,10 +67,9 @@ public class ScListFragment extends SherlockListFragment
 
     @Nullable
     protected ScListView mListView;
-    @NotNull
-    protected EmptyCollection mEmptyCollection;
-
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
+
+    protected @Nullable EmptyCollection mEmptyCollection;
     private @Nullable Content mContent;
     private @NotNull Uri mContentUri;
 
@@ -80,7 +79,7 @@ public class ScListFragment extends SherlockListFragment
     protected @Nullable LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
 
-    private boolean mContentInvalid, mObservingContent, mIgnorePlaybackStatus, mKeepGoing;
+    private boolean mContentInvalid, mObservingContent, mIgnorePlaybackStatus, mKeepGoing, mPendingSync;
     protected String mNextHref;
     private CollectionTask mAppendTask;
 
@@ -109,7 +108,6 @@ public class ScListFragment extends SherlockListFragment
         mKeepGoing = true;
 
         if (mContent.isSyncable()) {
-
             final ContentResolver contentResolver = getActivity().getContentResolver();
             // TODO :  Move off the UI thread.
             mLocalCollection = LocalCollection.fromContentUri(mContentUri, contentResolver, true);
@@ -122,6 +120,14 @@ public class ScListFragment extends SherlockListFragment
         }
     }
 
+    public void setEmptyCollection(EmptyCollection emptyCollection){
+        mEmptyCollection = emptyCollection;
+        configureEmptyCollection();
+        if (getView() != null && getListView() != null) {
+            getListView().setEmptyView(emptyCollection);
+        }
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -130,7 +136,6 @@ public class ScListFragment extends SherlockListFragment
         if (getListAdapter() == null && mContent != null) {
             switch (mContent) {
                 case ME_SOUND_STREAM:
-                case ME_EXCLUSIVE_STREAM:
                 case ME_ACTIVITIES:
                     adapter = new ActivityAdapter(getActivity(), mContentUri);
                     break;
@@ -178,7 +183,11 @@ public class ScListFragment extends SherlockListFragment
             }
             setListAdapter(adapter);
             configureEmptyCollection();
-            if (canAppend()) append(false);
+            if (canAppend()) {
+                append(false);
+            } else {
+                mKeepGoing = false;
+            }
         }
     }
 
@@ -196,10 +205,10 @@ public class ScListFragment extends SherlockListFragment
         mListView = buildList();
         mListView.setOnRefreshListener(this);
         mListView.setOnScrollListener(this);
+        setEmptyCollection((mEmptyCollection == null) ?
+                EmptyCollection.fromContent(context, mContent) : mEmptyCollection);
 
 
-        mEmptyCollection = EmptyCollection.fromContent(context, mContent);
-        configureEmptyCollection();
         mListView.setEmptyView(mEmptyCollection);
 
         if (isRefreshing() || waitingOnInitialSync()){
@@ -310,6 +319,11 @@ public class ScListFragment extends SherlockListFragment
             }
         }
         if (getListAdapter() != null) getListAdapter().onResume();
+
+        if (mPendingSync){
+            mPendingSync = false;
+            requestSync();
+        }
     }
 
     protected void onDataConnectionUpdated(boolean isConnected) {
@@ -321,11 +335,15 @@ public class ScListFragment extends SherlockListFragment
     }
 
     protected void requestSync() {
-        Intent intent = new Intent(getActivity(), ApiSyncService.class)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
-                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .setData(mContent.uri);
-        getActivity().startService(intent);
+        if (getActivity() != null){
+            Intent intent = new Intent(getActivity(), ApiSyncService.class)
+                    .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
+                    .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                    .setData(mContent.uri);
+            getActivity().startService(intent);
+        } else {
+            mPendingSync = true;
+        }
     }
 
     public boolean isRefreshing() {
@@ -347,6 +365,7 @@ public class ScListFragment extends SherlockListFragment
         if (mListView != null) {
             mListView.onRefreshComplete();
         }
+        configureEmptyCollection();
     }
 
     protected boolean isSyncable() {
@@ -366,6 +385,13 @@ public class ScListFragment extends SherlockListFragment
             case ApiSyncService.STATUS_SYNC_ERROR: {
                 if (resultData != null && !resultData.getBoolean(mContentUri.toString()) && !isRefreshing()) {
                     doneRefreshing(); // nothing changed
+
+                    // first time user with no account data. this will force the empty screen that was held back earlier
+                    if (!waitingOnInitialSync() && getListAdapter().getItemCount() == 0) {
+                        mKeepGoing = true;
+                        append(false);
+                    }
+
                 } else if (mContentInvalid && !isRefreshTaskActive()) {
                     executeRefreshTask();
                 }
@@ -449,6 +475,7 @@ public class ScListFragment extends SherlockListFragment
     }
 
     public void refresh(final boolean userRefresh) {
+
         if (userRefresh) {
             if (getListAdapter() instanceof FollowStatus.Listener) {
                 FollowStatus.get(getActivity()).requestUserFollowings((FollowStatus.Listener) getListAdapter());

@@ -172,7 +172,6 @@ public class SyncAdapterService extends Service {
                 final ArrayList<Uri> urisToSync = new ArrayList<Uri>();
                 if (SyncConfig.shouldUpdateDashboard(app)) {
                     if (SyncConfig.isIncomingEnabled(app, extras)) urisToSync.add(Content.ME_SOUND_STREAM.uri);
-                    if (SyncConfig.isExclusiveEnabled(app, extras)) urisToSync.add(Content.ME_EXCLUSIVE_STREAM.uri);
                     if (SyncConfig.isActivitySyncEnabled(app, extras)) urisToSync.add(Content.ME_ACTIVITIES.uri);
                 }
 

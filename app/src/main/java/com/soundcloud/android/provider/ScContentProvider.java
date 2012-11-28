@@ -129,9 +129,18 @@ public class ScContentProvider extends ContentProvider {
             case ME_FRIENDS:
             case SUGGESTED_USERS:
                 qb.setTables(makeCollectionJoin(Table.USERS));
-                if (_columns == null) _columns = formatWithUser(fullUserColumns, userId);
+                if (_columns == null){
+                    _columns = formatWithUser(fullUserColumns, userId);
+                    if (content == Content.ME_FRIENDS) {
+                        _sortOrder = makeCollectionSort(uri, sortOrder == null ?
+                                DBHelper.Users.USER_FOLLOWING + " ASC, " + DBHelper.Users._ID + " ASC" : sortOrder);
+                    } else {
+                        _sortOrder = makeCollectionSort(uri, sortOrder);
+                    }
+                } else {
+                    _sortOrder = makeCollectionSort(uri, sortOrder);
+                }
                 makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
-                _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case ME_USERID:
@@ -252,7 +261,6 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_SOUND_STREAM:
-            case ME_EXCLUSIVE_STREAM:
                 if (_columns == null) _columns = formatWithUser(fullActivityColumns, userId);
                 if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
                     qb.appendWhere(DBHelper.SoundView.CACHED + "= 1 AND ");
@@ -262,11 +270,16 @@ public class ScContentProvider extends ContentProvider {
             case ME_ACTIVITIES:
                 qb.setTables(Table.ACTIVITY_VIEW.name);
                 if (content != Content.ME_ALL_ACTIVITIES) {
-                    qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id + " AND (" +
-                            DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST.type +
-                            "' AND " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_LIKE.type +
-                            "' AND " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_REPOST.type +
-                            "' AND " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_SHARING.type + "')"); // remove playlists
+                    // filter out playlist
+                    String types = "";
+                    for (int i=0; i<Activity.Type.PLAYLIST_TYPES.length;i++) {
+                        types += "'"+Activity.Type.PLAYLIST_TYPES[i].type+"'";
+                        if (i < Activity.Type.PLAYLIST_TYPES.length-1) {
+                            types += ",";
+                        }
+                    }
+                    qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id + " AND " +
+                            DBHelper.ActivityView.TYPE + " NOT IN ( " +types +" ) ");
                 }
                 _sortOrder = makeActivitiesSort(uri, sortOrder);
                 break;
@@ -298,8 +311,16 @@ public class ScContentProvider extends ContentProvider {
                 qb.appendWhere(Table.SUGGESTIONS.id + " = " + uri.getLastPathSegment());
                 break;
 
-            case ME_SHORTCUTS:
+            case ME_CONNECTION:
                 qb.setTables(content.table.name);
+                qb.appendWhere(Table.CONNECTIONS.id + " = " + uri.getLastPathSegment());
+                break;
+
+            case ME_SHORTCUTS:
+            case ME_CONNECTIONS:
+                qb.setTables(content.table.name);
+
+
                 break;
 
             case UNKNOWN:
@@ -308,7 +329,7 @@ public class ScContentProvider extends ContentProvider {
         }
 
         if (query == null) {
-            query = qb.buildQuery(_columns, _selection, null /* selectionArgs passed further down */, null, _sortOrder, null);
+            query = qb.buildQuery(_columns, _selection, null /* selectionArgs passed further down */, null,_sortOrder, null);
         }
         log("query: "+query);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -422,7 +443,6 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_SOUND_STREAM:
             case ME_ACTIVITIES:
-            case ME_EXCLUSIVE_STREAM:
                 id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 return result;
@@ -456,6 +476,11 @@ public class ScContentProvider extends ContentProvider {
             case COLLECTIONS:
             case COLLECTION_PAGES:
             case SEARCHES:
+            case RECORDINGS:
+            case PLAY_QUEUE:
+            case ME_CONNECTIONS:
+            case PLAYLISTS:
+            case ME_ALL_ACTIVITIES:
                 break;
 
             case TRACK:
@@ -464,23 +489,15 @@ public class ScContentProvider extends ContentProvider {
             case USER:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 break;
-            case PLAYLISTS:
-                break;
-            case ME_ALL_ACTIVITIES:
-                break;
             case ME_ACTIVITIES:
             case ME_SOUND_STREAM:
-            case ME_EXCLUSIVE_STREAM:
                 where = DBHelper.Activities.CONTENT_ID+"= ?";
                 whereArgs = new String[] {String.valueOf(content.id) };
                 break;
             case RECORDING:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 break;
-            case RECORDINGS:
-                break;
-            case PLAY_QUEUE:
-                break;
+
             case ME_TRACKS:
             case ME_LIKES:
             case ME_REPOSTS:
@@ -491,6 +508,7 @@ public class ScContentProvider extends ContentProvider {
             case USER_REPOSTS:
             case USER_FOLLOWINGS:
             case USER_FOLLOWERS:
+            case ME_FRIENDS:
                 final String whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + SoundCloudApplication.getUserIdFromContext(getContext())
                         + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + content.collectionType;
                 where = TextUtils.isEmpty(where) ? whereAppend
@@ -625,7 +643,6 @@ public class ScContentProvider extends ContentProvider {
 
             case COMMENTS:
             case ME_SOUND_STREAM:
-            case ME_EXCLUSIVE_STREAM:
             case ME_ACTIVITIES:
             case PLAY_QUEUE:
                 table = content.table;
@@ -656,6 +673,8 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_SHORTCUTS:
                 recreateTable = true;
+                table = content.table;
+                break;
 
             default:
                 table = content.table;
@@ -687,7 +706,6 @@ public class ScContentProvider extends ContentProvider {
             if (content == Content.ME_SHORTCUTS) {
                 db.execSQL("INSERT OR IGNORE INTO " + Table.USERS.name + " (_id, username, avatar_url, permalink_url) " +
                         " SELECT id, text, icon_url, permalink_url FROM " + Table.SUGGESTIONS.name + " where kind = 'following'");
-
                 db.execSQL("INSERT OR IGNORE INTO " + Table.SOUNDS.name + " (_id, title, artwork_url, permalink_url) " +
                         " SELECT id, text, icon_url, permalink_url FROM " + Table.SUGGESTIONS.name + " where kind = 'like'");
             }
