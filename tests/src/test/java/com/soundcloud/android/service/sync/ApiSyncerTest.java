@@ -6,6 +6,7 @@ import static com.soundcloud.android.service.sync.ApiSyncer.Result;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -133,6 +134,50 @@ public class ApiSyncerTest {
 
         expect(Content.TRACKS).toHaveCount(2);    // 2 sounds + 1 playlist
         expect(Content.ME_LIKES).toHaveCount(2);  // ditto
+    }
+
+    @Test
+    public void shouldSyncFriends() throws Exception {
+        addIdResponse("/me/connections/friends/ids?linked_partitioning=1", 792584, 1255758, 308291);
+        addResourceResponse("/users?linked_partitioning=1&limit=200&ids=792584%2C1255758%2C308291", "users.json");
+
+        sync(Content.ME_FRIENDS.uri);
+
+        // make sure tracks+users got written
+        expect(Content.USERS).toHaveCount(3);
+        expect(Content.ME_FRIENDS).toHaveCount(3);
+        assertFirstIdToBe(Content.ME_FRIENDS, 308291);
+    }
+
+    @Test
+    public void shouldSyncMyShortcuts() throws Exception {
+
+        TestHelper.addCannedResponses(getClass(), "all_shortcuts.json");
+        sync(Content.ME_SHORTCUTS.uri);
+        expect(Content.ME_SHORTCUTS).toHaveCount(461);
+
+        // make sure tracks+users got written
+        expect(Content.USERS).toHaveCount(318);
+        expect(Content.TRACKS).toHaveCount(143);
+    }
+
+    @Test
+    public void shouldSyncConnections() throws Exception {
+        TestHelper.addCannedResponses(getClass(), "connections.json");
+        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
+        expect(Content.ME_CONNECTIONS).toHaveCount(4);
+
+        TestHelper.addCannedResponses(getClass(), "connections.json");
+        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.UNCHANGED);
+        expect(Content.ME_CONNECTIONS).toHaveCount(4);
+
+        TestHelper.addCannedResponses(getClass(), "connections_add.json");
+        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
+        expect(Content.ME_CONNECTIONS).toHaveCount(6);
+
+        TestHelper.addCannedResponses(getClass(), "connections_delete.json");
+        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
+        expect(Content.ME_CONNECTIONS).toHaveCount(3);
     }
 
     @Test

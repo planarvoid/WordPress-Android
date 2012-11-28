@@ -10,7 +10,9 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -189,7 +191,7 @@ public class ScUpload extends ScActivity {
     protected void onResume() {
         super.onResume();
         if (!mRecording.isPrivateMessage()) {
-            mConnectionList.getAdapter().loadIfNecessary();
+            mConnectionList.getAdapter().loadIfNecessary(this);
         }
         track(getClass(), getApp().getLoggedInUser());
     }
@@ -330,7 +332,11 @@ public class ScUpload extends ScActivity {
                     toast.show();
 
                     if (success) {
-                        mConnectionList.getAdapter().load();
+                        // this should reload the services and the list should auto refresh
+                        // from the content observer
+                        startService(new Intent(this, ApiSyncService.class)
+                                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                                        .setData(Content.ME_CONNECTIONS.uri));
                     }
                 }
         }

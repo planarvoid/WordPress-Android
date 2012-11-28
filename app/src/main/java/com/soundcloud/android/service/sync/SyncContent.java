@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.sync;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 
@@ -18,7 +19,9 @@ enum SyncContent {
     MyLikes     (Content.ME_LIKES,      SyncConfig.TRACK_STALE_TIME, SyncConfig.TRACK_BACKOFF_MULTIPLIERS),
     MyFollowings(Content.ME_FOLLOWINGS, SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS),
     MyFollowers (Content.ME_FOLLOWERS,  SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS),
-    MyShortcuts (Content.ME_SHORTCUTS,  SyncConfig.USER_STALE_TIME,  null);
+    MyConnections (Content.ME_CONNECTIONS,  SyncConfig.CONNECTIONS_STALE_TIME,  null),
+    MyFriends   (Content.ME_FRIENDS,  SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS),
+    MyShortcuts (Content.ME_SHORTCUTS,  SyncConfig.SHORTCUTS_STALE_TIME,  null);
 
     SyncContent(Content content, long syncDelay, int[] backoffMultipliers) {
         this.content = content;
@@ -33,7 +36,8 @@ enum SyncContent {
     public final int[] backoffMultipliers;
 
     public boolean isEnabled(SharedPreferences prefs) {
-        return this != MyFollowers /* handled by push */ && prefs.getBoolean(prefSyncEnabledKey, true);
+        return (this != MyFollowers) /* handled by push */
+                && prefs.getBoolean(prefSyncEnabledKey, true);
     }
 
     public boolean setEnabled(Context context, boolean enabled) {

@@ -1,7 +1,9 @@
 package com.soundcloud.android.provider;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.api.Endpoints;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -11,6 +13,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
 
+import java.net.URI;
+import java.util.Date;
 import java.util.List;
 
 
@@ -427,6 +431,32 @@ public class DBHelper extends SQLiteOpenHelper {
 
             "UNIQUE(id, kind) ON CONFLICT REPLACE" +
             ")";
+
+    static final String DATABASE_CREATE_CONNECTIONS = "("+
+                "_id INTEGER PRIMARY KEY," +
+                "user_id        INTEGER, "+
+                "type           VARCHAR(255)," +
+                "service        VARCHAR(255)," +
+                "created_at     INTEGER," +
+                "display_name   VARCHAR(255)," +
+                "active         BOOLEAN DEFAULT 0, " +
+                "post_publish   BOOLEAN DEFAULT 0, " +
+                "post_like      BOOLEAN DEFAULT 0, " +
+                "uri            VARCHAR(255)," +
+                "UNIQUE (_id) ON CONFLICT REPLACE"+
+                ");";
+
+    public static class Connections implements BaseColumns {
+        public static final String USER_ID = "user_id";
+        public static final String SERVICE = "service";
+        public static final String TYPE = "type";
+        public static final String CREATED_AT = "created_at";
+        public static final String DISPLAY_NAME = "display_name";
+        public static final String ACTIVE = "active";
+        public static final String POST_PUBLISH = "post_publish";
+        public static final String POST_LIKE = "post_like";
+        public static final String URI = "uri";
+    }
 
     public static class ResourceTable implements BaseColumns {
         public static final String _TYPE = "_type";

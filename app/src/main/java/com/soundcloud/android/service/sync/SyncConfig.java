@@ -18,9 +18,11 @@ public class SyncConfig {
     public static final long CLEANUP_DELAY       = DEFAULT_STALE_TIME * 24; // every 24 hours
     public static final long SHORTCUT_DELAY      = 60*60*1000 * 24;         // every 24 hours
 
-    public static final long ACTIVITY_STALE_TIME = DEFAULT_STALE_TIME;
-    public static final long TRACK_STALE_TIME    = DEFAULT_STALE_TIME;
-    public static final long USER_STALE_TIME     = DEFAULT_STALE_TIME * 12;  // users aren't as crucial
+    public static final long ACTIVITY_STALE_TIME        = DEFAULT_STALE_TIME;
+    public static final long TRACK_STALE_TIME           = DEFAULT_STALE_TIME;
+    public static final long USER_STALE_TIME            = DEFAULT_STALE_TIME * 12;  // users aren't as crucial
+    public static final long CONNECTIONS_STALE_TIME     = DEFAULT_STALE_TIME * 24;
+    public static final long SHORTCUTS_STALE_TIME       = DEFAULT_STALE_TIME * 24;
 
     public static final long DEFAULT_SYNC_DELAY   = 3600L; // interval between syncs
     public static int[] TRACK_BACKOFF_MULTIPLIERS = new int[]{1, 2, 4, 8, 12, 18, 24, 48, 72, 96};

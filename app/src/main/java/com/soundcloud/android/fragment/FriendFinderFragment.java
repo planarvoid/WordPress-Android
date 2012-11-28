@@ -6,43 +6,40 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.auth.Connect;
 import com.soundcloud.android.adapter.ScBaseAdapter;
-import com.soundcloud.android.cache.Connections;
-import com.soundcloud.android.cache.ParcelCache;
+import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.model.Connection;
-import com.soundcloud.android.model.Search;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.create.NewConnectionTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.FriendFinderEmptyCollection;
-import com.soundcloud.api.Request;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.List;
+import java.util.Set;
 
-public class FriendFinderFragment extends ScListFragment implements ParcelCache.Listener<Connection> {
+public class FriendFinderFragment extends ScListFragment implements ConnectionsCache.Listener {
 
-    private List<Connection> mConnections;
+    private Set<Connection> mConnections;
 
     private int mCurrentState;
     private AsyncTask<Connection.Service, Void, Uri> mConnectionTask;
 
     public interface States {
+
         int LOADING = 1;
         int NO_FB_CONNECTION = 2;
         int FB_CONNECTION = 3;
         int CONNECTION_ERROR = 4;
     }
-
     public static FriendFinderFragment newInstance(SoundCloudApplication app) {
         FriendFinderFragment fragment = new FriendFinderFragment(app);
         Bundle args = new Bundle();
@@ -54,50 +51,53 @@ public class FriendFinderFragment extends ScListFragment implements ParcelCache.
     public FriendFinderFragment(SoundCloudApplication app) {
         super();
 
-        mConnections = Connections.get().getObjectsOrNull();
-
+        final ConnectionsCache connectionsCache = ConnectionsCache.get(app);
+        mConnections = connectionsCache.getConnections();
         if (mConnections == null){
             setState(States.LOADING, false);
         } else {
             onConnections(mConnections, true);
         }
-
-        Connections.get().requestUpdate(app, false, this);
+        connectionsCache.requestConnections(this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
-        mEmptyCollection.setButtonActionListener(new EmptyCollection.ActionListener() {
-            @Override
-            public void onAction() {
-                setState(States.LOADING, false);
-                final ScActivity scActivity = getScActivity();
-                mConnectionTask = new NewConnectionTask(scActivity.getApp()) {
-                    @Override
-                    protected void onPostExecute(Uri uri) {
-                        if (uri != null) {
-                            scActivity.startActivityForResult(
-                                    (new Intent(scActivity, Connect.class))
-                                            .putExtra("service", Connection.Service.Facebook.name())
-                                            .setData(uri),
-                                    Consts.RequestCodes.MAKE_CONNECTION);
-                        } else {
-                            scActivity.showToast(R.string.new_connection_error);
-                            setState(States.NO_FB_CONNECTION, false);
-                        }
+        if (mEmptyCollection != null) {
+            mEmptyCollection.setButtonActionListener(new EmptyCollection.ActionListener() {
+                @Override
+                public void onAction() {
+                    if (AndroidUtils.isTaskFinished(mConnectionTask)) {
+                        setState(States.LOADING, false);
+                        final ScActivity scActivity = getScActivity();
+                        mConnectionTask = new NewConnectionTask(scActivity.getApp()) {
+                            @Override
+                            protected void onPostExecute(Uri uri) {
+                                if (uri != null) {
+                                    scActivity.startActivityForResult(
+                                            (new Intent(scActivity, Connect.class))
+                                                    .putExtra("service", Connection.Service.Facebook.name())
+                                                    .setData(uri),
+                                            Consts.RequestCodes.MAKE_CONNECTION);
+                                } else {
+                                    scActivity.showToast(R.string.new_connection_error);
+                                    setState(States.NO_FB_CONNECTION, false);
+                                }
+                            }
+                        }.execute(Connection.Service.Facebook);
                     }
-                }.execute(Connection.Service.Facebook);
-            }
+                }
 
-            @Override
-            public void onSecondaryAction() {
-            }
-        });
+                @Override
+                public void onSecondaryAction() {
+                }
+            });
+        }
         return v;
     }
 
-    private void onConnections(List<Connection> connections, boolean refresh) {
+    private void onConnections(Set<Connection> connections, boolean refresh) {
         mConnections = connections;
 
         if (connections == null) {
@@ -111,17 +111,6 @@ public class FriendFinderFragment extends ScListFragment implements ParcelCache.
         }
     }
 
-    @Override
-    public void executeRefreshTask() {
-        Connections.get().requestUpdate(getScActivity().getApp(), true, this);
-        setState(States.LOADING, true);
-    }
-
-    public void onChanged(List<Connection> connections, ParcelCache<Connection> cache) {
-        mConnections = connections;
-        onConnections(connections, true);
-    }
-
     public void setState(int state, boolean reset) {
         mCurrentState = state;
         configureEmptyCollection();
@@ -131,6 +120,12 @@ public class FriendFinderFragment extends ScListFragment implements ParcelCache.
             final ScBaseAdapter listAdapter = getListAdapter();
             if (listAdapter != null) listAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public void onConnectionsRefreshed(Set<Connection> connections, boolean changed) {
+        onConnections(connections, true);
+        refresh(false);
     }
 
     @Override
@@ -154,6 +149,5 @@ public class FriendFinderFragment extends ScListFragment implements ParcelCache.
                     break;
             }
         }
-
     }
 }
