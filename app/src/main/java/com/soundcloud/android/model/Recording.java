@@ -127,7 +127,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     @Override
-    public Track getTrack() {
+    public Track getSound() {
         return null;
     }
 

@@ -2,15 +2,14 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Sound;
 import com.soundcloud.api.Request;
 
 import java.io.IOException;
 
-public class AddAssociationTask extends AssociatedTrackTask {
-
-    public AddAssociationTask(SoundCloudApplication scApp, Track track) {
-        super(scApp, track);
+public class AddAssociationTask extends AssociatedSoundTask {
+    public AddAssociationTask(SoundCloudApplication scApp, Sound sound) {
+        super(scApp, sound);
     }
 
     @Override
@@ -20,7 +19,6 @@ public class AddAssociationTask extends AssociatedTrackTask {
 
     @Override
     protected boolean isAssociated(int responseCode){
-        return (responseCode == 200 || responseCode == 201);
+        return (responseCode == 200 /* if was already associated */ || responseCode == 201 /* new association */);
     }
-    
 }

@@ -13,13 +13,9 @@ import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 public class ApiSyncService extends Service {
     public static final String LOG_TAG = ApiSyncer.class.getSimpleName();
@@ -41,8 +37,6 @@ public class ApiSyncService extends Service {
     private int mActiveTaskCount;
 
     /* package */ final List<SyncIntent> mSyncIntents = new ArrayList<SyncIntent>();
-
-
     /* package */ final LinkedList<CollectionSyncRequest> mPendingRequests = new LinkedList<CollectionSyncRequest>();
     /* package */ final List<CollectionSyncRequest> mRunningRequests = new ArrayList<CollectionSyncRequest>();
 
@@ -117,33 +111,15 @@ public class ApiSyncService extends Service {
         }
     }
 
-
     private class ApiTask extends AsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> {
-
-        public final android.os.AsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> executeOnThreadPool(
+        public final AsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> executeOnThreadPool(
                 CollectionSyncRequest... params) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
                 // The execute() method uses a thread pool
                 return execute(params);
             } else {
-                // The execute() method uses a single thread,
-                // so call executeOnExecutor() instead.
-                try {
-                    Method method = android.os.AsyncTask.class.getMethod("executeOnExecutor",
-                            Executor.class, Object[].class);
-                    Field field = android.os.AsyncTask.class.getField("THREAD_POOL_EXECUTOR");
-                    Object executor = field.get(null);
-                    method.invoke(this, executor, params);
-                } catch (NoSuchMethodException e) {
-                    throw new RuntimeException("Unexpected NoSuchMethodException", e);
-                } catch (NoSuchFieldException e) {
-                    throw new RuntimeException("Unexpected NoSuchFieldException", e);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Unexpected IllegalAccessException", e);
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException("Unexpected InvocationTargetException", e);
-                }
-                return this;
+                // The execute() method uses a single thread, so call executeOnExecutor() instead.
+                return executeOnExecutor(THREAD_POOL_EXECUTOR, params);
             }
         }
 

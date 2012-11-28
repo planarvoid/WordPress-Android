@@ -1,16 +1,15 @@
 
 package com.soundcloud.android.task;
 
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.model.Sound;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpStatus;
 
 import java.io.IOException;
 
-public class RemoveAssociationTask extends AssociatedTrackTask {
-    public RemoveAssociationTask(SoundCloudApplication scApp, Track track) {
-        super(scApp, track);
+public class RemoveAssociationTask extends AssociatedSoundTask {
+    public RemoveAssociationTask(AndroidCloudAPI api, Sound sound) {
+        super(api, sound);
     }
 
     @Override
@@ -22,5 +21,4 @@ public class RemoveAssociationTask extends AssociatedTrackTask {
     protected boolean isAssociated(int responseCode) {
         return !((responseCode >= 200 && responseCode < 300) || responseCode == 404);
     }
-
 }

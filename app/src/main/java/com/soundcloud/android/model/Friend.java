@@ -3,6 +3,7 @@ package com.soundcloud.android.model;
 import android.net.Uri;
 
 public class Friend extends ScResource implements Refreshable {
+    @SuppressWarnings("UnusedDeclaration")
     public long[] connection_ids;
     public User user;
 
@@ -15,7 +16,7 @@ public class Friend extends ScResource implements Refreshable {
     }
 
     @Override
-    public Track getTrack() {
+    public Track getSound() {
         return null;
     }
 

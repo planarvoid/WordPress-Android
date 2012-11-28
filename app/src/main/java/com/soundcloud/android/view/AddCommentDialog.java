@@ -95,7 +95,7 @@ public class AddCommentDialog extends Dialog {
         super.onStart();
         final Comment comment = mActivity.getApp().pendingComment;
         if (comment != null) {
-            mActivity.track(Page.Sounds_add_comment, comment.getTrack());
+            mActivity.track(Page.Sounds_add_comment, comment.getSound());
         }
     }
 

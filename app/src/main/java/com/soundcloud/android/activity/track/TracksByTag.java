@@ -33,14 +33,14 @@ public class TracksByTag extends ScActivity {
                     Track.class,
                     new ArrayList<Parcelable>(),
                     null,
-                    Request.to(Endpoints.TRACKS).add("linked_partitioning", "1").add("tags", i.getStringExtra("tag"))));
+                    Request.to(Endpoints.SOUNDS).add("linked_partitioning", "1").add("tags", i.getStringExtra("tag"))));
         } else if (i.hasExtra("genre")) {
             adp.sections.add(new SectionedAdapter.Section(
                     getString(R.string.list_header_tracks_by_genre, i.getStringExtra("genre")),
                     Track.class,
                     new ArrayList<Parcelable>(),
                     null,
-                    Request.to(Endpoints.TRACKS).add("linked_partitioning", "1").add("genres", i.getStringExtra("genre"))));
+                    Request.to(Endpoints.SOUNDS).add("linked_partitioning", "1").add("genres", i.getStringExtra("genre"))));
         } else throw new IllegalArgumentException("No tag or genre supplied with intent");
 
         mPreviousState = (Object[]) getLastCustomNonConfigurationInstance();

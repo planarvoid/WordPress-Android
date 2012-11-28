@@ -89,7 +89,7 @@ public class UserBrowser extends ScActivity implements
 
     public enum Tab {
         //details(Page.Users_info, Page.You_info, Content.USER, Content.ME, R.string.tab_title_user_info, R.string.tab_title_my_info),
-        tracks(Page.Users_sounds, Page.You_sounds, Content.USER_TRACKS, Content.ME_TRACKS, R.string.tab_title_user_sounds, R.string.tab_title_my_sounds),
+        tracks(Page.Users_sounds, Page.You_sounds, Content.USER_SOUNDS, Content.ME_SOUNDS, R.string.tab_title_user_sounds, R.string.tab_title_my_sounds),
         likes(Page.Users_likes, Page.You_likes, Content.USER_LIKES, Content.ME_LIKES, R.string.tab_title_user_likes, R.string.tab_title_my_likes),
         followings(Page.Users_following, Page.You_following, Content.USER_FOLLOWINGS, Content.ME_FOLLOWINGS, R.string.tab_title_user_followings, R.string.tab_title_my_followings),
         followers(Page.Users_followers, Page.You_followers, Content.USER_FOLLOWERS, Content.ME_FOLLOWERS, R.string.tab_title_user_followers, R.string.tab_title_my_followers);
@@ -481,6 +481,10 @@ public class UserBrowser extends ScActivity implements
             mDescription.setMovementMethod(LinkMovementMethod.getInstance());
         }
         configureEmptyView();
+    }
+
+    public User getUser() {
+        return mUser;
     }
 
     private void configureEmptyView(){

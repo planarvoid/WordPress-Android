@@ -46,8 +46,6 @@ public class User extends ScResource implements Refreshable {
     @Nullable public String city;
     @Nullable public String country;
 
-
-
     @Nullable public String plan;      // free|lite|solo|pro|pro plus
 
     @Nullable public String website;
@@ -274,10 +272,10 @@ public class User extends ScResource implements Refreshable {
 
     public static User fromTrackView(Cursor cursor) {
         User u = new User();
-        u.id = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
-        u.username = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.USERNAME));
-        u.permalink = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.USER_PERMALINK));
-        u.avatar_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.USER_AVATAR_URL));
+        u.id = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
+        u.username = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.USERNAME));
+        u.permalink = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.USER_PERMALINK));
+        u.avatar_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.USER_AVATAR_URL));
         return u;
     }
 
@@ -307,7 +305,6 @@ public class User extends ScResource implements Refreshable {
 
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
         String SEEN_CREATE_AUTOSAVE           = "seenCreateAutoSave";
-
     }
 
     @Override
@@ -401,7 +398,7 @@ public class User extends ScResource implements Refreshable {
     }
 
     @Override @JsonIgnore
-    public Track getTrack() {
+    public Track getSound() {
         return null;
     }
 

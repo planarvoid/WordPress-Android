@@ -427,9 +427,6 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public int insert(Content content, ContentResolver resolver) {
-//        SoundCloudApplication.MODEL_MANAGER.writeCollection(new ArrayList<ScResource>(getScResources()),
-//                ScModel.CacheUpdateMode.MINI);
-
         Set<ScResource> models = new HashSet<ScResource>();
         for (Activity a : this) {
             models.addAll(a.getDependentModels());

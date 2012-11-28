@@ -4,18 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 
+import android.content.ContentValues;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Playlist extends PlayableResource {
+public class Playlist extends Sound {
     @JsonView(Views.Full.class) public String playlist_type;
     @JsonView(Views.Full.class) public String tracks_uri;
     @JsonView(Views.Full.class) public List<Track> tracks;
@@ -60,6 +60,12 @@ public class Playlist extends PlayableResource {
                 '}';
     }
 
+    public ContentValues buildContentValues() {
+        ContentValues cv = super.buildContentValues();
+        cv.put(DBHelper.Sounds.TRACKS_URI, tracks_uri);
+        return cv;
+    }
+
     @Override
     public Uri getBulkInsertUri() {
         return Content.PLAYLISTS.uri;
@@ -71,7 +77,7 @@ public class Playlist extends PlayableResource {
     }
 
     @Override @JsonIgnore
-    public Track getTrack() {
+    public Track getSound() {
         return null;
     }
 
@@ -101,4 +107,13 @@ public class Playlist extends PlayableResource {
     }
 
 
+    @Override
+    public Track getTrack() {
+        return null;
+    }
+
+    @Override
+    public int getTypeId() {
+        return DB_TYPE_PLAYLIST;
+    }
 }

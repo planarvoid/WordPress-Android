@@ -95,7 +95,7 @@ public class TrackTest {
         t.id = 1000;
         ContentValues v = t.buildContentValues();
         expect(v).not.toBeNull();
-        expect(v.getAsLong(DBHelper.Tracks._ID)).toEqual(1000L);
+        expect(v.getAsLong(DBHelper.Sounds._ID)).toEqual(1000L);
     }
 
     @Test
@@ -103,16 +103,16 @@ public class TrackTest {
         Track t = new Track();
         t.id = 1000;
         ContentValues v = t.buildContentValues();
-        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).toBeNull();
+        expect(v.get(DBHelper.Sounds.LAST_UPDATED)).toBeNull();
         t.created_at = new Date(System.currentTimeMillis());
         v = t.buildContentValues();
-        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).toBeNull();
+        expect(v.get(DBHelper.Sounds.LAST_UPDATED)).toBeNull();
         t.duration = 1000;
         v = t.buildContentValues();
-        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).toBeNull();
+        expect(v.get(DBHelper.Sounds.LAST_UPDATED)).toBeNull();
         t.state = Track.State.FINISHED;
         v = t.buildContentValues();
-        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).not.toBeNull();
+        expect(v.get(DBHelper.Sounds.LAST_UPDATED)).not.toBeNull();
     }
 
     @Test
@@ -287,7 +287,7 @@ public class TrackTest {
         expect(t2.playback_count).toEqual(t.playback_count);
         expect(t2.download_count).toEqual(t.download_count);
         expect(t2.comment_count).toEqual(t.comment_count);
-        expect(t2.favoritings_count).toEqual(t.favoritings_count);
+        expect(t2.likes_count).toEqual(t.likes_count);
         expect(t2.shared_to_count).toEqual(t.shared_to_count);
         expect(t2.user_id).toEqual(t.user_id);
         expect(t2.commentable).toEqual(t.commentable);

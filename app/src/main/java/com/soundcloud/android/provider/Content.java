@@ -2,17 +2,18 @@ package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
 
-import android.util.SparseArray;
-
 import com.soundcloud.android.TempEndpoints;
-import com.soundcloud.android.model.Shortcut;
-import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.Shortcut;
+import com.soundcloud.android.model.Sound;
+import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.service.sync.SyncConfig;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import android.app.SearchManager;
 import android.content.UriMatcher;
 import android.net.Uri;
+import android.util.SparseArray;
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -28,68 +30,64 @@ import java.util.Map;
 
 public enum Content  {
     ME("me", Endpoints.MY_DETAILS, 100, User.class, -1, Table.USERS),
-    ME_TRACKS("me/tracks", Endpoints.MY_TRACKS, 101, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.COLLECTION_ITEMS),
+    @Deprecated ME_TRACKS("me/tracks", Endpoints.MY_TRACKS, 101, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.COLLECTION_ITEMS),
     ME_COMMENTS("me/comments", null, 102, Comment.class, -1, Table.COMMENTS),
     ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, User.class, FOLLOWING, Table.COLLECTION_ITEMS),
     ME_FOLLOWING("me/followings/#", null, 104, User.class, -1, null),
     ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, User.class, FOLLOWER, Table.COLLECTION_ITEMS),
     ME_FOLLOWER("me/followers/#", null, 106, User.class, -1, null),
-    ME_LIKES("me/likes", Endpoints.MY_FAVORITES, 107, Track.class, LIKE, Table.COLLECTION_ITEMS),
+    ME_LIKES("me/likes", TempEndpoints.e1.MY_LIKES, 107, SoundAssociation.class, LIKE, Table.COLLECTION_ITEMS),
     ME_LIKE("me/likes/#", null, 108, Track.class, LIKE, null),
-    ME_GROUPS("me/groups", null, 109, null, -1, null),
-    ME_PLAYLISTS("me/playlists", null, 110, null, -1, null),
+    ME_PLAYLISTS("me/playlists", null, 110, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
     ME_USERID("me/userid", null, 111, null, -1, null),
-    ME_REPOSTS("me/reposts", TempEndpoints.e1.MY_REPOSTS, 112, Track.class, REPOST, Table.COLLECTION_ITEMS),
-    ME_REPOST("me/reposts/#", null, 113, Track.class, REPOST, null),
+    ME_REPOSTS("me/reposts", TempEndpoints.e1.MY_REPOSTS, 112, SoundAssociation.class, REPOST, Table.COLLECTION_ITEMS),
+    ME_REPOST("me/reposts/#",null, 113, Track.class, -1, null),
 
     ME_SHORTCUT("me/shortcuts/#", TempEndpoints.i1.MY_SHORTCUTS, 114, Shortcut.class, -1, Table.SUGGESTIONS),
     ME_SHORTCUTS("me/shortcuts", TempEndpoints.i1.MY_SHORTCUTS, 115, Shortcut.class, -1, Table.SUGGESTIONS),
     ME_SHORTCUTS_ICON("me/shortcut_icon/#", null, 116, null, -1, Table.SUGGESTIONS),
 
+    ME_SOUNDS("me/sounds", TempEndpoints.e1.MY_SOUNDS, 120, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
+
     // the ids of the following entries should not be changed, they are referenced in th db
     ME_SOUND_STREAM("me/activities/tracks", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),
-    ME_EXCLUSIVE_STREAM("me/activities/tracks/exclusive", TempEndpoints.e1.MY_EXCLUSIVE_STREAM, 141, Activity.class, -1, Table.ACTIVITIES),
+    @Deprecated ME_EXCLUSIVE_STREAM("me/activities/tracks/exclusive", TempEndpoints.e1.MY_EXCLUSIVE_STREAM, 141, Activity.class, -1, Table.ACTIVITIES),
     ME_ACTIVITIES("me/activities/all/own", TempEndpoints.e1.MY_ACTIVITIES, 142, Activity.class, -1, Table.ACTIVITIES),
     ME_ALL_ACTIVITIES("me/activities", null, 150, Activity.class, -1, Table.ACTIVITIES),
 
     ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, User.class, FRIEND, null),
     SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 161, User.class, SUGGESTED_USER, null),
 
-    TRACKS("tracks", Endpoints.TRACKS, 201, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
-    TRACK("tracks/#", Endpoints.TRACK_DETAILS, 202, Track.class, -1, Table.TRACKS),
+    SOUNDS("sounds", null, 200, Sound.class, -1, Table.SOUNDS),
+
+    TRACKS("tracks", Endpoints.TRACKS, 201, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.SOUNDS),
+    TRACK("tracks/#", Endpoints.TRACK_DETAILS, 202, Track.class, -1, Table.SOUNDS),
+    TRACK_ARTWORK("tracks/#/artwork", null, 203, null, -1, Table.SOUNDS),
     TRACK_COMMENTS("tracks/#/comments", Endpoints.TRACK_COMMENTS, 204, Comment.class, -1, Table.COMMENTS),
     TRACK_PERMISSIONS("tracks/#/permissions", null, 205, null, -1, null),
     TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 206, null, -1, null),
     TRACK_LIKERS("tracks/#/favoriters", Endpoints.TRACK_FAVORITERS, 207, User.class, -1, Table.USERS),
     TRACK_REPOSTERS("tracks/#/reposters", TempEndpoints.e1.TRACK_REPOSTERS, 208, User.class, -1, Table.USERS),
-    TRACK_LOOKUP("tracks/*", Endpoints.TRACKS, 2250, Track.class, -1, Table.TRACKS),
+    TRACK_LOOKUP("tracks/*", Endpoints.TRACKS, 2250, Track.class, -1, Table.SOUNDS),
 
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
-    USER("users/#", Endpoints.USER_DETAILS, 302, User.class, -1, Table.USERS),
-    USER_TRACKS("users/#/tracks", Endpoints.USER_TRACKS, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
+    USER("users/#", null, 302, User.class, -1, Table.USERS),
+    USER_TRACKS("users/#/tracks", Endpoints.USER_TRACKS, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.SOUNDS),
+    USER_SOUNDS("users/#/sounds", TempEndpoints.e1.USER_SOUNDS, 311, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
     USER_LIKES("users/#/likes", Endpoints.USER_FAVORITES, 304, Track.class, LIKE, null),
     USER_FOLLOWERS("users/#/followers", Endpoints.USER_FOLLOWERS, 305, User.class, FOLLOWER, null),
     USER_FOLLOWINGS("users/#/followings", Endpoints.USER_FOLLOWINGS, 306, User.class, FOLLOWING, null),
     USER_COMMENTS("users/#/comments", null, 307, Comment.class, -1, null),
     USER_GROUPS("users/#/groups", null, 308, null, -1, null),
     USER_PLAYLISTS("users/#/playlists", null, 309, null, -1, null),
-    USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Track.class, REPOST, null),
+    USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Sound.class, REPOST, null),
     USER_LOOKUP("users/*", Endpoints.USERS, 350, User.class, -1, Table.USERS),
-
 
     COMMENTS("comments", null, 400, Comment.class, -1, Table.COMMENTS),
     COMMENT("comments/#", null, 401, Comment.class, -1, Table.COMMENTS),
 
-    PLAYLISTS("playlists", null, 501, null, -1, Table.PLAYLISTS),
-    PLAYLIST("playlists/#", null, 502, null, -1, Table.PLAYLISTS),
-
-    GROUPS("groups", null, 600, null, -1, null),
-    GROUP("groups/#", null, 602, null, -1, null),
-    GROUP_USERS("groups/#/users", null, 603, User.class, -1, null),
-    GROUP_MODERATORS("groups/#/moderators", null, 604, User.class, -1, null),
-    GROUP_MEMBERS("groups/#/members", null, 605, User.class, -1, null),
-    GROUP_CONTRIBUTORS("groups/#/contributors", null, 606, User.class, -1, null),
-    GROUP_TRACKS("groups/#/tracks", null, 607, Track.class, -1, null),
+    PLAYLISTS("playlists", null, 501, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
+    PLAYLIST("playlists/#", null, 502, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
 
     // LOCAL URIS
     COLLECTIONS("collections", null, 1000, null, -1, Table.COLLECTIONS),

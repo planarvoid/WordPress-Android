@@ -4,6 +4,7 @@ import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.fromString;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.act.AffiliationActivity;
@@ -42,7 +43,8 @@ public class ActivitiesTest {
     @Before
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
-        manager = new ScModelManager(Robolectric.application, AndroidCloudAPI.Mapper);
+        // XXX Code in Activities refers to MODEL_MANAGER, remove circular references
+        manager = SoundCloudApplication.MODEL_MANAGER;
         resolver = Robolectric.application.getContentResolver();
     }
 

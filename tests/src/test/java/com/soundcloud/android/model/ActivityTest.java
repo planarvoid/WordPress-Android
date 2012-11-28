@@ -50,7 +50,7 @@ public class ActivityTest {
 
         expect(cv.getAsString(DBHelper.Activities.TAGS)).toEqual("foo");
         expect(cv.getAsString(DBHelper.Activities.TYPE)).toEqual(Activity.Type.TRACK.type);
-        expect(cv.getAsLong(DBHelper.Activities.TRACK_ID)).toEqual(10L);
+        expect(cv.getAsLong(DBHelper.Activities.SOUND_ID)).toEqual(10L);
         expect(cv.getAsLong(DBHelper.Activities.CREATED_AT)).toEqual(date.getTime());
     }
 
