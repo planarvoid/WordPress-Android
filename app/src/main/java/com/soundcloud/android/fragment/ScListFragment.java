@@ -21,15 +21,14 @@ import com.soundcloud.android.adapter.SoundAssociationAdapter;
 import com.soundcloud.android.adapter.TrackAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.task.collection.CollectionTask;
 import com.soundcloud.android.task.collection.ReturnData;
-import com.soundcloud.android.task.collection.UpdateCollectionTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
@@ -75,7 +74,6 @@ public class ScListFragment extends SherlockListFragment
 
     private NetworkConnectivityListener connectivityListener;
     private @Nullable CollectionTask mRefreshTask;
-    private @Nullable UpdateCollectionTask mUpdateCollectionTask;
     protected @Nullable LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
 
@@ -136,7 +134,6 @@ public class ScListFragment extends SherlockListFragment
         if (getListAdapter() == null && mContent != null) {
             switch (mContent) {
                 case ME_SOUND_STREAM:
-                case ME_EXCLUSIVE_STREAM:
                 case ME_ACTIVITIES:
                     adapter = new ActivityAdapter(getActivity(), mContentUri);
                     break;
@@ -307,15 +304,11 @@ public class ScListFragment extends SherlockListFragment
         super.onResume();
 
         if (getActivity() != null) {
-            final SoundCloudApplication app = SoundCloudApplication.fromContext(getActivity());
             switch (mContent) {
                 case ME_SOUND_STREAM:
-                    app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, System.currentTimeMillis());
-                    app.updateActivityUnseenCount(mContent, 0);
-                    break;
                 case ME_ACTIVITIES:
-                    app.setAccountData(User.DataKeys.LAST_OWN_SEEN, System.currentTimeMillis());
-                    app.updateActivityUnseenCount(mContent, 0);
+                    ContentStats.updateCount(getActivity(), mContent, 0);
+                    ContentStats.setLastSeen(getActivity(), mContent, System.currentTimeMillis());
                     break;
             }
         }
@@ -495,7 +488,6 @@ public class ScListFragment extends SherlockListFragment
         mNextHref = "";
         mKeepGoing = true;
         clearRefreshTask();
-        clearUpdateTask();
         configureEmptyCollection();
 
         final ScBaseAdapter adp = getListAdapter();
@@ -511,12 +503,6 @@ public class ScListFragment extends SherlockListFragment
     protected void clearRefreshTask() {
         if (mRefreshTask != null && !AndroidUtils.isTaskFinished(mRefreshTask)) mRefreshTask.cancel(true);
         mRefreshTask = null;
-    }
-
-    protected void clearUpdateTask() {
-        if (mUpdateCollectionTask != null && !AndroidUtils.isTaskFinished(mUpdateCollectionTask))
-            mUpdateCollectionTask.cancel(true);
-        mUpdateCollectionTask = null;
     }
 
     @Override

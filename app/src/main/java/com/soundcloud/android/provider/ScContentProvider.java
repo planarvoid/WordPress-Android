@@ -261,7 +261,6 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_SOUND_STREAM:
-            case ME_EXCLUSIVE_STREAM:
                 if (_columns == null) _columns = formatWithUser(fullActivityColumns, userId);
                 if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
                     qb.appendWhere(DBHelper.SoundView.CACHED + "= 1 AND ");
@@ -271,11 +270,16 @@ public class ScContentProvider extends ContentProvider {
             case ME_ACTIVITIES:
                 qb.setTables(Table.ACTIVITY_VIEW.name);
                 if (content != Content.ME_ALL_ACTIVITIES) {
-                    qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id + " AND (" +
-                            DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST.type +
-                            "' AND " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_LIKE.type +
-                            "' AND " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_REPOST.type +
-                            "' AND " + DBHelper.ActivityView.TYPE + " != '" + Activity.Type.PLAYLIST_SHARING.type + "')"); // remove playlists
+                    // filter out playlist
+                    String types = "";
+                    for (int i=0; i<Activity.Type.PLAYLIST_TYPES.length;i++) {
+                        types += "'"+Activity.Type.PLAYLIST_TYPES[i].type+"'";
+                        if (i < Activity.Type.PLAYLIST_TYPES.length-1) {
+                            types += ",";
+                        }
+                    }
+                    qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id + " AND " +
+                            DBHelper.ActivityView.TYPE + " NOT IN ( " +types +" ) ");
                 }
                 _sortOrder = makeActivitiesSort(uri, sortOrder);
                 break;
@@ -439,7 +443,6 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_SOUND_STREAM:
             case ME_ACTIVITIES:
-            case ME_EXCLUSIVE_STREAM:
                 id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 return result;
@@ -488,7 +491,6 @@ public class ScContentProvider extends ContentProvider {
                 break;
             case ME_ACTIVITIES:
             case ME_SOUND_STREAM:
-            case ME_EXCLUSIVE_STREAM:
                 where = DBHelper.Activities.CONTENT_ID+"= ?";
                 whereArgs = new String[] {String.valueOf(content.id) };
                 break;
@@ -641,7 +643,6 @@ public class ScContentProvider extends ContentProvider {
 
             case COMMENTS:
             case ME_SOUND_STREAM:
-            case ME_EXCLUSIVE_STREAM:
             case ME_ACTIVITIES:
             case PLAY_QUEUE:
                 table = content.table;

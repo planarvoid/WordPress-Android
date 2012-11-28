@@ -6,7 +6,9 @@ import android.content.DialogInterface;
 import android.net.Uri;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.view.ViewStub;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -18,6 +20,7 @@ import com.soundcloud.android.*;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.task.AddUserInfoTask;
 import com.soundcloud.android.task.GetTokensTask;
 import com.soundcloud.android.task.SignupTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
@@ -45,33 +48,42 @@ import java.io.*;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
-public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler {
+public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
     protected enum StartState {
-        TOUR, LOGIN, SIGN_UP;
+        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS;
     }
-    private static final int RECOVER_CODE    = 1;
 
-    private static final int SUGGESTED_USERS = 2;
+    private static final String BUNDLE_STATE           = "BUNDLE_STATE";
+    private static final String BUNDLE_USER            = "BUNDLE_USER";
+    private static final String BUNDLE_LOGIN           = "BUNDLE_LOGIN";
+    private static final String BUNDLE_SIGN_UP         = "BUNDLE_SIGN_UP";
+    private static final String BUNDLE_SIGN_UP_DETAILS = "BUNDLE_SIGN_UP_DETAILS";
+
     private static final File SIGNUP_LOG = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".dr");
 
     public static final String FB_CONNECTED_EXTRA    = "facebook_connected";
-
     public static final String TOUR_BACKGROUND_EXTRA = "tour_background";
-    private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
 
+    private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
     public static final int THROTTLE_WINDOW = 60 * 60 * 1000;
 
     public static final int THROTTLE_AFTER_ATTEMPT = 3;
 
     private StartState mState = StartState.TOUR;
 
+    @Nullable private User mUser;
+
     private View mTourBottomBar;
 
     private TourLayout[] mTourPages;
+
     private ViewPager mViewPager;
 
     @Nullable private Login  mLogin;
     @Nullable private SignUp mSignUp;
+    @Nullable private UserDetails mUserDetails;
+
+    @Nullable private Bundle mLoginBundle, mSignUpBundle, mUserDetailsBundle;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -182,15 +194,36 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putSerializable("state", mState);
+        outState.putSerializable(BUNDLE_STATE, getState());
+        outState.putParcelable(BUNDLE_USER,    mUser);
+
+        if (mLogin         != null) outState.putBundle(BUNDLE_LOGIN, mLogin.getStateBundle());
+        if (mSignUp        != null) outState.putBundle(BUNDLE_SIGN_UP, mSignUp.getStateBundle());
+        if (mUserDetails != null) outState.putBundle(BUNDLE_SIGN_UP_DETAILS, mUserDetails.getStateBundle());
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        setState((StartState) savedInstanceState.getSerializable("state"), false);
+        mUser = savedInstanceState.getParcelable(BUNDLE_USER);
+
+        mLoginBundle         = savedInstanceState.getBundle(BUNDLE_LOGIN);
+        mSignUpBundle        = savedInstanceState.getBundle(BUNDLE_SIGN_UP);
+        mUserDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
+
+        setState((StartState) savedInstanceState.getSerializable(BUNDLE_STATE), false);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        for (TourLayout layout : mTourPages) {
+            layout.recycle();
+        }
+    }
+
 
     public Login getLogin() {
         if (mLogin == null) {
@@ -199,21 +232,36 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             mLogin = (Login) stub.inflate();
             mLogin.setLoginHandler(this);
             mLogin.setVisibility(View.GONE);
+            mLogin.setState(mLoginBundle);
         }
 
         return mLogin;
     }
 
-    public View getSignUp() {
+    public SignUp getSignUp() {
         if (mSignUp == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.sign_up_stub);
 
             mSignUp = (SignUp) stub.inflate();
             mSignUp.setSignUpHandler(this);
             mSignUp.setVisibility(View.GONE);
+            mSignUp.setState(mSignUpBundle);
         }
 
         return mSignUp;
+    }
+
+    public UserDetails getUserDetails() {
+        if (mUserDetails == null) {
+            ViewStub stub = (ViewStub) findViewById(R.id.user_details_stub);
+
+            mUserDetails = (UserDetails) stub.inflate();
+            mUserDetails.setUserDetailsHandler(this);
+            mUserDetails.setVisibility(View.GONE);
+            mUserDetails.setState(mUserDetailsBundle);
+        }
+
+        return mUserDetails;
     }
 
     static boolean shouldThrottleSignup(Context context) {
@@ -371,10 +419,9 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                     new GetTokensTask(mApi) {
                         @Override protected void onPostExecute(Token token) {
                             if (token != null) {
-                                startActivityForResult(new Intent(Start.this, SignupDetails.class)
-                                    .putExtra(SignupVia.EXTRA, signedUp ? SignupVia.API.name : null)
-                                    .putExtra("user", user)
-                                    .putExtra("token", token), 0);
+                                mUser = user;
+
+                                setState(StartState.SIGN_UP_DETAILS);
                             } else {
                                 presentError(null);
                             }
@@ -393,11 +440,52 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     @Override
+    public void onSubmitDetails(String username, File avatarFile) {
+        if (!TextUtils.isEmpty(username)) {
+            mUser.username  = username;
+            mUser.permalink = username;
+        }
+        new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
+            ProgressDialog dialog;
+            @Override protected void onPreExecute() {
+                dialog = AndroidUtils.showProgress(Start.this, R.string.authentication_add_info_progress_message);
+            }
+
+            @Override protected void onPostExecute(User user) {
+                if (!isFinishing()) {
+                    try {
+                        if (dialog != null) dialog.dismiss();
+                    } catch (IllegalArgumentException ignored) {
+                    }
+
+                    if (user != null) {
+                        startActivityForResult(new Intent(Start.this, Home.class), 0);
+                        finish();
+                    } else {
+                        presentError(getFirstError());
+                    }
+                }
+            }
+        }.execute(Pair.create(mUser, avatarFile));
+
+    }
+
+    @Override
+    public void onSkipDetails() {
+        startActivityForResult(new Intent(Start.this, Home.class), 0);
+        finish();
+    }
+
+    @Override
     public void onBackPressed() {
         switch (getState()) {
             case LOGIN:
             case SIGN_UP:
                 setState(StartState.TOUR);
+                return;
+
+            case SIGN_UP_DETAILS:
+                finish();
                 return;
 
             case TOUR:
@@ -421,22 +509,33 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             case TOUR:
                 showForegroundViews(animated);
 
-                hideView(getLogin(),  animated);
-                hideView(getSignUp(), animated);
+                hideView(getLogin(),         animated);
+                hideView(getSignUp(),        animated);
+                hideView(getUserDetails(), animated);
                 return;
 
             case LOGIN:
                 hideForegroundViews(animated);
 
-                showView(getLogin(),  animated);
-                hideView(getSignUp(), animated);
+                showView(getLogin(),         animated);
+                hideView(getSignUp(),        animated);
+                hideView(getUserDetails(), animated);
                 return;
 
             case SIGN_UP:
                 hideForegroundViews(animated);
 
-                hideView(getLogin(),  animated);
-                showView(getSignUp(), animated);
+                hideView(getLogin(),         animated);
+                showView(getSignUp(),        animated);
+                hideView(getUserDetails(), animated);
+                return;
+
+            case SIGN_UP_DETAILS:
+                hideForegroundViews(animated);
+
+                hideView(getLogin(),         animated);
+                hideView(getSignUp(), animated);
+                showView(getUserDetails(), animated);
                 return;
         }
     }
@@ -551,4 +650,29 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
         startActivityForResult(recoveryIntent, 0);
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent result) {
+        switch (requestCode) {
+            case Consts.RequestCodes.GALLERY_IMAGE_PICK:
+                if (getUserDetails() != null) {
+                    getUserDetails().onImagePick(resultCode, result);
+                }
+                break;
+
+            case Consts.RequestCodes.GALLERY_IMAGE_TAKE:
+                if (getUserDetails() != null) {
+                    getUserDetails().onImageTake(resultCode, result);
+                }
+                break;
+
+            case Consts.RequestCodes.IMAGE_CROP: {
+                if (getUserDetails() != null) {
+                    getUserDetails().onImageCrop(resultCode, result);
+                }
+                break;
+            }
+        }
+    }
+
 }

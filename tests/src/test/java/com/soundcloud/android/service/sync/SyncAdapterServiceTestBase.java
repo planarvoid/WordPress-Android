@@ -5,7 +5,7 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -105,7 +105,7 @@ public abstract class SyncAdapterServiceTestBase {
 
     protected static SyncOutcome doPerformSync(SoundCloudApplication app, boolean firstTime, @Nullable Bundle extras)
             throws Exception {
-        if (!firstTime) app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
+        if (!firstTime) ContentStats.setLastSeen(app, Content.ME_SOUND_STREAM, 1);
         if (extras == null) extras = new Bundle();
 
         ShadowNotificationManager m = shadowOf((NotificationManager)

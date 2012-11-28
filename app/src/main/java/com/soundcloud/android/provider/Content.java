@@ -54,8 +54,7 @@ public enum Content  {
     ME_SOUNDS("me/sounds", TempEndpoints.e1.MY_SOUNDS, 120, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
 
     // the ids of the following entries should not be changed, they are referenced in th db
-    ME_SOUND_STREAM("me/activities/tracks", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),
-    @Deprecated ME_EXCLUSIVE_STREAM("me/activities/tracks/exclusive", TempEndpoints.e1.MY_EXCLUSIVE_STREAM, 141, Activity.class, -1, Table.ACTIVITIES),
+    ME_SOUND_STREAM("me/stream", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),
     ME_ACTIVITIES("me/activities/all/own", TempEndpoints.e1.MY_ACTIVITIES, 142, Activity.class, -1, Table.ACTIVITIES),
     ME_ALL_ACTIVITIES("me/activities", null, 150, Activity.class, -1, Table.ACTIVITIES),
 
@@ -168,8 +167,7 @@ public enum Content  {
 
     public static final EnumSet<Content> ACTIVITIES = EnumSet.of(
             Content.ME_ACTIVITIES,
-            Content.ME_SOUND_STREAM,
-            Content.ME_EXCLUSIVE_STREAM
+            Content.ME_SOUND_STREAM
     );
 
     static {

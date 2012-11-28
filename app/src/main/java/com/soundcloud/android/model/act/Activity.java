@@ -246,6 +246,8 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         COMMENT("comment", CommentActivity.class),
         AFFILIATION("affiliation", AffiliationActivity.class);
 
+        public static final Type[] PLAYLIST_TYPES = new Type[] { PLAYLIST, PLAYLIST_LIKE, PLAYLIST_REPOST, PLAYLIST_SHARING };
+
         Type(String type, Class<? extends Activity> activityClass) {
             this.type = type;
             this.activityClass = activityClass;

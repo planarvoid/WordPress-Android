@@ -6,7 +6,6 @@ import static com.soundcloud.android.service.sync.ApiSyncer.Result;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -18,13 +17,11 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.content.SyncResult;
 import android.net.Uri;
 
 import java.io.IOException;
@@ -64,7 +61,6 @@ public class ApiSyncerTest {
 
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(112);
-        expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(0);
         expect(Content.TRACKS).toHaveCount(111);
         expect(Content.USERS).toHaveCount(28);
         //expect(Content.PLAYLISTS).toHaveCount(8);
@@ -281,18 +277,15 @@ public class ApiSyncerTest {
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(112);
         expect(Content.ME_ACTIVITIES).toHaveCount(17);
-        expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(0);
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(137);
     }
 
     @Test
     public void shouldNotProduceDuplicatesWhenSyncing() throws Exception {
         sync(Content.ME_SOUND_STREAM.uri, "e1_stream_1_oldest.json");
-        sync(Content.ME_EXCLUSIVE_STREAM.uri, "e1_stream_1_oldest.json");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(20);
-        expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(20);
-        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(44);
+        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(22);
     }
 
     @Test

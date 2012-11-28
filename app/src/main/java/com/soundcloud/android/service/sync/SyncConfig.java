@@ -40,13 +40,6 @@ public class SyncConfig {
                 .getBoolean(Consts.PrefKeys.NOTIFICATIONS_INCOMING, true) && evt == PushEvent.NONE;
     }
 
-    public static boolean isExclusiveEnabled(Context c, Bundle extras) {
-        PushEvent evt = PushEvent.fromExtras(extras);
-        return PreferenceManager
-                .getDefaultSharedPreferences(c)
-                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_EXCLUSIVE, true) && evt == PushEvent.NONE;
-    }
-
     public static boolean isLikeEnabled(Context c, Bundle extras) {
         PushEvent evt = PushEvent.fromExtras(extras);
         return PreferenceManager

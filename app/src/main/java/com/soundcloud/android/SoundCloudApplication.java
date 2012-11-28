@@ -14,9 +14,9 @@ import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -66,8 +66,6 @@ import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.ResponseCache;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 @ReportsCrashes(
         formUri = "https://bugsense.appspot.com/api/acra?api_key=2dd07966",
@@ -84,7 +82,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     private ImageLoader mImageLoader;
 
     public static ScModelManager MODEL_MANAGER;
-    public static Map<Content,Integer> unseenActivities = new HashMap<Content, Integer>();
 
     private ATTracker mTracker;
 
@@ -137,13 +134,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             });
 
             C2DMReceiver.register(this, getLoggedInUser());
+            ContentStats.init(this);
         }
-
-        unseenActivities.put(Content.ME_SOUND_STREAM, Activities.getCountSince(getContentResolver(),
-                0,Content.ME_SOUND_STREAM));
-        unseenActivities.put(Content.ME_ACTIVITIES, Activities.getCountSince(getContentResolver(),
-                0, Content.ME_ACTIVITIES));
-
 //        setupStrictMode();
 
         FacebookSSO.extendAccessTokenIfNeeded(this);
@@ -549,22 +541,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return app == null ? -1 : app.getCurrentUserId();
     }
 
-    public void updateActivityUnseenCount(Content content, int count){
-        switch (content) {
-            case ME_SOUND_STREAM:
-                if (count != SoundCloudApplication.unseenActivities.get(Content.ME_SOUND_STREAM)) {
-                    SoundCloudApplication.unseenActivities.put(Content.ME_SOUND_STREAM, count);
-                    sendBroadcast(new Intent(Consts.GeneralIntents.ACTIVITIES_UNSEEN_CHANGED));
-                }
-                break;
-            case ME_ACTIVITIES:
-                if (count != SoundCloudApplication.unseenActivities.get(Content.ME_ACTIVITIES)) {
-                    SoundCloudApplication.unseenActivities.put(Content.ME_ACTIVITIES, count);
-                    sendBroadcast(new Intent(Consts.GeneralIntents.ACTIVITIES_UNSEEN_CHANGED));
-                }
-                break;
-        }
-    }
 
     @TargetApi(9)
     private static void setupStrictMode() {

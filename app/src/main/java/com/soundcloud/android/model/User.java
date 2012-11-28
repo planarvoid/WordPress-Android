@@ -289,20 +289,11 @@ public class User extends ScResource implements Refreshable {
         return primary_email_confirmed == null || primary_email_confirmed;
     }
 
-
     public static interface DataKeys {
         String USERNAME        = "currentUsername";
         String USER_ID         = "currentUserId";
         String USER_PERMALINK  = "currentUserPermalink";
         String SIGNUP          = "signup";
-
-        String LAST_INCOMING_SEEN = "last_incoming_sync_event_timestamp";
-        String LAST_OWN_SEEN      = "last_own_sync_event_timestamp";
-        String LAST_INCOMING_NOTIFIED_AT = "last_incoming_notified_at_timestamp";
-
-        String LAST_INCOMING_NOTIFIED_ITEM = "last_incoming_notified_timestamp";
-        String LAST_OWN_NOTIFIED_ITEM = "last_own_notified_timestamp";
-
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
         String SEEN_CREATE_AUTOSAVE           = "seenCreateAutoSave";
     }

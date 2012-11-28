@@ -1,5 +1,6 @@
 package com.soundcloud.android.view.tour;
 
+import android.graphics.drawable.Drawable;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -41,4 +42,7 @@ public class TourLayout extends FrameLayout {
         return mBgResId;
     }
 
+    public void recycle() {
+        ImageUtils.recycleImageViewBitmap(mBgImageView);
+    }
 }

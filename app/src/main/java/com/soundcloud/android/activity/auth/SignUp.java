@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
@@ -18,12 +19,15 @@ import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 
 public class SignUp extends RelativeLayout {
+    private static final String BUNDLE_EMAIL    = "BUNDLE_EMAIL";
+    private static final String BUNDLE_PASSWORD = "BUNDLE_PASSWORD";
+    private static final String BUNDLE_CONFIRM  = "BUNDLE_CONFIRM";
+
     public interface SignUpHandler {
         void onSignUp(String email, String password);
         void onCancelSignUp();
         void onTermsOfUse();
     }
-
     public SignUp(Context context) {
         super(context);
     }
@@ -134,5 +138,29 @@ public class SignUp extends RelativeLayout {
 
     public void setSignUpHandler(@Nullable SignUpHandler mSignUpHandler) {
         this.mSignUpHandler = mSignUpHandler;
+    }
+
+    public Bundle getStateBundle() {
+        EditText emailField          = (EditText) findViewById(R.id.txt_email_address);
+        EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
+        EditText repeatPasswordField = (EditText) findViewById(R.id.txt_repeat_your_password);
+
+        Bundle bundle = new Bundle();
+        bundle.putCharSequence(BUNDLE_EMAIL,    emailField.getText());
+        bundle.putCharSequence(BUNDLE_PASSWORD, choosePasswordField.getText());
+        bundle.putCharSequence(BUNDLE_CONFIRM,  repeatPasswordField.getText());
+        return bundle;
+    }
+
+    public void setState(@Nullable Bundle bundle) {
+        if (bundle == null) return;
+
+        EditText emailField          = (EditText) findViewById(R.id.txt_email_address);
+        EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
+        EditText repeatPasswordField = (EditText) findViewById(R.id.txt_repeat_your_password);
+
+        emailField.setText(bundle.getCharSequence(BUNDLE_EMAIL));
+        choosePasswordField.setText(bundle.getCharSequence(BUNDLE_PASSWORD));
+        repeatPasswordField.setText(bundle.getCharSequence(BUNDLE_CONFIRM));
     }
 }

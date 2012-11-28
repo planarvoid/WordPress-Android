@@ -4,6 +4,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.c2dm.PushEvent;
+import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -112,11 +113,11 @@ public class SyncAdapterService extends Service {
         }
 
         // for first sync set all last seen flags to "now"
-        if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {
+        if (ContentStats.getLastSeen(app, Content.ME_SOUND_STREAM) <= 0) {
             final long now = System.currentTimeMillis();
-            app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
-            app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
-            app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, now);
+            ContentStats.setLastSeen(app, Content.ME_SOUND_STREAM, now);
+            ContentStats.setLastNotified(app, Content.ME_SOUND_STREAM, now);
+            ContentStats.setLastSeen(app, Content.ME_ACTIVITIES, now);
         }
 
         final Intent syncIntent = getSyncIntent(app, extras);
@@ -172,7 +173,6 @@ public class SyncAdapterService extends Service {
                 final ArrayList<Uri> urisToSync = new ArrayList<Uri>();
                 if (SyncConfig.shouldUpdateDashboard(app)) {
                     if (SyncConfig.isIncomingEnabled(app, extras)) urisToSync.add(Content.ME_SOUND_STREAM.uri);
-                    if (SyncConfig.isExclusiveEnabled(app, extras)) urisToSync.add(Content.ME_EXCLUSIVE_STREAM.uri);
                     if (SyncConfig.isActivitySyncEnabled(app, extras)) urisToSync.add(Content.ME_ACTIVITIES.uri);
                 }
 
@@ -236,20 +236,12 @@ public class SyncAdapterService extends Service {
     public static void requestNewSync(SoundCloudApplication app, int clearMode) {
         switch (clearMode) {
             case CLEAR_ALL:
-                app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1);
-                app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1);
-                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, 1);
-                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, 1);
-                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, 1);
+                ContentStats.clear(app);
                 clearActivities(app.getContentResolver());
                 break;
             case REWIND_LAST_DAY:
                 final long rewindTime = 24 * 3600000L; // 1d
-                rewind(app, User.DataKeys.LAST_INCOMING_SEEN, null, rewindTime);
-                rewind(app, User.DataKeys.LAST_OWN_SEEN, null, rewindTime);
-                rewind(app, User.DataKeys.LAST_OWN_NOTIFIED_ITEM, null,  rewindTime);
-                rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, null,  rewindTime);
-                rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_AT, null, rewindTime);
+                ContentStats.rewind(app, rewindTime);
                 clearActivities(app.getContentResolver());
                 break;
             default:
@@ -266,9 +258,5 @@ public class SyncAdapterService extends Service {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "deleted "+deleted+ " activities");
         }
-    }
-
-    private static void rewind(SoundCloudApplication app, String key1, @Nullable String key2, long amount) {
-        app.setAccountData(key1, app.getAccountDataLong(key2 == null ? key1 : key2) - amount);
     }
 }
