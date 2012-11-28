@@ -4,6 +4,7 @@ package com.soundcloud.android.view;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import org.xmlpull.v1.XmlPullParser;
@@ -238,18 +239,18 @@ public class MainMenu extends LinearLayout {
 
             switch (menuItem.id) {
                 case (R.id.nav_stream):
-                    final Integer streamCount = SoundCloudApplication.unseenActivities.get(Content.ME_SOUND_STREAM);
+                    final int streamCount = ContentStats.count(Content.ME_SOUND_STREAM);
                     if (streamCount > 0){
-                        holder.counter.setText(streamCount > 99 ? "99+" : streamCount.toString());
+                        holder.counter.setText(streamCount > 99 ? "99+" : String.valueOf(streamCount));
                         holder.counter.setVisibility(View.VISIBLE);
                     } else {
                         holder.counter.setVisibility(View.GONE);
                     }
                     break;
                 case (R.id.nav_news):
-                    final Integer activitiesCount = SoundCloudApplication.unseenActivities.get(Content.ME_ACTIVITIES);
+                    final int activitiesCount =  ContentStats.count(Content.ME_ACTIVITIES);
                     if (activitiesCount > 0){
-                        holder.counter.setText(activitiesCount > 99 ? "99+" : activitiesCount.toString());
+                        holder.counter.setText(activitiesCount > 99 ? "99+" : String.valueOf(activitiesCount));
                         holder.counter.setVisibility(View.VISIBLE);
                     } else {
                         holder.counter.setVisibility(View.GONE);
@@ -302,5 +303,4 @@ public class MainMenu extends LinearLayout {
             ImageView image;
         }
     }
-
 }

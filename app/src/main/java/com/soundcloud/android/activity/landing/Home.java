@@ -42,7 +42,8 @@ public class Home extends ScActivity implements ScLandingPage {
         if (app.getAccount() != null) {
             if (state == null) {
                 getSupportFragmentManager().beginTransaction()
-                        .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_SOUND_STREAM)).commit();
+                        .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_SOUND_STREAM))
+                        .commit();
             }
 
             if (IOUtils.isConnected(this) &&
@@ -119,6 +120,4 @@ public class Home extends ScActivity implements ScLandingPage {
                 }
             }
         };
-
-
 }
