@@ -38,7 +38,7 @@ public class AssociationManagerTest {
 
         addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
 
-        associationManager.addLike(t);
+        associationManager.setLike(t, true);
         expect(modelManager.getTrack(t.id).user_like).toBeTrue();
         // clear out state
 
@@ -58,7 +58,7 @@ public class AssociationManagerTest {
 
         addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(404, "FAIL"));
 
-        associationManager.addLike(t);
+        associationManager.setLike(t, true);
         expect(modelManager.getTrack(t.id).user_like).toBeFalse();
     }
 
@@ -70,7 +70,7 @@ public class AssociationManagerTest {
 
         addHttpResponseRule("DELETE", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
 
-        associationManager.removeLike(t);
+        associationManager.setLike(t, false);
         expect(modelManager.getTrack(t.id).user_like).toBeFalse();
 
         // clear out state
@@ -91,7 +91,7 @@ public class AssociationManagerTest {
         modelManager.write(t);
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_REPOST, t.id).toUrl(), new TestHttpResponse(200, "OK"));
-        associationManager.addRepost(t);
+        associationManager.setRepost(t, true);
         expect(t.user_repost).toBeTrue();
         expect(modelManager.getTrack(t.id).user_repost).toBeTrue();
 
@@ -111,11 +111,11 @@ public class AssociationManagerTest {
         modelManager.write(t);
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_REPOST, t.id).toUrl(), new TestHttpResponse(200, "OK"));
-        associationManager.addRepost(t);
+        associationManager.setRepost(t, true);
         expect(modelManager.getTrack(t.id).user_repost).toBeTrue();
 
         addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_REPOST, t.id).toUrl(), new TestHttpResponse(200, "OK"));
-        associationManager.removeRepost(t);
+        associationManager.setRepost(t, false);
         expect(t.user_repost).toBeFalse();
         expect(modelManager.getTrack(t.id).user_repost).toBeFalse();
 
@@ -137,7 +137,7 @@ public class AssociationManagerTest {
         modelManager.write(t);
         addHttpResponseRule("DELETE", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(400, "FAIL"));
 
-        associationManager.removeLike(t);
+        associationManager.setLike(t, false);
         expect(t.user_like).toBeTrue();
 
         expect(modelManager.getTrack(t.id)).toBe(t);

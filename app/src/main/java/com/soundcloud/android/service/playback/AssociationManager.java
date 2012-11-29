@@ -26,34 +26,18 @@ public class AssociationManager {
         mModelManager = SoundCloudApplication.MODEL_MANAGER;
     }
 
-    void addLike(@Nullable Sound sound) {
+    void setLike(@Nullable Sound sound, boolean like) {
         if (sound == null) return;
-        onLikeStatusSet(sound, true);
-        AddAssociationTask task = new AddAssociationTask(getApp(), sound);
+        onLikeStatusSet(sound, like);
+        AssociatedSoundTask task = like ? new AddAssociationTask(getApp(), sound) : new RemoveAssociationTask(getApp(), sound);
         task.setOnAssociatedListener(likeListener);
         task.execute(Endpoints.MY_FAVORITE);
     }
 
-    void removeLike(@Nullable Sound sound) {
+    void setRepost(@Nullable Sound sound, boolean repost) {
         if (sound == null) return;
-        onLikeStatusSet(sound, false);
-        RemoveAssociationTask task = new RemoveAssociationTask(getApp(), sound);
-        task.setOnAssociatedListener(likeListener);
-        task.execute(Endpoints.MY_FAVORITE);
-    }
-
-    void addRepost(@Nullable Sound sound) {
-        if (sound == null) return;
-        onRepostStatusSet(sound, true);
-        AddAssociationTask task = new AddAssociationTask(getApp(), sound);
-        task.setOnAssociatedListener(repostListener);
-        task.execute(TempEndpoints.e1.MY_REPOST);
-    }
-
-    void removeRepost(@Nullable Sound sound) {
-        if (sound == null) return;
-        onRepostStatusSet(sound, false);
-        RemoveAssociationTask task = new RemoveAssociationTask(getApp(), sound);
+        onRepostStatusSet(sound, repost);
+        AssociatedSoundTask task = repost ? new AddAssociationTask(getApp(), sound) : new RemoveAssociationTask(getApp(), sound);
         task.setOnAssociatedListener(repostListener);
         task.execute(TempEndpoints.e1.MY_REPOST);
     }
