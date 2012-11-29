@@ -17,6 +17,7 @@ import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.SearchManager;
@@ -70,6 +71,16 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private static final int MAX_LOCAL  = 5;
     private static final int MAX_REMOTE = 5;
 
+    private static final String LOCAL = "_local";
+
+    public static final String[] COLUMN_NAMES = new String[]{
+            BaseColumns._ID,
+            SearchManager.SUGGEST_COLUMN_TEXT_1,
+            SearchManager.SUGGEST_COLUMN_INTENT_DATA,
+            DBHelper.Suggestions.ICON_URL,
+            LOCAL
+    };
+
     static final private UriMatcher sMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     private SuggestionsHandler mSuggestionsHandler;
@@ -78,9 +89,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private Pattern mCurrentPattern;
 
     private Cursor mLocalSuggestions;
-    private SearchSuggestions mRemoteSuggestions;
-
-
+    private @NotNull SearchSuggestions mRemoteSuggestions = SearchSuggestions.EMPTY;
 
     public SuggestionsAdapter(Context context, Cursor c, AndroidCloudAPI api) {
         super(context, c, 0);
@@ -173,26 +182,27 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         @Override
         public void handleMessage(Message msg) {
             final CharSequence constraint = (CharSequence) msg.obj;
-
             try {
-                HttpResponse resp = mApi.get(Request.to("/search/suggest").with("q", constraint, "highlight", "false", "limit", MAX_REMOTE));
+                HttpResponse resp = mApi.get(Request.to("/search/suggest").with(
+                        "q", constraint,
+                        "highlight", "true",
+                        "limit", MAX_REMOTE));
 
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(),
                             SearchSuggestions.class);
                     onRemoteSuggestions(constraint, searchSuggestions);
                     return;
-
                 } else {
                     Log.w(TAG, "invalid status code returned: " + resp.getStatusLine());
                 }
             } catch (IOException e) {
                 Log.w(TAG, "error fetching suggestions", e);
             }
-            onRemoteSuggestions(constraint, null);
+            onRemoteSuggestions(constraint, SearchSuggestions.EMPTY);
         }
 
-        private void onRemoteSuggestions(final CharSequence constraint, final @Nullable SearchSuggestions suggestions) {
+        private void onRemoteSuggestions(final CharSequence constraint, final @NotNull SearchSuggestions suggestions) {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -200,8 +210,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
                     if (constraint.equals(mCurrentConstraint)) {
                         mRemoteSuggestions = suggestions;
                         swapCursor(getMixedCursor());
-
-                        if (mRemoteSuggestions != null){
+                        if (!mRemoteSuggestions.isEmpty()) {
                             final List<Long> trackLookupIds = new ArrayList<Long>();
                             final List<Long> userLookupIds = new ArrayList<Long>();
                             mRemoteSuggestions.putMissingIds(trackLookupIds, userLookupIds);
@@ -217,37 +226,20 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
                                         .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true);
                                 mContext.startService(intent);
                             }
-
                         }
                     }
                 }
             });
         }
-
     }
 
     private Cursor getMixedCursor() {
-        final MatrixCursor remote = new MatrixCursor(new String[]{
-                BaseColumns._ID,
-                SearchManager.SUGGEST_COLUMN_TEXT_1,
-                SearchManager.SUGGEST_COLUMN_INTENT_DATA,
-                DBHelper.Suggestions.ICON_URL});
-
-        if (mRemoteSuggestions != null) {
-            for (SearchSuggestions.Query q : mRemoteSuggestions) {
-                remote.addRow(new Object[]{
-                        q.id,
-                        q.query,
-                        q.getUriPath(),
-                        q.getIconUri()
-                });
+        if (!mRemoteSuggestions.isEmpty()) {
+            if (mLocalSuggestions != null && mLocalSuggestions.getCount() > 0) {
+                return new MergeCursor(new Cursor[]{ mLocalSuggestions, mRemoteSuggestions.asCursor() });
+            } else {
+                return mRemoteSuggestions.asCursor();
             }
-        }
-
-        if (remote.getCount() > 0 && mLocalSuggestions != null && mLocalSuggestions.getCount() > 0){
-            return new MergeCursor(new Cursor[]{mLocalSuggestions, remote});
-        } else if (remote.getCount() > 0){
-            return remote;
         } else {
             return mLocalSuggestions;
         }
@@ -270,29 +262,17 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         return mDetachableReceiver;
     }
 
-
     private Cursor fetchLocalSuggestions(String constraint, int max) {
-        final MatrixCursor local = new MatrixCursor(new String[]{
-                BaseColumns._ID,
-                SearchManager.SUGGEST_COLUMN_TEXT_1,
-                SearchManager.SUGGEST_COLUMN_INTENT_DATA,
-                DBHelper.Suggestions.ICON_URL});
-
-        if (!TextUtils.isEmpty(mCurrentConstraint)) {
-            local.addRow(new Object[]{
-                    -1,
-                    mContext.getResources().getString(R.string.search_for_query,mCurrentConstraint),
-                    Content.SEARCH_ITEM.forQuery(mCurrentConstraint),
-                    ""
-            });
-        }
-
+        final MatrixCursor local = new MatrixCursor(COLUMN_NAMES);
+        addHeaderRow(local, constraint);
         final Cursor cursor = mContentResolver.query(
-                Content.ANDROID_SEARCH_SUGGEST.uri.buildUpon().appendQueryParameter("limit",
-                        String.valueOf(max)).build(),
+                Content.ANDROID_SEARCH_SUGGEST.uri
+                        .buildUpon()
+                        .appendQueryParameter("limit", String.valueOf(max))
+                        .build(),
                 null,
                 null,
-                new String[] {constraint},
+                new String[] { constraint},
                 null);
 
         while (cursor.moveToNext()) {
@@ -300,11 +280,24 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
                 cursor.getInt(cursor.getColumnIndex(BaseColumns._ID)),
                 cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)),
                 cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA)),
-                cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))
+                cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL)),
+                1 /* LOCAL */
             });
         }
         cursor.close();
         return local;
+    }
+
+    private void addHeaderRow(MatrixCursor local, String constraint) {
+        if (!TextUtils.isEmpty(constraint)) {
+            local.addRow(new Object[]{
+                    -1,
+                    mContext.getResources().getString(R.string.search_for_query, constraint),
+                    Content.SEARCH_ITEM.forQuery(constraint),
+                    "",
+                    1 /* local */
+            });
+        }
     }
 
     private View createViewFromResource(Cursor cursor,
@@ -326,7 +319,14 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
         final long id = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
         final String query = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1));
-        tag.tv_main.setText(id != -1 ? highlight(query) : query);
+        final boolean local = cursor.getInt(cursor.getColumnIndex(LOCAL)) == 1;
+
+        if (id == -1 /* header */) {
+            tag.tv_main.setText(query);
+        } else {
+            tag.tv_main.setText(local ? highlightLocal(query) : highlightRemote(query));
+        }
+
         final int rowType = getItemViewType(cursor.getPosition());
         if (rowType == TYPE_SEARCH_ITEM) {
             tag.iv_icon.setVisibility(View.GONE);
@@ -359,7 +359,6 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         } else {
             mImageLoader.unbind(tag.iv_icon);
         }
-
         tag.iv_icon.setImageResource(isUser ? R.drawable.no_user_cover : R.drawable.no_sound_cover);
     }
 
@@ -369,20 +368,40 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         TextView tv_main;
     }
 
-    private Spanned highlight(String original) {
-        final SpannableString s = new SpannableString(original);
-        Matcher m = mCurrentPattern.matcher(original);
 
-        s.setSpan(new ForegroundColorSpan(0xFF666666),
+    private Spanned highlightRemote(String query) {
+        // need to replace <b>foo</b> tags
+        // NOTE: don't use Html.fromHtml(), it's slow!
+        final int leftTag  = query.indexOf("<b>");
+        final int rightTag = query.indexOf("</b>") - 3;
+        if (leftTag != -1 && rightTag != -1) {
+            query = query.replace("<b>", "");
+            query = query.replace("</b>", "");
+        }
+        return createSpanned(query, leftTag, rightTag);
+    }
+
+    private Spanned highlightLocal(String query) {
+        Matcher m = mCurrentPattern.matcher(query);
+        if (m.find()) {
+            return createSpanned(query, m.start(2), m.end(2));
+        } else {
+            return createSpanned(query, -1, -1);
+        }
+    }
+
+    private static Spanned createSpanned(String s, int start, int end) {
+        final SpannableString spanned = new SpannableString(s);
+        spanned.setSpan(new ForegroundColorSpan(0xFF666666),
                 0, s.length(),
                 Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 
-        if (m.find()) {
-            s.setSpan(new ForegroundColorSpan(Color.WHITE),
-                    m.start(2), m.end(2),
+        if (start >= 0 && start < end && end > 0 && end < s.length()) {
+            spanned.setSpan(new ForegroundColorSpan(Color.WHITE),
+                    start, end,
                     Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         }
-        return s;
+        return spanned;
     }
 
     /**

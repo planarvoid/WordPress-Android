@@ -1,13 +1,13 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.adapter.SuggestionsAdapter;
 import com.soundcloud.android.provider.Content;
 
-import android.net.Uri;
+import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.text.TextUtils;
-import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -41,6 +41,8 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
 
     public List<Query> suggestions;
 
+    public final static SearchSuggestions EMPTY = new SearchSuggestions();
+
     public void putMissingIds(List<Long> missingTracks, List<Long> missingUsers) {
         for (Query q : this) {
             if (TextUtils.isEmpty(q.getIconUri())) {
@@ -53,9 +55,31 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         }
     }
 
+    public Cursor asCursor() {
+        final MatrixCursor cursor = new MatrixCursor(SuggestionsAdapter.COLUMN_NAMES);
+        for (SearchSuggestions.Query q : this) {
+            cursor.addRow(new Object[]{
+                    q.id,
+                    q.query,
+                    q.getUriPath(),
+                    q.getIconUri(),
+                    0 /* local */
+            });
+        }
+        return cursor;
+    }
+
     @Override
     public Iterator<Query> iterator() {
         return suggestions.iterator();
+    }
+
+    public int size() {
+        return suggestions.size();
+    }
+
+    public boolean isEmpty() {
+        return size() == 0;
     }
 
     public static class Query {

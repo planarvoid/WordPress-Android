@@ -1,0 +1,26 @@
+{
+  "tx_id": "f310608603bf4ac8be019fb40f641467",
+  "query_time_in_millis": 0,
+  "query": "foo",
+  "limit": 3,
+  "suggestions": [
+    {
+      "query": "<b>Foo</b> Fighters",
+      "kind": "user",
+      "id": 2097360,
+      "score": 1135145
+    },
+    {
+      "query": "<b>Foo</b>l's Gold",
+      "kind": "user",
+      "id": 5636679,
+      "score": 90413
+    },
+    {
+      "query": "<b>Foo</b> Fighters, Your Favorite Part of Walk",
+      "kind": "track",
+      "id": 16536884,
+      "score": 77465
+    }
+  ]
+}
