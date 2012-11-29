@@ -100,7 +100,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     private void handleIntent(Intent intent){
-
         final String action = intent.getAction();
         if (!TextUtils.isEmpty(action)){
             Track displayTrack = null;
@@ -117,9 +116,9 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             } else if (Intent.ACTION_VIEW.equals(action)) {
                 // Play from a View Intent, this probably came from quicksearch
                 if (intent.getData() != null) {
-                    displayTrack = Track.fromUri(intent.getData(), getContentResolver());
+                    displayTrack = Track.fromUri(intent.getData(), getContentResolver(), true);
                     if (displayTrack != null) {
-                        startService(displayTrack.getPlayIntent());
+                        startService( new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(Track.EXTRA, displayTrack));
                     }
                 }
             }
@@ -637,18 +636,16 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 track = CloudPlaybackService.getCurrentTrack();
             }
 
-            if (track != null && track.isPublic()) {
-                shareItem.setEnabled(true);
-
-                ShareActionProvider shareActionProvider = (ShareActionProvider) shareItem.getActionProvider();
-
+            if (track != null && track.isPublic() && track.getShareIntent() != null) {
                 Intent shareIntent = track.getShareIntent();
+                shareItem.setEnabled(true);
+                ShareActionProvider shareActionProvider = (ShareActionProvider) shareItem.getActionProvider();
                 shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
                 shareIntent.putExtra(Intent.EXTRA_SUBJECT,
                         track.title + (track.user != null ? " by " + track.user.username : "") + " on SoundCloud");
                 shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, track.permalink_url);
-
                 shareActionProvider.setShareIntent(shareIntent);
+
             } else {
                 shareItem.setEnabled(false);
 
@@ -656,7 +653,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 shareActionProvider.setShareIntent(null);
             }
         }
-
 
         return true;
     }

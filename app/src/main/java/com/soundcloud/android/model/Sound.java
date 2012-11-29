@@ -172,7 +172,7 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
         b.putInt("likes_count", likes_count);
         b.putInt("reposts_count", reposts_count);
         b.putString("tag_list", tag_list);
-        b.putString("sharing", sharing.value());
+        b.putString("sharing", sharing != null ? sharing.value() : null);
         b.putCharSequence("elapsedTime", mElapsedTime);
         b.putString("list_artwork_uri", mArtworkUri);
         return b;

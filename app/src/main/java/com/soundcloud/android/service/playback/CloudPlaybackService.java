@@ -11,6 +11,7 @@ import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.streaming.StreamItem;
@@ -67,7 +68,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
 
     // public service actions
-    public static final String PLAY_ACTION = "com.soundcloud.android.playback.start";
+    public static final String PLAY_ACTION          = "com.soundcloud.android.playback.start";
     public static final String TOGGLEPAUSE_ACTION   = "com.soundcloud.android.playback.togglepause";
     public static final String PAUSE_ACTION         = "com.soundcloud.android.playback.pause";
     public static final String NEXT_ACTION          = "com.soundcloud.android.playback.next";
@@ -181,6 +182,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         IntentFilter commandFilter = new IntentFilter();
+        commandFilter.addAction(PLAY_ACTION);
         commandFilter.addAction(TOGGLEPAUSE_ACTION);
         commandFilter.addAction(PAUSE_ACTION);
         commandFilter.addAction(NEXT_ACTION);
@@ -419,8 +421,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
                 if (track.isStreamable()) {
                     onStreamableTrack(track);
-                } else if (!AndroidUtils.isTaskFinished(track.load_info_task)) {
-                    track.load_info_task.addListener(mInfoListener);
+                } else if (track.load_info_task == null || !AndroidUtils.isTaskFinished(track.load_info_task)) {
+                    track.refreshInfoAsync(getApp(),mInfoListener);
                 } else {
                     onUnstreamableTrack(track.id);
                 }
@@ -996,7 +998,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
         Track track = intent.getParcelableExtra(Track.EXTRA);
         if (track != null) {
-            mPlayQueueManager.setTrack(track);
+            // go to the cache to ensure 1 copy of each track app wide
+            mPlayQueueManager.setTrack(SoundCloudApplication.MODEL_MANAGER.cache(track, ScResource.CacheUpdateMode.NONE));
             openCurrent();
         } else if (intent.hasExtra(EXTRA_TRACK_ID)) {
             mPlayQueueManager.setTrack(intent.getLongExtra(EXTRA_TRACK_ID, -1l));

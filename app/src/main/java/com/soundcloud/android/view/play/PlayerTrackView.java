@@ -227,7 +227,7 @@ public class PlayerTrackView extends LinearLayout implements
 
         mTrack.refreshInfoAsync(mPlayer.getApp(),this);
 
-        if (mTrack.isStreamable() && mTrack.last_playback_error == -1) {
+        if ((mTrack.isWaitingOnState() || mTrack.isStreamable()) && mTrack.last_playback_error == -1) {
             hideUnplayable();
         } else {
             showUnplayable();
