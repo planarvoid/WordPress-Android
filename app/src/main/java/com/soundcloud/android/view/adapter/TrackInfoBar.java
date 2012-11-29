@@ -378,7 +378,7 @@ public class TrackInfoBar extends LazyRow {
         mLikeCount.setVisibility(likes <= 0 ? View.GONE : View.VISIBLE);
         mLikeCountSeparator.setVisibility(likes <= 0 || reposts <= 0 && comments <= 0 ? View.GONE : View.VISIBLE);
 
-        mRepostCount.setVisibility(reposts == 0 ? View.GONE : View.VISIBLE);
+        mRepostCount.setVisibility(reposts <= 0 ? View.GONE : View.VISIBLE);
         mRepostCountSeparator.setVisibility(reposts <= 0 || comments <= 0 ? View.GONE : View.VISIBLE);
 
         mCommentCount.setVisibility(comments <= 0 ? maintainSize ? View.INVISIBLE : View.GONE : View.VISIBLE);
