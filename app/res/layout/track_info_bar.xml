@@ -107,41 +107,22 @@
               style="@style/stat_pipe"
               />
 
-        <TextView android:id="@+id/comment_count"
+        <TextView android:id="@+id/like_count"
                   android:layout_width="wrap_content"
                   android:layout_alignWithParentIfMissing="true"
-                  android:drawableLeft="@drawable/ic_stats_comments_states"
                   android:drawablePadding="3dip"
                   android:singleLine="true"
                   android:layout_height="wrap_content"
                   android:layout_toRightOf="@id/vr_play_count"
                   style="@style/txt_list_sub_secondary"/>
 
-        <View android:id="@+id/vr_comment_count"
-              android:layout_toRightOf="@+id/comment_count"
-              android:layout_alignBottom="@+id/comment_count"
-              android:layout_alignTop="@+id/comment_count"
+        <View android:id="@+id/vr_like_count"
+              android:layout_toRightOf="@+id/like_count"
+              android:layout_alignBottom="@+id/like_count"
+              android:layout_alignTop="@+id/like_count"
               android:layout_height="0dp"
               style="@style/stat_pipe"
               android:layout_width="1dip"/>
-
-        <TextView android:id="@+id/like_count"
-                  android:layout_width="wrap_content"
-                  android:layout_alignWithParentIfMissing="true"
-                  android:drawablePadding="3dip"
-                  android:layout_height="wrap_content"
-                  android:singleLine="true"
-                  android:layout_toRightOf="@id/vr_comment_count"
-                  android:paddingRight="5dip"
-                  style="@style/txt_list_sub_secondary"/>
-
-        <View android:id="@+id/vr_like_count"
-                      android:layout_toRightOf="@+id/like_count"
-                      android:layout_alignBottom="@+id/like_count"
-                      android:layout_alignTop="@+id/like_count"
-                      android:layout_height="0dp"
-                      android:layout_width="1dip"
-                      style="@style/stat_pipe" />
 
         <TextView android:id="@+id/repost_count"
                   android:layout_width="wrap_content"
@@ -150,6 +131,25 @@
                   android:layout_height="wrap_content"
                   android:singleLine="true"
                   android:layout_toRightOf="@id/vr_like_count"
+                  android:paddingRight="5dip"
+                  style="@style/txt_list_sub_secondary"/>
+
+        <View android:id="@+id/vr_repost_count"
+                      android:layout_toRightOf="@+id/repost_count"
+                      android:layout_alignBottom="@+id/repost_count"
+                      android:layout_alignTop="@+id/repost_count"
+                      android:layout_height="0dp"
+                      android:layout_width="1dip"
+                      style="@style/stat_pipe" />
+
+        <TextView android:id="@+id/comment_count"
+                  android:layout_width="wrap_content"
+                  android:layout_alignWithParentIfMissing="true"
+                  android:drawableLeft="@drawable/ic_stats_comments_states"
+                  android:drawablePadding="3dip"
+                  android:layout_height="wrap_content"
+                  android:singleLine="true"
+                  android:layout_toRightOf="@id/vr_repost_count"
                   android:paddingRight="5dip"
                   style="@style/txt_list_sub_secondary"/>
     </RelativeLayout>

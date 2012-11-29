@@ -48,7 +48,7 @@ public class TrackInfoBar extends LazyRow {
     private TextView mCommentCount;
     private TextView mRepostCount;
 
-    private View mPlayCountSeparator, mCommentCountSeparator, mLikeCountSeparator;
+    private View mPlayCountSeparator, mRepostCountSeparator, mLikeCountSeparator;
 
     private Drawable mLikesDrawable;
     private Drawable mLikedDrawable;
@@ -91,14 +91,14 @@ public class TrackInfoBar extends LazyRow {
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
 
         mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
-        mLikeCount = (TextView) findViewById(R.id.like_count);
         mPlayCount = (TextView) findViewById(R.id.play_count);
-        mCommentCount = (TextView) findViewById(R.id.comment_count);
+        mLikeCount = (TextView) findViewById(R.id.like_count);
         mRepostCount = (TextView) findViewById(R.id.repost_count);
+        mCommentCount = (TextView) findViewById(R.id.comment_count);
 
         mPlayCountSeparator = findViewById(R.id.vr_play_count);
-        mCommentCountSeparator = findViewById(R.id.vr_comment_count);
         mLikeCountSeparator = findViewById(R.id.vr_like_count);
+        mRepostCountSeparator = findViewById(R.id.vr_repost_count);
 
         if (mAdapter == null) {
             // player view, these need to be set
@@ -375,13 +375,13 @@ public class TrackInfoBar extends LazyRow {
         mPlayCount.setVisibility(plays <= 0 ? View.GONE : View.VISIBLE);
         mPlayCountSeparator.setVisibility(plays <= 0 || (comments <= 0 && likes <= 0 && reposts <= 0) ? View.GONE : View.VISIBLE);
 
-        mCommentCount.setVisibility(comments == 0 ? View.GONE : View.VISIBLE);
-        mCommentCountSeparator.setVisibility(comments <= 0 || (likes <= 0 && reposts <= 0) ? View.GONE : View.VISIBLE);
-
         mLikeCount.setVisibility(likes <= 0 ? View.GONE : View.VISIBLE);
-        mLikeCountSeparator.setVisibility(likes <= 0 || reposts <= 0 ? View.GONE : View.VISIBLE);
+        mLikeCountSeparator.setVisibility(likes <= 0 || reposts <= 0 && comments <= 0 ? View.GONE : View.VISIBLE);
 
-        mRepostCount.setVisibility(reposts <= 0 ? maintainSize ? View.INVISIBLE : View.GONE : View.VISIBLE);
+        mRepostCount.setVisibility(reposts == 0 ? View.GONE : View.VISIBLE);
+        mRepostCountSeparator.setVisibility(reposts <= 0 || comments <= 0 ? View.GONE : View.VISIBLE);
+
+        mCommentCount.setVisibility(comments <= 0 ? maintainSize ? View.INVISIBLE : View.GONE : View.VISIBLE);
     }
 
 }
