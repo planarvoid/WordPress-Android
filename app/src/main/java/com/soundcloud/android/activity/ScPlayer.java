@@ -11,6 +11,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -118,7 +119,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 if (intent.getData() != null) {
                     displayTrack = Track.fromUri(intent.getData(), getContentResolver(), true);
                     if (displayTrack != null) {
-                        startService( new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(Track.EXTRA, displayTrack));
+                        startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(Track.EXTRA, displayTrack));
                     }
                 }
             }
@@ -478,15 +479,17 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                     getTrackView(queuePos).setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
                 }
 
-            } else if (action.equals(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED) ||
-                        action.equals(CloudPlaybackService.COMMENTS_LOADED) ||
-                        action.equals(Actions.COMMENT_ADDED)) {
+            } else if (action.equals(CloudPlaybackService.COMMENTS_LOADED) ||
+                    action.equals(Sound.EXTRA_TRACK_ASSOCIATION_CHANGED) ||
+                    action.equals(Sound.EXTRA_SOUND_INFO_UPDATED) ||
+                    action.equals(Sound.EXTRA_SOUND_INFO_ERROR) ||
+                    action.equals(Sound.EXTRA_COMMENT_ADDED)) {
 
                 for (PlayerTrackView ptv : mTrackPager.playerTrackViews()){
                     ptv.handleIdBasedIntent(intent);
                 }
 
-                if (action.equals(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED) || action.equals(Actions.COMMENT_ADDED)) {
+                if (action.equals(Sound.EXTRA_TRACK_ASSOCIATION_CHANGED) || action.equals(Sound.EXTRA_COMMENT_ADDED)) {
                     invalidateOptionsMenu();
 
                 }
@@ -523,8 +526,10 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
         f.addAction(CloudPlaybackService.SEEKING);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
-        f.addAction(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED);
-        f.addAction(Actions.COMMENT_ADDED);
+        f.addAction(Sound.EXTRA_TRACK_ASSOCIATION_CHANGED);
+        f.addAction(Sound.EXTRA_SOUND_INFO_UPDATED);
+        f.addAction(Sound.EXTRA_SOUND_INFO_ERROR);
+        f.addAction(Sound.EXTRA_COMMENT_ADDED);
         registerReceiver(mStatusListener, new IntentFilter(f));
 
         if (mConfigureFromService) {

@@ -12,6 +12,7 @@ import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.streaming.StreamItem;
@@ -90,7 +91,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static final String STREAM_DIED        = "com.soundcloud.android.streamdied";
     public static final String TRACK_UNAVAILABLE  = "com.soundcloud.android.trackunavailable";
     public static final String COMMENTS_LOADED    = "com.soundcloud.android.commentsloaded";
-    public static final String TRACK_ASSOCIATION_CHANGED = "com.soundcloud.android.likeset";
     public static final String SEEKING            = "com.soundcloud.android.seeking";
     public static final String SEEK_COMPLETE      = "com.soundcloud.android.seekcomplete";
     public static final String BUFFERING          = "com.soundcloud.android.buffering";
@@ -436,6 +436,11 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private FetchTrackTask.FetchTrackListener mInfoListener = new FetchTrackTask.FetchTrackListener() {
         @Override
         public void onSuccess(Track track, String action) {
+            track.setUpdated();
+            track = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(track, ScResource.CacheUpdateMode.FULL);
+            sendBroadcast(new Intent(Sound.EXTRA_SOUND_INFO_UPDATED)
+                                        .putExtra(CloudPlaybackService.BroadcastExtras.id, track.id));
+
             if (track.isStreamable()) {
                 onStreamableTrack(track);
             } else {
@@ -445,6 +450,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
         @Override
         public void onError(long trackId) {
+            sendBroadcast(new Intent(Sound.EXTRA_SOUND_INFO_ERROR)
+                                                    .putExtra(CloudPlaybackService.BroadcastExtras.id, trackId));
             onUnstreamableTrack(trackId);
         }
     };

@@ -1,6 +1,8 @@
 package com.soundcloud.android.view.play;
 
-import android.view.animation.Animation;
+import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
+import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
+
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -9,9 +11,9 @@ import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -22,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Layout;
@@ -35,9 +36,9 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewStub;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -47,12 +48,8 @@ import android.widget.ViewFlipper;
 
 import java.util.List;
 
-import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
-import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
-
 public class PlayerTrackView extends LinearLayout implements
         View.OnTouchListener,
-        FetchModelTask.FetchModelListener<Track>,
         LoadCommentsTask.LoadCommentsListener {
 
     private ScPlayer mPlayer;
@@ -222,10 +219,7 @@ public class PlayerTrackView extends LinearLayout implements
         mToggleLike.setTextOn(likesCount);
         mToggleLike.setChecked(mTrack.user_like);
 
-
         setAssociationStatus();
-
-        mTrack.refreshInfoAsync(mPlayer.getApp(),this);
 
         if ((mTrack.isWaitingOnState() || mTrack.isStreamable()) && mTrack.last_playback_error == -1) {
             hideUnplayable();
@@ -589,7 +583,6 @@ public class PlayerTrackView extends LinearLayout implements
 
     public void handleStatusIntent(Intent intent) {
 
-
         String action = intent.getAction();
         if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
 
@@ -599,30 +592,49 @@ public class PlayerTrackView extends LinearLayout implements
             } else {
                 mWaveformController.setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
             }
-        } else if (action.equals(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED)) {
+
+        } else if (action.equals(Sound.EXTRA_TRACK_ASSOCIATION_CHANGED)) {
             if (mTrack != null && mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
                 mTrack.user_like = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false);
                 mTrack.user_repost = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isRepost, false);
                 setAssociationStatus();
             }
+
+        } else if (action.equals(Sound.EXTRA_SOUND_INFO_UPDATED)) {
+            Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1));
+            if (t != null) {
+                setTrack(t, mQueuePosition, true, mOnScreen);
+                if (mTrackInfo != null) {
+                    mTrackInfo.onInfoLoadSuccess();
+                }
+            }
+
+        } else if (action.equals(Sound.EXTRA_SOUND_INFO_ERROR)) {
+            if (mTrackInfo != null) {
+                mTrackInfo.onInfoLoadError();
+            }
+
         } else if (action.equals(CloudPlaybackService.BUFFERING)) {
             onBuffering();
         } else if (action.equals(CloudPlaybackService.BUFFERING_COMPLETE)) {
             mWaveformController.onBufferingStop();
             mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
                     intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
+
         } else if (action.equals(CloudPlaybackService.PLAYBACK_ERROR)) {
             mTrack.last_playback_error = ScPlayer.PlayerError.PLAYBACK_ERROR;
             mWaveformController.onBufferingStop();
             mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
                     intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
             showUnplayable();
+
         } else if (action.equals(CloudPlaybackService.STREAM_DIED)) {
             mTrack.last_playback_error = ScPlayer.PlayerError.STREAM_ERROR;
             mWaveformController.onBufferingStop();
             mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
                     intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
             showUnplayable();
+
         } else if (action.equals(CloudPlaybackService.TRACK_UNAVAILABLE)) {
             mTrack.last_playback_error = ScPlayer.PlayerError.TRACK_UNAVAILABLE;
             mWaveformController.onBufferingStop();
@@ -630,6 +642,7 @@ public class PlayerTrackView extends LinearLayout implements
                     intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
             showUnplayable();
             // TODO consolidate error handling, remove duplication
+
         } else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)) {
             mWaveformController.setComments(mTrack.comments, true);
         } else if (action.equals(CloudPlaybackService.SEEKING)) {
@@ -695,28 +708,6 @@ public class PlayerTrackView extends LinearLayout implements
         mAvatar.setImageBitmap(null);
         mWaveformController.reset(true);
         mWaveformController.setOnScreen(false);
-    }
-
-    @Override
-    public void onSuccess(Track t, String action) {
-        t.setUpdated();
-        t = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(t, ScResource.CacheUpdateMode.FULL);
-
-
-        if (t.id != mTrack.id) return;
-
-        setTrack(t, mQueuePosition, true, mOnScreen);
-        if (mTrackInfo != null) {
-            mTrackInfo.onInfoLoadSuccess();
-        }
-    }
-
-    @Override
-    public void onError(long trackId) {
-        if (trackId != mTrack.id) return;
-        if (mTrackInfo != null){
-            mTrackInfo.onInfoLoadError();
-        }
     }
 
     @Nullable public Track getTrack() {
