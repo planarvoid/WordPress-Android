@@ -12,6 +12,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.DetachableResultReceiver;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -27,6 +28,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -88,8 +90,8 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private @NotNull SearchSuggestions mLocalSuggestions  = SearchSuggestions.EMPTY;
     private @NotNull SearchSuggestions mRemoteSuggestions = SearchSuggestions.EMPTY;
 
-    public SuggestionsAdapter(Context context, Cursor c, AndroidCloudAPI api) {
-        super(context, c, 0);
+    public SuggestionsAdapter(Context context, AndroidCloudAPI api) {
+        super(context, null, 0);
         mContentResolver = context.getContentResolver();
         mContext = context;
         mImageLoader = ImageLoader.get(mContext);
@@ -154,8 +156,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             mLocalSuggestions = fetchLocalSuggestions(mCurrentConstraint, MAX_LOCAL);
 
             mSuggestionsHandler.removeMessages(0);
-            Message.obtain(mSuggestionsHandler,0,constraint).sendToTarget();
-
+            mSuggestionsHandler.obtainMessage(0, constraint).sendToTarget();
             return getMixedCursor();
 
         } else {
@@ -211,13 +212,13 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private void prefetchResults(SearchSuggestions suggestions) {
         if (suggestions.isEmpty() || !shouldPrefetch()) return;
 
-        final List<Long> trackLookupIds = new ArrayList<Long>();
-        final List<Long> userLookupIds = new ArrayList<Long>();
-        suggestions.putRemoteIds(trackLookupIds, userLookupIds);
+        final List<Long> trackIds = new ArrayList<Long>();
+        final List<Long> userIds = new ArrayList<Long>();
+        suggestions.putRemoteIds(trackIds, userIds);
 
         ArrayList<Uri> toSync = new ArrayList<Uri>();
-        if (!trackLookupIds.isEmpty()) toSync.add(Content.TRACK_LOOKUP.forQuery(TextUtils.join(",", trackLookupIds)));
-        if (!userLookupIds.isEmpty()) toSync.add(Content.USER_LOOKUP.forQuery(TextUtils.join(",", userLookupIds)));
+        if (!trackIds.isEmpty()) toSync.add(Content.TRACK_LOOKUP.forQuery(TextUtils.join(",", trackIds)));
+        if (!userIds.isEmpty()) toSync.add(Content.USER_LOOKUP.forQuery(TextUtils.join(",", userIds)));
 
         if (!toSync.isEmpty()) {
             Intent intent = new Intent(mContext, ApiSyncService.class)
@@ -229,7 +230,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     }
 
     private boolean shouldPrefetch() {
-        return false;
+        return IOUtils.isWifiConnected(mContext);
     }
 
     private Cursor getMixedCursor() {
@@ -254,6 +255,14 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
                 break;
             }
         }
+    }
+
+    protected SearchSuggestions getRemote() {
+        return mRemoteSuggestions;
+    }
+
+    protected SearchSuggestions getLocal() {
+        return mLocalSuggestions;
     }
 
     protected DetachableResultReceiver getReceiver() {
@@ -364,7 +373,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         TextView tv_main;
     }
 
-    private Spanned highlightRemote(String query) {
+    protected Spanned highlightRemote(String query) {
         // need to replace <b>foo</b> tags
         // NOTE: don't use Html.fromHtml(), it's slow!
         final int leftTag  = query.indexOf("<b>");
@@ -391,7 +400,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
                 0, s.length(),
                 Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 
-        if (start >= 0 && start < end && end > 0 && end < s.length()) {
+        if (start >= 0 && start < end && end > 0 && end <= s.length()) {
             spanned.setSpan(new ForegroundColorSpan(Color.WHITE),
                     start, end,
                     Spannable.SPAN_INCLUSIVE_INCLUSIVE);
