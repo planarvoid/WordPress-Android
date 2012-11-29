@@ -59,28 +59,27 @@ import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 
-public class ScListFragment extends SherlockListFragment
-        implements PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener, CollectionTask.Callback, AbsListView.OnScrollListener, ImageLoader.LoadBlocker {
-
+public class ScListFragment extends SherlockListFragment implements PullToRefreshBase.OnRefreshListener,
+                                                            DetachableResultReceiver.Receiver,
+                                                            LocalCollection.OnChangeListener,
+                                                            CollectionTask.Callback,
+                                                            AbsListView.OnScrollListener,
+                                                            ImageLoader.LoadBlocker {
     protected static final int CONNECTIVITY_MSG = 0;
 
-    @Nullable
-    protected ScListView mListView;
+    @Nullable private ScListView mListView;
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
     protected @Nullable EmptyCollection mEmptyCollection;
     private @Nullable Content mContent;
     private @NotNull Uri mContentUri;
-
     private NetworkConnectivityListener connectivityListener;
     private @Nullable CollectionTask mRefreshTask;
-    protected @Nullable LocalCollection mLocalCollection;
+    private @Nullable LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
-
-    private boolean mObservingContent, mIgnorePlaybackStatus, mKeepGoing, mPendingSync;
-    protected String mNextHref;
+    private boolean mIgnorePlaybackStatus, mKeepGoing, mPendingSync;
     private CollectionTask mAppendTask;
-
+    protected String mNextHref;
 
     public static ScListFragment newInstance(Content content) {
         return newInstance(content.uri);
@@ -110,9 +109,7 @@ public class ScListFragment extends SherlockListFragment
             // TODO :  Move off the UI thread.
             mLocalCollection = LocalCollection.fromContentUri(mContentUri, contentResolver, true);
             mLocalCollection.startObservingSelf(contentResolver, this);
-
             mChangeObserver = new ChangeObserver();
-            mObservingContent = true;
             contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);
             refreshSyncData();
         }
@@ -137,7 +134,6 @@ public class ScListFragment extends SherlockListFragment
                 case ME_ACTIVITIES:
                     adapter = new ActivityAdapter(getActivity(), mContentUri);
                     break;
-
                 case ME_FOLLOWERS:
                 case ME_FOLLOWINGS:
                 case USER_FOLLOWINGS:
@@ -147,36 +143,25 @@ public class ScListFragment extends SherlockListFragment
                 case SUGGESTED_USERS:
                     adapter = new UserAdapter(getActivity(), mContentUri);
                     break;
-
                 case ME_FRIENDS:
                     adapter = new FriendAdapter(getActivity(), mContentUri);
                     break;
-
                 case ME_SOUNDS:
                     adapter = new MyTracksAdapter(getScActivity(), mContentUri);
                     break;
-
                 case ME_LIKES:
                 case USER_LIKES:
-                    adapter = new SoundAssociationAdapter(getActivity(), mContentUri);
-                    break;
-
-                case SEARCH:
-                    adapter = new SearchAdapter(getActivity(), Content.SEARCH.uri);
-                    break;
-
-                case TRACK_COMMENTS:
-                    adapter = new CommentAdapter(getActivity(), mContentUri);
-                    break;
-
                 case USER_SOUNDS:
                     adapter = new SoundAssociationAdapter(getActivity(), mContentUri);
                     break;
-
-
+                case SEARCH:
+                    adapter = new SearchAdapter(getActivity(), Content.SEARCH.uri);
+                    break;
+                case TRACK_COMMENTS:
+                    adapter = new CommentAdapter(getActivity(), mContentUri);
+                    break;
                  default:
                      adapter = new TrackAdapter(getActivity(), mContentUri);
-
             }
             setListAdapter(adapter);
             configureEmptyCollection();
@@ -204,7 +189,6 @@ public class ScListFragment extends SherlockListFragment
         mListView.setOnScrollListener(this);
         setEmptyCollection((mEmptyCollection == null) ?
                 EmptyCollection.fromContent(context, mContent) : mEmptyCollection);
-
 
         mListView.setEmptyView(mEmptyCollection);
 
@@ -301,7 +285,6 @@ public class ScListFragment extends SherlockListFragment
     @Override
     public void onResume() {
         super.onResume();
-
         if (getActivity() != null) {
             switch (mContent) {
                 case ME_SOUND_STREAM:
@@ -395,12 +378,9 @@ public class ScListFragment extends SherlockListFragment
     }
 
     private void stopObservingChanges() {
-        if (mObservingContent) {
-            mObservingContent = false;
-
-            if (mChangeObserver != null) {
-                getActivity().getContentResolver().unregisterContentObserver(mChangeObserver);
-            }
+        if (mChangeObserver != null) {
+            getActivity().getContentResolver().unregisterContentObserver(mChangeObserver);
+            mChangeObserver = null;
             if (mLocalCollection != null) {
                 mLocalCollection.stopObservingSelf();
             }
@@ -523,7 +503,7 @@ public class ScListFragment extends SherlockListFragment
         }
     }
 
-    private Handler connHandler = new Handler() {
+    private final Handler connHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 switch (msg.what) {
@@ -583,7 +563,6 @@ public class ScListFragment extends SherlockListFragment
     protected void append(boolean force) {
         Context context = getActivity();
         if (context == null) return; // has been detached
-
         if (force || isTaskFinished(mAppendTask)){
             mAppendTask = buildTask(context);
             mAppendTask.execute(getTaskParams(false));
@@ -609,10 +588,9 @@ public class ScListFragment extends SherlockListFragment
         @Override
         public void onChange(boolean selfChange) {
             // even after unregistering, we will still get asynchronous change notifications, so make sure we want them
-            if (mObservingContent) onContentChanged();
+            if (mChangeObserver != null) onContentChanged();
         }
     }
-
 
     private BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
         @Override
@@ -627,7 +605,6 @@ public class ScListFragment extends SherlockListFragment
             }
         }
     };
-
 
     private BroadcastReceiver mGeneralIntentListener = new BroadcastReceiver() {
         @Override

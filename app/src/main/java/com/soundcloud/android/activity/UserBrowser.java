@@ -255,7 +255,6 @@ public class UserBrowser extends ScActivity implements
                     Tab.values()[position].youContent.uri : Tab.values()[position].userContent.forId(mUser.id));
             listFragment.setEmptyCollection(getEmptyScreenFromContent(position));
             return listFragment;
-
         }
 
         @Override
