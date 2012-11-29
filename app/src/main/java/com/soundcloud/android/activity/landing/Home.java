@@ -30,13 +30,12 @@ import java.io.IOException;
 
 public class Home extends ScActivity implements ScLandingPage {
     private FetchUserTask mFetchUserTask;
-    private ChangeLog mChangeLog;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setTitle(getString(R.string.side_menu_stream));
-        mChangeLog = new ChangeLog(this);
+
 
         final SoundCloudApplication app = getApp();
         if (app.getAccount() != null) {
@@ -44,6 +43,11 @@ public class Home extends ScActivity implements ScLandingPage {
                 getSupportFragmentManager().beginTransaction()
                         .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_SOUND_STREAM))
                         .commit();
+
+                ChangeLog changeLog = new ChangeLog(this);
+                if (changeLog.isFirstRun()) {
+                    changeLog.getDialog(true).show();
+                }
             }
 
             if (IOUtils.isConnected(this) &&
@@ -64,12 +68,9 @@ public class Home extends ScActivity implements ScLandingPage {
     @Override
     protected void onResume() {
         super.onResume();
-
         if (getApp().getAccount() == null) {
             getApp().addAccount(this, managerCallback);
             finish();
-        } else if (mChangeLog.isFirstRun()) {
-            mChangeLog.getDialog(true).show();
         }
     }
 
