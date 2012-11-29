@@ -476,11 +476,11 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     private void finishLogin() {
-        finishSignUp();
+        startActivityForResult(new Intent(this, Home.class), 0);
+        finish();
     }
 
     private void finishSignUp() {
-        startActivityForResult(new Intent(this, Home.class), 0);
         startActivityForResult(new Intent(this, SuggestedUsers.class), 0);
         finish();
     }
