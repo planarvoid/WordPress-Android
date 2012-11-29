@@ -2,9 +2,9 @@ package com.soundcloud.android.task;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -33,7 +33,7 @@ public class AddCommentTaskTest {
         expect(task.execute(c).get()).not.toBeNull();
 
         expect(DefaultTestRunner.application.broadcasts.size()).toEqual(1);
-        expect(DefaultTestRunner.application.broadcasts.get(0).getAction()).toEqual(Actions.COMMENT_ADDED);
+        expect(DefaultTestRunner.application.broadcasts.get(0).getAction()).toEqual(Sound.ACTION_COMMENT_ADDED);
     }
 
     @Test

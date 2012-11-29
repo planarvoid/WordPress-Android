@@ -22,7 +22,7 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class PlayerTrackInfo extends RelativeLayout{
+public class PlayerTrackDetails extends RelativeLayout{
 
     private final ScPlayer mPlayer;
     private final FlowLayout mTrackTags;
@@ -34,7 +34,7 @@ public class PlayerTrackInfo extends RelativeLayout{
 
     private boolean mTrackInfoFilled;
 
-    public PlayerTrackInfo(ScPlayer player) {
+    public PlayerTrackDetails(ScPlayer player) {
         super(player);
 
         LayoutInflater inflater = (LayoutInflater) player

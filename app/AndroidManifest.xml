@@ -285,7 +285,7 @@
         <service android:name=".service.playback.CloudPlaybackService"
                  android:exported="false">
             <intent-filter>
-                <action android:name="com.soundcloud.android.playback.play"/>
+                <action android:name="com.soundcloud.android.playback.start"/>
                 <action android:name="com.soundcloud.android.playback.togglepause"/>
                 <action android:name="com.soundcloud.android.playback.pause"/>
                 <action android:name="com.soundcloud.android.playback.next"/>

@@ -151,6 +151,10 @@ public class Track extends Sound implements Playable {
     }
 
 
+    @JsonIgnore
+    public boolean isWaitingOnState() {
+        return state == null;
+    }
 
     @JsonIgnore
     public boolean isStreamable() {
@@ -189,7 +193,7 @@ public class Track extends Sound implements Playable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         Bundle b = super.getBundle();
-        b.putString("state", state.value());
+        b.putString("state", state != null ? state.value() : null);
         b.putBoolean("commentable", commentable);
         b.putParcelable("label", label);
         b.putString("isrc", isrc);
@@ -229,9 +233,11 @@ public class Track extends Sound implements Playable {
         dest.writeBundle(b);
     }
 
-    public static Track fromUri(Uri uri, ContentResolver resolver) {
+    public static Track fromUri(Uri uri, ContentResolver resolver, boolean createDummy) {
+        long id = -1l;
         try { // check the cache first
-            final Track t = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(Long.parseLong(uri.getLastPathSegment()));
+            id = Long.parseLong(uri.getLastPathSegment());
+            final Track t = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(id);
             if (t != null) return t;
 
         } catch (NumberFormatException e) {
@@ -240,7 +246,14 @@ public class Track extends Sound implements Playable {
 
         Cursor cursor = resolver.query(uri, null, null, null, null);
         try {
-            return cursor != null && cursor.moveToFirst() ? SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor) : null;
+
+            if (cursor != null && cursor.moveToFirst()) {
+                return SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor);
+            } else if (createDummy && id >= 0) {
+                return SoundCloudApplication.MODEL_MANAGER.cache(new Track(id));
+            } else {
+                return null;
+            }
         } finally {
             if (cursor != null) cursor.close();
         }
@@ -288,6 +301,10 @@ public class Track extends Sound implements Playable {
 
     public Track() {
         super();
+    }
+
+    public Track(long id) {
+        this.id = id;
     }
 
     public Track(Parcel in) {
@@ -431,14 +448,12 @@ public class Track extends Sound implements Playable {
 
     // TODO, THIS SUCKS
     public FetchModelTask<Track> refreshInfoAsync(AndroidCloudAPI api, FetchModelTask.FetchModelListener<Track> listener) {
-        if (load_info_task == null){
-            if (AndroidUtils.isTaskFinished(load_info_task)) {
-                load_info_task = new FetchTrackTask(api, id);
-            }
-            load_info_task.addListener(listener);
-            if (AndroidUtils.isTaskPending(load_info_task)) {
-                load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, id));
-            }
+        if (load_info_task == null && AndroidUtils.isTaskFinished(load_info_task)) {
+            load_info_task = new FetchTrackTask(api, id);
+        }
+        load_info_task.addListener(listener);
+        if (AndroidUtils.isTaskPending(load_info_task)) {
+            load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, id));
         }
         return load_info_task;
     }

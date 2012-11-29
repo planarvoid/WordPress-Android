@@ -96,7 +96,7 @@
                     android:layout_below="@+id/username"
                     android:textOn="@string/btn_following"
                     android:textOff="@string/btn_follow"
-                    style="@style/ToggleButton.UserBrowserFollow"/>
+                    style="@style/UserBrowser.ToggleButton"/>
 
         </RelativeLayout>
     </RelativeLayout>
