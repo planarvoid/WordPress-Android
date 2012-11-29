@@ -103,7 +103,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         final String action = intent.getAction();
         if (!TextUtils.isEmpty(action)){
             Track displayTrack = null;
-            if (action == Actions.PLAY){
+            if (Actions.PLAY.equals(action)) {
                 // play from a normal play intent (created by PlayUtils)
                 startService(
                         new Intent(this, CloudPlaybackService.class)
@@ -113,7 +113,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 );
                 displayTrack = PlayUtils.getTrackFromIntent(intent);
 
-            } else if (action == Intent.ACTION_VIEW) {
+            } else if (Intent.ACTION_VIEW.equals(action)) {
                 // Play from a View Intent, this probably came from quicksearch
                 if (intent.getData() != null) {
                     displayTrack = Track.fromUri(intent.getData(), getContentResolver());

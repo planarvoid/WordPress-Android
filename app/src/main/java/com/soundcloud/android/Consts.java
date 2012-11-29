@@ -2,8 +2,10 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.adapter.UserlistRow;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -152,14 +154,21 @@ public final class Consts {
 
         public String formatUri(String uri) {
             if (TextUtils.isEmpty(uri)) return null;
-            if (uri.contains(GraphicSize.LARGE.key) && GraphicSize.LARGE != this) {
-                return uri.replace(GraphicSize.LARGE.key, key);
-            } else if (uri.contains(GraphicSize.TINY_ARTWORK.key) &&
-                    GraphicSize.TINY_ARTWORK != this && GraphicSize.TINY_AVATAR != this) {
-                return uri.replace(GraphicSize.TINY_ARTWORK.key, key);
-            } else {
-                return uri;
+            for (GraphicSize size : GraphicSize.values()) {
+                if (uri.contains("-" + size.key) && this != size) {
+                    return uri.replace("-" + size.key, "-" + key);
+                }
             }
+            Uri u = Uri.parse(uri);
+            if (u.getPath().equals("/resolve/image")) {
+                String size = u.getQueryParameter("size");
+                if (size == null) {
+                    return u.buildUpon().appendQueryParameter("size", key).toString();
+                } else if (!size.equals(key)) {
+                    return uri.replace(size, key);
+                }
+            }
+            return uri;
         }
 
         public static GraphicSize getMinimumSizeFor(int width, int height, boolean fillDimensions) {

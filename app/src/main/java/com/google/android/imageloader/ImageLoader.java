@@ -18,6 +18,7 @@ package com.google.android.imageloader;
 
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.utils.ImageUtils;
+import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
@@ -50,6 +51,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.CacheResponse;
 import java.net.ContentHandler;
+import java.net.HttpURLConnection;
 import java.net.ResponseCache;
 import java.net.URL;
 import java.net.URLConnection;
@@ -58,11 +60,9 @@ import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
 
@@ -364,7 +364,7 @@ public class ImageLoader {
      *            {@code file://}), this {@link ContentHandler} should return
      *            {@code null} immediately.
      */
-    public ImageLoader(ContentHandler bitmapHandler, ContentHandler prefetchHandler) {
+    public ImageLoader(BitmapContentHandler bitmapHandler, ContentHandler prefetchHandler) {
         this(DEFAULT_TASK_LIMIT, null, bitmapHandler, prefetchHandler, DEFAULT_CACHE_SIZE, null);
     }
 
@@ -468,6 +468,8 @@ public class ImageLoader {
         public int decodeInSampleSize;
         public int cornerRadius;
         public WeakReference<Bitmap> temporaryBitmapRef;
+
+        public int redirectCount;
     }
 
     public Bitmap getBitmap(String uri, BitmapCallback callback) {
@@ -479,7 +481,7 @@ public class ImageLoader {
         final Bitmap memoryBmp = getBitmap(uri);
         if (memoryBmp != null){
             if (callback != null) {
-                callback.setResult(uri,memoryBmp,null);
+                callback.setResult(uri, memoryBmp, null);
                 callback.send();
             }
             return memoryBmp;
@@ -613,7 +615,7 @@ public class ImageLoader {
      * @return a {@link BindResult}.
      * @throws NullPointerException if a required argument is {@code null}
      */
-    public BindResult bind(ImageView view, String url, Callback callback) {
+    public BindResult bind(ImageView view, String url, @Nullable Callback callback) {
         return this.bind(view,url,callback,new Options());
     }
     public BindResult bind(ImageView view, String url, Callback callback, Options options) {
@@ -888,8 +890,31 @@ public class ImageLoader {
                     }
                 }
             }
-            // fallback - open connection and use whatever is provided by the system
             URLConnection connection = url.openConnection();
+            connection.setRequestProperty("Accept-Encoding", "identity");
+            connection.setRequestProperty("Connection", "Close");
+            connection.setReadTimeout(BitmapContentHandler.READ_TIMEOUT);
+            connection.setConnectTimeout(BitmapContentHandler.CONNECT_TIMEOUT);
+            connection.setUseCaches(true);
+
+            // fallback - open connection and use whatever is provided by the system
+            if (connection instanceof HttpURLConnection && options.redirectCount == 0) {
+                HttpURLConnection http = (HttpURLConnection) connection;
+                if (http.getResponseCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
+                    String location = http.getHeaderField("Location");
+                    http.disconnect();
+
+                    if (!TextUtils.isEmpty(location)) {
+                        Log.d(TAG, "following redirect from " + url + " to "+location);
+                        options.redirectCount++;
+                        Bitmap bitmap = loadImage(new URL(location), options);
+                        if (bitmap != null) {
+                            putBitmap(location, bitmap);
+                        }
+                        return bitmap;
+                    }
+                }
+            }
             return processBitmap((Bitmap) mBitmapContentHandler.getContent(connection), options);
         }
 

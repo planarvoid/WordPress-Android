@@ -858,6 +858,7 @@ public class ScContentProvider extends ContentProvider {
         final String query = qb.buildQuery(
                 new String[] {
                     BaseColumns._ID,
+                    DBHelper.Suggestions.ID,
                     SearchManager.SUGGEST_COLUMN_TEXT_1,
                     SearchManager.SUGGEST_COLUMN_INTENT_DATA,
                     DBHelper.Suggestions.ICON_URL,
