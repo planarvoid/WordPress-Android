@@ -236,12 +236,12 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private Cursor getMixedCursor() {
         if (!mRemoteSuggestions.isEmpty()) {
             if (mLocalSuggestions != null && mLocalSuggestions.getCount() > 0) {
-                return new MergeCursor(new Cursor[]{ mLocalSuggestions, mRemoteSuggestions.asCursor() });
+                return withHeader(mLocalSuggestions, mRemoteSuggestions.asCursor());
             } else {
-                return mRemoteSuggestions.asCursor();
+                return withHeader(mRemoteSuggestions.asCursor());
             }
         } else {
-            return mLocalSuggestions;
+            return withHeader(mLocalSuggestions);
         }
     }
 
@@ -264,7 +264,6 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     private Cursor fetchLocalSuggestions(String constraint, int max) {
         final MatrixCursor local = new MatrixCursor(COLUMN_NAMES);
-        addHeaderRow(local, constraint);
         final Cursor cursor = mContentResolver.query(
                 Content.ANDROID_SEARCH_SUGGEST.uri
                         .buildUpon()
@@ -288,9 +287,18 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         return local;
     }
 
-    private void addHeaderRow(MatrixCursor local, String constraint) {
+    private Cursor withHeader(Cursor c1) {
+        return new MergeCursor(new Cursor[] { createHeader(mCurrentConstraint), c1 });
+    }
+
+    private Cursor withHeader(Cursor c1, Cursor c2) {
+        return new MergeCursor(new Cursor[] { createHeader(mCurrentConstraint), c1, c2 });
+    }
+
+    private MatrixCursor createHeader(String constraint) {
+        MatrixCursor cursor = new MatrixCursor(COLUMN_NAMES, 1);
         if (!TextUtils.isEmpty(constraint)) {
-            local.addRow(new Object[]{
+            cursor.addRow(new Object[]{
                     -1,
                     mContext.getResources().getString(R.string.search_for_query, constraint),
                     Content.SEARCH_ITEM.forQuery(constraint),
@@ -298,6 +306,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
                     1 /* local */
             });
         }
+        return cursor;
     }
 
     private View createViewFromResource(Cursor cursor,
@@ -367,7 +376,6 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         ImageView iv_search_type;
         TextView tv_main;
     }
-
 
     private Spanned highlightRemote(String query) {
         // need to replace <b>foo</b> tags
