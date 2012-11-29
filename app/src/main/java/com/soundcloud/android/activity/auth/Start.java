@@ -368,12 +368,14 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                                 startActivityForResult(new Intent(Start.this, Home.class), 0);
                                 Start.this.finish();
                             } else { // user request failed
-                                presentError(null);
+                                presentError(R.string.authentication_error_title,
+                                             R.string.authentication_login_error_password_message);
                             }
                         }
                     }.execute(Request.to(Endpoints.MY_DETAILS));
                 } else { // no tokens obtained
-                    presentError(mException.getLocalizedMessage());
+                    presentError(R.string.authentication_error_title,
+                                 R.string.authentication_login_error_password_message);
                 }
             }
         }.execute(param);
@@ -423,12 +425,12 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
                                 setState(StartState.SIGN_UP_DETAILS);
                             } else {
-                                presentError(null);
+                                presentError(getString(R.string.authentication_error_title), getFirstError());
                             }
                         }
                     }.execute(param);
                 } else {
-                    presentError(getFirstError());
+                    presentError(getString(R.string.authentication_error_title), getFirstError());
                 }
             }
         }.execute(email, password);
@@ -462,7 +464,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                         startActivityForResult(new Intent(Start.this, Home.class), 0);
                         finish();
                     } else {
-                        presentError(getFirstError());
+                        presentError(getString(R.string.authentication_error_title), getFirstError());
                     }
                 }
             }
@@ -611,17 +613,21 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         return "foreground".equals(tag) || "parallax".equals(tag);
     }
 
-    protected void presentError(@Nullable String error) {
+    protected void presentError(int titleId, int messageId) {
+        presentError(getResources().getString(titleId), getResources().getString(messageId));
+    }
+
+    protected void presentError(@Nullable String title, @Nullable String message) {
         if (!isFinishing()) {
             new AlertDialog.Builder(this)
-                    .setTitle(error != null ? R.string.authentication_signup_failure_title :  R.string.authentication_signup_error_title)
-                    .setMessage(error != null ? error : getString(R.string.authentication_signup_error_message))
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    })
-                    .show();
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .show();
         }
     }
 
