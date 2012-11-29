@@ -1,10 +1,12 @@
 
 package com.soundcloud.android.adapter;
 
+import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
@@ -23,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -211,6 +214,16 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
             mPage++;
 
             addItems(data.newItems);
+
+            if (IOUtils.isWifiConnected(mContext)){
+                // prefetch sound artwork
+                for (ScModel model : data.newItems){
+                    if (model instanceof Playable){
+                        final String artworkUrl = Consts.GraphicSize.formatUriForList(mContext, ((Playable) model).getTrack().getArtwork());
+                        if (!TextUtils.isEmpty(artworkUrl)) ImageLoader.get(mContext).prefetch(artworkUrl);
+                    }
+                }
+            }
             checkForStaleItems();
         }
         setIsLoadingData(false);
@@ -231,6 +244,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
                 ScResource resource = ((Refreshable) newItem).getRefreshableResource();
                 if (resource != null) {
                     if (((Refreshable) newItem).isStale()) {
+
                         if (resource instanceof Track) {
                             trackUpdates.put(resource.id, (Track) resource);
                         } else if (resource instanceof User) {
