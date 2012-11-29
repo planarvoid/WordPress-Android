@@ -1,4 +1,4 @@
-package com.google.android.imageloader;
+package com.soundcloud.android.imageloader;
 
 import com.google.android.filecache.FileResponseCache;
 

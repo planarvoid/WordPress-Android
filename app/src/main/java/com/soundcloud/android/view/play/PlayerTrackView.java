@@ -3,7 +3,7 @@ package com.soundcloud.android.view.play;
 import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
-import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -313,7 +313,7 @@ public class PlayerTrackView extends LinearLayout implements
                 public void onImageLoaded(ImageView view, String url) {
                     onArtworkSet(mOnScreen);
                 }
-            }, new ImageLoader.Options(true, postAtFront))) != ImageLoader.BindResult.OK) {
+            }, new ImageLoader.Options(postAtFront))) != ImageLoader.BindResult.OK) {
                 mArtwork.setVisibility(View.INVISIBLE);
             } else {
                 onArtworkSet(false);
@@ -342,7 +342,7 @@ public class PlayerTrackView extends LinearLayout implements
                         @Override
                         public void onImageLoaded(ImageView view, String url) {
                         }
-                    }, new ImageLoader.Options(true, postAtFront))) != ImageLoader.BindResult.OK) {
+                    }, new ImageLoader.Options(postAtFront))) != ImageLoader.BindResult.OK) {
             }
         } else {
             ImageLoader.get(mPlayer).unbind(mAvatar);

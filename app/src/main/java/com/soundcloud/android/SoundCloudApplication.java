@@ -4,9 +4,9 @@ import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.android.imageloader.BitmapContentHandler;
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.PrefetchHandler;
+import com.soundcloud.android.imageloader.DownloadBitmapContentHandler;
+import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.PrefetchHandler;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.c2dm.C2DMReceiver;
@@ -198,7 +198,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     protected ImageLoader createImageLoader() {
         final File cacheDir = IOUtils.getCacheDir(this);
         ResponseCache cache = FileCache.installFileCache(cacheDir, FileCache.IMAGE_CACHE_AUTO);
-        ContentHandler bitmapHandler = new BitmapContentHandler();
+        ContentHandler bitmapHandler = new DownloadBitmapContentHandler();
         ContentHandler prefetchHandler = new PrefetchHandler();
         if (cache instanceof FileCache) {
             // workaround various SDK bugs by wrapping the handler
@@ -207,12 +207,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
             ((FileCache)cache).trim(); // ICS has auto trimming
         }
-        return new ImageLoader(ImageLoader.DEFAULT_TASK_LIMIT,
-                null, /* streamFactory */
-                bitmapHandler,
-                prefetchHandler,
-                ImageLoader.DEFAULT_CACHE_SIZE,
-                null  /* handler */);
+
+        return new ImageLoader(bitmapHandler, prefetchHandler, ImageLoader.DEFAULT_CACHE_SIZE, ImageLoader.DEFAULT_TASK_LIMIT);
     }
 
     @Override

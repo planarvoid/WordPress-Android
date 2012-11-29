@@ -1,7 +1,7 @@
 package com.soundcloud.android.view;
 
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.utils.MotionEventUtils;

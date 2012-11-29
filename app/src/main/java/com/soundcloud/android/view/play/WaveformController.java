@@ -1,7 +1,7 @@
 package com.soundcloud.android.view.play;
 
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Comment;
@@ -433,7 +433,7 @@ public class WaveformController extends TouchLayout {
                         waveformResult = BindResult.OK;
                         onDoneLoadingWaveform(true, mOnScreen);
                     }
-                },new ImageLoader.Options(true, postAtFront));
+                },new ImageLoader.Options(postAtFront));
 
 
         switch (waveformResult) {

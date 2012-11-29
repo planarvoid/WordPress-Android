@@ -1,6 +1,6 @@
 package com.soundcloud.android.view.adapter;
 
-import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -33,7 +33,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class TrackInfoBar extends LazyRow {
-    public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(true, true);
+    public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(true);
 
     private Playable mPlayable;
 
@@ -111,7 +111,7 @@ public class TrackInfoBar extends LazyRow {
                 mIcon.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (mIcon != null && mPlayable != null && mPlayable.getTrack() != null){
+                        if (mPlayable != null && mPlayable.getTrack() != null){
                             quickTrackMenu.show(mIcon, mPlayable.getTrack());
                         }
                     }

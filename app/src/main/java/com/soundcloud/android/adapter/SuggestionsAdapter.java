@@ -4,7 +4,7 @@ import static android.os.Process.THREAD_PRIORITY_DEFAULT;
 import static com.soundcloud.android.Consts.GraphicSize;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.SearchSuggestions;
@@ -28,7 +28,6 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;

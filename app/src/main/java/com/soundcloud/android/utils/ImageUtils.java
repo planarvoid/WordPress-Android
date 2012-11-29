@@ -2,7 +2,7 @@ package com.soundcloud.android.utils;
 
 
 import com.soundcloud.android.cropimage.CropImage;
-import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 

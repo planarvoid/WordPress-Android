@@ -3,13 +3,9 @@ package com.soundcloud.android.view;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.utils.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
@@ -28,8 +24,6 @@ import android.graphics.Shader;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
 import android.widget.ProgressBar;
 
 public class NowPlayingIndicator extends ProgressBar {

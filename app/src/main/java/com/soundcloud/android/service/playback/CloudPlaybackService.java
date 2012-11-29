@@ -2,7 +2,7 @@ package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.service.playback.State.*;
 
-import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
