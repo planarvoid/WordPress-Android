@@ -180,7 +180,7 @@ public class PlayerTrackView extends LinearLayout implements
         mShareButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mTrack != null && mTrack.isPublic()){
+                if (mTrack != null && mTrack.isPublic()) {
                     Intent shareIntent = mTrack.getShareIntent();
                     shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
                     shareIntent.putExtra(Intent.EXTRA_SUBJECT,
@@ -620,14 +620,14 @@ public class PlayerTrackView extends LinearLayout implements
                 mWaveformController.setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
             }
 
-        } else if (action.equals(Sound.EXTRA_TRACK_ASSOCIATION_CHANGED)) {
+        } else if (action.equals(Sound.ACTION_TRACK_ASSOCIATION_CHANGED)) {
             if (mTrack != null && mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
                 mTrack.user_like = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false);
                 mTrack.user_repost = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isRepost, false);
                 setAssociationStatus();
             }
 
-        } else if (action.equals(Sound.EXTRA_SOUND_INFO_UPDATED)) {
+        } else if (action.equals(Sound.ACTION_SOUND_INFO_UPDATED)) {
             Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1));
             if (t != null) {
                 setTrack(t, mQueuePosition, true, mOnScreen);
@@ -636,7 +636,7 @@ public class PlayerTrackView extends LinearLayout implements
                 }
             }
 
-        } else if (action.equals(Sound.EXTRA_SOUND_INFO_ERROR)) {
+        } else if (action.equals(Sound.ACTION_SOUND_INFO_ERROR)) {
             if (mTrackDetailsView != null) {
                 mTrackDetailsView.onInfoLoadError();
             }

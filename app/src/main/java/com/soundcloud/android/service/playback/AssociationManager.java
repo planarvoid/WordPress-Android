@@ -71,7 +71,7 @@ public class AssociationManager {
     private void onAssociationChanged(Sound sound) {
         mModelManager.cache(sound, ScResource.CacheUpdateMode.NONE);
 
-        Intent intent = new Intent(Sound.EXTRA_TRACK_ASSOCIATION_CHANGED)
+        Intent intent = new Intent(Sound.ACTION_TRACK_ASSOCIATION_CHANGED)
                 .putExtra(CloudPlaybackService.BroadcastExtras.id, sound.id)
                 .putExtra(CloudPlaybackService.BroadcastExtras.isRepost, sound.user_repost)
                 .putExtra(CloudPlaybackService.BroadcastExtras.isLike, sound.user_like);

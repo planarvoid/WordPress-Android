@@ -438,7 +438,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         public void onSuccess(Track track, String action) {
             track.setUpdated();
             track = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(track, ScResource.CacheUpdateMode.FULL);
-            sendBroadcast(new Intent(Sound.EXTRA_SOUND_INFO_UPDATED)
+            sendBroadcast(new Intent(Sound.ACTION_SOUND_INFO_UPDATED)
                                         .putExtra(CloudPlaybackService.BroadcastExtras.id, track.id));
 
             if (track.isStreamable()) {
@@ -450,7 +450,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
         @Override
         public void onError(long trackId) {
-            sendBroadcast(new Intent(Sound.EXTRA_SOUND_INFO_ERROR)
+            sendBroadcast(new Intent(Sound.ACTION_SOUND_INFO_ERROR)
                                                     .putExtra(CloudPlaybackService.BroadcastExtras.id, trackId));
             onUnstreamableTrack(trackId);
         }

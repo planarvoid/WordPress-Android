@@ -33,7 +33,7 @@ public class AddCommentTaskTest {
         expect(task.execute(c).get()).not.toBeNull();
 
         expect(DefaultTestRunner.application.broadcasts.size()).toEqual(1);
-        expect(DefaultTestRunner.application.broadcasts.get(0).getAction()).toEqual(Sound.EXTRA_COMMENT_ADDED);
+        expect(DefaultTestRunner.application.broadcasts.get(0).getAction()).toEqual(Sound.ACTION_COMMENT_ADDED);
     }
 
     @Test

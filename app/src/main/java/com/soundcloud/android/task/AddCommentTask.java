@@ -60,7 +60,7 @@ public class AddCommentTask extends AsyncTask<Comment, String, Comment> {
                 if (t.comments == null) t.comments = new ArrayList<Comment>();
                 t.comments.add(comment);
             }
-            app.sendBroadcast(new Intent(Sound.EXTRA_COMMENT_ADDED)
+            app.sendBroadcast(new Intent(Sound.ACTION_COMMENT_ADDED)
                     .putExtra("id", comment.track_id)
                     .putExtra("comment", comment));
         } else if (exception instanceof UnknownHostException || exception instanceof SocketException) {

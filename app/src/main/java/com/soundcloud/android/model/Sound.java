@@ -22,10 +22,10 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
     public static final int DB_TYPE_TRACK    = 0; // TODO should not be exposed
     public static final int DB_TYPE_PLAYLIST = 1;
 
-    public static final String EXTRA_TRACK_ASSOCIATION_CHANGED      = "com.soundcloud.android.sound.association_changed";
-    public static final String EXTRA_SOUND_INFO_UPDATED             = "com.soundcloud.android.sound.info_updated";
-    public static final String EXTRA_SOUND_INFO_ERROR               = "com.soundcloud.android.sound.info_error";
-    public static final String EXTRA_COMMENT_ADDED                  = "com.soundcloud.android.sound.commentadded";
+    public static final String ACTION_TRACK_ASSOCIATION_CHANGED     = "com.soundcloud.android.sound.association_changed";
+    public static final String ACTION_SOUND_INFO_UPDATED            = "com.soundcloud.android.sound.info_updated";
+    public static final String ACTION_SOUND_INFO_ERROR              = "com.soundcloud.android.sound.info_error";
+    public static final String ACTION_COMMENT_ADDED                 = "com.soundcloud.android.sound.commentadded";
 
     public abstract Date getCreatedAt();
     public abstract String getArtwork();
