@@ -41,7 +41,7 @@
             <RelativeLayout android:layout_height="fill_parent"
                             android:layout_width="fill_parent">
                 <ToggleButton android:id="@+id/toggle_like"
-                              style="@style/toggle_player_action"
+                              style="@style/ToggleButton.PlayerAction"
                               android:layout_marginLeft="15dp"
                               android:layout_alignParentLeft="true"
                               android:layout_marginTop="15dp"
@@ -49,7 +49,7 @@
                               android:drawableLeft="@drawable/ic_toggle_player_like_states"
                               android:layout_centerInParent="true"/>
                 <ToggleButton android:id="@+id/toggle_repost"
-                              style="@style/toggle_player_action"
+                              style="@style/ToggleButton.PlayerAction"
                               android:layout_toRightOf="@id/toggle_like"
                               android:layout_marginTop="15dp"
                               android:layout_alignParentTop="true"
@@ -66,7 +66,7 @@
                               android:layout_marginTop="15dp"
                               android:layout_alignParentTop="true"
                               android:layout_marginRight="15dp"
-                              style="@style/toggle_player_action"
+                              style="@style/ToggleButton.PlayerAction"
                               android:drawableLeft="@drawable/ic_toggle_player_comment_states"
                               android:layout_centerInParent="true"/>
             </RelativeLayout>

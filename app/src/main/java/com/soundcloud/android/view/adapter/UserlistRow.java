@@ -25,10 +25,12 @@ import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 public class UserlistRow extends LazyRow {
     private User mUser;
@@ -36,8 +38,7 @@ public class UserlistRow extends LazyRow {
     private TextView mTracks;
     private TextView mFollowers;
     private View mVrStats;
-    private ImageButton mFollowBtn;
-    private ImageButton mFollowingBtn;
+    private ToggleButton mFollowBtn;
 
 
     public UserlistRow(Context context, IScAdapter _adapter) {
@@ -47,31 +48,16 @@ public class UserlistRow extends LazyRow {
         mTracks = (TextView) findViewById(R.id.tracks);
         mFollowers = (TextView) findViewById(R.id.followers);
         mIcon = (ImageView) findViewById(R.id.icon);
-        mFollowingBtn = (ImageButton) findViewById(R.id.toggleFollowing);
-        mFollowBtn = (ImageButton) findViewById(R.id.toggleFollow);
+        mFollowBtn = (ToggleButton) findViewById(R.id.toggle_btn_follow);
         mVrStats = findViewById(R.id.vr_stats);
-
-        // set proper follow back text and alignment to wider button
-        final RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) mFollowBtn.getLayoutParams();
-        layoutParams.addRule(RelativeLayout.ALIGN_LEFT, R.id.toggleFollowing);
-        layoutParams.addRule(RelativeLayout.ALIGN_RIGHT, R.id.toggleFollowing);
-
-        if (mFollowingBtn != null) {
-            mFollowingBtn.setFocusable(false);
-            mFollowingBtn.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    unfollow(mUser);
-                }
-            });
-        }
 
         if (mFollowBtn != null) {
             mFollowBtn.setFocusable(false);
-            mFollowBtn.setOnClickListener(new OnClickListener() {
+            mFollowBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public void onClick(View v) {
-                    follow(mUser);
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    track(getContext(), isChecked ? Click.Follow : Click.Unfollow, mUser);
+                    toggleFollowing(mUser);
                 }
             });
         }
@@ -111,15 +97,10 @@ public class UserlistRow extends LazyRow {
 
     private void setFollowingStatus(boolean enabled) {
         final boolean following = FollowStatus.get(getContext()).isFollowing(mUser);
-
         if (mUser.id == getCurrentUserId()) {
-            mFollowingBtn.setVisibility(View.INVISIBLE);
             mFollowBtn.setVisibility(View.INVISIBLE);
         } else {
-            mFollowingBtn.setVisibility(following ? View.VISIBLE : View.INVISIBLE);
-            mFollowBtn.setVisibility(following ? View.INVISIBLE : View.VISIBLE);
-            mFollowingBtn.setEnabled(enabled);
-            mFollowBtn.setEnabled(enabled);
+            mFollowBtn.setChecked(following);
         }
     }
 
@@ -139,16 +120,6 @@ public class UserlistRow extends LazyRow {
             mFollowers.setText(Integer.toString(mUser.followers_count));
             mFollowers.setVisibility(View.VISIBLE);
         }
-    }
-
-    private void follow(final User user) {
-        track(getContext(), Click.Follow, user);
-        toggleFollowing(user);
-    }
-
-    private void unfollow(final User user) {
-        track(getContext(), Click.Unfollow, user);
-        toggleFollowing(user);
     }
 
     private void toggleFollowing(final User user) {

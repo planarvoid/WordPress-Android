@@ -47,9 +47,11 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import java.util.List;
 
@@ -63,6 +65,7 @@ public class UserBrowser extends ScActivity implements
     /* package */ @Nullable User mUser;
 
     private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
+    private ToggleButton mToggleFollow;
     private View mVrStats;
     private ImageView mIcon;
     private String mIconURL;
@@ -175,7 +178,7 @@ public class UserBrowser extends ScActivity implements
 
             }
         });
-
+        mToggleFollow = (ToggleButton) findViewById(R.id.toggle_btn_follow);
         mAdapter = new UserFragmentAdapter(getSupportFragmentManager());
 
         mPager = (ViewPager) findViewById(R.id.pager);
@@ -196,6 +199,23 @@ public class UserBrowser extends ScActivity implements
         } else {
             handleIntent(intent);
         }
+
+        if (isYou()){
+            mToggleFollow.setVisibility(View.GONE);
+        } else {
+            mToggleFollow.setChecked(FollowStatus.get(this).isFollowing(mUser));
+            mToggleFollow.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (mUser.user_following) {
+                        follow(mUser);
+                    } else {
+                        unfollow(mUser);
+                    }
+                }
+            });
+        }
+
 
         loadDetails();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -439,7 +459,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     public void onChange(boolean success, FollowStatus status) {
-        invalidateOptionsMenu();
+        mToggleFollow.setChecked(status.isFollowing(mUser));
     }
 
     private void trackScreen() {
@@ -696,43 +716,6 @@ public class UserBrowser extends ScActivity implements
 
     private boolean isFollowing(){
         return mUser != null && FollowStatus.get(this).isFollowing(mUser);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-
-        if (!isYou()){
-            MenuItem followItem = menu.findItem(R.id.action_bar_follow);
-            if (followItem != null) {
-                final boolean following = isFollowing();
-                followItem.setIcon(following ? R.drawable.ic_remove_user_white : R.drawable.ic_add_user_white);
-                followItem.setTitle(getResources().getString(following ? R.string.action_bar_unfollow : R.string.action_bar_follow));
-            }
-        } else {
-
-            menu.removeItem(R.id.action_bar_follow);
-        }
-        return true;
-    }
-
-    @Override
-    protected int getMenuResourceId() {
-        return R.menu.user_browser;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_bar_follow:
-                if (mUser.user_following){
-                    follow(mUser);
-                } else {
-                    unfollow(mUser);
-                }
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     private final BroadcastReceiver mRecordListener = new BroadcastReceiver() {

@@ -26,16 +26,16 @@
               style="@style/stat_pipe"/>
 
         <ToggleButton android:id="@+id/toggle_like"
-                      style="@style/toggle_player_action"
+                      style="@style/ToggleButton.PlayerAction"
                       android:drawableLeft="@drawable/ic_toggle_player_like_states"/>
         <ToggleButton android:id="@+id/toggle_repost"
-                      style="@style/toggle_player_action"
+                      style="@style/ToggleButton.PlayerAction"
                       android:layout_marginLeft="10dp"
                       android:drawableLeft="@drawable/ic_toggle_player_repost_states"/>
         <ToggleButton android:id="@+id/toggle_comment"
                       android:layout_marginLeft="10dp"
                       android:layout_marginRight="10dp"
-                      style="@style/toggle_player_action"
+                      style="@style/ToggleButton.PlayerAction"
                       android:drawableLeft="@drawable/ic_toggle_player_comment_states"/>
     </LinearLayout>
     <FrameLayout

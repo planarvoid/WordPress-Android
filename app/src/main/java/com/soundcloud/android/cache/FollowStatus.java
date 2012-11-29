@@ -4,9 +4,11 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.service.playback.AssociationManager;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -101,6 +103,7 @@ public class FollowStatus {
 
             @Override
             protected Boolean doInBackground(User... params) {
+
                 User u = params[0];
                 final Request request = Request.to(Endpoints.MY_FOLLOWING, u.id);
                 try {
@@ -109,6 +112,7 @@ public class FollowStatus {
                     final boolean success;
                     if (addFollowing) {
                         success = status == HttpStatus.SC_CREATED;
+
                     } else {
                         success = status == HttpStatus.SC_OK || status == HttpStatus.SC_NOT_FOUND;
                     }
@@ -126,6 +130,9 @@ public class FollowStatus {
             @Override
             protected void onPostExecute(Boolean success) {
                 if (success) {
+                    // make sure the cache reflects the new state
+                    SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.NONE).user_following = addFollowing;
+                    // tell the list to refresh itself next time
                     LocalCollection.forceToStale(Content.ME_FOLLOWINGS.uri, mContext.getContentResolver());
                     for (Listener l : listeners.keySet()) {
                         l.onChange(true, FollowStatus.this);
