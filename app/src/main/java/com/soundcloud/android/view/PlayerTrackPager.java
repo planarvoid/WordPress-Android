@@ -165,16 +165,15 @@ public class PlayerTrackPager extends ViewPager {
            }
 
    		@Override public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-               final PlayerTrackView trackView = getTrackViewAt(mPartialScreen);
-               if (trackView != null){
-                   if (position == getCurrentItem() && positionOffset > 0 && mPartialScreen != position + 1){
+               PlayerTrackView trackView;
+               if (position == getCurrentItem() && positionOffset > 0 && mPartialScreen != position + 1){
                        mPartialScreen = position + 1;
-                       trackView.setOnScreen(true);
+                       trackView = getTrackViewAt(mPartialScreen);
+                       if (trackView != null) trackView.setOnScreen(true);
                    } else if (position == getCurrentItem() - 1 && mPartialScreen != position){
                        mPartialScreen = position;
-                       trackView.setOnScreen(true);
-                   }
+                       trackView = getTrackViewAt(mPartialScreen);
+                       if (trackView != null) trackView.setOnScreen(true);
                }
            }
 
@@ -206,8 +205,8 @@ public class PlayerTrackPager extends ViewPager {
                                mViews.getFirst().addView(lastView);
 
                                final int pos = currentView.getPlayPosition() - 1;
-                               lastView.setOnScreen(false);
                                lastView.setTrack(playQueueManager == null ? null : playQueueManager.getTrackAt(pos), pos,true,false);
+                               lastView.setOnScreen(false);
                                mPlayerTrackViews.add(0, mPlayerTrackViews.remove(mPlayerTrackViews.size()-1));
                                PlayerTrackPager.this.setCurrentItem(1, false);
                            }
@@ -227,8 +226,8 @@ public class PlayerTrackPager extends ViewPager {
                                mViews.getLast().addView(firstView);
 
                                final int pos = currentView.getPlayPosition() + 1;
-                               firstView.setOnScreen(false);
                                firstView.setTrack(playQueueManager == null ? null : playQueueManager.getTrackAt(pos), pos, true, false);
+                               firstView.setOnScreen(false);
                                mPlayerTrackViews.add(mPlayerTrackViews.remove(0));
                                PlayerTrackPager.this.setCurrentItem(1, false);
                            }
