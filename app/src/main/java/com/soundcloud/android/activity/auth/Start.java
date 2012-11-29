@@ -19,6 +19,7 @@ import android.widget.RadioGroup;
 import com.soundcloud.android.*;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.landing.Home;
+import com.soundcloud.android.activity.landing.SuggestedUsers;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.AddUserInfoTask;
 import com.soundcloud.android.task.GetTokensTask;
