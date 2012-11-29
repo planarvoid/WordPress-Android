@@ -641,7 +641,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
             @Override
             public boolean onSuggestionClick(int position) {
-                final Uri itemUri = mSuggestionsAdapter.getItemUri(position);
+                final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
                 startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
                 closeSearch();
                 return true;

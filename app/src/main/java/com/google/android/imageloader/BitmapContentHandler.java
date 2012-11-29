@@ -16,6 +16,8 @@
 
 package com.google.android.imageloader;
 
+import org.apache.http.HttpStatus;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -44,12 +46,6 @@ public class BitmapContentHandler extends ContentHandler {
     private static final int LOADTIME_WARN  = 10 * 1000; // flag requests taking longer than 10 sec
 
     @Override public Bitmap getContent(URLConnection connection) throws IOException {
-        connection.setRequestProperty("Accept-Encoding", "identity");
-        connection.setRequestProperty("Connection", "Close");
-        connection.setReadTimeout(READ_TIMEOUT);
-        connection.setConnectTimeout(CONNECT_TIMEOUT);
-        connection.setUseCaches(true);
-
         final long start = System.currentTimeMillis();
         final URL url = connection.getURL();
         try {

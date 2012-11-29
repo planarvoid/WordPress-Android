@@ -25,7 +25,7 @@ public class ClientUriTest {
 
     @Test
     public void shouldParseCorrectlyUser() throws Exception {
-        ClientUri uri = new ClientUri(Uri.parse("soundcloud:users:123"));
+        ClientUri uri = new ClientUri("soundcloud:users:123");
         expect(uri.type).toEqual("users");
         expect(uri.id).toEqual("123");
         expect(uri.isUser()).toBeTrue();
@@ -34,10 +34,21 @@ public class ClientUriTest {
 
     @Test
     public void shouldParseCorrectlySound() throws Exception {
-        ClientUri uri = new ClientUri(Uri.parse("soundcloud:tracks:123"));
+        ClientUri uri = new ClientUri("soundcloud:tracks:123");
         expect(uri.type).toEqual("tracks");
         expect(uri.id).toEqual("123");
         expect(uri.isUser()).toBeFalse();
         expect(uri.isSound()).toBeTrue();
+    }
+
+    @Test
+    public void shouldImplementEqualsAndHashCode() throws Exception {
+        ClientUri uri = new ClientUri("soundcloud:tracks:123");
+        ClientUri uri2 = new ClientUri("soundcloud:tracks:123");
+        ClientUri uri3 = new ClientUri("soundcloud:tracks:1234");
+        expect(uri).toEqual(uri2);
+        expect(uri.hashCode()).toEqual(uri2.hashCode());
+        expect(uri).not.toEqual(uri3);
+        expect(uri.hashCode()).not.toEqual(uri3.hashCode());
     }
 }
