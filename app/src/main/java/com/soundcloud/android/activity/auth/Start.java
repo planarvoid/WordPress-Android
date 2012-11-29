@@ -53,6 +53,9 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS;
     }
 
+    public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING };
+    public static final String SCOPES_EXTRA = "scopes";
+
     private static final String BUNDLE_STATE           = "BUNDLE_STATE";
     private static final String BUNDLE_USER            = "BUNDLE_USER";
     private static final String BUNDLE_LOGIN           = "BUNDLE_LOGIN";
@@ -332,6 +335,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         final Bundle param = new Bundle();
         param.putString("username", email);
         param.putString("password", password);
+        param.putStringArray(SCOPES_EXTRA, SCOPES_TO_REQUEST);// default to non-expiring scope
 
         new GetTokensTask(app) {
             ProgressDialog progress;
