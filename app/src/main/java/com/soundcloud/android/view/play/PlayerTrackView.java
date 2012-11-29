@@ -39,6 +39,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -62,7 +63,7 @@ public class PlayerTrackView extends LinearLayout implements
 
     private TrackInfoBar mTrackInfoBar;
     private ViewFlipper mTrackFlipper;
-    private PlayerTrackInfo mTrackInfo;
+    private PlayerTrackDetails mTrackDetailsView;
 
     private boolean mDraggingLabel = false;
     private int mInitialX = -1;
@@ -82,6 +83,7 @@ public class PlayerTrackView extends LinearLayout implements
     private ToggleButton mToggleLike;
     private ToggleButton mToggleComment;
     private ToggleButton mToggleRepost;
+    private ImageButton mShareButton;
 
     private View mTrackInfoOverlay;
     private View mArtworkOverlay;
@@ -106,9 +108,16 @@ public class PlayerTrackView extends LinearLayout implements
         if (mArtwork != null) {
             mArtwork.setVisibility(View.INVISIBLE);
             mArtwork.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            mArtwork.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onTrackDetailsFlip();
+                }
+            });
         } else {
             mLandscape = true;
         }
+
 
         mAvatar = (ImageView) findViewById(R.id.icon);
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
@@ -138,7 +147,7 @@ public class PlayerTrackView extends LinearLayout implements
         };
 
 
-        if (mTrackInfo != null) mTrackInfoOverlay.setOnClickListener(closeCommentListener);
+        if (mTrackInfoOverlay != null) mTrackInfoOverlay.setOnClickListener(closeCommentListener);
         if (mArtworkOverlay != null) mArtworkOverlay.setOnClickListener(closeCommentListener);
 
         findViewById(R.id.private_indicator).setVisibility(View.GONE);
@@ -167,6 +176,21 @@ public class PlayerTrackView extends LinearLayout implements
             }
         });
 
+        mShareButton = (ImageButton) findViewById(R.id.btn_share);
+        mShareButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mTrack != null && mTrack.isPublic()){
+                    Intent shareIntent = mTrack.getShareIntent();
+                    shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                    shareIntent.putExtra(Intent.EXTRA_SUBJECT,
+                            mTrack.title + (mTrack.user != null ? " by " + mTrack.user.username : "") + " on SoundCloud");
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, mTrack.permalink_url);
+                    mPlayer.startActivity(shareIntent);
+                }
+            }
+        });
+
         ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
         mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
         mWaveformController.setPlayerTrackView(this);
@@ -188,6 +212,7 @@ public class PlayerTrackView extends LinearLayout implements
 
         mTrack = track;
         if (mTrack == null) {
+            mShareButton.setVisibility(View.GONE);
             mWaveformController.clearTrackComments();
             return;
         }
@@ -196,7 +221,7 @@ public class PlayerTrackView extends LinearLayout implements
         mWaveformController.updateTrack(mTrack, queuePosition, priority);
 
         mTrackInfoBar.display(mTrack, -1, false, true, false);
-        if (mTrackInfo != null) mTrackInfo.setPlayingTrack(mTrack);
+        if (mTrackDetailsView != null) mTrackDetailsView.setPlayingTrack(mTrack);
         updateAvatar(priority);
 
         if (mDuration != mTrack.duration) {
@@ -219,6 +244,8 @@ public class PlayerTrackView extends LinearLayout implements
         mToggleLike.setTextOn(likesCount);
         mToggleLike.setChecked(mTrack.user_like);
 
+        mShareButton.setVisibility(mTrack.isPublic() ? View.VISIBLE : View.GONE);
+
         setAssociationStatus();
 
         if ((mTrack.isWaitingOnState() || mTrack.isStreamable()) && mTrack.last_playback_error == -1) {
@@ -239,7 +266,7 @@ public class PlayerTrackView extends LinearLayout implements
             }
 
             if (mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1) {
-                onTrackInfoFlip();
+                onTrackDetailsFlip();
             }
         }
     }
@@ -322,7 +349,7 @@ public class PlayerTrackView extends LinearLayout implements
         }
     }
 
-    public void onTrackInfoFlip() {
+    public void onTrackDetailsFlip() {
         if (mTrackFlipper.getDisplayedChild() == 0) {
             if (mTrack != null) {
                 mPlayer.track(Page.Sounds_info__main, mTrack);
@@ -330,13 +357,13 @@ public class PlayerTrackView extends LinearLayout implements
 
             mWaveformController.closeComment(false);
 
-            if (mTrackInfo == null) {
-                mTrackInfo = new PlayerTrackInfo(mPlayer);
-                mTrackInfo.setPlayingTrack(mTrack);
-                mTrackFlipper.addView(mTrackInfo);
+            if (mTrackDetailsView == null) {
+                mTrackDetailsView = new PlayerTrackDetails(mPlayer);
+                mTrackDetailsView.setPlayingTrack(mTrack);
+                mTrackFlipper.addView(mTrackDetailsView);
             }
 
-            if (!mTrackInfo.getIsTrackInfoFilled()) mTrackInfo.fillTrackDetails();
+            if (!mTrackDetailsView.getIsTrackInfoFilled()) mTrackDetailsView.fillTrackDetails();
 
             mTrackFlipper.setInAnimation(AnimUtils.inFromRightAnimation(new AccelerateDecelerateInterpolator()));
             mTrackFlipper.setOutAnimation(AnimUtils.outToLeftAnimation(new AccelerateDecelerateInterpolator()));
@@ -529,7 +556,7 @@ public class PlayerTrackView extends LinearLayout implements
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (mTrackFlipper != null && keyCode == KeyEvent.KEYCODE_BACK &&
              mTrackFlipper.getDisplayedChild() != 0) {
-            onTrackInfoFlip();
+            onTrackDetailsFlip();
             return true;
         } else {
             return super.onKeyDown(keyCode, event);
@@ -604,14 +631,14 @@ public class PlayerTrackView extends LinearLayout implements
             Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1));
             if (t != null) {
                 setTrack(t, mQueuePosition, true, mOnScreen);
-                if (mTrackInfo != null) {
-                    mTrackInfo.onInfoLoadSuccess();
+                if (mTrackDetailsView != null) {
+                    mTrackDetailsView.onInfoLoadSuccess();
                 }
             }
 
         } else if (action.equals(Sound.EXTRA_SOUND_INFO_ERROR)) {
-            if (mTrackInfo != null) {
-                mTrackInfo.onInfoLoadError();
+            if (mTrackDetailsView != null) {
+                mTrackDetailsView.onInfoLoadError();
             }
 
         } else if (action.equals(CloudPlaybackService.BUFFERING)) {
@@ -712,5 +739,25 @@ public class PlayerTrackView extends LinearLayout implements
 
     @Nullable public Track getTrack() {
         return mTrack;
+    }
+
+    private void launchShareIntent(){
+        if (mTrack != null && mTrack.isPublic()){
+            Intent shareIntent = mTrack.getShareIntent();
+            shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT,
+                    mTrack.title + (mTrack.user != null ? " by " + mTrack.user.username : "") + " on SoundCloud");
+            shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, mTrack.permalink_url);
+            mPlayer.startActivity(shareIntent);
+        }
+    }
+
+    public boolean onBackPressed() {
+        if (mTrackFlipper.getDisplayedChild() == 1) {
+            onTrackDetailsFlip();
+            return true;
+        } else {
+            return false;
+        }
     }
 }

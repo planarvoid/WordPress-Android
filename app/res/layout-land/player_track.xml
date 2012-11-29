@@ -26,17 +26,22 @@
               style="@style/stat_pipe"/>
 
         <ToggleButton android:id="@+id/toggle_like"
-                      style="@style/ToggleButton.PlayerAction"
+                      android:layout_marginLeft="5dp"
+                      style="@style/PlayerAction.ToggleButton"
                       android:drawableLeft="@drawable/ic_toggle_player_like_states"/>
         <ToggleButton android:id="@+id/toggle_repost"
-                      style="@style/ToggleButton.PlayerAction"
+                      style="@style/PlayerAction.ToggleButton"
                       android:layout_marginLeft="10dp"
                       android:drawableLeft="@drawable/ic_toggle_player_repost_states"/>
         <ToggleButton android:id="@+id/toggle_comment"
                       android:layout_marginLeft="10dp"
-                      android:layout_marginRight="10dp"
-                      style="@style/ToggleButton.PlayerAction"
+                      style="@style/PlayerAction.ToggleButton"
                       android:drawableLeft="@drawable/ic_toggle_player_comment_states"/>
+        <ImageButton android:id="@+id/btn_share"
+                     android:layout_marginLeft="10dp"
+                     android:layout_marginRight="15dp"
+                     style="@style/PlayerAction.Button"
+                     android:src="@drawable/stats_share"/>
     </LinearLayout>
     <FrameLayout
             android:layout_weight="8"

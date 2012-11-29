@@ -230,6 +230,13 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        final PlayerTrackView currentTrackView = mTrackPager.getCurrentTrackView();
+        if (currentTrackView == null || !currentTrackView.onBackPressed() ){
+            super.onBackPressed();
+        }
+    }
 
     @Override
     public void onSaveInstanceState(Bundle state) {
@@ -244,22 +251,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             mPendingPlayPosition = position;
         }
         super.onRestoreInstanceState(state);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        final PlayerTrackView currentTrackView = mTrackPager.getCurrentTrackView();
-        switch (item.getItemId()) {
-            case R.id.action_bar_info:
-                if (currentTrackView != null) {
-                    currentTrackView.onTrackInfoFlip();
-                }
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     public void addNewComment(final Comment comment) {
@@ -618,47 +609,5 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         }
 
          mTransportBar.setPlaybackState(showPlayState);
-    }
-
-    @Override
-    protected int getMenuResourceId() {
-        return R.menu.player;
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-
-
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
-            menu.removeItem(R.id.action_bar_info);
-        }
-
-        final MenuItem shareItem = menu.findItem(R.id.action_bar_share);
-        if (shareItem != null) {
-            Track track = getCurrentDisplayedTrack();
-            if (track == null) { // possibly before layout
-                track = CloudPlaybackService.getCurrentTrack();
-            }
-
-            if (track != null && track.isPublic() && track.getShareIntent() != null) {
-                Intent shareIntent = track.getShareIntent();
-                shareItem.setEnabled(true);
-                ShareActionProvider shareActionProvider = (ShareActionProvider) shareItem.getActionProvider();
-                shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-                shareIntent.putExtra(Intent.EXTRA_SUBJECT,
-                        track.title + (track.user != null ? " by " + track.user.username : "") + " on SoundCloud");
-                shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, track.permalink_url);
-                shareActionProvider.setShareIntent(shareIntent);
-
-            } else {
-                shareItem.setEnabled(false);
-
-                ShareActionProvider shareActionProvider = (ShareActionProvider) shareItem.getActionProvider();
-                shareActionProvider.setShareIntent(null);
-            }
-        }
-
-        return true;
     }
 }

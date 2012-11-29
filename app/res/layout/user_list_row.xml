@@ -84,6 +84,6 @@
                 android:layout_height="40dp"
                 android:textOn="@string/btn_following"
                 android:textOff="@string/btn_follow"
-                style="@style/ToggleButton.UserListFollow"/>
+                style="@style/UserListFollow"/>
     </RelativeLayout>
 </RelativeLayout>
