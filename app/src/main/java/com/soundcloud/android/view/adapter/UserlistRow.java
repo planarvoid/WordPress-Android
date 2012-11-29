@@ -57,7 +57,7 @@ public class UserlistRow extends LazyRow {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     track(getContext(), isChecked ? Click.Follow : Click.Unfollow, mUser);
-                    toggleFollowing(mUser);
+                    if (mUser.user_following != isChecked) toggleFollowing(mUser);
                 }
             });
         }
