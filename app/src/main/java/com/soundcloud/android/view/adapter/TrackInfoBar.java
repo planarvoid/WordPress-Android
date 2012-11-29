@@ -26,7 +26,6 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.animation.Transformation;
@@ -186,8 +185,15 @@ public class TrackInfoBar extends LazyRow {
         return mVeryPrivateBgDrawable;
     }
 
-    /** update the views with the data corresponding to selection index */
-    public void display(Playable p, boolean shouldLoadIcon, long playingId, boolean keepHeight, long currentUserId) {
+    /**
+     *  update the displayed track
+     * @param p the playable to display
+     * @param playingId the currently playing track, or -1 to ignore the playback status
+     * @param shouldLoadIcon should handle loading of the icon here (lists handle elsewhere)
+     * @param keepHeight keep the height of the view, even if there are no stats
+     * @param showFullStats show full stats, or just play count (for player only)
+     */
+    public void display(Playable p, long playingId, boolean shouldLoadIcon, boolean keepHeight, boolean showFullStats) {
         mPlayable = p;
         mShouldLoadIcon = shouldLoadIcon;
 
@@ -217,7 +223,7 @@ public class TrackInfoBar extends LazyRow {
                         reposter = ((UserBrowser)getContext()).getUser();
                     }
                 }
-                if (reposter !=  null && reposter.id != currentUserId) {
+                if (reposter !=  null && reposter.id != SoundCloudApplication.getUserId()) {
                     mReposter.setText(reposter.username);
                 }
             }
@@ -231,7 +237,7 @@ public class TrackInfoBar extends LazyRow {
                 mPrivateIndicator.setText(R.string.tracklist_item_shared_count_unavailable);
             } else if (track.shared_to_count == 1){
                 mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
-                mPrivateIndicator.setText(track.user_id == currentUserId ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
+                mPrivateIndicator.setText(track.user_id == SoundCloudApplication.getUserId() ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
             } else {
                 if (track.shared_to_count < 8){
                     mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
@@ -243,15 +249,15 @@ public class TrackInfoBar extends LazyRow {
             mPrivateIndicator.setVisibility(View.VISIBLE);
         }
 
+        if (showFullStats){
+            setStats(track.playback_count,
+                    track.comment_count,
+                    track.likes_count,
+                    track.reposts_count, keepHeight);
+        } else {
+            setStats(track.playback_count,0,0,0,keepHeight);
+        }
 
-        setStats(track.playback_count, mPlayCount,
-                mPlayCountSeparator,
-                track.comment_count, mCommentCount,
-                mCommentCountSeparator,
-                track.likes_count, mLikeCount,
-                mLikeCountSeparator,
-                track.reposts_count, mRepostCount,
-                keepHeight);
 
         if (track.user_like) {
             mLikeCount.setCompoundDrawablesWithIntrinsicBounds(getLikedDrawable(), null, null, null);
@@ -315,7 +321,7 @@ public class TrackInfoBar extends LazyRow {
             setStaticTransformationsEnabled(true);
         }
 
-        display(mPlayable, false, CloudPlaybackService.getCurrentTrackId(), false, getCurrentUserId());
+        display(mPlayable, CloudPlaybackService.getCurrentTrackId(), false, false, true);
     }
 
     @Override
@@ -359,30 +365,23 @@ public class TrackInfoBar extends LazyRow {
 
     };
 
-    public static void setStats(int stat1, TextView statTextView1,
-                                View separator1,
-                                int stat2, TextView statTextView2,
-                                View separator2,
-                                int stat3, TextView statTextView3,
-                                View separator3,
-                                int stat4, TextView statTextView4,
-                                boolean maintainSize) {
+    public void setStats(int plays, int comments, int likes, int reposts, boolean maintainSize) {
 
-        statTextView1.setText(String.valueOf(stat1));
-        statTextView2.setText(String.valueOf(stat2));
-        statTextView3.setText(String.valueOf(stat3));
-        statTextView4.setText(String.valueOf(stat4));
+        mPlayCount.setText(String.valueOf(plays));
+        mCommentCount.setText(String.valueOf(comments));
+        mLikeCount.setText(String.valueOf(likes));
+        mRepostCount.setText(String.valueOf(reposts));
 
-        statTextView1.setVisibility(stat1 <= 0 ? View.GONE : View.VISIBLE);
-        separator1.setVisibility(stat1 <= 0 || (stat2 <= 0 && stat3 <= 0 && stat4 <= 0) ? View.GONE : View.VISIBLE);
+        mPlayCount.setVisibility(plays <= 0 ? View.GONE : View.VISIBLE);
+        mPlayCountSeparator.setVisibility(plays <= 0 || (comments <= 0 && likes <= 0 && reposts <= 0) ? View.GONE : View.VISIBLE);
 
-        statTextView2.setVisibility(stat2 == 0 ? View.GONE : View.VISIBLE);
-        separator2.setVisibility(stat2 <= 0 || (stat3 <= 0 && stat4 <= 0) ? View.GONE : View.VISIBLE);
+        mCommentCount.setVisibility(comments == 0 ? View.GONE : View.VISIBLE);
+        mCommentCountSeparator.setVisibility(comments <= 0 || (likes <= 0 && reposts <= 0) ? View.GONE : View.VISIBLE);
 
-        statTextView3.setVisibility(stat3 <= 0 ? View.GONE : View.VISIBLE);
-        separator3.setVisibility(stat3 <= 0 || stat4 <= 0 ? View.GONE : View.VISIBLE);
+        mLikeCount.setVisibility(likes <= 0 ? View.GONE : View.VISIBLE);
+        mLikeCountSeparator.setVisibility(likes <= 0 || reposts <= 0 ? View.GONE : View.VISIBLE);
 
-        statTextView4.setVisibility(stat4 <= 0 ? maintainSize ? View.INVISIBLE : View.GONE : View.VISIBLE);
+        mRepostCount.setVisibility(reposts <= 0 ? maintainSize ? View.INVISIBLE : View.GONE : View.VISIBLE);
     }
 
 }

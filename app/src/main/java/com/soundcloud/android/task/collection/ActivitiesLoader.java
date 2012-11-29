@@ -22,6 +22,7 @@ public class ActivitiesLoader extends CollectionLoader<Activity> {
         if (params.isRefresh) {
             newActivities = Activities.getSince(params.contentUri, resolver, params.timestamp);
             returnData.keepGoing = newActivities.size() >= params.maxToLoad;
+
         } else {
             newActivities = getOlderActivities(resolver, params);
             if (newActivities.size() < params.maxToLoad) {

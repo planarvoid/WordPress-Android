@@ -200,11 +200,10 @@ public class TableTest {
         );
         expect(id).not.toBe(0l);
 
-        int changed = Table.RECORDINGS.upsertSingleArgs(db,
+        Table.RECORDINGS.upsertSingleArgs(db,
             DBHelper.Recordings._ID, id,
             DBHelper.Recordings.WHAT_TEXT, "was"
         );
-        expect(changed).toEqual(1);
 
         Cursor c = DefaultTestRunner.application.getContentResolver().
                 query(Content.RECORDINGS.forId(id),

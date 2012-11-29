@@ -221,11 +221,12 @@ public enum Table {
         return updated;
     }
 
-    public int upsertSingle(SQLiteDatabase db, ContentValues cv) {
-        return upsert(db, new ContentValues[] { cv } );
+    public long upsertSingle(SQLiteDatabase db, ContentValues cv) {
+        upsert(db, new ContentValues[] { cv } );
+        return cv.getAsLong(BaseColumns._ID);
     }
 
-    public int upsertSingleArgs(SQLiteDatabase db, Object... args) {
+    public long upsertSingleArgs(SQLiteDatabase db, Object... args) {
         return upsertSingle(db, build(args));
     }
 

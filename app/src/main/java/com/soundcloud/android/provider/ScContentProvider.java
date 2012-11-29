@@ -431,14 +431,14 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_LIKES:
             case ME_REPOSTS:
-                id = Table.SOUNDS.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = Table.SOUNDS.upsertSingle(db, values);
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, userId);
                     cv.put(DBHelper.CollectionItems.CREATED_AT, System.currentTimeMillis());
                     cv.put(DBHelper.CollectionItems.ITEM_ID, (Long) values.get(DBHelper.Sounds._ID));
                     cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, content.collectionType);
-                    id = Table.COLLECTION_ITEMS.insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_ABORT);
+                    id = Table.COLLECTION_ITEMS.insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_IGNORE);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null, false);
                     return result;

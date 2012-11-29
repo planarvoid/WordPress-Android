@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent">
+       android:layout_width="fill_parent"
+       android:layout_height="fill_parent">
     <RelativeLayout android:layout_width="fill_parent"
+                    android:background="@color/playerControlBackground"
                     android:layout_height="wrap_content">
         <com.soundcloud.android.view.adapter.TrackInfoBar
                 android:id="@+id/track_info_bar"
-                android:background="@color/playerControlBackground"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"/>
         <View android:id="@+id/track_info_overlay"
               android:background="#88000000"
               android:layout_width="fill_parent"
               android:layout_height="0dp"
               android:layout_alignTop="@id/track_info_bar"
               android:layout_alignBottom="@id/track_info_bar"
-              android:visibility="gone" />
+              android:visibility="gone"/>
         <View android:id="@+id/track_info_clicker"
               android:background="#00000000"
               android:layout_width="fill_parent"
@@ -36,13 +36,40 @@
                          android:gravity="top">
                 <ImageView android:layout_width="fill_parent"
                            android:layout_height="fill_parent"
-                           android:id="@+id/artwork" />
+                           android:id="@+id/artwork"/>
+            </FrameLayout>
+            <RelativeLayout android:layout_height="fill_parent"
+                            android:layout_width="fill_parent">
+                <ToggleButton android:id="@+id/toggle_like"
+                              style="@style/ToggleButton.PlayerAction"
+                              android:layout_marginLeft="15dp"
+                              android:layout_alignParentLeft="true"
+                              android:layout_marginTop="15dp"
+                              android:layout_alignParentTop="true"
+                              android:drawableLeft="@drawable/ic_toggle_player_like_states"
+                              android:layout_centerInParent="true"/>
+                <ToggleButton android:id="@+id/toggle_repost"
+                              style="@style/ToggleButton.PlayerAction"
+                              android:layout_toRightOf="@id/toggle_like"
+                              android:layout_marginTop="15dp"
+                              android:layout_alignParentTop="true"
+                              android:layout_marginLeft="15dp"
+                              android:drawableLeft="@drawable/ic_toggle_player_repost_states"
+                              android:layout_centerInParent="true"/>
                 <View android:id="@+id/artwork_overlay"
                       android:background="#88000000"
                       android:layout_width="fill_parent"
                       android:layout_height="fill_parent"
-                      android:visibility="gone" />
-            </FrameLayout>
+                      android:visibility="gone"/>
+                <ToggleButton android:id="@+id/toggle_comment"
+                              android:layout_alignParentRight="true"
+                              android:layout_marginTop="15dp"
+                              android:layout_alignParentTop="true"
+                              android:layout_marginRight="15dp"
+                              style="@style/ToggleButton.PlayerAction"
+                              android:drawableLeft="@drawable/ic_toggle_player_comment_states"
+                              android:layout_centerInParent="true"/>
+            </RelativeLayout>
             <com.soundcloud.android.view.play.WaveformController
                     android:id="@+id/waveform_controller"
                     android:layout_height="wrap_content"

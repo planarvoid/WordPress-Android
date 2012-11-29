@@ -29,8 +29,7 @@
                         android:layout_marginLeft="@dimen/list_text_margin_left"
                         android:layout_alignTop="@id/user_icon"
                         android:layout_toRightOf="@id/user_icon"
-                        android:layout_alignParentRight="true"
-                        android:paddingRight="10dip">
+                        android:layout_alignParentRight="true">
 
             <TextView android:id="@+id/username"
                       android:layout_alignParentTop="true"
@@ -51,7 +50,7 @@
                       android:layout_height="wrap_content"
                       android:layout_alignLeft="@id/username"
                       android:paddingRight="5dip"
-                      android:layout_alignParentRight="true"/>
+                      android:layout_toLeftOf="@+id/toggle_btn_follow"/>
             <RelativeLayout
                     android:id="@+id/stats"
                     android:layout_below="@id/fullname"
@@ -88,6 +87,17 @@
                           android:layout_alignWithParentIfMissing="true"
                           style="@style/txt_list_sub_secondary"/>
             </RelativeLayout>
+            <ToggleButton
+                    android:id="@id/toggle_btn_follow"
+                    android:layout_marginLeft="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/username"
+                    android:textOn="@string/btn_following"
+                    android:textOff="@string/btn_follow"
+                    style="@style/ToggleButton.UserBrowserFollow"/>
+
         </RelativeLayout>
     </RelativeLayout>
     <com.viewpagerindicator.TitlePageIndicator
