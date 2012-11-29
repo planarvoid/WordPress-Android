@@ -713,23 +713,38 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    public void setLikeStatus(long trackId, boolean like) {
-        if (currentTrack != null && currentTrack.id == trackId) {
-            if (like) {
-                mAssociationManager.addLike(currentTrack);
-            } else {
-                mAssociationManager.removeLike(currentTrack);
-            }
+    public void setLikeStatus(Track track, boolean like) {
+        if (like) {
+            mAssociationManager.addLike(track);
+        } else {
+            mAssociationManager.removeLike(track);
+        }
+
+    }
+
+    public void setLikeStatus(long id, boolean like) {
+        Track track = currentTrack != null && currentTrack.id == id ? currentTrack : SoundCloudApplication.MODEL_MANAGER.getTrack(id);
+        if (like) {
+            mAssociationManager.addLike(track);
+        } else {
+            mAssociationManager.removeLike(track);
         }
     }
 
-    public void setRepostStatus(long trackId, boolean repost) {
-        if (currentTrack != null && currentTrack.id == trackId) {
-            if (repost) {
-                mAssociationManager.addRepost(currentTrack);
-            } else {
-                mAssociationManager.removeRepost(currentTrack);
-            }
+    public void setRepostStatus(Track track, boolean repost) {
+        if (repost) {
+            mAssociationManager.addRepost(track);
+        } else {
+            mAssociationManager.removeRepost(track);
+        }
+    }
+
+    public void setRepostStatus(long id, boolean repost) {
+        Track track = currentTrack != null && currentTrack.id == id ? currentTrack : SoundCloudApplication.MODEL_MANAGER.getTrack(id);
+        if (repost) {
+            mAssociationManager.addRepost(track);
+        } else {
+            mAssociationManager.removeRepost(track);
         }
     }
 
