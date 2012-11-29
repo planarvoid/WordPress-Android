@@ -365,8 +365,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
 
                             if (user != null) {
-                                startActivityForResult(new Intent(Start.this, Home.class), 0);
-                                Start.this.finish();
+                                finishLogin();
                             } else { // user request failed
                                 presentError(R.string.authentication_error_title,
                                              R.string.authentication_login_error_password_message);
@@ -461,20 +460,27 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                     }
 
                     if (user != null) {
-                        startActivityForResult(new Intent(Start.this, Home.class), 0);
-                        finish();
+                        finishSignUp();
                     } else {
                         presentError(getString(R.string.authentication_error_title), getFirstError());
                     }
                 }
             }
         }.execute(Pair.create(mUser, avatarFile));
-
     }
 
     @Override
     public void onSkipDetails() {
-        startActivityForResult(new Intent(Start.this, Home.class), 0);
+        finishSignUp();
+    }
+
+    private void finishLogin() {
+        finishSignUp();
+    }
+
+    private void finishSignUp() {
+        startActivityForResult(new Intent(this, Home.class), 0);
+        startActivityForResult(new Intent(this, SuggestedUsers.class), 0);
         finish();
     }
 
