@@ -53,13 +53,14 @@ public class UserlistRow extends LazyRow {
 
         if (mFollowBtn != null) {
             mFollowBtn.setFocusable(false);
-            mFollowBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            mFollowBtn.setOnClickListener(new View.OnClickListener(){
                 @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    track(getContext(), isChecked ? Click.Follow : Click.Unfollow, mUser);
-                    if (mUser.user_following != isChecked) toggleFollowing(mUser);
+                public void onClick(View v) {
+                    toggleFollowing(mUser);
+                    track(getContext(), mUser.user_following ? Click.Follow : Click.Unfollow, mUser);
                 }
             });
+
         }
 
     }

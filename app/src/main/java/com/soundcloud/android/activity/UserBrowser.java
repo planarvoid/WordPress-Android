@@ -202,16 +202,14 @@ public class UserBrowser extends ScActivity implements
             mToggleFollow.setVisibility(View.GONE);
         } else {
             mToggleFollow.setChecked(FollowStatus.get(this).isFollowing(mUser));
-            mToggleFollow.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            mToggleFollow.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (mUser.user_following) {
-                        follow(mUser);
-                    } else {
-                        unfollow(mUser);
-                    }
+                public void onClick(View v) {
+                    toggleFollowing(mUser);
+                    getApp().track(mUser.user_following ? Click.Follow : Click.Unfollow, mUser, Level2.Users);
                 }
             });
+
         }
 
 
@@ -388,16 +386,6 @@ public class UserBrowser extends ScActivity implements
         }
     }
 
-    private void follow(User user) {
-        getApp().track(Click.Follow, user, Level2.Users);
-        toggleFollowing(user);
-    }
-
-    private void unfollow(User user) {
-        getApp().track(Click.Unfollow, user, Level2.Users);
-        toggleFollowing(user);
-    }
-
     @Override
     protected void onResume() {
         trackScreen();
@@ -492,7 +480,7 @@ public class UserBrowser extends ScActivity implements
                 }
             }
         });
-        invalidateOptionsMenu();
+        mToggleFollow.setChecked(FollowStatus.get(this).isFollowing(mUser));
     }
 
     @Override
