@@ -102,4 +102,8 @@
 
     <dimen name="header_footer_left_right_padding">@dimen/list_item_padding_left</dimen>
     <dimen name="header_footer_internal_padding">10dp</dimen>
+
+    <dimen name="btn_text_size">14dp</dimen>
+    <dimen name="btn_height">35dp</dimen>
+
 </resources>
