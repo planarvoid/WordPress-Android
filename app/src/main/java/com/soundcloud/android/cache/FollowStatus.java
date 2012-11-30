@@ -68,7 +68,7 @@ public class FollowStatus {
     }
 
     public boolean isFollowing(User user) {
-        return isFollowing(user.id);
+        return user != null && isFollowing(user.id);
     }
 
     public synchronized void requestUserFollowings(final Listener listener) {
