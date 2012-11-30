@@ -570,7 +570,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (context == null) return; // has been detached
         if (force || isTaskFinished(mAppendTask)){
             mAppendTask = buildTask(context);
-            mAppendTask.execute(getTaskParams(false));
+            mAppendTask.executeOnThreadPool(getTaskParams(false));
         }
         getListAdapter().setIsLoadingData(true);
     }
