@@ -10,6 +10,10 @@ public class Friend extends ScResource implements Refreshable {
     public Friend() {
     }
 
+    public Friend(User user) {
+        this.user = user;
+    }
+
     @Override
     public Uri getBulkInsertUri() {
         return null;
