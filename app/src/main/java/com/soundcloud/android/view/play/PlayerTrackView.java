@@ -62,7 +62,7 @@ public class PlayerTrackView extends LinearLayout implements
     private FrameLayout mUnplayableLayout;
 
     private TrackInfoBar mTrackInfoBar;
-    private ViewFlipper mTrackFlipper;
+    private @Nullable ViewFlipper mTrackFlipper;
     private PlayerTrackDetails mTrackDetailsView;
 
     private boolean mDraggingLabel = false;
@@ -753,7 +753,7 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public boolean onBackPressed() {
-        if (mTrackFlipper.getDisplayedChild() == 1) {
+        if (mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1) {
             onTrackDetailsFlip();
             return true;
         } else {
