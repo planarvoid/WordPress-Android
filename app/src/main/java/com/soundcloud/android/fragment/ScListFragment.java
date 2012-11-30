@@ -359,10 +359,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_SYNC_ERROR: {
-                final boolean changed = resultData != null && !resultData.getBoolean(mContentUri.toString());
 
-                if (changed && !isRefreshing()) {
-                    doneRefreshing(); // nothing changed
+                final boolean nothingChanged = resultData != null && !resultData.getBoolean(mContentUri.toString());
+                if (nothingChanged && !isRefreshing()) {
+                    doneRefreshing();
 
                     // first time user with no account data. this will force the empty screen that was held back earlier
                     if (!waitingOnInitialSync() && getListAdapter().getItemCount() == 0) {
@@ -394,6 +394,9 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     protected void onContentChanged() {
+        if (getListAdapter() instanceof ActivityAdapter && ((ActivityAdapter) getListAdapter()).isExpired()){
+            executeRefreshTask();
+        }
     }
 
     public void executeRefreshTask() {
@@ -538,7 +541,9 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     protected void configureEmptyCollection(){
         final boolean wait = canAppend() || isRefreshing() || waitingOnInitialSync();
-        mEmptyCollection.setMode(wait ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.IDLE);
+        if (mEmptyCollection != null) {
+            mEmptyCollection.setMode(wait ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.IDLE);
+        }
     }
 
     @Override
