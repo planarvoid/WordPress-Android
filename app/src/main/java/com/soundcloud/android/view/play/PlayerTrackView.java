@@ -1,5 +1,6 @@
 package com.soundcloud.android.view.play;
 
+import static com.soundcloud.android.imageloader.ImageLoader.Options;
 import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
@@ -302,18 +303,19 @@ public class PlayerTrackView extends LinearLayout implements
                     getContext(),
                     mArtwork,
                     mTrack.getArtwork(),
-                    Consts.GraphicSize.getPlayerGraphicSize(getContext()), new ImageLoader.Callback() {
-                @Override
-                public void onImageError(ImageView view, String url, Throwable error) {
-                    mCurrentArtBindResult = ImageLoader.BindResult.ERROR;
-                    Log.e(getClass().getSimpleName(), "Error loading artwork " + error);
-                }
+                    Consts.GraphicSize.getPlayerGraphicSize(getContext()),
+                    new ImageLoader.Callback() {
+                        @Override
+                        public void onImageError(ImageView view, String url, Throwable error) {
+                            mCurrentArtBindResult = ImageLoader.BindResult.ERROR;
+                            Log.e(getClass().getSimpleName(), "Error loading artwork " + error);
+                        }
 
-                @Override
-                public void onImageLoaded(ImageView view, String url) {
-                    onArtworkSet(mOnScreen);
-                }
-            }, new ImageLoader.Options(postAtFront))) != ImageLoader.BindResult.OK) {
+                        @Override
+                        public void onImageLoaded(ImageView view, String url) {
+                            onArtworkSet(mOnScreen);
+                        }
+            }, postAtFront ? Options.postAtFront() : new Options())) != ImageLoader.BindResult.OK) {
                 mArtwork.setVisibility(View.INVISIBLE);
             } else {
                 onArtworkSet(false);
@@ -342,7 +344,7 @@ public class PlayerTrackView extends LinearLayout implements
                         @Override
                         public void onImageLoaded(ImageView view, String url) {
                         }
-                    }, new ImageLoader.Options(postAtFront))) != ImageLoader.BindResult.OK) {
+                    }, postAtFront ? Options.postAtFront() : new Options())) != ImageLoader.BindResult.OK) {
             }
         } else {
             ImageLoader.get(mPlayer).unbind(mAvatar);
@@ -739,17 +741,6 @@ public class PlayerTrackView extends LinearLayout implements
 
     @Nullable public Track getTrack() {
         return mTrack;
-    }
-
-    private void launchShareIntent(){
-        if (mTrack != null && mTrack.isPublic()){
-            Intent shareIntent = mTrack.getShareIntent();
-            shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT,
-                    mTrack.title + (mTrack.user != null ? " by " + mTrack.user.username : "") + " on SoundCloud");
-            shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, mTrack.permalink_url);
-            mPlayer.startActivity(shareIntent);
-        }
     }
 
     public boolean onBackPressed() {

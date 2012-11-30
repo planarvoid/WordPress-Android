@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
@@ -26,6 +27,7 @@ import java.net.ResponseCache;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -58,7 +60,7 @@ public class ImageLoader {
      */
     public static final long DEFAULT_CACHE_SIZE = Math.min(Runtime.getRuntime().maxMemory() / 5, 16 * 1024 * 1024);
 
-    private List<ImageCallback> mPendingCallbacks = new ArrayList<ImageCallback>();
+    private final List<ImageCallback> mPendingCallbacks = Collections.synchronizedList(new ArrayList<ImageCallback>());
     private final LinkedList<ImageRequest> mRequests;
     private final Set<ImageRequest> mAllRequests = new HashSet<ImageRequest>();
 
@@ -130,13 +132,14 @@ public class ImageLoader {
         }
         if (mLoadBlockers.isEmpty()) {
             flushRequests();
-            for (ImageCallback imageCallback : mPendingCallbacks) {
-                imageCallback.send();
+            synchronized (mPendingCallbacks) {
+                for (ImageCallback imageCallback : mPendingCallbacks) {
+                    imageCallback.send();
+                }
+                mPendingCallbacks.clear();
             }
-            mPendingCallbacks.clear();
         }
     }
-
 
     public void cancelRequest(String url) {
         ImageRequest toRemove = null;
@@ -335,7 +338,7 @@ public class ImageLoader {
         prefetch(url, new Options());
     }
 
-    public void prefetch(String url, Options options) {
+    private void prefetch(String url, Options options) {
         if (url == null) throw new NullPointerException();
         if (getBitmap(url) != null) {
             // The image is already loaded, therefore it does not need to be prefetched.
@@ -379,7 +382,7 @@ public class ImageLoader {
 
     private class ImageRequest {
         private @NotNull final String mUrl;
-        private final Set<ImageCallback> mImageCallbacks = new HashSet<ImageCallback>();
+        private final Set<ImageCallback> mImageCallbacks = Collections.synchronizedSet(new HashSet<ImageCallback>());
         private final Options mOptions;
         private Bitmap mBitmap;
         private ImageError mError;
@@ -476,17 +479,22 @@ public class ImageLoader {
         }
 
         private void handleCallbacks() {
-            for (ImageCallback cb : mImageCallbacks)  {
-                cb.setResult(mUrl, mBitmap, mError);
-            }
-            if (isBlocked()) {
-                mPendingCallbacks.addAll(mImageCallbacks);
-            } else {
-                for (ImageCallback cb : mImageCallbacks) {
-                    cb.send();
+            synchronized (mImageCallbacks) {
+                Set<ImageCallback> callbacks = new HashSet<ImageCallback>(mImageCallbacks);
+
+                for (ImageCallback cb : callbacks)  {
+                    cb.setResult(mUrl, mBitmap, mError);
                 }
+
+                if (isBlocked()) {
+                    mPendingCallbacks.addAll(callbacks);
+                } else {
+                    for (ImageCallback cb : callbacks) {
+                        cb.send();
+                    }
+                }
+                mImageCallbacks.clear();
             }
-            mImageCallbacks.clear();
         }
 
         public String getUrl() {
@@ -510,6 +518,8 @@ public class ImageLoader {
                 }
             }
             // fallback - open connection and use whatever is provided by the system
+            Log.d(TAG, "loading "+url+" for "+mImageCallbacks);
+
             return (Bitmap) mBitmapContentHandler.getContent(url.openConnection());
         }
 
@@ -695,20 +705,23 @@ public class ImageLoader {
     }
 
     public static class Options {
-        public boolean loadRemotelyIfNecessary;
-        public boolean postAtFront;
         public boolean loadBitmap = true;
+        public boolean loadRemotelyIfNecessary = true;
+        public boolean postAtFront;
 
         public int decodeInSampleSize = 1;
         public WeakReference<Bitmap> temporaryBitmapRef;
 
-        public Options() {
-            loadRemotelyIfNecessary = true;
+        public static Options dontLoadRemote() {
+            Options options = new Options();
+            options.loadRemotelyIfNecessary = false;
+            return options;
         }
 
-        public Options(boolean postAtFront) {
-            this();
-            this.postAtFront = postAtFront;
+        public static Options postAtFront() {
+            Options options = new Options();
+            options.postAtFront = true;
+            return options;
         }
     }
 

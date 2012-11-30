@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.playback;
 
+import static com.soundcloud.android.imageloader.ImageLoader.Options;
 import static com.soundcloud.android.service.playback.State.*;
 
 import com.soundcloud.android.imageloader.ImageLoader;
@@ -151,7 +152,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     };
 
-    private static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(false);
+    private static final Options ICON_OPTIONS = Options.dontLoadRemote();
+
     private Notification status;
 
     public interface PlayExtras{
@@ -372,7 +374,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         if (mFocus.isTrackChangeSupported()) {
             final String artworkUri = track.getPlayerArtworkUri(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                final Bitmap cached = ImageLoader.get(this).getBitmap(artworkUri, null, new ImageLoader.Options(false));
+                final Bitmap cached = ImageLoader.get(this).getBitmap(artworkUri, null, Options.dontLoadRemote());
                 if (cached != null) {
                     // use a copy of the bitmap because it is going to get recycled afterwards
                     try {

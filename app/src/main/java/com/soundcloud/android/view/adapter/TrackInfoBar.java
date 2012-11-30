@@ -33,7 +33,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class TrackInfoBar extends LazyRow {
-    public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(true);
+    public static final ImageLoader.Options ICON_OPTIONS = ImageLoader.Options.postAtFront();
 
     private Playable mPlayable;
 

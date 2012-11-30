@@ -21,7 +21,7 @@ import com.soundcloud.android.utils.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class LazyRow extends FrameLayout {
-    public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(false);
+    public static final ImageLoader.Options ICON_OPTIONS = ImageLoader.Options.dontLoadRemote();
 
     private ImageLoader.Options mIconOptions;
 

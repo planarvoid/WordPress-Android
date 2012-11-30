@@ -214,6 +214,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
             addItems(data.newItems);
 
+            /*
             if (IOUtils.isWifiConnected(mContext)){
                 // prefetch sound artwork
                 for (ScModel model : data.newItems){
@@ -223,6 +224,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
                     }
                 }
             }
+            */
             checkForStaleItems();
         }
         setIsLoadingData(false);

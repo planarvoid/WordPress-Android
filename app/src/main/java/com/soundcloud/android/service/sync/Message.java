@@ -1,5 +1,7 @@
 package com.soundcloud.android.service.sync;
 
+import static com.soundcloud.android.imageloader.ImageLoader.Options;
+
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -117,7 +119,7 @@ class Message {
         if (!Consts.SdkSwitches.useRichNotifications || !ImageUtils.checkIconShouldLoad(artworkUri)) {
             showDashboardNotification(context, ticker, intent, title, message, id, null);
         } else {
-            final Bitmap bmp = ImageLoader.get(context).getBitmap(artworkUri,null, new ImageLoader.Options(false));
+            final Bitmap bmp = ImageLoader.get(context).getBitmap(artworkUri,null, Options.dontLoadRemote());
             if (bmp != null){
                 showDashboardNotification(context, ticker, intent, title, message, id, bmp);
             } else {
