@@ -52,6 +52,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -72,7 +73,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     protected RootView mRootView;
     private Boolean mIsConnected;
-    private boolean mIsForeground, mInSearchMode;
+    private boolean mIsForeground, mInSearchMode, mCloseSearchOnResume;
 
     private NowPlayingIndicator mNowPlaying;
     private View mMenuIndicator;
@@ -143,6 +144,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putBoolean("inSearchMode", mInSearchMode);
+        savedInstanceState.putBoolean("closeSearchOnResume", mCloseSearchOnResume);
         final CharSequence query = getSearchView().getQuery();
         if (!TextUtils.isEmpty(query))savedInstanceState.putCharSequence("searchQuery" , query);
     }
@@ -150,12 +152,16 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        if (savedInstanceState.getBoolean("inSearchMode") != mInSearchMode){
-            toggleSearch();
-        }
-        if (savedInstanceState.containsKey("searchQuery")){
-            getSearchView().setQuery(savedInstanceState.getCharSequence("searchQuery"), false);
-            if (mInSearchMode) getSearchView().setIconified(false); // request focus
+        if (savedInstanceState.getBoolean("closeSearchOnResume")){
+            mRootView.unBlock(true);
+        } else {
+            if (savedInstanceState.getBoolean("inSearchMode") != mInSearchMode) {
+                toggleSearch();
+            }
+            if (savedInstanceState.containsKey("searchQuery")) {
+                getSearchView().setQuery(savedInstanceState.getCharSequence("searchQuery"), false);
+                if (mInSearchMode) getSearchView().setIconified(false); // request focus
+            }
         }
     }
 
@@ -251,6 +257,10 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         if (mNowPlaying != null) {
             mNowPlaying.resume();
+        }
+        if (mCloseSearchOnResume) {
+            closeSearch(true);
+            mCloseSearchOnResume = false;
         }
     }
 
@@ -510,7 +520,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onBlockerClick() {
-        closeSearch();
+        closeSearch(false);
     }
 
     /**
@@ -577,9 +587,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         invalidateOptionsMenu();
     }
 
-    private void closeSearch() {
+    private void closeSearch(boolean instant) {
         getSearchView().clearFocus();
-        mRootView.unBlock();
+        mRootView.unBlock(instant);
         if (mInSearchMode) toggleSearch();
     }
 
@@ -597,9 +607,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    closeSearch();
-                }
+                if (!hasFocus && !mCloseSearchOnResume) closeSearch(false);
             }
         });
 
@@ -641,9 +649,14 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
             @Override
             public boolean onSuggestionClick(int position) {
+                // don't do the whole unblocking animation until after exit
+                mCloseSearchOnResume = true;
+
+                // close IME
+                getSearchView().clearFocus();
+
                 final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
                 startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
-                closeSearch();
                 return true;
             }
         });
@@ -653,13 +666,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
-                    mRootView.unBlock();
                     return false;
                 }
 
                 @Override
                 public boolean onQueryTextChange(String newText) {
-                    if (TextUtils.isEmpty(newText)) mRootView.unBlock();
+                    if (TextUtils.isEmpty(newText) && !mCloseSearchOnResume) mRootView.unBlock(false);
                     return false;
                 }
             });
@@ -670,7 +682,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         if (mSuggestionsAdapter.getCount() > 0 && !TextUtils.isEmpty(search_text.getText())) {
                             mRootView.block();
                         } else {
-                            mRootView.unBlock();
+                            mRootView.unBlock(false);
                         }
                     }
                 });

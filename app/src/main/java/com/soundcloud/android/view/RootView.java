@@ -217,33 +217,36 @@ public class RootView extends ViewGroup {
         }
     }
 
-    public void unBlock(){
+    public void unBlock(boolean instant){
         if (mIsBlocked) {
             mIsBlocked = false;
             mBlocker.clearAnimation();
             mBlocker.setClickable(false);
             mBlocker.setEnabled(false);
-            Animation animation = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_out);
-            animation.setDuration(200);
-            mBlocker.startAnimation(animation);
-            mBlocker.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-
-                    if (mBlocker.getAnimation() == animation) {
-                        mBlocker.setVisibility(View.GONE);
+            if (instant){
+                mBlocker.setVisibility(View.GONE);
+            } else {
+                Animation animation = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_out);
+                animation.setDuration(200);
+                mBlocker.startAnimation(animation);
+                mBlocker.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
                     }
-                }
-            });
 
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+
+                        if (mBlocker.getAnimation() == animation) {
+                            mBlocker.setVisibility(View.GONE);
+                        }
+                    }
+                });
+            }
         }
     }
 

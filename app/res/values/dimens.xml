@@ -91,7 +91,7 @@
     <dimen name="slm_item_text_size">16sp</dimen>
     <dimen name="slm_item_text_padding_left">10dp</dimen>
 
-    <dimen name="slm_item_dashboard_counter_text_size">14sp</dimen>
+    <dimen name="slm_item_dashboard_counter_text_size">12px</dimen>
 
     <dimen name="slm_search_item_text_padding">10dp</dimen>
     <dimen name="slm_search_item_text_padding_right">30dp</dimen>

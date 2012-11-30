@@ -86,7 +86,6 @@ public class PlayerTrackView extends LinearLayout implements
     private ToggleButton mToggleRepost;
     private ImageButton mShareButton;
 
-    private View mTrackInfoOverlay;
     private View mArtworkOverlay;
 
     public PlayerTrackView(ScPlayer player) {
@@ -137,7 +136,6 @@ public class PlayerTrackView extends LinearLayout implements
             }
         });
 
-        mTrackInfoOverlay = findViewById(R.id.track_info_overlay);
         mArtworkOverlay   = findViewById(R.id.artwork_overlay);
 
         final OnClickListener closeCommentListener = new OnClickListener(){
@@ -148,7 +146,6 @@ public class PlayerTrackView extends LinearLayout implements
         };
 
 
-        if (mTrackInfoOverlay != null) mTrackInfoOverlay.setOnClickListener(closeCommentListener);
         if (mArtworkOverlay != null) mArtworkOverlay.setOnClickListener(closeCommentListener);
 
         findViewById(R.id.private_indicator).setVisibility(View.GONE);
@@ -505,21 +502,14 @@ public class PlayerTrackView extends LinearLayout implements
         if (!mLandscape){
             if (animated) {
                 if (isCommenting) {
-                    mTrackInfoOverlay.setVisibility(VISIBLE);
-                    runFadeInAnimationOn(mPlayer, mTrackInfoOverlay);
-
                     mArtworkOverlay.setVisibility(VISIBLE);
                     runFadeInAnimationOn(mPlayer, mArtworkOverlay);
                 } else {
-                    runFadeOutAnimationOn(mPlayer, mTrackInfoOverlay);
-                    attachVisibilityListener(mTrackInfoOverlay, GONE);
-
                     runFadeOutAnimationOn(mPlayer, mArtworkOverlay);
                     attachVisibilityListener(mArtworkOverlay, GONE);
                 }
             } else {
                 int visibility = mIsCommenting ? VISIBLE : GONE;
-                mTrackInfoOverlay.setVisibility(visibility);
                 mArtworkOverlay.setVisibility(visibility);
             }
         }
