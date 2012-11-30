@@ -146,8 +146,13 @@
         <item name="android:clickable">true</item>
     </style>
 
-    <style name="SignUp.Content.Base">
+    <style name="SignUp.ScrollView">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_centerInParent">true</item>
+    </style>
+
+    <style name="SignUp.Content.Base">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">10dp</item>
