@@ -131,7 +131,7 @@ public class NowPlayingIndicator extends ProgressBar {
             mTrack = currentTrack;
             setProgress((int) CloudPlaybackService.getCurrentProgress());
 
-            if (mTrack == null) {
+            if (mTrack == null || mTrack.waveform_url == null) {
                 setMax(0);
                 // set default bitmap
             } else {

@@ -169,22 +169,22 @@ public class ImageLoader {
         }
     }
 
-
     public Bitmap getBitmap(String uri, BitmapCallback callback) {
         return getBitmap(uri, callback, new Options());
     }
 
-    public Bitmap getBitmap(String uri, @Nullable BitmapCallback callback, Options options) {
+    public Bitmap getBitmap(String url, @Nullable BitmapCallback callback, Options options) {
+        if (url == null) throw new IllegalArgumentException("url is null");
         if (options == null) options = new Options();
-        final Bitmap memoryBmp = getBitmap(uri);
+        final Bitmap memoryBmp = getBitmap(url);
         if (memoryBmp != null) {
             if (callback != null) {
-                callback.setResult(uri, memoryBmp, null);
+                callback.setResult(url, memoryBmp, null);
                 callback.send();
             }
             return memoryBmp;
         } else if (options.loadRemotelyIfNecessary) {
-            queueRequest(uri, callback, options);
+            queueRequest(url, callback, options);
         }
         return null;
     }
