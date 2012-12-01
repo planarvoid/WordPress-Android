@@ -4,12 +4,11 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.os.Environment;
-import android.test.InstrumentationTestRunner;
 
 import java.io.File;
 
 @SuppressWarnings("UnusedDeclaration")
-public class Runner extends InstrumentationTestRunner {
+public class Runner extends RandomizingRunner {
     public static final String TEST_DIR = "sc-tests";
     private static final long MIN_BYTES_FREE = (1024*1024)* 30;
 
