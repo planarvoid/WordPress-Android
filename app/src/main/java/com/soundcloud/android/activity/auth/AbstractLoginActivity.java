@@ -14,7 +14,7 @@ import android.util.Log;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.GetTokensTask;
+import com.soundcloud.android.task.auth.GetTokensTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.api.CloudAPI;

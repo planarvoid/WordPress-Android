@@ -1,8 +1,9 @@
-package com.soundcloud.android.task;
+package com.soundcloud.android.task.auth;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
@@ -10,11 +11,10 @@ import com.soundcloud.api.Token;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 
-import android.util.Log;
 
 import java.io.IOException;
 
-public class SignupTask extends AsyncApiTask<String, Void, User>  {
+public class SignupTask extends AsyncApiTask<String, Void, User> {
     public SignupTask(AndroidCloudAPI api) {
         super(api);
     }

@@ -2,9 +2,7 @@ package com.soundcloud.android.task.fetch;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.task.ResolveTask;
 import com.soundcloud.api.Request;
 
@@ -15,7 +13,6 @@ import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
     private static final String TAG = ResolveFetchTask.class.getSimpleName();

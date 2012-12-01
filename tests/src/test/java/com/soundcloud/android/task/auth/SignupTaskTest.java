@@ -1,4 +1,4 @@
-package com.soundcloud.android.task;
+package com.soundcloud.android.task.auth;
 
 import static com.soundcloud.android.Expect.expect;
 
@@ -32,7 +32,7 @@ public class SignupTaskTest {
         Robolectric.addPendingHttpResponse(422, "{\"errors\":{\"error\":[\"Email has already been taken\",\"Email is already taken.\"]}}");
         SignupTask task = new SignupTask(DefaultTestRunner.application);
         expect(task.doInBackground("email", "password")).toBeNull();
-        expect(task.mErrors).toEqual(Arrays.asList("Email has already been taken", "Email is already taken."));
+        expect(task.getErrors()).toEqual(Arrays.asList("Email has already been taken", "Email is already taken."));
     }
 
     @Test
@@ -41,7 +41,7 @@ public class SignupTaskTest {
         Robolectric.addPendingHttpResponse(422, "ada");
         SignupTask task = new SignupTask(DefaultTestRunner.application);
         expect(task.doInBackground("email", "password")).toBeNull();
-        expect(task.mErrors).toBeEmpty();
+        expect(task.getErrors()).toBeEmpty();
     }
 
     @Test
@@ -49,7 +49,7 @@ public class SignupTaskTest {
         TestHelper.addCannedResponses(getClass(), "signup_token_blank_scope.json");
         SignupTask task = new SignupTask(DefaultTestRunner.application);
         expect(task.doInBackground("email", "password")).toBeNull();
-        expect(task.mErrors).toContain(DefaultTestRunner.application.getString(R.string.signup_scope_revoked));
+        expect(task.getErrors()).toContain(DefaultTestRunner.application.getString(R.string.signup_scope_revoked));
     }
 
     @Test
@@ -62,6 +62,6 @@ public class SignupTaskTest {
 
         SignupTask task = new SignupTask(DefaultTestRunner.application);
         expect(task.doInBackground("email", "password")).toBeNull();
-        expect(task.mErrors).toContain(DefaultTestRunner.application.getString(R.string.signup_scope_revoked));
+        expect(task.getErrors()).toContain(DefaultTestRunner.application.getString(R.string.signup_scope_revoked));
     }
 }

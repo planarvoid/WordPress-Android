@@ -1,4 +1,4 @@
-package com.soundcloud.android.task;
+package com.soundcloud.android.task.auth;
 
 import static com.soundcloud.android.Expect.expect;
 
@@ -52,6 +52,6 @@ public class AddUserInfoTaskTest  {
         User user = new User();
         User result = task.doInBackground(Pair.create(user, (File)null));
         expect(result).toBeNull();
-        expect(task.mErrors).toEqual(Arrays.asList("Failz"));
+        expect(task.getErrors()).toEqual(Arrays.asList("Failz"));
     }
 }

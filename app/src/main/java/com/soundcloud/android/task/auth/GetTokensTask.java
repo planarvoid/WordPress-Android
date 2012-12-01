@@ -1,9 +1,10 @@
-package com.soundcloud.android.task;
+package com.soundcloud.android.task.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.activity.auth.AbstractLoginActivity;
+import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.api.Token;
 
 import android.os.Bundle;

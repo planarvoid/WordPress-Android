@@ -1,4 +1,4 @@
-package com.soundcloud.android.task;
+package com.soundcloud.android.task.auth;
 
 import static com.soundcloud.android.Expect.expect;
 
@@ -31,7 +31,7 @@ public class RecoverPasswordTaskTest {
         RecoverPasswordTask task = new RecoverPasswordTask(DefaultTestRunner.application);
         Boolean result = task.doInBackground("foo@gmail.com");
         expect(result).toBeFalse();
-        expect(task.mErrors).toEqual(Arrays.asList("Unknown Email Address"));
+        expect(task.getErrors()).toEqual(Arrays.asList("Unknown Email Address"));
     }
 
     @Test
