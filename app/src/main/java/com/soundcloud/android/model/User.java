@@ -305,11 +305,6 @@ public class User extends ScResource implements Refreshable {
     }
 
     @Override
-    public long getRefreshableId() {
-        return id;
-    }
-
-    @Override
     public ScResource getRefreshableResource() {
         return this;
     }
@@ -403,6 +398,18 @@ public class User extends ScResource implements Refreshable {
     public int describeContents() {
         return 0;
     }
+
+    public @Nullable String getWebSiteTitle() {
+        if (!TextUtils.isEmpty(website_title)) {
+            return website_title;
+        } else if (!TextUtils.isEmpty(website)) {
+            return website.replace("http://www.", "")
+                          .replace("http://", "");
+        } else {
+            return null;
+        }
+    }
+
 
     @Override
     public void writeToParcel(Parcel out, int flags) {

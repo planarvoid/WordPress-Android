@@ -25,6 +25,4 @@ public class CommentAdapter extends ScBaseAdapter<Comment> {
         mContext.startActivity(new Intent(mContext, UserBrowser.class).putExtra(UserBrowser.EXTRA_USER,getItem(position).user));
         return ItemClickResults.LEAVING;
     }
-
-
 }

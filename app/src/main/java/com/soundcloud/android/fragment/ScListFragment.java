@@ -65,7 +65,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                                                             CollectionTask.Callback,
                                                             AbsListView.OnScrollListener,
                                                             ImageLoader.LoadBlocker {
-    protected static final int CONNECTIVITY_MSG = 0;
+    private static final int CONNECTIVITY_MSG = 0;
 
     @Nullable private ScListView mListView;
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
@@ -231,13 +231,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         return (ScActivity) getActivity();
     }
 
-
     public ScListView buildList() {
         return configureList(new ScListView(getActivity()));
     }
 
     public ScListView configureList(ScListView lv) {
-        //lv.setId(android.R.id.list);
         lv.getRefreshableView().setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.getRefreshableView().setFastScrollEnabled(false);
         return lv;

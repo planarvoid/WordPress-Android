@@ -1,6 +1,5 @@
 package com.soundcloud.android.view;
 
-
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.soundcloud.android.R;
@@ -12,15 +11,7 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.View;
 
-/*
-pull to refresh from : https://github.com/chrisbanes/Android-PullToRefresh/tree/7e918327cad2d217e909147d82882f50c2e3f59a
- */
-
 public class ScListView extends PullToRefreshListView implements PullToRefreshBase.OnConfigureHeaderListener {
-
-    @SuppressWarnings({"UnusedDeclaration"})
-    private static final String TAG = "ScListView";
-
     private View mEmptyView;
     private long mLastUpdated;
 
@@ -29,9 +20,7 @@ public class ScListView extends PullToRefreshListView implements PullToRefreshBa
         init();
     }
 
-    /**
-     * @noinspection UnusedDeclaration
-     */
+    @SuppressWarnings("UnusedDeclaration")
     public ScListView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
@@ -55,14 +44,6 @@ public class ScListView extends PullToRefreshListView implements PullToRefreshBa
         onConfigureHeader();
     }
 
-    /*
-     We still have to use a custom view controlled by our adapter. Their solution didn't work at the time of integration.
-     */
-    public final void setCustomEmptyView(View newEmptyView) {
-        mEmptyView = newEmptyView;
-        configEmptyViewDimensions();
-    }
-
     @Override
     public int getSolidColor() {
         return 0x666666;
@@ -83,10 +64,6 @@ public class ScListView extends PullToRefreshListView implements PullToRefreshBa
         }
     }
 
-    public View getCustomEmptyView() {
-        return mEmptyView;
-    }
-
     @Override
     public void onConfigureHeader() {
         if (mLastUpdated > 0) {
@@ -96,9 +73,4 @@ public class ScListView extends PullToRefreshListView implements PullToRefreshBa
             setLastUpdatedLabel("");
         }
     }
-
-    public long getLastUpdated() {
-        return mLastUpdated;
-    }
-
 }

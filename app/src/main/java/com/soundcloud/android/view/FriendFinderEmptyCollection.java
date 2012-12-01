@@ -4,12 +4,11 @@ import com.soundcloud.android.R;
 
 import android.content.Context;
 import android.view.View;
-import android.widget.LinearLayout;
 
 public class FriendFinderEmptyCollection extends EmptyCollection {
 
     public interface FriendFinderMode {
-        int NO_CONNECTIONS = 100;
+        int NO_CONNECTIONS   = 100;
         int CONNECTION_ERROR = 101;
     }
 

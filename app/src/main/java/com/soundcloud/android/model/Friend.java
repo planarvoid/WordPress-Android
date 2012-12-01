@@ -30,11 +30,6 @@ public class Friend extends ScResource implements Refreshable {
     }
 
     @Override
-    public long getRefreshableId() {
-        return user.id;
-    }
-
-    @Override
     public ScResource getRefreshableResource() {
         return user;
     }

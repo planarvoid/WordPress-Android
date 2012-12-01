@@ -318,12 +318,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         }
     }
 
-    public void safeShowDialog(Dialog dialog) {
-        if (!isFinishing()) {
-            dialog.show();
-        }
-    }
-
     protected void onDataConnectionChanged(boolean isConnected) {
         mIsConnected = isConnected;
         if (isConnected) {

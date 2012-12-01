@@ -30,7 +30,7 @@ public class TourLayout extends FrameLayout {
         Point size = getDisplaySize();
         final Bitmap bitmap = ImageUtils.decodeSampledBitmapFromResource(
             getResources(),
-                bgResId,
+            bgResId,
             size.x,
             size.y
         );

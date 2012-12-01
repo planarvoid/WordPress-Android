@@ -17,8 +17,6 @@ import com.soundcloud.android.activity.track.TracksByTag;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.DBHelper.Sounds;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
@@ -563,11 +561,6 @@ public class Track extends Sound implements Playable {
 
     public String getAvatarUrl() {
         return user == null ? null : user.avatar_url;
-    }
-
-    @Override
-    public long getRefreshableId() {
-        return id;
     }
 
     @Override

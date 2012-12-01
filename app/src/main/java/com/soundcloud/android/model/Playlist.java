@@ -92,11 +92,6 @@ public class Playlist extends Sound {
     }
 
     @Override
-    public long getRefreshableId() {
-        return 0;
-    }
-
-    @Override
     public ScResource getRefreshableResource() {
         return null;
     }

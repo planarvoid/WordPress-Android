@@ -1,10 +1,7 @@
 package com.soundcloud.android.activity.landing;
 
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.model.User;
-import com.viewpagerindicator.TitlePageIndicator;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,8 +13,7 @@ public class You extends UserBrowser implements ScLandingPage {
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-
-        ((TitlePageIndicator) findViewById(R.id.indicator)).setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        mIndicator.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
             }
@@ -26,7 +22,7 @@ public class You extends UserBrowser implements ScLandingPage {
             public void onPageSelected(int i) {
                 mRootView.setSelectedMenuId(
                         Tab.values()[i] == Tab.likes ? R.id.nav_likes :
-                        R.id.nav_you);
+                                R.id.nav_you);
             }
 
             @Override

@@ -5,9 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
@@ -171,11 +169,6 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     @Override
     public int compareTo(Activity activity) {
         return activity.created_at.compareTo(created_at);
-    }
-
-    @Override
-    public long getRefreshableId() {
-        return id;
     }
 
     @Override

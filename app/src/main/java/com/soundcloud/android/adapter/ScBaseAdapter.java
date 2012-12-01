@@ -1,12 +1,11 @@
 
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
@@ -19,12 +18,12 @@ import com.soundcloud.android.task.collection.UpdateCollectionTask;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.quickaction.QuickAction;
+import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -211,7 +210,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
                 onSuccessfulRefresh();
             }
             mPage++;
-
             addItems(data.newItems);
 
             /*
@@ -225,7 +223,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
                 }
             }
             */
-            checkForStaleItems();
+            checkForStaleItems(mData);
         }
         setIsLoadingData(false);
     }
@@ -234,37 +232,36 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         clearData();
     }
 
-    protected void checkForStaleItems() {
-        if (!(IOUtils.isWifiConnected(mContext)) || isEmpty()) return;
-
-        Map<Long, Track> trackUpdates = new HashMap<Long, Track>();
-        Map<Long, User> userUpdates = new HashMap<Long, User>();
-        for (ScModel newItem : mData) {
+    protected void checkForStaleItems(List<? extends ScModel> items) {
+        if (items.isEmpty() || !IOUtils.isWifiConnected(mContext)) return;
+        Set<Long> trackUpdates = new HashSet<Long>();
+        Set<Long> userUpdates = new HashSet<Long>();
+        for (ScModel newItem : items) {
 
             if (newItem instanceof Refreshable) {
-                ScResource resource = ((Refreshable) newItem).getRefreshableResource();
-                if (resource != null) {
-                    if (((Refreshable) newItem).isStale()) {
+                Refreshable refreshable = (Refreshable) newItem;
+                ScResource resource = refreshable.getRefreshableResource();
 
-                        if (resource instanceof Track) {
-                            trackUpdates.put(resource.id, (Track) resource);
-                        } else if (resource instanceof User) {
-                            userUpdates.put(resource.id, (User) resource);
-                        }
+                if (refreshable.isStale()) {
+                    if (resource instanceof Track) {
+                        trackUpdates.add(resource.id);
+                    } else if (resource instanceof User) {
+                        userUpdates.add(resource.id);
                     }
                 }
             }
         }
-        if (trackUpdates.size() > 0) {
-            UpdateCollectionTask updateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(mContext), Track.class);
-            updateCollectionTask.setAdapter(this);
-            updateCollectionTask.execute(trackUpdates);
+        final AndroidCloudAPI api = SoundCloudApplication.fromContext(mContext);
+        if (!trackUpdates.isEmpty()) {
+            UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.TRACKS);
+            task.setAdapter(this);
+            task.executeOnThreadPool(trackUpdates);
         }
 
-        if (userUpdates.size() > 0) {
-            UpdateCollectionTask updateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(mContext), User.class);
-            updateCollectionTask.setAdapter(this);
-            updateCollectionTask.execute(userUpdates);
+        if (!userUpdates.isEmpty()) {
+            UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.USERS);
+            task.setAdapter(this);
+            task.executeOnThreadPool(userUpdates);
         }
     }
 
@@ -274,5 +271,4 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         int IGNORE = 0;
         int LEAVING = 1;
     }
-
 }

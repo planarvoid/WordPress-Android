@@ -106,7 +106,6 @@ public class AlarmClockTest {
         expect(intent.getData().getQueryParameter(ScContentProvider.Parameter.CACHED)).toEqual("1");
     }
 
-
     @Test
     public void receiverShouldScheduleAnotherAlarmIfFlightmodeSet() throws Exception {
         TestHelper.enableFlightmode(true);
