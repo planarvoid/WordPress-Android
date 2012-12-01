@@ -22,9 +22,6 @@ import java.util.List;
  */
 public final class FileCache  {
     public static final String TAG = FileCache.class.getSimpleName();
-
-    public static final long   CACHE_AUTO = -1;
-    public static final double MAX_PCT_OF_FREE_SPACE = 0.03d;      // 3% of free space
     public static final long   MAX_IMAGE_CACHE  = 20 * 1024  * 1024; // 20  MB
 
     public static ResponseCache installFileCache(File cacheDir) throws IOException {
@@ -32,10 +29,17 @@ public final class FileCache  {
         if (responseCache instanceof HttpResponseCache) {
             Log.d(TAG, "Cache has already been installed.");
             return responseCache;
+
         } else if (responseCache == null) {
-            final long actualSize = determineSize(cacheDir, CACHE_AUTO);
-            Log.d(TAG, "using "+IOUtils.inMbFormatted(actualSize)+ " MB for image cache");
-            return HttpResponseCache.install(cacheDir, actualSize);
+            final long size = determineAvailableSpace(cacheDir);
+
+            if (size > 0) {
+                Log.d(TAG, "using "+IOUtils.inMbFormatted(size)+ " MB for image cache");
+                return HttpResponseCache.install(cacheDir, size);
+            } else {
+                Log.d(TAG, "not using disk cache - not enough space left");
+                return null;
+            }
         } else {
             Class<? extends ResponseCache> type = responseCache.getClass();
             Log.e(TAG, "Another ResponseCache has already been installed: " + type);
@@ -43,11 +47,11 @@ public final class FileCache  {
         }
     }
 
-    private static long determineSize(File dir, long size) {
-        if (size == CACHE_AUTO) {
-            return IOUtils.getUsableSpace(dir, MAX_IMAGE_CACHE, MAX_PCT_OF_FREE_SPACE);
+    private static long determineAvailableSpace(File dir) {
+        if (IOUtils.getSpaceLeft(dir) < MAX_IMAGE_CACHE * 3) {
+            return 0;
         } else {
-            return size;
+            return MAX_IMAGE_CACHE;
         }
     }
 
@@ -83,6 +87,4 @@ public final class FileCache  {
             }
         }
     }
-
-
 }

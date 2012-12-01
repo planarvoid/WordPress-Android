@@ -101,9 +101,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             mTracker = new ATTracker(this);
         }
         instance = this;
-
         IOUtils.checkState(this);
-
         mImageLoader = createImageLoader();
         final Account account = getAccount();
 
@@ -113,7 +111,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         MODEL_MANAGER = new ScModelManager(this, mCloudApi.getMapper());
 
         if (account != null) {
-
             if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
                 enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
             }
