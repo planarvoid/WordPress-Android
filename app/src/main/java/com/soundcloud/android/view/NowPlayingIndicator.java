@@ -62,21 +62,24 @@ public class NowPlayingIndicator extends ProgressBar {
     private Paint mForegroundPaint;
     private Rect mCanvasRect;
 
-    private Boolean mListening;
+    private boolean mListening;
 
     private int mSideOffset;
     private int mAdjustedWidth;
 
+    @SuppressWarnings("UnusedDeclaration")
     public NowPlayingIndicator(Context context) {
         super(context);
         init(context);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public NowPlayingIndicator(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public NowPlayingIndicator(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context);
@@ -94,14 +97,16 @@ public class NowPlayingIndicator extends ProgressBar {
         setIndeterminate(false);
     }
 
-    void startListening(){
-        mListening = true;
-        IntentFilter f = new IntentFilter();
-        f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
-        f.addAction(CloudPlaybackService.META_CHANGED);
-        f.addAction(CloudPlaybackService.SEEK_COMPLETE);
-        f.addAction(CloudPlaybackService.SEEKING);
-        getContext().registerReceiver(mStatusListener, new IntentFilter(f));
+    void startListening() {
+        if (!mListening) {
+            mListening = true;
+            IntentFilter f = new IntentFilter();
+            f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
+            f.addAction(CloudPlaybackService.META_CHANGED);
+            f.addAction(CloudPlaybackService.SEEK_COMPLETE);
+            f.addAction(CloudPlaybackService.SEEKING);
+            getContext().registerReceiver(mStatusListener, new IntentFilter(f));
+        }
     }
 
     void stopListening(){
