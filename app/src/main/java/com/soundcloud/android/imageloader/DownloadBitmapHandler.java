@@ -19,6 +19,7 @@ package com.soundcloud.android.imageloader;
 import static com.soundcloud.android.imageloader.ImageLoader.TAG;
 
 import com.soundcloud.android.utils.IOUtils;
+import org.jetbrains.annotations.NotNull;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -57,10 +58,12 @@ public class DownloadBitmapHandler extends ContentHandler {
         mUseCache = usecache;
     }
 
-    @Override public Bitmap getContent(URLConnection connection) throws IOException {
+    @Override @NotNull
+    public Bitmap getContent(URLConnection connection) throws IOException {
         return doGetContent((HttpURLConnection) connection, 0);
     }
 
+    @NotNull
     private Bitmap doGetContent(HttpURLConnection connection, int redirects) throws IOException {
         final long start = System.currentTimeMillis();
         final URL url = connection.getURL();

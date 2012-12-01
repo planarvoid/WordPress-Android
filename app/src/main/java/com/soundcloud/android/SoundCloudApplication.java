@@ -534,6 +534,17 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return app == null ? -1 : app.getCurrentUserId();
     }
 
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        ImageLoader.get(this).onLowMemory();
+    }
+
+    @Override @TargetApi(14)
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        ImageLoader.get(this).onLowMemory();
+    }
 
     @TargetApi(9)
     private static void setupStrictMode() {

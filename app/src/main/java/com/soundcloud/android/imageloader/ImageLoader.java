@@ -66,6 +66,7 @@ public class ImageLoader {
 
     private Handler mHandler = new Handler(Looper.getMainLooper());
 
+
     public interface LoadBlocker {
         // time to wait before releasing locks
         int TIMEOUT = 3000;
@@ -88,7 +89,7 @@ public class ImageLoader {
      * a placeholder when a bind method returns {@link BindResult#LOADING} or
      * {@link BindResult#ERROR}.
      */
-    private final Map<ImageView, String> mImageViewBinding;
+    private final WeakHashMap<ImageView, String> mImageViewBinding;
 
     public ImageLoader() {
         this(null, null, DEFAULT_CACHE_SIZE, DEFAULT_TASK_LIMIT);
@@ -149,32 +150,9 @@ public class ImageLoader {
         if (toRemove != null) mRequests.remove(toRemove);
     }
 
-    private boolean isBlocked() {
-        boolean blocked = !mLoadBlockers.isEmpty();
-        if (blocked) {
-            for (Map.Entry<LoadBlocker, Long> entry : new HashMap<LoadBlocker, Long>(mLoadBlockers).entrySet()) {
-                if (System.currentTimeMillis() - entry.getValue() > LoadBlocker.TIMEOUT) unblock(entry.getKey());
-            }
-            blocked = !mLoadBlockers.isEmpty();
-        }
-        return blocked;
-    }
-
-    private void flushRequests() {
-        checkUIThread();
-
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "flushRequests(): size "+mRequests.size()+", active="+mActiveTaskCount);
-        if (!isBlocked()) {
-            while (mActiveTaskCount < mMaxTaskCount && !mRequests.isEmpty()) {
-                final ImageRequest request = mRequests.poll();
-                if (request != null) {
-                    Log.d(TAG, "executing task "+request);
-                    new ImageTask().executeOnThreadPool(request);
-                }
-            }
-        } else {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "flushRequests: isBLocked");
-        }
+    public void onLowMemory() {
+        mImageViewBinding.clear();
+        mBitmaps.evictAll();
     }
 
     public Bitmap getBitmap(String url, Options options) {
@@ -250,37 +228,6 @@ public class ImageLoader {
         }
     }
 
-    private BindResult queueRequest(String url, @Nullable ImageCallback callback, Options options) {
-        checkUIThread();
-
-        for (ImageRequest r : mAllRequests) {
-            if (r.getUrl().equals(url)) {
-                // already been queued, add our callback
-                r.add(callback);
-                return BindResult.LOADING;
-            }
-        }
-        ImageRequest request = new ImageRequest(url, callback,  options);
-        if (options.postAtFront) {
-            insertRequestAtFrontOfQueue(request);
-        } else {
-            enqueueRequest(request);
-        }
-        return BindResult.LOADING;
-    }
-
-
-    private void enqueueRequest(ImageRequest request) {
-        mRequests.add(request);
-        mAllRequests.add(request);
-        flushRequests();
-    }
-
-    private void insertRequestAtFrontOfQueue(ImageRequest request) {
-        mRequests.add(0, request);
-        mAllRequests.add(request);
-        flushRequests();
-    }
 
     public BindResult bind(ImageView view, String url, @Nullable Callback callback) {
         return bind(view, url, callback, new Options());
@@ -356,6 +303,66 @@ public class ImageLoader {
                 prefetch(url, new Options());
             }
         });
+    }
+
+
+    private BindResult queueRequest(String url, @Nullable ImageCallback callback, Options options) {
+        checkUIThread();
+
+        for (ImageRequest r : mAllRequests) {
+            if (r.getUrl().equals(url)) {
+                // already been queued, add our callback
+                r.add(callback);
+                return BindResult.LOADING;
+            }
+        }
+        ImageRequest request = new ImageRequest(url, callback,  options);
+        if (options.postAtFront) {
+            insertRequestAtFrontOfQueue(request);
+        } else {
+            enqueueRequest(request);
+        }
+        return BindResult.LOADING;
+    }
+
+    private boolean isBlocked() {
+        boolean blocked = !mLoadBlockers.isEmpty();
+        if (blocked) {
+            for (Map.Entry<LoadBlocker, Long> entry : new HashMap<LoadBlocker, Long>(mLoadBlockers).entrySet()) {
+                if (System.currentTimeMillis() - entry.getValue() > LoadBlocker.TIMEOUT) unblock(entry.getKey());
+            }
+            blocked = !mLoadBlockers.isEmpty();
+        }
+        return blocked;
+    }
+
+    private void flushRequests() {
+        checkUIThread();
+
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "flushRequests(): size "+mRequests.size()+", active="+mActiveTaskCount);
+        if (!isBlocked()) {
+            while (mActiveTaskCount < mMaxTaskCount && !mRequests.isEmpty()) {
+                final ImageRequest request = mRequests.poll();
+                if (request != null) {
+                    Log.d(TAG, "executing task "+request);
+                    new ImageTask().executeOnThreadPool(request);
+                }
+            }
+        } else {
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "flushRequests: isBLocked");
+        }
+    }
+
+    private void enqueueRequest(ImageRequest request) {
+        mRequests.add(request);
+        mAllRequests.add(request);
+        flushRequests();
+    }
+
+    private void insertRequestAtFrontOfQueue(ImageRequest request) {
+        mRequests.add(0, request);
+        mAllRequests.add(request);
+        flushRequests();
     }
 
     private void prefetch(String url, Options options) {
@@ -445,6 +452,8 @@ public class ImageLoader {
                         // The VM does not always free-up memory as it should,
                         // so manually invoke the garbage collector
                         // and try loading the image again.
+                        onLowMemory();
+
                         System.gc();
                         mBitmap = loadImage(url);
                     }
