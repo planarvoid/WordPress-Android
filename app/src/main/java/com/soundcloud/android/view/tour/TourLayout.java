@@ -1,7 +1,9 @@
 package com.soundcloud.android.view.tour;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static java.lang.Math.max;
 
+import com.integralblue.httpresponsecache.compat.java.util.Arrays;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -10,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Display;
 import android.view.View;
@@ -85,8 +88,24 @@ public class TourLayout extends FrameLayout {
         ImageUtils.recycleImageViewBitmap(mBgImageView);
     }
 
-    public static void loadAsync(final Context context, TourLayout... layouts) {
-        new AsyncTask<TourLayout, Pair<TourLayout, Bitmap>, Void>() {
+    public static void load(final Context context, TourLayout... layouts) {
+        if (layouts == null || layouts.length == 0) throw new IllegalArgumentException();
+
+        try {
+            // load first image synchronously
+            loadAsync(context, layouts[0]).get();
+
+            // rest async
+            if (layouts.length > 1) {
+                loadAsync(context, Arrays.copyOfRange(layouts, 1, layouts.length));
+            }
+        } catch (Exception ignored) {
+            Log.w(TAG, ignored);
+        }
+    }
+
+    private static AsyncTask loadAsync(final Context context, TourLayout... layouts) {
+        return new AsyncTask<TourLayout, Pair<TourLayout, Bitmap>, Void>() {
             @Override
             protected Void doInBackground(TourLayout... layouts) {
                 for (TourLayout layout : layouts) {

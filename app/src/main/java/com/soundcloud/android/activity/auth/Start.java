@@ -184,7 +184,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             UpdateManager.register(this, getString(R.string.hockey_app_id));
         }
 
-        TourLayout.loadAsync(this, mTourPages);
+        TourLayout.load(this, mTourPages);
     }
 
     @Override
