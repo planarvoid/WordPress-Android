@@ -1,7 +1,6 @@
 package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
@@ -10,12 +9,9 @@ import android.widget.EditText;
 
 import java.util.UUID;
 
-@Suppress
-public class SignUpTest extends ActivityTestCase<News> {
-
-
+public class SignUpTest extends ActivityTestCase<Start> {
     public SignUpTest() {
-        super(News.class);
+        super(Start.class);
     }
 
     @Override
@@ -36,6 +32,7 @@ public class SignUpTest extends ActivityTestCase<News> {
         }
     }
 
+    @Suppress
     public void testSignup() throws Exception {
         performSignup(generateEmail(), "password", "password");
         solo.assertText(R.string.authentication_add_info_msg);
@@ -46,19 +43,10 @@ public class SignUpTest extends ActivityTestCase<News> {
 
         solo.assertDialogClosed();
 
-        // Tour
-        solo.assertText(R.string.tour_start_welcome);
-
-        solo.clickOnButtonResId(R.string.btn_done);
-
-        // Find Friends
-        solo.assertText(R.string.suggested_users_msg);
-
-        solo.clickOnButtonResId(R.string.btn_done);
-
         solo.assertText(R.string.side_menu_stream);
     }
 
+    @Suppress
     public void testSignupSkip() throws Exception {
         performSignup(generateEmail(), "password", "password");
         solo.assertText(R.string.authentication_add_info_msg);
@@ -66,11 +54,6 @@ public class SignUpTest extends ActivityTestCase<News> {
         solo.clickOnButtonResId(R.string.btn_skip);
         solo.assertDialogClosed();
 
-        // Tour
-        solo.assertText(R.string.tour_start_welcome);
-
-        solo.clickOnButtonResId(R.string.btn_done);
-
         // Find Friends
         solo.assertText(R.string.suggested_users_msg);
 
@@ -79,6 +62,7 @@ public class SignUpTest extends ActivityTestCase<News> {
         solo.assertText(R.string.side_menu_stream);
     }
 
+    @Suppress
     public void testSignupWithPhotoFromCamera() throws Exception {
         performSignup(generateEmail(), "password", "password");
         solo.assertText(R.string.authentication_add_info_msg);
@@ -103,6 +87,7 @@ public class SignUpTest extends ActivityTestCase<News> {
         }
     }
 
+    @Suppress
     public void testSignupWithExistingPhoto() throws Exception {
         performSignup(generateEmail(), "password", "password");
 
@@ -130,15 +115,13 @@ public class SignUpTest extends ActivityTestCase<News> {
 
     public void testSignupWithNonMatchingPasswords() throws Exception {
         performSignup(generateEmail(), "password", "different-password");
-        solo.clickOnButtonResId(R.string.btn_signup);
         solo.assertText(R.string.authentication_error_password_mismatch);
     }
 
     public void testSignupWithoutInput() throws Exception {
         solo.clickOnButtonResId(R.string.btn_signup);
         solo.assertText(R.string.authentication_sign_up);
-
-        solo.clickOnButtonResId(R.string.btn_signup);
+        solo.clickOnButtonResId(R.string.btn_done);
         solo.assertText(R.string.authentication_error_incomplete_fields);
     }
 
@@ -147,6 +130,7 @@ public class SignUpTest extends ActivityTestCase<News> {
         solo.assertText(R.string.authentication_error_invalid_email);
     }
 
+    @Suppress
     public void testSignupEmailAlreadyTaken() throws Exception {
         String email = generateEmail();
         performSignup(email, "password", "password");
@@ -154,11 +138,6 @@ public class SignUpTest extends ActivityTestCase<News> {
 
         solo.clickOnButtonResId(R.string.btn_skip);
         solo.assertDialogClosed();
-
-        // Tour
-        solo.assertText(R.string.tour_start_welcome);
-
-        solo.clickOnButtonResId(R.string.btn_done);
 
         // Find Friends
         solo.assertText(R.string.suggested_users_msg);
@@ -180,6 +159,7 @@ public class SignUpTest extends ActivityTestCase<News> {
         solo.assertText(R.string.authentication_error_password_too_short);
     }
 
+    @Suppress
     public void testShouldShowEmailConfirmationDialogAfterSignupNoThanks() throws Exception {
         // perform a full signup
         testSignup();
@@ -206,6 +186,7 @@ public class SignUpTest extends ActivityTestCase<News> {
     }
 
 
+    @Suppress
     public void testShouldShowEmailConfirmationDialogAfterSignupResendEmail() throws Exception {
         // perform a full signup
         testSignup();
@@ -249,12 +230,12 @@ public class SignUpTest extends ActivityTestCase<News> {
         solo.clickOnButtonResId(R.string.btn_signup);
         solo.assertText(R.string.authentication_sign_up);
         EditText emailField = (EditText) solo.getView(R.id.txt_email_address);
+        solo.typeText(emailField, email);
+        solo.assertText(email);
 
-        solo.clearEditText(emailField);
-        solo.enterText(emailField, email);
         solo.enterText((EditText) solo.getView(R.id.txt_choose_a_password), password);
         solo.enterText((EditText) solo.getView(R.id.txt_repeat_your_password), passwordConfirm);
 
-        solo.clickOnButtonResId(R.string.btn_signup);
+        solo.clickOnButtonResId(R.string.btn_done);
     }
 }
