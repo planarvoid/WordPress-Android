@@ -15,25 +15,22 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import static java.lang.Math.abs;
 import static java.lang.Math.max;
 
 public class TourLayout extends FrameLayout {
 
-    private int mBgResId;
     private ImageView mBgImageView;
 
     public TourLayout(Context context, int layoutResId, int bgResId) {
         super(context);
         View.inflate(context, layoutResId, this);
 
-        mBgResId     = bgResId;
         mBgImageView = (ImageView) findViewById(R.id.tour_background_image);
 
         Point size = getDisplaySize();
         final Bitmap bitmap = ImageUtils.decodeSampledBitmapFromResource(
             getResources(),
-            mBgResId,
+                bgResId,
             size.x,
             size.y
         );
@@ -72,21 +69,13 @@ public class TourLayout extends FrameLayout {
 
     private Point getDisplaySize() {
         WindowManager manager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-
         Display display = manager.getDefaultDisplay();
-        Point   size    = new Point();
-        display.getSize(size);
-
-        return size;
+        return new Point(display.getHeight(), display.getWidth());
     }
 
     public CharSequence getMessage() {
         TextView text = (TextView) findViewById(R.id.txt_message);
         return text.getText();
-    }
-
-    public int getBgResId() {
-        return mBgResId;
     }
 
     public void recycle() {
