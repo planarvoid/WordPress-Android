@@ -498,8 +498,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         super.onStart();
         mActivityPaused = false;
 
-        AndroidUtils.bindToService(this, CloudPlaybackService.class, osc);
-
+        bindService(new Intent(this, CloudPlaybackService.class), osc, 0);
         IntentFilter f = new IntentFilter();
         f.addAction(CloudPlaybackService.PLAYQUEUE_CHANGED);
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
@@ -533,8 +532,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     @Override
     protected void onStop() {
         super.onStop();
-
-        AndroidUtils.unbindFromService(this, CloudPlaybackService.class);
+        unbindService(osc);
         for (PlayerTrackView ptv : mTrackPager.playerTrackViews()){
             ptv.onStop(true);
         }
