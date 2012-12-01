@@ -70,7 +70,7 @@ public class TourLayout extends FrameLayout {
     private Point getDisplaySize() {
         WindowManager manager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         Display display = manager.getDefaultDisplay();
-        return new Point(display.getHeight(), display.getWidth());
+        return new Point(display.getWidth(), display.getHeight());
     }
 
     public CharSequence getMessage() {
