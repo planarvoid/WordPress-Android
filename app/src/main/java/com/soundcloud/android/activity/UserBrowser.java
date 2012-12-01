@@ -692,10 +692,6 @@ public class UserBrowser extends ScActivity implements
         boolean infoError;
     }
 
-    private boolean isFollowing(){
-        return mUser != null && FollowStatus.get(this).isFollowing(mUser);
-    }
-
     private final BroadcastReceiver mRecordListener = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
