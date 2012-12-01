@@ -96,6 +96,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         mTourBottomBar = findViewById(R.id.tour_bottom_bar);
 
         mViewPager = (ViewPager) findViewById(R.id.tour_view);
+
         mTourPages = new TourLayout[]{
             new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1),
             new TourLayout(this, R.layout.tour_page_2, R.drawable.tour_image_2),
@@ -182,6 +183,8 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         if (SoundCloudApplication.BETA_MODE) {
             UpdateManager.register(this, getString(R.string.hockey_app_id));
         }
+
+        TourLayout.loadAsync(this, mTourPages);
     }
 
     @Override

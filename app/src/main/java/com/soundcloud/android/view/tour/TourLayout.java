@@ -1,70 +1,73 @@
 package com.soundcloud.android.view.tour;
 
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
-import android.graphics.Point;
-import android.view.Display;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
+import static java.lang.Math.max;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.graphics.Point;
+import android.os.AsyncTask;
+import android.util.Pair;
+import android.view.Display;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import static java.lang.Math.max;
-
 public class TourLayout extends FrameLayout {
+    private final int[] bitmapSize = new int[] { -1, -1 };
 
     private ImageView mBgImageView;
+    private final int mBgResId;
 
-    public TourLayout(Context context, int layoutResId, int bgResId) {
+    public TourLayout(Context context, int layoutResId, final int bgResId) {
         super(context);
         View.inflate(context, layoutResId, this);
 
+        mBgResId = bgResId;
         mBgImageView = (ImageView) findViewById(R.id.tour_background_image);
-
-        Point size = getDisplaySize();
-        final Bitmap bitmap = ImageUtils.decodeSampledBitmapFromResource(
-            getResources(),
-            bgResId,
-            size.x,
-            size.y
-        );
-
-        mBgImageView.setImageBitmap(bitmap);
-
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             private int lastHeight = -1, lastWidth = -1;
 
             @Override
             public void onGlobalLayout() {
-                if (lastWidth == getWidth() && lastHeight == getHeight()) {
+                if ((bitmapSize[0] < 0 || bitmapSize[1] < 0) ||
+                    (lastWidth == getWidth() && lastHeight == getHeight())) {
                     return;
                 }
+                final int width  = bitmapSize[0];
+                final int height = bitmapSize[1];
 
                 lastHeight = getHeight();
                 lastWidth  = getWidth();
 
                 Point size = getDisplaySize();
 
-                float heightRatio = (float)size.y / (float)bitmap.getHeight();
-                float widthRatio  = (float)size.x / (float)bitmap.getWidth();
+                float heightRatio = (float)size.y / (float)height;
+                float widthRatio  = (float)size.x / (float)width;
                 float ratio = max(heightRatio, widthRatio);
 
                 Matrix matrix = new Matrix();
                 matrix.setScale(ratio, ratio);
                 matrix.postTranslate(
-                    (size.x - ratio * bitmap.getWidth()  ) / 2,
-                    (size.y - ratio * bitmap.getHeight() ) / 2
+                    (size.x - ratio * width  ) / 2,
+                    (size.y - ratio * height ) / 2
                 );
 
                 mBgImageView.setImageMatrix(matrix);
             }
         });
+    }
+
+    private void onBitmapLoaded(Bitmap bitmap) {
+        bitmapSize[0] = bitmap.getWidth();
+        bitmapSize[1] = bitmap.getHeight();
+        mBgImageView.setImageBitmap(bitmap);
     }
 
     private Point getDisplaySize() {
@@ -80,5 +83,28 @@ public class TourLayout extends FrameLayout {
 
     public void recycle() {
         ImageUtils.recycleImageViewBitmap(mBgImageView);
+    }
+
+    public static void loadAsync(final Context context, TourLayout... layouts) {
+        new AsyncTask<TourLayout, Pair<TourLayout, Bitmap>, Void>() {
+            @Override
+            protected Void doInBackground(TourLayout... layouts) {
+                for (TourLayout layout : layouts) {
+                    Point size = layout.getDisplaySize();
+                    Bitmap bitmap = ImageUtils.decodeSampledBitmapFromResource(
+                            context.getResources(),
+                            layout.mBgResId,
+                            size.x,
+                            size.y
+                    );
+                    publishProgress(Pair.create(layout, bitmap));
+                }
+                return null;
+            }
+            @Override
+            protected void onProgressUpdate(Pair<TourLayout, Bitmap>... result) {
+                result[0].first.onBitmapLoaded(result[0].second);
+            }
+        }.execute(layouts);
     }
 }
