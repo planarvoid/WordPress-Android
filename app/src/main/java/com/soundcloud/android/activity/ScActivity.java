@@ -52,7 +52,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -202,7 +201,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         } else {
             startActivity(getNavIntent(activity));
         }
-
     }
 
     private Intent getNavIntent(Class activity) {
@@ -282,7 +280,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     public void pausePlayback() {
-        startService(new Intent(this, CloudPlaybackService.class).setAction(CloudPlaybackService.PAUSE_ACTION));
+        startService(new Intent(CloudPlaybackService.PAUSE_ACTION));
     }
 
     public SoundCloudApplication getApp() {
@@ -413,7 +411,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             if (mRootView.isExpanded()) {
                 startNavActivity(ScPlayer.class);
             } else {
-                startActivity(new Intent(this, ScPlayer.class));
+                startActivity(new Intent(Actions.PLAYER));
             }
         }
     }

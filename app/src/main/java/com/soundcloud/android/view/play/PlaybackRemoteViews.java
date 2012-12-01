@@ -7,7 +7,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 
 import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -39,9 +38,7 @@ public class PlaybackRemoteViews extends RemoteViews{
 
     public void linkButtonsNotification(Context context) {
         linkButtons(context);
-
-        final ComponentName name = new ComponentName(context, CloudPlaybackService.class);
-        final Intent close = new Intent(CloudPlaybackService.STOP_ACTION).setComponent(name);
+        final Intent close = new Intent(CloudPlaybackService.STOP_ACTION);
         setOnClickPendingIntent(R.id.close, PendingIntent.getService(context,
                 0 /* requestCode */, close, 0 /* flags */));
     }
@@ -49,7 +46,6 @@ public class PlaybackRemoteViews extends RemoteViews{
     public void linkButtonsWidget(Context context, long trackId, long userId, boolean userLike) {
         linkButtons(context);
 
-        final ComponentName name = new ComponentName(context, CloudPlaybackService.class);
         final Intent player = new Intent(Actions.PLAYER).addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         // go to player
         setOnClickPendingIntent(R.id.title_txt, PendingIntent.getActivity(context, 0, player, 0));
@@ -63,7 +59,6 @@ public class PlaybackRemoteViews extends RemoteViews{
                     userLike ?
                             CloudPlaybackService.REMOVE_LIKE_ACTION :
                             CloudPlaybackService.ADD_LIKE_ACTION)
-                    .setComponent(name)
                     .putExtra(CloudPlaybackService.EXTRA_TRACK_ID, trackId);
 
             // toggle like
@@ -74,17 +69,15 @@ public class PlaybackRemoteViews extends RemoteViews{
 
     private void linkButtons(Context context) {
         // Connect up various buttons and touch events
-        final ComponentName name = new ComponentName(context, CloudPlaybackService.class);
-
-        final Intent previous = new Intent(CloudPlaybackService.PREVIOUS_ACTION).setComponent(name);
+        final Intent previous = new Intent(CloudPlaybackService.PREVIOUS_ACTION);
         setOnClickPendingIntent(R.id.prev, PendingIntent.getService(context,
                 0 /* requestCode */, previous, 0 /* flags */));
 
-        final Intent pause = new Intent(CloudPlaybackService.TOGGLEPAUSE_ACTION).setComponent(name);
+        final Intent pause = new Intent(CloudPlaybackService.TOGGLEPAUSE_ACTION);
         setOnClickPendingIntent(R.id.pause, PendingIntent.getService(context,
                 0 /* requestCode */, pause, 0 /* flags */));
 
-        final Intent next = new Intent(CloudPlaybackService.NEXT_ACTION).setComponent(name);
+        final Intent next = new Intent(CloudPlaybackService.NEXT_ACTION);
         setOnClickPendingIntent(R.id.next, PendingIntent.getService(context,
                 0 /* requestCode */, next, 0 /* flags */));
     }

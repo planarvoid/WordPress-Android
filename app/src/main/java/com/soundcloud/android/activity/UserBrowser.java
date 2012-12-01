@@ -45,7 +45,6 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -60,6 +59,7 @@ public class UserBrowser extends ScActivity implements
 
     public static final String EXTRA_USER_ID = "userId";
     public static final String EXTRA_USER = "user";
+
     /* package */ @Nullable User mUser;
 
     private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
@@ -74,10 +74,8 @@ public class UserBrowser extends ScActivity implements
 
     private FrameLayout mInfoView;
     private FetchUserTask mLoadUserTask;
-    private boolean mUpdateInfo;
 
     private List<Connection> mConnections;
-    private Object[] mAdapterStates;
 
     private UserFragmentAdapter mAdapter;
     protected ViewPager mPager;
@@ -188,9 +186,6 @@ public class UserBrowser extends ScActivity implements
 
 
         Intent intent = getIntent();
-        // XXX in case user is already loaded - should be handled here, not in caller
-        mUpdateInfo = intent.getBooleanExtra("updateInfo",true);
-
         Configuration c = (Configuration) getLastCustomNonConfigurationInstance();
         if (c != null) {
             fromConfiguration(c);
@@ -434,8 +429,6 @@ public class UserBrowser extends ScActivity implements
     }
 
     private void loadDetails() {
-        if (!mUpdateInfo) return;
-
         if (mLoadUserTask == null && mUser != null) {
             mLoadUserTask = new FetchUserTask(getApp(), mUser.id);
             mLoadUserTask.addListener(this);

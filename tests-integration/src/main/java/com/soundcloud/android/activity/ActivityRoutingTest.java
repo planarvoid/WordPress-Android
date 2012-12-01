@@ -50,6 +50,14 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
         assertActivityStarted(ScPlayer.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/tracks/1235"));
     }
 
+    public void testPlayWithPlaylist() throws Exception {
+        assertActivityStarted(ScPlayer.class, Actions.PLAY,  Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/me/tracks"));
+    }
+
+    public void testPlayEmpty() throws Exception {
+        assertActivityStarted(ScPlayer.class, Actions.PLAY);
+    }
+
     public void testShare() throws Exception {
         assertActivityStarted(ScUpload.class, Actions.SHARE);
     }

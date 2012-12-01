@@ -180,6 +180,22 @@
                 <action android:name="com.soundcloud.android.action.PLAYER"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+
+            <!-- play with playlist uri -->
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.PLAY"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="content"
+                      android:host="com.soundcloud.android.provider.ScContentProvider"
+                        />
+            </intent-filter>
+
+            <!-- play with track extra -->
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.PLAY"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".activity.landing.Home"/>
 
             <intent-filter>
@@ -195,6 +211,7 @@
                 <action android:name="com.soundcloud.android.action.USER_BROWSER"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -278,20 +295,29 @@
         <provider android:name=".provider.ScContentProvider"
                   android:authorities="com.soundcloud.android.provider.ScContentProvider"/>
 
-
         <!-- services -->
         <service android:name=".service.sync.ApiSyncService"/>
         <service android:name=".service.record.SoundRecorderService"/>
         <service android:name=".service.playback.CloudPlaybackService"
                  android:exported="false">
+
             <intent-filter>
                 <action android:name="com.soundcloud.android.playback.start"/>
+                <data android:scheme="content"
+                      android:host="com.soundcloud.android.provider.ScContentProvider"/>
+            </intent-filter>
+
+            <intent-filter>
                 <action android:name="com.soundcloud.android.playback.togglepause"/>
                 <action android:name="com.soundcloud.android.playback.pause"/>
                 <action android:name="com.soundcloud.android.playback.next"/>
                 <action android:name="com.soundcloud.android.playback.previous"/>
                 <action android:name="com.soundcloud.android.playback.close"/>
                 <action android:name="com.soundcloud.android.playback.reset"/>
+                <action android:name="com.soundcloud.android.playback.stop"/>
+
+                <action android:name="com.soundcloud.android.favorite.add"/>
+                <action android:name="com.soundcloud.android.favorite.remove"/>
             </intent-filter>
         </service>
 

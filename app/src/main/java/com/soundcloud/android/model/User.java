@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -287,6 +289,10 @@ public class User extends ScResource implements Refreshable {
 
     public boolean isPrimaryEmailConfirmed() {
         return primary_email_confirmed == null || primary_email_confirmed;
+    }
+
+    public Intent getViewIntent() {
+        return new Intent(Actions.USER_BROWSER).putExtra(UserBrowser.EXTRA_USER, this);
     }
 
     public static interface DataKeys {

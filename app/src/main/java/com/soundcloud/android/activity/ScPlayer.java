@@ -64,8 +64,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     @Override
-    public void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
         setContentView(R.layout.sc_player);
         setTitle("");
 
@@ -85,7 +85,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        if (icicle == null){
+        if (bundle == null) {
             handleIntent(getIntent());
         }
     }
@@ -98,16 +98,11 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     private void handleIntent(Intent intent){
         final String action = intent.getAction();
-        if (!TextUtils.isEmpty(action)){
+        if (!TextUtils.isEmpty(action)) {
             Track displayTrack = null;
             if (Actions.PLAY.equals(action)) {
                 // play from a normal play intent (created by PlayUtils)
-                startService(
-                        new Intent(this, CloudPlaybackService.class)
-                                .setAction(CloudPlaybackService.PLAY_ACTION)
-                                .setData(intent.getData())
-                                .putExtras(intent)
-                );
+                startService(new Intent(CloudPlaybackService.PLAY_ACTION, intent.getData()).putExtras(intent));
                 displayTrack = PlayUtils.getTrackFromIntent(intent);
 
             } else if (Intent.ACTION_VIEW.equals(action)) {
@@ -119,6 +114,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                     }
                 }
             }
+
+
             if (displayTrack != null) {
                 mTrackPager.configureFromTrack(this, displayTrack,
                         intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition, 0));

@@ -119,7 +119,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
-                PlayUtils.playFromAdapter(mContext, this, mData, position, id);
+                PlayUtils.playFromAdapter(mContext, this, mData, position);
                 return ItemClickResults.LEAVING;
 
             case TRACK_REPOST:
@@ -128,7 +128,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
                     mContext.startActivity(new Intent(mContext, TrackReposters.class)
                         .putExtra(Track.EXTRA, getItem(position).getTrack()));
                 } else {
-                    PlayUtils.playFromAdapter(mContext, this, mData, position, id);
+                    PlayUtils.playFromAdapter(mContext, this, mData, position);
                 }
                 return ItemClickResults.LEAVING;
 
