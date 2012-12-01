@@ -24,7 +24,7 @@ public final class FileCache  {
     public static final String TAG = FileCache.class.getSimpleName();
     public static final long   MAX_IMAGE_CACHE  = 20 * 1024  * 1024; // 20  MB
 
-    public static ResponseCache installFileCache(File cacheDir) throws IOException {
+    public static ResponseCache installFileCache(final File cacheDir)  {
         ResponseCache responseCache = ResponseCache.getDefault();
         if (responseCache instanceof HttpResponseCache) {
             Log.d(TAG, "Cache has already been installed.");
@@ -35,7 +35,19 @@ public final class FileCache  {
 
             if (size > 0) {
                 Log.d(TAG, "using "+IOUtils.inMbFormatted(size)+ " MB for image cache");
-                return HttpResponseCache.install(cacheDir, size);
+
+                new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            HttpResponseCache.install(cacheDir, size);
+                        } catch (IOException e) {
+                            Log.w(TAG, "error installing cache", e);
+                        }
+                    }
+                }.start();
+
+                return null;
             } else {
                 Log.d(TAG, "not using disk cache - not enough space left");
                 return null;
