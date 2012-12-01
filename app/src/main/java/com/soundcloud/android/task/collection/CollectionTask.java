@@ -6,6 +6,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.ScModel;
 
+import android.annotation.TargetApi;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
@@ -50,6 +51,7 @@ public class CollectionTask extends AsyncTask<CollectionParams, ReturnData, Retu
         } else return new ReturnData(params);
     }
 
+    @TargetApi(11)
     public final AsyncTask<CollectionParams, ReturnData, ReturnData> executeOnThreadPool(
             CollectionParams... params) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {

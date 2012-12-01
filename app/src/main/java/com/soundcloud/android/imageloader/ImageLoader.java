@@ -3,6 +3,7 @@ package com.soundcloud.android.imageloader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -670,6 +671,7 @@ public class ImageLoader {
     }
 
     private class ImageTask extends AsyncTask<ImageRequest, ImageRequest, ImageRequest> {
+        @TargetApi(11)
         public final AsyncTask<ImageRequest, ImageRequest, ImageRequest> executeOnThreadPool(ImageRequest... params) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
                 return execute(params);
