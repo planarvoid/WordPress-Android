@@ -86,18 +86,4 @@
         <connection>scm:git:https://github.com/soundcloud/SoundCloud-Android.git</connection>
         <url>https://github.com/soundcloud/SoundCloud-Android</url>
     </scm>
-
-    <!--
-    <pluginRepositories>
-      <pluginRepository>
-          <id>soundcloud.internal.snapshots</id>
-          <name>SoundCloud Internal hosted</name>
-          <url>http://maven.int.s-cloud.net/content/groups/hosted_snapshots/</url>
-          <snapshots>
-            <enabled>true</enabled>
-            <updatePolicy>daily</updatePolicy>
-          </snapshots>
-      </pluginRepository>
-    </pluginRepositories>
-    -->
 </project>
