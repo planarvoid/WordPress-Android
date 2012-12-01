@@ -105,7 +105,7 @@ public class Login extends RelativeLayout {
             }
         });
 
-        ScTextUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
+        ScTextUtils.clickify(((TextView) findViewById(R.id.txt_i_forgot_my_password)),
                 getResources().getString(R.string.authentication_I_forgot_my_password),
                 new ScTextUtils.ClickSpan.OnClickListener() {
                     @Override

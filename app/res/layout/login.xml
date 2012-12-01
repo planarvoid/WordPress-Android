@@ -60,7 +60,7 @@
             </LinearLayout>
 
             <TextView style="@style/SignUp.Info"
-                      android:id="@+id/txt_msg"
+                      android:id="@+id/txt_i_forgot_my_password"
                       android:text="@string/authentication_I_forgot_my_password"/>
         </LinearLayout>
     </ScrollView>

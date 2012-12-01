@@ -38,6 +38,10 @@ public class Han extends Solo {
         clickOnText(getString(android.R.string.ok));
     }
 
+    public void clickOnDone() {
+        clickOnButtonResId(R.string.btn_done);
+    }
+
     public void clickOnNext() {
         clickOnButtonResId(R.string.btn_next);
     }
@@ -180,8 +184,7 @@ public class Han extends Solo {
     }
 
     public void logoutViaSettings() {
-
-        clickOnView(R.id.abs__home);
+        clickOnView(R.id.custom_home);
         clickOnMenuItem(R.string.side_menu_settings);
         clickOnText(R.string.pref_revoke_access);
         assertText(R.string.menu_clear_user_title);
