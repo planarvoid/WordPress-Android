@@ -34,8 +34,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 /**
- * A {@link ContentHandler} that decodes a {@link Bitmap} from a
- * {@link URLConnection}.
+ * A {@link ContentHandler} that decodes a {@link Bitmap} from a {@link URLConnection}.
  * <p>
  * The implementation includes a work-around for <a
  * href="http://code.google.com/p/android/issues/detail?id=6066">Issue 6066</a>.
@@ -48,6 +47,15 @@ public class DownloadBitmapContentHandler extends ContentHandler {
     private static final int LOADTIME_WARN  = 10 * 1000; // flag requests taking longer than 10 sec
 
     private static final int MAX_REDIRECTS = 1;
+    private final boolean mUseCache;
+
+    public DownloadBitmapContentHandler() {
+        this(true);
+    }
+
+    public DownloadBitmapContentHandler(boolean usecache) {
+        mUseCache = usecache;
+    }
 
     @Override public Bitmap getContent(URLConnection connection) throws IOException {
         return doGetContent((HttpURLConnection) connection, 0);
@@ -59,9 +67,9 @@ public class DownloadBitmapContentHandler extends ContentHandler {
 
         connection.setRequestProperty("Accept-Encoding", "identity");
         connection.setRequestProperty("Connection", "Close");
-        connection.setReadTimeout(DownloadBitmapContentHandler.READ_TIMEOUT);
-        connection.setConnectTimeout(DownloadBitmapContentHandler.CONNECT_TIMEOUT);
-        connection.setUseCaches(true);
+        connection.setReadTimeout(READ_TIMEOUT);
+        connection.setConnectTimeout(CONNECT_TIMEOUT);
+        connection.setUseCaches(mUseCache);
         connection.setInstanceFollowRedirects(false);
 
         try {

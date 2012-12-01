@@ -11,6 +11,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
@@ -45,15 +47,8 @@ import java.util.WeakHashMap;
  */
 public class ImageLoader {
     public static final String TAG = "ImageLoader";
-    public static final String IMAGE_LOADER_SERVICE = "com.google.android.imageloader";
+    public static final String IMAGE_LOADER_SERVICE = "com.soundcloud.android.imageloader";
     public static final int DEFAULT_TASK_LIMIT = 3;
-
-    public interface LoadBlocker {
-        // time to wait before releasing locks
-        int TIMEOUT = 3000;
-    }
-
-    private WeakHashMap<LoadBlocker, Long> mLoadBlockers = new WeakHashMap<LoadBlocker, Long>();
 
     /**
      * The default cache size (in bytes). 1/5 of available memory, up to a maximum of 16MB
@@ -64,13 +59,22 @@ public class ImageLoader {
     private final LinkedList<ImageRequest> mRequests;
     private final Set<ImageRequest> mAllRequests = new HashSet<ImageRequest>();
 
-    private final ContentHandler mBitmapContentHandler;
-    private final ContentHandler mPrefetchContentHandler;
+    private final @NotNull  ContentHandler mBitmapContentHandler;
+    private final @Nullable ContentHandler mPrefetchContentHandler;
     private final BitmapCache<String> mBitmaps;
     private final LruCache<String,ImageError> mErrors;
 
+    /** maximum parallel tasks, should probably be higher on wifi */
     private final int mMaxTaskCount;
     private int mActiveTaskCount;
+
+    private Handler mHandler = new Handler(Looper.getMainLooper());
+
+    public interface LoadBlocker {
+        // time to wait before releasing locks
+        int TIMEOUT = 3000;
+    }
+    private WeakHashMap<LoadBlocker, Long> mLoadBlockers = new WeakHashMap<LoadBlocker, Long>();
 
     /**
      * Tracks the last URL that was bound to an {@link ImageView}.
@@ -106,8 +110,8 @@ public class ImageLoader {
         mImageViewBinding = new WeakHashMap<ImageView, String>();
 
         mRequests = new LinkedList<ImageRequest>();
-        mBitmaps = new BitmapCache<String>((int)cacheSize);
-        mErrors =  new LruCache<String, ImageError>(256);
+        mBitmaps  = new BitmapCache<String>((int)cacheSize);
+        mErrors   = new LruCache<String, ImageError>(256);
     }
 
     public static ImageLoader get(Context context) {
@@ -149,7 +153,6 @@ public class ImageLoader {
         if (toRemove != null) mRequests.remove(toRemove);
     }
 
-
     private boolean isBlocked() {
         boolean blocked = !mLoadBlockers.isEmpty();
         if (blocked) {
@@ -162,15 +165,28 @@ public class ImageLoader {
     }
 
     private void flushRequests() {
+        checkUIThread();
+
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "flushRequests(): size "+mRequests.size()+", active="+mActiveTaskCount);
         if (!isBlocked()) {
             while (mActiveTaskCount < mMaxTaskCount && !mRequests.isEmpty()) {
-                new ImageTask().executeOnThreadPool(mRequests.poll());
+                final ImageRequest request = mRequests.poll();
+                if (request != null) {
+                    Log.d(TAG, "executing task "+request);
+                    new ImageTask().executeOnThreadPool(request);
+                }
             }
+        } else {
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "flushRequests: isBLocked");
         }
     }
 
-    public Bitmap getBitmap(String uri, BitmapCallback callback) {
-        return getBitmap(uri, callback, new Options());
+    public Bitmap getBitmap(String url, Options options) {
+        return getBitmap(url, null, options);
+    }
+
+    public Bitmap getBitmap(String url, @Nullable BitmapCallback callback) {
+        return getBitmap(url, callback, new Options());
     }
 
     public Bitmap getBitmap(String url, @Nullable BitmapCallback callback, Options options) {
@@ -239,6 +255,8 @@ public class ImageLoader {
     }
 
     private BindResult queueRequest(String url, @Nullable ImageCallback callback, Options options) {
+        checkUIThread();
+
         for (ImageRequest r : mAllRequests) {
             if (r.getUrl().equals(url)) {
                 // already been queued, add our callback
@@ -254,6 +272,7 @@ public class ImageLoader {
         }
         return BindResult.LOADING;
     }
+
 
     private void enqueueRequest(ImageRequest request) {
         mRequests.add(request);
@@ -334,8 +353,13 @@ public class ImageLoader {
      * @param url the URL to pre-fetch.
      * @throws NullPointerException if the URL is {@code null}
      */
-    public void prefetch(String url) {
-        prefetch(url, new Options());
+    public void prefetch(final String url) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                prefetch(url, new Options());
+            }
+        });
     }
 
     private void prefetch(String url, Options options) {
@@ -474,7 +498,6 @@ public class ImageLoader {
             } else if (mError != null && !hasError(mUrl)) {
                 putError(mUrl, mError);
             }
-
             handleCallbacks();
         }
 
@@ -535,6 +558,13 @@ public class ImageLoader {
         public int hashCode() {
             return mUrl.hashCode();
         }
+        @Override
+        public String toString() {
+            return "ImageRequest{" +
+                    "url='" + mUrl + '\'' +
+                    ", options=" + mOptions +
+                    '}';
+        }
     }
 
     private interface ImageCallback {
@@ -568,10 +598,10 @@ public class ImageLoader {
             }
         }
 
-        public void onImageLoaded(Bitmap mBitmap, String uri) {
+        public void onImageLoaded(Bitmap bitmap, String url) {
         }
 
-        public void onImageError(String uri, Throwable error) {
+        public void onImageError(String url, Throwable error) {
         }
     }
 
@@ -678,7 +708,9 @@ public class ImageLoader {
         protected ImageRequest doInBackground(ImageRequest... requests) {
             if (requests != null && requests.length > 0) {
                 for (ImageRequest request : requests) {
-                    //Log.d(TAG, "startExecute("+IOUtils.md5(request.getUrl()) +")");
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "startExecute("+request+")");
+                    }
                     if (request.execute()) {
                         publishProgress(request);
                     }
@@ -696,11 +728,10 @@ public class ImageLoader {
 
         @Override
         protected void onPostExecute(ImageRequest result) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onPostExecute("+result+"");
             mActiveTaskCount--;
-            //Log.d(TAG, "stop("+IOUtils.md5(result.getUrl()) +")");
             mAllRequests.remove(result);
             flushRequests();
-
         }
     }
 
@@ -775,7 +806,7 @@ public class ImageLoader {
         void onImageError(ImageView view, String url, Throwable error);
     }
 
-    public static enum BindResult {
+    public enum BindResult {
         /**
          * Returned when an image is bound to an {@link ImageView} immediately
          * because it was already loaded.
@@ -806,6 +837,12 @@ public class ImageLoader {
         @Override
         protected int sizeOf(K key, Bitmap b) {
             return b.getWidth() * b.getHeight() * BYTES_PER_PIXEL;
+        }
+    }
+
+    private static void checkUIThread() {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            throw new RuntimeException("ImageLoader operations need to be executed on the UI thread");
         }
     }
 }

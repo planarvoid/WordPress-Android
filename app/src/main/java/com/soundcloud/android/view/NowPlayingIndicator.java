@@ -139,8 +139,8 @@ public class NowPlayingIndicator extends ProgressBar {
                 ImageLoader.get(getContext()).getBitmap(
                         mTrack.waveform_url,
                         new ImageLoader.BitmapCallback() {
-                            public void onImageLoaded(Bitmap mBitmap, String uri) {
-                                setWaveform(mBitmap);
+                            public void onImageLoaded(Bitmap bitmap, String uri) {
+                                setWaveform(bitmap);
                             }
                         }
                 );

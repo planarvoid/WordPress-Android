@@ -162,8 +162,8 @@ public class PlayerAvatarBar extends View {
 
         ImageUtils.getBitmapSubstitute(mContext, c.user.avatar_url, getAvatarBarGraphicSize(mContext), new BitmapCallback() {
             @Override
-            public void onImageLoaded(Bitmap mBitmap, String uri) {
-                c.avatar = mBitmap;
+            public void onImageLoaded(Bitmap bitmap, String uri) {
+                c.avatar = bitmap;
                 if (c.topLevelComment) {
                     if (!mUIHandler.hasMessages(REFRESH_AVATARS)) {
                         Message msg = mUIHandler.obtainMessage(REFRESH_AVATARS);
