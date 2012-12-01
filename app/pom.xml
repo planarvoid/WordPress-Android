@@ -155,7 +155,7 @@
         <dependency>
             <groupId>com.github.chrisbanes.pulltorefresh</groupId>
             <artifactId>library</artifactId>
-            <version>1.4.2-SOUNDCLOUD-SNAPSHOT</version>
+            <version>1.4.2-SOUNDCLOUD</version>
             <type>apklib</type>
             <scope>compile</scope>
         </dependency>
