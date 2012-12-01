@@ -30,7 +30,6 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.tour.TourLayout;
 import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 import net.hockeyapp.android.UpdateManager;
@@ -50,7 +49,7 @@ import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
     protected enum StartState {
-        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS;
+        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS
     }
 
     public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING };
@@ -268,10 +267,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     static boolean shouldThrottleSignup(Context context) {
-        AndroidCloudAPI api = (AndroidCloudAPI) context.getApplicationContext();
-        // don't throttle sandbox requests - we need it for integration testing
-        if (api.getEnv() ==  Env.SANDBOX) return false;
-
         final long[] signupLog = readLog();
         if (signupLog == null) {
             return false;
