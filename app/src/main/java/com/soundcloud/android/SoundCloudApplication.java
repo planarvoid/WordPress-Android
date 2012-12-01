@@ -4,15 +4,15 @@ import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soundcloud.android.imageloader.DownloadBitmapContentHandler;
-import com.soundcloud.android.imageloader.ImageLoader;
-import com.soundcloud.android.imageloader.PrefetchHandler;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.imageloader.DownloadBitmapHandler;
+import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.PrefetchHandler;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
@@ -61,10 +61,7 @@ import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.ContentHandler;
-import java.net.ResponseCache;
 import java.net.URI;
 
 @ReportsCrashes(
@@ -132,12 +129,17 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                             .commit();
                 }
             });
+            // delete old cache dir
+            AndroidUtils.doOnce(this, "delete.old.cache.dir", new Runnable() {
+                @Override public void run() {
+                    IOUtils.deleteDir(Consts.OLD_EXTERNAL_CACHE_DIRECTORY);
+                }
+            });
 
             C2DMReceiver.register(this, getLoggedInUser());
             ContentStats.init(this);
         }
 //        setupStrictMode();
-
         FacebookSSO.extendAccessTokenIfNeeded(this);
     }
 
@@ -196,19 +198,14 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     protected ImageLoader createImageLoader() {
-        final File cacheDir = IOUtils.getCacheDir(this);
-        ResponseCache cache = FileCache.installFileCache(cacheDir, FileCache.IMAGE_CACHE_AUTO);
-        ContentHandler bitmapHandler = new DownloadBitmapContentHandler();
-        ContentHandler prefetchHandler = new PrefetchHandler();
-        if (cache instanceof FileCache) {
-            // workaround various SDK bugs by wrapping the handler
-            bitmapHandler = FileCache.capture(bitmapHandler, null);
-            prefetchHandler = FileCache.capture(prefetchHandler, null);
-
-            ((FileCache)cache).trim(); // ICS has auto trimming
+        try {
+            FileCache.installFileCache(IOUtils.getCacheDir(this));
+        } catch (IOException e) {
+            Log.w(TAG, "error installing cache");
         }
-
-        return new ImageLoader(bitmapHandler, prefetchHandler, ImageLoader.DEFAULT_CACHE_SIZE, ImageLoader.DEFAULT_TASK_LIMIT);
+        return new ImageLoader(new DownloadBitmapHandler(),
+                new PrefetchHandler(),
+                ImageLoader.DEFAULT_CACHE_SIZE, ImageLoader.DEFAULT_TASK_LIMIT);
     }
 
     @Override

@@ -30,7 +30,7 @@ public class ImageLoaderTest extends InstrumentationTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        loader = new ImageLoader(new DownloadBitmapContentHandler(false), null,
+        loader = new ImageLoader(new DownloadBitmapHandler(false), null,
                 ImageLoader.DEFAULT_CACHE_SIZE,
                 ImageLoader.DEFAULT_TASK_LIMIT);
     }

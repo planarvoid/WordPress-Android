@@ -127,12 +127,17 @@ public final class AndroidUtils {
      * @return whether the function was executed
      */
     @SuppressWarnings("UnusedDeclaration")
-    public static boolean doOnce(Context context, String key, Runnable fun) {
+    public static boolean doOnce(Context context, String key, final Runnable fun) {
         final String k = "do.once."+key;
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if (!prefs.getBoolean(k, false)) {
-            fun.run();
-            prefs.edit().putBoolean(k, true).commit();
+            new Thread() {
+                @Override
+                public void run() {
+                    fun.run();
+                    prefs.edit().putBoolean(k, true).commit();
+                }
+            }.start();
             return true;
         } else {
             return false;
@@ -199,7 +204,7 @@ public final class AndroidUtils {
     }
 
     /**
-     * @param context
+     * @param context the context
      * @return a unique id for this device (MD5 of IMEI / {@link Settings.Secure#ANDROID_ID}) or null
      */
     public static String getUniqueDeviceID(Context context) {

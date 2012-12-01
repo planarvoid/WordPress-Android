@@ -41,7 +41,7 @@ import java.net.URLConnection;
  * <p>
  * An {@link IOException} is thrown if there is a decoding exception.
  */
-public class DownloadBitmapContentHandler extends ContentHandler {
+public class DownloadBitmapHandler extends ContentHandler {
     public static final int READ_TIMEOUT    = 10000;
     public static final int CONNECT_TIMEOUT = 3000;
     private static final int LOADTIME_WARN  = 10 * 1000; // flag requests taking longer than 10 sec
@@ -49,11 +49,11 @@ public class DownloadBitmapContentHandler extends ContentHandler {
     private static final int MAX_REDIRECTS = 1;
     private final boolean mUseCache;
 
-    public DownloadBitmapContentHandler() {
+    public DownloadBitmapHandler() {
         this(true);
     }
 
-    public DownloadBitmapContentHandler(boolean usecache) {
+    public DownloadBitmapHandler(boolean usecache) {
         mUseCache = usecache;
     }
 

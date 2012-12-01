@@ -1,13 +1,11 @@
 package com.soundcloud.android.imageloader;
 
-import com.soundcloud.android.cache.FileCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -21,11 +19,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.net.CacheResponse;
 import java.net.ContentHandler;
-import java.net.ResponseCache;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -105,7 +100,7 @@ public class ImageLoader {
         if (cacheSize < 1) throw new IllegalArgumentException("Cache size must be positive");
 
         mMaxTaskCount = taskLimit;
-        mBitmapContentHandler = bitmapHandler != null ? bitmapHandler : new DownloadBitmapContentHandler();
+        mBitmapContentHandler = bitmapHandler != null ? bitmapHandler : new DownloadBitmapHandler();
         mPrefetchContentHandler = prefetchHandler;
         mImageViewBinding = new WeakHashMap<ImageView, String>();
 
@@ -525,24 +520,8 @@ public class ImageLoader {
         }
 
         private Bitmap loadImage(URL url) throws IOException {
-            // check cache first if we have a standard FileCache installed
-            // needed because cache doesn't work if connection drops on older devices
-            // TODO: staleness checks ?
-            ResponseCache cache = ResponseCache.getDefault();
-            if (cache instanceof FileCache) {
-                CacheResponse response = ((FileCache) cache).getCacheResponse(url.toString());
-                if (response != null) {
-                    InputStream body = response.getBody();
-                    try {
-                        return BitmapFactory.decodeStream(body);
-                    } finally {
-                        body.close();
-                    }
-                }
-            }
             // fallback - open connection and use whatever is provided by the system
             Log.d(TAG, "loading "+url+" for "+mImageCallbacks);
-
             return (Bitmap) mBitmapContentHandler.getContent(url.openConnection());
         }
 
