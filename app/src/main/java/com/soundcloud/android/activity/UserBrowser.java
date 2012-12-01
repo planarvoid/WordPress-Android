@@ -125,7 +125,7 @@ public class UserBrowser extends ScActivity implements
 
         public static Tab fromAction(String needle){
             for (Tab t : values()){
-                if (t.action == needle) return t;
+                if (t.action.equals(needle)) return t;
             }
             return null;
         }
