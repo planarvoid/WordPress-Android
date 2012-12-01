@@ -436,7 +436,7 @@ public class UserBrowser extends ScActivity implements
     private void loadDetails() {
         if (!mUpdateInfo) return;
 
-        if (mLoadUserTask == null) {
+        if (mLoadUserTask == null && mUser != null) {
             mLoadUserTask = new FetchUserTask(getApp(), mUser.id);
             mLoadUserTask.addListener(this);
             mLoadUserTask.execute(Request.to(Endpoints.USER_DETAILS, mUser.id));
