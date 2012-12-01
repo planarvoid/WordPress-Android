@@ -95,7 +95,7 @@ public class ImageLoaderTest extends InstrumentationTestCase {
                 }
             });
         }
-        assertTrue("timeout waiting for threads", latch.await(30, TimeUnit.SECONDS));
+        assertTrue("timeout waiting for threads", latch.await(45, TimeUnit.SECONDS));
         long duration = System.currentTimeMillis() - start;
         Log.d(TAG, "fetched "+urls.size()+" images in "+duration + "ms");
     }
