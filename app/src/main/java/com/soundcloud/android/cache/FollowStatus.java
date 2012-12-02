@@ -108,8 +108,8 @@ public class FollowStatus {
                     status = (addFollowing ? app.put(request) : app.delete(request)).getStatusLine().getStatusCode();
                     final boolean success;
                     if (addFollowing) {
-                        success = status == HttpStatus.SC_CREATED;
-
+                        // new following or already following
+                        success = status == HttpStatus.SC_CREATED || status == HttpStatus.SC_OK;
                     } else {
                         success = status == HttpStatus.SC_OK || status == HttpStatus.SC_NOT_FOUND;
                     }
