@@ -34,6 +34,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -132,23 +133,22 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     @Override
-    public void onPageBeingDragged() {
+    public void onPageDrag() {
         mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
     }
 
     @Override
-    public void onTrackPageChanged(PlayerTrackView newTrackView) {
+    public void onPageSettling() {
         final PlayQueueManager playQueueManager = getPlayQueueManager();
         if (playQueueManager != null) {
-
-            refreshCurrentViewedTrackData();
-            // only respond by changing tracks if this wasn't a swipe or we are already playing
-            if (mPlaybackService != null && (mChangeTrackFast || CloudPlaybackService.getState().isSupposedToBePlaying())) {
+            if (playQueueManager.getPosition() != getCurrentDisplayedTrackPosition() // different track
+                    && !mHandler.hasMessages(SEND_CURRENT_QUEUE_POSITION) // not already changing
+                    && (mChangeTrackFast || CloudPlaybackService.getState().isSupposedToBePlaying()) // responding to transport click or already playing
+                    ) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
                 mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
                         mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
             }
-
             mChangeTrackFast = false;
         }
     }
@@ -438,7 +438,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                         ptv.getWaveformController().reset(false);
                     }
                 }
-                refreshCurrentViewedTrackData();
+                setPlaybackState();
                 long next = refreshNow();
                 queueNextRefresh(next);
 
@@ -514,11 +514,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         mPlaybackService = null;
     }
 
-    private void refreshCurrentViewedTrackData() {
-        invalidateOptionsMenu();
-        setPlaybackState();
-    }
-
     private void setTrackDisplayFromService() {
         setTrackDisplayFromService(-1);
     }
@@ -529,7 +524,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         mTrackPager.configureFromService(this, playQueueManager, queuePosition);
         final long queueLength = playQueueManager == null ? 1 :playQueueManager.length();
         mTransportBar.setNavEnabled(queueLength > 1);
-        refreshCurrentViewedTrackData();
+        setPlaybackState();
     }
 
 
