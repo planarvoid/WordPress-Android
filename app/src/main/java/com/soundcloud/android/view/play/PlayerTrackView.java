@@ -4,12 +4,12 @@ import static com.soundcloud.android.imageloader.ImageLoader.Options;
 import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Sound;
@@ -24,7 +24,6 @@ import com.soundcloud.android.view.adapter.TrackInfoBar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
@@ -32,7 +31,6 @@ import android.text.Layout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -69,17 +67,18 @@ public class PlayerTrackView extends LinearLayout implements
 
     private boolean mDraggingLabel = false;
     private int mInitialX = -1;
-    private int mLastX = -1;
+    private int mLastX    = -1;
     private int mTextWidth = 0;
     private int mViewWidth = 0;
     private int mTouchSlop;
 
     private ImageLoader.BindResult mCurrentAvatarBindResult;
 
-    public Track mTrack;
+    private Track mTrack;
     private int mQueuePosition;
     private long mDuration;
-    private boolean mLandscape, mOnScreen;
+    private final boolean mLandscape;
+    private boolean mOnScreen;
     private boolean mIsCommenting;
 
     private ToggleButton mToggleLike;
@@ -91,10 +90,7 @@ public class PlayerTrackView extends LinearLayout implements
 
     public PlayerTrackView(ScPlayer player) {
         super(player);
-
-        LayoutInflater inflater = (LayoutInflater) player.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.player_track, this);
-
+        View.inflate(player, R.layout.player_track, this);
         setOrientation(LinearLayout.VERTICAL);
 
         mPlayer = player;
@@ -117,10 +113,10 @@ public class PlayerTrackView extends LinearLayout implements
                     }
                 }
             });
+            mLandscape = false;
         } else {
             mLandscape = true;
         }
-
 
         mAvatar = (ImageView) findViewById(R.id.icon);
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
@@ -132,8 +128,8 @@ public class PlayerTrackView extends LinearLayout implements
                     if (userId == -1) return;
 
                     if (mTrack.user != null) SoundCloudApplication.MODEL_MANAGER.cache(mTrack.user, ScResource.CacheUpdateMode.NONE);
-                    Intent intent = new Intent(getContext(), UserBrowser.class);
-                    intent.putExtra("userId", mTrack.user_id);
+                    Intent intent = new Intent(getContext(), UserBrowser.class)
+                        .putExtra("userId", mTrack.user_id);
                     getContext().startActivity(intent);
                 }
             }
@@ -330,7 +326,7 @@ public class PlayerTrackView extends LinearLayout implements
 
     private void updateAvatar(boolean postAtFront) {
         if (mTrack.hasAvatar()) {
-            if ((mCurrentAvatarBindResult = ImageLoader.get(mPlayer).bind(
+            mCurrentAvatarBindResult = ImageLoader.get(mPlayer).bind(
                     mAvatar,
                     Consts.GraphicSize.formatUriForList(mPlayer, mTrack.getAvatarUrl()),
                     new ImageLoader.Callback() {
@@ -342,8 +338,7 @@ public class PlayerTrackView extends LinearLayout implements
                         @Override
                         public void onImageLoaded(ImageView view, String url) {
                         }
-                    }, postAtFront ? Options.postAtFront() : new Options())) != ImageLoader.BindResult.OK) {
-            }
+                    }, postAtFront ? Options.postAtFront() : new Options());
         } else {
             ImageLoader.get(mPlayer).unbind(mAvatar);
         }
@@ -498,7 +493,7 @@ public class PlayerTrackView extends LinearLayout implements
         getWaveformController().setCommentMode(isCommenting);
         if (mIsCommenting != mToggleComment.isChecked()) mToggleComment.setChecked(mIsCommenting);
 
-        if (!mLandscape){
+        if (!mLandscape) {
             if (animated) {
                 if (isCommenting) {
                     mArtworkOverlay.setVisibility(VISIBLE);
@@ -520,7 +515,7 @@ public class PlayerTrackView extends LinearLayout implements
             @Override public void onAnimationRepeat(Animation animation) {}
             @Override
             public void onAnimationEnd(Animation animation) {
-                if (target.getAnimation() == animation){
+                if (target.getAnimation() == animation) {
                     target.setVisibility(visibility);
                     target.setEnabled(true);
                 }

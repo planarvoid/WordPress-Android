@@ -13,7 +13,6 @@ import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.imageloader.DownloadBitmapHandler;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.imageloader.PrefetchHandler;
-import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
@@ -84,8 +83,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     private User mLoggedInUser;
     protected Wrapper mCloudApi; /* protected for testing */
-
-    public Comment pendingComment;
 
     public static SoundCloudApplication instance;
 

@@ -62,6 +62,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         int TRACK_UNAVAILABLE = 2;
     }
 
+    public @Nullable static Comment pendingComment;
+
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -235,7 +237,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     public void addNewComment(final Comment comment) {
-        getApp().pendingComment = comment;
+        pendingComment = comment;
         safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
     }
 

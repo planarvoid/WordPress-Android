@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -40,6 +41,7 @@ import java.util.List;
 
 public class WaveformController extends TouchLayout {
     protected static final long CLOSE_COMMENT_DELAY = 5000;
+    private static final String TAG = WaveformController.class.getSimpleName();
 
     protected @Nullable PlayerAvatarBar mPlayerAvatarBar;
 
@@ -250,7 +252,7 @@ public class WaveformController extends TouchLayout {
         showWaiting();
     }
 
-    public void onBufferingStop(){
+    public void onBufferingStop() {
         mIsBuffering = false;
         if (waveformResult != BindResult.LOADING && !mWaitingForSeekComplete){
             hideWaiting();
@@ -314,7 +316,7 @@ public class WaveformController extends TouchLayout {
     }
 
     protected void setProgressInternal(long pos) {
-        if (mDuration == 0)
+        if (mDuration <= 0)
             return;
 
         mProgressBar.setProgress((int) (pos * 1000 / mDuration));
@@ -388,7 +390,7 @@ public class WaveformController extends TouchLayout {
         }
     }
 
-    public void updateTrack(Track track, int queuePosition, boolean postAtFront) {
+    public void updateTrack(@Nullable Track track, int queuePosition, boolean postAtFront) {
         mQueuePosition = queuePosition;
         if (track == null || (mTrack != null
                 && mTrack.id == track.id
@@ -409,7 +411,9 @@ public class WaveformController extends TouchLayout {
             if (mPlayer.isConnected()) ImageLoader.get(mPlayer).clearErrors();
         }
 
-        if (TextUtils.isEmpty(track.waveform_url)){
+        if (TextUtils.isEmpty(track.waveform_url)) {
+            Log.w(TAG, "track "+track.title+" has no waveform");
+
             waveformResult = BindResult.ERROR;
             mOverlay.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.player_wave_bg));
             onDoneLoadingWaveform(false, false);
