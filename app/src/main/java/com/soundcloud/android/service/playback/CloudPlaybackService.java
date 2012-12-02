@@ -55,8 +55,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static final String TAG = "CloudPlaybackService";
     public static List<Playable> playlistXfer;
 
-    private static Track currentTrack;
-    public static @Nullable Track getCurrentTrack()  { return currentTrack; }
+    private static @Nullable Track currentTrack;
+    public  static @Nullable Track getCurrentTrack()  { return currentTrack; }
     public static long getCurrentTrackId() { return currentTrack == null ? -1 : currentTrack.id; }
     public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
 
@@ -455,14 +455,14 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     };
 
     private void onUnstreamableTrack(long trackId){
-        if (currentTrack.id != trackId) return;
+        if (getCurrentTrackId() != trackId) return;
 
         mPlayerHandler.sendEmptyMessage(STREAM_EXCEPTION);
         gotoIdleState(STOPPED);
     }
 
     private void onStreamableTrack(Track track){
-        if (currentTrack.id != track.id) return;
+        if (getCurrentTrackId() != track.id) return;
 
         new Thread() {
             @Override
@@ -527,7 +527,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             Track next = mPlayQueueManager.getNext();
 
             // if this comes from a shortcut, we may not have the stream url yet. we should get it on info load
-            if (currentTrack.isStreamable()) {
+            if (currentTrack != null && currentTrack.isStreamable()) {
                 mMediaPlayer.setDataSource(mProxy.createUri(currentTrack.stream_url, next == null ? null : next.stream_url).toString());
             }
 
@@ -869,7 +869,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     private boolean isPastBuffer(long pos) {
-        return (pos / (double) currentTrack.duration) * 100 > mLoadPercent;
+        return (pos / (double) getDuration()) * 100 > mLoadPercent;
     }
 
     private void setVolume(float vol) {
@@ -953,7 +953,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             } else if (STOP_ACTION.equals(action)) {
                 if (state.isSupposedToBePlaying()) pause();
                 mResumeTime = getProgress();
-                mResumeTrackId = currentTrack.id;
+                mResumeTrackId = getCurrentTrackId();
                 stop();
 
             } else if (PLAYQUEUE_CHANGED.equals(action)) {
@@ -1169,7 +1169,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 Log.w(TAG, "premature end of track (targetpos="+targetPosition+")");
                 // track ended prematurely (probably end of buffer, unreported IO error),
                 // so try to resume at last time
-                mResumeTrackId = currentTrack.id;
+                mResumeTrackId = getCurrentTrackId();
                 mResumeTime = targetPosition;
                 errorListener.onError(mp, MediaPlayer.MEDIA_ERROR_UNKNOWN, Errors.STAGEFRIGHT_ERROR_BUFFER_EMPTY);
             } else if (!state.isError()) {
@@ -1192,7 +1192,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 if (state == PREPARING) {
                     state = PREPARED;
                     // do we need to resume a track position ?
-                    if (currentTrack.id == mResumeTrackId && mResumeTime > 0) {
+                    if (getCurrentTrackId() == mResumeTrackId && mResumeTime > 0) {
                         if (Log.isLoggable(TAG, Log.DEBUG)) {
                             Log.d(TAG, "resuming to "+mResumeTime);
                         }
