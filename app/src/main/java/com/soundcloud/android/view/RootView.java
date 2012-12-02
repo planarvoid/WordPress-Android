@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import static java.lang.Math.max;
 
 import com.soundcloud.android.R;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.annotation.TargetApi;
@@ -19,7 +20,6 @@ import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -34,11 +34,10 @@ import android.widget.Scroller;
 
 /*
     Touch Handling pulled from the Android ICS ScrollView class
+
+
 */
-
 public class RootView extends ViewGroup {
-    static String TAG = RootView.class.getSimpleName();
-
     private static final float MAXIMUM_MINOR_VELOCITY   = 150.0f;
     private static final float MAXIMUM_MAJOR_VELOCITY   = 200.0f;
     private static final float MAXIMUM_ACCELERATION     = 2000.0f;
@@ -57,7 +56,7 @@ public class RootView extends ViewGroup {
 
     private static final float PARALLAX_SPEED_RATIO = 0.5f;
 
-    private static int mExpandedState;
+    private int mExpandedState;
     private static final int EXPANDED_LEFT              = 100000;
     private static final int COLLAPSED_FULL_CLOSED      = 100001;
     private static final int EXPANDED_RIGHT             = 100002;
@@ -78,7 +77,7 @@ public class RootView extends ViewGroup {
     private boolean mIsBeingDragged;
     private boolean mAnimating;
 
-    private VelocityTracker mVelocityTracker;
+    private @Nullable VelocityTracker mVelocityTracker;
 
     private OnMenuStateListener mOnMenuStateListener;
 
@@ -141,9 +140,6 @@ public class RootView extends ViewGroup {
      *
      * Based on the Android SlidingDrawer component, with additional functionality
      * and ideas credited to http://android.cyrilmottier.com/?p=658
-     *
-     * @param context
-     * @param selectedMenuId
      */
     public RootView(Context context, int selectedMenuId) {
         super(context, null, 0);
@@ -306,7 +302,7 @@ public class RootView extends ViewGroup {
 
         mIsBlocked = state.getBoolean(RootView.BLOCK_KEY);
         mBlocker.setVisibility(mIsBlocked ? View.VISIBLE : View.GONE);
-        mBlocker.setEnabled(mIsBlocked ? true : false);
+        mBlocker.setEnabled(mIsBlocked);
     }
 
 
@@ -357,7 +353,7 @@ public class RootView extends ViewGroup {
         mExpandedState = ss.expanded;
         mIsBlocked = ss.blocked;
         mBlocker.setVisibility(mIsBlocked ? View.VISIBLE : View.GONE);
-        mBlocker.setEnabled(mIsBlocked ? true : false);
+        mBlocker.setEnabled(mIsBlocked);
     }
 
     @Override
@@ -383,10 +379,8 @@ public class RootView extends ViewGroup {
 
         if (mPlayer != null) {
             int width = widthSpecSize - mOffsetLeft;
-            if (mPlayer != null) {
-                mPlayer.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(heightSpecSize, MeasureSpec.EXACTLY));
-            }
+            mPlayer.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(heightSpecSize, MeasureSpec.EXACTLY));
         }
 
         mShadowLeftDrawable.setBounds(0, 0, mDrowShadoWidth, getHeight());
@@ -654,10 +648,11 @@ public class RootView extends ViewGroup {
         }
     }
 
-    private void initVelocityTrackerIfNotExists() {
+    private @NotNull VelocityTracker initVelocityTrackerIfNotExists() {
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
         }
+        return mVelocityTracker;
     }
 
     private void recycleVelocityTracker() {
@@ -709,17 +704,17 @@ public class RootView extends ViewGroup {
 
             case MotionEvent.ACTION_MOVE:
                 if (mIsBeingDragged) {
-                    initVelocityTrackerIfNotExists();
-                    mVelocityTracker.addMovement(event);
+                    VelocityTracker tracker = initVelocityTrackerIfNotExists();
+                    tracker.addMovement(event);
                     moveContent((int) (event.getX()) - mTouchDelta);
                 }
                 break;
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL: {
-                final VelocityTracker velocityTracker = mVelocityTracker;
-                velocityTracker.computeCurrentVelocity(mVelocityUnits);
-                performFling(mContent.getLeft(), velocityTracker.getXVelocity(), -1);
+                VelocityTracker tracker = initVelocityTrackerIfNotExists();
+                tracker.computeCurrentVelocity(mVelocityUnits);
+                performFling(mContent.getLeft(), tracker.getXVelocity(), -1);
 
                 mActivePointerId = INVALID_POINTER;
                 mIsBeingDragged = false;
@@ -944,14 +939,6 @@ public class RootView extends ViewGroup {
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
-
-    public void animatePlayerOpen() {
-        if (!canOpenRight()) return;
-
-        prepareContent();
-        animatePlayerOpen(mContent.getLeft());
-        sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
-    }
 
     private void setClosed() {
         moveContent(COLLAPSED_FULL_CLOSED);
