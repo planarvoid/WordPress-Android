@@ -6,7 +6,6 @@ import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_R
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.RECORD;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
@@ -154,6 +153,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         assertState(IDLE_PLAYBACK); // should be old recording
     }
 
+    @SlowTest
     public void testRecordAndRunningOutOfStorageSpace() throws Exception {
         if (!EMULATOR) return;
 
@@ -330,6 +330,5 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         setActivity(reloadRecording(getActivity().getRecorder().getRecording()));
 
         record(RECORDING_TIME);
-
     }
 }
