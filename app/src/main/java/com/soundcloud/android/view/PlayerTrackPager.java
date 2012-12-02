@@ -22,15 +22,15 @@ import java.util.List;
 
 public class PlayerTrackPager extends ViewPager {
     private LinkedList<FrameLayout> mViews = new LinkedList<FrameLayout>();
-    private @Nullable OnTrackPageListener mTrackPageListener;
+    private @Nullable OnTrackPageListener mTrackPagerScrollListener;
     private int mScrollState = SCROLL_STATE_IDLE;
     private List<PlayerTrackView> mPlayerTrackViews = new ArrayList<PlayerTrackView>();
 
     private int mPartialScreen = -1;
 
     public interface OnTrackPageListener {
-        void onPageBeingDragged();
-        void onTrackPageChanged(PlayerTrackView newTrackView);
+        void onPageDrag();
+        void onPageSettling();
     }
 
     public PlayerTrackPager(Context context, AttributeSet attrs) {
@@ -46,9 +46,6 @@ public class PlayerTrackPager extends ViewPager {
             @Override
             public void onPageSelected(int position) {
                 mDirection = position;
-                if (mTrackPageListener != null) {
-                    mTrackPageListener.onTrackPageChanged((PlayerTrackView) mViews.get(position).getChildAt(0));
-                }
             }
 
             @Override
@@ -69,9 +66,12 @@ public class PlayerTrackPager extends ViewPager {
             public void onPageScrollStateChanged(int state) {
                 mScrollState = state;
 
-                if (mScrollState == SCROLL_STATE_DRAGGING && mTrackPageListener != null) {
-                    mTrackPageListener.onPageBeingDragged();
+                if (mScrollState == SCROLL_STATE_DRAGGING && mTrackPagerScrollListener != null) {
+                    mTrackPagerScrollListener.onPageDrag();
+                } else if (mScrollState == SCROLL_STATE_SETTLING && mTrackPagerScrollListener != null) {
+                    mTrackPagerScrollListener.onPageSettling();
                 }
+
 
                 PlayQueueManager playQueueManager = CloudPlaybackService.getPlayQueueManager();
                 final long queueLength = playQueueManager == null ? 1 : playQueueManager.length();
@@ -127,7 +127,7 @@ public class PlayerTrackPager extends ViewPager {
     }
 
     public void setListener(OnTrackPageListener listener) {
-        mTrackPageListener = listener;
+        mTrackPagerScrollListener = listener;
     }
 
     public void configureFromTrack(ScPlayer player, Track track, int playPosition) {
