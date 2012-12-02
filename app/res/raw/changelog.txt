@@ -2,7 +2,8 @@ $ 49
   % v current
   _ 2012-11-19
   ! Next
-    * Follow button toggling fix
+    * Fix wrong info in your sounds
+    - Follow button toggling fix
     - More UI upgrades
     - Added dashboard counters
     - Upgraded pull to refresh listview
