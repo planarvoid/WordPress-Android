@@ -519,9 +519,14 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
      * Action Bar Custom Views
      */
 
-    private void configureCustomView(){
-        getSupportActionBar().setCustomView(mInSearchMode ? getSearchCustomView() : getDefaultCustomView(),
-                new ActionBar.LayoutParams(Gravity.FILL_HORIZONTAL));
+    private void configureCustomView() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setCustomView(
+              mInSearchMode ? getSearchCustomView() : getDefaultCustomView(),
+              new ActionBar.LayoutParams(Gravity.FILL_HORIZONTAL)
+            );
+        }
     }
 
     private View getDefaultCustomView() {
