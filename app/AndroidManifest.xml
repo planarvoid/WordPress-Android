@@ -308,6 +308,7 @@
             </intent-filter>
 
             <intent-filter>
+                <action android:name="com.soundcloud.android.playback.start"/>
                 <action android:name="com.soundcloud.android.playback.togglepause"/>
                 <action android:name="com.soundcloud.android.playback.pause"/>
                 <action android:name="com.soundcloud.android.playback.next"/>
