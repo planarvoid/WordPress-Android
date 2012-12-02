@@ -436,38 +436,38 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                         ptv.getWaveformController().reset(false);
                     }
                 }
-
                 refreshCurrentViewedTrackData();
                 long next = refreshNow();
                 queueNextRefresh(next);
 
-            } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
-                setPlaybackState();
-                if (getTrackView(queuePos) != null) {
-                    getTrackView(queuePos).setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
-                }
-
-            } else if (action.equals(CloudPlaybackService.COMMENTS_LOADED) ||
-                    action.equals(Sound.ACTION_TRACK_ASSOCIATION_CHANGED) ||
-                    action.equals(Sound.ACTION_SOUND_INFO_UPDATED) ||
-                    action.equals(Sound.ACTION_SOUND_INFO_ERROR) ||
-                    action.equals(Sound.ACTION_COMMENT_ADDED)) {
-
-                for (PlayerTrackView ptv : mTrackPager.playerTrackViews()){
-                    ptv.handleIdBasedIntent(intent);
-                }
-
-                if (action.equals(Sound.ACTION_TRACK_ASSOCIATION_CHANGED) || action.equals(Sound.ACTION_COMMENT_ADDED)) {
-                    invalidateOptionsMenu();
-
-                }
-
             } else {
-                if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
+                final PlayerTrackView trackView = getTrackView(queuePos);
+                if (CloudPlaybackService.PLAYBACK_COMPLETE.equals(action)) {
                     setPlaybackState();
-                }
-                if (getTrackView(queuePos) != null) {
-                    getTrackView(queuePos).handleStatusIntent(intent);
+                    if (trackView != null) {
+                        trackView.setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
+                    }
+
+                } else if (CloudPlaybackService.COMMENTS_LOADED.equals(action) ||
+                        Sound.ACTION_TRACK_ASSOCIATION_CHANGED.equals(action) ||
+                        Sound.ACTION_SOUND_INFO_UPDATED.equals(action) ||
+                        Sound.ACTION_SOUND_INFO_ERROR.equals(action) ||
+                        Sound.ACTION_COMMENT_ADDED.equals(action)) {
+
+                    for (PlayerTrackView ptv : mTrackPager.playerTrackViews()){
+                        ptv.handleIdBasedIntent(intent);
+                    }
+
+                    if (action.equals(Sound.ACTION_TRACK_ASSOCIATION_CHANGED) || action.equals(Sound.ACTION_COMMENT_ADDED)) {
+                        invalidateOptionsMenu();
+                    }
+
+                } else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
+                    setPlaybackState();
+
+                    if (trackView != null) {
+                        trackView.handleStatusIntent(intent);
+                    }
                 }
             }
 

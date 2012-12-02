@@ -176,7 +176,6 @@ public class WaveformController extends TouchLayout {
                 startSmoothProgress();
             }
         }
-
     }
 
     public void startSmoothProgress(){
@@ -202,7 +201,6 @@ public class WaveformController extends TouchLayout {
                 determineProgressInterval();
             }
         }
-
     }
 
     public void reset(boolean hide){

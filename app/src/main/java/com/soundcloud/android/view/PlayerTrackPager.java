@@ -22,7 +22,7 @@ import java.util.List;
 
 public class PlayerTrackPager extends ViewPager {
     private LinkedList<FrameLayout> mViews = new LinkedList<FrameLayout>();
-    private OnTrackPageListener mTrackPageListener;
+    private @Nullable OnTrackPageListener mTrackPageListener;
     private int mScrollState = SCROLL_STATE_IDLE;
     private List<PlayerTrackView> mPlayerTrackViews = new ArrayList<PlayerTrackView>();
 
@@ -194,7 +194,7 @@ public class PlayerTrackPager extends ViewPager {
                 1); // middle
     }
 
-    public PlayerTrackView getCurrentTrackView() {
+    public @Nullable PlayerTrackView getCurrentTrackView() {
         final int currentItem = getCurrentItem();
         if (currentItem < 0 || currentItem >= mPlayerTrackViews.size()) return null;
         return mPlayerTrackViews.get(currentItem);
@@ -228,13 +228,11 @@ public class PlayerTrackPager extends ViewPager {
         return frameLayout;
     }
 
-    private PlayerTrackView getTrackViewAt(int i){
+    private @Nullable PlayerTrackView getTrackViewAt(int i){
         return mViews.size() > i && i >= 0 ? (PlayerTrackView) mViews.get(i).getChildAt(0) : null;
     }
 
-
     private PagerAdapter mPageViewAdapter = new PagerAdapter() {
-
         @Override
         public int getCount() {
             return mViews.size();
@@ -266,5 +264,4 @@ public class PlayerTrackPager extends ViewPager {
             return null;
         }
     };
-
    }

@@ -379,6 +379,7 @@ public class PlayerTrackView extends LinearLayout implements
         if (!mLandscape && mCurrentArtBindResult == ImageLoader.BindResult.ERROR) {
             updateArtwork(mOnScreen);
         }
+
         if (mCurrentAvatarBindResult == ImageLoader.BindResult.ERROR) {
             updateAvatar(mOnScreen);
         }
