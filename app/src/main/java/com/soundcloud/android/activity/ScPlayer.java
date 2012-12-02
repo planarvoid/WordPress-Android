@@ -47,6 +47,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private static final int SEND_CURRENT_QUEUE_POSITION = 2;
     private static final long TRACK_SWIPE_UPDATE_DELAY = 1000;
     private static final long TRACK_NAV_DELAY = 500;
+    public static final boolean SMOOTH_PROGRESS = Build.VERSION.SDK_INT >= WaveformController.MINIMUM_SMOOTH_PROGRESS_SDK;
 
     private long mSeekPos = -1;
     private boolean mActivityPaused, mChangeTrackFast, mShouldShowComments, mConfigureFromService;
@@ -400,8 +401,10 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
         final PlayerTrackView ptv = getTrackView(queuePos);
         if (ptv != null){
-            ptv.setProgress(progress, mPlaybackService.loadPercent(), Build.VERSION.SDK_INT >= WaveformController.MINIMUM_SMOOTH_PROGRESS_SDK &&
-                    (mPlaybackService.isPlaying() && !mPlaybackService.isBuffering()));
+            ptv.setProgress(progress,
+                    mPlaybackService.loadPercent(),
+                    SMOOTH_PROGRESS &&
+                    mPlaybackService.isPlaying() && !mPlaybackService.isBuffering());
         }
 
         // return the number of milliseconds until the next full second, so

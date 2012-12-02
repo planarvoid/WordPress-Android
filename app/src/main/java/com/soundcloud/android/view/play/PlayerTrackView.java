@@ -249,7 +249,7 @@ public class PlayerTrackView extends LinearLayout implements
         if ((mTrack.isWaitingOnState() || mTrack.isStreamable()) && mTrack.last_playback_error == -1) {
             hideUnplayable();
         } else {
-            showUnplayable();
+            showUnplayable(mTrack);
             mWaveformController.onBufferingStop();
         }
 
@@ -559,17 +559,17 @@ public class PlayerTrackView extends LinearLayout implements
         return mWaveformController;
     }
 
-    private void showUnplayable() {
+    private void showUnplayable(Track track) {
         if (mUnplayableLayout == null) {
             mUnplayableLayout = (FrameLayout) ((ViewStub) findViewById(R.id.stub_unplayable_layout)).inflate();
         }
 
-        if (mUnplayableLayout != null){
+        if (mUnplayableLayout != null) {
             final TextView unplayableText = (TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt);
             if (unplayableText != null)  { // sometimes inflation error results in text NPE
-                if (mTrack == null || mTrack.isStreamable()) {
+                if (track == null || track.isStreamable()) {
                     int errorMessage = R.string.player_stream_error;
-                    if (mTrack != null) {
+                    if (track != null) {
                         switch (mTrack.last_playback_error) {
                             case ScPlayer.PlayerError.PLAYBACK_ERROR:
                                 errorMessage = R.string.player_error;
@@ -642,26 +642,13 @@ public class PlayerTrackView extends LinearLayout implements
 
         } else if (action.equals(CloudPlaybackService.PLAYBACK_ERROR)) {
             mTrack.last_playback_error = ScPlayer.PlayerError.PLAYBACK_ERROR;
-            mWaveformController.onBufferingStop();
-            mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
-                    intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
-            showUnplayable();
-
+            onUnplayable(intent, mTrack);
         } else if (action.equals(CloudPlaybackService.STREAM_DIED)) {
             mTrack.last_playback_error = ScPlayer.PlayerError.STREAM_ERROR;
-            mWaveformController.onBufferingStop();
-            mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
-                    intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
-            showUnplayable();
-
+            onUnplayable(intent, mTrack);
         } else if (action.equals(CloudPlaybackService.TRACK_UNAVAILABLE)) {
             mTrack.last_playback_error = ScPlayer.PlayerError.TRACK_UNAVAILABLE;
-            mWaveformController.onBufferingStop();
-            mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
-                    intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
-            showUnplayable();
-            // TODO consolidate error handling, remove duplication
-
+            onUnplayable(intent, mTrack);
         } else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)) {
             mWaveformController.setComments(mTrack.comments, true);
         } else if (action.equals(CloudPlaybackService.SEEKING)) {
@@ -669,6 +656,14 @@ public class PlayerTrackView extends LinearLayout implements
         } else if (action.equals(CloudPlaybackService.SEEK_COMPLETE)) {
             mWaveformController.onSeekComplete();
         }
+    }
+
+    private void onUnplayable(Intent intent, Track track) {
+        mWaveformController.onBufferingStop();
+        mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
+                intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
+
+        showUnplayable(track);
     }
 
     public void onNewComment(Comment comment) {
