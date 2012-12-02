@@ -16,7 +16,6 @@ public class SyncConfig {
     public static final long DEFAULT_ATTEMPT_DELAY  = 30*60*1000;         // 30 mins in ms
     public static final long DEFAULT_STALE_TIME  = 60*60*1000;         // 1 hr in ms
     public static final long CLEANUP_DELAY       = DEFAULT_STALE_TIME * 24; // every 24 hours
-    public static final long SHORTCUT_DELAY      = 60*60*1000 * 24;         // every 24 hours
 
     public static final long ACTIVITY_STALE_TIME        = DEFAULT_STALE_TIME;
     public static final long TRACK_STALE_TIME           = DEFAULT_STALE_TIME;

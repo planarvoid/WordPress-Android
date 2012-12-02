@@ -52,6 +52,7 @@ public class ApiSyncService extends Service {
 
     @Override
     public void onDestroy() {
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "onDestroy()");
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.SYNC_STATE,LocalCollection.SyncState.IDLE);
         getContentResolver().update(Content.COLLECTIONS.uri, cv, null, null);

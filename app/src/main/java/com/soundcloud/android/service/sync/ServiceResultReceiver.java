@@ -1,5 +1,7 @@
 package com.soundcloud.android.service.sync;
 
+import static com.soundcloud.android.service.sync.ApiSyncer.TAG;
+
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -75,15 +77,11 @@ class ServiceResultReceiver extends ResultReceiver {
 
     private boolean maybeNotifyStream(SoundCloudApplication app, Activities stream) {
         final int totalUnseen = Activities.getUniqueTrackCount(stream);
-        final boolean hasIncoming = !stream.isEmpty();
-
         if (totalUnseen > 0) {
             ContentStats.updateCount(app, Content.ME_SOUND_STREAM, totalUnseen);
         }
-
-        if (hasIncoming) {
+        if (!stream.isEmpty() && stream.newerThan(ContentStats.getLastNotified(app, Content.ME_SOUND_STREAM))) {
             final CharSequence title, message, ticker;
-
             if (totalUnseen == 1) {
                 ticker = app.getString(R.string.dashboard_notifications_ticker_single);
                 title = app.getString(R.string.dashboard_notifications_title_single);
@@ -99,19 +97,17 @@ class ServiceResultReceiver extends ResultReceiver {
             message = Message.getIncomingNotificationMessage(app, stream);
             String artwork_url = stream.getFirstAvailableArtwork();
 
-            if (stream.newerThan(ContentStats.getLastNotified(app, Content.ME_SOUND_STREAM))) {
-                prefetchArtwork(app, stream);
+            prefetchArtwork(app, stream);
 
-                Message.showDashboardNotification(app, ticker, title, message, Message.createNotificationIntent(Actions.STREAM),
-                        Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID, artwork_url);
+            Message.showDashboardNotification(app, ticker, title, message, Message.createNotificationIntent(Actions.STREAM),
+                    Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID, artwork_url);
 
-                ContentStats.setLastNotified(app, Content.ME_SOUND_STREAM, System.currentTimeMillis());
-                ContentStats.setLastNotifiedItem(app, Content.ME_SOUND_STREAM, stream.getTimestamp());
+            ContentStats.setLastNotified(app, Content.ME_SOUND_STREAM, System.currentTimeMillis());
+            ContentStats.setLastNotifiedItem(app, Content.ME_SOUND_STREAM, stream.getTimestamp());
 
-                return true;
-            } else return false;
+            return true;
         } else {
-            if (Log.isLoggable(SyncAdapterService.TAG, Log.DEBUG)) Log.d(SyncAdapterService.TAG, "no items, skip track notfication");
+            if (Log.isLoggable(SyncAdapterService.TAG, Log.DEBUG)) Log.d(SyncAdapterService.TAG, "no new items, skip track notfication");
             return false;
         }
     }

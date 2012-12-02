@@ -643,7 +643,7 @@ public class ScContentProvider extends ContentProvider {
             case SOUNDS:
             case PLAYLISTS:
                 content.table.upsert(db, values);
-                if (values.length != 0) getContext().getContentResolver().notifyChange(uri, null, false);
+                getContext().getContentResolver().notifyChange(uri, null, false);
                 return values.length;
 
             case COMMENTS:
@@ -699,7 +699,6 @@ public class ScContentProvider extends ContentProvider {
                 if (v != null){
                     if (extraCV != null) v.put(extraCV[0], extraCV[1]);
                     log("bulkInsert: " + v);
-
                     if (db.insertWithOnConflict(table.name, null, v, SQLiteDatabase.CONFLICT_REPLACE) < 0) {
                         Log.w(TAG, "replace returned failure");
                         failed = true;
@@ -720,7 +719,7 @@ public class ScContentProvider extends ContentProvider {
         } finally {
             db.endTransaction();
         }
-        if (values.length != 0) getContext().getContentResolver().notifyChange(uri, null, false);
+        getContext().getContentResolver().notifyChange(uri, null, false);
         return values.length;
     }
 

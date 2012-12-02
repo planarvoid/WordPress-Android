@@ -19,6 +19,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.RemoteViews;
 
 import java.util.List;
@@ -114,21 +116,28 @@ class Message {
                                                   final CharSequence message,
                                                   final Intent intent,
                                                   final int id,
-                                                  String artworkUri) {
+                                                  final String artworkUri) {
 
         if (!Consts.SdkSwitches.useRichNotifications || !ImageUtils.checkIconShouldLoad(artworkUri)) {
             showDashboardNotification(context, ticker, intent, title, message, id, null);
         } else {
-            final Bitmap bmp = ImageLoader.get(context).getBitmap(artworkUri,null, Options.dontLoadRemote());
+
+            final Bitmap bmp = ImageLoader.get(context).getBitmap(artworkUri, null, Options.dontLoadRemote());
             if (bmp != null){
                 showDashboardNotification(context, ticker, intent, title, message, id, bmp);
             } else {
-                ImageLoader.get(context).getBitmap(artworkUri,new ImageLoader.BitmapCallback(){
-                    public void onImageLoaded(Bitmap loadedBmp, String uri) {
-                        showDashboardNotification(context, ticker, intent, title, message, id, loadedBmp);
-                    }
-                    public void onImageError(String uri, Throwable error) {
-                        showDashboardNotification(context, ticker, intent, title, message, id, null);
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ImageLoader.get(context).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
+                            public void onImageLoaded(Bitmap loadedBmp, String uri) {
+                                showDashboardNotification(context, ticker, intent, title, message, id, loadedBmp);
+                            }
+
+                            public void onImageError(String uri, Throwable error) {
+                                showDashboardNotification(context, ticker, intent, title, message, id, null);
+                            }
+                        });
                     }
                 });
             }
