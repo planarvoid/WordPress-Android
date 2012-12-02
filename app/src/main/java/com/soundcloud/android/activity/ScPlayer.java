@@ -6,7 +6,7 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.getPl
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.landing.News;
+import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.model.Track;
@@ -245,7 +245,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 onPlaybackServiceBound();
             }
         }
-
         @Override
         public void onServiceDisconnected(ComponentName classname) {
             mPlaybackService = null;
@@ -255,7 +254,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     protected void onPlaybackServiceBound() {
         if (CloudPlaybackService.getCurrentTrackId() == -1 && !mPlaybackService.configureLastPlaylist()) {
             // nothing to show, send them back to main
-            Intent intent = new Intent(this, News.class);
+            Intent intent = new Intent(this, Home.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         } else if (mPendingPlayPosition != -1){
@@ -565,14 +564,14 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         return null;
     }
 
-     private void setPlaybackState() {
+    private void setPlaybackState() {
         final boolean showPlayState = CloudPlaybackService.getState().isSupposedToBePlaying();
 
-        if (showPlayState){
+        if (showPlayState) {
             long next = refreshNow();
             queueNextRefresh(next);
         }
 
-         mTransportBar.setPlaybackState(showPlayState);
+        mTransportBar.setPlaybackState(showPlayState);
     }
 }
