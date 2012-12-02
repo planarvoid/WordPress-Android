@@ -223,21 +223,9 @@ public class PlayerTrackView extends LinearLayout implements
             mDuration = mTrack.duration;
         }
 
-        final String commentCount = mTrack.comment_count > 0 ? String.valueOf(mTrack.comment_count) : "0";
-        mToggleComment.setTextOff(commentCount);
-        mToggleComment.setTextOn(commentCount);
-        mToggleComment.setChecked(mIsCommenting);
-
-        final String repostsCount = mTrack.reposts_count > 0 ? String.valueOf(mTrack.reposts_count) : "0";
-        mToggleRepost.setTextOff(repostsCount);
-        mToggleRepost.setTextOn(repostsCount);
-        mToggleRepost.setChecked(mTrack.user_repost);
-
-
-        final String likesCount = mTrack.likes_count > 0 ? String.valueOf(mTrack.likes_count) : "0";
-        mToggleLike.setTextOff(likesCount);
-        mToggleLike.setTextOn(likesCount);
-        mToggleLike.setChecked(mTrack.user_like);
+        setTrackStats(mToggleComment, mTrack.comment_count, mIsCommenting);
+        setTrackStats(mToggleRepost, mTrack.reposts_count, mTrack.user_repost);
+        setTrackStats(mToggleLike, mTrack.likes_count, mTrack.user_like);
 
         mShareButton.setVisibility(mTrack.isPublic() ? View.VISIBLE : View.GONE);
 
@@ -266,14 +254,19 @@ public class PlayerTrackView extends LinearLayout implements
         }
     }
 
-    void refreshComments() {
+    private void setTrackStats(ToggleButton button, int count, boolean checked) {
+        final String countString = count > 0 ? String.valueOf(count) : "0";
+        button.setTextOff(countString);
+        button.setTextOn(countString);
+        button.setChecked(checked);
+    }
+
+    private void refreshComments() {
         if (mTrack == null) return;
         if (AndroidUtils.isTaskFinished(mTrack.load_comments_task)) {
-            mTrack.load_comments_task =
-                    new LoadCommentsTask(mPlayer.getApp());
+            mTrack.load_comments_task = new LoadCommentsTask(mPlayer.getApp());
         }
         mTrack.load_comments_task.addListener(this);
-
         if (AndroidUtils.isTaskPending(mTrack.load_comments_task)) {
             mTrack.load_comments_task.execute(mTrack.id);
         }

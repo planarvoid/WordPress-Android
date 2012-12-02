@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.TouchLayout;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -53,7 +54,7 @@ public class WaveformController extends TouchLayout {
     protected @Nullable WaveformCommentLines mCommentLines;
     protected PlayerTime mCurrentTimeDisplay;
 
-    protected ScPlayer mPlayer;
+    protected @NotNull ScPlayer mPlayer;
     protected @Nullable Track mTrack;
     protected int mQueuePosition;
 
@@ -601,7 +602,7 @@ public class WaveformController extends TouchLayout {
     }
 
 
-    private Comment lastCommentBeforeTimestamp(long timestamp) {
+    private @Nullable Comment lastCommentBeforeTimestamp(long timestamp) {
         for (Comment comment : mCurrentTopComments)
             if (comment.timestamp < timestamp)
                 return comment;
@@ -609,7 +610,7 @@ public class WaveformController extends TouchLayout {
         return null;
     }
 
-    protected Comment nextCommentAfterTimestamp(long timestamp) {
+    protected @Nullable Comment nextCommentAfterTimestamp(long timestamp) {
         if (mCurrentTopComments != null) {
             for (int i = mCurrentTopComments.size() - 1; i >= 0; i--) {
                 if (mCurrentTopComments.get(i).timestamp > timestamp)
@@ -628,25 +629,8 @@ public class WaveformController extends TouchLayout {
         if (comments.equals(mCurrentComments) && !forceRefresh){
             return;
         }
-
         mCurrentComments = comments;
-        mCurrentTopComments = new ArrayList<Comment>();
-
-        Collections.sort(comments, Comment.CompareTimestamp.INSTANCE);
-
-        for (int i = 0; i < mCurrentComments.size(); i++) {
-            if (mCurrentComments.get(i).timestamp > 0 && (i == mCurrentComments.size() - 1 || mCurrentComments.get(i).timestamp != mCurrentComments.get(i + 1).timestamp)) {
-                mCurrentComments.get(i).topLevelComment = true;
-                mCurrentTopComments.add(mCurrentComments.get(i));
-            } else if (mCurrentComments.get(i).timestamp > 0)
-                mCurrentComments.get(i + 1).nextComment = mCurrentComments.get(i);
-
-            if (getWidth() == 0 && mDuration <= 0) {
-                mCurrentComments.get(i).xPos = -1;
-            } else if (mCurrentComments.get(i).xPos == -1 && mDuration > 0) {
-                mCurrentComments.get(i).calculateXPos(getWidth(), mDuration);
-            }
-        }
+        mCurrentTopComments = getTopComments(comments, mDuration);
 
         if (mPlayerAvatarBar != null) {
             mPlayerAvatarBar.setTrackData(mDuration, comments);
@@ -671,6 +655,27 @@ public class WaveformController extends TouchLayout {
             mPlayerAvatarBar.setVisibility(View.VISIBLE);
             mCommentLines.setVisibility(View.VISIBLE);
         }
+    }
+
+    private List<Comment> getTopComments(List<Comment> comments, int duration) {
+        List<Comment> topComments = new ArrayList<Comment>();
+        Collections.sort(comments, Comment.CompareTimestamp.INSTANCE);
+        for (int i = 0; i < comments.size(); i++) {
+            final Comment comment = comments.get(i);
+
+            if (comment.timestamp > 0 && (i == comments.size() - 1 || comment.timestamp != comments.get(i + 1).timestamp)) {
+                comment.topLevelComment = true;
+                topComments.add(comment);
+            } else if (comment.timestamp > 0) {
+                comments.get(i + 1).nextComment = comment;
+            }
+            if (getWidth() == 0 && duration <= 0) {
+                comment.xPos = -1;
+            } else if (comment.xPos == -1 && duration > 0) {
+                comment.calculateXPos(getWidth(), duration);
+            }
+        }
+        return topComments;
     }
 
 
