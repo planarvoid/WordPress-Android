@@ -196,6 +196,16 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        UpdateManager.unregister();
+
+        for (TourLayout layout : mTourPages) {
+            layout.recycle();
+        }
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
@@ -218,15 +228,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         mUserDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
 
         setState((StartState) savedInstanceState.getSerializable(BUNDLE_STATE), false);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        for (TourLayout layout : mTourPages) {
-            layout.recycle();
-        }
     }
 
 

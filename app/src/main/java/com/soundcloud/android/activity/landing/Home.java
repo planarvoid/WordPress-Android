@@ -76,6 +76,12 @@ public class Home extends ScActivity implements ScLandingPage {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        UpdateManager.unregister();
+    }
+
+    @Override
     protected int getSelectedMenuId() {
         return R.id.nav_stream;
     }
