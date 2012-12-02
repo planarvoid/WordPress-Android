@@ -443,32 +443,20 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 queueNextRefresh(next);
 
             } else {
-                final PlayerTrackView trackView = getTrackView(queuePos);
-                if (CloudPlaybackService.PLAYBACK_COMPLETE.equals(action)) {
+                if (CloudPlaybackService.PLAYBACK_COMPLETE.equals(action) || action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
                     setPlaybackState();
+                    final PlayerTrackView trackView = getTrackView(queuePos);
                     if (trackView != null) {
-                        trackView.setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
+                        if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)){
+                            trackView.setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
+                        } else {
+                            trackView.handleStatusIntent(intent);
+                        }
                     }
-
-                } else if (CloudPlaybackService.COMMENTS_LOADED.equals(action) ||
-                        Sound.ACTION_TRACK_ASSOCIATION_CHANGED.equals(action) ||
-                        Sound.ACTION_SOUND_INFO_UPDATED.equals(action) ||
-                        Sound.ACTION_SOUND_INFO_ERROR.equals(action) ||
-                        Sound.ACTION_COMMENT_ADDED.equals(action)) {
-
-                    for (PlayerTrackView ptv : mTrackPager.playerTrackViews()){
+                } else {
+                    // unhandled here, pass along to trackviews who may be interested
+                    for (PlayerTrackView ptv : mTrackPager.playerTrackViews()) {
                         ptv.handleIdBasedIntent(intent);
-                    }
-
-                    if (action.equals(Sound.ACTION_TRACK_ASSOCIATION_CHANGED) || action.equals(Sound.ACTION_COMMENT_ADDED)) {
-                        invalidateOptionsMenu();
-                    }
-
-                } else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
-                    setPlaybackState();
-
-                    if (trackView != null) {
-                        trackView.handleStatusIntent(intent);
                     }
                 }
             }
