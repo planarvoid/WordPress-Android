@@ -1,5 +1,7 @@
 package com.soundcloud.android.service.sync;
 
+import static com.soundcloud.android.service.sync.ApiSyncer.TAG;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
@@ -62,13 +64,16 @@ import java.util.Set;
             resultData.putBoolean(request.contentUri.toString(), isUIRequest ?
                     request.result.change != ApiSyncer.Result.UNCHANGED : request.result.change == ApiSyncer.Result.CHANGED);
 
-            if (!request.result.success) ApiSyncService.appendSyncStats(request.result.syncResult, this.syncAdapterResult);
+            if (!request.result.success) {
+                ApiSyncService.appendSyncStats(request.result.syncResult, syncAdapterResult);
+            }
         }
 
         if (requestsRemaining.isEmpty()) {
             finish();
             return true;
         } else {
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "requests remaining: "+request);
             return false;
         }
     }
@@ -87,7 +92,12 @@ import java.util.Set;
 
     private boolean isSuccess() {
         for (CollectionSyncRequest r : collectionSyncRequests) {
-            if (!r.result.success) return false;
+            if (!r.result.success) {
+                if (Log.isLoggable(TAG, Log.WARN)) {
+                    Log.w(TAG, "collection sync request "+r+" not successful");
+                }
+                return false;
+            }
         }
         return true;
     }

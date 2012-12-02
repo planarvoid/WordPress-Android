@@ -296,7 +296,7 @@ public class ImageLoader {
      * @param url the URL to pre-fetch.
      * @throws NullPointerException if the URL is {@code null}
      */
-    public void prefetch(final String url) {
+    public void prefetch(final @NotNull String url) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -305,8 +305,7 @@ public class ImageLoader {
         });
     }
 
-
-    private BindResult queueRequest(String url, @Nullable ImageCallback callback, Options options) {
+    private BindResult queueRequest(@NotNull String url, @Nullable ImageCallback callback, Options options) {
         checkUIThread();
 
         for (ImageRequest r : mAllRequests) {
@@ -414,8 +413,7 @@ public class ImageLoader {
         private Bitmap mBitmap;
         private ImageError mError;
 
-        private ImageRequest(String url, @Nullable ImageCallback callback, Options options) {
-            if (url == null) throw new IllegalArgumentException("URL cannot be null");
+        private ImageRequest(@NotNull String url, @Nullable ImageCallback callback, Options options) {
             add(callback);
             mUrl = url;
             mOptions = options;

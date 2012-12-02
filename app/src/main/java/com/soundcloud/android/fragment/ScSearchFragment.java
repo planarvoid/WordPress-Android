@@ -4,11 +4,12 @@ import com.soundcloud.android.model.Search;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.api.Request;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 
 public class ScSearchFragment extends ScListFragment {
+
+    private Search mCurrentSearch;
 
     public static ScSearchFragment newInstance() {
         ScSearchFragment fragment = new ScSearchFragment();
@@ -29,8 +30,6 @@ public class ScSearchFragment extends ScListFragment {
     protected boolean canAppend() {
         return mCurrentSearch != null && super.canAppend();
     }
-
-    private Search mCurrentSearch;
 
     @Override
     protected Request getRequest(boolean isRefresh) {

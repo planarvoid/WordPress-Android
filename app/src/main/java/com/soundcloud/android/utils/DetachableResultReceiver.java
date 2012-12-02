@@ -9,12 +9,10 @@ import java.util.ArrayList;
 
 /**
  * Proxy {@link ResultReceiver} that offers a listener interface that can be
- * detached. Useful for when sending callbacks to a {@link Service} where a
- * listening {@link Activity} can be swapped out during configuration changes.
+ * detached. Useful for when sending callbacks to a {@link android.app.Service} where a
+ * listening {@link android.app.Activity} can be swapped out during configuration changes.
  */
 public class DetachableResultReceiver extends ResultReceiver {
-    private static final String TAG = "DetachableResultReceiver";
-
     private Receiver mReceiver;
     private ArrayList<PendingResult> mPendingResults;
     private class PendingResult {
@@ -29,10 +27,6 @@ public class DetachableResultReceiver extends ResultReceiver {
     public DetachableResultReceiver(Handler handler) {
         super(handler);
         mPendingResults = new ArrayList<PendingResult>();
-    }
-
-    public void clearReceiver() {
-        mReceiver = null;
     }
 
     public void setReceiver(Receiver receiver) {

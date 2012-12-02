@@ -2,7 +2,6 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.adapter.UserlistRow;
 
 import android.content.Context;
 import android.net.Uri;
@@ -74,12 +73,8 @@ public final class Consts {
     }
 
     public interface OptionsMenu {
-        int SETTINGS = 200;
-        int VIEW_CURRENT_TRACK = 201;
+        // TODO: still used in location picker
         int REFRESH = 202;
-        int STREAM = 204;
-        int FRIEND_FINDER = 205;
-        int FILTER = 206;
     }
 
     public enum GraphicSize {
@@ -201,19 +196,16 @@ public final class Consts {
 
     // these need to be unique across app
     public interface Notifications {
-        int RECORD_NOTIFY_ID    = 0;
-        int PLAYBACK_NOTIFY_ID  = 1;
-
-        int UPLOADING_NOTIFY_ID = 2;
-        int UPLOADED_NOTIFY_ID  = 3;
-
-        int DASHBOARD_NOTIFY_STREAM_ID = 4;
+        int RECORD_NOTIFY_ID               = 0;
+        int PLAYBACK_NOTIFY_ID             = 1;
+        int UPLOADING_NOTIFY_ID            = 2;
+        int DASHBOARD_NOTIFY_STREAM_ID     = 4;
         int DASHBOARD_NOTIFY_ACTIVITIES_ID = 5;
     }
 
     public interface ResourceStaleTimes {
-        long user = 86400000;       //24*60*60*1000 = 24hr
-        long track = 3600000l;      //60*60*1000 = 1hr
+        long user =    86400000;    //24*60*60*1000 = 24hr
+        long track =   3600000l;    //60*60*1000 = 1hr
         long activity = 600000l;    //30*60*1000 = 10 mins
     }
 
@@ -232,7 +224,6 @@ public final class Consts {
         String VERSION_KEY                          = "changeLogVersionCode";
         String PLAYBACK_ERROR_REPORTING_ENABLED     = "playbackErrorReportingEnabled";
         String LAST_USER_SYNC                       = "lastUserSync";
-        String LAST_SHORTCUT_SYNC                   = "lastShortcutSync";
 
         String DEV_HTTP_PROXY                       = "dev.http.proxy";
         String DEV_ALARM_CLOCK_ENABLED              = "dev.alarmClock.enabled";

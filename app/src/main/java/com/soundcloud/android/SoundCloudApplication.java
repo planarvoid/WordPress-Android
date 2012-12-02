@@ -71,7 +71,7 @@ import java.net.URI;
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener, Tracker {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) ||
-                                           "full_x86".equals(Build.PRODUCT);
+                                           "full_x86".equals(Build.PRODUCT)   || "sdk_x86".equals(Build.PRODUCT);
 
     public static final boolean DALVIK = Build.PRODUCT != null;
     public static boolean DEV_MODE, BETA_MODE;

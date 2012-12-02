@@ -33,6 +33,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Sync service - delegates to {@link ApiSyncService} for the actual syncing. This class is responsible for the setup
@@ -41,10 +42,9 @@ import java.util.ArrayList;
 public class SyncAdapterService extends Service {
     /* package */  static final String TAG = SyncAdapterService.class.getSimpleName();
     private static final boolean DEBUG_CANCEL = Boolean.valueOf(System.getProperty("syncadapter.debug.cancel", null));
-
+    public static final String SYNC_FINISHED = SyncAdapterService.class.getName() + ".syncFinished";
     public static final int MAX_ARTWORK_PREFETCH = 40; // only prefetch N amount of artwork links
 
-    public static final String EXTRA_CLEAR_MODE     = "clearMode";
     public static final String EXTRA_PUSH_EVENT     = "pushEvent";
     public static final String EXTRA_PUSH_EVENT_URI = "pushEventUri";
 
@@ -58,16 +58,23 @@ public class SyncAdapterService extends Service {
         mSyncAdapter = new AbstractThreadedSyncAdapter(this, false) {
             private Looper looper;
 
+            /**
+             * Called by the framework to indicate a sync request.
+             */
             @Override
             public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
                 if (DEBUG_CANCEL) DebugUtils.setLogLevels();
 
                 AndroidCloudAPI.Wrapper.setBackgroundMode(true);
 
+                // delegate to the ApiSyncService, use a looper + ResultReceiver to wait for the result
                 Looper.prepare();
                 looper = Looper.myLooper();
                 if (performSync((SoundCloudApplication) getApplication(), account, extras, syncResult, new Runnable() {
                     @Override public void run() {
+                        if(Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "sync finished");
+                        sendBroadcast(new Intent(SYNC_FINISHED));
+
                         looper.quit();
                     }
                 })) {
@@ -122,6 +129,7 @@ public class SyncAdapterService extends Service {
 
         final Intent syncIntent = getSyncIntent(app, extras);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
+            // ServiceResultReceiver does most of the work
             syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ServiceResultReceiver(app, syncResult, extras) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
@@ -176,8 +184,14 @@ public class SyncAdapterService extends Service {
                     if (SyncConfig.isActivitySyncEnabled(app, extras)) urisToSync.add(Content.ME_ACTIVITIES.uri);
                 }
 
-                if (SyncConfig.shouldSyncCollections(app)) {
-                    urisToSync.addAll(SyncContent.getCollectionsDueForSync(app, manual));
+                if (manual || SyncConfig.shouldSyncCollections(app)) {
+                    final List<Uri> dueForSync = SyncContent.getCollectionsDueForSync(app, manual);
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "collection due for sync:" +dueForSync);
+                    }
+                    urisToSync.addAll(dueForSync);
+                } else if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "skipping collection sync, no wifi");
                 }
 
                 if (SyncConfig.shouldSync(app, Consts.PrefKeys.LAST_SYNC_CLEANUP, SyncConfig.CLEANUP_DELAY) || manual) {
@@ -187,10 +201,6 @@ public class SyncAdapterService extends Service {
 
                 if (SyncConfig.shouldSync(app, Consts.PrefKeys.LAST_USER_SYNC, SyncConfig.CLEANUP_DELAY) || manual) {
                     urisToSync.add(Content.ME.uri);
-                }
-
-                if (SyncConfig.shouldSync(app, Consts.PrefKeys.LAST_SHORTCUT_SYNC, SyncConfig.SHORTCUT_DELAY) || manual) {
-                    urisToSync.add(Content.ME_SHORTCUTS.uri);
                 }
 
                 if (!urisToSync.isEmpty()) {
@@ -248,7 +258,7 @@ public class SyncAdapterService extends Service {
         }
 
         final Bundle extras = new Bundle();
-        extras.putInt(EXTRA_CLEAR_MODE, clearMode);
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, extras);
     }
 

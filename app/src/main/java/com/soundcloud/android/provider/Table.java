@@ -17,7 +17,7 @@ import java.util.List;
 
 public enum Table {
     SOUNDS("Sounds", false, DBHelper.DATABASE_CREATE_SOUNDS, DBHelper.Sounds.ALL_FIELDS),
-    TRACK_PLAYS("TrackPlays", false, null),
+    @Deprecated TRACK_PLAYS("TrackPlays", false, null),
     TRACK_METADATA("TrackMetadata", false, DBHelper.DATABASE_CREATE_TRACK_METADATA, DBHelper.TrackMetadata.ALL_FIELDS),
     USERS("Users", false, DBHelper.DATABASE_CREATE_USERS, DBHelper.Users.ALL_FIELDS),
     COMMENTS("Comments", false, DBHelper.DATABASE_CREATE_COMMENTS),
@@ -97,10 +97,14 @@ public enum Table {
     }
 
     public void create(SQLiteDatabase db) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "creating " + name);
         if (!TextUtils.isEmpty(createString)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "creating " + (view ? "view" : "table") + " " + name);
+            }
             db.execSQL(createString);
-        } else if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "NOT creating " + name);
+        } else if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "NOT creating " + name);
+        }
     }
 
     public void recreate(SQLiteDatabase db) {

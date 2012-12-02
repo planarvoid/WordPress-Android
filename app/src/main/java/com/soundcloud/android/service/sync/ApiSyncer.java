@@ -109,10 +109,6 @@ public class ApiSyncer {
 
                 case ME_SHORTCUTS:
                     result = syncMyGenericResource(c);
-                    PreferenceManager.getDefaultSharedPreferences(mContext)
-                            .edit()
-                            .putLong(Consts.PrefKeys.LAST_SHORTCUT_SYNC, System.currentTimeMillis())
-                            .commit();
                     break;
 
                 case ME_CONNECTIONS:
@@ -128,6 +124,7 @@ public class ApiSyncer {
                 case TRACK_CLEANUP:
                 case USERS_CLEANUP:
                     result = new Result(c.uri);
+                    result.success = true;
                     if (mResolver.update(c.uri, null, null, null) > 0) {
                         result.change = Result.CHANGED;
                     }
@@ -342,15 +339,16 @@ public class ApiSyncer {
     /**
      * Good for syncing any generic item that doesn't require special ordering or cache handling
      * e.g. Shortcuts, Connections
-     * @param c
-     * @return
+     * @param c the content to be synced
+     * @return the syncresult
      * @throws IOException
      */
     private Result syncMyGenericResource(Content c) throws IOException {
         log("Syncing generic resource " + c.uri);
 
         Result result = new Result(c.uri);
-        HttpResponse resp = mApi.get(c.request());
+        final Request request = c.request();
+        HttpResponse resp = mApi.get(request);
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             List<ScModel> models = mApi.getMapper().readValue(resp.getEntity().getContent(),
                     mApi.getMapper().getTypeFactory().constructCollectionType(List.class, c.modelType));
@@ -369,6 +367,8 @@ public class ApiSyncer {
 
             result.setSyncData(System.currentTimeMillis(), inserted, null);
             result.success = true;
+        } else {
+            Log.w(TAG, "request "+ request +" returned "+resp.getStatusLine());
         }
         return result;
     }
