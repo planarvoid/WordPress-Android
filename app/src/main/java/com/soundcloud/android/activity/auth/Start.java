@@ -524,6 +524,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                 showView(getLogin(),         animated);
                 hideView(getSignUp(),        animated);
                 hideView(getUserDetails(), animated);
+                findViewById(R.id.txt_email_address).requestFocus();
                 return;
 
             case SIGN_UP:
@@ -532,6 +533,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                 hideView(getLogin(),         animated);
                 showView(getSignUp(),        animated);
                 hideView(getUserDetails(), animated);
+                findViewById(R.id.txt_email_address).requestFocus();
                 return;
 
             case SIGN_UP_DETAILS:
