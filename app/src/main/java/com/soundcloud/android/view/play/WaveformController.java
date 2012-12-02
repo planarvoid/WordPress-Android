@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.TouchLayout;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -40,27 +41,27 @@ import java.util.List;
 public class WaveformController extends TouchLayout {
     protected static final long CLOSE_COMMENT_DELAY = 5000;
 
-    protected PlayerAvatarBar mPlayerAvatarBar;
+    protected @Nullable PlayerAvatarBar mPlayerAvatarBar;
 
     private ImageView mOverlay;
     protected ProgressBar mProgressBar;
     protected WaveformHolder mWaveformHolder;
     protected RelativeLayout mWaveformFrame;
     private PlayerTouchBar mPlayerTouchBar;
-    protected WaveformCommentLines mCommentLines;
+    protected @Nullable WaveformCommentLines mCommentLines;
     protected PlayerTime mCurrentTimeDisplay;
 
     protected ScPlayer mPlayer;
-    protected Track mTrack;
+    protected @Nullable Track mTrack;
     protected int mQueuePosition;
 
     protected boolean mSuspendTimeDisplay, mOnScreen;
-    protected List<Comment> mCurrentComments;
+    protected @Nullable List<Comment> mCurrentComments;
     protected List<Comment> mCurrentTopComments;
-    protected Comment mCurrentShowingComment;
+    protected @Nullable Comment mCurrentShowingComment;
     public ImageLoader.BindResult waveformResult;
 
-    protected CommentPanel mCurrentCommentPanel;
+    protected @Nullable CommentPanel mCurrentCommentPanel;
 
     protected Comment mAddComment;
     protected Comment mLastAutoComment;
@@ -90,9 +91,9 @@ public class WaveformController extends TouchLayout {
     static final int TOUCH_MODE_AVATAR_DRAG = 3;
     static final int TOUCH_MODE_SEEK_CLEAR_DRAG = 4;
 
-    int mode = TOUCH_MODE_NONE;
+    protected int mode = TOUCH_MODE_NONE;
 
-    private PlayerTrackView mPlayerTrackView;
+    private @Nullable PlayerTrackView mPlayerTrackView;
     protected boolean mShowComment;
     private static final long MIN_COMMENT_DISPLAY_TIME = 2000;
 
@@ -318,7 +319,7 @@ public class WaveformController extends TouchLayout {
         if (mDuration == 0)
             return;
 
-       mProgressBar.setProgress((int) (pos * 1000 / mDuration));
+        mProgressBar.setProgress((int) (pos * 1000 / mDuration));
         if (mode != TOUCH_MODE_SEEK_DRAG) {
             setCurrentTime(pos);
         }
@@ -327,8 +328,11 @@ public class WaveformController extends TouchLayout {
             final Comment last = lastCommentBeforeTimestamp(pos);
             if (last != null) {
                 if (mLastAutoComment != last && pos - last.timestamp < 2000) {
-                    if (mPlayerTrackView != null && mPlayerTrackView.waveformVisible() && (mCurrentShowingComment == null || (mCurrentShowingComment == mLastAutoComment &&
-                            (last.timestamp - mLastAutoComment.timestamp > MIN_COMMENT_DISPLAY_TIME)))) {
+                    if (mPlayerTrackView != null
+                            && mPlayerTrackView.waveformVisible()
+                            && (mCurrentShowingComment == null ||
+                                    (mCurrentShowingComment == mLastAutoComment &&
+                                    last.timestamp - mLastAutoComment.timestamp > MIN_COMMENT_DISPLAY_TIME))) {
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -344,7 +348,7 @@ public class WaveformController extends TouchLayout {
 
     private void setCurrentTime(final long pos){
         if (mode != TOUCH_MODE_SEEK_DRAG && !mSuspendTimeDisplay) {
-            if (getWidth() == 0){
+            if (getWidth() == 0) {
                 post(new Runnable() {
                     @Override
                     public void run() {
@@ -360,7 +364,6 @@ public class WaveformController extends TouchLayout {
     public boolean showingSmoothProgress(){
         return  mShowingSmoothProgress;
     }
-
 
     protected void autoShowComment(Comment c) {
         autoCloseComment();
@@ -435,7 +438,7 @@ public class WaveformController extends TouchLayout {
                         waveformResult = BindResult.OK;
                         onDoneLoadingWaveform(true, mOnScreen);
                     }
-                }, Options.postAtFront());
+                }, postAtFront ? Options.postAtFront() : new Options());
 
 
         switch (waveformResult) {
@@ -797,10 +800,11 @@ public class WaveformController extends TouchLayout {
                     break;
 
                 case UI_UPDATE_COMMENT:
-                    if (mShowComment)
+                    if (mShowComment) {
                         showCurrentComment(true);
-                    else
+                    } else {
                         closeComment(false);
+                    }
                     break;
             }
         }
@@ -836,6 +840,4 @@ public class WaveformController extends TouchLayout {
     public void setPlayerTrackView(PlayerTrackView playerTrackView) {
         mPlayerTrackView = playerTrackView;
     }
-
-
 }

@@ -569,14 +569,15 @@ public class Track extends Sound implements Playable {
     }
 
     @Override
-    public boolean isStale(){
+    public boolean isStale() {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.track;
     }
 
-    public Intent getShareIntent() {
+    public @Nullable Intent getShareIntent() {
         if (sharing == null || !sharing.isPublic()) return null;
 
         Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_SUBJECT,
                 title +

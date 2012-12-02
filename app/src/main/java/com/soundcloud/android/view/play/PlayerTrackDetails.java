@@ -9,6 +9,7 @@ import com.soundcloud.android.activity.track.TrackLikers;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.FlowLayout;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,31 +17,25 @@ import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.util.Linkify;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class PlayerTrackDetails extends RelativeLayout{
-
+public class PlayerTrackDetails extends RelativeLayout {
     private final ScPlayer mPlayer;
     private final FlowLayout mTrackTags;
     private final TextView mLikersText;
     private final View mLikersHr;
     private final TextView mCommentersTxt;
     private final View mCommentersHr;
-    private Track mPlayingTrack;
+    private @Nullable Track mPlayingTrack;
 
     private boolean mTrackInfoFilled;
 
     public PlayerTrackDetails(ScPlayer player) {
         super(player);
-
-        LayoutInflater inflater = (LayoutInflater) player
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.track_info, this);
-
+        View.inflate(player, R.layout.track_info, this);
         setBackgroundColor(0xFFFFFFFF);
 
         mPlayer = player;
@@ -75,10 +70,7 @@ public class PlayerTrackDetails extends RelativeLayout{
                 }
             }
         });
-
-
     }
-
 
     public void setPlayingTrack(Track t){
         if (mPlayingTrack == null || mPlayingTrack.id != t.id){
@@ -91,13 +83,7 @@ public class PlayerTrackDetails extends RelativeLayout{
         return mTrackInfoFilled;
     }
 
-    public void clearIsTrackInfoFilled(){
-        mTrackInfoFilled = false;
-    }
-
-
     public void fillTrackDetails() {
-
         if (mPlayingTrack == null) return;
 
 

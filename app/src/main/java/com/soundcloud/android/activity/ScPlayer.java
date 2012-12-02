@@ -19,6 +19,8 @@ import com.soundcloud.android.view.PlayerTrackPager;
 import com.soundcloud.android.view.play.PlayerTrackView;
 import com.soundcloud.android.view.play.TransportBar;
 import com.soundcloud.android.view.play.WaveformController;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -50,7 +52,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private boolean mActivityPaused, mChangeTrackFast, mShouldShowComments, mConfigureFromService;
     private PlayerTrackPager mTrackPager;
     private TransportBar mTransportBar;
-    private CloudPlaybackService mPlaybackService;
+    private @Nullable CloudPlaybackService mPlaybackService;
 
     private int mPendingPlayPosition = -1;
 
@@ -191,13 +193,13 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     public boolean toggleLike(Track track) {
-        if (track == null) return false;
+        if (track == null || mPlaybackService == null) return false;
         mPlaybackService.setLikeStatus(track.id, !track.user_like);
         return true;
     }
 
     public boolean toggleRepost(Track track) {
-        if (track == null) return false;
+        if (track == null || mPlaybackService == null) return false;
         mPlaybackService.setRepostStatus(track.id, !track.user_repost);
         return true;
     }
@@ -242,7 +244,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         public void onServiceConnected(ComponentName classname, IBinder obj) {
             if (obj instanceof LocalBinder) {
                 mPlaybackService = (CloudPlaybackService) ((LocalBinder)obj).getService();
-                onPlaybackServiceBound();
+                onPlaybackServiceBound(mPlaybackService);
             }
         }
         @Override
@@ -251,14 +253,14 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         }
     };
 
-    protected void onPlaybackServiceBound() {
-        if (CloudPlaybackService.getCurrentTrackId() == -1 && !mPlaybackService.configureLastPlaylist()) {
+    protected void onPlaybackServiceBound(@NotNull CloudPlaybackService service) {
+        if (CloudPlaybackService.getCurrentTrackId() == -1 && !service.configureLastPlaylist()) {
             // nothing to show, send them back to main
             Intent intent = new Intent(this, Home.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         } else if (mPendingPlayPosition != -1){
-            mPlaybackService.setQueuePosition(mPendingPlayPosition);
+            service.setQueuePosition(mPendingPlayPosition);
             mPendingPlayPosition = -1;
         }
     }
@@ -532,9 +534,9 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     private void setTrackDisplayFromService(int queuePosition) {
-        mTrackPager.configureFromService(this, queuePosition);
-
         final PlayQueueManager playQueueManager = getPlayQueueManager();
+
+        mTrackPager.configureFromService(this, playQueueManager, queuePosition);
         final long queueLength = playQueueManager == null ? 1 :playQueueManager.length();
         mTransportBar.setNavEnabled(queueLength > 1);
         refreshCurrentViewedTrackData();
@@ -546,7 +548,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         return currentTrackView == null ? -1 : currentTrackView.getPlayPosition();
     }
 
-    private PlayerTrackView getTrackView(int playPos){
+    private @Nullable PlayerTrackView getTrackView(int playPos){
         for (PlayerTrackView ptv : mTrackPager.playerTrackViews()){
             if (ptv.getPlayPosition() == playPos) {
                 return ptv;
@@ -555,7 +557,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         return null;
     }
 
-    private PlayerTrackView getTrackViewById(long track_id) {
+    private @Nullable PlayerTrackView getTrackViewById(long track_id) {
         for (PlayerTrackView ptv : mTrackPager.playerTrackViews()){
             if (ptv.getTrackId() == track_id) {
                 return ptv;

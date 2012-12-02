@@ -8,7 +8,6 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Transformation;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.imageloader.ImageLoader.BitmapCallback;
 import com.soundcloud.android.Consts;
@@ -30,8 +29,8 @@ public class PlayerAvatarBar extends View {
 
     private long mDuration;
 
-    private List<Comment> mCurrentComments;
-    private Comment mCurrentComment;
+    private @Nullable List<Comment> mCurrentComments;
+    private @Nullable Comment mCurrentComment;
 
     private Matrix mBgMatrix;
     private Matrix mActiveMatrix;
@@ -48,7 +47,7 @@ public class PlayerAvatarBar extends View {
 
     private Thread mAvatarRefreshThread;
 
-    private Bitmap mCanvasBmp;
+    private @Nullable Bitmap mCanvasBmp;
     private Bitmap mNextCanvasBmp;
 
     private Bitmap mDefaultAvatar;
@@ -312,15 +311,6 @@ public class PlayerAvatarBar extends View {
             drawCommentOnCanvas(mCurrentComment,canvas,mActiveLinePaint, mActiveImagePaint,mActiveMatrix);
             canvas.drawLine(mCurrentComment.xPos, 0, mCurrentComment.xPos, getHeight(), mActiveLinePaint);
         }
-    }
-
-    public float getCurrentTransformY(){
-        if (getAnimation() == null) return 0f;
-        Transformation t = new Transformation();
-        float[] values = new float[9];
-        getAnimation().getTransformation(getDrawingTime(), t);
-        t.getMatrix().getValues(values);
-        return values[5];
     }
 
     public void getHitRect(Rect outRect) {

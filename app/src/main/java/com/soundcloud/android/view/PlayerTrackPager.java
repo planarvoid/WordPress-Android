@@ -6,13 +6,13 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.view.play.PlayerTrackView;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -20,30 +20,115 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-
 public class PlayerTrackPager extends ViewPager {
-
-   	private LinkedList<FrameLayout> mViews = new LinkedList<FrameLayout>();
-   	private OnTrackPageListener mTrackPageListener;
+    private LinkedList<FrameLayout> mViews = new LinkedList<FrameLayout>();
+    private OnTrackPageListener mTrackPageListener;
     private int mScrollState = SCROLL_STATE_IDLE;
     private List<PlayerTrackView> mPlayerTrackViews = new ArrayList<PlayerTrackView>();
 
     private int mPartialScreen = -1;
 
     public interface OnTrackPageListener {
-        public abstract void onPageBeingDragged();
-    	public abstract void onTrackPageChanged(PlayerTrackView newTrackView);
+        void onPageBeingDragged();
+        void onTrackPageChanged(PlayerTrackView newTrackView);
     }
 
-   	public PlayerTrackPager(Context context, AttributeSet attrs) {
-   		super(context, attrs);
-   		this.setAdapter(mPageViewAdapter);
-   		this.setOnPageChangeListener(mOnPageChangeListener);
-   	}
+    public PlayerTrackPager(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        this.setAdapter(mPageViewAdapter);
+        setOnPageChangeListener(new OnPageChangeListener() {
 
-   	public void setListener(OnTrackPageListener listener) {
-   		mTrackPageListener = listener;
-   	}
+            private int mDirection;
+
+            private static final int LEFT  = 0;
+            private static final int RIGHT = 2;
+
+            @Override
+            public void onPageSelected(int position) {
+                mDirection = position;
+                if (mTrackPageListener != null) {
+                    mTrackPageListener.onTrackPageChanged((PlayerTrackView) mViews.get(position).getChildAt(0));
+                }
+            }
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                PlayerTrackView trackView;
+                if (position == getCurrentItem() && positionOffset > 0 && mPartialScreen != position + 1) {
+                    mPartialScreen = position + 1;
+                    trackView = getTrackViewAt(mPartialScreen);
+                    if (trackView != null) trackView.setOnScreen(true);
+                } else if (position == getCurrentItem() - 1 && mPartialScreen != position) {
+                    mPartialScreen = position;
+                    trackView = getTrackViewAt(mPartialScreen);
+                    if (trackView != null) trackView.setOnScreen(true);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                mScrollState = state;
+
+                if (mScrollState == SCROLL_STATE_DRAGGING && mTrackPageListener != null) {
+                    mTrackPageListener.onPageBeingDragged();
+                }
+
+                PlayQueueManager playQueueManager = CloudPlaybackService.getPlayQueueManager();
+                final long queueLength = playQueueManager == null ? 1 : playQueueManager.length();
+
+                if (state == ViewPager.SCROLL_STATE_IDLE) {
+
+                    PlayerTrackView currentView;
+                    switch (mDirection) {
+                        case LEFT:
+                            currentView = (PlayerTrackView) mViews.getFirst().getChildAt(0);
+                            if (currentView.getPlayPosition() > 0) {
+                                // move the last trackview to the beginning
+                                PlayerTrackView lastView = (PlayerTrackView) mViews.getLast().getChildAt(0);
+                                mViews.getLast().removeAllViews();
+                                for (int i = mViews.size() - 1; i > 0; i--) {
+                                    View view = mViews.get(i - 1).getChildAt(0);
+                                    mViews.get(i - 1).removeAllViews();
+                                    mViews.get(i).addView(view);
+                                }
+                                mViews.getFirst().addView(lastView);
+
+                                final int pos = currentView.getPlayPosition() - 1;
+                                lastView.setTrack(playQueueManager == null ? null : playQueueManager.getTrackAt(pos), pos, true, false);
+                                lastView.setOnScreen(false);
+                                mPlayerTrackViews.add(0, mPlayerTrackViews.remove(mPlayerTrackViews.size() - 1));
+                                setCurrentItem(1, false);
+                            }
+                            break;
+
+                        case RIGHT:
+                            currentView = (PlayerTrackView) mViews.getLast().getChildAt(0);
+                            if (currentView.getPlayPosition() < queueLength - 1) {
+                                // move the first trackview to the end
+                                PlayerTrackView firstView = (PlayerTrackView) mViews.getFirst().getChildAt(0);
+                                mViews.getFirst().removeAllViews();
+                                for (int i = 0; i < mViews.size() - 1; i++) {
+                                    View view = mViews.get(i + 1).getChildAt(0);
+                                    mViews.get(i + 1).removeAllViews();
+                                    mViews.get(i).addView(view);
+                                }
+                                mViews.getLast().addView(firstView);
+
+                                final int pos = currentView.getPlayPosition() + 1;
+                                firstView.setTrack(playQueueManager == null ? null : playQueueManager.getTrackAt(pos), pos, true, false);
+                                firstView.setOnScreen(false);
+                                mPlayerTrackViews.add(mPlayerTrackViews.remove(0));
+                                setCurrentItem(1, false);
+                            }
+                    }
+                }
+            }
+        });
+    }
+
+    public void setListener(OnTrackPageListener listener) {
+        mTrackPageListener = listener;
+    }
 
     public void configureFromTrack(ScPlayer player, Track track, int playPosition) {
         mPlayerTrackViews.clear();
@@ -64,8 +149,7 @@ public class PlayerTrackPager extends ViewPager {
         setCurrentItem(0);
     }
 
-    public void configureFromService(ScPlayer player, int playPosition) {
-        PlayQueueManager playQueueManager = CloudPlaybackService.getPlayQueueManager();
+    public void configureFromService(ScPlayer player, @Nullable PlayQueueManager playQueueManager, int playPosition) {
         final long queueLength = playQueueManager == null ? 1 : playQueueManager.length();
         if (playPosition == -1) playPosition = playQueueManager == null ? 0 : playQueueManager.getPosition();
 
@@ -147,95 +231,6 @@ public class PlayerTrackPager extends ViewPager {
     private PlayerTrackView getTrackViewAt(int i){
         return mViews.size() > i && i >= 0 ? (PlayerTrackView) mViews.get(i).getChildAt(0) : null;
     }
-
-   	private ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
-
-   		private int mDirection;
-
-   		private final int LEFT = 0;
-   		private final int RIGHT = 2;
-
-           @Override
-           public void onPageSelected(int position) {
-               mDirection = position;
-               if (mTrackPageListener != null) {
-                   mTrackPageListener.onTrackPageChanged((PlayerTrackView) mViews.get(position).getChildAt(0));
-               }
-           }
-
-   		@Override public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-               PlayerTrackView trackView;
-               if (position == getCurrentItem() && positionOffset > 0 && mPartialScreen != position + 1){
-                       mPartialScreen = position + 1;
-                       trackView = getTrackViewAt(mPartialScreen);
-                       if (trackView != null) trackView.setOnScreen(true);
-                   } else if (position == getCurrentItem() - 1 && mPartialScreen != position){
-                       mPartialScreen = position;
-                       trackView = getTrackViewAt(mPartialScreen);
-                       if (trackView != null) trackView.setOnScreen(true);
-               }
-           }
-
-   		@Override public void onPageScrollStateChanged(int state) {
-               mScrollState = state;
-
-               if (mScrollState == SCROLL_STATE_DRAGGING && mTrackPageListener != null){
-                   mTrackPageListener.onPageBeingDragged();
-               }
-
-               PlayQueueManager playQueueManager = CloudPlaybackService.getPlayQueueManager();
-               final long queueLength = playQueueManager == null ? 1 : playQueueManager.length();
-
-   			if (state == ViewPager.SCROLL_STATE_IDLE) {
-
-                   PlayerTrackView currentView;
-   					switch (mDirection) {
-   					case LEFT:
-                           currentView = (PlayerTrackView) mViews.getFirst().getChildAt(0);
-                           if (currentView.getPlayPosition() > 0){
-                               // move the last trackview to the beginning
-                               PlayerTrackView lastView = (PlayerTrackView) mViews.getLast().getChildAt(0);
-                               mViews.getLast().removeAllViews();
-                               for (int i = mViews.size() - 1; i > 0; i--) {
-                                   View view = mViews.get(i - 1).getChildAt(0);
-                                   mViews.get(i - 1).removeAllViews();
-                                   mViews.get(i).addView(view);
-                               }
-                               mViews.getFirst().addView(lastView);
-
-                               final int pos = currentView.getPlayPosition() - 1;
-                               lastView.setTrack(playQueueManager == null ? null : playQueueManager.getTrackAt(pos), pos,true,false);
-                               lastView.setOnScreen(false);
-                               mPlayerTrackViews.add(0, mPlayerTrackViews.remove(mPlayerTrackViews.size()-1));
-                               PlayerTrackPager.this.setCurrentItem(1, false);
-                           }
-   						break;
-
-   					case RIGHT:
-                           currentView = (PlayerTrackView) mViews.getLast().getChildAt(0);
-                           if (currentView.getPlayPosition() < queueLength -1) {
-                               // move the first trackview to the end
-                               PlayerTrackView firstView = (PlayerTrackView) mViews.getFirst().getChildAt(0);
-                               mViews.getFirst().removeAllViews();
-                               for (int i = 0; i < mViews.size() - 1; i++) {
-                                   View view = mViews.get(i + 1).getChildAt(0);
-                                   mViews.get(i + 1).removeAllViews();
-                                   mViews.get(i).addView(view);
-                               }
-                               mViews.getLast().addView(firstView);
-
-                               final int pos = currentView.getPlayPosition() + 1;
-                               firstView.setTrack(playQueueManager == null ? null : playQueueManager.getTrackAt(pos), pos, true, false);
-                               firstView.setOnScreen(false);
-                               mPlayerTrackViews.add(mPlayerTrackViews.remove(0));
-                               PlayerTrackPager.this.setCurrentItem(1, false);
-                           }
-                       }
-
-
-   			}
-   		}
-   	};
 
 
     private PagerAdapter mPageViewAdapter = new PagerAdapter() {
