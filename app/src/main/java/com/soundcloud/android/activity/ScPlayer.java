@@ -49,7 +49,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private static final long TRACK_NAV_DELAY = 500;
 
     private long mSeekPos = -1;
-    private boolean mActivityPaused, mChangeTrackFast, mShouldShowComments, mConfigureFromService = true;
+    private boolean mActivityPaused, mChangeTrackFast, mShouldShowComments, mConfigureFromService;
     private RelativeLayout mContainer;
     private PlayerTrackPager mTrackPager;
     private TransportBar mTransportBar;
@@ -96,7 +96,9 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         handleIntent(intent);
     }
 
-    private void handleIntent(Intent intent){
+    private void handleIntent(Intent intent) {
+        mConfigureFromService = true;
+
         final String action = intent.getAction();
         if (!TextUtils.isEmpty(action)) {
             Track displayTrack = null;

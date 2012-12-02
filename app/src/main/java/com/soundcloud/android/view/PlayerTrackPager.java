@@ -62,7 +62,6 @@ public class PlayerTrackPager extends ViewPager {
         ptv.setTrack(track, playPosition,true,true);
         mPageViewAdapter.notifyDataSetChanged();
         setCurrentItem(0);
-
     }
 
     public void configureFromService(ScPlayer player, int playPosition) {

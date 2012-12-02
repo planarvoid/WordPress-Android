@@ -61,7 +61,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
 
     private static @Nullable CloudPlaybackService instance;
-    public static @Nullable CloudPlaybackService getInstance(){ return instance; };
+    public static @Nullable CloudPlaybackService getInstance() { return instance; }
     public static @Nullable PlayQueueManager getPlayQueueManager() { return instance == null ? null : instance.getPlaylistManager(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
 
@@ -149,8 +149,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             return CloudPlaybackService.this;
         }
     };
-
-    private static final Options ICON_OPTIONS = Options.dontLoadRemote();
 
     private Notification status;
 
@@ -670,35 +668,36 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         notification.flags |= Notification.FLAG_ONGOING_EVENT;
         notification.icon = R.drawable.ic_notification_cloud;
 
-        Intent intent = new Intent(Actions.PLAYER);
-        intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+        Intent intent = new Intent(Actions.PLAYER)
+            .addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
 
         if (!Consts.SdkSwitches.useRichNotifications) {
             notification.setLatestEventInfo(this, track.getUserName(), track.title, pi);
         } else {
-            final PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_v11,
-                    R.drawable.ic_notification_play_states,R.drawable.ic_notification_pause_states);
+            final PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(),
+                    R.layout.playback_status_v11,
+                    R.drawable.ic_notification_play_states,
+                    R.drawable.ic_notification_pause_states);
+
             view.setNotification(track, state.isSupposedToBePlaying());
             view.linkButtonsNotification(this);
             view.setPlaybackStatus(state.isSupposedToBePlaying());
 
             final String artworkUri = track.getListArtworkUrl(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                final Bitmap cachedBmp = ImageLoader.get(this).getBitmap(artworkUri, null, ICON_OPTIONS);
+                final Bitmap cachedBmp = ImageLoader.get(this).getBitmap(artworkUri, null, Options.dontLoadRemote());
                 if (cachedBmp != null) {
                     view.setIcon(cachedBmp);
                 } else {
                     view.clearIcon();
                     ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
-                        public void onImageLoaded(Bitmap bitmap, String uri) {
+                        @Override public void onImageLoaded(Bitmap bitmap, String uri) {
                             //noinspection ObjectEquality
                             if (currentTrack == track) {
                                 view.setIcon(bitmap);
                                 startForeground(PLAYBACKSERVICE_STATUS_ID, notification);
                             }
-                        }
-                        public void onImageError(String uri, Throwable error) {
                         }
                     });
                 }
@@ -722,22 +721,14 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    public void setLikeStatus(Track track, boolean like) {
-        mAssociationManager.setLike(track,like);
-    }
-
     public void setLikeStatus(long id, boolean like) {
         Track track = currentTrack != null && currentTrack.id == id ? currentTrack : SoundCloudApplication.MODEL_MANAGER.getTrack(id);
-        mAssociationManager.setLike(currentTrack,like);
-    }
-
-    public void setRepostStatus(Track track, boolean repost) {
-        mAssociationManager.setRepost(currentTrack,repost);
+        mAssociationManager.setLike(track, like);
     }
 
     public void setRepostStatus(long id, boolean repost) {
         Track track = currentTrack != null && currentTrack.id == id ? currentTrack : SoundCloudApplication.MODEL_MANAGER.getTrack(id);
-        mAssociationManager.setRepost(currentTrack,repost);
+        mAssociationManager.setRepost(track, repost);
     }
 
     /* package */ int getDuration() {
