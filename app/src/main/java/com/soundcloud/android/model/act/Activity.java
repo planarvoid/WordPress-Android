@@ -172,13 +172,14 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     }
 
     @Override
-    public ScResource getRefreshableResource() {
-        return null;
-    }
-
-    @Override
     public boolean isStale() {
-        return false;
+        final ScResource r = getRefreshableResource();
+        if (equals(r)) {
+            // no lookups possible on activity, though they would solve deletion problems
+            throw new IllegalArgumentException("Do not return the activity itself as the refreshable object");
+        } else {
+            return r instanceof Refreshable && ((Refreshable) r).isStale();
+        }
     }
 
     @Override

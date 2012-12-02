@@ -19,9 +19,10 @@ import java.util.Date;
 /**
  * Maps to stream item on backend
  */
-public class SoundAssociation extends ScResource implements Playable {
+public class SoundAssociation extends ScResource implements Playable, Refreshable {
 
     private CharSequence _elapsedTime;
+
 
     enum Type {
         TRACK("track", ScContentProvider.CollectionItemTypes.TRACK),
@@ -63,6 +64,17 @@ public class SoundAssociation extends ScResource implements Playable {
                 track = new Track(cursor);
         }
     }
+
+    @Override
+    public ScResource getRefreshableResource() {
+        return track; // TODO, playlist
+    }
+
+    @Override
+    public boolean isStale() {
+        return track != null && track.isStale(); // TODO, playlist
+    }
+
 
     public SoundAssociation(Parcel in) {
         associationType = in.readInt();
