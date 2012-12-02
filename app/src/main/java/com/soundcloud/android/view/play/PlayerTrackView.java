@@ -150,26 +150,26 @@ public class PlayerTrackView extends LinearLayout implements
         findViewById(R.id.private_indicator).setVisibility(View.GONE);
 
         mToggleLike = (ToggleButton) findViewById(R.id.toggle_like);
-        mToggleLike.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mToggleLike.setOnClickListener(new OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (mTrack.user_like != isChecked) mPlayer.toggleLike(mTrack);
+            public void onClick(View view) {
+                mPlayer.toggleLike(mTrack);
             }
         });
 
         mToggleRepost = (ToggleButton) findViewById(R.id.toggle_repost);
-        mToggleRepost.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mToggleRepost.setOnClickListener(new OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (mTrack.user_repost != isChecked) mPlayer.toggleRepost(mTrack);
+            public void onClick(View view) {
+                mPlayer.toggleRepost(mTrack);
             }
         });
 
         mToggleComment = (ToggleButton) findViewById(R.id.toggle_comment);
-        mToggleComment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mToggleComment.setOnClickListener(new OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (buttonView.isChecked() != mIsCommenting) setCommentMode(isChecked, true);
+            public void onClick(View view) {
+                setCommentMode(mToggleComment.isChecked(), true);
             }
         });
 
