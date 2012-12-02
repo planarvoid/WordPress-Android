@@ -43,10 +43,11 @@ public class ScContentProvider extends ContentProvider {
     public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
 
     public static interface Parameter {
-        String RANDOM = "random";
-        String CACHED = "cached";
-        String LIMIT  = "limit";
-        String OFFSET = "offset";
+        String RANDOM   = "random";
+        String CACHED   = "cached";
+        String LIMIT    = "limit";
+        String OFFSET   = "offset";
+        String IDS_ONLY = "idsOnly";
     }
 
     private DBHelper dbHelper;
@@ -105,8 +106,10 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_SOUNDS :
                 qb.setTables(makeCollectionJoin(Table.SOUND_ASSOCIATION_VIEW));
+                if ("1".equals(uri.getQueryParameter(Parameter.IDS_ONLY))) {
+                    _columns = new String[]{DBHelper.SoundAssociationView._ID};
+                } else if (_columns == null) _columns = formatWithUser(fullSoundAssociationColumns, userId);
 
-                if (_columns == null) _columns = formatWithUser(fullSoundAssociationColumns, userId);
                 makeSoundAssociationSelection(qb, String.valueOf(userId),
                         new int[]{CollectionItemTypes.TRACK, CollectionItemTypes.REPOST});
                 _sortOrder = makeCollectionSort(uri, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC");
@@ -117,7 +120,9 @@ public class ScContentProvider extends ContentProvider {
             case ME_LIKES:
             case ME_REPOSTS:
                 qb.setTables(makeCollectionJoin(Table.SOUND_ASSOCIATION_VIEW));
-                if (_columns == null) _columns = formatWithUser(fullSoundAssociationColumns, userId);
+                if ("1".equals(uri.getQueryParameter(Parameter.IDS_ONLY))) {
+                    _columns = new String[]{DBHelper.CollectionItems.ITEM_ID};
+                } else if (_columns == null) _columns = formatWithUser(fullSoundAssociationColumns, userId);
 
                 makeSoundAssociationSelection(qb, String.valueOf(userId),
                         new int[]{content.collectionType});
@@ -133,17 +138,25 @@ public class ScContentProvider extends ContentProvider {
             case ME_FOLLOWINGS:
             case ME_FRIENDS:
             case SUGGESTED_USERS:
-                qb.setTables(makeCollectionJoin(Table.USERS));
-                if (_columns == null){
-                    _columns = formatWithUser(fullUserColumns, userId);
-                    if (content == Content.ME_FRIENDS) {
+                /* XXX special case for now. we need to not join in the users table on an id only request, because
+                it is an inner join and will not return ids with missing users. Switching to a left join is possible
+                but not 4 days before major release*/
+                if ("1".equals(uri.getQueryParameter(Parameter.IDS_ONLY))) {
+                    qb.setTables(Table.COLLECTION_ITEMS.name);
+                    _columns = new String[]{DBHelper.CollectionItems.ITEM_ID};
+                } else {
+                    qb.setTables(makeCollectionJoin(Table.USERS));
+                    //special sorting for friends (only if we use default columns though)
+                    if (content == Content.ME_FRIENDS && _columns == null) {
                         _sortOrder = makeCollectionSort(uri, sortOrder == null ?
                                 DBHelper.Users.USER_FOLLOWING + " ASC, " + DBHelper.Users._ID + " ASC" : sortOrder);
                     } else {
                         _sortOrder = makeCollectionSort(uri, sortOrder);
                     }
-                } else {
-                    _sortOrder = makeCollectionSort(uri, sortOrder);
+
+                    if (_columns == null) {
+                        _columns = formatWithUser(fullUserColumns, userId);
+                    }
                 }
                 makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
                 break;

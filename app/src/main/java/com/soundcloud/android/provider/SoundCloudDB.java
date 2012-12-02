@@ -240,7 +240,7 @@ public class SoundCloudDB {
         return ids;
     }
 
-    public static Uri addPagingParams(Uri uri, int offset, int limit) {
+    public static Uri.Builder addPagingParams(Uri uri, int offset, int limit) {
         if (uri == null) return null;
 
         Uri.Builder b = uri.buildUpon();
@@ -248,7 +248,7 @@ public class SoundCloudDB {
             b.appendQueryParameter("offset", String.valueOf(offset));
         }
         b.appendQueryParameter("limit", String.valueOf(limit));
-        return b.build();
+        return b;
 
     }
 }
