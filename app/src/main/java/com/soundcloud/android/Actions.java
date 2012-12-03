@@ -5,6 +5,7 @@ public final class Actions {
     public static final String WHO_TO_FOLLOW    = "com.soundcloud.android.action.WHO_TO_FOLLOW";
     public static final String FRIEND_FINDER    = "com.soundcloud.android.action.FRIEND_FINDER";
     public static final String YOU              = "com.soundcloud.android.action.YOU";
+    public static final String YOUR_INFO        = "com.soundcloud.android.action.YOUR_INFO";
     public static final String YOUR_SOUNDS      = "com.soundcloud.android.action.YOUR_SOUNDS";
     public static final String YOUR_LIKES       = "com.soundcloud.android.action.YOUR_LIKES";
     public static final String YOUR_FOLLOWINGS  = "com.soundcloud.android.action.YOUR_FOLLOWINGS";

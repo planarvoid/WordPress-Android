@@ -572,10 +572,12 @@ public class RootView extends ViewGroup {
 
 
                 final int pointerIndex = ev.findPointerIndex(activePointerId);
-                final float x = ev.getX(pointerIndex);
-                final int xDiff = (int) Math.abs(x - mLastMotionX);
-                if (xDiff > mTouchSlop) {
-                    return startDrag(ev, (int) x);
+                if (pointerIndex >= 0 && pointerIndex < ev.getPointerCount()) {
+                    final float x = ev.getX(pointerIndex);
+                    final int xDiff = (int) Math.abs(x - mLastMotionX);
+                    if (xDiff > mTouchSlop) {
+                        return startDrag(ev, (int) x);
+                    }
                 }
                 break;
             }

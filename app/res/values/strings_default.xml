@@ -239,7 +239,7 @@
   <string name="image_where">How would you like to add an image?</string>
   <string name="info_comments_add_comment">Add a comment</string>
   <string name="info_comments_comments">Comments</string>
-  <string name="info_empty_other_message">This person hasn\'t added a profile description yet.</string>
+  <string name="info_empty_other_message">This person hasn\'t added\na profile description yet.</string>
   <string name="info_empty_you_action">Edit your profile</string>
   <string name="info_empty_you_message">Your profile is empty. Let people know about you!</string>
   <string name="info_error">Unable to get info</string>

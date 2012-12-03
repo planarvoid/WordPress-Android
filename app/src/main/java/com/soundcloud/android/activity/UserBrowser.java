@@ -3,17 +3,20 @@ package com.soundcloud.android.activity;
 import static android.text.TextUtils.isEmpty;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.soundcloud.android.imageloader.ImageLoader;
-import com.soundcloud.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.fragment.ScListFragment;
+import com.soundcloud.android.fragment.UserDetailsFragment;
+import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.record.SoundRecorder;
+import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.EventAware;
@@ -21,7 +24,6 @@ import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.api.Endpoints;
@@ -38,11 +40,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -52,15 +54,14 @@ import android.widget.ToggleButton;
 
 public class UserBrowser extends ScActivity implements
         FollowStatus.Listener,
-        FetchUserTask.FetchUserListener,
-        EventAware, ActionBar.OnNavigationListener {
+        EventAware, ActionBar.OnNavigationListener, FetchModelTask.FetchModelListener<User> {
 
     public static final String EXTRA_USER_ID = "userId";
     public static final String EXTRA_USER = "user";
 
     /* package */ @Nullable User mUser;
 
-    private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
+    private TextView mUsername, mFullName, mFollowerCount, mTrackCount;
     private ToggleButton mToggleFollow;
     private View mVrStats;
     private ImageView mIcon;
@@ -68,13 +69,11 @@ public class UserBrowser extends ScActivity implements
     private ImageLoader.BindResult avatarResult;
     private FollowStatus mFollowStatus;
 
-    private EmptyCollection mEmptyInfoView;
-    private boolean mDisplayedInfo, mInfoError;
-
-    private FrameLayout mInfoView;
     private FetchUserTask mLoadUserTask;
     protected ViewPager mPager;
     protected TitlePageIndicator mIndicator;
+
+    private UserDetailsFragment mUserDetailsFragment;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -83,7 +82,6 @@ public class UserBrowser extends ScActivity implements
         setContentView(R.layout.user_browser);
 
         mFollowStatus = FollowStatus.get(this);
-        mInfoView = (FrameLayout) getLayoutInflater().inflate(R.layout.user_browser_details_view, null);
 
         mIcon = (ImageView) findViewById(R.id.user_icon);
         mUsername = (TextView) findViewById(R.id.username);
@@ -97,12 +95,6 @@ public class UserBrowser extends ScActivity implements
         AndroidUtils.setTextShadowForGrayBg(mFullName);
         AndroidUtils.setTextShadowForGrayBg(mFollowerCount);
         AndroidUtils.setTextShadowForGrayBg(mTrackCount);
-
-        mLocation = (TextView) mInfoView.findViewById(R.id.location);
-        mWebsite = (TextView) mInfoView.findViewById(R.id.website);
-        mDiscogsName = (TextView) mInfoView.findViewById(R.id.discogs_name);
-        mMyspaceName = (TextView) mInfoView.findViewById(R.id.myspace_name);
-        mDescription = (TextView) mInfoView.findViewById(R.id.description);
 
         if (getResources().getDisplayMetrics().density > 1 || ImageUtils.isScreenXL(this)) {
             mIcon.getLayoutParams().width = 100;
@@ -135,6 +127,8 @@ public class UserBrowser extends ScActivity implements
         } else {
             handleIntent(intent);
         }
+
+        mUserDetailsFragment = UserDetailsFragment.newInstance(mUser.id);
 
         if (isYou()){
             mToggleFollow.setVisibility(View.GONE);
@@ -212,11 +206,16 @@ public class UserBrowser extends ScActivity implements
         }
 
         @Override
-        public ScListFragment getItem(int position) {
-            ScListFragment listFragment = ScListFragment.newInstance(isYou() ?
-                    Tab.values()[position].youContent.uri : Tab.values()[position].userContent.forId(mUser.id));
-            listFragment.setEmptyCollection(getEmptyScreenFromContent(position));
-            return listFragment;
+        public Fragment getItem(int position) {
+            if (Tab.values()[position] == Tab.details){
+                return mUserDetailsFragment;
+            } else {
+                ScListFragment listFragment = ScListFragment.newInstance(isYou() ?
+                        Tab.values()[position].youContent.uri : Tab.values()[position].userContent.forId(mUser.id));
+                listFragment.setEmptyCollection(getEmptyScreenFromContent(position));
+                return listFragment;
+            }
+
         }
 
         @Override
@@ -383,16 +382,18 @@ public class UserBrowser extends ScActivity implements
 
     @Override
     public void onSuccess(User user, String action) {
-        mInfoError = false;
+
+        user.last_updated = System.currentTimeMillis();
+        // update user locally and ensure 1 instance
+        mUser = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
+
         setUser(user);
+        mUserDetailsFragment.onSuccess(mUser,action);
     }
 
     @Override
     public void onError(long userId) {
-        mInfoError = true;
-        if (!mDisplayedInfo) {
-            configureEmptyView();
-        }
+        mUserDetailsFragment.onError(userId);
     }
 
     private void setUser(final User user) {
@@ -435,53 +436,12 @@ public class UserBrowser extends ScActivity implements
                 reloadAvatar();
             }
         }
-        mDisplayedInfo =   setupWebsite(user)
-                         | setupDiscogs(user)
-                         | setupMyspace(user)
-                         | setupLocation(user)
-                         | setupDescription(user);
 
-        configureEmptyView();
     }
 
 
     public User getUser() {
         return mUser;
-    }
-
-    private void configureEmptyView(){
-        if (mDisplayedInfo && mEmptyInfoView != null && mEmptyInfoView.getParent() == mInfoView) {
-            mInfoView.removeView(mEmptyInfoView);
-        } else if (!mDisplayedInfo) {
-            if (mEmptyInfoView == null) {
-                mEmptyInfoView = new EmptyCollection(this);
-            }
-            if (mInfoError) {
-                mEmptyInfoView.setMessageText(R.string.info_error)
-                    .setImage(R.drawable.empty_connection)
-                    .setActionText(-1);
-            } else {
-                if (isOtherUser()) {
-                    mEmptyInfoView.setMessageText(R.string.info_empty_other_message)
-                        .setActionText(-1);
-                } else {
-                    mEmptyInfoView.setMessageText(R.string.info_empty_you_message)
-                        .setActionText(R.string.info_empty_you_action)
-                        .setActionListener(this, new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings")));
-                }
-            }
-
-            if (getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
-                // won't fit in most landscape views
-                mEmptyInfoView.setImageVisibility(false);
-                mEmptyInfoView.setActionText(-1);
-            }
-
-            if (mEmptyInfoView.getParent() != mInfoView) {
-                mInfoView.addView(mEmptyInfoView);
-            }
-        }
-
     }
 
     private void reloadAvatar() {
@@ -505,12 +465,10 @@ public class UserBrowser extends ScActivity implements
         c.loadUserTask = mLoadUserTask;
         c.user = mUser;
         c.pagerIndex = mPager.getCurrentItem();
-        c.infoError = mInfoError;
         return c;
     }
 
     private void fromConfiguration(Configuration c){
-        mInfoError = c.infoError;
         setUser(c.user);
 
         if (c.loadUserTask != null) {
@@ -535,7 +493,7 @@ public class UserBrowser extends ScActivity implements
 
 
     public enum Tab {
-        //details(Page.Users_info, Page.You_info, Content.USER, Content.ME, R.string.tab_title_user_info, R.string.tab_title_my_info),
+        details(Actions.YOUR_INFO, Page.Users_info, Page.You_info, Content.USER, Content.ME, R.string.tab_title_user_info, R.string.tab_title_my_info),
         tracks(Actions.YOUR_SOUNDS,Page.Users_sounds, Page.You_sounds, Content.USER_SOUNDS, Content.ME_SOUNDS, R.string.tab_title_user_sounds, R.string.tab_title_my_sounds),
         likes(Actions.YOUR_LIKES,Page.Users_likes, Page.You_likes, Content.USER_LIKES, Content.ME_LIKES, R.string.tab_title_user_likes, R.string.tab_title_my_likes),
         followings(Actions.YOUR_FOLLOWINGS,Page.Users_following, Page.You_following, Content.USER_FOLLOWINGS, Content.ME_FOLLOWINGS, R.string.tab_title_user_followings, R.string.tab_title_my_followings),
@@ -573,91 +531,6 @@ public class UserBrowser extends ScActivity implements
                 if (t.action.equals(needle)) return t;
             }
             return null;
-        }
-    }
-
-    private boolean setupDiscogs(final User user) {
-        if (!isEmpty(user.discogs_name)) {
-
-            mDiscogsName.setMovementMethod(LinkMovementMethod.getInstance());
-            mDiscogsName.setVisibility(View.VISIBLE);
-            mDiscogsName.setFocusable(true);
-            mDiscogsName.setClickable(true);
-            mDiscogsName.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent viewIntent = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("http://www.discogs.com/artist/" + user.discogs_name));
-                    startActivity(viewIntent);
-                }
-            });
-            return true;
-        } else {
-            mDiscogsName.setVisibility(View.GONE);
-            return false;
-        }
-    }
-
-    private boolean setupDescription(User user) {
-        if (!isEmpty(user.description)) {
-            mDescription.setText(ScTextUtils.fromHtml(user.description));
-            mDescription.setMovementMethod(LinkMovementMethod.getInstance());
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private boolean setupLocation(User user) {
-        final String location = user.getLocation();
-        if (!isEmpty(location)) {
-            mLocation.setText(getString(R.string.from)+" "+location);
-            mLocation.setVisibility(View.VISIBLE);
-            return true;
-        } else {
-            mLocation.setVisibility(View.GONE);
-            return false;
-        }
-    }
-
-    private boolean setupWebsite(final User user) {
-        if (!isEmpty(user.website)) {
-            mWebsite.setText(user.getWebSiteTitle());
-            mWebsite.setVisibility(View.VISIBLE);
-            mWebsite.setFocusable(true);
-            mWebsite.setClickable(true);
-            mWebsite.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent viewIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(user.website));
-                    startActivity(viewIntent);
-                }
-            });
-            return true;
-        } else {
-            mWebsite.setVisibility(View.GONE);
-            return false;
-        }
-    }
-
-    private boolean setupMyspace(final User user) {
-        if (!isEmpty(user.myspace_name)) {
-            mMyspaceName.setMovementMethod(LinkMovementMethod.getInstance());
-            mMyspaceName.setVisibility(View.VISIBLE);
-            mMyspaceName.setFocusable(true);
-            mMyspaceName.setClickable(true);
-            mMyspaceName.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    Intent viewIntent =
-                            new Intent(Intent.ACTION_VIEW,
-                                    Uri.parse("http://www.myspace.com/" + user.myspace_name));
-                    startActivity(viewIntent);
-                }
-            });
-            return true;
-        } else {
-            mMyspaceName.setVisibility(View.GONE);
-            return false;
         }
     }
 }
