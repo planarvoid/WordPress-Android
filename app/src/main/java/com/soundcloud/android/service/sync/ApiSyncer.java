@@ -255,6 +255,16 @@ public class ApiSyncer {
 
                 startPosition = firstUsers.size();
                 break;
+            case ME_FRIENDS:
+                // sync all friends. It is the only way ordering works properly
+                added = SoundCloudApplication.MODEL_MANAGER.fetchMissingCollectionItems(
+                        mApi,
+                        remote,
+                        Content.USERS,
+                        false,
+                        -1
+                );
+                break;
             default:
                 // ensure the first couple of pages of items for quick loading
                 added = SoundCloudApplication.MODEL_MANAGER.fetchMissingCollectionItems(
