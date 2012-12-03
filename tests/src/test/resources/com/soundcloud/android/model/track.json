@@ -2,7 +2,7 @@
   "bpm": null,
   "isrc": null,
   "stream_url": "http://api.soundcloud.com/tracks/10853436/stream",
-  "tag_list": "soundcloud:source=web-record",
+  "tag_list": "soundcloud:source=web-record" "something spaced out" "disco",
   "key_signature": null,
   "download_url": "http://i1.soundcloud.com/stream",
   "user_playback_count": 1,

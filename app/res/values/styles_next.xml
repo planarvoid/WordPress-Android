@@ -19,13 +19,22 @@
         <item name="android:paddingRight">10dp</item>
     </style>
 
-    <style name="PlayerAction.Button" parent="PlayerAction">
-        <item name="android:background">@drawable/btn_default_darker_states</item>
-    </style>
-
     <style name="PlayerAction.ToggleButton" parent="PlayerAction">
         <item name="android:background">@drawable/toggle_player_action_states</item>
         <item name="android:drawablePadding">5dp</item>
+    </style>
+
+    <style name="PlayerAction.ShareButton" parent="PlayerAction">
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+        <item name="android:layout_width">50dp</item>
+        <item name="android:background">@drawable/btn_default_darker_states</item>
+    </style>
+
+    <style name="PlayerAction.InfoButton" parent="PlayerAction.ShareButton">
+        <item name="android:background">@null</item>
+        <item name="android:textSize">14dp</item>
+        <item name="android:textColor">@drawable/toggle_txt_player_info_states</item>
     </style>
 
     <style name="UserBrowser"/>
