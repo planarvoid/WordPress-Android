@@ -9,8 +9,6 @@
     <dimen name="search_list_icon_width">67px</dimen>
     <dimen name="search_list_icon_height">67px</dimen>
 
-    <dimen name="list_icon_width">100px</dimen>
-    <dimen name="list_icon_height">100px</dimen>
     <dimen name="list_txt_pull_size">18sp</dimen>
     <dimen name="list_txt_main_size">18sp</dimen>
     <dimen name="list_txt_sub_size">16sp</dimen>
