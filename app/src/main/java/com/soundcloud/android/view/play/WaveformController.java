@@ -407,16 +407,20 @@ public class WaveformController extends TouchLayout {
 
         if (WaveformCache.get().getData(track, new WaveformCache.WaveformCallback() {
             @Override
-            public void onWaveformDataLoaded(WaveformData data) {
-                mWaveformErrorCount = 0;
-                mWaveformState = WaveformState.OK;
-                mOverlay.setBackgroundDrawable(new WaveformDrawable(data, mWaveformColor));
-                onDoneLoadingWaveform(true, mOnScreen);
+            public void onWaveformDataLoaded(Track track, WaveformData data) {
+                if (track.equals(mTrack)) {
+                    mWaveformErrorCount = 0;
+                    mWaveformState = WaveformState.OK;
+                    mOverlay.setBackgroundDrawable(new WaveformDrawable(data, mWaveformColor));
+                    onDoneLoadingWaveform(true, mOnScreen);
+                }
             }
             @Override
-            public void onWaveformError() {
-                mWaveformState = WaveformState.ERROR;
-                WaveformController.this.onWaveformError();
+            public void onWaveformError(Track track) {
+                if (track.equals(mTrack)) {
+                    mWaveformState = WaveformState.ERROR;
+                    WaveformController.this.onWaveformError();
+                }
             }
 
         }) == null) {
