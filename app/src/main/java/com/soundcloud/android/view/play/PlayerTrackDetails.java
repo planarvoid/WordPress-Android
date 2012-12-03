@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.track.TrackComments;
 import com.soundcloud.android.activity.track.TrackLikers;
+import com.soundcloud.android.activity.track.TrackReposters;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.FlowLayout;
@@ -23,12 +24,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class PlayerTrackDetails extends RelativeLayout {
-    private final ScPlayer mPlayer;
+    private final ScPlayer   mPlayer;
     private final FlowLayout mTrackTags;
+
     private final TextView mLikersText;
-    private final View mLikersHr;
+    private final TextView mRepostersText;
     private final TextView mCommentersTxt;
-    private final View mCommentersHr;
+
+    private final View       mLikersHr;
+    private final View       mRepostersHr;
+    private final View       mCommentersHr;
     private @Nullable Track mPlayingTrack;
 
     private boolean mTrackInfoFilled;
@@ -39,10 +44,11 @@ public class PlayerTrackDetails extends RelativeLayout {
         setBackgroundColor(0xFFFFFFFF);
 
         mPlayer = player;
-
         mTrackTags = (FlowLayout) findViewById(R.id.tags_holder);
+
         mLikersText = (TextView) findViewById(R.id.likers_txt);
-        mLikersHr = findViewById(R.id.likers_hr);
+        mLikersHr   = findViewById(R.id.likers_hr);
+
         mLikersText.setVisibility(View.GONE);
         mLikersHr.setVisibility(View.GONE);
         mLikersText.setOnClickListener(new OnClickListener() {
@@ -56,8 +62,25 @@ public class PlayerTrackDetails extends RelativeLayout {
             }
         });
 
+        mRepostersText = (TextView) findViewById(R.id.reposters_txt);
+        mRepostersHr   = findViewById(R.id.reposters_hr);
+
+        mRepostersText.setVisibility(View.GONE);
+        mRepostersHr.setVisibility(View.GONE);
+        mRepostersText.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPlayingTrack != null) {
+                    Intent i = new Intent(mPlayer, TrackReposters.class);
+                    i.putExtra("track_id", mPlayingTrack.id);
+                    mPlayer.startActivity(i);
+                }
+            }
+        });
+
         mCommentersTxt = (TextView) findViewById(R.id.commenters_txt);
-        mCommentersHr = findViewById(R.id.commenters_hr);
+        mCommentersHr  = findViewById(R.id.commenters_hr);
+
         mCommentersTxt.setVisibility(View.GONE);
         mCommentersHr.setVisibility(View.GONE);
         mCommentersTxt.setOnClickListener(new OnClickListener() {
@@ -95,6 +118,16 @@ public class PlayerTrackDetails extends RelativeLayout {
             mLikersHr.setVisibility(View.VISIBLE);
             mLikersText.setText(getResources().getQuantityString(R.plurals.track_info_likers,
                     mPlayingTrack.likes_count, mPlayingTrack.likes_count));
+        }
+
+        if (mPlayingTrack.reposts_count == 0) {
+            mRepostersText.setVisibility(View.GONE);
+            mRepostersHr.setVisibility(View.GONE);
+        } else {
+            mRepostersText.setVisibility(View.VISIBLE);
+            mRepostersHr.setVisibility(View.VISIBLE);
+            mRepostersText.setText(getResources().getQuantityString(R.plurals.track_info_reposters,
+                    mPlayingTrack.reposts_count, mPlayingTrack.reposts_count));
         }
 
         if (mPlayingTrack.comment_count == 0) {

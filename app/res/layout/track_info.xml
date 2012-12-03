@@ -8,41 +8,32 @@
         <RelativeLayout android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/info_holder">
-            <TextView android:id="@+id/likers_txt"
-                      android:layout_width="fill_parent"
-                      android:layout_height="60dip"
-                      android:drawableRight="@drawable/arrow_states"
-                      android:drawableLeft="@drawable/ic_info_likes_states"
-                      android:drawablePadding="15dip"
-                      android:paddingLeft="12dip"
-                      android:paddingRight="12dip"
-                      style="@style/txt_list_main"
-                      android:background="@drawable/list_selector_background"
-                      android:gravity="left|center_vertical"/>
-            <View android:layout_width="fill_parent"
-                  android:layout_height="1px"
-                  android:layout_below="@+id/likers_txt"
-                  android:layout_alignWithParentIfMissing="true"
-                  android:background="?android:attr/listDivider"
-                  android:id="@+id/likers_hr"/>
-            <TextView android:id="@+id/commenters_txt"
-                      android:layout_width="fill_parent"
+            <TextView style="@style/Player.TrackInfo.Label"
+                      android:id="@+id/likers_txt"
+                      android:drawableLeft="@drawable/ic_info_likes_states"/>
+
+            <View style="@style/Player.TrackInfo.Separator"
+                  android:id="@+id/likers_hr"
+                  android:layout_below="@+id/likers_txt"/>
+
+            <TextView style="@style/Player.TrackInfo.Label"
+                      android:id="@+id/reposters_txt"
                       android:layout_below="@+id/likers_hr"
-                      android:layout_height="60dip"
-                      android:drawableRight="@drawable/arrow_states"
-                      android:drawableLeft="@drawable/ic_info_comments_states"
-                      android:drawablePadding="15dip"
-                      android:paddingLeft="12dip"
-                      android:paddingRight="12dip"
-                      style="@style/txt_list_main"
-                      android:background="@drawable/list_selector_background"
-                      android:gravity="left|center_vertical"/>
-            <View android:layout_width="fill_parent"
-                  android:layout_height="1px"
-                  android:layout_below="@+id/commenters_txt"
-                  android:layout_alignWithParentIfMissing="true"
-                  android:background="?android:attr/listDivider"
-                  android:id="@+id/commenters_hr"/>
+                      android:drawableLeft="@drawable/ic_info_repost_states"/>
+
+            <View style="@style/Player.TrackInfo.Separator"
+                  android:id="@+id/reposters_hr"
+                  android:layout_below="@+id/reposters_txt"/>
+
+            <TextView style="@style/Player.TrackInfo.Label"
+                      android:id="@+id/commenters_txt"
+                      android:layout_below="@+id/reposters_hr"
+                      android:drawableLeft="@drawable/ic_info_comments_states"/>
+
+            <View style="@style/Player.TrackInfo.Separator"
+                  android:id="@+id/commenters_hr"
+                  android:layout_below="@+id/commenters_txt"/>
+
             <com.soundcloud.android.view.FlowLayout android:id="@+id/tags_holder"
                                                     android:layout_marginTop="10dip"
                                                     android:layout_below="@id/commenters_hr"
@@ -50,6 +41,7 @@
                                                     android:layout_height="wrap_content"
                                                     android:layout_width="fill_parent"
                                                     android:padding="5dip"/>
+
             <TextView android:id="@+id/txtInfo"
                       android:layout_height="wrap_content"
                       style="@style/txt_player_track_info"
@@ -69,8 +61,7 @@
               android:inflatedId="@+id/loading_layout"
               android:layout="@layout/track_info_loading_layout"
               android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
-            />
+              android:layout_height="fill_parent"/>
     <View android:layout_width="fill_parent"
           android:layout_alignParentTop="true"
           android:layout_height="5dip"
