@@ -26,7 +26,7 @@ public final class WaveformCache {
     public WaveformData getData(final Track track, final WaveformCallback callback) {
         WaveformData data = mCache.get(track);
         if (data != null) {
-            callback.onWaveformDataLoaded(data);
+            callback.onWaveformDataLoaded(track, data);
             return data;
         } else {
             new WaveformFetcher() {
@@ -34,9 +34,9 @@ public final class WaveformCache {
                 protected void onPostExecute(WaveformData waveformData) {
                     if (waveformData != null) {
                         mCache.put(track, waveformData);
-                        callback.onWaveformDataLoaded(waveformData);
+                        callback.onWaveformDataLoaded(track, waveformData);
                     } else {
-                        callback.onWaveformError();
+                        callback.onWaveformError(track);
                     }
                 }
             }.executeOnThreadPool(track.getWaveformDataURL());
@@ -45,7 +45,7 @@ public final class WaveformCache {
     }
 
     public interface WaveformCallback {
-        void onWaveformDataLoaded(WaveformData data);
-        void onWaveformError();
+        void onWaveformDataLoaded(Track track, WaveformData data);
+        void onWaveformError(Track track);
     }
 }
