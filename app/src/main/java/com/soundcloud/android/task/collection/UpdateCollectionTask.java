@@ -5,13 +5,11 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
-import android.annotation.TargetApi;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.BaseAdapter;
@@ -20,7 +18,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Set;
 
-public class UpdateCollectionTask extends AsyncTask<Set<Long>, String, Boolean> {
+public class UpdateCollectionTask extends ParallelAsyncTask<Set<Long>, String, Boolean> {
     private AndroidCloudAPI mApi;
     private String mEndpoint;
     private WeakReference<BaseAdapter> mAdapterReference;
@@ -64,17 +62,4 @@ public class UpdateCollectionTask extends AsyncTask<Set<Long>, String, Boolean> 
         }
         return false;
     }
-
-    @TargetApi(11)
-    public final AsyncTask<Set<Long>, String, Boolean> executeOnThreadPool(
-            Set<Long>... params) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            // The execute() method uses a thread pool
-            return execute(params);
-        } else {
-            // The execute() method uses a single thread, so call executeOnExecutor() instead.
-            return executeOnExecutor(THREAD_POOL_EXECUTOR, params);
-        }
-    }
-
 }

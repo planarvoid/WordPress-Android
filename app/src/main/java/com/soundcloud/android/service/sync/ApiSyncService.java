@@ -3,13 +3,12 @@ package com.soundcloud.android.service.sync;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.task.ParallelAsyncTask;
 
 import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SyncResult;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -112,18 +111,7 @@ public class ApiSyncService extends Service {
         }
     }
 
-    private class ApiTask extends AsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> {
-        public final AsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> executeOnThreadPool(
-                CollectionSyncRequest... params) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                // The execute() method uses a thread pool
-                return execute(params);
-            } else {
-                // The execute() method uses a single thread, so call executeOnExecutor() instead.
-                return executeOnExecutor(THREAD_POOL_EXECUTOR, params);
-            }
-        }
-
+    private class ApiTask extends ParallelAsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> {
         @Override
         protected void onPreExecute() {
             mActiveTaskCount++;

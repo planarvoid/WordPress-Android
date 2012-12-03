@@ -1,15 +1,13 @@
 package com.soundcloud.android.imageloader;
 
+import com.soundcloud.android.task.ParallelAsyncTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -677,16 +675,7 @@ public class ImageLoader {
         }
     }
 
-    private class ImageTask extends AsyncTask<ImageRequest, ImageRequest, ImageRequest> {
-        @TargetApi(11)
-        public final AsyncTask<ImageRequest, ImageRequest, ImageRequest> executeOnThreadPool(ImageRequest... params) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                return execute(params);
-            } else {
-                return executeOnExecutor(THREAD_POOL_EXECUTOR, params);
-            }
-        }
-
+    private class ImageTask extends ParallelAsyncTask<ImageRequest, ImageRequest, ImageRequest> {
         @Override
         protected void onPreExecute() {
             mActiveTaskCount++;

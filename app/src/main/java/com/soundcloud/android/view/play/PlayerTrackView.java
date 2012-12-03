@@ -37,7 +37,6 @@ import android.view.ViewConfiguration;
 import android.view.ViewStub;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -361,9 +360,8 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public void onDataConnected() {
-        if (mWaveformController.waveformResult == ImageLoader.BindResult.ERROR) {
-            mWaveformController.updateTrack(mTrack, mQueuePosition, mOnScreen);
-        }
+        mWaveformController.onDataConnected();
+
         if (!mLandscape && mCurrentArtBindResult == ImageLoader.BindResult.ERROR) {
             updateArtwork(mOnScreen);
         }

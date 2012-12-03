@@ -44,6 +44,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -78,10 +80,7 @@ public class Track extends Sound implements Playable {
     public String user_uri;
 
     @JsonView(Views.Full.class) public String waveform_url;
-
-
     @JsonView(Views.Mini.class) public String stream_url;
-
     @JsonView(Views.Full.class) public int user_playback_count;
 
 
@@ -561,6 +560,23 @@ public class Track extends Sound implements Playable {
 
     public String getAvatarUrl() {
         return user == null ? null : user.avatar_url;
+    }
+
+    public @Nullable URL getWaveformDataURL() {
+        if (TextUtils.isEmpty(waveform_url)) {
+            return null;
+        } else {
+            try {
+                Uri waveform = Uri.parse(waveform_url);
+                return new URL("http://wis.sndcdn.com/"+waveform.getLastPathSegment());
+            } catch (MalformedURLException e) {
+                return null;
+            }
+        }
+    }
+
+    public boolean hasWaveform() {
+        return !TextUtils.isEmpty(waveform_url);
     }
 
     @Override

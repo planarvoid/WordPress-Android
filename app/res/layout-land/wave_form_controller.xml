@@ -18,12 +18,13 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"/>
 
-        <ImageView android:id="@+id/progress_overlay"
-                   android:src="@drawable/player_wave_bg"
-                   android:layout_alignParentTop="true"
-                   android:layout_width="fill_parent"
-                   android:layout_height="fill_parent"
-                   android:scaleType="fitXY"/>
+        <View
+                android:id="@+id/progress_overlay"
+                android:layout_marginBottom="@dimen/player_portrait_waveform_margin_bottom"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                />
+
 
         <com.soundcloud.android.view.play.PlayerTouchBar android:id="@+id/track_touch_bar"
                                                     android:background="#00000000"
