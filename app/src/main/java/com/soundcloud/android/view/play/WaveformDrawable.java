@@ -15,13 +15,15 @@ import android.graphics.drawable.Drawable;
 public class WaveformDrawable extends Drawable {
     private @NotNull final WaveformData mData;
     private final Paint mDrawPaint;
+    private final boolean mDrawHalf;
 
-    public WaveformDrawable(@NotNull WaveformData data, int drawColor) {
+    public WaveformDrawable(@NotNull WaveformData data, int drawColor, boolean drawHalf) {
         if (data == null) throw new IllegalArgumentException("Need waveform data");
 
         mData = data;
         mDrawPaint = new Paint();
         mDrawPaint.setColor(drawColor);
+        mDrawHalf = drawHalf;
     }
 
     @Override
@@ -31,13 +33,28 @@ public class WaveformDrawable extends Drawable {
 
         final int height = canvas.getHeight();
 
-        for (int i =0; i<scaled.samples.length; i++) {
-            final float scaledHeight = scaled.samples[i] * (float) height / scaled.maxAmplitude;
-            canvas.drawLine(
-                    i, 0,
-                    i, height - scaledHeight
-                    , mDrawPaint);
+        if (mDrawHalf){
+            for (int i = 0; i < scaled.samples.length; i++) {
+                final float scaledHeight = scaled.samples[i] * (float) height / scaled.maxAmplitude;
+                canvas.drawLine(
+                        i, 0,
+                        i, height - scaledHeight
+                        , mDrawPaint);
+            }
+        } else {
+            for (int i = 0; i < scaled.samples.length; i++) {
+                final float scaledHeight = (scaled.samples[i] * (float) height / scaled.maxAmplitude)/2;
+                canvas.drawLine(
+                        i, 0,
+                        i, height/2 - scaledHeight
+                        , mDrawPaint);
+                canvas.drawLine(
+                        i, height / 2 + scaledHeight,
+                        i, height
+                        , mDrawPaint);
+            }
         }
+
     }
 
     @Override

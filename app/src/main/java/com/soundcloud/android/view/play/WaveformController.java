@@ -411,7 +411,7 @@ public class WaveformController extends TouchLayout {
                 if (track.equals(mTrack)) {
                     mWaveformErrorCount = 0;
                     mWaveformState = WaveformState.OK;
-                    mOverlay.setBackgroundDrawable(new WaveformDrawable(data, mWaveformColor));
+                    mOverlay.setBackgroundDrawable(new WaveformDrawable(data, mWaveformColor, !isLandscape()));
                     onDoneLoadingWaveform(true, mOnScreen);
                 }
             }
