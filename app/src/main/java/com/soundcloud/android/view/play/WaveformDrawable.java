@@ -50,6 +50,6 @@ public class WaveformDrawable extends Drawable {
 
     @Override
     public int getOpacity() {
-        return 100;
+        return 95;
     }
 }

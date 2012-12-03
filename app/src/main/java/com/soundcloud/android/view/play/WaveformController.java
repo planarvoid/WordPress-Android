@@ -26,7 +26,6 @@ import android.view.ViewConfiguration;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
-import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -523,17 +522,6 @@ public class WaveformController extends TouchLayout {
         mCurrentTopComments = null;
         if (mode == TOUCH_MODE_AVATAR_DRAG) mode = TOUCH_MODE_NONE;
     }
-
-    @Override
-    protected boolean getChildStaticTransformation(View child, Transformation t) {
-        boolean ret = super.getChildStaticTransformation(child, t);
-        if (child == mWaveformFrame) {
-            t.setAlpha((float) 0.95);
-            return true;
-        }
-        return ret;
-    }
-
 
     private void onWaveformError() {
         mWaveformErrorCount++;
