@@ -71,6 +71,12 @@ public class AssociationManager {
     private final AssociatedSoundTask.AssociatedListener likeListener = new AssociatedSoundTask.AssociatedListener() {
         @Override
         public void onNewStatus(Sound sound, boolean isAssociated) {
+            sound = (Sound) SoundCloudApplication.MODEL_MANAGER.cache(sound, ScResource.CacheUpdateMode.NONE);
+            if (isAssociated) {
+                sound.likes_count += 1;
+            } else {
+                sound.likes_count -= 1;
+            }
             onLikeStatusSet(sound, isAssociated);
             updateLocalState(sound, Content.ME_LIKES.uri, isAssociated);
         }
@@ -79,6 +85,12 @@ public class AssociationManager {
     private final AssociatedSoundTask.AssociatedListener repostListener = new AssociatedSoundTask.AssociatedListener() {
         @Override
         public void onNewStatus(Sound sound, boolean isAssociated) {
+            sound = (Sound) SoundCloudApplication.MODEL_MANAGER.cache(sound, ScResource.CacheUpdateMode.NONE);
+            if (isAssociated){
+                sound.reposts_count += 1;
+            } else {
+                sound.reposts_count -= 1;
+            }
             onRepostStatusSet(sound, isAssociated);
             updateLocalState(sound, Content.ME_REPOSTS.uri, isAssociated);
         }

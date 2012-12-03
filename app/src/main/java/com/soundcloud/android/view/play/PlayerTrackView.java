@@ -599,7 +599,8 @@ public class PlayerTrackView extends LinearLayout implements
             if (mTrack != null && mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
                 mTrack.user_like = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false);
                 mTrack.user_repost = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isRepost, false);
-                setAssociationStatus();
+                setTrackStats(mToggleRepost, mTrack.reposts_count, mTrack.user_repost);
+                setTrackStats(mToggleLike, mTrack.likes_count, mTrack.user_like);
             }
 
         } else if (Sound.ACTION_SOUND_INFO_UPDATED.equals(action)) {
