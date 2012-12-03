@@ -29,12 +29,7 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
 
         ContentResolver resolver = api.getContext().getContentResolver();
 
-        List<Long> idList = SoundCloudDB.idCursorToList(resolver.query(
-                SoundCloudDB.addPagingParams(params.contentUri, params.startIndex, params.maxToLoad)
-                        .appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY,"1").build(),
-                null, null, null, null)
-        );
-
+        List<Long> idList = SoundCloudDB.getStoredIds(resolver,params.contentUri, params.startIndex, params.maxToLoad);
         boolean keepGoing = idList.size() > 0;
         // if we already have all the data, this is a NOP
         try {

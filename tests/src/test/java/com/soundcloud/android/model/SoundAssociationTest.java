@@ -5,6 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,12 +46,16 @@ public class SoundAssociationTest {
                         SoundAssociationHolder.class);
 
         expect(sounds).not.toBeNull();
+
         expect(sounds.size()).toEqual(38);
 
         expect(manager.writeCollection(sounds,
                 Content.ME_SOUNDS.uri,
                 100l,
                 ScResource.CacheUpdateMode.NONE)).toEqual(41); // 38 tracks and 3 diff users
+
+        expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
+                Content.ME_SOUNDS.uri,0,50).size()).toEqual(38);
 
         CollectionHolder<SoundAssociation> newItems = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(
                 DefaultTestRunner.application.getContentResolver(), SoundAssociation.class, Content.ME_SOUNDS.uri);
