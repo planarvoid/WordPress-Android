@@ -80,4 +80,6 @@
     <string name="tour_login_header">Log in with your account</string>
     <string name="confirm">Confirm</string>
 
+    <string name="title_settings">Settings</string>
+
 </resources>

@@ -185,7 +185,7 @@ public class ScSearch extends ScActivity {
     }
 
     @Override
-    protected int getMenuResourceId(){
+    public int getMenuResourceId(){
             return -1;
     }
 
