@@ -148,7 +148,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void setContentView(View layout) {
-        layout.setBackground(getWindow().getDecorView().getBackground());
+        layout.setBackgroundDrawable(getWindow().getDecorView().getBackground());
         layout.setDrawingCacheBackgroundColor(Color.WHITE);
         mRootView.setContent(layout);
     }
