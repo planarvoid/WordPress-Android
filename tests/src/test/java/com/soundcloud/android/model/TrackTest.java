@@ -275,6 +275,14 @@ public class TrackTest {
         compareTracks(t, t2);
     }
 
+    @Test
+    public void shouldGetWaveformDataURL() throws Exception {
+        Track t = new Track();
+        expect(t.getWaveformDataURL()).toBeNull();
+        t.waveform_url = "http://waveforms.soundcloud.com/bypOn0pnRvFf_m.png";
+        expect(t.getWaveformDataURL().toString()).toEqual("http://wis.sndcdn.com/bypOn0pnRvFf_m.png");
+    }
+
     private void compareTracks(Track t, Track t2) {
         expect(t2.id).toEqual(t.id);
         expect(t2.title).toEqual(t.title);

@@ -1,13 +1,12 @@
 package com.soundcloud.android.view.play;
 
-import static com.soundcloud.android.imageloader.ImageLoader.Options;
 
-import com.soundcloud.android.imageloader.ImageLoader;
-import com.soundcloud.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.cache.WaveformCache;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.WaveformData;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.TouchLayout;
 import org.jetbrains.annotations.NotNull;
@@ -16,11 +15,9 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.LightingColorFilter;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,8 +28,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
@@ -41,12 +36,14 @@ import java.util.Collections;
 import java.util.List;
 
 public class WaveformController extends TouchLayout {
-    protected static final long CLOSE_COMMENT_DELAY = 5000;
     private static final String TAG = WaveformController.class.getSimpleName();
+
+    protected static final long CLOSE_COMMENT_DELAY = 5000;
+    private static final int OVERLAY_BG_COLOR = Color.WHITE;
 
     protected @Nullable PlayerAvatarBar mPlayerAvatarBar;
 
-    private ImageView mOverlay;
+    private View mOverlay;
     protected ProgressBar mProgressBar;
     protected WaveformHolder mWaveformHolder;
     protected RelativeLayout mWaveformFrame;
@@ -62,16 +59,15 @@ public class WaveformController extends TouchLayout {
     protected @Nullable List<Comment> mCurrentComments;
     protected List<Comment> mCurrentTopComments;
     protected @Nullable Comment mCurrentShowingComment;
-    public ImageLoader.BindResult waveformResult;
+
+    private WaveformState mWaveformState;
 
     protected @Nullable CommentPanel mCurrentCommentPanel;
 
     protected Comment mAddComment;
     protected Comment mLastAutoComment;
 
-
     private int mWaveformErrorCount, mDuration;
-
     private float mSeekPercent;
 
     protected final Handler mHandler = new Handler();
@@ -106,6 +102,7 @@ public class WaveformController extends TouchLayout {
     private boolean mShowingSmoothProgress;
     private boolean mIsBuffering, mWaitingForSeekComplete;
     private int mTouchSlop;
+    private int mWaveformColor;
 
 
     public WaveformController(Context context, AttributeSet attrs) {
@@ -126,7 +123,10 @@ public class WaveformController extends TouchLayout {
         mWaveformHolder = (WaveformHolder) findViewById(R.id.waveform_holder);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mCurrentTimeDisplay = (PlayerTime) findViewById(R.id.currenttime);
-        mOverlay = (ImageView) findViewById(R.id.progress_overlay);
+
+        mWaveformColor = mPlayer.getResources().getColor(R.color.playerControlBackground);
+        mOverlay = findViewById(R.id.progress_overlay);
+        mOverlay.setBackgroundColor(OVERLAY_BG_COLOR);
 
         mPlayerTouchBar = (PlayerTouchBar) findViewById(R.id.track_touch_bar);
         mPlayerAvatarBar = (PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
@@ -135,15 +135,7 @@ public class WaveformController extends TouchLayout {
         mCommentLines = new WaveformCommentLines(mPlayer, null);
         mWaveformHolder.addView(mCommentLines);
 
-        mOverlay.setVisibility(View.INVISIBLE);
         mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
-
-        LightingColorFilter lcf = new LightingColorFilter(1, mPlayer.getResources().getColor(
-                R.color.playerControlBackground));
-        mOverlay.setBackgroundColor(Color.TRANSPARENT);
-        mOverlay.setColorFilter(lcf);
-        mOverlay.setScaleType(ScaleType.FIT_XY);
-        setStaticTransformationsEnabled(true);
         mPlayerTouchBar.setLandscape(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
 
         // override default touch layout functionality, these views are all we want to respond
@@ -255,7 +247,7 @@ public class WaveformController extends TouchLayout {
 
     public void onBufferingStop() {
         mIsBuffering = false;
-        if (waveformResult != BindResult.LOADING && !mWaitingForSeekComplete){
+        if (mWaveformState != WaveformState.LOADING && !mWaitingForSeekComplete){
             hideWaiting();
         }
     }
@@ -271,7 +263,7 @@ public class WaveformController extends TouchLayout {
     public void onSeekComplete(){
         stopSmoothProgress();
         mWaitingForSeekComplete = false;
-        if (waveformResult != BindResult.LOADING){
+        if (mWaveformState != WaveformState.LOADING) {
             hideWaiting();
         }
     }
@@ -391,13 +383,10 @@ public class WaveformController extends TouchLayout {
         }
     }
 
-    public void updateTrack(@Nullable Track track, int queuePosition, boolean postAtFront) {
+    public void updateTrack(@Nullable Track track, int queuePosition, boolean visibleNow) {
         mQueuePosition = queuePosition;
-        if (track == null || (mTrack != null
-                && mTrack.id == track.id
-                && waveformResult != BindResult.ERROR)) {
-            return;
-        }
+        if (track == null ||
+           (mTrack != null && mTrack.id == track.id && mWaveformState != WaveformState.ERROR)) return;
 
         final boolean changed = mTrack != track;
         mTrack = track;
@@ -407,62 +396,38 @@ public class WaveformController extends TouchLayout {
         if (changed) {
             stopSmoothProgress();
             determineProgressInterval();
-            ImageLoader.get(mPlayer).unbind(mOverlay);
-            // TODO best place to do this?
-            if (mPlayer.isConnected()) ImageLoader.get(mPlayer).clearErrors();
         }
 
-        if (TextUtils.isEmpty(track.waveform_url)) {
-            Log.w(TAG, "track "+track.title+" has no waveform");
-
-            waveformResult = BindResult.ERROR;
-            mOverlay.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.player_wave_bg));
+        if (!track.hasWaveform()) {
+            Log.w(TAG, "track " + track.title + " has no waveform");
+            mWaveformState = WaveformState .ERROR;
+            mOverlay.setBackgroundColor(OVERLAY_BG_COLOR);
             onDoneLoadingWaveform(false, false);
             return;
         }
 
-        if (waveformResult == BindResult.ERROR) {
-            // clear loader errors so we can try to reload
-            ImageLoader.get(mPlayer).clearErrors();
-        } else {
-            mWaveformErrorCount = 0;
-        }
+        if (WaveformCache.get().getData(track, new WaveformCache.WaveformCallback() {
+            @Override
+            public void onWaveformDataLoaded(WaveformData data) {
+                mWaveformErrorCount = 0;
+                mWaveformState = WaveformState.OK;
+                mOverlay.setBackgroundDrawable(new WaveformDrawable(data, mWaveformColor));
+                onDoneLoadingWaveform(true, mOnScreen);
+            }
+            @Override
+            public void onWaveformError() {
+                mWaveformState = WaveformState.ERROR;
+                WaveformController.this.onWaveformError();
+            }
 
-        waveformResult = ImageLoader.get(mPlayer).bind(mOverlay, track.waveform_url,
-                new ImageLoader.Callback() {
-                    @Override
-                    public void onImageError(ImageView view, String url, Throwable error) {
-                        waveformResult = BindResult.ERROR;
-                        onWaveformError();
-                    }
-
-                    @Override
-                    public void onImageLoaded(ImageView view, String url) {
-                        waveformResult = BindResult.OK;
-                        onDoneLoadingWaveform(true, mOnScreen);
-                    }
-                }, postAtFront ? Options.postAtFront() : new Options());
-
-
-        switch (waveformResult) {
-            case OK:
-                onDoneLoadingWaveform(true, false);
-                break;
-            case LOADING:
-                showWaiting();
-                mOverlay.setVisibility(View.INVISIBLE);
-                mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
-                break;
-            case ERROR:
-                showWaiting();
-                mOverlay.setVisibility(View.INVISIBLE);
-                mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
-                onWaveformError();
-                break;
+        }) == null) {
+            // loading
+            showWaiting();
+            mWaveformState = WaveformState.LOADING;
+            mOverlay.setVisibility(View.INVISIBLE);
+            mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
         }
     }
-
-
 
     protected void showCurrentComment(boolean userTriggered) {
         if (mCurrentShowingComment != null) {
@@ -575,8 +540,7 @@ public class WaveformController extends TouchLayout {
         if (mWaveformErrorCount < MAX_WAVEFORM_RETRIES) {
             updateTrack(mTrack, mQueuePosition, mOnScreen);
         } else {
-            mOverlay.setImageDrawable(mPlayer.getResources()
-                    .getDrawable(R.drawable.player_wave_bg));
+            mOverlay.setBackgroundColor(OVERLAY_BG_COLOR);
             onDoneLoadingWaveform(false, mOnScreen);
         }
     }
@@ -592,7 +556,6 @@ public class WaveformController extends TouchLayout {
         if (success && mOverlay.getVisibility() != View.VISIBLE) {
             if (animate) mOverlay.startAnimation(aa);
             mOverlay.setVisibility(View.VISIBLE);
-
         }
 
         if (mCurrentTimeDisplay.getVisibility() != View.VISIBLE) {
@@ -686,7 +649,7 @@ public class WaveformController extends TouchLayout {
             queueUnique(UI_UPDATE_COMMENT_POSITION);
         } else if (input.view == mPlayerTouchBar && mPlayer.isSeekable()) {
             mode = TOUCH_MODE_SEEK_DRAG;
-            if (mPlayer != null && mPlayer.isSeekable()) {
+            if (mPlayer.isSeekable()) {
                 mLastAutoComment = null; //reset auto comment in case they seek backward
                 mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
                 queueUnique(UI_UPDATE_SEEK);
@@ -785,7 +748,7 @@ public class WaveformController extends TouchLayout {
                     break;
 
                 case UI_SEND_SEEK:
-                    if (mPlayer != null && mPlayer.isSeekable()){
+                    if (mPlayer.isSeekable()){
                         mPlayer.sendSeek(mSeekPercent);
                     }
                     mPlayerTouchBar.clearSeek();
@@ -846,5 +809,15 @@ public class WaveformController extends TouchLayout {
 
     public void setPlayerTrackView(PlayerTrackView playerTrackView) {
         mPlayerTrackView = playerTrackView;
+    }
+
+    public void onDataConnected() {
+        if (mWaveformState == WaveformController.WaveformState.ERROR) {
+            updateTrack(mTrack, mQueuePosition, mOnScreen);
+        }
+    }
+
+    public enum WaveformState {
+        OK, LOADING, ERROR
     }
 }
