@@ -25,8 +25,8 @@
   <string name="authentication_error_title">Oops!</string>
   <string name="authentication_find_friends_on_facebook">\u0020\u0020\u0020\u0020Find Friends from Facebook</string>
   <string name="authentication_log_in">Log In</string>
-  <string name="authentication_log_in_with_facebook_two_lines">&lt;small&gt;Log in with&lt;/small&gt; &lt;br&gt;&lt;b&gt;Facebook&lt;/b&gt;</string>
-  <string name="authentication_log_in_with_facebook">Log In with Facebook</string>
+  <string name="authentication_log_in_with_facebook_two_lines">&lt;small&gt;Sign in with&lt;/small&gt; &lt;br&gt;&lt;b&gt;Facebook&lt;/b&gt;</string>
+  <string name="authentication_log_in_with_facebook">Sign in with Facebook</string>
   <string name="authentication_log_in_with_facebook_ssl_error">Error connecting to Facebook (SSL)</string>
   <string name="authentication_login_error_password_message">We couldn\'t log you in. Sure you had the right email and password?</string>
   <string name="authentication_login_progress_message">Logging you in</string>
@@ -239,7 +239,7 @@
   <string name="image_where">How would you like to add an image?</string>
   <string name="info_comments_add_comment">Add a comment</string>
   <string name="info_comments_comments">Comments</string>
-  <string name="info_empty_other_message">This person hasn\'t added a profile description yet.</string>
+  <string name="info_empty_other_message">This person hasn\'t added\na profile description yet.</string>
   <string name="info_empty_you_action">Edit your profile</string>
   <string name="info_empty_you_message">Your profile is empty. Let people know about you!</string>
   <string name="info_error">Unable to get info</string>

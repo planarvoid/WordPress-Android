@@ -237,9 +237,9 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
             if (newItem instanceof Refreshable) {
                 Refreshable refreshable = (Refreshable) newItem;
-                ScResource resource = refreshable.getRefreshableResource();
-
                 if (refreshable.isStale()) {
+
+                    ScResource resource = refreshable.getRefreshableResource();
                     if (resource instanceof Track) {
                         trackUpdates.add(resource.id);
                     } else if (resource instanceof User) {

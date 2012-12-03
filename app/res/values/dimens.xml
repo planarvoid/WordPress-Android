@@ -2,7 +2,7 @@
 <resources>
     <dimen name="tab_text_size">12sp</dimen>
 
-    <dimen name="next_home_width">74dp</dimen>
+    <dimen name="next_home_width">68dp</dimen>
 
     <dimen name="notification_image_width">65dip</dimen>
     <dimen name="notification_image_height">65dip</dimen>

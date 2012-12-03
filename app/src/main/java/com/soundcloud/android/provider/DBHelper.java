@@ -365,7 +365,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "   TrackMetadata." + TrackMetadata._ID + " = " + "Sounds." + SoundView._ID + ")"
             ;
 
-    /** A view which combines activity data + tracks/users/comments */
+    /** A view which combines soundassociation with sounds */
         static final String DATABASE_CREATE_SOUND_ASSOCIATION_VIEW = "AS SELECT " +
             "CollectionItems." + CollectionItems.CREATED_AT + " as " + SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP +
             ", CollectionItems." + CollectionItems.COLLECTION_TYPE + " as " + SoundAssociationView.SOUND_ASSOCIATION_TYPE +

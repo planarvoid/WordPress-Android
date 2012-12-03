@@ -29,6 +29,7 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
 
     public void testYou() throws Exception {
         assertActivityStarted(You.class, Actions.YOU);
+        assertActivityStarted(You.class, Actions.YOUR_INFO);
         assertActivityStarted(You.class, Actions.YOUR_SOUNDS);
         assertActivityStarted(You.class, Actions.YOUR_LIKES);
         assertActivityStarted(You.class, Actions.YOUR_FOLLOWERS);

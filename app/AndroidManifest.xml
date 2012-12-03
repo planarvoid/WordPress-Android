@@ -127,6 +127,10 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
+                <action android:name="com.soundcloud.android.action.YOUR_INFO"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
                 <action android:name="com.soundcloud.android.action.YOUR_SOUNDS"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
