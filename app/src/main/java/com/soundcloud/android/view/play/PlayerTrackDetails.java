@@ -2,6 +2,7 @@ package com.soundcloud.android.view.play;
 
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 
+import android.widget.TableRow;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.track.TrackComments;
@@ -27,13 +28,18 @@ public class PlayerTrackDetails extends RelativeLayout {
     private final ScPlayer   mPlayer;
     private final FlowLayout mTrackTags;
 
+    private final TableRow mLikersRow;
+    private final TableRow mRepostersRow;
+    private final TableRow mCommentersRow;
+
+    private final TableRow mLikersDivider;
+    private final TableRow mRepostersDivider;
+    private final TableRow mCommentersDivider;
+
     private final TextView mLikersText;
     private final TextView mRepostersText;
-    private final TextView mCommentersTxt;
+    private final TextView mCommentersText;
 
-    private final View       mLikersHr;
-    private final View       mRepostersHr;
-    private final View       mCommentersHr;
     private @Nullable Track mPlayingTrack;
 
     private boolean mTrackInfoFilled;
@@ -46,12 +52,14 @@ public class PlayerTrackDetails extends RelativeLayout {
         mPlayer = player;
         mTrackTags = (FlowLayout) findViewById(R.id.tags_holder);
 
-        mLikersText = (TextView) findViewById(R.id.likers_txt);
-        mLikersHr   = findViewById(R.id.likers_hr);
+        mLikersText    = (TextView) findViewById(R.id.likers_txt);
+        mLikersRow     = (TableRow) findViewById(R.id.likers_row);
+        mLikersDivider = (TableRow) findViewById(R.id.likers_divider);
 
-        mLikersText.setVisibility(View.GONE);
-        mLikersHr.setVisibility(View.GONE);
-        mLikersText.setOnClickListener(new OnClickListener() {
+        mLikersRow.setVisibility(View.GONE);
+        mLikersDivider.setVisibility(View.GONE);
+
+        mLikersRow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mPlayingTrack != null) {
@@ -62,12 +70,14 @@ public class PlayerTrackDetails extends RelativeLayout {
             }
         });
 
-        mRepostersText = (TextView) findViewById(R.id.reposters_txt);
-        mRepostersHr   = findViewById(R.id.reposters_hr);
+        mRepostersText    = (TextView) findViewById(R.id.reposters_txt);
+        mRepostersRow     = (TableRow) findViewById(R.id.reposters_row);
+        mRepostersDivider = (TableRow) findViewById(R.id.reposters_divider);
 
-        mRepostersText.setVisibility(View.GONE);
-        mRepostersHr.setVisibility(View.GONE);
-        mRepostersText.setOnClickListener(new OnClickListener() {
+        mRepostersRow.setVisibility(View.GONE);
+        mRepostersDivider.setVisibility(View.GONE);
+
+        mRepostersRow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mPlayingTrack != null) {
@@ -78,12 +88,14 @@ public class PlayerTrackDetails extends RelativeLayout {
             }
         });
 
-        mCommentersTxt = (TextView) findViewById(R.id.commenters_txt);
-        mCommentersHr  = findViewById(R.id.commenters_hr);
+        mCommentersText    = (TextView) findViewById(R.id.commenters_txt);
+        mCommentersRow     = (TableRow) findViewById(R.id.comments_row);
+        mCommentersDivider = (TableRow) findViewById(R.id.comments_divider);
 
-        mCommentersTxt.setVisibility(View.GONE);
-        mCommentersHr.setVisibility(View.GONE);
-        mCommentersTxt.setOnClickListener(new OnClickListener() {
+        mCommentersRow.setVisibility(View.GONE);
+        mCommentersDivider.setVisibility(View.GONE);
+
+        mCommentersRow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mPlayingTrack != null) {
@@ -109,36 +121,20 @@ public class PlayerTrackDetails extends RelativeLayout {
     public void fillTrackDetails() {
         if (mPlayingTrack == null) return;
 
+        setViewVisibility(mPlayingTrack.likes_count > 0, mLikersRow, mLikersDivider);
+        mLikersText.setText(getResources().getQuantityString(R.plurals.track_info_likers,
+                mPlayingTrack.likes_count,
+                mPlayingTrack.likes_count));
 
-        if (mPlayingTrack.likes_count == 0) {
-            mLikersText.setVisibility(View.GONE);
-            mLikersHr.setVisibility(View.GONE);
-        } else {
-            mLikersText.setVisibility(View.VISIBLE);
-            mLikersHr.setVisibility(View.VISIBLE);
-            mLikersText.setText(getResources().getQuantityString(R.plurals.track_info_likers,
-                    mPlayingTrack.likes_count, mPlayingTrack.likes_count));
-        }
+        setViewVisibility(mPlayingTrack.reposts_count > 0, mRepostersRow, mRepostersDivider);
+        mRepostersText.setText(getResources().getQuantityString(R.plurals.track_info_reposters,
+                                                                mPlayingTrack.reposts_count,
+                                                                mPlayingTrack.reposts_count));
 
-        if (mPlayingTrack.reposts_count == 0) {
-            mRepostersText.setVisibility(View.GONE);
-            mRepostersHr.setVisibility(View.GONE);
-        } else {
-            mRepostersText.setVisibility(View.VISIBLE);
-            mRepostersHr.setVisibility(View.VISIBLE);
-            mRepostersText.setText(getResources().getQuantityString(R.plurals.track_info_reposters,
-                    mPlayingTrack.reposts_count, mPlayingTrack.reposts_count));
-        }
-
-        if (mPlayingTrack.comment_count == 0) {
-            mCommentersTxt.setVisibility(View.GONE);
-            mCommentersHr.setVisibility(View.GONE);
-        } else {
-            mCommentersTxt.setVisibility(View.VISIBLE);
-            mCommentersHr.setVisibility(View.VISIBLE);
-            mCommentersTxt.setText(getResources().getQuantityString(R.plurals.track_info_commenters,
-                    mPlayingTrack.comment_count, mPlayingTrack.comment_count));
-        }
+        setViewVisibility(mPlayingTrack.comment_count > 0, mCommentersRow, mCommentersDivider);
+        mCommentersText.setText(getResources().getQuantityString(R.plurals.track_info_commenters,
+                                                                 mPlayingTrack.comment_count,
+                                                                 mPlayingTrack.comment_count));
 
         mTrackTags.removeAllViews();
         mPlayingTrack.fillTags(mTrackTags, mPlayer);
@@ -156,6 +152,14 @@ public class PlayerTrackDetails extends RelativeLayout {
             }
         }
         mTrackInfoFilled = true;
+    }
+
+    private static void setViewVisibility(boolean visible, View... views) {
+        int visibility = visible ? VISIBLE : GONE;
+
+        for (View view : views) {
+            view.setVisibility(visibility);
+        }
     }
 
     public void onInfoLoadError() {
