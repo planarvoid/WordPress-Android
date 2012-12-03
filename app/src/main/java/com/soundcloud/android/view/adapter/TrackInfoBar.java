@@ -1,11 +1,11 @@
 package com.soundcloud.android.view.adapter;
 
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.IScAdapter;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -49,16 +48,9 @@ public class TrackInfoBar extends LazyRow {
     private TextView mRepostCount;
 
     private View mPlayCountSeparator, mRepostCountSeparator, mLikeCountSeparator;
-
-    private Drawable mLikesDrawable;
-    private Drawable mLikedDrawable;
-    private Drawable mRepostsDrawable;
-    private Drawable mRepostedDrawable;
-    private Drawable mPrivateBgDrawable;
-    private Drawable mVeryPrivateBgDrawable;
-    private Drawable mPlayingDrawable;
-
     private boolean mShouldLoadIcon;
+
+    private SpannableStringBuilder mSpanBuilder;
 
     protected ImageView mIcon;
     private ImageLoader.BindResult mCurrentIconBindResult;
@@ -129,61 +121,7 @@ public class TrackInfoBar extends LazyRow {
         AndroidUtils.setTextShadowForGrayBg(mCommentCount);
     }
 
-    private Drawable getPlayingDrawable() {
-        if (mPlayingDrawable == null) {
-            mPlayingDrawable = getResources().getDrawable(R.drawable.list_playing);
-            mPlayingDrawable.setBounds(0, 0, mPlayingDrawable.getIntrinsicWidth(), mPlayingDrawable.getIntrinsicHeight());
-        }
-        return mPlayingDrawable;
-    }
 
-    private Drawable getLikedDrawable(){
-          if (mLikedDrawable == null) {
-              mLikedDrawable = getResources().getDrawable(R.drawable.ic_stats_liked_states);
-              mLikedDrawable.setBounds(0, 0, mLikedDrawable.getIntrinsicWidth(), mLikedDrawable.getIntrinsicHeight());
-          }
-        return mLikedDrawable;
-    }
-
-    private Drawable getLikesDrawable(){
-          if (mLikesDrawable == null) {
-              mLikesDrawable = getResources().getDrawable(R.drawable.ic_stats_likes_states);
-              mLikesDrawable.setBounds(0, 0, mLikesDrawable.getIntrinsicWidth(), mLikesDrawable.getIntrinsicHeight());
-          }
-        return mLikesDrawable;
-    }
-
-    private Drawable getRepostsDrawable() {
-        if (mRepostsDrawable == null) {
-            mRepostsDrawable = getResources().getDrawable(R.drawable.ic_stats_reposts_states);
-            mRepostsDrawable.setBounds(0, 0, mRepostsDrawable.getIntrinsicWidth(), mRepostsDrawable.getIntrinsicHeight());
-        }
-        return mRepostsDrawable;
-    }
-
-    private Drawable getRepostedDrawable() {
-        if (mRepostedDrawable == null) {
-            mRepostedDrawable = getResources().getDrawable(R.drawable.ic_stats_reposted_states);
-            mRepostedDrawable.setBounds(0, 0, mRepostedDrawable.getIntrinsicWidth(), mRepostedDrawable.getIntrinsicHeight());
-        }
-        return mRepostedDrawable;
-    }
-
-    private Drawable getPrivateBgDrawable(){
-          if (mPrivateBgDrawable == null) {
-              mPrivateBgDrawable = getResources().getDrawable(R.drawable.round_rect_gray);
-              mPrivateBgDrawable.setBounds(0, 0, mPrivateBgDrawable.getIntrinsicWidth(), mPrivateBgDrawable.getIntrinsicHeight());
-          }
-        return mPrivateBgDrawable;
-    }
-
-    private Drawable getVeryPrivateBgDrawable(){
-          if (mVeryPrivateBgDrawable == null) {
-              mVeryPrivateBgDrawable = getResources().getDrawable(R.drawable.round_rect_orange);
-              mVeryPrivateBgDrawable.setBounds(0, 0, mVeryPrivateBgDrawable.getIntrinsicWidth(), mVeryPrivateBgDrawable.getIntrinsicHeight());
-          }
-        return mVeryPrivateBgDrawable;
-    }
 
     /**
      *  update the displayed track
@@ -233,16 +171,16 @@ public class TrackInfoBar extends LazyRow {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
             if (track.shared_to_count == 0){
-                mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
+                mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange);
                 mPrivateIndicator.setText(R.string.tracklist_item_shared_count_unavailable);
             } else if (track.shared_to_count == 1){
-                mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
+                mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange);
                 mPrivateIndicator.setText(track.user_id == SoundCloudApplication.getUserId() ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
             } else {
                 if (track.shared_to_count < 8){
-                    mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
+                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange);
                 } else {
-                    mPrivateIndicator.setBackgroundDrawable(getPrivateBgDrawable());
+                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_gray);
                 }
                 mPrivateIndicator.setText(context.getString(R.string.tracklist_item_shared_with_x_people, track.shared_to_count));
             }
@@ -260,27 +198,18 @@ public class TrackInfoBar extends LazyRow {
 
 
         if (track.user_like) {
-            mLikeCount.setCompoundDrawablesWithIntrinsicBounds(getLikedDrawable(), null, null, null);
+            mLikeCount.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_stats_liked_states, 0, 0, 0);
         } else {
-            mLikeCount.setCompoundDrawables(getLikesDrawable(), null, null, null);
+            mLikeCount.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_stats_likes_states, 0, 0, 0);
         }
 
         if (track.user_repost) {
-            mRepostCount.setCompoundDrawablesWithIntrinsicBounds(getRepostedDrawable(), null, null, null);
+            mRepostCount.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_stats_reposted_states, 0, 0, 0);
         } else {
-            mRepostCount.setCompoundDrawables(getRepostsDrawable(), null, null, null);
+            mRepostCount.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_stats_reposts_states, 0, 0, 0);
         }
 
-
-        if (track.id == playingId) {
-            SpannableStringBuilder sb = new SpannableStringBuilder();
-            sb.append("  ");
-            sb.setSpan(new ImageSpan(getPlayingDrawable(), ImageSpan.ALIGN_BASELINE), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            sb.append(track.title);
-            mTitle.setText(sb);
-        } else {
-            mTitle.setText(track.title);
-        }
+        setTitle();
 
         if (track.isProcessing()){
             if (findViewById(R.id.processing_progress) != null){
@@ -293,6 +222,27 @@ public class TrackInfoBar extends LazyRow {
         }
 
         if (shouldLoadIcon) loadIcon();
+    }
+
+    private void setTitle() {
+        if (mAdapter != null && mPlayable.getTrack().id == CloudPlaybackService.getCurrentTrackId()) {
+            if (mSpanBuilder == null) mSpanBuilder = new SpannableStringBuilder();
+            mSpanBuilder.clear();
+            mSpanBuilder.append("  ");
+            mSpanBuilder.setSpan(new ImageSpan(getContext(), isPressed() ?
+                    R.drawable.list_playing_white_50 : R.drawable.list_playing, ImageSpan.ALIGN_BASELINE),
+                    0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            mSpanBuilder.append(mPlayable.getTrack().title);
+            mTitle.setText(mSpanBuilder);
+        } else {
+            mTitle.setText(mPlayable.getTrack().title);
+        }
+    }
+
+    @Override
+    public void setPressed(boolean pressed) {
+        super.setPressed(pressed);
+        setTitle();
     }
 
     /** List specific functions **/
