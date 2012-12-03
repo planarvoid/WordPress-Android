@@ -56,7 +56,9 @@ public class UserDetailsFragment extends Fragment implements FetchUserTask.Fetch
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        configure();
+        if (mInfoView != null){
+            configure();
+        }
     }
 
     public void configure() {

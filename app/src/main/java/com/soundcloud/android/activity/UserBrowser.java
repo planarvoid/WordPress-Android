@@ -116,6 +116,7 @@ public class UserBrowser extends ScActivity implements
         mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setAdapter(adapter);
         mPager.setBackgroundColor(Color.WHITE);
+        mPager.setCurrentItem(Tab.tracks.ordinal());
 
         mIndicator = (TitlePageIndicator) findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
