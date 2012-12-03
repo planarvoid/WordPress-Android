@@ -420,6 +420,10 @@
     <item quantity="one">1 person liked it</item>
     <item quantity="other">%d people liked it</item>
   </plurals>
+  <plurals name="track_info_reposters">
+      <item quantity="one">1 person reposted it</item>
+      <item quantity="other">%d people reposted it</item>
+  </plurals>
   <string name="tracklist_empty">No sounds available</string>
   <string name="tracklist_error">Unable to get sounds</string>
   <string name="tracklist_item_shared_count_unavailable">Private</string>

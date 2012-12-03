@@ -264,4 +264,29 @@
     <style name="SignUp.PasswordEntry" parent="SignUp.TextEntry">
         <item name="android:inputType">textPassword</item>
     </style>
+
+    <style name="Player"/>
+    <style name="Player.TrackInfo"/>
+
+    <style name="Player.TrackInfo.Label" parent="txt_list_main">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">60dip</item>
+
+        <item name="android:gravity">left|center_vertical</item>
+
+        <item name="android:paddingLeft">12dip</item>
+        <item name="android:paddingRight">12dip</item>
+
+        <item name="android:background">@drawable/list_selector_background</item>
+
+        <item name="android:drawableRight">@drawable/arrow_states</item>
+        <item name="android:drawablePadding">15dip</item>
+    </style>
+
+    <style name="Player.TrackInfo.Separator">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">1px</item>
+        <item name="android:layout_alignWithParentIfMissing">true</item>
+        <item name="android:background">?android:attr/listDivider</item>
+    </style>
 </resources>
