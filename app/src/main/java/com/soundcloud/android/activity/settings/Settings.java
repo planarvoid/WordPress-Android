@@ -246,6 +246,21 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
         getApp().track(getClass());
         updateClearCacheTitles();
         super.onResume();
+        mActionBarController.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        getApp().track(getClass());
+        updateClearCacheTitles();
+        super.onResume();
+        mActionBarController.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mActionBarController.onDestroy();
     }
 
     private void setClearCacheTitle(final String pref, final int key, final File dir) {

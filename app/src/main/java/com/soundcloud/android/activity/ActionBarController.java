@@ -83,7 +83,7 @@ public class ActionBarController {
         if (mMenuIndicator != null && mRootView != null) mMenuIndicator.setVisibility(View.VISIBLE);
     }
 
-    protected void onResume() {
+    public void onResume() {
         if (mNowPlaying != null) {
             mNowPlaying.resume();
         }
@@ -93,13 +93,13 @@ public class ActionBarController {
         }
     }
 
-    protected void onPause() {
+    public void onPause() {
         if (mNowPlaying != null) {
             mNowPlaying.pause();
         }
     }
 
-    protected void onDestroy() {
+    public void onDestroy() {
         // suggestions adapter has to stop handler thread
         if (mSuggestionsAdapter != null) mSuggestionsAdapter.onDestroy();
     }
