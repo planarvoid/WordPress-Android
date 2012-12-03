@@ -21,7 +21,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-public class UserDetailsFragment extends Fragment implements FetchUserTask.FetchUserListener {
+public class UserDetailsFragment extends Fragment {
 
     private long mUserId;
     private FrameLayout mInfoView;
@@ -71,8 +71,7 @@ public class UserDetailsFragment extends Fragment implements FetchUserTask.Fetch
         }
     }
 
-    @Override
-    public void onSuccess(User user, String action) {
+    public void onSuccess(User user) {
         mAllowEmpty = true;
         if (getActivity() != null){
             mInfoError = false;
@@ -80,8 +79,7 @@ public class UserDetailsFragment extends Fragment implements FetchUserTask.Fetch
         }
     }
 
-    @Override
-    public void onError(long userId) {
+    public void onError() {
         mAllowEmpty = true;
         if (getActivity() != null) {
             mInfoError = true;

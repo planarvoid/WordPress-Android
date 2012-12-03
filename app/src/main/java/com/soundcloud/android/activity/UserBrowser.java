@@ -389,12 +389,12 @@ public class UserBrowser extends ScActivity implements
         mUser = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
 
         setUser(user);
-        mUserDetailsFragment.onSuccess(mUser,action);
+        mUserDetailsFragment.onSuccess(mUser);
     }
 
     @Override
     public void onError(long userId) {
-        mUserDetailsFragment.onError(userId);
+        mUserDetailsFragment.onError();
     }
 
     private void setUser(final User user) {
