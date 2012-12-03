@@ -4,9 +4,6 @@
     <dimen name="search_list_icon_width">67px</dimen>
     <dimen name="search_list_icon_height">67px</dimen>
 
-    <dimen name="list_icon_width">100px</dimen>
-    <dimen name="list_icon_height">100px</dimen>
-
     <dimen name="share_user_icon_width">67px</dimen>
     <dimen name="share_user_icon_height">67px</dimen>
 

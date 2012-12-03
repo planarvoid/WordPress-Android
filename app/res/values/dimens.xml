@@ -10,8 +10,8 @@
     <dimen name="search_list_icon_width">32dip</dimen>
     <dimen name="search_list_icon_height">32dip</dimen>
 
-    <dimen name="list_icon_width">47dip</dimen>
-    <dimen name="list_icon_height">47dip</dimen>
+    <dimen name="list_icon_width">40dip</dimen>
+    <dimen name="list_icon_height">40dip</dimen>
 
     <dimen name="list_item_padding_left">16dip</dimen>
     <dimen name="list_item_padding_top">12dip</dimen>
