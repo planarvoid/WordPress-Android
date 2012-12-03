@@ -25,7 +25,7 @@ public abstract class LazyRow extends FrameLayout {
 
     private ImageLoader.Options mIconOptions;
 
-    protected IScAdapter mAdapter;
+    protected @Nullable IScAdapter mAdapter;
     protected ImageLoader mImageLoader;
     protected ImageView mIcon;
 

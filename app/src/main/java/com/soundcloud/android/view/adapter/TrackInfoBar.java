@@ -209,7 +209,7 @@ public class TrackInfoBar extends LazyRow {
             mRepostCount.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_stats_reposts_states, 0, 0, 0);
         }
 
-        setTitle();
+        setTitle(false);
 
         if (track.isProcessing()){
             if (findViewById(R.id.processing_progress) != null){
@@ -224,12 +224,14 @@ public class TrackInfoBar extends LazyRow {
         if (shouldLoadIcon) loadIcon();
     }
 
-    private void setTitle() {
+    private void setTitle(boolean pressed) {
+        if (mPlayable == null) return;
+
         if (mAdapter != null && mPlayable.getTrack().id == CloudPlaybackService.getCurrentTrackId()) {
             if (mSpanBuilder == null) mSpanBuilder = new SpannableStringBuilder();
             mSpanBuilder.clear();
             mSpanBuilder.append("  ");
-            mSpanBuilder.setSpan(new ImageSpan(getContext(), isPressed() ?
+            mSpanBuilder.setSpan(new ImageSpan(getContext(), pressed ?
                     R.drawable.list_playing_white_50 : R.drawable.list_playing, ImageSpan.ALIGN_BASELINE),
                     0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             mSpanBuilder.append(mPlayable.getTrack().title);
@@ -242,7 +244,7 @@ public class TrackInfoBar extends LazyRow {
     @Override
     public void setPressed(boolean pressed) {
         super.setPressed(pressed);
-        setTitle();
+        setTitle(pressed);
     }
 
     /** List specific functions **/
