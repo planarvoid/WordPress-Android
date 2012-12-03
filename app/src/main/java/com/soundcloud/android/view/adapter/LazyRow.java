@@ -57,7 +57,7 @@ public abstract class LazyRow extends FrameLayout {
 
     /** update the views with the data corresponding to selection index */
     public void display(int position) {
-        final Long id = mAdapter.getItemId(position);
+        final long id = mAdapter.getItemId(position);
         final String iconUri = getIconRemoteUri();
         if (ImageUtils.checkIconShouldLoad(iconUri)) {
             Drawable drawable = mAdapter.getDrawableFromId(id);

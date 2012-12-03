@@ -24,15 +24,14 @@ import org.jetbrains.annotations.NotNull;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.v4.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter implements IScAdapter {
@@ -40,10 +39,11 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     protected Content mContent;
     protected Uri mContentUri;
     @NotNull protected List<T> mData = new ArrayList<T>();
-    protected int mPage = 0;
-    protected Map<Long, Drawable> mIconAnimations = new HashMap<Long, Drawable>();
-    protected Set<Long> mLoadingIcons = new HashSet<Long>();
     protected boolean mIsLoadingData;
+    protected int mPage;
+
+    private LruCache<Long, Drawable> mIconAnimations = new LruCache<Long, Drawable>(16);
+    private Set<Long> mLoadingIcons = new HashSet<Long>();
     private View mProgressView;
 
     @SuppressWarnings("unchecked")
@@ -135,27 +135,24 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         mPage = 0;
     }
 
-    public void onDestroy(){}
+    // not used?
+    public void onDestroy() {
+    }
 
-
-    public Drawable getDrawableFromId(Long id){
+    public Drawable getDrawableFromId(long id) {
         return mIconAnimations.get(id);
     }
 
-    public void assignDrawableToId(Long id, Drawable drawable){
+    public void assignDrawableToId(long id, Drawable drawable) {
         mIconAnimations.put(id, drawable);
     }
 
-    public Boolean getIconNotReady(Long id){
+    public boolean getIconNotReady(long id) {
         return mLoadingIcons.contains(id);
     }
 
-    public void setIconNotReady(Long id){
+    public void setIconNotReady(long id) {
         mLoadingIcons.add(id);
-    }
-
-    public void onEndOfList(){
-
     }
 
     // needed?
@@ -174,7 +171,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     }
 
     protected void clearIcons(){
-        mIconAnimations.clear();
+        mIconAnimations.evictAll();
         mLoadingIcons.clear();
     }
 
