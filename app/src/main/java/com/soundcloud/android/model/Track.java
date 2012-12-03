@@ -45,8 +45,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @SuppressWarnings({"UnusedDeclaration"})
@@ -54,6 +57,7 @@ import java.util.List;
 public class Track extends Sound implements Playable {
     private static final String TAG = "Track";
     public static final String EXTRA = "track";
+    private static final Pattern TAG_PATTERN = Pattern.compile("(\"([^\"]+)\")");
 
     // API fields
     @JsonView(Views.Full.class) @Nullable public State state;
@@ -78,12 +82,8 @@ public class Track extends Sound implements Playable {
     public String user_uri;
 
     @JsonView(Views.Full.class) public String waveform_url;
-
-
     @JsonView(Views.Mini.class) public String stream_url;
-
     @JsonView(Views.Full.class) public int user_playback_count;
-
 
     @JsonView(Views.Full.class)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
@@ -117,8 +117,13 @@ public class Track extends Sound implements Playable {
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
         if (tag_list == null) return tags;
-        for (String t : tag_list.split("\\s")) {
-            if (t.indexOf(':') == -1 && t.indexOf('=') == -1) {
+        Matcher m = TAG_PATTERN.matcher(tag_list);
+        while (m.find()) {
+            tags.add(tag_list.substring(m.start(2), m.end(2)).trim());
+        }
+        String singlewords = m.replaceAll("");
+        for (String t : singlewords.split("\\s")) {
+            if (!TextUtils.isEmpty(t) && t.indexOf(':') == -1 && t.indexOf('=') == -1) {
                 tags.add(t);
             }
         }
@@ -147,7 +152,6 @@ public class Track extends Sound implements Playable {
     public User getUser() {
         return user;
     }
-
 
     @JsonIgnore
     public boolean isWaitingOnState() {

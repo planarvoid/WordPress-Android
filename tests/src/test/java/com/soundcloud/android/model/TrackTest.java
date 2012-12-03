@@ -28,6 +28,13 @@ public class TrackTest {
     }
 
     @Test
+    public void shouldHandleMultiWordTags() throws Exception {
+        Track t = new Track();
+        t.tag_list = "\"multiword tags\" \"in the api\" suck bigtime";
+        expect(t.humanTags()).toContainInOrder("multiword tags", "in the api", "suck", "bigtime");
+    }
+
+    @Test
     public void shouldGenerateTrackInfo() throws Exception {
         Track t = new Track();
         t.description = "Cool track";
