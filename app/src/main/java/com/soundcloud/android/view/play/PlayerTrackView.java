@@ -84,6 +84,7 @@ public class PlayerTrackView extends LinearLayout implements
     private ToggleButton mToggleLike;
     private ToggleButton mToggleComment;
     private ToggleButton mToggleRepost;
+    private ToggleButton mToggleInfo;
     private ImageButton mShareButton;
 
     private View mArtworkOverlay;
@@ -105,14 +106,6 @@ public class PlayerTrackView extends LinearLayout implements
         if (mArtwork != null) {
             mArtwork.setVisibility(View.INVISIBLE);
             mArtwork.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            mArtwork.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mTrackFlipper != null) {
-                        onTrackDetailsFlip(mTrackFlipper);
-                    }
-                }
-            });
             mLandscape = false;
         } else {
             mLandscape = true;
@@ -172,6 +165,18 @@ public class PlayerTrackView extends LinearLayout implements
                 setCommentMode(mToggleComment.isChecked(), true);
             }
         });
+
+        mToggleInfo = (ToggleButton) findViewById(R.id.toggle_info);
+        if (mToggleInfo != null) {
+            mToggleInfo.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (mTrackFlipper != null) {
+                        onTrackDetailsFlip(mTrackFlipper, mToggleInfo.isChecked());
+                    }
+                }
+            });
+        }
 
         mShareButton = (ImageButton) findViewById(R.id.btn_share);
         mShareButton.setOnClickListener(new OnClickListener() {
@@ -248,8 +253,8 @@ public class PlayerTrackView extends LinearLayout implements
                 refreshComments();
             }
 
-            if (mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1) {
-                onTrackDetailsFlip(mTrackFlipper);
+            if (mTrackFlipper != null) {
+                onTrackDetailsFlip(mTrackFlipper, false);
             }
         }
     }
@@ -337,8 +342,10 @@ public class PlayerTrackView extends LinearLayout implements
         }
     }
 
-    public void onTrackDetailsFlip(@NotNull ViewFlipper trackFlipper) {
-        if (trackFlipper.getDisplayedChild() == 0) {
+    public void onTrackDetailsFlip(@NotNull ViewFlipper trackFlipper, boolean showDetails) {
+        if (showDetails && trackFlipper.getDisplayedChild() == 0) {
+            if (mIsCommenting) setCommentMode(false, true);
+
             if (mTrack != null) {
                 mPlayer.track(Page.Sounds_info__main, mTrack);
             }
@@ -353,11 +360,12 @@ public class PlayerTrackView extends LinearLayout implements
             trackFlipper.setInAnimation(AnimUtils.inFromRightAnimation(new AccelerateDecelerateInterpolator()));
             trackFlipper.setOutAnimation(AnimUtils.outToLeftAnimation(new AccelerateDecelerateInterpolator()));
             trackFlipper.showNext();
-        } else {
+        } else if (!showDetails && trackFlipper.getDisplayedChild() == 1){
             trackFlipper.setInAnimation(AnimUtils.inFromLeftAnimation(new AccelerateDecelerateInterpolator()));
             trackFlipper.setOutAnimation(AnimUtils.outToRightAnimation(new AccelerateDecelerateInterpolator()));
             trackFlipper.showPrevious();
         }
+        if (mToggleInfo != null) mToggleInfo.setChecked(showDetails);
     }
 
     public void onDataConnected() {
@@ -486,6 +494,10 @@ public class PlayerTrackView extends LinearLayout implements
         getWaveformController().setCommentMode(isCommenting);
         if (mIsCommenting != mToggleComment.isChecked()) mToggleComment.setChecked(mIsCommenting);
 
+        if (mTrackFlipper != null && mIsCommenting) {
+            onTrackDetailsFlip(mTrackFlipper, false);
+        }
+
         if (!mLandscape) {
             if (animated) {
                 if (isCommenting) {
@@ -529,16 +541,6 @@ public class PlayerTrackView extends LinearLayout implements
 
     public boolean waveformVisible(){
         return (mTrackFlipper == null || mTrackFlipper.getDisplayedChild() == 0);
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (mTrackFlipper != null && keyCode == KeyEvent.KEYCODE_BACK && mTrackFlipper.getDisplayedChild() != 0) {
-            onTrackDetailsFlip(mTrackFlipper);
-            return true;
-        } else {
-            return super.onKeyDown(keyCode, event);
-        }
     }
 
     public WaveformController getWaveformController() {
@@ -713,7 +715,10 @@ public class PlayerTrackView extends LinearLayout implements
 
     public boolean onBackPressed() {
         if (mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1) {
-            onTrackDetailsFlip(mTrackFlipper);
+            onTrackDetailsFlip(mTrackFlipper, false);
+            return true;
+        } else if (mIsCommenting) {
+            setCommentMode(false);
             return true;
         } else {
             return false;

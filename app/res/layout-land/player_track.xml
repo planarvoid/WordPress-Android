@@ -22,8 +22,8 @@
         </RelativeLayout>
         <View android:layout_height="fill_parent"
               android:layout_margin="10dp"
-              android:layout_width="1dip"
-              style="@style/stat_pipe"/>
+              android:layout_width="2dip"
+              android:background="@drawable/player_track_vert_separator_bg"/>
 
         <ToggleButton android:id="@+id/toggle_like"
                       android:layout_marginLeft="5dp"
@@ -40,7 +40,7 @@
                       android:drawableLeft="@drawable/ic_toggle_player_comment_states"/>
         <ImageButton android:id="@+id/btn_share"
                      android:layout_marginRight="15dp"
-                     style="@style/PlayerAction.Button"
+                     style="@style/PlayerAction.ShareButton"
                      android:src="@drawable/stats_share"/>
     </LinearLayout>
     <FrameLayout
