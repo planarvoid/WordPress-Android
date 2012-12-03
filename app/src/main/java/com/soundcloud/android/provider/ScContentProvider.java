@@ -141,24 +141,26 @@ public class ScContentProvider extends ContentProvider {
                 /* XXX special case for now. we need to not join in the users table on an id only request, because
                 it is an inner join and will not return ids with missing users. Switching to a left join is possible
                 but not 4 days before major release*/
+
+                final boolean defaultCols = _columns == null;
                 if ("1".equals(uri.getQueryParameter(Parameter.IDS_ONLY))) {
                     qb.setTables(Table.COLLECTION_ITEMS.name);
                     _columns = new String[]{DBHelper.CollectionItems.ITEM_ID};
                 } else {
                     qb.setTables(makeCollectionJoin(Table.USERS));
-                    //special sorting for friends (only if we use default columns though)
-                    if (content == Content.ME_FRIENDS && _columns == null) {
-                        _sortOrder = makeCollectionSort(uri, sortOrder == null ?
-                                DBHelper.Users.USER_FOLLOWING + " ASC, " + DBHelper.Users._ID + " ASC" : sortOrder);
-                    } else {
-                        _sortOrder = makeCollectionSort(uri, sortOrder);
-                    }
-
                     if (_columns == null) {
                         _columns = formatWithUser(fullUserColumns, userId);
                     }
                 }
                 makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
+
+                //special sorting for friends (only if we use default columns though)
+                if (content == Content.ME_FRIENDS && defaultCols) {
+                    _sortOrder = makeCollectionSort(uri, sortOrder == null ?
+                            DBHelper.Users.USER_FOLLOWING + " ASC, " + DBHelper.Users._ID + " ASC" : sortOrder);
+                } else {
+                    _sortOrder = makeCollectionSort(uri, sortOrder);
+                }
                 break;
 
             case ME_USERID:
