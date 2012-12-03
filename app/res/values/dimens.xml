@@ -26,6 +26,7 @@
     <dimen name="list_txt_pull_size">16sp</dimen>
     <dimen name="list_txt_main_size">14sp</dimen>
     <dimen name="list_txt_sub_size">12sp</dimen>
+    <dimen name="list_txt_sub_2_size">10sp</dimen>
 
     <dimen name="comment_panel_main_size">14sp</dimen>
     <dimen name="comment_panel_created_at_size">12sp</dimen>

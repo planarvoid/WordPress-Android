@@ -9,6 +9,10 @@
         <item name="android:ellipsize">marquee</item>
     </style>
 
+    <style name="txt_list_track_reposter" parent="txt_list_track_user">
+        <item name="android:textSize">@dimen/list_txt_sub_2_size</item>
+    </style>
+
     <style name="PlayerAction">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/btn_height</item>
