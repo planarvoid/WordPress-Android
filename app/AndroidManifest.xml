@@ -270,7 +270,7 @@
         <activity android:name=".activity.track.TrackComments" />
         <activity android:name=".activity.track.TracksByTag" />
 
-        <activity android:name=".activity.settings.Settings" android:label="Settings" android:theme="@style/Theme.Next.NoActionBar"/>
+        <activity android:name=".activity.settings.Settings" android:label="@string/title_settings"/>
         <activity android:name=".activity.settings.AccountSettings" android:theme="@style/Theme.Next.NoActionBar">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.ACCOUNT_PREF"/>

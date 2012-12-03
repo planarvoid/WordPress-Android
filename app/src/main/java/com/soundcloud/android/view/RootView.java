@@ -76,6 +76,7 @@ public class RootView extends ViewGroup {
 
     private boolean mIsBeingDragged;
     private boolean mAnimating;
+    private boolean mCloseOnResume;
 
     private @Nullable VelocityTracker mVelocityTracker;
 
@@ -200,6 +201,10 @@ public class RootView extends ViewGroup {
 
     }
 
+    public void setCloseOnResume(boolean closeOnResume){
+        mCloseOnResume = closeOnResume;
+    }
+
     public void block(){
         if (!mIsBlocked){
             mIsBlocked = true;
@@ -310,6 +315,10 @@ public class RootView extends ViewGroup {
      * global expansion state may have changed in another activity. make sure we are showing the correct state
      */
     public void onResume() {
+        if (mCloseOnResume) {
+            mCloseOnResume = false;
+            mExpandedState = COLLAPSED_FULL_CLOSED;
+        }
         mMenu.onResume();
         setExpandedState();
     }
@@ -341,6 +350,7 @@ public class RootView extends ViewGroup {
         SavedState ss = new SavedState(super.onSaveInstanceState());
         ss.expanded = mExpandedState;
         ss.blocked = mIsBlocked;
+        ss.closeOnResume = mCloseOnResume;
         return ss;
     }
 
@@ -351,6 +361,7 @@ public class RootView extends ViewGroup {
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
         mExpandedState = ss.expanded;
+        mCloseOnResume = ss.closeOnResume;
         mIsBlocked = ss.blocked;
         mBlocker.setVisibility(mIsBlocked ? View.VISIBLE : View.GONE);
         mBlocker.setEnabled(mIsBlocked);
@@ -1059,6 +1070,7 @@ public class RootView extends ViewGroup {
     static class SavedState extends BaseSavedState {
         int expanded;
         boolean blocked;
+        boolean closeOnResume;
 
         SavedState(Parcelable superState) {
             super(superState);
@@ -1068,6 +1080,7 @@ public class RootView extends ViewGroup {
             super(in);
             this.expanded = in.readInt();
             this.blocked = in.readInt() == 1;
+            this.closeOnResume = in.readInt() == 1;
         }
 
         @Override
@@ -1075,6 +1088,7 @@ public class RootView extends ViewGroup {
             super.writeToParcel(out, flags);
             out.writeInt(expanded);
             out.writeInt(blocked ? 1 : 0);
+            out.writeInt(closeOnResume ? 1 : 0);
         }
 
         //required field that makes Parcelables from a Parcel
