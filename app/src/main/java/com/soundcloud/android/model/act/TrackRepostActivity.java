@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 
@@ -50,5 +51,10 @@ public class TrackRepostActivity extends Activity implements Playable {
     @Override @JsonIgnore
     public void setCachedUser(User user) {
         this.user = user;
+    }
+
+    @Override
+    public ScResource getRefreshableResource() {
+        return track;
     }
 }

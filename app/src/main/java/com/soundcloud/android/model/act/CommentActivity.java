@@ -72,4 +72,10 @@ public class CommentActivity extends Activity {
         models.add(comment);
         return models;
     }
+
+    @Override
+    public ScResource getRefreshableResource() {
+        // TODO, comment refreshing?
+        return comment.user;
+    }
 }
