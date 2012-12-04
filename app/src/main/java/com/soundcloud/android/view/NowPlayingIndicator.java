@@ -4,12 +4,10 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import com.soundcloud.android.cache.WaveformCache;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.view.play.WaveformController;
-import com.soundcloud.android.view.play.WaveformDrawable;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
@@ -19,46 +17,27 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.graphics.Shader;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.ProgressBar;
 
 public class NowPlayingIndicator extends ProgressBar {
     private static final int REFRESH = 1;
 
-    private static final int BACKGROUND_COLORS[] = {
-        0xFF1B1B1B,
-        0xFF1B1B1B,
-        0xFF131313,
-        0xFF020202,
-        0xFF020202
-    };
+    private static final int TOP_ORANGE       = 0xFFFF4400;
+    private static final int SEPARATOR_ORANGE = 0xFF661400;
+    private static final int BOTTOM_ORANGE    = 0xFFAA2200;
 
-    private static final int FOREGROUND_COLORS[] = {
-        0xFFFF4400,
-        0xFFFF4400,
-        0xFFED2800,
-        0xFFA82400,
-        0xFFA82400
-    };
+    private static final int TOP_GREY       = 0xFF4B4B4B;
+    private static final int SEPARATOR_GREY = 0xFF2D2D2D;
+    private static final int BOTTOM_GREY    = 0xFF3B3B3B;
 
-    private static final float COLOR_STOPS[] = {
-        0.0f,
-        0.70f,
-        0.72f,
-        0.74f,
-        1.0f
-    };
+    private static final float TOP_WAVEFORM_FRACTION = 0.75f;
 
     private @Nullable Bitmap mWaveform;
     private @Nullable
@@ -66,13 +45,19 @@ public class NowPlayingIndicator extends ProgressBar {
     private @Nullable Track  mTrack;
 
     private long mRefreshDelay;
-    private Paint mBackgroundPaint;
-    private Paint mForegroundPaint;
+
+    private Paint mTopOrange;
+    private Paint mSeparatorOrange;
+    private Paint mBottomOrange;
+
+    private Paint mTopGrey;
+    private Paint mSeparatorGrey;
+    private Paint mBottomGrey;
+
     private Rect mCanvasRect;
 
     private boolean mListening;
 
-    private int mSideOffset;
     private int mAdjustedWidth;
     private WaveformController.WaveformState mWaveformState;
     private int mWaveformErrorCount;
@@ -97,13 +82,31 @@ public class NowPlayingIndicator extends ProgressBar {
     }
 
     private void init(final Context context) {
+        PorterDuffXfermode sourceIn = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
 
-        mSideOffset = (int) (context.getResources().getDisplayMetrics().density * 5);
-        mBackgroundPaint = new Paint();
-        mBackgroundPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        mTopOrange = new Paint();
+        mTopOrange.setColor(TOP_ORANGE);
+        mTopOrange.setXfermode(sourceIn);
 
-        mForegroundPaint = new Paint();
-        mForegroundPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        mSeparatorOrange = new Paint();
+        mSeparatorOrange.setColor(SEPARATOR_ORANGE);
+        mSeparatorOrange.setXfermode(sourceIn);
+
+        mBottomOrange = new Paint();
+        mBottomOrange.setColor(BOTTOM_ORANGE);
+        mBottomOrange.setXfermode(sourceIn);
+
+        mTopGrey = new Paint();
+        mTopGrey.setColor(TOP_GREY);
+        mTopGrey.setXfermode(sourceIn);
+
+        mSeparatorGrey = new Paint();
+        mSeparatorGrey.setColor(SEPARATOR_GREY);
+        mSeparatorGrey.setXfermode(sourceIn);
+
+        mBottomGrey = new Paint();
+        mBottomGrey.setColor(BOTTOM_GREY);
+        mBottomGrey.setXfermode(sourceIn);
 
         setIndeterminate(false);
     }
@@ -190,10 +193,9 @@ public class NowPlayingIndicator extends ProgressBar {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        mAdjustedWidth = getWidth() - mSideOffset * 2;
-        mCanvasRect = new Rect(mSideOffset, 0, mAdjustedWidth, getHeight());
-        mBackgroundPaint.setShader(new LinearGradient(0, 0, 0, getHeight(), BACKGROUND_COLORS, COLOR_STOPS, Shader.TileMode.MIRROR));
-        mForegroundPaint.setShader(new LinearGradient(0, 0, 0, getHeight(), FOREGROUND_COLORS, COLOR_STOPS, Shader.TileMode.MIRROR));
+        mAdjustedWidth = getWidth() - 0 * 2;
+        mCanvasRect = new Rect(0, 0, mAdjustedWidth, getHeight());
+
         setWaveformMask();
         startRefreshing();
     }
@@ -236,20 +238,36 @@ public class NowPlayingIndicator extends ProgressBar {
     @Override
     protected void onDraw(Canvas canvas) {
         if (mWaveformMask == null) return;
+
         Canvas tmp = new Canvas(mWaveformMask);
 
-        tmp.drawRect(mSideOffset, 0, mAdjustedWidth, getHeight(), mBackgroundPaint);
+        float density = getResources().getDisplayMetrics().density;
 
-        float fraction = (float) getProgress() / (float) getMax();
-        fraction = min(max(fraction, 0), getMax());
+        int topPartHeight   = (int) (getHeight() * TOP_WAVEFORM_FRACTION);
+        int separatorTop    = (int) (topPartHeight - density);
+        int separatorBottom = topPartHeight;
 
-        tmp.drawRect(mSideOffset, 0, mAdjustedWidth * fraction, getHeight(), mForegroundPaint);
+        // Grey
+        tmp.drawRect(0, 0,             mAdjustedWidth, getHeight(),     mTopGrey);
+        tmp.drawRect(0, topPartHeight, mAdjustedWidth, getHeight(),     mBottomGrey);
+        tmp.drawRect(0, separatorTop,  mAdjustedWidth, separatorBottom, mSeparatorGrey);
+
+        float playedFraction = (float) getProgress() / (float) getMax();
+        playedFraction = min(max(playedFraction, 0), getMax());
+
+        // Make sure to at least draw an 1dp line of progress
+        int progressWidth = (int) max(mAdjustedWidth * playedFraction, density);
+
+        // Orange
+        tmp.drawRect(0, 0,             progressWidth, getHeight(),     mTopOrange);
+        tmp.drawRect(0, topPartHeight, progressWidth, getHeight(),     mBottomOrange);
+        tmp.drawRect(0, separatorTop,  progressWidth, separatorBottom, mSeparatorOrange);
 
         canvas.drawBitmap(
-                mWaveformMask,
-                mCanvasRect,
-                mCanvasRect,
-                null
+            mWaveformMask,
+            mCanvasRect,
+            mCanvasRect,
+            null
         );
     }
 
@@ -274,7 +292,6 @@ public class NowPlayingIndicator extends ProgressBar {
 
             } else if (action.equals(CloudPlaybackService.SEEK_COMPLETE) || action.equals(CloudPlaybackService.SEEKING)) {
                 if (CloudPlaybackService.getState().isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
-
             }
         }
     };
@@ -287,9 +304,8 @@ public class NowPlayingIndicator extends ProgressBar {
     private static Bitmap createWaveformMask(WaveformData waveformData, int width, int height) {
         if (waveformData == null || width == 0 || height == 0) return null;
 
-        Bitmap mask = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
+        Bitmap mask   = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
         Canvas canvas = new Canvas(mask);
-        float ratio = 0.75f;
 
         Paint black = new Paint();
         black.setColor(Color.BLACK);
@@ -301,21 +317,23 @@ public class NowPlayingIndicator extends ProgressBar {
         xor.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.XOR));
 
         // Top half waveform
-        int dstHeight = (int) (height * ratio);
+        int dstHeight = (int) (height * TOP_WAVEFORM_FRACTION);
 
         WaveformData scaled = waveformData.scale(width);
         for (int i = 0; i < scaled.samples.length; i++) {
             final float scaledHeight1 = (scaled.samples[i] * (float) dstHeight / waveformData.maxAmplitude);
             canvas.drawLine(
-                    i, 0,
-                    i, dstHeight - scaledHeight1
-                    , xor);
+                i, 0,
+                i, dstHeight - scaledHeight1,
+                xor
+            );
 
             final float scaledHeight2 = (scaled.samples[i] * (float) (height-dstHeight) / waveformData.maxAmplitude);
-                        canvas.drawLine(
-                                i, dstHeight + scaledHeight2,
-                                i, height
-                                , xor);
+            canvas.drawLine(
+                i, dstHeight + scaledHeight2,
+                i, height,
+                xor
+            );
         }
 
         return mask;
