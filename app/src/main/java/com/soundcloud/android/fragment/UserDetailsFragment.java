@@ -5,9 +5,8 @@ import static android.text.TextUtils.isEmpty;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.view.EmptyCollection;
+import com.soundcloud.android.view.EmptyListView;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -26,7 +25,7 @@ public class UserDetailsFragment extends Fragment {
     private long mUserId;
     private FrameLayout mInfoView;
     private TextView mLocation, mWebsite, mDiscogsName, mMyspaceName, mDescription;
-    private EmptyCollection mEmptyInfoView;
+    private EmptyListView mEmptyInfoView;
     private boolean mDisplayedInfo, mInfoError, mAllowEmpty;
 
     public static UserDetailsFragment newInstance(long userId) {
@@ -104,12 +103,12 @@ public class UserDetailsFragment extends Fragment {
             mInfoView.removeView(mEmptyInfoView);
         } else if (!mDisplayedInfo) {
             if (mEmptyInfoView == null) {
-                mEmptyInfoView = new EmptyCollection(getActivity());
+                mEmptyInfoView = new EmptyListView(getActivity());
             }
             if (!mAllowEmpty) {
-                mEmptyInfoView.setMode(EmptyCollection.Mode.WAITING_FOR_DATA);
+                mEmptyInfoView.setMode(EmptyListView.Mode.WAITING_FOR_DATA);
             } else {
-                mEmptyInfoView.setMode(EmptyCollection.Mode.IDLE);
+                mEmptyInfoView.setMode(EmptyListView.Mode.IDLE);
                 if (mInfoError) {
                     mEmptyInfoView.setMessageText(R.string.info_error)
                             .setImage(R.drawable.empty_connection)
@@ -129,7 +128,7 @@ public class UserDetailsFragment extends Fragment {
 
                 if (getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
                     // won't fit in most landscape views
-                    mEmptyInfoView.setImageVisibility(false);
+                    mEmptyInfoView.setImage(-1);
                     mEmptyInfoView.setActionText(-1);
                 }
             }
