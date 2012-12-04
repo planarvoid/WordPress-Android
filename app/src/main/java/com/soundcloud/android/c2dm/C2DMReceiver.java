@@ -76,7 +76,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                 // actual c2dm message
                 onReceiveMessage(context, intent);
             } else if (intent.getAction().equals(Actions.ACCOUNT_ADDED)) {
-                onAccountAdded(context, intent.<User>getParcelableExtra("user"));
+                onAccountAdded(context, intent.<User>getParcelableExtra(User.EXTRA));
             } else {
                 Log.w(TAG, "unhandled intent: "+intent);
             }

@@ -38,6 +38,8 @@ import java.util.EnumSet;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Model
 public class User extends ScResource implements Refreshable {
+    public static final String EXTRA = "user";
+
     @Nullable @JsonView(Views.Mini.class) public String username;
     @Nullable @JsonView(Views.Mini.class) public String uri;
     @Nullable @JsonView(Views.Mini.class) public String avatar_url;

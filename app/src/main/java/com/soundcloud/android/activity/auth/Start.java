@@ -406,12 +406,11 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
         result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
         result.putBoolean(Consts.Keys.WAS_SIGNUP, via != SignupVia.NONE);
+        super.setAccountAuthenticatorResult(result);
 
         sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
-                .putExtra("user", user)
-                .putExtra("signed_up", via.name));
-
-        super.setAccountAuthenticatorResult(result);
+                .putExtra(User.EXTRA, user)
+                .putExtra(SignupVia.EXTRA, via.name));
 
         if (result.getBoolean(Consts.Keys.WAS_SIGNUP)) {
             startActivity(new Intent(this, SuggestedUsers.class)
@@ -420,6 +419,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             startActivity(new Intent(this, Home.class)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         }
+        finish();
     }
 
     @Override
