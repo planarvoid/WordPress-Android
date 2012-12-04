@@ -10,7 +10,7 @@
         </shape>
     </item>
     <item>
-        <bitmap android:src="@drawable/cloud"
+        <bitmap android:src="@drawable/splash_logo"
                 android:gravity="center"/>
     </item>
 </layer-list>
