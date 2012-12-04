@@ -366,7 +366,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                             } catch (IllegalArgumentException ignored) {}
 
                             if (user != null) {
-                                startActivityForResult(new Intent(Start.this, Home.class), 0);
+                                startActivity(new Intent(Start.this, Home.class));
                                 Start.this.finish();
                             } else { // user request failed
                                 presentError(R.string.authentication_error_title,
