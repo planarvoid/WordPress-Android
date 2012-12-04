@@ -327,7 +327,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
         if (!mIgnoreServiceQueue) {
             // this will configure the playlist from the service
-            onMetaChanged(CloudPlaybackService.getPlayQueueManager().getPosition());
+            final PlayQueueManager playQueueManager = CloudPlaybackService.getPlayQueueManager();
+            if (playQueueManager != null) onMetaChanged(playQueueManager.getPosition());
         } else {
             // set to false for coming back from lock screen
             mIgnoreServiceQueue = false;
