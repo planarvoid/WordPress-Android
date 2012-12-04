@@ -3,6 +3,7 @@ package com.soundcloud.android.view.tour;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static java.lang.Math.max;
 
+import android.os.Handler;
 import com.integralblue.httpresponsecache.compat.java.util.Arrays;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ImageUtils;
@@ -23,10 +24,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class TourLayout extends FrameLayout {
+    public static final int IMAGE_LOADED = 1;
+
     private final int[] bitmapSize = new int[] { -1, -1 };
 
     private ImageView mBgImageView;
     private final int mBgResId;
+    private Handler mLoadHandler;
 
     public TourLayout(Context context, int layoutResId, final int bgResId) {
         super(context);
@@ -71,6 +75,8 @@ public class TourLayout extends FrameLayout {
         bitmapSize[0] = bitmap.getWidth();
         bitmapSize[1] = bitmap.getHeight();
         mBgImageView.setImageBitmap(bitmap);
+
+        if (mLoadHandler != null) mLoadHandler.sendEmptyMessage(IMAGE_LOADED);
     }
 
     private Point getDisplaySize() {
@@ -119,5 +125,9 @@ public class TourLayout extends FrameLayout {
                 result[0].first.onBitmapLoaded(result[0].second);
             }
         }.execute(layouts);
+    }
+
+    public void setLoadHandler(Handler handler) {
+        mLoadHandler = handler;
     }
 }
