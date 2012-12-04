@@ -29,7 +29,7 @@ public class ScListView extends PullToRefreshListView implements PullToRefreshBa
     private void init() {
         final Resources res = getResources();
 
-        mEmptyView = new EmptyCollection(getContext());
+        mEmptyView = new EmptyListView(getContext());
         getRefreshableView().setFadingEdgeLength((int) (2 * res.getDisplayMetrics().density));
         getRefreshableView().setSelector(R.drawable.list_selector_background);
         getRefreshableView().setLongClickable(false);

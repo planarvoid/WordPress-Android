@@ -9,17 +9,15 @@ import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.create.NewConnectionTask;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.view.EmptyCollection;
+import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.FriendFinderEmptyCollection;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,7 +63,7 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
         if (mEmptyCollection != null) {
-            mEmptyCollection.setButtonActionListener(new EmptyCollection.ActionListener() {
+            mEmptyCollection.setButtonActionListener(new EmptyListView.ActionListener() {
                 @Override
                 public void onAction() {
                     if (AndroidUtils.isTaskFinished(mConnectionTask)) {
@@ -133,7 +131,7 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
         if (mEmptyCollection != null) {
             switch (mCurrentState) {
                 case States.LOADING:
-                    mEmptyCollection.setMode(EmptyCollection.Mode.WAITING_FOR_DATA);
+                    mEmptyCollection.setMode(EmptyListView.Mode.WAITING_FOR_DATA);
                     break;
 
                 case States.CONNECTION_ERROR:

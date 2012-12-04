@@ -32,7 +32,7 @@ import com.soundcloud.android.task.collection.ReturnData;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
-import com.soundcloud.android.view.EmptyCollection;
+import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
@@ -70,7 +70,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     @Nullable private ScListView mListView;
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
-    protected @Nullable EmptyCollection mEmptyCollection;
+    protected @Nullable
+    EmptyListView mEmptyCollection;
     private @Nullable Content mContent;
     private @NotNull Uri mContentUri;
     private NetworkConnectivityListener connectivityListener;
@@ -115,7 +116,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         }
     }
 
-    public void setEmptyCollection(EmptyCollection emptyCollection){
+    public void setEmptyCollection(EmptyListView emptyCollection){
         mEmptyCollection = emptyCollection;
         configureEmptyCollection();
         if (getView() != null && getListView() != null) {
@@ -188,7 +189,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mListView.setOnRefreshListener(this);
         mListView.setOnScrollListener(this);
         setEmptyCollection((mEmptyCollection == null) ?
-                EmptyCollection.fromContent(context, mContent) : mEmptyCollection);
+                EmptyListView.fromContent(context, mContent) : mEmptyCollection);
 
         mListView.setEmptyView(mEmptyCollection);
 
@@ -540,7 +541,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     protected void configureEmptyCollection(){
         final boolean wait = canAppend() || isRefreshing() || waitingOnInitialSync();
         if (mEmptyCollection != null) {
-            mEmptyCollection.setMode(wait ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.IDLE);
+            mEmptyCollection.setMode(wait ? EmptyListView.Mode.WAITING_FOR_DATA : EmptyListView.Mode.IDLE);
         }
     }
 

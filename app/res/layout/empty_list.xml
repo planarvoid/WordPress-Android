@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:padding="5dp"
+                android:id="@+id/sizer"
+                android:layout_height="fill_parent">
+
+        <ProgressBar android:id="@+id/list_loading"
+                     android:indeterminateOnly="true"
+                     android:layout_centerInParent="true"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_margin="20dip"
+                     android:gravity="center_vertical"
+                     style="@style/ScProgressBarHolo.List"/>
+
+    <ViewStub android:id="@+id/empty_collection_stub"
+                  android:inflatedId="@+id/empty_collection_view"
+                  android:layout="@layout/empty_collection_view"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent" />
+
+</RelativeLayout>
