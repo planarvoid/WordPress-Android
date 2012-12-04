@@ -355,17 +355,17 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                     new FetchUserTask(app) {
                         @Override
                         protected void onPostExecute(User user) {
-                            // need to create user account as soon as possible, so the executeRefreshTask logic in
-                            // SoundCloudApplication works properly
-                            final boolean signedUp = app.addUserAccount(user, app.getToken(), SignupVia.API);
-
-                            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
-
                             try {
                                 progress.dismiss();
                             } catch (IllegalArgumentException ignored) {}
 
                             if (user != null) {
+                                // need to create user account as soon as possible, so the executeRefreshTask logic in
+                                // SoundCloudApplication works properly
+                                final boolean signedUp = app.addUserAccount(user, app.getToken(), SignupVia.API);
+
+                                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
+
                                 startActivity(new Intent(Start.this, Home.class));
                                 Start.this.finish();
                             } else { // user request failed
