@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
@@ -44,12 +46,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 
+import static android.view.animation.AnimationUtils.loadAnimation;
+import static com.soundcloud.android.R.anim;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
     protected enum StartState {
-        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS
+        LOADING, TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS
     }
 
     public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING };
@@ -94,8 +98,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
         mTourBottomBar = findViewById(R.id.tour_bottom_bar);
-
-        mViewPager = (ViewPager) findViewById(R.id.tour_view);
+        mViewPager     = (ViewPager) findViewById(R.id.tour_view);
 
         mTourPages = new TourLayout[]{
             new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1),
@@ -184,7 +187,20 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             UpdateManager.register(this, getString(R.string.hockey_app_id));
         }
 
+        setState(StartState.LOADING);
         TourLayout.load(this, mTourPages);
+
+        TourLayout first = mTourPages[0];
+        first.setLoadHandler(new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case TourLayout.IMAGE_LOADED:
+                        setState(StartState.TOUR);
+                        return;
+                }
+            }
+        });
     }
 
     @Override
@@ -192,7 +208,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         super.onResume();
         ((SoundCloudApplication)getApplication()).track(Page.Entry_main);
 
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        overridePendingTransition(anim.fade_in, anim.fade_out);
     }
 
     @Override
@@ -351,24 +367,22 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             protected void onPostExecute(final Token token) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+token+")");
 
-                if (!isFinishing()) {
-                    try {
-                        progress.dismiss();
-                    } catch (IllegalArgumentException ignored) {}
-                }
-
                 if (token != null) {
                     new FetchUserTask(app) {
                         @Override
                         protected void onPostExecute(User user) {
-                            // need to create user account as soon as possible, so the executeRefreshTask logic in
-                            // SoundCloudApplication works properly
-                            final boolean signedUp = app.addUserAccount(user, app.getToken(), SignupVia.API);
-
-                            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
+                            try {
+                                progress.dismiss();
+                            } catch (IllegalArgumentException ignored) {}
 
                             if (user != null) {
-                                startActivityForResult(new Intent(Start.this, Home.class), 0);
+                                // need to create user account as soon as possible, so the executeRefreshTask logic in
+                                // SoundCloudApplication works properly
+                                final boolean signedUp = app.addUserAccount(user, app.getToken(), SignupVia.API);
+
+                                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
+
+                                startActivity(new Intent(Start.this, Home.class));
                                 Start.this.finish();
                             } else { // user request failed
                                 presentError(R.string.authentication_error_title,
@@ -377,6 +391,10 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                         }
                     }.execute(Request.to(Endpoints.MY_DETAILS));
                 } else { // no tokens obtained
+                    try {
+                        progress.dismiss();
+                    } catch (IllegalArgumentException ignored) {}
+
                     presentError(R.string.authentication_error_title,
                                  R.string.authentication_login_error_password_message);
                 }
@@ -493,6 +511,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                 finish();
                 return;
 
+            case LOADING:
             case TOUR:
                 super.onBackPressed();
                 return;
@@ -511,19 +530,27 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         mState = state;
 
         switch (mState) {
+            case LOADING:
+                hideForegroundViews(animated);
+
+                hideView(mViewPager, animated);
+                return;
+
             case TOUR:
                 showForegroundViews(animated);
 
-                hideView(getLogin(),         animated);
-                hideView(getSignUp(),        animated);
+                showView(mViewPager,       animated);
+                hideView(getLogin(),       animated);
+                hideView(getSignUp(),      animated);
                 hideView(getUserDetails(), animated);
                 return;
 
             case LOGIN:
                 hideForegroundViews(animated);
 
-                showView(getLogin(),         animated);
-                hideView(getSignUp(),        animated);
+                showView(mViewPager,       animated);
+                showView(getLogin(),       animated);
+                hideView(getSignUp(),      animated);
                 hideView(getUserDetails(), animated);
                 findViewById(R.id.txt_email_address).requestFocus();
                 return;
@@ -531,8 +558,9 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             case SIGN_UP:
                 hideForegroundViews(animated);
 
-                hideView(getLogin(),         animated);
-                showView(getSignUp(),        animated);
+                showView(mViewPager,       animated);
+                hideView(getLogin(),       animated);
+                showView(getSignUp(),      animated);
                 hideView(getUserDetails(), animated);
                 findViewById(R.id.txt_email_address).requestFocus();
                 return;
@@ -540,8 +568,9 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             case SIGN_UP_DETAILS:
                 hideForegroundViews(animated);
 
-                hideView(getLogin(),         animated);
-                hideView(getSignUp(), animated);
+                showView(mViewPager,       animated);
+                hideView(getLogin(),       animated);
+                hideView(getSignUp(),      animated);
                 showView(getUserDetails(), animated);
                 return;
         }
@@ -571,7 +600,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         if (!animated) {
             view.setVisibility(View.VISIBLE);
         } else {
-            Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+            Animation animation = AnimationUtils.loadAnimation(this, anim.fade_in);
 
             view.setVisibility(View.VISIBLE);
             view.startAnimation(animation);
@@ -586,7 +615,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         if (!animated) {
             view.setVisibility(View.GONE);
         } else {
-            Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_out);
+            Animation animation = AnimationUtils.loadAnimation(this, anim.fade_out);
             animation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {

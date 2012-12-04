@@ -8,8 +8,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 public class ScSearchFragment extends ScListFragment {
-
     private Search mCurrentSearch;
+
+    public ScSearchFragment() {
+        super();
+    }
 
     public static ScSearchFragment newInstance() {
         ScSearchFragment fragment = new ScSearchFragment();

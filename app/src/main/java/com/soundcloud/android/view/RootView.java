@@ -56,7 +56,7 @@ public class RootView extends ViewGroup {
 
     private static final float PARALLAX_SPEED_RATIO = 0.5f;
 
-    private int mExpandedState;
+    private static int mExpandedState; // YES, THIS NEEDS TO BE STATIC
     private static final int EXPANDED_LEFT              = 100000;
     private static final int COLLAPSED_FULL_CLOSED      = 100001;
     private static final int EXPANDED_RIGHT             = 100002;

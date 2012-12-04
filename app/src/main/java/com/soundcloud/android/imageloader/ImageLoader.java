@@ -189,6 +189,8 @@ public class ImageLoader {
      * when the {@link ImageView} is in an {@link android.widget.AdapterView} so that the image
      * will be bound correctly in the case where it has been assigned to a
      * different position since the asynchronous request was started.
+     * <p/>
+     * Important: this method <strong>must</strong> be called from the UI thread!
      *
      * @param view     the {@link ImageView} to bind.
      * @param url      the image URL.s
@@ -227,6 +229,9 @@ public class ImageLoader {
     }
 
 
+    /**
+     * See {@link #bind(android.widget.ImageView, String, com.soundcloud.android.imageloader.ImageLoader.Callback, com.soundcloud.android.imageloader.ImageLoader.Options)}
+     */
     public BindResult bind(ImageView view, String url, @Nullable Callback callback) {
         return bind(view, url, callback, new Options());
     }
@@ -290,6 +295,8 @@ public class ImageLoader {
      * <p/>
      * Pre-fetching should not be used unless a {@link ContentHandler} with
      * support for persistent caching was passed to the constructor.
+     * <p/>
+     * This method can be called on any thread.
      *
      * @param url the URL to pre-fetch.
      * @throws NullPointerException if the URL is {@code null}
