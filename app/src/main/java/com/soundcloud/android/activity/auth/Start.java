@@ -31,7 +31,6 @@ import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -74,9 +73,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     private static final String BUNDLE_SIGN_UP_DETAILS = "BUNDLE_SIGN_UP_DETAILS";
 
     private static final File SIGNUP_LOG = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".dr");
-
-    public static final String FB_CONNECTED_EXTRA    = "facebook_connected";
-    public static final String TOUR_BACKGROUND_EXTRA = "tour_background";
 
     private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
     public static final int THROTTLE_WINDOW = 60 * 60 * 1000;
@@ -182,7 +178,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             public void onClick(View v) {
                 app.track(Click.Signup_Signup);
 
-                if (shouldThrottleSignup(Start.this)) {
+                if (shouldThrottleSignup()) {
                     // TODO: bring up mobile website
                     setState(StartState.TOUR);
                 } else {
@@ -294,7 +290,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         return mUserDetails;
     }
 
-    static boolean shouldThrottleSignup(Context context) {
+    static boolean shouldThrottleSignup() {
         final long[] signupLog = readLog();
         if (signupLog == null) {
             return false;
@@ -464,18 +460,21 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
                     // need to create user account as soon as possible, so the executeRefreshTask logic in
                     // SoundCloudApplication works properly
-                    final boolean signedUp = app.addUserAccount(user, app.getToken(), SignupVia.API);
-
-                    new GetTokensTask(mApi) {
-                        @Override protected void onPostExecute(Token token) {
-                            if (token != null) {
-                                mUser = user;
-                                setState(StartState.SIGN_UP_DETAILS);
-                            } else {
-                                presentError(getString(R.string.authentication_error_title), getFirstError());
+                    final boolean success = app.addUserAccount(user, app.getToken(), SignupVia.API);
+                    if (success) {
+                        new GetTokensTask(mApi) {
+                            @Override protected void onPostExecute(Token token) {
+                                if (token != null) {
+                                    mUser = user;
+                                    setState(StartState.SIGN_UP_DETAILS);
+                                } else {
+                                    presentError(getString(R.string.authentication_error_title), getFirstError());
+                                }
                             }
-                        }
-                    }.execute(param);
+                        }.execute(param);
+                    } else {
+                        presentError(R.string.authentication_signup_error_title, R.string.authentication_signup_error_message);
+                    }
                 } else {
                     presentError(getString(R.string.authentication_error_title), getFirstError());
                 }
@@ -490,10 +489,16 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
     @Override
     public void onSubmitDetails(String username, File avatarFile) {
+        if (mUser == null) {
+            Log.w(TAG, "no user");
+            return;
+        }
+
         if (!TextUtils.isEmpty(username)) {
             mUser.username  = username;
             mUser.permalink = username;
         }
+
         new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
             ProgressDialog dialog;
             @Override protected void onPreExecute() {

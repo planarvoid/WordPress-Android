@@ -1,7 +1,6 @@
 package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,13 +32,13 @@ public class StartTest {
     public void shouldNotThrottle() throws Exception {
         long now = System.currentTimeMillis();
         expect(Start.writeNewSignupToLog(now - Start.THROTTLE_WINDOW)).toBeTrue();
-        expect(Start.shouldThrottleSignup(Robolectric.application)).toBeFalse();
+        expect(Start.shouldThrottleSignup()).toBeFalse();
 
         expect(Start.writeNewSignupToLog(now)).toBeTrue();
-        expect(Start.shouldThrottleSignup(Robolectric.application)).toBeFalse();
+        expect(Start.shouldThrottleSignup()).toBeFalse();
 
         expect(Start.writeNewSignupToLog(now)).toBeTrue();
-        expect(Start.shouldThrottleSignup(Robolectric.application)).toBeFalse();
+        expect(Start.shouldThrottleSignup()).toBeFalse();
     }
 
     @Test
@@ -48,6 +47,6 @@ public class StartTest {
         expect(Start.writeNewSignupToLog(now)).toBeTrue();
         expect(Start.writeNewSignupToLog(now)).toBeTrue();
         expect(Start.writeNewSignupToLog(now)).toBeTrue();
-        expect(Start.shouldThrottleSignup(Robolectric.application)).toBeTrue();
+        expect(Start.shouldThrottleSignup()).toBeTrue();
     }
 }
