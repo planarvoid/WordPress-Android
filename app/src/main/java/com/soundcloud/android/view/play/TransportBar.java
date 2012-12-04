@@ -13,12 +13,13 @@ import android.view.ViewParent;
 import android.view.animation.Transformation;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 public class TransportBar extends LinearLayout{
     private ImageButton mPauseButton, mPrevButton, mNextButton;
     private Drawable mPlayState, mPauseState;
-    private ViewParent mPrevHolder;
-    private ViewParent mNextHolder;
+    private RelativeLayout mPrevHolder;
+    private RelativeLayout mNextHolder;
 
     public TransportBar(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -39,8 +40,8 @@ public class TransportBar extends LinearLayout{
         mPauseState = getResources().getDrawable(R.drawable.ic_pause_states);
         mPlayState = getResources().getDrawable(R.drawable.ic_play_states);
 
-        mPrevHolder = mPrevButton.getParent();
-        mNextHolder = mNextButton.getParent();
+        mPrevHolder = (RelativeLayout) mPrevButton.getParent();
+        mNextHolder = (RelativeLayout) mNextButton.getParent();
 
     }
 
@@ -58,7 +59,8 @@ public class TransportBar extends LinearLayout{
 
     public void setNavEnabled(boolean b) {
         setStaticTransformationsEnabled(!b);
-        invalidate();
+        mPrevHolder.invalidate();
+        mNextHolder.invalidate();
     }
 
     @Override
