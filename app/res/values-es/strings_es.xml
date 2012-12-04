@@ -268,8 +268,6 @@
   <string name="list_header_track_comments">Comentarios sobre este sonido</string>
   <string name="list_header_track_likers">Gente a la que le gusta este sonido</string>
   <string name="list_header_track_results_for">Resultados de sonidos para %s</string>
-  <string name="list_header_tracks_by_genre">Otras pistas de audio con el género %s</string>
-  <string name="list_header_tracks_by_tag">Otras pistas de audio con %s</string>
   <string name="list_header_user_results_for">Resultados de usuarios para %s</string>
   <string name="location_picker_go_to_settings">Ir a ajustes</string>
   <string name="location_picker_no_providers_enabled">No hay habilitados proveedores de lugares.</string>

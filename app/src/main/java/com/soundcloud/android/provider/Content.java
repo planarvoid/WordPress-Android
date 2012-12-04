@@ -29,6 +29,7 @@ import android.util.SparseArray;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public enum Content  {
     ME("me", Endpoints.MY_DETAILS, 100, User.class, -1, Table.USERS),
@@ -228,24 +229,37 @@ public enum Content  {
 
     public Request request(Uri contentUri) {
         if (remoteUri != null) {
-            if (remoteUri.contains("%d")){
+            String[] args = null;
+            if (contentUri != null){
+                // get args
+                final Set<String> queryParameterNames = contentUri.getQueryParameterNames();
+                if (!queryParameterNames.isEmpty()) {
+                    args = new String[queryParameterNames.size() * 2];
+                    int i = 0;
+                    for (String name : queryParameterNames) {
+                        args[i] = name;
+                        args[i + 1] = contentUri.getQueryParameter(name);
+                        i = i + 2;
+                    }
+                }
+            }
+            if (remoteUri.contains("%d")) {
                 int substitute = 0;
                 if (contentUri != null) {
                     for (String segment : contentUri.getPathSegments()) {
                         try {
                             substitute = Integer.parseInt(segment);
                             break;
-                        } catch (NumberFormatException e) {
+                        } catch (NumberFormatException ignored) {
                         }
                     }
                 }
-                return Request.to(remoteUri.replace("%d",String.valueOf(substitute)));
+                return Request.to(remoteUri, substitute).with(args);
             } else {
-                return Request.to(remoteUri);
+                return Request.to(remoteUri).with(args);
             }
-
         } else {
-            throw new IllegalArgumentException("no remoteuri defined for content" + this);
+            throw new IllegalArgumentException("no remote uri defined for content" + this);
         }
     }
 
