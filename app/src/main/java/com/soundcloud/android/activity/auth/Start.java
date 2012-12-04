@@ -408,6 +408,8 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         result.putBoolean(Consts.Keys.WAS_SIGNUP, via != SignupVia.NONE);
         super.setAccountAuthenticatorResult(result);
 
+        SoundCloudApplication.MODEL_MANAGER.write(user);
+
         sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
                 .putExtra(User.EXTRA, user)
                 .putExtra(SignupVia.EXTRA, via.name));
