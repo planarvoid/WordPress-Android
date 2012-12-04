@@ -92,13 +92,7 @@ public class TourLayout extends FrameLayout {
         if (layouts == null || layouts.length == 0) throw new IllegalArgumentException();
 
         try {
-            // load first image synchronously
-            loadAsync(context, layouts[0]).get();
-
-            // rest async
-            if (layouts.length > 1) {
-                loadAsync(context, Arrays.copyOfRange(layouts, 1, layouts.length));
-            }
+            loadAsync(context, layouts);
         } catch (Exception ignored) {
             Log.w(TAG, ignored);
         }
