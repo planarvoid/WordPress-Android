@@ -23,7 +23,7 @@ public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> imp
 
     @Override
     public int handleListItemClick(int position, long id) {
-        PlayUtils.playFromAdapter(mContext, this, mData, position, id);
+        PlayUtils.playFromAdapter(mContext, this, mData, position);
         return ItemClickResults.LEAVING;
     }
 

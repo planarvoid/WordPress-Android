@@ -17,8 +17,6 @@ import com.soundcloud.android.activity.track.TracksByTag;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.DBHelper.Sounds;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
@@ -46,9 +44,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @SuppressWarnings({"UnusedDeclaration"})
@@ -56,6 +59,7 @@ import java.util.List;
 public class Track extends Sound implements Playable {
     private static final String TAG = "Track";
     public static final String EXTRA = "track";
+    private static final Pattern TAG_PATTERN = Pattern.compile("(\"([^\"]+)\")");
 
     // API fields
     @JsonView(Views.Full.class) @Nullable public State state;
@@ -70,7 +74,7 @@ public class Track extends Sound implements Playable {
     @JsonView(Views.Full.class) public int playback_count;
     @JsonView(Views.Full.class) public int download_count;
     @JsonView(Views.Full.class) public int comment_count;
-    @JsonView(Views.Full.class) public int reposts_count;
+
     @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
     public int shared_to_count;
 
@@ -80,12 +84,8 @@ public class Track extends Sound implements Playable {
     public String user_uri;
 
     @JsonView(Views.Full.class) public String waveform_url;
-
-
     @JsonView(Views.Mini.class) public String stream_url;
-
     @JsonView(Views.Full.class) public int user_playback_count;
-
 
     @JsonView(Views.Full.class)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
@@ -119,8 +119,13 @@ public class Track extends Sound implements Playable {
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
         if (tag_list == null) return tags;
-        for (String t : tag_list.split("\\s")) {
-            if (t.indexOf(':') == -1 && t.indexOf('=') == -1) {
+        Matcher m = TAG_PATTERN.matcher(tag_list);
+        while (m.find()) {
+            tags.add(tag_list.substring(m.start(2), m.end(2)).trim());
+        }
+        String singlewords = m.replaceAll("");
+        for (String t : singlewords.split("\\s")) {
+            if (!TextUtils.isEmpty(t) && t.indexOf(':') == -1 && t.indexOf('=') == -1) {
                 tags.add(t);
             }
         }
@@ -150,7 +155,10 @@ public class Track extends Sound implements Playable {
         return user;
     }
 
-
+    @JsonIgnore
+    public boolean isWaitingOnState() {
+        return state == null;
+    }
 
     @JsonIgnore
     public boolean isStreamable() {
@@ -189,7 +197,7 @@ public class Track extends Sound implements Playable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         Bundle b = super.getBundle();
-        b.putString("state", state.value());
+        b.putString("state", state != null ? state.value() : null);
         b.putBoolean("commentable", commentable);
         b.putParcelable("label", label);
         b.putString("isrc", isrc);
@@ -229,9 +237,11 @@ public class Track extends Sound implements Playable {
         dest.writeBundle(b);
     }
 
-    public static Track fromUri(Uri uri, ContentResolver resolver) {
+    public static Track fromUri(Uri uri, ContentResolver resolver, boolean createDummy) {
+        long id = -1l;
         try { // check the cache first
-            final Track t = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(Long.parseLong(uri.getLastPathSegment()));
+            id = Long.parseLong(uri.getLastPathSegment());
+            final Track t = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(id);
             if (t != null) return t;
 
         } catch (NumberFormatException e) {
@@ -240,7 +250,14 @@ public class Track extends Sound implements Playable {
 
         Cursor cursor = resolver.query(uri, null, null, null, null);
         try {
-            return cursor != null && cursor.moveToFirst() ? SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor) : null;
+
+            if (cursor != null && cursor.moveToFirst()) {
+                return SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor);
+            } else if (createDummy && id >= 0) {
+                return SoundCloudApplication.MODEL_MANAGER.cache(new Track(id));
+            } else {
+                return null;
+            }
         } finally {
             if (cursor != null) cursor.close();
         }
@@ -288,6 +305,10 @@ public class Track extends Sound implements Playable {
 
     public Track() {
         super();
+    }
+
+    public Track(long id) {
+        this.id = id;
     }
 
     public Track(Parcel in) {
@@ -431,14 +452,12 @@ public class Track extends Sound implements Playable {
 
     // TODO, THIS SUCKS
     public FetchModelTask<Track> refreshInfoAsync(AndroidCloudAPI api, FetchModelTask.FetchModelListener<Track> listener) {
-        if (load_info_task == null){
-            if (AndroidUtils.isTaskFinished(load_info_task)) {
-                load_info_task = new FetchTrackTask(api, id);
-            }
-            load_info_task.addListener(listener);
-            if (AndroidUtils.isTaskPending(load_info_task)) {
-                load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, id));
-            }
+        if (load_info_task == null && AndroidUtils.isTaskFinished(load_info_task)) {
+            load_info_task = new FetchTrackTask(api, id);
+        }
+        load_info_task.addListener(listener);
+        if (AndroidUtils.isTaskPending(load_info_task)) {
+            load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, id));
         }
         return load_info_task;
     }
@@ -550,9 +569,21 @@ public class Track extends Sound implements Playable {
         return user == null ? null : user.avatar_url;
     }
 
-    @Override
-    public long getRefreshableId() {
-        return id;
+    public @Nullable URL getWaveformDataURL() {
+        if (TextUtils.isEmpty(waveform_url)) {
+            return null;
+        } else {
+            try {
+                Uri waveform = Uri.parse(waveform_url);
+                return new URL("http://wis.sndcdn.com/"+waveform.getLastPathSegment());
+            } catch (MalformedURLException e) {
+                return null;
+            }
+        }
+    }
+
+    public boolean hasWaveform() {
+        return !TextUtils.isEmpty(waveform_url);
     }
 
     @Override
@@ -561,14 +592,15 @@ public class Track extends Sound implements Playable {
     }
 
     @Override
-    public boolean isStale(){
+    public boolean isStale() {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.track;
     }
 
-    public Intent getShareIntent() {
+    public @Nullable Intent getShareIntent() {
         if (sharing == null || !sharing.isPublic()) return null;
 
         Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_SUBJECT,
                 title +

@@ -63,7 +63,6 @@
   <string name="changelog_title">Nuevas actualizaciones</string>
   <string name="cloud_recorder_event_message">Grabando durante %s</string>
   <string name="cloud_recorder_event_title">Grabación en curso</string>
-  <string name="cloud_recorder_notification_ticker">Comenzó la grabación</string>
   <string name="cloud_recorder_playback_event_title">Reproducción en curso</string>
   <string name="cloud_recorder_playback_notification_ticker">Reproduciendo %s</string>
   <string name="cloud_upload_clear_artwork">Pulsar para eliminar ilustraciones</string>

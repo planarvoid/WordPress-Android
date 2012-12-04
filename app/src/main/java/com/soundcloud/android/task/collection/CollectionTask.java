@@ -3,15 +3,15 @@ package com.soundcloud.android.task.collection;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.act.Activity;
+import com.soundcloud.android.task.ParallelAsyncTask;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
 
-public class CollectionTask extends AsyncTask<CollectionParams, ReturnData, ReturnData> {
+public class CollectionTask extends ParallelAsyncTask<CollectionParams, ReturnData, ReturnData> {
     private AndroidCloudAPI mApi;
     private WeakReference<Callback> mCallback;
 

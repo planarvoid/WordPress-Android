@@ -228,6 +228,12 @@ public class SoundCloudDB {
         }
     }
 
+    public static List<Long> getStoredIds(ContentResolver resolver, Uri uri, int offset, int limit) {
+        return idCursorToList(resolver.query(SoundCloudDB.addPagingParams(uri, offset, limit)
+                .appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY, "1").build(),
+                null, null, null, null));
+    }
+
     public static @NotNull
     List<Long> idCursorToList(Cursor c) {
         List<Long> ids = new ArrayList<Long>();
@@ -240,7 +246,7 @@ public class SoundCloudDB {
         return ids;
     }
 
-    public static Uri addPagingParams(Uri uri, int offset, int limit) {
+    public static Uri.Builder addPagingParams(Uri uri, int offset, int limit) {
         if (uri == null) return null;
 
         Uri.Builder b = uri.buildUpon();
@@ -248,7 +254,7 @@ public class SoundCloudDB {
             b.appendQueryParameter("offset", String.valueOf(offset));
         }
         b.appendQueryParameter("limit", String.valueOf(limit));
-        return b.build();
+        return b;
 
     }
 }

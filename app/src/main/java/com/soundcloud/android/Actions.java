@@ -5,6 +5,7 @@ public final class Actions {
     public static final String WHO_TO_FOLLOW    = "com.soundcloud.android.action.WHO_TO_FOLLOW";
     public static final String FRIEND_FINDER    = "com.soundcloud.android.action.FRIEND_FINDER";
     public static final String YOU              = "com.soundcloud.android.action.YOU";
+    public static final String YOUR_INFO        = "com.soundcloud.android.action.YOUR_INFO";
     public static final String YOUR_SOUNDS      = "com.soundcloud.android.action.YOUR_SOUNDS";
     public static final String YOUR_LIKES       = "com.soundcloud.android.action.YOUR_LIKES";
     public static final String YOUR_FOLLOWINGS  = "com.soundcloud.android.action.YOUR_FOLLOWINGS";
@@ -39,7 +40,6 @@ public final class Actions {
     public static final String EXTRA_PROXY         = "proxy"; // proxy URL as string
     public static final String CONNECTION_ERROR    = "com.soundcloud.android.connectionerror";
     public static final String LOGGING_OUT         = "com.soundcloud.android.loggingout";
-    public static final String COMMENT_ADDED       = "com.soundcloud.android.commentadded";
     public static final String RESEND              = "com.soundcloud.android.RESEND";
     public static final String ALARM               = "com.soundcloud.android.actions.ALARM";
     public static final String CANCEL_ALARM        = "com.soundcloud.android.actions.CANCEL_ALARM";

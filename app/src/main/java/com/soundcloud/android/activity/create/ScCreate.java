@@ -995,7 +995,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
 
     @Override
-    protected int getMenuResourceId() {
+    public int getMenuResourceId() {
         return R.menu.sc_create;
     }
 

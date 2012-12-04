@@ -28,6 +28,13 @@ public class TrackTest {
     }
 
     @Test
+    public void shouldHandleMultiWordTags() throws Exception {
+        Track t = new Track();
+        t.tag_list = "\"multiword tags\" \"in the api\" suck bigtime";
+        expect(t.humanTags()).toContainInOrder("multiword tags", "in the api", "suck", "bigtime");
+    }
+
+    @Test
     public void shouldGenerateTrackInfo() throws Exception {
         Track t = new Track();
         t.description = "Cool track";
@@ -266,6 +273,14 @@ public class TrackTest {
 
         Track t2 = new Track(p);
         compareTracks(t, t2);
+    }
+
+    @Test
+    public void shouldGetWaveformDataURL() throws Exception {
+        Track t = new Track();
+        expect(t.getWaveformDataURL()).toBeNull();
+        t.waveform_url = "http://waveforms.soundcloud.com/bypOn0pnRvFf_m.png";
+        expect(t.getWaveformDataURL().toString()).toEqual("http://wis.sndcdn.com/bypOn0pnRvFf_m.png");
     }
 
     private void compareTracks(Track t, Track t2) {

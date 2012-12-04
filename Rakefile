@@ -7,10 +7,13 @@ require 'csv'
 require 'json'
 require 'yaml'
 
-DEFAULT_LEVELS = %w(CloudPlaybackService AwesomePlayer NuHTTPDataSource HTTPStream NuCachedSource2
-               StreamProxy StreamLoader StreamStorage C2DMReceiver SyncAdapterService ScContentProvider
-               ApiSyncService ApiSyncer UploadService SoundCloudApplication VorbisEncoder VorbisEncoderNative
-               VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener)
+DEFAULT_LEVELS = %w(
+   CloudPlaybackService AwesomePlayer NuHTTPDataSource HTTPStream NuCachedSource2 ImageLoader
+   StreamProxy StreamLoader StreamStorage C2DMReceiver SyncAdapterService ScContentProvider DBHelper
+   ApiSyncService ApiSyncer UploadService SoundCloudApplication VorbisEncoder VorbisEncoderNative
+   VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener
+)
+DISABLED_LEVELS = %w()
 
 # help methods to access pom data
 def pom() @pom ||= REXML::Document.new(File.read(File.dirname(__FILE__)+'/pom.xml')) end
@@ -76,8 +79,12 @@ def current_version() pom.root.elements["version"].text end
     namespace :logging do
       %w(verbose debug info warn error).each do |level|
         task level do
-          DEFAULT_LEVELS.each do |tag|
+          (DEFAULT_LEVELS - DISABLED_LEVELS).each do |tag|
             adb["shell setprop log.tag.#{tag} #{level.upcase}"]
+          end
+
+          DISABLED_LEVELS.each do |tag|
+            adb["shell setprop log.tag.#{tag} error"]
           end
           adb["shell setprop debug.assert 1"]
         end
@@ -86,7 +93,7 @@ def current_version() pom.root.elements["version"].text end
 
     desc "run lolcat with filtering"
     task :lolcat do
-      adb["lolcat -v time #{DEFAULT_LEVELS.join(' ')} *:S"]
+      adb["lolcat -v time #{(DEFAULT_LEVELS - DISABLED_LEVELS).join(' ')} *:S"]
     end
 
     desc "run integration tests"

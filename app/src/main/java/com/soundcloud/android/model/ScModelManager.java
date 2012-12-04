@@ -143,8 +143,10 @@ public class ScModelManager {
             while (itemsCursor.moveToNext())
                 if (Track.class.equals(resourceType)) {
                     items.add(getTrackFromCursor(itemsCursor));
-                } else if (User.class.equals(resourceType) || Friend.class.equals(resourceType)) {
+                } else if (User.class.equals(resourceType)) {
                     items.add(getUserFromCursor(itemsCursor));
+                } else if (Friend.class.equals(resourceType)) {
+                    items.add(new Friend(getUserFromCursor(itemsCursor)));
                 } else if (SoundAssociation.class.equals(resourceType)) {
                     SoundAssociation soundAssociation = new SoundAssociation(itemsCursor);
                     soundAssociation.track = getTrackFromCursor(itemsCursor, DBHelper.SoundAssociationView._ID);
@@ -386,7 +388,9 @@ public class ScModelManager {
                     : ids;
 
         return SoundCloudDB.bulkInsertModels(mResolver, doBatchLookup(api, fetchIds,
-                Track.class.equals(content.modelType) ? Content.TRACKS.remoteUri : Content.USERS.remoteUri));
+                // XXX this has to be abstracted more. Hesitant to do so until the api is more final
+                Track.class.equals(content.modelType) || SoundAssociation.class.equals(content.modelType)
+                        ? Content.TRACKS.remoteUri : Content.USERS.remoteUri));
     }
 
     /**
@@ -447,7 +451,7 @@ public class ScModelManager {
 
     public List<Long> getLocalIds(Content content, long userId, int startIndex, int limit) {
         return SoundCloudDB.idCursorToList(mResolver.query(
-                SoundCloudDB.addPagingParams(Content.COLLECTION_ITEMS.uri, startIndex, limit),
+                SoundCloudDB.addPagingParams(Content.COLLECTION_ITEMS.uri, startIndex, limit).build(),
                 new String[]{DBHelper.CollectionItems.ITEM_ID},
                 DBHelper.CollectionItems.COLLECTION_TYPE + " = ? AND " + DBHelper.CollectionItems.USER_ID + " = ?",
                 new String[]{String.valueOf(content.collectionType), String.valueOf(userId)},

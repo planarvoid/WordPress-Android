@@ -43,10 +43,11 @@ public class ScContentProvider extends ContentProvider {
     public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
 
     public static interface Parameter {
-        String RANDOM = "random";
-        String CACHED = "cached";
-        String LIMIT  = "limit";
-        String OFFSET = "offset";
+        String RANDOM   = "random";
+        String CACHED   = "cached";
+        String LIMIT    = "limit";
+        String OFFSET   = "offset";
+        String IDS_ONLY = "idsOnly";
     }
 
     private DBHelper dbHelper;
@@ -105,8 +106,10 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_SOUNDS :
                 qb.setTables(makeCollectionJoin(Table.SOUND_ASSOCIATION_VIEW));
+                if ("1".equals(uri.getQueryParameter(Parameter.IDS_ONLY))) {
+                    _columns = new String[]{DBHelper.SoundAssociationView._ID};
+                } else if (_columns == null) _columns = formatWithUser(fullSoundAssociationColumns, userId);
 
-                if (_columns == null) _columns = formatWithUser(fullSoundAssociationColumns, userId);
                 makeSoundAssociationSelection(qb, String.valueOf(userId),
                         new int[]{CollectionItemTypes.TRACK, CollectionItemTypes.REPOST});
                 _sortOrder = makeCollectionSort(uri, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC");
@@ -117,7 +120,9 @@ public class ScContentProvider extends ContentProvider {
             case ME_LIKES:
             case ME_REPOSTS:
                 qb.setTables(makeCollectionJoin(Table.SOUND_ASSOCIATION_VIEW));
-                if (_columns == null) _columns = formatWithUser(fullSoundAssociationColumns, userId);
+                if ("1".equals(uri.getQueryParameter(Parameter.IDS_ONLY))) {
+                    _columns = new String[]{DBHelper.CollectionItems.ITEM_ID};
+                } else if (_columns == null) _columns = formatWithUser(fullSoundAssociationColumns, userId);
 
                 makeSoundAssociationSelection(qb, String.valueOf(userId),
                         new int[]{content.collectionType});
@@ -131,21 +136,39 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
-            case ME_FRIENDS:
             case SUGGESTED_USERS:
-                qb.setTables(makeCollectionJoin(Table.USERS));
-                if (_columns == null){
-                    _columns = formatWithUser(fullUserColumns, userId);
-                    if (content == Content.ME_FRIENDS) {
-                        _sortOrder = makeCollectionSort(uri, sortOrder == null ?
-                                DBHelper.Users.USER_FOLLOWING + " ASC, " + DBHelper.Users._ID + " ASC" : sortOrder);
-                    } else {
-                        _sortOrder = makeCollectionSort(uri, sortOrder);
+                /* XXX special case for now. we need to not join in the users table on an id only request, because
+                it is an inner join and will not return ids with missing users. Switching to a left join is possible
+                but not 4 days before major release*/
+                if ("1".equals(uri.getQueryParameter(Parameter.IDS_ONLY))) {
+                    qb.setTables(Table.COLLECTION_ITEMS.name);
+                    _columns = new String[]{DBHelper.CollectionItems.ITEM_ID};
+                } else {
+                    qb.setTables(makeCollectionJoin(Table.USERS));
+                    if (_columns == null) {
+                        _columns = formatWithUser(fullUserColumns, userId);
                     }
+                }
+                makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
+                _sortOrder = makeCollectionSort(uri, sortOrder);
+
+                break;
+
+            case ME_FRIENDS:
+                final boolean defaultCols = _columns == null;
+                qb.setTables(makeCollectionJoin(Table.USERS));
+                if (_columns == null) {
+                    _columns = formatWithUser(fullUserColumns, userId);
+                }
+                makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
+
+                //special sorting for friends (only if we use default columns though)
+                if (defaultCols) {
+                    _sortOrder = makeCollectionSort(uri, sortOrder == null ?
+                            DBHelper.Users.USER_FOLLOWING + " ASC, " + DBHelper.Users._ID + " ASC" : sortOrder);
                 } else {
                     _sortOrder = makeCollectionSort(uri, sortOrder);
                 }
-                makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
                 break;
 
             case ME_USERID:
@@ -431,14 +454,14 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_LIKES:
             case ME_REPOSTS:
-                id = Table.SOUNDS.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = Table.SOUNDS.upsertSingle(db, values);
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, userId);
                     cv.put(DBHelper.CollectionItems.CREATED_AT, System.currentTimeMillis());
                     cv.put(DBHelper.CollectionItems.ITEM_ID, (Long) values.get(DBHelper.Sounds._ID));
                     cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, content.collectionType);
-                    id = Table.COLLECTION_ITEMS.insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_ABORT);
+                    id = Table.COLLECTION_ITEMS.insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_IGNORE);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null, false);
                     return result;
@@ -607,7 +630,7 @@ public class ScContentProvider extends ContentProvider {
                     where = "_id NOT IN (SELECT DISTINCT " + DBHelper.Sounds.USER_ID + " FROM "+ Table.SOUNDS.name + " UNION "
                                     + "SELECT _id FROM "+ Table.USERS.name + " WHERE EXISTS("
                                         + "SELECT 1 FROM CollectionItems WHERE "
-                                        + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.FOLLOWER+ " ," + CollectionItemTypes.FOLLOWING+ ") "
+                                        + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.FOLLOWER+ " ," + CollectionItemTypes.FOLLOWING+ " ," + CollectionItemTypes.FRIEND+ ") "
                                         + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
                                         + " AND  " + DBHelper.CollectionItems.ITEM_ID + " = " + Table.USERS.id
                                     + " UNION SELECT DISTINCT " + DBHelper.ActivityView.USER_ID + " FROM "+ Table.ACTIVITIES.name
@@ -643,7 +666,7 @@ public class ScContentProvider extends ContentProvider {
             case SOUNDS:
             case PLAYLISTS:
                 content.table.upsert(db, values);
-                if (values.length != 0) getContext().getContentResolver().notifyChange(uri, null, false);
+                getContext().getContentResolver().notifyChange(uri, null, false);
                 return values.length;
 
             case COMMENTS:
@@ -699,7 +722,6 @@ public class ScContentProvider extends ContentProvider {
                 if (v != null){
                     if (extraCV != null) v.put(extraCV[0], extraCV[1]);
                     log("bulkInsert: " + v);
-
                     if (db.insertWithOnConflict(table.name, null, v, SQLiteDatabase.CONFLICT_REPLACE) < 0) {
                         Log.w(TAG, "replace returned failure");
                         failed = true;
@@ -720,7 +742,7 @@ public class ScContentProvider extends ContentProvider {
         } finally {
             db.endTransaction();
         }
-        if (values.length != 0) getContext().getContentResolver().notifyChange(uri, null, false);
+        getContext().getContentResolver().notifyChange(uri, null, false);
         return values.length;
     }
 
@@ -858,6 +880,7 @@ public class ScContentProvider extends ContentProvider {
         final String query = qb.buildQuery(
                 new String[] {
                     BaseColumns._ID,
+                    DBHelper.Suggestions.ID,
                     SearchManager.SUGGEST_COLUMN_TEXT_1,
                     SearchManager.SUGGEST_COLUMN_INTENT_DATA,
                     DBHelper.Suggestions.ICON_URL,

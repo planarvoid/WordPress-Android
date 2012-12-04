@@ -1,7 +1,7 @@
 package com.soundcloud.android.view;
 
 
-import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ContentStats;

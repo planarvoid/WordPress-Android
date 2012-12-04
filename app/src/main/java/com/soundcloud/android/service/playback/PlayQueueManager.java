@@ -21,6 +21,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -189,13 +190,21 @@ public class PlayQueueManager {
     private AsyncTask loadCursor(final Uri uri, final int position) {
         return new AsyncTask<Uri,Void,Cursor>() {
             @Override protected Cursor doInBackground(Uri... params) {
-                Cursor cursor = mContext.getContentResolver().query(params[0], null, null, null, null);
+                Cursor cursor = null;
+                try {
+                    cursor = mContext.getContentResolver().query(params[0], null, null, null, null);
+                } catch (IllegalArgumentException e) {
+                    // in case we load a depracated URI, just don't load the playlist
+                    Log.e(PlayQueueManager.class.getSimpleName(),"Tried to load an invalid uri " + uri);
+                }
                 if (cursor != null) {
                     if (position >= 0 && position < cursor.getCount()) {
                         cursor.moveToPosition(position);
                     }
                 }
                 return cursor;
+
+
             }
             @Override protected void onPostExecute(Cursor cursor) {
                 // make sure this cursor is valid and still wanted

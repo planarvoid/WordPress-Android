@@ -15,6 +15,7 @@
                       android:layout_height="wrap_content">
 
             <TextView android:id="@+id/website"
+                      android:visibility="gone"
                       android:layout_width="wrap_content"
                       android:text="@string/website"
                       android:padding="3dip"
@@ -25,6 +26,7 @@
                       android:textColor="@drawable/txt_dark_states"/>
 
             <TextView android:id="@+id/discogs_name"
+                      android:visibility="gone"
                       android:layout_width="wrap_content"
                       android:text="@string/discogs"
                       android:padding="3dip"
@@ -35,6 +37,7 @@
                       android:textColor="@drawable/txt_dark_states"/>
 
             <TextView android:id="@+id/myspace_name"
+                      android:visibility="gone"
                       android:layout_width="wrap_content"
                       android:text="@string/myspace"
                       android:padding="3dip"
@@ -45,6 +48,7 @@
                       android:textColor="@drawable/txt_dark_states"/>
 
             <TextView android:id="@+id/location"
+                      android:visibility="gone"
                       android:layout_width="wrap_content"
                       android:gravity="left"
                       android:padding="3dip"
@@ -52,6 +56,7 @@
                       android:textStyle="bold"/>
 
             <TextView android:id="@+id/description"
+                      android:visibility="gone"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
                       android:padding="3dip"

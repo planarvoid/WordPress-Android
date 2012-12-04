@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity.landing;
 
+import static com.soundcloud.android.SoundCloudApplication.MODEL_MANAGER;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
@@ -30,13 +31,12 @@ import java.io.IOException;
 
 public class Home extends ScActivity implements ScLandingPage {
     private FetchUserTask mFetchUserTask;
-    private ChangeLog mChangeLog;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setTitle(getString(R.string.side_menu_stream));
-        mChangeLog = new ChangeLog(this);
+
 
         final SoundCloudApplication app = getApp();
         if (app.getAccount() != null) {
@@ -44,6 +44,11 @@ public class Home extends ScActivity implements ScLandingPage {
                 getSupportFragmentManager().beginTransaction()
                         .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_SOUND_STREAM))
                         .commit();
+
+                ChangeLog changeLog = new ChangeLog(this);
+                if (changeLog.isFirstRun()) {
+                    changeLog.getDialog(true).show();
+                }
             }
 
             if (IOUtils.isConnected(this) &&
@@ -64,13 +69,16 @@ public class Home extends ScActivity implements ScLandingPage {
     @Override
     protected void onResume() {
         super.onResume();
-
         if (getApp().getAccount() == null) {
             getApp().addAccount(this, managerCallback);
             finish();
-        } else if (mChangeLog.isFirstRun()) {
-            mChangeLog.getDialog(true).show();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        UpdateManager.unregister();
     }
 
     @Override
@@ -79,45 +87,47 @@ public class Home extends ScActivity implements ScLandingPage {
     }
 
     private void checkEmailConfirmed(final SoundCloudApplication app) {
-            mFetchUserTask = new FetchUserTask(app) {
-                @Override
-                protected void onPostExecute(User user) {
-                    if (user == null || user.isPrimaryEmailConfirmed()) {
-                        if (user != null) SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
-                    } else {
-                        startActivityForResult(new Intent(Home.this, EmailConfirm.class)
-                                .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
+        mFetchUserTask = new FetchUserTask(app) {
+            @Override
+            protected void onPostExecute(User user) {
+                if (user == null || user.isPrimaryEmailConfirmed()) {
+                    if (user != null) {
+                        MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
                     }
-                    mFetchUserTask = null;
+                } else {
+                    startActivityForResult(new Intent(Home.this, EmailConfirm.class)
+                            .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
                 }
-            };
-            mFetchUserTask.execute(Request.to(Endpoints.MY_DETAILS));
-        }
+                mFetchUserTask = null;
+            }
+        };
+        mFetchUserTask.execute(Request.to(Endpoints.MY_DETAILS));
+    }
 
-        private boolean justAuthenticated(Intent intent) {
-            return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
-        }
+    private boolean justAuthenticated(Intent intent) {
+        return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
+    }
 
 
     private final AccountManagerCallback<Bundle> managerCallback = new AccountManagerCallback<Bundle>() {
-            @Override
-            public void run(AccountManagerFuture<Bundle> future) {
-                try {
-                    // NB: important to call future.getResult() for side effects
-                    Bundle result = future.getResult();
-                    // restart main activity
+        @Override
+        public void run(AccountManagerFuture<Bundle> future) {
+            try {
+                // NB: important to call future.getResult() for side effects
+                Bundle result = future.getResult();
+                // restart main activity
 
-                    startActivity(new Intent(Home.this, Home.class)
-                            .putExtra(AuthenticatorService.KEY_ACCOUNT_RESULT, result)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                startActivity(new Intent(Home.this, Home.class)
+                        .putExtra(AuthenticatorService.KEY_ACCOUNT_RESULT, result)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
 
-                } catch (OperationCanceledException ignored) {
-                    finish();
-                } catch (IOException e) {
-                    Log.w(TAG, e);
-                } catch (AuthenticatorException e) {
-                    Log.w(TAG, e);
-                }
+            } catch (OperationCanceledException ignored) {
+                finish();
+            } catch (IOException e) {
+                Log.w(TAG, e);
+            } catch (AuthenticatorException e) {
+                Log.w(TAG, e);
             }
-        };
+        }
+    };
 }

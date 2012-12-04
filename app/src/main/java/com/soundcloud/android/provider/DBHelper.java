@@ -15,17 +15,20 @@ import java.util.List;
 
 
 public class DBHelper extends SQLiteOpenHelper {
-    static final String TAG = "DBHelper";
+    /* package */ static final String TAG = "DBHelper";
 
+    /* increment when schema changes */
     public static final int DATABASE_VERSION = 19;
     private static final String DATABASE_NAME = "SoundCloud";
 
-    DBHelper(Context context) {
+    public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        Log.d(TAG, "onCreate("+db+"");
+
         try {
             for (Table t : Table.values()) {
                 t.create(db);
@@ -107,16 +110,18 @@ public class DBHelper extends SQLiteOpenHelper {
                 Log.i(TAG, "successful db upgrade");
             } else {
                 Log.w(TAG, "upgrade not successful, recreating db");
-                recreateDb(db);
+                onRecreateDb(db);
             }
             db.setTransactionSuccessful();
             db.endTransaction();
         } else {
-            recreateDb(db);
+            onRecreateDb(db);
         }
     }
 
-    private void recreateDb(SQLiteDatabase db) {
+    public void onRecreateDb(SQLiteDatabase db) {
+        Log.d(TAG, "onRecreate("+db+"");
+
         for (Table t : Table.values()) {
             t.drop(db);
         }
@@ -360,7 +365,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "   TrackMetadata." + TrackMetadata._ID + " = " + "Sounds." + SoundView._ID + ")"
             ;
 
-    /** A view which combines activity data + tracks/users/comments */
+    /** A view which combines soundassociation with sounds */
         static final String DATABASE_CREATE_SOUND_ASSOCIATION_VIEW = "AS SELECT " +
             "CollectionItems." + CollectionItems.CREATED_AT + " as " + SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP +
             ", CollectionItems." + CollectionItems.COLLECTION_TYPE + " as " + SoundAssociationView.SOUND_ASSOCIATION_TYPE +
@@ -1011,5 +1016,4 @@ public class DBHelper extends SQLiteOpenHelper {
     private static void resetSyncState(SQLiteDatabase db) {
         db.execSQL("UPDATE " + Table.COLLECTIONS + " SET " + Collections.SYNC_STATE + " =" + LocalCollection.SyncState.IDLE);
     }
-
 }

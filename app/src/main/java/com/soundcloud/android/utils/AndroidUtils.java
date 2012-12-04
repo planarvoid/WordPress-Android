@@ -1,7 +1,6 @@
 package com.soundcloud.android.utils;
 
 import static android.content.pm.PackageManager.GET_SIGNATURES;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -10,7 +9,6 @@ import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -36,10 +34,6 @@ import java.util.Map;
  */
 public final class AndroidUtils {
     private AndroidUtils() {}
-
-    private static HashMap<Context, HashMap<Class<? extends Service>, ServiceConnection>> sConnectionMap
-            = new HashMap<Context, HashMap<Class<? extends Service>, ServiceConnection>>();
-
 
     public static ProgressDialog showProgress(Context context, int message) {
         return showProgress(context, message, 0);
@@ -71,28 +65,6 @@ public final class AndroidUtils {
     public static void showToast(Context c, CharSequence text) {
         Toast toast = Toast.makeText(c, text, Toast.LENGTH_LONG);
         toast.show();
-    }
-
-    public static boolean bindToService(Context context, Class<? extends Service> service, ServiceConnection callback) {
-        //http://blog.tourizo.com/2009/04/binding-services-while-in-activitygroup.html
-        context.startService(new Intent(context, service));
-        if (sConnectionMap.get(context) == null) {
-            sConnectionMap.put(context, new HashMap<Class<? extends Service>, ServiceConnection>());
-        }
-        sConnectionMap.get(context).put(service, callback);
-
-        boolean success =  context.getApplicationContext().bindService(
-                new Intent(context, service),
-                callback,
-                0);
-        if (!success) Log.w(TAG, "BIND TO SERVICE " + service.getSimpleName() + " FAILED");
-        return success;
-    }
-
-    public static void unbindFromService(Context context, Class<? extends Service> service) {
-        ServiceConnection sb = sConnectionMap.get(context).remove(service);
-        if (sConnectionMap.get(context).isEmpty()) sConnectionMap.remove(context);
-        if (sb != null) context.getApplicationContext().unbindService(sb);
     }
 
     public static boolean isTaskFinished(AsyncTask lt) {
@@ -127,12 +99,17 @@ public final class AndroidUtils {
      * @return whether the function was executed
      */
     @SuppressWarnings("UnusedDeclaration")
-    public static boolean doOnce(Context context, String key, Runnable fun) {
+    public static boolean doOnce(Context context, String key, final Runnable fun) {
         final String k = "do.once."+key;
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if (!prefs.getBoolean(k, false)) {
-            fun.run();
-            prefs.edit().putBoolean(k, true).commit();
+            new Thread() {
+                @Override
+                public void run() {
+                    fun.run();
+                    prefs.edit().putBoolean(k, true).commit();
+                }
+            }.start();
             return true;
         } else {
             return false;
@@ -199,7 +176,7 @@ public final class AndroidUtils {
     }
 
     /**
-     * @param context
+     * @param context the context
      * @return a unique id for this device (MD5 of IMEI / {@link Settings.Secure#ANDROID_ID}) or null
      */
     public static String getUniqueDeviceID(Context context) {

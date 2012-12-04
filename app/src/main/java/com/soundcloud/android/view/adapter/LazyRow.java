@@ -13,7 +13,7 @@ import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.IScAdapter;
@@ -21,11 +21,11 @@ import com.soundcloud.android.utils.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class LazyRow extends FrameLayout {
-    public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(false);
+    public static final ImageLoader.Options ICON_OPTIONS = ImageLoader.Options.dontLoadRemote();
 
     private ImageLoader.Options mIconOptions;
 
-    protected IScAdapter mAdapter;
+    protected @Nullable IScAdapter mAdapter;
     protected ImageLoader mImageLoader;
     protected ImageView mIcon;
 
@@ -57,7 +57,7 @@ public abstract class LazyRow extends FrameLayout {
 
     /** update the views with the data corresponding to selection index */
     public void display(int position) {
-        final Long id = mAdapter.getItemId(position);
+        final long id = mAdapter.getItemId(position);
         final String iconUri = getIconRemoteUri();
         if (ImageUtils.checkIconShouldLoad(iconUri)) {
             Drawable drawable = mAdapter.getDrawableFromId(id);

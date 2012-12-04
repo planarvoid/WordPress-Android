@@ -16,10 +16,5 @@ public class FetchUserTask extends FetchModelTask<User> {
         super(app, User.class, userId);
     }
 
-    protected User updateLocally(ContentResolver resolver, User user) {
-        user.last_updated = System.currentTimeMillis();
-        return SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
-    }
-
     public interface FetchUserListener extends FetchModelListener<User> {}
 }

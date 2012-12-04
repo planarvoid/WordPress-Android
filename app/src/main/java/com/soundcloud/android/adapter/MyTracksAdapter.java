@@ -1,9 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.create.ScUpload;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
@@ -21,7 +19,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -188,7 +185,7 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
                 mContext.startActivity(new Intent(mContext,(r.external_upload ? ScUpload.class : ScCreate.class)).setData(r.toUri()));
             }
         } else {
-            PlayUtils.playFromAdapter(mContext, this, mData, position - mRecordingData.size(), getItem(position).id);
+            PlayUtils.playFromAdapter(mContext, this, mData, position - mRecordingData.size());
         }
         return ItemClickResults.LEAVING;
     }

@@ -17,7 +17,7 @@ import java.util.Map;
 public class ContentStats {
     private static Map<Content, Integer> sCounts = new HashMap<Content, Integer>();
 
-    private static final Content[] CONTENTS = new Content[]{
+    private static final Content[] CONTENTS = new Content[] {
             Content.ME_SOUND_STREAM,
             Content.ME_ACTIVITIES
     };

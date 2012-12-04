@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
@@ -196,7 +197,7 @@ public class LocalCollection {
     public boolean updateSyncState(int newSyncState, ContentResolver resolver) {
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.SYNC_STATE, newSyncState);
-        if (newSyncState == SyncState.SYNCING) {
+        if (newSyncState == SyncState.SYNCING || newSyncState == SyncState.PENDING) {
             cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT,System.currentTimeMillis());
         }
         return (resolver.update(Content.COLLECTIONS.forId(id), cv, null,null) == 1);
@@ -230,7 +231,11 @@ public class LocalCollection {
     }
 
     public static boolean forceToStale(Uri uri, ContentResolver resolver) {
-        return LocalCollection.fromContentUri(uri,resolver, true).updateLastSyncSuccessTime(0, resolver);
+        LocalCollection lc = LocalCollection.fromContentUri(uri, resolver, true);
+        ContentValues cv = lc.buildContentValues();
+        cv.put(DBHelper.Collections.LAST_SYNC, 0);
+        cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT, 0);
+        return resolver.update(Content.COLLECTIONS.uri, cv, "uri = ?", new String[]{uri.toString()}) == 1;
     }
 
     public boolean shouldAutoRefresh() {

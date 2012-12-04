@@ -1,13 +1,16 @@
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
+import org.jetbrains.annotations.NotNull;
 
+import android.app.SearchManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
-import android.text.TextUtils;
+import android.net.Uri;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -39,13 +42,29 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
     public String query;
     public int limit;
 
-    public List<Query> suggestions;
+    public @NotNull List<Query> suggestions;
 
     public final static SearchSuggestions EMPTY = new SearchSuggestions();
 
-    public void putMissingIds(List<Long> missingTracks, List<Long> missingUsers) {
+    public SearchSuggestions() {
+        suggestions = new ArrayList<Query>();
+    }
+
+    /**
+     * Search suggestions from a local cursor, expect data to be in standard android suggest
+     * format
+     * @param cursor cursor with data scheme compatible with
+     *   <a href="http://developer.android.com/guide/topics/search/adding-custom-suggestions.html#SuggestionTable">
+     *  SuggestionTable</a>
+     */
+    public SearchSuggestions(Cursor cursor) {
+        suggestions = new ArrayList<Query>(cursor.getCount());
+        fromLocalCursor(cursor);
+    }
+
+    public void putRemoteIds(List<Long> missingTracks, List<Long> missingUsers) {
         for (Query q : this) {
-            if (TextUtils.isEmpty(q.getIconUri())) {
+            if (!q.isLocal()) {
                 if (q.isUser()) {
                     missingUsers.add(q.id);
                 } else {
@@ -58,15 +77,37 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
     public Cursor asCursor() {
         final MatrixCursor cursor = new MatrixCursor(SuggestionsAdapter.COLUMN_NAMES);
         for (SearchSuggestions.Query q : this) {
-            cursor.addRow(new Object[]{
-                    q.id,
-                    q.query,
-                    q.getUriPath(),
-                    q.getIconUri(),
-                    0 /* local */
+            cursor.addRow(new Object[] {
+                    -1,                // suggestion id
+                    q.id,              // id
+                    q.query,           // SUGGEST_COLUMN_TEXT_1
+                    q.getIntentData(), // SUGGEST_COLUMN_INTENT_DATA
+                    q.getIconUri(),    //
+                    q.isLocal() ? 1 : 0
             });
         }
         return cursor;
+    }
+
+    public void add(Query q) {
+        suggestions.add(q);
+    }
+
+    public boolean contains(Query q) {
+        return suggestions.contains(q);
+    }
+
+    public SearchSuggestions merge(SearchSuggestions other) {
+        SearchSuggestions merged = new SearchSuggestions();
+        for (Query q : this) {
+            merged.add(q);
+        }
+        for (Query q : other) {
+            if (!merged.contains(q)) {
+                merged.add(q);
+            }
+        }
+        return merged;
     }
 
     @Override
@@ -82,33 +123,52 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         return size() == 0;
     }
 
+    private void fromLocalCursor(Cursor cursor) {
+        while (cursor.moveToNext()) {
+            long id = cursor.getLong(cursor.getColumnIndex(DBHelper.Suggestions.ID));
+            String query = cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1));
+            String intentData = cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA));
+            String iconUrl = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL));
+            Query q = new Query();
+            q.id = id;
+            q.query = query;
+            q.iconUri = iconUrl;
+            q.intentData = intentData;
+            switch (Content.match(Uri.parse(intentData))) {
+                case TRACK: case TRACKS: q.kind = "track"; break;
+                case USER:  case USERS:  q.kind = "user"; break;
+            }
+            suggestions.add(q);
+        }
+    }
+
     public static class Query {
+        // Search suggest API fields
         public String query;
         public String kind;
-        public long id;
-        public long score;
+        public long   id;
+        public long   score;
 
-        public String getClientUri() {
-            return new ClientUri("soundcloud:" + ("user".equals(kind) ? "users" : "tracks") + ":" + id).toString();
-        }
+        // internal fields
+        private String iconUri;
+        private String intentData;
 
         public String getIconUri() {
-            if (isUser()) {
-                final User user = SoundCloudApplication.MODEL_MANAGER.getUser(id);
-                return user == null ? null : user.avatar_url;
-            } else {
-                final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
-                return track == null ? null : track.getArtwork();
-            }
+            if (iconUri != null) return iconUri;
+            return getClientUri().imageUri().toString();
         }
 
         public boolean isUser(){
             return "user".equals(kind);
         }
 
+        public String getIntentData() {
+            if (intentData != null) return intentData;
+            return getClientUri().contentProviderUri().toString();
+        }
 
-        public String getUriPath() {
-            return ("user".equals(kind) ? Content.USER.forId(id).toString() : Content.TRACK.forId(id).toString());
+        public ClientUri getClientUri() {
+            return new ClientUri("soundcloud:" + ("user".equals(kind) ? "users" : "tracks") + ":" + id);
         }
 
         @Override
@@ -118,7 +178,27 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
                     ", kind='" + kind + '\'' +
                     ", id=" + id +
                     ", score=" + score +
+                    ", iconUri=" + iconUri +
                     '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Query query = (Query) o;
+            return id == query.id && !(kind != null ? !kind.equals(query.kind) : query.kind != null);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = kind != null ? kind.hashCode() : 0;
+            result = 31 * result + (int) (id ^ (id >>> 32));
+            return result;
+        }
+
+        public boolean isLocal() {
+            return score == 0;
         }
     }
 

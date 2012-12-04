@@ -45,12 +45,6 @@ public class AffiliationActivityRow extends ActivityRow {
     }
 
     @Override
-    public void display(int position, Parcelable p) {
-        super.display(position, p);
-        mUser.setVisibility(View.INVISIBLE);
-    }
-
-    @Override
     protected SpannableStringBuilder createSpan() {
         mSpanBuilder = new SpannableStringBuilder();
         mSpanBuilder.append("  ").append(mActivity.getUser().username);

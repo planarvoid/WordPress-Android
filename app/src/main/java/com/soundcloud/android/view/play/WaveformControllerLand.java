@@ -23,6 +23,11 @@ public class WaveformControllerLand extends WaveformController {
     private boolean mWaveformHalf;
     private boolean mCommentPanelVisible;
 
+    public WaveformControllerLand(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        setStaticTransformationsEnabled(false);
+    }
+
     private final Handler mCommentHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -47,27 +52,7 @@ public class WaveformControllerLand extends WaveformController {
         return true;
     }
 
-
-    public WaveformControllerLand(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        setStaticTransformationsEnabled(false);
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
-        if (changed) {
-            int[] calc = new int[2];
-
-            mPlayer.getCommentHolder().getLocationInWindow(calc);
-
-            if (mPlayerAvatarBar != null) {
-                mPlayerAvatarBar.getLocationInWindow(calc);
-            }
-        }
-    }
-
-     protected void processDownInput(InputObject input) {
+    protected void processDownInput(InputObject input) {
         if (input.view == mPlayerAvatarBar && mode == TOUCH_MODE_NONE) {
             if (mCurrentComments != null) {
                 mode = TOUCH_MODE_AVATAR_DRAG;
@@ -75,7 +60,7 @@ public class WaveformControllerLand extends WaveformController {
                 calcAvatarHit(input.x, true);
             }
         } else {
-         super.processDownInput(input);
+            super.processDownInput(input);
         }
     }
 
@@ -109,15 +94,16 @@ public class WaveformControllerLand extends WaveformController {
         return (c.xPos < xPos && c.xPos + mPlayerAvatarBar.getAvatarWidth() > xPos);
     }
 
-    private Comment isHitting(float xPos, Comment skipComment){
-       for (int i = mCurrentTopComments.size()-1; i >= 0; i-- ){
-          if (mCurrentTopComments.get(i).xPos > 0 && isHitting(mCurrentTopComments.get(i),xPos) && (skipComment == null || skipComment.xPos < mCurrentTopComments.get(i).xPos)){
-                  return mCurrentTopComments.get(i);
-          } else if (mCurrentTopComments.get(i).xPos > xPos)
-              break;
-       }
-
-      return null;
+    private Comment isHitting(float xPos, Comment skipComment) {
+        for (int i = mCurrentTopComments.size() - 1; i >= 0; i--) {
+            if (mCurrentTopComments.get(i).xPos > 0 &&
+                    isHitting(mCurrentTopComments.get(i), xPos) &&
+                    (skipComment == null || skipComment.xPos < mCurrentTopComments.get(i).xPos)) {
+                return mCurrentTopComments.get(i);
+            } else if (mCurrentTopComments.get(i).xPos > xPos)
+                break;
+        }
+        return null;
     }
 
     void queueCommentUnique(int what){
@@ -301,7 +287,7 @@ public class WaveformControllerLand extends WaveformController {
         mWaveformHolder.clearAnimation();
     }
 
-    @Override
+     @Override
      protected void autoShowComment(Comment c) {
         if (mPlayer.shouldShowComments()) {
 

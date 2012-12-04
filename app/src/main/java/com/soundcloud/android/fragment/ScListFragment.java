@@ -4,7 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -65,7 +65,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                                                             CollectionTask.Callback,
                                                             AbsListView.OnScrollListener,
                                                             ImageLoader.LoadBlocker {
-    protected static final int CONNECTIVITY_MSG = 0;
+    private static final int CONNECTIVITY_MSG = 0;
 
     @Nullable private ScListView mListView;
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
@@ -231,13 +231,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         return (ScActivity) getActivity();
     }
 
-
     public ScListView buildList() {
         return configureList(new ScListView(getActivity()));
     }
 
     public ScListView configureList(ScListView lv) {
-        //lv.setId(android.R.id.list);
         lv.getRefreshableView().setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.getRefreshableView().setFastScrollEnabled(false);
         return lv;
@@ -359,10 +357,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_SYNC_ERROR: {
-                final boolean changed = resultData != null && !resultData.getBoolean(mContentUri.toString());
 
-                if (changed && !isRefreshing()) {
-                    doneRefreshing(); // nothing changed
+                final boolean nothingChanged = resultData != null && !resultData.getBoolean(mContentUri.toString());
+                if (nothingChanged && !isRefreshing()) {
+                    doneRefreshing();
 
                     // first time user with no account data. this will force the empty screen that was held back earlier
                     if (!waitingOnInitialSync() && getListAdapter().getItemCount() == 0) {
@@ -394,6 +392,9 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     protected void onContentChanged() {
+        if (getListAdapter() instanceof ActivityAdapter && ((ActivityAdapter) getListAdapter()).isExpired()){
+            executeRefreshTask();
+        }
     }
 
     public void executeRefreshTask() {
@@ -538,7 +539,9 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     protected void configureEmptyCollection(){
         final boolean wait = canAppend() || isRefreshing() || waitingOnInitialSync();
-        mEmptyCollection.setMode(wait ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.IDLE);
+        if (mEmptyCollection != null) {
+            mEmptyCollection.setMode(wait ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.IDLE);
+        }
     }
 
     @Override
@@ -565,7 +568,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (context == null) return; // has been detached
         if (force || isTaskFinished(mAppendTask)){
             mAppendTask = buildTask(context);
-            mAppendTask.execute(getTaskParams(false));
+            mAppendTask.executeOnThreadPool(getTaskParams(false));
         }
         getListAdapter().setIsLoadingData(true);
     }

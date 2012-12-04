@@ -1,19 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/action_bar_like"
-          android:icon="@drawable/ic_like_white"
-          android:title="@string/action_bar_like"
-          android:showAsAction="always"/>
-    <item android:id="@+id/action_bar_repost"
-          android:icon="@drawable/ic_repost_white"
-          android:title="@string/action_bar_repost"
-          android:showAsAction="always"/>
-    <item android:id="@+id/action_bar_comment"
-          android:icon="@drawable/ic_comment_states"
-          android:title="@string/action_bar_comment"
-          android:showAsAction="always"/>
     <item android:id="@+id/action_bar_share"
-          android:icon="@android:drawable/ic_menu_share"
+          android:icon="@drawable/ic_share_white"
           android:title="@string/action_bar_share"
           android:actionProviderClass="com.actionbarsherlock.widget.ShareActionProvider"
           android:showAsAction="ifRoom"/>
@@ -21,4 +9,7 @@
           android:icon="@android:drawable/ic_menu_info_details"
           android:title="@string/action_bar_info"
           android:showAsAction="ifRoom"/>
+    <item android:id="@+id/enter_search"
+          android:icon="@drawable/search_white"
+          android:showAsAction="always"/>
 </menu>

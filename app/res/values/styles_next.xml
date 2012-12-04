@@ -9,6 +9,54 @@
         <item name="android:ellipsize">marquee</item>
     </style>
 
+    <style name="txt_list_track_reposter" parent="txt_list_track_user">
+        <item name="android:textSize">@dimen/list_txt_sub_2_size</item>
+    </style>
+
+    <style name="PlayerAction">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/btn_height</item>
+        <item name="android:textSize">@dimen/btn_text_size</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingRight">5dp</item>
+    </style>
+
+    <style name="PlayerAction.ToggleButton" parent="PlayerAction">
+        <item name="android:layout_gravity">left|center</item>
+        <item name="android:background">@drawable/toggle_player_action_states</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+    </style>
+
+    <style name="PlayerAction.ShareButton" parent="PlayerAction">
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+        <item name="android:layout_width">50dp</item>
+        <item name="android:background">@drawable/btn_default_darker_states</item>
+    </style>
+
+    <style name="PlayerAction.InfoButton" parent="PlayerAction.ShareButton">
+        <item name="android:background">@null</item>
+        <item name="android:textSize">14dp</item>
+        <item name="android:layout_width">45dp</item>
+        <item name="android:textColor">@drawable/toggle_txt_player_info_states</item>
+    </style>
+
+    <style name="UserBrowser"/>
+    <style name="UserBrowser.ToggleButton" parent="PlayerAction">
+        <item name="android:layout_height">@dimen/btn_height</item>
+        <item name="android:textSize">@dimen/btn_text_size</item>
+        <item name="android:background">@drawable/toggle_user_follow_states</item>
+        <item name="android:textColor">@drawable/toggle_txt_user_follow_states</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+    </style>
+
+    <style name="UserListFollow" parent="UserBrowser.ToggleButton">
+        <item name="android:background">@drawable/toggle_user_list_follow_states</item>
+    </style>
 
     <style name="Tour"/>
     <style name="Tour.Button">
@@ -104,7 +152,7 @@
     <style name="SignUp.Background">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">fill_parent</item>
-        <item name="android:scaleType">centerCrop</item>
+        <item name="android:scaleType">matrix</item>
     </style>
 
     <style name="SignUp.Overlay">
@@ -114,14 +162,22 @@
         <item name="android:clickable">true</item>
     </style>
 
-    <style name="SignUp.Content.Base">
+    <style name="SignUp.ScrollView.Base">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_centerInParent">true</item>
+    </style>
+
+    <style name="SignUp.ScrollView" parent="SignUp.ScrollView.Base">
+
+    </style>
+
+    <style name="SignUp.Content.Base">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">10dp</item>
 
         <item name="android:orientation">vertical</item>
-
     </style>
 
     <style name="SignUp.Content" parent="SignUp.Content.Base">
@@ -223,5 +279,51 @@
 
     <style name="SignUp.PasswordEntry" parent="SignUp.TextEntry">
         <item name="android:inputType">textPassword</item>
+    </style>
+
+    <style name="Player"/>
+    <style name="Player.TrackInfo"/>
+
+    <style name="Player.TrackInfo.Table">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="Player.TrackInfo.Row">
+        <item name="android:clickable">true</item>
+        <item name="android:background">@drawable/list_selector_background</item>
+
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="Player.TrackInfo.Icon">
+        <item name="android:layout_width">20dip</item>
+        <item name="android:layout_height">20dip</item>
+
+        <item name="android:layout_marginLeft">22dp</item>
+
+        <item name="android:scaleType">center</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="Player.TrackInfo.Label" parent="txt_list_main">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">60dip</item>
+
+        <item name="android:gravity">left|center_vertical</item>
+
+        <item name="android:paddingLeft">6dip</item>
+        <item name="android:paddingRight">12dip</item>
+
+        <item name="android:drawableRight">@drawable/arrow_states</item>
+        <item name="android:drawablePadding">15dip</item>
+    </style>
+
+    <style name="Player.TrackInfo.Separator">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">1px</item>
+        <item name="android:layout_alignWithParentIfMissing">true</item>
+        <item name="android:background">?android:attr/listDivider</item>
     </style>
 </resources>

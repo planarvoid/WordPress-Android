@@ -3,13 +3,13 @@ package com.soundcloud.android.view;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.cache.WaveformCache;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.WaveformData;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.play.WaveformController;
+import com.soundcloud.android.view.play.WaveformDrawable;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
@@ -25,10 +25,11 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -60,7 +61,8 @@ public class NowPlayingIndicator extends ProgressBar {
     };
 
     private @Nullable Bitmap mWaveform;
-    private @Nullable Bitmap mWaveformMask;
+    private @Nullable
+    Bitmap mWaveformMask;
     private @Nullable Track  mTrack;
 
     private long mRefreshDelay;
@@ -68,21 +70,27 @@ public class NowPlayingIndicator extends ProgressBar {
     private Paint mForegroundPaint;
     private Rect mCanvasRect;
 
-    private Boolean mListening;
+    private boolean mListening;
 
     private int mSideOffset;
     private int mAdjustedWidth;
+    private WaveformController.WaveformState mWaveformState;
+    private int mWaveformErrorCount;
+    private WaveformData mWaveformData;
 
+    @SuppressWarnings("UnusedDeclaration")
     public NowPlayingIndicator(Context context) {
         super(context);
         init(context);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public NowPlayingIndicator(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public NowPlayingIndicator(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context);
@@ -100,14 +108,16 @@ public class NowPlayingIndicator extends ProgressBar {
         setIndeterminate(false);
     }
 
-    void startListening(){
-        mListening = true;
-        IntentFilter f = new IntentFilter();
-        f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
-        f.addAction(CloudPlaybackService.META_CHANGED);
-        f.addAction(CloudPlaybackService.SEEK_COMPLETE);
-        f.addAction(CloudPlaybackService.SEEKING);
-        getContext().registerReceiver(mStatusListener, new IntentFilter(f));
+    void startListening() {
+        if (!mListening) {
+            mListening = true;
+            IntentFilter f = new IntentFilter();
+            f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
+            f.addAction(CloudPlaybackService.META_CHANGED);
+            f.addAction(CloudPlaybackService.SEEK_COMPLETE);
+            f.addAction(CloudPlaybackService.SEEKING);
+            getContext().registerReceiver(mStatusListener, new IntentFilter(f));
+        }
     }
 
     void stopListening(){
@@ -127,31 +137,54 @@ public class NowPlayingIndicator extends ProgressBar {
     private void startRefreshing() {
         if (mTrack != null && mTrack.duration > 0 && getWidth() > 0){
             mRefreshDelay = mTrack.duration / getWidth();
-            if (CloudPlaybackService.getState().isSupposedToBePlaying()) queueNextRefresh(refreshNow());
+            setProgress((int) CloudPlaybackService.getCurrentProgress());
+            if (CloudPlaybackService.getState().isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
         }
     }
 
     private void setCurrentTrack() {
         final Track currentTrack = CloudPlaybackService.getCurrentTrack();
-        if (mTrack != currentTrack) {
+        if (mTrack != currentTrack || mWaveformState == WaveformController.WaveformState.ERROR) {
+
+            if (mTrack != currentTrack) mWaveformErrorCount = 0;
+
             mTrack = currentTrack;
+            setMax(mTrack == null ? 0 : mTrack.duration);
             setProgress((int) CloudPlaybackService.getCurrentProgress());
 
-            if (mTrack == null) {
-                setMax(0);
-                // set default bitmap
+            if (mTrack == null || !mTrack.hasWaveform() || mWaveformErrorCount > 3) {
+                setDefaultWaveform();
             } else {
-                setMax(mTrack.duration);
-                ImageLoader.get(getContext()).getBitmap(
-                        mTrack.waveform_url,
-                        new ImageLoader.BitmapCallback() {
-                            public void onImageLoaded(Bitmap mBitmap, String uri) {
-                                setWaveform(mBitmap);
-                            }
+                if (WaveformCache.get().getData(mTrack, new WaveformCache.WaveformCallback() {
+                    @Override
+                    public void onWaveformDataLoaded(Track track, WaveformData data) {
+                        if (track.equals(mTrack)){
+                            mWaveformErrorCount = 0;
+                            mWaveformState = WaveformController.WaveformState.OK;
+                            setWaveform(data);
                         }
-                );
+                    }
+
+                    @Override
+                    public void onWaveformError(Track track) {
+                        if (track.equals(mTrack)) {
+                            mWaveformState = WaveformController.WaveformState.ERROR;
+                            mWaveformErrorCount++;
+                            setCurrentTrack();
+                        }
+                    }
+
+                }) == null) {
+                    // loading
+                    // TODO, loading indicator?
+                }
+
             }
         }
+    }
+
+    private void setDefaultWaveform(){
+        // TODO, set default bitmap
     }
 
     @Override
@@ -183,9 +216,12 @@ public class NowPlayingIndicator extends ProgressBar {
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case REFRESH:
-                    queueNextRefresh(refreshNow());
+            if (mTrack != null) {
+                switch (msg.what) {
+                    case REFRESH:
+                        setProgress((int) CloudPlaybackService.getCurrentProgress());
+                        queueNextRefresh(mRefreshDelay);
+                }
             }
         }
     };
@@ -196,18 +232,10 @@ public class NowPlayingIndicator extends ProgressBar {
         if (delay != -1) mHandler.sendMessageDelayed(msg, delay);
     }
 
-    private long refreshNow() {
-        if (mTrack == null) return -1;
-
-        long progress  = CloudPlaybackService.getCurrentProgress();
-        setProgress((int) progress);
-        return mRefreshDelay - (progress % mRefreshDelay);
-    }
 
     @Override
     protected void onDraw(Canvas canvas) {
         if (mWaveformMask == null) return;
-
         Canvas tmp = new Canvas(mWaveformMask);
 
         tmp.drawRect(mSideOffset, 0, mAdjustedWidth, getHeight(), mBackgroundPaint);
@@ -226,7 +254,7 @@ public class NowPlayingIndicator extends ProgressBar {
     }
 
     private void setWaveformMask() {
-        this.mWaveformMask = createWaveformMask(mWaveform, mAdjustedWidth, getHeight());
+        this.mWaveformMask = createWaveformMask(mWaveformData, mAdjustedWidth, getHeight());
     }
 
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
@@ -245,23 +273,23 @@ public class NowPlayingIndicator extends ProgressBar {
               }
 
             } else if (action.equals(CloudPlaybackService.SEEK_COMPLETE) || action.equals(CloudPlaybackService.SEEKING)) {
-                queueNextRefresh(refreshNow());
+                if (CloudPlaybackService.getState().isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
 
             }
         }
     };
 
-    public void setWaveform(Bitmap waveform) {
-        this.mWaveform     = waveform;
+    public void setWaveform(WaveformData waveformData) {
+        mWaveformData = waveformData;
         setWaveformMask();
     }
 
-    private static Bitmap createWaveformMask(Bitmap waveform, int width, int height) {
-        if (waveform == null || width == 0 || height == 0) return null;
+    private static Bitmap createWaveformMask(WaveformData waveformData, int width, int height) {
+        if (waveformData == null || width == 0 || height == 0) return null;
 
-        Bitmap mask   = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
+        Bitmap mask = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
         Canvas canvas = new Canvas(mask);
-        float  ratio  = 0.75f;
+        float ratio = 0.75f;
 
         Paint black = new Paint();
         black.setColor(Color.BLACK);
@@ -275,20 +303,20 @@ public class NowPlayingIndicator extends ProgressBar {
         // Top half waveform
         int dstHeight = (int) (height * ratio);
 
-        canvas.drawBitmap(
-            waveform,
-            new Rect(0, 0, waveform.getWidth(), waveform.getHeight() / 2),
-            new Rect(0, 0, width, dstHeight),
-            xor
-        );
+        WaveformData scaled = waveformData.scale(width);
+        for (int i = 0; i < scaled.samples.length; i++) {
+            final float scaledHeight1 = (scaled.samples[i] * (float) dstHeight / waveformData.maxAmplitude);
+            canvas.drawLine(
+                    i, 0,
+                    i, dstHeight - scaledHeight1
+                    , xor);
 
-        // Bottom half waveform
-        canvas.drawBitmap(
-            waveform,
-            new Rect(0, waveform.getHeight() / 2, waveform.getWidth(), waveform.getHeight()),
-            new Rect(0, dstHeight, width, height),
-            xor
-        );
+            final float scaledHeight2 = (scaled.samples[i] * (float) (height-dstHeight) / waveformData.maxAmplitude);
+                        canvas.drawLine(
+                                i, dstHeight + scaledHeight2,
+                                i, height
+                                , xor);
+        }
 
         return mask;
     }

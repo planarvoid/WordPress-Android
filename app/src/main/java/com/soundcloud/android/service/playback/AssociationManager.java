@@ -26,34 +26,18 @@ public class AssociationManager {
         mModelManager = SoundCloudApplication.MODEL_MANAGER;
     }
 
-    void addLike(@Nullable Sound sound) {
+    void setLike(@Nullable Sound sound, boolean like) {
         if (sound == null) return;
-        onLikeStatusSet(sound, true);
-        AddAssociationTask task = new AddAssociationTask(getApp(), sound);
+        onLikeStatusSet(sound, like);
+        AssociatedSoundTask task = like ? new AddAssociationTask(getApp(), sound) : new RemoveAssociationTask(getApp(), sound);
         task.setOnAssociatedListener(likeListener);
         task.execute(Endpoints.MY_FAVORITE);
     }
 
-    void removeLike(@Nullable Sound sound) {
+    void setRepost(@Nullable Sound sound, boolean repost) {
         if (sound == null) return;
-        onLikeStatusSet(sound, false);
-        RemoveAssociationTask task = new RemoveAssociationTask(getApp(), sound);
-        task.setOnAssociatedListener(likeListener);
-        task.execute(Endpoints.MY_FAVORITE);
-    }
-
-    void addRepost(@Nullable Sound sound) {
-        if (sound == null) return;
-        onRepostStatusSet(sound, true);
-        AddAssociationTask task = new AddAssociationTask(getApp(), sound);
-        task.setOnAssociatedListener(repostListener);
-        task.execute(TempEndpoints.e1.MY_REPOST);
-    }
-
-    void removeRepost(@Nullable Sound sound) {
-        if (sound == null) return;
-        onRepostStatusSet(sound, false);
-        RemoveAssociationTask task = new RemoveAssociationTask(getApp(), sound);
+        onRepostStatusSet(sound, repost);
+        AssociatedSoundTask task = repost ? new AddAssociationTask(getApp(), sound) : new RemoveAssociationTask(getApp(), sound);
         task.setOnAssociatedListener(repostListener);
         task.execute(TempEndpoints.e1.MY_REPOST);
     }
@@ -71,7 +55,7 @@ public class AssociationManager {
     private void onAssociationChanged(Sound sound) {
         mModelManager.cache(sound, ScResource.CacheUpdateMode.NONE);
 
-        Intent intent = new Intent(CloudPlaybackService.TRACK_ASSOCIATION_CHANGED)
+        Intent intent = new Intent(Sound.ACTION_TRACK_ASSOCIATION_CHANGED)
                 .putExtra(CloudPlaybackService.BroadcastExtras.id, sound.id)
                 .putExtra(CloudPlaybackService.BroadcastExtras.isRepost, sound.user_repost)
                 .putExtra(CloudPlaybackService.BroadcastExtras.isLike, sound.user_like);
@@ -87,6 +71,12 @@ public class AssociationManager {
     private final AssociatedSoundTask.AssociatedListener likeListener = new AssociatedSoundTask.AssociatedListener() {
         @Override
         public void onNewStatus(Sound sound, boolean isAssociated) {
+            sound = (Sound) SoundCloudApplication.MODEL_MANAGER.cache(sound, ScResource.CacheUpdateMode.NONE);
+            if (isAssociated) {
+                sound.likes_count += 1;
+            } else {
+                sound.likes_count -= 1;
+            }
             onLikeStatusSet(sound, isAssociated);
             updateLocalState(sound, Content.ME_LIKES.uri, isAssociated);
         }
@@ -95,6 +85,12 @@ public class AssociationManager {
     private final AssociatedSoundTask.AssociatedListener repostListener = new AssociatedSoundTask.AssociatedListener() {
         @Override
         public void onNewStatus(Sound sound, boolean isAssociated) {
+            sound = (Sound) SoundCloudApplication.MODEL_MANAGER.cache(sound, ScResource.CacheUpdateMode.NONE);
+            if (isAssociated){
+                sound.reposts_count += 1;
+            } else {
+                sound.reposts_count -= 1;
+            }
             onRepostStatusSet(sound, isAssociated);
             updateLocalState(sound, Content.ME_REPOSTS.uri, isAssociated);
         }

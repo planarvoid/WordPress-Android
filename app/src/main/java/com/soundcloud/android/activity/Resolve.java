@@ -8,17 +8,15 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.ResolveFetchTask;
+import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
 
 public class Resolve extends Activity implements FetchModelTask.FetchModelListener<ScResource> {
-
     @Nullable
     private ResolveFetchTask mResolveTask;
 
@@ -46,21 +44,18 @@ public class Resolve extends Activity implements FetchModelTask.FetchModelListen
 
     protected void onTrackLoaded(Track track, @Nullable String action) {
         mResolveTask = null;
-        startService(track.getPlayIntent());
-        startActivity(new Intent(this, ScPlayer.class));
+        startActivity(track.getPlayIntent());
     }
 
-    protected void onUserLoaded(User u, @Nullable String action) {
+    protected void onUserLoaded(User user, @Nullable String action) {
         mResolveTask = null;
-        startActivity(new Intent(this, UserBrowser.class)
-            .putExtra("user", u)
-            .putExtra("updateInfo", false));
+        startActivity(user.getViewIntent());
     }
 
     @Override
     public void onError(long modelId) {
         mResolveTask = null;
-        Toast.makeText(this, R.string.error_loading_url, Toast.LENGTH_LONG).show();
+        AndroidUtils.showToast(this, R.string.error_loading_url);
         finish();
     }
 

@@ -29,6 +29,7 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
 
     public void testYou() throws Exception {
         assertActivityStarted(You.class, Actions.YOU);
+        assertActivityStarted(You.class, Actions.YOUR_INFO);
         assertActivityStarted(You.class, Actions.YOUR_SOUNDS);
         assertActivityStarted(You.class, Actions.YOUR_LIKES);
         assertActivityStarted(You.class, Actions.YOUR_FOLLOWERS);
@@ -48,6 +49,14 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
     public void testPlayer() throws Exception {
         assertActivityStarted(ScPlayer.class, Actions.PLAYER);
         assertActivityStarted(ScPlayer.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/tracks/1235"));
+    }
+
+    public void testPlayWithPlaylist() throws Exception {
+        assertActivityStarted(ScPlayer.class, Actions.PLAY,  Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/me/tracks"));
+    }
+
+    public void testPlayEmpty() throws Exception {
+        assertActivityStarted(ScPlayer.class, Actions.PLAY);
     }
 
     public void testShare() throws Exception {

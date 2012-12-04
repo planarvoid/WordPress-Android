@@ -1,6 +1,5 @@
 package com.soundcloud.android.service.sync;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 

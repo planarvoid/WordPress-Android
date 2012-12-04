@@ -3,7 +3,7 @@ package com.soundcloud.android.view.quickaction;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.View;
-import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.IScAdapter;

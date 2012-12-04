@@ -21,9 +21,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.SuggestedUsers;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.AddUserInfoTask;
-import com.soundcloud.android.task.GetTokensTask;
-import com.soundcloud.android.task.SignupTask;
+import com.soundcloud.android.task.auth.AddUserInfoTask;
+import com.soundcloud.android.task.auth.GetTokensTask;
+import com.soundcloud.android.task.auth.SignupTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -31,7 +31,6 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.tour.TourLayout;
 import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 import net.hockeyapp.android.UpdateManager;
@@ -51,8 +50,11 @@ import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
     protected enum StartState {
-        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS;
+        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS
     }
+
+    public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING };
+    public static final String SCOPES_EXTRA = "scopes";
 
     private static final String BUNDLE_STATE           = "BUNDLE_STATE";
     private static final String BUNDLE_USER            = "BUNDLE_USER";
@@ -95,6 +97,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         mTourBottomBar = findViewById(R.id.tour_bottom_bar);
 
         mViewPager = (ViewPager) findViewById(R.id.tour_view);
+
         mTourPages = new TourLayout[]{
             new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1),
             new TourLayout(this, R.layout.tour_page_2, R.drawable.tour_image_2),
@@ -181,6 +184,8 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         if (SoundCloudApplication.BETA_MODE) {
             UpdateManager.register(this, getString(R.string.hockey_app_id));
         }
+
+        TourLayout.load(this, mTourPages);
     }
 
     @Override
@@ -189,6 +194,16 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         ((SoundCloudApplication)getApplication()).track(Page.Entry_main);
 
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        UpdateManager.unregister();
+
+        for (TourLayout layout : mTourPages) {
+            layout.recycle();
+        }
     }
 
     @Override
@@ -214,15 +229,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         mUserDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
 
         setState((StartState) savedInstanceState.getSerializable(BUNDLE_STATE), false);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        for (TourLayout layout : mTourPages) {
-            layout.recycle();
-        }
     }
 
 
@@ -266,10 +272,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     }
 
     static boolean shouldThrottleSignup(Context context) {
-        AndroidCloudAPI api = (AndroidCloudAPI) context.getApplicationContext();
-        // don't throttle sandbox requests - we need it for integration testing
-        if (api.getEnv() ==  Env.SANDBOX) return false;
-
         final long[] signupLog = readLog();
         if (signupLog == null) {
             return false;
@@ -333,6 +335,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         final Bundle param = new Bundle();
         param.putString("username", email);
         param.putString("password", password);
+        param.putStringArray(SCOPES_EXTRA, SCOPES_TO_REQUEST);// default to non-expiring scope
 
         new GetTokensTask(app) {
             ProgressDialog progress;
@@ -529,6 +532,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                 showView(getLogin(),         animated);
                 hideView(getSignUp(),        animated);
                 hideView(getUserDetails(), animated);
+                findViewById(R.id.txt_email_address).requestFocus();
                 return;
 
             case SIGN_UP:
@@ -537,6 +541,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                 hideView(getLogin(),         animated);
                 showView(getSignUp(),        animated);
                 hideView(getUserDetails(), animated);
+                findViewById(R.id.txt_email_address).requestFocus();
                 return;
 
             case SIGN_UP_DETAILS:

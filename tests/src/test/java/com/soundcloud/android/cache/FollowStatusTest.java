@@ -24,12 +24,11 @@ public class FollowStatusTest  {
     @Test
     @Ignore
     public void shouldCacheFollowerList() throws Exception {
-
         // AsyncQueryHandler does not seem to be implemented in Robolectic yet. However, this query is tested elsewhere
 
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
 
-        FollowStatus status = new FollowStatus(DefaultTestRunner.application);
+        final FollowStatus status = new FollowStatus(DefaultTestRunner.application);
         final int SIZE = 5;
         ContentValues[] cv = new ContentValues[SIZE];
         for (int i = 0; i < SIZE; i++) {
@@ -45,8 +44,9 @@ public class FollowStatusTest  {
         final boolean[] called = new boolean[1];
         status.requestUserFollowings(new FollowStatus.Listener() {
                     @Override
-                    public void onChange(boolean success, FollowStatus status) {
+                    public void onFollowChanged(boolean success) {
                         called[0] = true;
+
                         expect(success).toBeTrue();
                         expect(status.isFollowing(1)).toBeTrue();
                         expect(status.isFollowing(2)).toBeTrue();

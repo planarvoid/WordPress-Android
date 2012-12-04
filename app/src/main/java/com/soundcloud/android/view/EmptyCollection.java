@@ -3,10 +3,6 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.activity.landing.FriendFinder;
-import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -23,16 +19,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class EmptyCollection extends FrameLayout {
-
-    protected ViewGroup mSyncLayout;
-    protected ViewGroup mEmptyLayout;
+    protected ViewGroup mSyncLayout, mEmptyLayout;
 
     private TextView mTxtMessage;
     private TextView mTxtLink;
-    protected ImageView mImage;
+    private ImageView mImage;
     protected Button mBtnAction;
-    private ActionListener mButtonActionListener;
 
+    private ActionListener mButtonActionListener;
     private ActionListener mImageActionListener;
     private int mMode;
 
@@ -41,9 +35,28 @@ public class EmptyCollection extends FrameLayout {
         int IDLE = 2;
     }
 
-    public EmptyCollection(Context context) {
+    public EmptyCollection(final Context context, final Intent... intents) {
         super(context);
+        setActionListener(context, intents);
         init();
+    }
+
+    public EmptyCollection setActionListener(final Context context, final Intent... intents) {
+        if (intents.length > 0) {
+            setButtonActionListener(new ActionListener() {
+                @Override
+                public void onAction() {
+                    context.startActivity(intents[0]);
+                }
+                @Override
+                public void onSecondaryAction() {
+                    if (intents.length > 1) {
+                        context.startActivity(intents[1]);
+                    }
+                }
+            });
+        }
+        return this;
     }
 
     private void init(){

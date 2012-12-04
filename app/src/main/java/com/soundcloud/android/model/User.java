@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -289,6 +291,10 @@ public class User extends ScResource implements Refreshable {
         return primary_email_confirmed == null || primary_email_confirmed;
     }
 
+    public Intent getViewIntent() {
+        return new Intent(Actions.USER_BROWSER).putExtra(UserBrowser.EXTRA_USER, this);
+    }
+
     public static interface DataKeys {
         String USERNAME        = "currentUsername";
         String USER_ID         = "currentUserId";
@@ -296,11 +302,6 @@ public class User extends ScResource implements Refreshable {
         String SIGNUP          = "signup";
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
         String SEEN_CREATE_AUTOSAVE           = "seenCreateAutoSave";
-    }
-
-    @Override
-    public long getRefreshableId() {
-        return id;
     }
 
     @Override
@@ -397,6 +398,18 @@ public class User extends ScResource implements Refreshable {
     public int describeContents() {
         return 0;
     }
+
+    public @Nullable String getWebSiteTitle() {
+        if (!TextUtils.isEmpty(website_title)) {
+            return website_title;
+        } else if (!TextUtils.isEmpty(website)) {
+            return website.replace("http://www.", "")
+                          .replace("http://", "");
+        } else {
+            return null;
+        }
+    }
+
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
