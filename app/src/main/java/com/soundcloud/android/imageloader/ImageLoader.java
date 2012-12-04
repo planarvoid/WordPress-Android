@@ -47,7 +47,7 @@ public class ImageLoader {
     /**
      * The default cache size (in bytes). 1/5 of available memory, up to a maximum of 16MB
      */
-    public static final long DEFAULT_CACHE_SIZE = Math.min(Runtime.getRuntime().maxMemory() / 5, 16 * 1024 * 1024);
+    public static final long DEFAULT_CACHE_SIZE = Math.min(Runtime.getRuntime().maxMemory() / 5, 10 * 1024 * 1024);
 
     private final List<ImageCallback> mPendingCallbacks = Collections.synchronizedList(new ArrayList<ImageCallback>());
     private final LinkedList<ImageRequest> mRequests;
@@ -148,7 +148,7 @@ public class ImageLoader {
         if (toRemove != null) mRequests.remove(toRemove);
     }
 
-    public void onLowMemory() {
+    private void onLowMemory() {
         mImageViewBinding.clear();
         mBitmaps.evictAll();
     }
