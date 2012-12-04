@@ -63,9 +63,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         LOADING, TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS
     }
 
-    public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING };
-    public static final String SCOPES_EXTRA = "scopes";
-
     private static final String BUNDLE_STATE           = "BUNDLE_STATE";
     private static final String BUNDLE_USER            = "BUNDLE_USER";
     private static final String BUNDLE_LOGIN           = "BUNDLE_LOGIN";
@@ -352,9 +349,9 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     public void onLogin(String email, String password) {
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
         final Bundle param = new Bundle();
-        param.putString("username", email);
-        param.putString("password", password);
-        param.putStringArray(SCOPES_EXTRA, SCOPES_TO_REQUEST);// default to non-expiring scope
+        param.putString(AbstractLoginActivity.USERNAME_EXTRA, email);
+        param.putString(AbstractLoginActivity.PASSWORD_EXTRA, password);
+        param.putStringArray(AbstractLoginActivity.SCOPES_EXTRA, AbstractLoginActivity.SCOPES_TO_REQUEST);// default to non-expiring scope
 
         new GetTokensTask(app) {
             ProgressDialog progress;
