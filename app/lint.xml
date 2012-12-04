@@ -21,7 +21,7 @@
 
 
     <!-- re-enable before release   -->
-    <issue id="NewApi" severity="error"/>
+    <issue id="NewApi" severity="warning"/>
 
     <issue id="NewApi">
         <!-- make sure these still work on 2.2 -->
