@@ -218,7 +218,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         super.onResume();
 
         if (getApp().getAccount() == null && !(this instanceof Home)) {
-            startActivity(new Intent(this, Home.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            startActivity(new Intent(this, Home.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
             finish();
             return;
         }

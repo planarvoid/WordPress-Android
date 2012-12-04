@@ -1,26 +1,16 @@
 package com.soundcloud.android.activity.auth;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.net.Uri;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.text.TextUtils;
-import android.util.Log;
-import android.util.Pair;
-import android.view.ViewStub;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import static com.soundcloud.android.R.anim;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
-import com.soundcloud.android.*;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.landing.Home;
+import com.soundcloud.android.activity.landing.SuggestedUsers;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.auth.AddUserInfoTask;
 import com.soundcloud.android.task.auth.GetTokensTask;
@@ -35,21 +25,39 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 import net.hockeyapp.android.UpdateManager;
-
-import android.accounts.AccountAuthenticatorActivity;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.view.ViewGroup;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import android.accounts.AccountAuthenticatorActivity;
+import android.accounts.AccountManager;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
+import android.util.Log;
+import android.util.Pair;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
-import static android.view.animation.AnimationUtils.loadAnimation;
-import static com.soundcloud.android.R.anim;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
     protected enum StartState {
@@ -371,19 +379,17 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                     new FetchUserTask(app) {
                         @Override
                         protected void onPostExecute(User user) {
+                            // need to create user account as soon as possible, so the executeRefreshTask logic in
+                            // SoundCloudApplication works properly
+                            final boolean success = app.addUserAccount(user, app.getToken(), SignupVia.API);
+
+                            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
+
                             try {
                                 progress.dismiss();
                             } catch (IllegalArgumentException ignored) {}
-
-                            if (user != null) {
-                                // need to create user account as soon as possible, so the executeRefreshTask logic in
-                                // SoundCloudApplication works properly
-                                final boolean signedUp = app.addUserAccount(user, app.getToken(), SignupVia.API);
-
-                                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
-
-                                startActivity(new Intent(Start.this, Home.class));
-                                Start.this.finish();
+                            if (user != null && success) {
+                                onAuthenticated(SignupVia.NONE, user);
                             } else { // user request failed
                                 presentError(R.string.authentication_error_title,
                                              R.string.authentication_login_error_password_message);
@@ -400,6 +406,27 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                 }
             }
         }.execute(param);
+    }
+
+    private void onAuthenticated(SignupVia via, User user) {
+        final Bundle result = new Bundle();
+        result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
+        result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
+        result.putBoolean(Consts.Keys.WAS_SIGNUP, via != SignupVia.NONE);
+
+        sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
+                .putExtra("user", user)
+                .putExtra("signed_up", via.name));
+
+        super.setAccountAuthenticatorResult(result);
+
+        if (result.getBoolean(Consts.Keys.WAS_SIGNUP)) {
+            startActivity(new Intent(this, SuggestedUsers.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        } else {
+            startActivity(new Intent(this, Home.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        }
     }
 
     @Override
@@ -443,7 +470,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                         @Override protected void onPostExecute(Token token) {
                             if (token != null) {
                                 mUser = user;
-
                                 setState(StartState.SIGN_UP_DETAILS);
                             } else {
                                 presentError(getString(R.string.authentication_error_title), getFirstError());
@@ -482,22 +508,20 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                     }
 
                     if (user != null) {
-                        startActivityForResult(new Intent(Start.this, Home.class), 0);
-                        finish();
+                        onAuthenticated(SignupVia.API, user);
                     } else {
                         presentError(getString(R.string.authentication_error_title), getFirstError());
                     }
                 }
             }
         }.execute(Pair.create(mUser, avatarFile));
-
     }
 
     @Override
     public void onSkipDetails() {
-        startActivityForResult(new Intent(Start.this, Home.class), 0);
-        finish();
+        onAuthenticated(SignupVia.API, mUser);
     }
+
 
     @Override
     public void onBackPressed() {
@@ -508,7 +532,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                 return;
 
             case SIGN_UP_DETAILS:
-                finish();
+                onSkipDetails();
                 return;
 
             case LOADING:
@@ -540,8 +564,8 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                 showForegroundViews(animated);
 
                 showView(mViewPager,       animated);
-                hideView(getLogin(),       animated);
-                hideView(getSignUp(),      animated);
+                hideView(getLogin(), animated);
+                hideView(getSignUp(), animated);
                 hideView(getUserDetails(), animated);
                 return;
 
@@ -549,7 +573,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                 hideForegroundViews(animated);
 
                 showView(mViewPager,       animated);
-                showView(getLogin(),       animated);
+                showView(getLogin(), animated);
                 hideView(getSignUp(),      animated);
                 hideView(getUserDetails(), animated);
                 findViewById(R.id.txt_email_address).requestFocus();
@@ -558,7 +582,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             case SIGN_UP:
                 hideForegroundViews(animated);
 
-                showView(mViewPager,       animated);
+                showView(mViewPager, animated);
                 hideView(getLogin(),       animated);
                 showView(getSignUp(),      animated);
                 hideView(getUserDetails(), animated);
@@ -669,7 +693,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
         app.track(Click.Login_with_facebook);
-        startActivityForResult(new Intent(this, Facebook.class), 0);
+        startActivityForResult(new Intent(this, Facebook.class), Consts.RequestCodes.SIGNUP_VIA_FACEBOOK);
     }
 
     @Override
@@ -688,30 +712,68 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             recoveryIntent.putExtra("email", email);
         }
 
-        startActivityForResult(recoveryIntent, 0);
+        startActivityForResult(recoveryIntent, Consts.RequestCodes.RECOVER_CODE);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent result) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
             case Consts.RequestCodes.GALLERY_IMAGE_PICK:
                 if (getUserDetails() != null) {
-                    getUserDetails().onImagePick(resultCode, result);
+                    getUserDetails().onImagePick(resultCode, intent);
                 }
                 break;
 
             case Consts.RequestCodes.GALLERY_IMAGE_TAKE:
                 if (getUserDetails() != null) {
-                    getUserDetails().onImageTake(resultCode, result);
+                    getUserDetails().onImageTake(resultCode, intent);
                 }
                 break;
 
             case Consts.RequestCodes.IMAGE_CROP: {
                 if (getUserDetails() != null) {
-                    getUserDetails().onImageCrop(resultCode, result);
+                    getUserDetails().onImageCrop(resultCode, intent);
                 }
                 break;
             }
+
+            case Consts.RequestCodes.SIGNUP_VIA_FACEBOOK:
+                SoundCloudApplication app = (SoundCloudApplication) getApplication();
+                if (intent != null){
+                    final String error = intent.getStringExtra("error");
+                    if (error == null) {
+                        final User user = intent.getParcelableExtra("user");
+                        final Token token = (Token) intent.getSerializableExtra("token");
+                        SignupVia via = SignupVia.fromIntent(intent);
+
+                        // API signup will already have created the account
+                        if (app.addUserAccount(user, token, via)) {
+                            final Bundle result = new Bundle();
+                            result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
+                            result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
+                            onAuthenticated(via, user);
+
+                        } else {
+                            AndroidUtils.showToast(this, R.string.error_creating_account);
+                        }
+                    } else {
+                        AndroidUtils.showToast(this, error);
+                    }
+                }
+                break;
+
+            case Consts.RequestCodes.RECOVER_CODE:
+                final boolean success = intent.getBooleanExtra("success", false);
+                if (success) {
+                    AndroidUtils.showToast(this, R.string.authentication_recover_password_success);
+                } else {
+                    final String error = intent.getStringExtra("error");
+                    AndroidUtils.showToast(this,
+                            error == null ?
+                                    getString(R.string.authentication_recover_password_failure) :
+                                    getString(R.string.authentication_recover_password_failure_reason, error));
+                }
+
         }
     }
 

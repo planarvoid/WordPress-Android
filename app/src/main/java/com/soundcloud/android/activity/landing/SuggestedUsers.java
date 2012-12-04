@@ -15,8 +15,10 @@ public class SuggestedUsers extends ScActivity implements ScLandingPage{
         setTitle(getString(R.string.side_menu_suggested_users));
 
         if (state == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.SUGGESTED_USERS)).commit();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.SUGGESTED_USERS))
+                    .commit();
         }
     }
 
