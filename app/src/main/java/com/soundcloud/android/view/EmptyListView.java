@@ -5,20 +5,19 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.task.create.NewConnectionTask;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -31,7 +30,7 @@ public class EmptyListView extends RelativeLayout {
 
     private TextView mTxtMessage;
     private TextView mTxtLink;
-    private ImageView mImage;
+    @Nullable private ImageView mImage;
     protected Button mBtnAction;
 
     private int     mMessageResource, mLinkResource, mImageResource, mActionTextResource;
@@ -39,7 +38,7 @@ public class EmptyListView extends RelativeLayout {
 
     private ActionListener mButtonActionListener;
     private ActionListener mImageActionListener;
-    private int mMode;
+    protected int mMode;
 
     public interface Mode {
         int WAITING_FOR_DATA = 1;
@@ -98,7 +97,14 @@ public class EmptyListView extends RelativeLayout {
 
     protected void showEmptyLayout() {
         if (mEmptyLayout == null){
-            mEmptyLayout = (ViewGroup) ((ViewStub) findViewById(R.id.empty_collection_stub)).inflate();
+            mEmptyLayout = (ViewGroup) View.inflate(getContext(), getEmptyViewLayoutId(), null);
+
+            final RelativeLayout.LayoutParams params =
+                    new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+            params.addRule(RelativeLayout.CENTER_IN_PARENT);
+
+            ((RelativeLayout) findViewById(R.id.empty_view_holder))
+                    .addView(mEmptyLayout, params);
 
             mTxtMessage = (TextView) findViewById(R.id.txt_message);
             if (TextUtils.isEmpty(mMessage)){
@@ -114,15 +120,17 @@ public class EmptyListView extends RelativeLayout {
             setActionText(mActionTextResource);
 
             mImage = (ImageView) findViewById(R.id.img_1);
-            mImage.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mImageActionListener!= null) {
-                        mImageActionListener.onAction();
+            if (mImage != null) {
+                mImage.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mImageActionListener != null) {
+                            mImageActionListener.onAction();
+                        }
                     }
-                }
-            });
-            setImage(mImageResource);
+                });
+                setImage(mImageResource);
+            }
 
             mBtnAction.setOnClickListener(new OnClickListener() {
                 @Override
@@ -136,6 +144,10 @@ public class EmptyListView extends RelativeLayout {
         } else {
             mEmptyLayout.setVisibility(View.VISIBLE);
         }
+    }
+
+    protected int getEmptyViewLayoutId() {
+        return R.layout.empty_collection_view;
     }
 
     public EmptyListView setImage(int imageId){
@@ -292,10 +304,8 @@ public class EmptyListView extends RelativeLayout {
                                }
 
             case ME_FRIENDS:
-                return new FriendFinderEmptyCollection(context).setMessageText(R.string.list_empty_user_following_message)
-                        .setMessageText(R.string.list_no_facebook_friends)
-                        .setActionText(R.string.connect_to_facebook)
-                        .setImage(R.drawable.empty_follow_3row);
+                return new FriendFinderEmptyCollection(context);
+
             default:
                 return new EmptyListView(context);
         }

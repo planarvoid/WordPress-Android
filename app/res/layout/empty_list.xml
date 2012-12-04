@@ -14,10 +14,9 @@
                      android:gravity="center_vertical"
                      style="@style/ScProgressBarHolo.List"/>
 
-    <ViewStub android:id="@+id/empty_collection_stub"
-                  android:inflatedId="@+id/empty_collection_view"
-                  android:layout="@layout/empty_collection_view"
-                  android:layout_width="fill_parent"
-                  android:layout_height="fill_parent" />
+    <RelativeLayout android:id="@+id/empty_view_holder"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:gravity="center"/>
 
 </RelativeLayout>

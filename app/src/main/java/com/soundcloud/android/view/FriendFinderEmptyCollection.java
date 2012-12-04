@@ -18,20 +18,33 @@ public class FriendFinderEmptyCollection extends EmptyListView {
 
     @Override
     public boolean setMode(int mode) {
-        if (!super.setMode(mode)) {
+
+        if (mMode != mode) {
+            mMode = mode;
             switch (mode) {
                 case FriendFinderMode.NO_CONNECTIONS:
                     mProgressBar.setVisibility(View.GONE);
                     showEmptyLayout();
-                    setMessageText(-1);
+                    setMessageText(R.string.list_empty_friend_finder_no_connections);
                     mBtnAction.setVisibility(View.VISIBLE);
                     return true;
 
                 case FriendFinderMode.CONNECTION_ERROR:
                     mProgressBar.setVisibility(View.GONE);
                     showEmptyLayout();
-                    setMessageText(R.string.problem_getting_connections);
+                    setMessageText(R.string.list_empty_friend_finder_error);
                     mBtnAction.setVisibility(View.GONE);
+                    return true;
+
+                case Mode.WAITING_FOR_DATA:
+                    mProgressBar.setVisibility(View.VISIBLE);
+                    if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
+                    return true;
+
+                case Mode.IDLE:
+                    mProgressBar.setVisibility(View.GONE);
+                    showEmptyLayout();
+                    setMessageText(R.string.list_empty_friend_finder);
                     return true;
             }
         }
@@ -39,14 +52,7 @@ public class FriendFinderEmptyCollection extends EmptyListView {
     }
 
     @Override
-    protected void showEmptyLayout() {
-        super.showEmptyLayout();
-
-        mBtnAction.setBackgroundResource(R.drawable.next_button_blue);
-        mBtnAction.setTextColor(getResources().getColorStateList(R.drawable.txt_btn_blue_states));
-        final float density = getContext().getResources().getDisplayMetrics().density;
-
-        // padding resets after you set a background in code
-        mBtnAction.setPadding((int) (20 * density), (int) (5 * density), (int) (20 * density), (int) (5 * density));
+    protected int getEmptyViewLayoutId() {
+        return R.layout.friend_finder_empty_collection_view;
     }
 }
