@@ -42,7 +42,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     protected boolean mIsLoadingData;
     protected int mPage;
 
-    private LruCache<Long, Drawable> mIconAnimations = new LruCache<Long, Drawable>(16);
+    private DrawableCache mIconAnimations = new DrawableCache(32);
     private Set<Long> mLoadingIcons = new HashSet<Long>();
     private View mProgressView;
 
@@ -154,6 +154,25 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     public void setIconNotReady(long id) {
         mLoadingIcons.add(id);
     }
+
+    private class DrawableCache extends LruCache<Long, Drawable> {
+
+        /**
+         * @param maxSize for caches that do not override {@link #sizeOf}, this is
+         *                the maximum number of entries in the cache. For all other caches,
+         *                this is the maximum sum of the sizes of the entries in this cache.
+         */
+        public DrawableCache(int maxSize) {
+            super(maxSize);
+        }
+
+        @Override
+        protected void entryRemoved(boolean evicted, Long key, Drawable oldValue, Drawable newValue) {
+            super.entryRemoved(evicted, key, oldValue, newValue);
+            mLoadingIcons.remove(key);
+        }
+    }
+
 
     // needed?
     @Override
