@@ -15,9 +15,7 @@
                 <TableRow style="@style/SignUp.LabelRow">
                     <FrameLayout android:id="@+id/image_layout"
                                  android:layout_height="100dip"
-                                 android:layout_alignLeft="@id/txt_username"
                                  android:layout_width="100dip"
-                                 android:layout_below="@id/txt_username"
                                  android:layout_margin="5dp">
 
                         <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.AddImageLabel"
