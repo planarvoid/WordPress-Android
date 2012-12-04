@@ -375,12 +375,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             protected void onPostExecute(final Token token) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+token+")");
 
-                if (!isFinishing()) {
-                    try {
-                        progress.dismiss();
-                    } catch (IllegalArgumentException ignored) {}
-                }
-
                 if (token != null) {
                     new FetchUserTask(app) {
                         @Override
@@ -391,6 +385,9 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
                             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
 
+                            try {
+                                progress.dismiss();
+                            } catch (IllegalArgumentException ignored) {}
                             if (user != null && success) {
                                 onAuthenticated(SignupVia.NONE, user);
                             } else { // user request failed
@@ -400,6 +397,10 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
                         }
                     }.execute(Request.to(Endpoints.MY_DETAILS));
                 } else { // no tokens obtained
+                    try {
+                        progress.dismiss();
+                    } catch (IllegalArgumentException ignored) {}
+
                     presentError(R.string.authentication_error_title,
                                  R.string.authentication_login_error_password_message);
                 }
