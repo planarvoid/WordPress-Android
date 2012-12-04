@@ -38,8 +38,6 @@ public class Home extends ScActivity implements ScLandingPage {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setTitle(getString(R.string.side_menu_stream));
-
-
         final SoundCloudApplication app = getApp();
         if (app.getAccount() != null) {
             if (state == null) {
