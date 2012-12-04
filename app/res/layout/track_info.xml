@@ -5,38 +5,57 @@
     <ScrollView android:layout_width="fill_parent"
                 android:id="@+id/info_view"
                 android:layout_height="fill_parent">
-        <RelativeLayout android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/info_holder">
-            <TextView style="@style/Player.TrackInfo.Label"
-                      android:id="@+id/likers_txt"
-                      android:drawableLeft="@drawable/ic_info_likes_states"/>
+        <LinearLayout android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:id="@+id/info_holder"
+                      android:orientation="vertical">
+            <TableLayout style="@style/Player.TrackInfo.Table"
+                         android:id="@+id/details_table">
+                <TableRow style="@style/Player.TrackInfo.Row"
+                          android:id="@+id/likers_row">
+                    <ImageView style="@style/Player.TrackInfo.Icon"
+                               android:src="@drawable/ic_info_likes_states" />
 
-            <View style="@style/Player.TrackInfo.Separator"
-                  android:id="@+id/likers_hr"
-                  android:layout_below="@+id/likers_txt"/>
+                    <TextView style="@style/Player.TrackInfo.Label"
+                              android:id="@+id/likers_txt"/>
+                </TableRow>
 
-            <TextView style="@style/Player.TrackInfo.Label"
-                      android:id="@+id/reposters_txt"
-                      android:layout_below="@+id/likers_hr"
-                      android:drawableLeft="@drawable/ic_info_repost_states"/>
+                <TableRow style="@style/SignUp.SeperatorRow"
+                          android:id="@+id/likers_divider">
+                    <View style="@style/SignUp.SeperatorView"/>
+                </TableRow>
 
-            <View style="@style/Player.TrackInfo.Separator"
-                  android:id="@+id/reposters_hr"
-                  android:layout_below="@+id/reposters_txt"/>
+                <TableRow style="@style/Player.TrackInfo.Row"
+                          android:id="@+id/reposters_row">
+                    <ImageView style="@style/Player.TrackInfo.Icon"
+                               android:src="@drawable/ic_info_repost_states" />
 
-            <TextView style="@style/Player.TrackInfo.Label"
-                      android:id="@+id/commenters_txt"
-                      android:layout_below="@+id/reposters_hr"
-                      android:drawableLeft="@drawable/ic_info_comments_states"/>
+                    <TextView style="@style/Player.TrackInfo.Label"
+                              android:id="@+id/reposters_txt"/>
+                </TableRow>
 
-            <View style="@style/Player.TrackInfo.Separator"
-                  android:id="@+id/commenters_hr"
-                  android:layout_below="@+id/commenters_txt"/>
+                <TableRow style="@style/SignUp.SeperatorRow"
+                          android:id="@+id/reposters_divider">
+                    <View style="@style/SignUp.SeperatorView"/>
+                </TableRow>
+
+                <TableRow style="@style/Player.TrackInfo.Row"
+                          android:id="@+id/comments_row">
+                    <ImageView style="@style/Player.TrackInfo.Icon"
+                               android:src="@drawable/ic_info_comments_states" />
+
+                    <TextView style="@style/Player.TrackInfo.Label"
+                              android:id="@+id/commenters_txt"/>
+                </TableRow>
+
+                <TableRow style="@style/SignUp.SeperatorRow"
+                          android:id="@+id/comments_divider">
+                    <View style="@style/SignUp.SeperatorView"/>
+                </TableRow>
+            </TableLayout>
 
             <com.soundcloud.android.view.FlowLayout android:id="@+id/tags_holder"
                                                     android:layout_marginTop="10dip"
-                                                    android:layout_below="@id/commenters_hr"
                                                     android:layout_alignWithParentIfMissing="true"
                                                     android:layout_height="wrap_content"
                                                     android:layout_width="fill_parent"
@@ -55,7 +74,7 @@
                       android:layout_below="@+id/txtInfo"
                       android:layout_width="fill_parent"
                       android:layout_height="wrap_content"/>
-        </RelativeLayout>
+        </LinearLayout>
     </ScrollView>
     <ViewStub android:id="@+id/stub_loading"
               android:inflatedId="@+id/loading_layout"

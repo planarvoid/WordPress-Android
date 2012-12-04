@@ -136,7 +136,6 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
-            case ME_FRIENDS:
             case SUGGESTED_USERS:
                 /* XXX special case for now. we need to not join in the users table on an id only request, because
                 it is an inner join and will not return ids with missing users. Switching to a left join is possible
@@ -146,19 +145,30 @@ public class ScContentProvider extends ContentProvider {
                     _columns = new String[]{DBHelper.CollectionItems.ITEM_ID};
                 } else {
                     qb.setTables(makeCollectionJoin(Table.USERS));
-                    //special sorting for friends (only if we use default columns though)
-                    if (content == Content.ME_FRIENDS && _columns == null) {
-                        _sortOrder = makeCollectionSort(uri, sortOrder == null ?
-                                DBHelper.Users.USER_FOLLOWING + " ASC, " + DBHelper.Users._ID + " ASC" : sortOrder);
-                    } else {
-                        _sortOrder = makeCollectionSort(uri, sortOrder);
-                    }
-
                     if (_columns == null) {
                         _columns = formatWithUser(fullUserColumns, userId);
                     }
                 }
                 makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
+                _sortOrder = makeCollectionSort(uri, sortOrder);
+
+                break;
+
+            case ME_FRIENDS:
+                final boolean defaultCols = _columns == null;
+                qb.setTables(makeCollectionJoin(Table.USERS));
+                if (_columns == null) {
+                    _columns = formatWithUser(fullUserColumns, userId);
+                }
+                makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
+
+                //special sorting for friends (only if we use default columns though)
+                if (defaultCols) {
+                    _sortOrder = makeCollectionSort(uri, sortOrder == null ?
+                            DBHelper.Users.USER_FOLLOWING + " ASC, " + DBHelper.Users._ID + " ASC" : sortOrder);
+                } else {
+                    _sortOrder = makeCollectionSort(uri, sortOrder);
+                }
                 break;
 
             case ME_USERID:
@@ -620,7 +630,7 @@ public class ScContentProvider extends ContentProvider {
                     where = "_id NOT IN (SELECT DISTINCT " + DBHelper.Sounds.USER_ID + " FROM "+ Table.SOUNDS.name + " UNION "
                                     + "SELECT _id FROM "+ Table.USERS.name + " WHERE EXISTS("
                                         + "SELECT 1 FROM CollectionItems WHERE "
-                                        + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.FOLLOWER+ " ," + CollectionItemTypes.FOLLOWING+ ") "
+                                        + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.FOLLOWER+ " ," + CollectionItemTypes.FOLLOWING+ " ," + CollectionItemTypes.FRIEND+ ") "
                                         + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
                                         + " AND  " + DBHelper.CollectionItems.ITEM_ID + " = " + Table.USERS.id
                                     + " UNION SELECT DISTINCT " + DBHelper.ActivityView.USER_ID + " FROM "+ Table.ACTIVITIES.name

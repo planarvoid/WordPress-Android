@@ -26,6 +26,7 @@ import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.MainMenu;
 import com.soundcloud.android.view.RootView;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -60,7 +61,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private Boolean mIsConnected;
     private boolean mIsForeground;
 
-    private ActionBarController mActionBarController;
+    @Nullable private ActionBarController mActionBarController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,13 +128,17 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        mActionBarController.onSaveInstanceState(savedInstanceState);
+        if (mActionBarController != null) {
+            mActionBarController.onSaveInstanceState(savedInstanceState);
+        }
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        mActionBarController.onRestoreInstanceState(savedInstanceState);
+        if (mActionBarController != null) {
+            mActionBarController.onRestoreInstanceState(savedInstanceState);
+        }
     }
 
     @Override
@@ -143,7 +148,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void setContentView(View layout) {
-        layout.setBackground(getWindow().getDecorView().getBackground());
+        layout.setBackgroundDrawable(getWindow().getDecorView().getBackground());
         layout.setDrawingCacheBackgroundColor(Color.WHITE);
         mRootView.setContent(layout);
     }
@@ -151,7 +156,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     protected void onTitleChanged(CharSequence title, int color) {
         super.onTitleChanged(title, color);
-        mActionBarController.setTitle(title);
+        if (mActionBarController != null) mActionBarController.setTitle(title);
     }
 
     @Override
@@ -187,7 +192,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         super.onDestroy();
         connectivityListener.unregisterHandler(connHandler);
         connectivityListener = null;
-        mActionBarController.onDestroy();
+        if (mActionBarController != null) {
+            mActionBarController.onDestroy();
+        }
     }
 
     @Override
@@ -223,14 +230,18 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         }
 
         mRootView.onResume();
-        mActionBarController.onResume();
+        if (mActionBarController != null) {
+            mActionBarController.onResume();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mIsForeground = false;
-        mActionBarController.onPause();
+        if (mActionBarController != null) {
+            mActionBarController.onPause();
+        }
     }
 
     @Override
@@ -351,7 +362,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        mActionBarController.onCreateOptionsMenu(menu);
+        if (mActionBarController != null) {
+            mActionBarController.onCreateOptionsMenu(menu);
+        }
         return true;
     }
 
@@ -361,7 +374,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return (!mActionBarController.onOptionsItemSelected(item)) || super.onOptionsItemSelected(item);
+        return (mActionBarController != null && !mActionBarController.onOptionsItemSelected(item))
+                || super.onOptionsItemSelected(item);
     }
 
     public long getCurrentUserId() {
@@ -417,7 +431,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onMenuOpenLeft() {
-        mActionBarController.onMenuOpenLeft();
+        if (mActionBarController != null) {
+            mActionBarController.onMenuOpenLeft();
+        }
     }
 
     @Override
@@ -426,7 +442,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onMenuClosed() {
-        mActionBarController.onMenuClosed();
+        if (mActionBarController != null) {
+            mActionBarController.onMenuClosed();
+        }
     }
 
     @Override
@@ -441,7 +459,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void onBlockerClick() {
-        mActionBarController.closeSearch(false);
+        if (mActionBarController != null) {
+            mActionBarController.closeSearch(false);
+        }
     }
 
     @NotNull

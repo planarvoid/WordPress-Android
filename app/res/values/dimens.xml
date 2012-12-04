@@ -13,6 +13,9 @@
     <dimen name="list_icon_width">47dip</dimen>
     <dimen name="list_icon_height">47dip</dimen>
 
+    <dimen name="activity_icon_width">40dip</dimen>
+    <dimen name="activity_icon_height">40dip</dimen>
+
     <dimen name="list_item_padding_left">16dip</dimen>
     <dimen name="list_item_padding_top">12dip</dimen>
     <dimen name="list_item_padding_right">16dip</dimen>
@@ -23,6 +26,7 @@
     <dimen name="list_txt_pull_size">16sp</dimen>
     <dimen name="list_txt_main_size">14sp</dimen>
     <dimen name="list_txt_sub_size">12sp</dimen>
+    <dimen name="list_txt_sub_2_size">10sp</dimen>
 
     <dimen name="comment_panel_main_size">14sp</dimen>
     <dimen name="comment_panel_created_at_size">12sp</dimen>
