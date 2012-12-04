@@ -24,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 import android.app.SearchManager;
 import android.content.UriMatcher;
 import android.net.Uri;
-import android.util.Log;
 import android.util.SparseArray;
 
 import java.util.EnumSet;
@@ -244,26 +243,21 @@ public enum Content  {
                     }
                 }
             }
-
-
-            if (remoteUri.contains("%d")){
+            if (remoteUri.contains("%d")) {
                 int substitute = 0;
                 if (contentUri != null) {
                     for (String segment : contentUri.getPathSegments()) {
                         try {
                             substitute = Integer.parseInt(segment);
                             break;
-                        } catch (NumberFormatException e) {
+                        } catch (NumberFormatException ignored) {
                         }
                     }
                 }
-
-
-                return Request.to(remoteUri.replace("%d",String.valueOf(substitute))).with(args);
+                return Request.to(remoteUri, substitute).with(args);
             } else {
                 return Request.to(remoteUri).with(args);
             }
-
         } else {
             throw new IllegalArgumentException("no remote uri defined for content" + this);
         }
