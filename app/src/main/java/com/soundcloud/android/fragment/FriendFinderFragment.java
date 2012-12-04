@@ -33,12 +33,12 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
     AsyncTask<Connection.Service, Void, Uri> mConnectionTask;
 
     public interface States {
-
         int LOADING = 1;
         int NO_FB_CONNECTION = 2;
         int FB_CONNECTION = 3;
         int CONNECTION_ERROR = 4;
     }
+
     public static FriendFinderFragment newInstance() {
         FriendFinderFragment fragment = new FriendFinderFragment();
         Bundle args = new Bundle();
