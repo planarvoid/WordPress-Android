@@ -256,7 +256,7 @@ public class EmptyListView extends RelativeLayout {
                                         .setButtonActionListener(new EmptyListView.ActionListener() {
                                             @Override
                                             public void onAction() {
-                                                context.startActivity(new Intent(Actions.FRIEND_FINDER));
+                                                context.startActivity(new Intent(Actions.WHO_TO_FOLLOW));
                                             }
 
                                             @Override

@@ -244,7 +244,7 @@ public class UserBrowser extends ScActivity implements
 
             case ME_LIKES:
                 return new EmptyListView(this,
-                            new Intent(Actions.FRIEND_FINDER),
+                            new Intent(Actions.WHO_TO_FOLLOW),
                             new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101"))
                         ).setMessageText(R.string.list_empty_user_likes_message)
                         .setActionText(R.string.list_empty_user_likes_action)
@@ -276,7 +276,7 @@ public class UserBrowser extends ScActivity implements
                                         : mUser.username));
 
             case ME_FOLLOWINGS:
-                return new EmptyListView(this, new Intent(Actions.FRIEND_FINDER))
+                return new EmptyListView(this, new Intent(Actions.WHO_TO_FOLLOW))
                         .setMessageText(R.string.list_empty_user_following_message)
                         .setActionText(R.string.list_empty_user_following_action)
                         .setImage(R.drawable.empty_follow_3row);
