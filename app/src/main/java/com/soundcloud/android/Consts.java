@@ -52,6 +52,10 @@ public final class Consts {
         int RECOVER_CODE            = 8002;
     }
 
+    public static interface Keys {
+        String WAS_SIGNUP = "wasSignup";
+    }
+
     public static interface SdkSwitches {
         boolean useCustomNotificationLayouts = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
         boolean useRichNotifications = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
