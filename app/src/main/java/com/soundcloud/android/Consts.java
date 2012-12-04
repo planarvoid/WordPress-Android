@@ -47,6 +47,9 @@ public final class Consts {
         int PICK_VENUE          = 9003;
         int MAKE_CONNECTION     = 9004;
         int IMAGE_CROP          = 9005;
+
+        int SIGNUP_VIA_FACEBOOK     = 8001;
+        int RECOVER_CODE            = 8002;
     }
 
     public static interface SdkSwitches {

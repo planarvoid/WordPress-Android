@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity.auth;
 
+import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -674,7 +675,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
         app.track(Click.Login_with_facebook);
-        startActivityForResult(new Intent(this, Facebook.class), 0);
+        startActivityForResult(new Intent(this, Facebook.class), Consts.RequestCodes.SIGNUP_VIA_FACEBOOK);
     }
 
     @Override
@@ -693,30 +694,73 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             recoveryIntent.putExtra("email", email);
         }
 
-        startActivityForResult(recoveryIntent, 0);
+        startActivityForResult(recoveryIntent, Consts.RequestCodes.RECOVER_CODE);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent result) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
             case Consts.RequestCodes.GALLERY_IMAGE_PICK:
                 if (getUserDetails() != null) {
-                    getUserDetails().onImagePick(resultCode, result);
+                    getUserDetails().onImagePick(resultCode, intent);
                 }
                 break;
 
             case Consts.RequestCodes.GALLERY_IMAGE_TAKE:
                 if (getUserDetails() != null) {
-                    getUserDetails().onImageTake(resultCode, result);
+                    getUserDetails().onImageTake(resultCode, intent);
                 }
                 break;
 
             case Consts.RequestCodes.IMAGE_CROP: {
                 if (getUserDetails() != null) {
-                    getUserDetails().onImageCrop(resultCode, result);
+                    getUserDetails().onImageCrop(resultCode, intent);
                 }
                 break;
             }
+
+            case Consts.RequestCodes.SIGNUP_VIA_FACEBOOK:
+                SoundCloudApplication app = (SoundCloudApplication) getApplication();
+                String error = intent.getStringExtra("error");
+                if (error == null) {
+                    final User user = intent.getParcelableExtra("user");
+                    final Token token = (Token) intent.getSerializableExtra("token");
+                    SignupVia via = SignupVia.fromIntent(intent);
+
+                    // API signup will already have created the account
+                    if (app.addUserAccount(user, token, via)) {
+                        final Bundle result = new Bundle();
+                        result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
+                        result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
+                        setAccountAuthenticatorResult(result);
+
+                        sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
+                                .putExtra("user", user)
+                                .putExtra("signed_up", via.name));
+
+                        startActivity(new Intent(this, SuggestedUsers.class).putExtra(FB_CONNECTED_EXTRA, via.isFacebook()));
+                        finish();
+
+                    } else {
+                        AndroidUtils.showToast(this, R.string.error_creating_account);
+                    }
+                } else {
+                    AndroidUtils.showToast(this, error);
+                }
+                break;
+
+            case Consts.RequestCodes.RECOVER_CODE:
+                final boolean success = intent.getBooleanExtra("success", false);
+                if (success) {
+                    AndroidUtils.showToast(this, R.string.authentication_recover_password_success);
+                } else {
+                    error = intent.getStringExtra("error");
+                    AndroidUtils.showToast(this,
+                            error == null ?
+                                    getString(R.string.authentication_recover_password_failure) :
+                                    getString(R.string.authentication_recover_password_failure_reason, error));
+                }
+
         }
     }
 
