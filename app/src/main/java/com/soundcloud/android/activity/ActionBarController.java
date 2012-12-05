@@ -280,7 +280,7 @@ public class ActionBarController {
     private void toggleSearch() {
         mInSearchMode = !mInSearchMode;
         configureCustomView();
-        mActivity.invalidateOptionsMenu();
+        mOwner.invalidateOptionsMenu();
     }
 
     public void closeSearch(boolean instant) {

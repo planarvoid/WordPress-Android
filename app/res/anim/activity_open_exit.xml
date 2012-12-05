@@ -21,6 +21,5 @@
         android:background="#ff000000" android:zAdjustment="normal">
     <alpha android:fromAlpha="1.0" android:toAlpha="0.0"
             android:fillEnabled="true" android:fillBefore="false" android:fillAfter="true"
-            android:interpolator="@android:interpolator/decelerate_quint"
             android:duration="300"/>
 </set>
