@@ -817,6 +817,7 @@ public class ScContentProvider extends ContentProvider {
 
     static SCQueryBuilder makeSoundAssociationSelection(SCQueryBuilder qb, String userId, int[] collectionType) {
         qb.appendWhere(Table.SOUND_ASSOCIATION_VIEW.name + "." + DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID + " = " + userId);
+        qb.appendWhere(" AND " + Table.SOUND_ASSOCIATION_VIEW.name + "." + DBHelper.SoundView._TYPE + " = " + Track.DB_TYPE_TRACK);
         for (int i = 0; i < collectionType.length; i++) {
             qb.appendWhere((i == 0 ? " AND (" : " OR ")
                     + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + collectionType[i]
