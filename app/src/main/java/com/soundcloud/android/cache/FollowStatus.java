@@ -17,7 +17,6 @@ import org.apache.http.HttpStatus;
 import android.content.AsyncQueryHandler;
 import android.content.Context;
 import android.content.Intent;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -89,7 +88,7 @@ public class FollowStatus {
 
     public synchronized void requestUserFollowings(final Listener listener) {
 
-        if (mFollowingCollectionState.shouldAutoRefresh(mContext)) {
+        if (mFollowingCollectionState.shouldAutoRefresh()) {
             // sync users for proper following display
             Intent intent = new Intent(mContext, ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)

@@ -31,7 +31,7 @@ public class LocalCollection {
     public long last_sync_success = -1;
     /** timestamp of last sync attempt */
     public long last_sync_attempt = -1;
-    /** see {@link SyncState}, for display/UI purposes ({@link com.soundcloud.android.adapter.RemoteCollectionAdapter}) */
+    /** see {@link SyncState}, for display/UI purposes ({@link com.soundcloud.android.fragment.ScListFragment}) */
     public int sync_state = -1;
     /** collection size */
     public int size = -1;
@@ -244,7 +244,7 @@ public class LocalCollection {
         return resolver.update(Content.COLLECTIONS.uri, cv, "uri = ?", new String[]{uri.toString()}) == 1;
     }
 
-    public boolean shouldAutoRefresh(@Nullable Context context) {
+    public boolean shouldAutoRefresh() {
         Content c = Content.byUri(uri);
 
         // only auto refresh once every 30 mins at most, that we won't hammer their phone or the api if there are errors

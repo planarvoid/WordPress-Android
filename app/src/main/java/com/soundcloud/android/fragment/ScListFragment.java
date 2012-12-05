@@ -518,7 +518,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (isSyncable() && mLocalCollection != null) {
             setListLastUpdated();
 
-            if (mLocalCollection.shouldAutoRefresh(getActivity()) && !isRefreshing()) {
+            if (mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
                 refresh(false);
                 // this is to show the user something at the initial load
                 if (!mLocalCollection.hasSyncedBefore() && mListView != null) {
