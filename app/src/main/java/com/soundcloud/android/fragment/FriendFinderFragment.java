@@ -88,6 +88,7 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
     public void setState(int state, boolean reset) {
         mCurrentState = state;
         configureEmptyCollection();
+
         if (reset){
             reset();
         } else {
