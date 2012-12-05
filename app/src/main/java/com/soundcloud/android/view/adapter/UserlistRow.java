@@ -53,9 +53,12 @@ public class UserlistRow extends LazyRow {
         mVrStats = findViewById(R.id.vr_stats);
 
         if (mFollowBtn != null) {
+            mFollowBtn.setFocusable(false);
+            mFollowBtn.setClickable(false);
+
             mFollowBtnHolder = (RelativeLayout) findViewById(R.id.toggleFollowingHolder);
             mFollowBtnHolder.setFocusable(false);
-            mFollowBtn.setFocusable(false);
+            mFollowBtnHolder.setDescendantFocusability(FOCUS_BLOCK_DESCENDANTS);
             mFollowBtnHolder.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
