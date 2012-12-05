@@ -56,7 +56,6 @@
 
             <com.soundcloud.android.view.FlowLayout android:id="@+id/tags_holder"
                                                     android:layout_marginTop="10dip"
-                                                    android:layout_alignWithParentIfMissing="true"
                                                     android:layout_height="wrap_content"
                                                     android:layout_width="fill_parent"
                                                     android:padding="5dip"/>
@@ -66,12 +65,10 @@
                       style="@style/txt_player_track_info"
                       android:padding="3dip"
                       android:linksClickable="true"
-                      android:layout_below="@id/tags_holder"
                       android:layout_width="fill_parent"/>
             <ViewStub android:id="@+id/stub_comments_list"
                       android:inflatedId="@+id/comments_list"
                       android:layout="@layout/info_comments_list"
-                      android:layout_below="@+id/txtInfo"
                       android:layout_width="fill_parent"
                       android:layout_height="wrap_content"/>
         </LinearLayout>

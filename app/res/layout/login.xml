@@ -36,7 +36,6 @@
                     <com.soundcloud.android.view.ClearText style="@style/SignUp.PasswordEntry"
                                                            android:id="@+id/txt_password"
                                                            android:hint="@string/authentication_your_password"
-                                                           android:layout_below="@id/txt_email_address"
                                                            android:imeOptions="actionDone"/>
                 </TableRow>
             </TableLayout>
