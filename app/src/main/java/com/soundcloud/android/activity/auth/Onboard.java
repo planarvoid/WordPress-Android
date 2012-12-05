@@ -58,7 +58,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class Start extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
+public class Onboard extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
     protected enum StartState {
         LOADING, TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS
     }
@@ -78,6 +78,8 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
     private StartState mState = StartState.TOUR;
 
+    private View mSplash;
+
     @Nullable private User mUser;
 
     private View mTourBottomBar;
@@ -95,11 +97,12 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.start);
-
+        overridePendingTransition(0, 0);
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
         mTourBottomBar = findViewById(R.id.tour_bottom_bar);
         mViewPager     = (ViewPager) findViewById(R.id.tour_view);
+        mSplash =           findViewById(R.id.splash);
 
         mTourPages = new TourLayout[]{
             new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1),
@@ -208,8 +211,6 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
     protected void onResume() {
         super.onResume();
         ((SoundCloudApplication)getApplication()).track(Page.Entry_main);
-
-        overridePendingTransition(anim.fade_in, anim.fade_out);
     }
 
     @Override
@@ -359,7 +360,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
             @Override
             protected void onPreExecute() {
                 if (!isFinishing()) {
-                    progress = AndroidUtils.showProgress(Start.this,
+                    progress = AndroidUtils.showProgress(Onboard.this,
                                                          R.string.authentication_login_progress_message);
                 }
             }
@@ -442,7 +443,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
             @Override
             protected void onPreExecute() {
-                progress = AndroidUtils.showProgress(Start.this,
+                progress = AndroidUtils.showProgress(Onboard.this,
                                                      R.string.authentication_signup_progress_message);
             }
 
@@ -501,7 +502,7 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
         new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
             ProgressDialog dialog;
             @Override protected void onPreExecute() {
-                dialog = AndroidUtils.showProgress(Start.this, R.string.authentication_add_info_progress_message);
+                dialog = AndroidUtils.showProgress(Onboard.this, R.string.authentication_add_info_progress_message);
             }
 
             @Override protected void onPostExecute(User user) {
@@ -559,15 +560,16 @@ public class Start extends AccountAuthenticatorActivity implements Login.LoginHa
 
         switch (mState) {
             case LOADING:
-                hideForegroundViews(animated);
-
-                hideView(mViewPager, animated);
+                hideForegroundViews(false);
+                hideView(mViewPager, false);
                 return;
 
             case TOUR:
-                showForegroundViews(animated);
+                showForegroundViews(false);
 
-                showView(mViewPager,       animated);
+                showView(mViewPager, false);
+
+                hideView(mSplash, true);
                 hideView(getLogin(), animated);
                 hideView(getSignUp(), animated);
                 hideView(getUserDetails(), animated);

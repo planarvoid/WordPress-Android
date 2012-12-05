@@ -667,7 +667,7 @@ public class PlayerTrackView extends LinearLayout implements
             mWaveformController.setSecondaryProgress(0);
         }
 
-        // Start showing smooth progress if we already aren't
+        // Onboard showing smooth progress if we already aren't
         if (!mWaveformController.showingSmoothProgress() && showSmoothProgress){
             mWaveformController.startSmoothProgress();
         }

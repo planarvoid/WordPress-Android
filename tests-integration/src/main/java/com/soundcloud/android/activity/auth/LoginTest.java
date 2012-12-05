@@ -10,9 +10,9 @@ import android.webkit.WebView;
 import android.widget.EditText;
 
 
-public class LoginTest extends ActivityTestCase<Start> {
+public class LoginTest extends ActivityTestCase<Onboard> {
     public LoginTest() {
-        super(Start.class);
+        super(Onboard.class);
     }
 
     @Override
