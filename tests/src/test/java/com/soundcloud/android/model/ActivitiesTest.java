@@ -14,10 +14,13 @@ import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.model.act.TrackSharingActivity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -26,6 +29,7 @@ import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Intent;
 
 import java.io.IOException;
 import java.util.Date;
@@ -315,6 +319,31 @@ public class ActivitiesTest {
         expect(commentActivity.comment.user.username).toEqual("Liraz Axelrad");
         expect(commentActivity.comment.track_id).toEqual(39722328l);
         expect(commentActivity.comment.track.title).toEqual("Transaction and Services: Nfc by Hauke Meyn at droidcon");
+    }
+
+    @Test
+
+    public void shouldRemoveTrackActivitiesOnTrackRemove() throws Exception {
+
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.Users._ID, USER_ID);
+        cv.put(DBHelper.Users.USERNAME, "Foo Bar");
+        expect(resolver.insert(Content.USERS.uri, cv)).not.toBeNull();
+
+        Activities a = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_one_of_each_activity.json"));
+        expect(a.insert(Content.ME_ACTIVITIES, resolver)).toBe(7);
+
+        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(7);
+
+        ScContentProvider.TrackUnavailableListener.removeTrack(Robolectric.application).execute( 39859648l);
+        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(6);
+
+        ScContentProvider.TrackUnavailableListener.removeTrack(Robolectric.application).execute( 61132541l);
+        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(5);
+
+        ScContentProvider.TrackUnavailableListener.removeTrack(Robolectric.application).execute( 39722328l);
+        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(4);
+
     }
 
     @Test

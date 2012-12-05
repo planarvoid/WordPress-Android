@@ -273,6 +273,17 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         }
     }
 
+    public static String getDbPlaylistTypesForQuery() {
+        String types = "";
+        for (int i = 0; i < Activity.Type.PLAYLIST_TYPES.length; i++) {
+            types += "'" + Activity.Type.PLAYLIST_TYPES[i].type + "'";
+            if (i < Activity.Type.PLAYLIST_TYPES.length - 1) {
+                types += ",";
+            }
+        }
+        return types;
+    }
+
     @Override
     public int describeContents() {
         return 0;
