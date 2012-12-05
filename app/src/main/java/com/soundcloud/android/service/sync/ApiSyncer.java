@@ -68,6 +68,9 @@ public class ApiSyncer {
             switch (c) {
                 case ME:
                     result = syncMe(c);
+                    if (result.success) {
+                        mResolver.notifyChange(Content.ME.uri, null);
+                    }
                     PreferenceManager.getDefaultSharedPreferences(mContext)
                             .edit()
                             .putLong(Consts.PrefKeys.LAST_USER_SYNC, System.currentTimeMillis())
@@ -335,14 +338,13 @@ public class ApiSyncer {
 
     private Result syncMe(Content c) throws IOException {
         Result result = new Result(c.uri);
-        User user = new FetchUserTask(mApi, SoundCloudApplication.getUserIdFromContext(mContext))
-                .doInBackground(c.request());
-
-        SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
-
+        User user = new FetchUserTask(mApi, SoundCloudApplication.getUserIdFromContext(mContext)).resolve(c.request());
         result.synced_at = System.currentTimeMillis();
-        result.change = Result.CHANGED;
-        result.success = user != null;
+        if (user != null) {
+            SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
+            result.change = Result.CHANGED;
+            result.success = true;
+        }
         return result;
     }
 

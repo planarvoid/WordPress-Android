@@ -313,7 +313,7 @@ public class User extends ScResource implements Refreshable {
 
     public void refreshListAvatarUri(Context context) {
         final String iconUrl = avatar_url;
-        _list_avatar_uri = TextUtils.isEmpty(iconUrl) ? null : Consts.GraphicSize.formatUriForList(context, iconUrl);
+        _list_avatar_uri = shouldLoadIcon() ? Consts.GraphicSize.formatUriForList(context, iconUrl) : null;
     }
 
     public String getListAvatarUri(Context context){

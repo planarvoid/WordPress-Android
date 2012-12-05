@@ -195,6 +195,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         if (mActionBarController != null) {
             mActionBarController.onDestroy();
         }
+        mRootView.onDestroy();
     }
 
     @Override

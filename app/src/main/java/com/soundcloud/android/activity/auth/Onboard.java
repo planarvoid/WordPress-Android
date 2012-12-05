@@ -11,7 +11,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.SuggestedUsers;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.auth.AddUserInfoTask;
 import com.soundcloud.android.task.auth.GetTokensTask;
 import com.soundcloud.android.task.auth.SignupTask;
@@ -25,12 +28,14 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 import net.hockeyapp.android.UpdateManager;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -402,14 +407,26 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
         }.execute(param);
     }
 
-    private void onAuthenticated(SignupVia via, User user) {
+    private void onAuthenticated(@NotNull SignupVia via, @NotNull User user) {
         final Bundle result = new Bundle();
         result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
         result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
         result.putBoolean(Consts.Keys.WAS_SIGNUP, via != SignupVia.NONE);
         super.setAccountAuthenticatorResult(result);
 
-        SoundCloudApplication.MODEL_MANAGER.write(user);
+        SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
+
+        if (via != SignupVia.NONE) {
+            // user has signed up, schedule sync of user data to possibly refresh image data
+            // which gets processed asynchronously by the backend and is only available after signup has happened
+            final Context context = getApplicationContext();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    context.startService(new Intent(context, ApiSyncService.class).setData(Content.ME.uri));
+                }
+            }, 30 * 1000);
+        }
 
         sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
                 .putExtra(User.EXTRA, user)
@@ -695,7 +712,7 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
         }
     }
 
-    public void onFacebookLogin() {
+    private void onFacebookLogin() {
         SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
         app.track(Click.Login_with_facebook);
@@ -724,17 +741,19 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
-            case Consts.RequestCodes.GALLERY_IMAGE_PICK:
+            case Consts.RequestCodes.GALLERY_IMAGE_PICK: {
                 if (getUserDetails() != null) {
                     getUserDetails().onImagePick(resultCode, intent);
                 }
                 break;
+            }
 
-            case Consts.RequestCodes.GALLERY_IMAGE_TAKE:
+            case Consts.RequestCodes.GALLERY_IMAGE_TAKE: {
                 if (getUserDetails() != null) {
                     getUserDetails().onImageTake(resultCode, intent);
                 }
                 break;
+            }
 
             case Consts.RequestCodes.IMAGE_CROP: {
                 if (getUserDetails() != null) {
@@ -743,7 +762,7 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
                 break;
             }
 
-            case Consts.RequestCodes.SIGNUP_VIA_FACEBOOK:
+            case Consts.RequestCodes.SIGNUP_VIA_FACEBOOK: {
                 SoundCloudApplication app = (SoundCloudApplication) getApplication();
                 if (intent != null){
                     final String error = intent.getStringExtra("error");
@@ -767,8 +786,8 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
                     }
                 }
                 break;
-
-            case Consts.RequestCodes.RECOVER_CODE:
+            }
+            case Consts.RequestCodes.RECOVER_CODE: {
                 final boolean success = intent.getBooleanExtra("success", false);
                 if (success) {
                     AndroidUtils.showToast(this, R.string.authentication_recover_password_success);
@@ -779,8 +798,8 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
                                     getString(R.string.authentication_recover_password_failure) :
                                     getString(R.string.authentication_recover_password_failure_reason, error));
                 }
-
+                break;
+            }
         }
     }
-
 }
