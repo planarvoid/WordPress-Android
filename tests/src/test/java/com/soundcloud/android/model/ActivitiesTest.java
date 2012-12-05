@@ -335,19 +335,13 @@ public class ActivitiesTest {
 
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(7);
 
-        new ScContentProvider.TrackUnavailableListener().onReceive(
-                Robolectric.application,new Intent("com.soundcloud.android.trackunavailable")
-                .putExtra(CloudPlaybackService.BroadcastExtras.id, 39859648l));
+        ScContentProvider.TrackUnavailableListener.removeTrack(Robolectric.application).execute( 39859648l);
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(6);
 
-        new ScContentProvider.TrackUnavailableListener().onReceive(
-                        Robolectric.application,new Intent("com.soundcloud.android.trackunavailable")
-                        .putExtra(CloudPlaybackService.BroadcastExtras.id, 61132541l));
+        ScContentProvider.TrackUnavailableListener.removeTrack(Robolectric.application).execute( 61132541l);
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(5);
 
-        new ScContentProvider.TrackUnavailableListener().onReceive(
-                                Robolectric.application,new Intent("com.soundcloud.android.trackunavailable")
-                                .putExtra(CloudPlaybackService.BroadcastExtras.id, 39722328l));
+        ScContentProvider.TrackUnavailableListener.removeTrack(Robolectric.application).execute( 39722328l);
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(4);
 
     }
