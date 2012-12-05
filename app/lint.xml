@@ -14,7 +14,7 @@
     <issue id="TypographyEllipsis" severity="ignore"/>
 
     <!-- change before release -->
-    <issue id="MissingTranslation" severity="ignore"/>
+    <issue id="MissingTranslation" severity="error"/>
 
     <!-- should probably re-enable later once more important things are fixed -->
     <issue id="ContentDescription" severity="ignore"/>
