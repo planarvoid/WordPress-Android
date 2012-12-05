@@ -1,5 +1,8 @@
 <resources>
 
+    <string name="terms_of_service">Terms of Service</string>
+    <string name="terms_of_service_summary">Legal information</string>
+
     <string name="dialog_transcoding_failed_title">Transcoding failed</string>
     <string name="dialog_transcoding_failed_message">Ooops, something went wrong and your sound can\'t be played. You
         can remove the sound from your list via the website. For more information please contact our support.
