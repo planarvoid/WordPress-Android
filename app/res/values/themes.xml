@@ -180,6 +180,9 @@
         <item name="android:textColor">#666666</item>
         <item name="footerColor">#ff6600</item>
         <item name="footerIndicatorStyle">triangle</item>
+
+        <item name="titlePadding">20dp</item>
+        <item name="clipPadding">16dp</item>
     </style>
 
     <style name="TextAppearance.ScTitlePageIndicator" parent="TextAppearance.TabPageIndicator">
