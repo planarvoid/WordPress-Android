@@ -277,7 +277,8 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.enterTextId(R.id.what, title);
         solo.goBack();
 
-        solo.clickOnView(R.id.action_bar_local_recordings);
+        // doesn't exist any longer
+        //solo.clickOnView(R.id.action_bar_local_recordings);
 
         // delete wav file
         File wavFile = r.getFile();
