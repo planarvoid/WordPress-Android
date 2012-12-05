@@ -29,7 +29,7 @@ public class StartTest {
     }
 
     @Test
-    public void shouldNotThrottle() throws Exception {
+    public void shouldNotThrottleSignupForAFewAttempts() throws Exception {
         long now = System.currentTimeMillis();
         expect(Onboard.writeNewSignupToLog(now - Onboard.THROTTLE_WINDOW)).toBeTrue();
         expect(Onboard.shouldThrottleSignup()).toBeFalse();
@@ -42,10 +42,13 @@ public class StartTest {
     }
 
     @Test
-    public void shouldThrottle() throws Exception {
+    public void shouldThrottleSignupAfterTooManyAttempts() throws Exception {
         long now = System.currentTimeMillis();
-        expect(Onboard.writeNewSignupToLog(now)).toBeTrue();
-        expect(Onboard.writeNewSignupToLog(now)).toBeTrue();
+
+        for (int i=0; i<Onboard.THROTTLE_AFTER_ATTEMPT-1; i++) {
+            expect(Onboard.writeNewSignupToLog(now)).toBeTrue();
+            expect(Onboard.shouldThrottleSignup()).toBeFalse();
+        }
         expect(Onboard.writeNewSignupToLog(now)).toBeTrue();
         expect(Onboard.shouldThrottleSignup()).toBeTrue();
     }
