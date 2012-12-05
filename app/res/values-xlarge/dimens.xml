@@ -41,4 +41,6 @@
     <dimen name="player_comment_bar_txt_size">22sp</dimen>
 
     <dimen name="rec_toggle_fade_margin_top">30dp</dimen>
+
+    <dimen name="txt_empty_msg_size">20sp</dimen>
 </resources>

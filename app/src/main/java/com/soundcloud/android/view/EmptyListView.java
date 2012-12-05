@@ -100,8 +100,7 @@ public class EmptyListView extends RelativeLayout {
             mEmptyLayout = (ViewGroup) View.inflate(getContext(), getEmptyViewLayoutId(), null);
 
             final RelativeLayout.LayoutParams params =
-                    new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-            params.addRule(RelativeLayout.CENTER_IN_PARENT);
+                    new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
             ((RelativeLayout) findViewById(R.id.empty_view_holder))
                     .addView(mEmptyLayout, params);

@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
+              android:layout_centerInParent="true"
               android:orientation="vertical"
               android:gravity="center_horizontal">
 
@@ -23,16 +24,19 @@
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   style="@style/txt_empty_collection_message"/>
+
         <Button android:layout_width="wrap_content"
                 android:visibility="gone"
                 android:id="@+id/btn_action"
                 android:layout_height="wrap_content"
                 style="@style/btn_empty_collection"/>
+
         <TextView android:id="@+id/txt_link"
                   android:visibility="gone"
                   android:gravity="center_horizontal"
                   android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
                   style="@style/txt_empty_collection_link"/>
+
     </LinearLayout>
 </LinearLayout>
