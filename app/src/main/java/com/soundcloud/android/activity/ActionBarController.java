@@ -211,97 +211,97 @@ public class ActionBarController {
     }
 
     /**
-        * Configure search view to function how we want it
-        * @param searchView the search view
-        */
-       private void setupSearchView(SearchView searchView) {
-           searchView.setIconifiedByDefault(false);
-           searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-               @Override
-               public void onFocusChange(View v, boolean hasFocus) {
-                   if (!hasFocus && !mCloseSearchOnResume) closeSearch(false);
-               }
-           });
+     * Configure search view to function how we want it
+     * @param searchView the search view
+     */
+    private void setupSearchView(SearchView searchView) {
+        searchView.setIconifiedByDefault(false);
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus && !mCloseSearchOnResume) closeSearch(false);
+            }
+        });
 
-           /* find and configure the search autocompletetextview */
-           // actionbarsherlock view
-           final AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
-           if (search_text != null) {
-               if (useFullScreenSearch()) {
-                   // on a normal size device, use the whole action bar
-                   final int identifier = mActivity.getResources().getIdentifier("action_bar_container", "id", "android");
-                   if (mActivity.findViewById(identifier) != null) {
-                       // native action bar (>= Honeycomb)
-                       search_text.setDropDownAnchor(identifier);
-                   } else if (mActivity.findViewById(R.id.abs__action_bar_container) != null) {
-                       // abs action bar (< Honeycomb)
-                       search_text.setDropDownAnchor(R.id.abs__action_bar_container);
-                   }
-                   search_text.setDropDownWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+        /* find and configure the search autocompletetextview */
+        // actionbarsherlock view
+        final AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
+        if (search_text != null) {
+            if (useFullScreenSearch()) {
+                // on a normal size device, use the whole action bar
+                final int identifier = mActivity.getResources().getIdentifier("action_bar_container", "id", "android");
+                if (mActivity.findViewById(identifier) != null) {
+                    // native action bar (>= Honeycomb)
+                    search_text.setDropDownAnchor(identifier);
+                } else if (mActivity.findViewById(R.id.abs__action_bar_container) != null) {
+                    // abs action bar (< Honeycomb)
+                    search_text.setDropDownAnchor(R.id.abs__action_bar_container);
+                }
+                search_text.setDropDownWidth(ViewGroup.LayoutParams.MATCH_PARENT);
 
-               } else {
-                   // on a large screen device, just anchor to the search bar itself
-                   if (mActivity.findViewById(R.id.abs__search_bar) != null) search_text.setDropDownAnchor(R.id.abs__search_bar);
-                   search_text.setDropDownWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
-               }
-           }
+            } else {
+                // on a large screen device, just anchor to the search bar itself
+                if (mActivity.findViewById(R.id.abs__search_bar) != null) search_text.setDropDownAnchor(R.id.abs__search_bar);
+                search_text.setDropDownWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
+            }
+        }
 
 
-           SearchManager searchManager = (SearchManager) mActivity.getSystemService(Context.SEARCH_SERVICE);
-           final SearchableInfo searchableInfo = searchManager.getSearchableInfo(mActivity.getComponentName());
-           searchView.setSearchableInfo(searchableInfo);
+        SearchManager searchManager = (SearchManager) mActivity.getSystemService(Context.SEARCH_SERVICE);
+        final SearchableInfo searchableInfo = searchManager.getSearchableInfo(mActivity.getComponentName());
+        searchView.setSearchableInfo(searchableInfo);
 
-           mSuggestionsAdapter = new SuggestionsAdapter(mActivity, (AndroidCloudAPI) mActivity.getApplication());
-           searchView.setSuggestionsAdapter(mSuggestionsAdapter);
-           searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-               @Override
-               public boolean onSuggestionSelect(int position) {
-                   return false;
-               }
+        mSuggestionsAdapter = new SuggestionsAdapter(mActivity, (AndroidCloudAPI) mActivity.getApplication());
+        searchView.setSuggestionsAdapter(mSuggestionsAdapter);
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                return false;
+            }
 
-               @Override
-               public boolean onSuggestionClick(int position) {
-                   // don't do the whole unblocking animation until after exit
-                   mCloseSearchOnResume = true;
+            @Override
+            public boolean onSuggestionClick(int position) {
+                // don't do the whole unblocking animation until after exit
+                mCloseSearchOnResume = true;
 
-                   // close IME
-                   mSearchView.clearFocus();
+                // close IME
+                mSearchView.clearFocus();
 
-                   final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
-                   mActivity.startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
-                   return true;
-               }
-           });
+                final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
+                mActivity.startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
+                return true;
+            }
+        });
 
-           // listeners for showing and hiding the content blocker
-           if (mRootView != null && useFullScreenSearch()) {
-               searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                   @Override
-                   public boolean onQueryTextSubmit(String query) {
-                       return false;
-                   }
+        // listeners for showing and hiding the content blocker
+        if (mRootView != null && useFullScreenSearch()) {
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return false;
+                }
 
-                   @Override
-                   public boolean onQueryTextChange(String newText) {
-                       if (TextUtils.isEmpty(newText) && !mCloseSearchOnResume) mRootView.unBlock(false);
-                       return false;
-                   }
-               });
-               if (search_text != null) {
-                   mSuggestionsAdapter.registerDataSetObserver(new DataSetObserver() {
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    if (TextUtils.isEmpty(newText) && !mCloseSearchOnResume) mRootView.unBlock(false);
+                    return false;
+                }
+            });
+            if (search_text != null) {
+                mSuggestionsAdapter.registerDataSetObserver(new DataSetObserver() {
 
-                       @Override
-                       public void onChanged() {
-                           if (mSuggestionsAdapter.getCount() > 0 && !TextUtils.isEmpty(search_text.getText())) {
-                               mRootView.block();
-                           } else {
-                               mRootView.unBlock(false);
-                           }
-                       }
-                   });
-               }
-           }
-       }
+                    @Override
+                    public void onChanged() {
+                        if (mSuggestionsAdapter.getCount() > 0 && !TextUtils.isEmpty(search_text.getText())) {
+                            mRootView.block();
+                        } else {
+                            mRootView.unBlock(false);
+                        }
+                    }
+                });
+            }
+        }
+    }
 
 
 
@@ -323,7 +323,7 @@ public class ActionBarController {
 
     private boolean useFullScreenSearch(){
         return (mActivity.getResources().getConfiguration().screenLayout &
-                                Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE;
+                Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
 
     public void onCreateOptionsMenu(Menu menu) {
