@@ -95,8 +95,8 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
             downloadable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.DOWNLOADABLE)) == 1;
             streamable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.STREAMABLE)) == 1;
             sharing = Sharing.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.SHARING)));
-            likes_count = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.LIKES_COUNT));
-            reposts_count = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.REPOSTS_COUNT));
+            likes_count = getIntOrNotSet(cursor, DBHelper.SoundView.LIKES_COUNT);
+            reposts_count = getIntOrNotSet(cursor, DBHelper.SoundView.REPOSTS_COUNT);
             user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
 
             final long lastUpdated = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.LAST_UPDATED));

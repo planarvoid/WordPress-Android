@@ -5,6 +5,7 @@ import com.soundcloud.android.json.Views;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.BaseColumns;
@@ -31,5 +32,10 @@ public class ScModel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+    }
+
+    protected static int getIntOrNotSet(Cursor c, String column) {
+        final int index = c.getColumnIndex(column);
+        return c.isNull(index) ? NOT_SET : c.getInt(index);
     }
 }

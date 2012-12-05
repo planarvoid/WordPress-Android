@@ -6,7 +6,7 @@ import static com.soundcloud.android.service.sync.ApiSyncer.Result;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -23,6 +23,7 @@ import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 
 import java.io.IOException;
@@ -71,6 +72,27 @@ public class ApiSyncerTest {
         expect(incoming.size()).toEqual(112);
         expect(incoming.getUniqueTracks().size()).toEqual(111); // currently excluding playlists
         assertResolverNotified(Content.ME_SOUND_STREAM.uri, Content.TRACKS.uri, Content.USERS.uri);
+    }
+    @Test
+    public void shouldSyncStreamWithTrackWithoutStats() throws Exception {
+        // special case: track in stream doesn't contain some of the stats (per track basis):
+        // playback_count, download_count, favoritings_count, comment_count, likes_count, reposts_count
+        // we need to make sure we preserve this information and not write 0 to the local storage
+        Result result = sync(Content.ME_SOUND_STREAM.uri,
+                "e1_stream_track_without_stats.json",
+                "e1_stream_oldest.json");
+        expect(result.success).toBeTrue();
+        expect(Content.TRACKS).toHaveCount(1);
+
+        Cursor c = resolver.query(Content.TRACK.forId(61467451), null, null, null, null);
+        expect(c).not.toBeNull();
+        expect(c.moveToNext()).toBeTrue();
+        Track t = new Track(c);
+        expect(t.likes_count   ).toEqual(ScModel.NOT_SET);
+        expect(t.download_count).toEqual(ScModel.NOT_SET);
+        expect(t.reposts_count ).toEqual(ScModel.NOT_SET);
+        expect(t.comment_count ).toEqual(ScModel.NOT_SET);
+        expect(t.playback_count).toEqual(ScModel.NOT_SET);
     }
 
     @Test

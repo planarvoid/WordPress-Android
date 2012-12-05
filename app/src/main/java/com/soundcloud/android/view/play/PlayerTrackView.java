@@ -30,7 +30,6 @@ import android.os.Message;
 import android.text.Layout;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -259,7 +258,7 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     private void setTrackStats(ToggleButton button, int count, boolean checked) {
-        final String countString = count > 0 ? String.valueOf(count) : "0";
+        final String countString = count < 0 ? "\u2014" : String.valueOf(count);
         button.setTextOff(countString);
         button.setTextOn(countString);
         button.setChecked(checked);

@@ -47,7 +47,6 @@ import android.widget.TextView;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -73,7 +72,7 @@ public class Track extends Sound implements Playable {
 
     @JsonView(Views.Full.class) public int playback_count = NOT_SET;
     @JsonView(Views.Full.class) public int download_count = NOT_SET;
-    @JsonView(Views.Full.class) public int comment_count = NOT_SET;
+    @JsonView(Views.Full.class) public int comment_count  = NOT_SET;
 
     @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
     public int shared_to_count = NOT_SET;
@@ -347,8 +346,7 @@ public class Track extends Sound implements Playable {
         last_playback_error = b.getInt("last_playback_error");
     }
 
-    Track(Cursor cursor) {
-
+    public Track(Cursor cursor) {
         super(cursor);
         state = State.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.STATE)));
         track_type = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.TRACK_TYPE));
@@ -358,10 +356,10 @@ public class Track extends Sound implements Playable {
         download_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.DOWNLOAD_URL));
 
         stream_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.STREAM_URL));
-        playback_count = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.PLAYBACK_COUNT));
-        download_count = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.DOWNLOAD_COUNT));
-        comment_count = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.COMMENT_COUNT));
-        shared_to_count = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.SHARED_TO_COUNT));
+        playback_count = getIntOrNotSet(cursor, DBHelper.SoundView.PLAYBACK_COUNT);
+        download_count = getIntOrNotSet(cursor, DBHelper.SoundView.DOWNLOAD_COUNT);
+        comment_count = getIntOrNotSet(cursor, DBHelper.SoundView.COMMENT_COUNT);
+        shared_to_count = getIntOrNotSet(cursor, DBHelper.SoundView.SHARED_TO_COUNT);
         commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.COMMENTABLE)) == 1;
 
         final int localPlayCountIdx = cursor.getColumnIndex(DBHelper.SoundView.USER_PLAY_COUNT);
@@ -383,11 +381,11 @@ public class Track extends Sound implements Playable {
         if (track_type != null) cv.put(DBHelper.Sounds.TRACK_TYPE, track_type);
         if (waveform_url != null) cv.put(DBHelper.Sounds.WAVEFORM_URL, waveform_url);
         if (download_url != null) cv.put(DBHelper.Sounds.DOWNLOAD_URL, download_url);
-        if (playback_count != -1) cv.put(DBHelper.Sounds.PLAYBACK_COUNT, playback_count);
-        if (download_count != -1) cv.put(DBHelper.Sounds.DOWNLOAD_COUNT, download_count);
-        if (comment_count != -1) cv.put(DBHelper.Sounds.COMMENT_COUNT, comment_count);
+        if (playback_count != NOT_SET) cv.put(DBHelper.Sounds.PLAYBACK_COUNT, playback_count);
+        if (download_count != NOT_SET) cv.put(DBHelper.Sounds.DOWNLOAD_COUNT, download_count);
+        if (comment_count  != NOT_SET) cv.put(DBHelper.Sounds.COMMENT_COUNT, comment_count);
         if (commentable) cv.put(DBHelper.Sounds.COMMENTABLE, commentable);
-        if (shared_to_count != -1) cv.put(DBHelper.Sounds.SHARED_TO_COUNT, shared_to_count);
+        if (shared_to_count != NOT_SET) cv.put(DBHelper.Sounds.SHARED_TO_COUNT, shared_to_count);
         if (isCompleteTrack()) {
             cv.put(DBHelper.Sounds.LAST_UPDATED, System.currentTimeMillis());
         }

@@ -3,6 +3,7 @@ package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Sound;
@@ -72,10 +73,12 @@ public class AssociationManager {
         @Override
         public void onNewStatus(Sound sound, boolean isAssociated) {
             sound = (Sound) SoundCloudApplication.MODEL_MANAGER.cache(sound, ScResource.CacheUpdateMode.NONE);
-            if (isAssociated) {
-                sound.likes_count += 1;
-            } else {
-                sound.likes_count -= 1;
+            if (sound.likes_count > ScModel.NOT_SET) {
+                if (isAssociated) {
+                    sound.likes_count += 1;
+                } else {
+                    sound.likes_count -= 1;
+                }
             }
             onLikeStatusSet(sound, isAssociated);
             updateLocalState(sound, Content.ME_LIKES.uri, isAssociated);
@@ -86,10 +89,12 @@ public class AssociationManager {
         @Override
         public void onNewStatus(Sound sound, boolean isAssociated) {
             sound = (Sound) SoundCloudApplication.MODEL_MANAGER.cache(sound, ScResource.CacheUpdateMode.NONE);
-            if (isAssociated){
-                sound.reposts_count += 1;
-            } else {
-                sound.reposts_count -= 1;
+            if (sound.reposts_count > ScModel.NOT_SET) {
+                if (isAssociated){
+                    sound.reposts_count += 1;
+                } else {
+                    sound.reposts_count -= 1;
+                }
             }
             onRepostStatusSet(sound, isAssociated);
             updateLocalState(sound, Content.ME_REPOSTS.uri, isAssociated);

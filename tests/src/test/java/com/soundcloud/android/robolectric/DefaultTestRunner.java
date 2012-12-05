@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 /**
  * In order to use a file-based test database, annotate your test classes with
  * <code>
- *     DatabaseConfig.UsingDatabaseMap(DefaultTestRunner.FileDatabaseMap.class)
+ *     \@DatabaseConfig.UsingDatabaseMap(DefaultTestRunner.FileDatabaseMap.class)
  * </code>.
  */
 public class DefaultTestRunner extends RobolectricTestRunner {
