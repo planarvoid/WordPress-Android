@@ -1013,7 +1013,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             }
             switch (msg.what) {
                 case CHECK_BUFFERING:
-                    if (state.equals(State.PAUSED_FOR_BUFFERING)){
+                    if (!state.equals(State.PAUSED_FOR_BUFFERING)){
                         notifyChange(BUFFERING_COMPLETE);
                     }
                     break;
