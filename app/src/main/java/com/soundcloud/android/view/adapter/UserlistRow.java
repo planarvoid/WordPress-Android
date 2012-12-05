@@ -38,6 +38,7 @@ public class UserlistRow extends LazyRow {
     private TextView mTracks;
     private TextView mFollowers;
     private View mVrStats;
+    private RelativeLayout mFollowBtnHolder;
     private ToggleButton mFollowBtn;
 
 
@@ -52,8 +53,10 @@ public class UserlistRow extends LazyRow {
         mVrStats = findViewById(R.id.vr_stats);
 
         if (mFollowBtn != null) {
+            mFollowBtnHolder = (RelativeLayout) findViewById(R.id.toggleFollowingHolder);
+            mFollowBtnHolder.setFocusable(false);
             mFollowBtn.setFocusable(false);
-            mFollowBtn.setOnClickListener(new View.OnClickListener(){
+            mFollowBtnHolder.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
                     toggleFollowing(mUser);
