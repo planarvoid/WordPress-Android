@@ -951,6 +951,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             } else if (RESET_ALL.equals(action)) {
                 stop();
                 mPlayQueueManager.clear();
+                currentTrack = null;
             } else if (STOP_ACTION.equals(action)) {
                 if (state.isSupposedToBePlaying()) pause();
                 mResumeTime = getProgress();
