@@ -194,9 +194,29 @@
     <string name="connect_to_facebook">Conectarse a Facebook</string>
 
     <!--
+     no longer used !
     <string name="problem_getting_connections">Error al intentar conexión</string>
     <string name="list_no_facebook_friends">Actualmente no tienes amigos en Facebook</string>
     -->
+
+    <!-- <el cheapo translation> -->
+
+    <!-- Connect with Facebook to discover which of your friends are already on SoundCloud. -->
+    <string name="list_empty_friend_finder_no_connections">Encontrar amigos en Facebook</string>
+    <!-- There was an error finding your friends. -->
+    <string name="list_empty_friend_finder_error">Error al intentar conexión</string>
+    <!-- None of your friends are currently on SoundCloud. -->
+    <string name="list_empty_friend_finder">Actualmente no tienes amigos en Facebook</string>
+    <string name="dashboard_notifications_activity_message_repost">%1$s ha vuelto a publicar %2$s</string>
+    <plurals name="dashboard_notifications_activity_message_repost">
+        <item quantity="one">sobre %1$s</item>
+        <item quantity="other">sobre %1$s, %2$s y otros sonidos</item>
+        <item quantity="two">sobre %1$s y %2$s</item>
+    </plurals>
+
+    <string name="pref_notifications_reposts">Volver a publicar</string>
+    <string name="pref_notifications_reposts_description">Reciba actualizaciones de los reposts nuevos en sus sonidos</string>
+    <!-- </el cheapo translation> -->
 
     <string name="list_header_track_reposters">Gente que ha vuelto a publicar este sonido</string>
 
