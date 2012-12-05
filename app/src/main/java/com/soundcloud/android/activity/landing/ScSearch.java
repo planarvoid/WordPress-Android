@@ -39,8 +39,7 @@ public class ScSearch extends ScActivity {
     private ScSearchFragment mSearchFragment;
     private Search pendingSearch;
 
-    public static final String EXTRA_SEARCH_TYPE = "search_type";
-    public static final String EXTRA_QUERY = "query";
+    private static final String EXTRA_SEARCH_TYPE = "search_type";
 
     @Override
     public void onCreate(Bundle state) {
@@ -104,7 +103,9 @@ public class ScSearch extends ScActivity {
 
     private void handleIntent() {
         final Intent intent = getIntent();
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction()) ||
+            "android.media.action.MEDIA_PLAY_FROM_SEARCH".equals(intent.getAction())) {
+
             String query = intent.getStringExtra(SearchManager.QUERY);
             pendingSearch = new Search(query, intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
         } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null) {
