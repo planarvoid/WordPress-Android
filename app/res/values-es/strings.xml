@@ -219,4 +219,6 @@
     <string name="password">Contraseña</string>
     <string name="tour_login_header">Conéctate con tu cuenta</string>
     <string name="confirm">Confirmar</string>
+
+    <string name="info">Info</string>
 </resources>

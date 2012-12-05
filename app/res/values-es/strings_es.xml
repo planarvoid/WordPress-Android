@@ -273,6 +273,7 @@
   <string name="menu_load_more">Cargar más</string>
   <string name="menu_refresh">Actualizar</string>
   <string name="side_menu_settings">Ajustes</string>
+  <string name="title_settings">Ajustes</string>
   <string name="menu_stream_setting">Configuración Stream</string>
   <string name="menu_view_current_track">Reproductor</string>
   <plurals name="minutes_available">
