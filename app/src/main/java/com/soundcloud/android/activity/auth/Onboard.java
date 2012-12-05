@@ -79,7 +79,7 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
     private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
     public static final int THROTTLE_WINDOW = 60 * 60 * 1000;
 
-    public static final int THROTTLE_AFTER_ATTEMPT = 3;
+    public static final int THROTTLE_AFTER_ATTEMPT = 5;
 
     private StartState mState = StartState.TOUR;
 
@@ -183,9 +183,9 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
             public void onClick(View v) {
                 app.track(Click.Signup_Signup);
 
-                if (shouldThrottleSignup()) {
-                    // TODO: bring up mobile website
-                    setState(StartState.TOUR);
+                if (!SoundCloudApplication.DEV_MODE && shouldThrottleSignup()) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.soundcloud.com")));
+                    finish();
                 } else {
                     setState(StartState.SIGN_UP);
                 }
@@ -434,7 +434,8 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
 
         if (result.getBoolean(Consts.Keys.WAS_SIGNUP)) {
             startActivity(new Intent(this, SuggestedUsers.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    .putExtra(Consts.Keys.WAS_SIGNUP,true));
         } else {
             startActivity(new Intent(this, Home.class)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));

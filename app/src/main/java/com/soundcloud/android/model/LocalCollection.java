@@ -1,7 +1,9 @@
 package com.soundcloud.android.model;
 
+import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -9,11 +11,13 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncer;
 import com.soundcloud.android.service.sync.SyncConfig;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the state of a local collection sync, including last sync and size.
@@ -37,7 +41,9 @@ public class LocalCollection {
     private ContentResolver mContentResolver;
     private ContentObserver mChangeObserver;
 
+    private LocalCollectionQueryHandler mQueryHandler;
     private OnChangeListener mChangeListener;
+
 
     public boolean hasSyncedBefore() {
         return last_sync_success > 0;
@@ -238,11 +244,21 @@ public class LocalCollection {
         return resolver.update(Content.COLLECTIONS.uri, cv, "uri = ?", new String[]{uri.toString()}) == 1;
     }
 
-    public boolean shouldAutoRefresh() {
-        // only auto refresh once every hour at most, that we won't hammer their phone or the api if there are errors
+    public boolean shouldAutoRefresh(@Nullable Context context) {
+        Content c = Content.byUri(uri);
+        // stream backfilling check
+        if  (context != null && c == Content.ME_SOUND_STREAM && size == 0
+                // has followings, should be backfilled
+                && FollowStatus.get(context).getFollowingCount() > 0
+                //needs to attempt on shorter delay than default
+                && (last_sync_attempt < System.currentTimeMillis() - SyncConfig.CHECK_BACKFILL_DELAY)) {
+            return true;
+        }
+
+        // only auto refresh once every 30 mins at most, that we won't hammer their phone or the api if there are errors
         if (last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) return false;
 
-        Content c = Content.byUri(uri);
+
 
         // do not auto refresh users when the list opens, because users are always changing
         if (User.class.equals(c.modelType)) return last_sync_success <= 0;
@@ -276,11 +292,22 @@ public class LocalCollection {
 
         @Override
         public void onChange(boolean selfChange) {
-            Cursor c = mContentResolver.query(Content.COLLECTIONS.uri, null, "_id = ?", new String[]{String.valueOf(id)}, null);
-            if (c != null && c.moveToFirst()) {
-                setFromCursor(c);
+            mQueryHandler = new LocalCollectionQueryHandler(mContentResolver);
+            mQueryHandler.startQuery(0, null, Content.COLLECTIONS.uri, null, "_id = ?", new String[]{String.valueOf(id)}, null);
+        }
+    }
+
+    private class LocalCollectionQueryHandler extends AsyncQueryHandler {
+        public LocalCollectionQueryHandler(ContentResolver resolver) {
+            super(resolver);
+        }
+
+        @Override
+        protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
+            if (cursor != null && cursor.moveToFirst()) {
+                setFromCursor(cursor);
             }
-            if (c != null) c.close();
+            if (cursor != null) cursor.close();
             if (mChangeListener != null) mChangeListener.onLocalCollectionChanged();
         }
     }
