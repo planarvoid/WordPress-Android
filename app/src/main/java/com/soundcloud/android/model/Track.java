@@ -421,7 +421,7 @@ public class Track extends Sound implements Playable {
         final LayoutInflater inflater = LayoutInflater.from(context);
 
         if (!TextUtils.isEmpty(genre)) {
-            txt = ((TextView) inflater.inflate(R.layout.genre_text, null));
+            txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
             txt.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
