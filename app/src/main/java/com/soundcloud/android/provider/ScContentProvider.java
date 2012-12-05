@@ -299,15 +299,8 @@ public class ScContentProvider extends ContentProvider {
                 qb.setTables(Table.ACTIVITY_VIEW.name);
                 if (content != Content.ME_ALL_ACTIVITIES) {
                     // filter out playlist
-                    String types = "";
-                    for (int i=0; i<Activity.Type.PLAYLIST_TYPES.length;i++) {
-                        types += "'"+Activity.Type.PLAYLIST_TYPES[i].type+"'";
-                        if (i < Activity.Type.PLAYLIST_TYPES.length-1) {
-                            types += ",";
-                        }
-                    }
                     qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id + " AND " +
-                            DBHelper.ActivityView.TYPE + " NOT IN ( " +types +" ) ");
+                            DBHelper.ActivityView.TYPE + " NOT IN ( " + Activity.getDbPlaylistTypesForQuery() +" ) ");
                 }
                 _sortOrder = makeActivitiesSort(uri, sortOrder);
                 break;
@@ -1029,6 +1022,9 @@ public class ScContentProvider extends ContentProvider {
                     public void run() {
                         Log.d(TAG, "deleting unavailable track "+id);
                         context.getContentResolver().delete(Content.TRACK.forId(id), null, null);
+                        context.getContentResolver().delete(Content.ME_ALL_ACTIVITIES.uri,
+                                DBHelper.Activities.SOUND_ID + " = " + id + " AND " +
+                                DBHelper.ActivityView.TYPE + " NOT IN ( " + Activity.getDbPlaylistTypesForQuery() +" ) ", null);
                     }
                 }.start();
             }
