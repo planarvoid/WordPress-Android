@@ -37,6 +37,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -148,7 +149,13 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void setContentView(View layout) {
-        layout.setBackgroundColor(Color.WHITE);
+        final Drawable drawable = getWindow().getDecorView().getBackground();
+        if (drawable != null){
+            layout.setBackgroundDrawable(drawable);
+        } else {
+            layout.setBackgroundColor(Color.WHITE);
+        }
+
         layout.setDrawingCacheBackgroundColor(Color.WHITE);
         mRootView.setContent(layout);
     }

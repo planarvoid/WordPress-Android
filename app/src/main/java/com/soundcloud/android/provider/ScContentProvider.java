@@ -26,6 +26,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDiskIOException;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
@@ -299,15 +300,8 @@ public class ScContentProvider extends ContentProvider {
                 qb.setTables(Table.ACTIVITY_VIEW.name);
                 if (content != Content.ME_ALL_ACTIVITIES) {
                     // filter out playlist
-                    String types = "";
-                    for (int i=0; i<Activity.Type.PLAYLIST_TYPES.length;i++) {
-                        types += "'"+Activity.Type.PLAYLIST_TYPES[i].type+"'";
-                        if (i < Activity.Type.PLAYLIST_TYPES.length-1) {
-                            types += ",";
-                        }
-                    }
                     qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id + " AND " +
-                            DBHelper.ActivityView.TYPE + " NOT IN ( " +types +" ) ");
+                            DBHelper.ActivityView.TYPE + " NOT IN ( " + Activity.getDbPlaylistTypesForQuery() +" ) ");
                 }
                 _sortOrder = makeActivitiesSort(uri, sortOrder);
                 break;
@@ -823,6 +817,7 @@ public class ScContentProvider extends ContentProvider {
 
     static SCQueryBuilder makeSoundAssociationSelection(SCQueryBuilder qb, String userId, int[] collectionType) {
         qb.appendWhere(Table.SOUND_ASSOCIATION_VIEW.name + "." + DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID + " = " + userId);
+        qb.appendWhere(" AND " + Table.SOUND_ASSOCIATION_VIEW.name + "." + DBHelper.SoundView._TYPE + " = " + Track.DB_TYPE_TRACK);
         for (int i = 0; i < collectionType.length; i++) {
             qb.appendWhere((i == 0 ? " AND (" : " OR ")
                     + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + collectionType[i]
@@ -1020,18 +1015,25 @@ public class ScContentProvider extends ContentProvider {
     public static class TrackUnavailableListener extends BroadcastReceiver {
         @Override
         public void onReceive(final Context context, Intent intent) {
-            final long id = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, 0);
-            final long userId = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.user_id, 0);
             // only delete tracks from other users - needs proper state checking
-            if (id > 0 && userId != SoundCloudApplication.getUserIdFromContext(context)) {
-                new Thread() {
-                    @Override
-                    public void run() {
-                        Log.d(TAG, "deleting unavailable track "+id);
-                        context.getContentResolver().delete(Content.TRACK.forId(id), null, null);
-                    }
-                }.start();
+            final long trackId = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, 0);
+            final long userId = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.user_id, 0);
+            if (trackId > 0 && userId != SoundCloudApplication.getUserIdFromContext(context)) {
+                removeTrack(context).execute(trackId);
             }
+        }
+
+        public static AsyncTask<Long,Void,Void> removeTrack(final Context context) {
+            return new AsyncTask<Long,Void,Void>(){
+                @Override
+                protected Void doInBackground(Long... params) {
+                    context.getContentResolver().delete(Content.TRACK.forId(params[0]), null, null);
+                    context.getContentResolver().delete(Content.ME_ALL_ACTIVITIES.uri,
+                            DBHelper.Activities.SOUND_ID + " = " + params[0] + " AND " +
+                                    DBHelper.ActivityView.TYPE + " NOT IN ( " + Activity.getDbPlaylistTypesForQuery() + " ) ", null);
+                    return null;
+                }
+            };
         }
     }
 }

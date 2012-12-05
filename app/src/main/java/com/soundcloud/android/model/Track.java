@@ -71,12 +71,12 @@ public class Track extends Sound implements Playable {
     @JsonView(Views.Full.class) public String key_signature;
     @JsonView(Views.Full.class) public float bpm;
 
-    @JsonView(Views.Full.class) public int playback_count;
-    @JsonView(Views.Full.class) public int download_count;
-    @JsonView(Views.Full.class) public int comment_count;
+    @JsonView(Views.Full.class) public int playback_count = NOT_SET;
+    @JsonView(Views.Full.class) public int download_count = NOT_SET;
+    @JsonView(Views.Full.class) public int comment_count = NOT_SET;
 
     @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
-    public int shared_to_count;
+    public int shared_to_count = NOT_SET;
 
     @JsonView(Views.Full.class) public String original_format;
 
@@ -85,7 +85,7 @@ public class Track extends Sound implements Playable {
 
     @JsonView(Views.Full.class) public String waveform_url;
     @JsonView(Views.Mini.class) public String stream_url;
-    @JsonView(Views.Full.class) public int user_playback_count;
+    @JsonView(Views.Full.class) public int user_playback_count = NOT_SET;
 
     @JsonView(Views.Full.class)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
@@ -421,7 +421,7 @@ public class Track extends Sound implements Playable {
         final LayoutInflater inflater = LayoutInflater.from(context);
 
         if (!TextUtils.isEmpty(genre)) {
-            txt = ((TextView) inflater.inflate(R.layout.genre_text, null));
+            txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
             txt.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

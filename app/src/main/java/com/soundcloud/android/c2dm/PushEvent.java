@@ -11,6 +11,7 @@ public enum PushEvent {
     LIKE("like"),
     FOLLOWER("follower"),
     COMMENT("comment"),
+    REPOST("repost"),
     UNKNOWN("unknown"),
     NONE(null);
 

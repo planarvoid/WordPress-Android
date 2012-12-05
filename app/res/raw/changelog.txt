@@ -1,8 +1,11 @@
 $ 49
   % v current
-  _ 2012-12-04
+  _ 2012-12-05
   ! Next
-    * Bug fixes
+    * final release candidate
+    * facebook login fixes
+    * lots of UI improvements + bug fixes
+    - Bug fixes
     - Manual waveform drawing for speed and low memory
     - lots of UI upgrades and fixes
     - Follow button toggling fix

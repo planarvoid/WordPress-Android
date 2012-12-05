@@ -20,9 +20,9 @@
                               android:id="@+id/likers_txt"/>
                 </TableRow>
 
-                <TableRow style="@style/SignUp.SeperatorRow"
+                <TableRow style="@style/Player.TrackInfo.SeparatorRow"
                           android:id="@+id/likers_divider">
-                    <View style="@style/SignUp.SeperatorView"/>
+                    <View style="@style/Player.TrackInfo.SeparatorView"/>
                 </TableRow>
 
                 <TableRow style="@style/Player.TrackInfo.Row"
@@ -34,9 +34,9 @@
                               android:id="@+id/reposters_txt"/>
                 </TableRow>
 
-                <TableRow style="@style/SignUp.SeperatorRow"
+                <TableRow style="@style/Player.TrackInfo.SeparatorRow"
                           android:id="@+id/reposters_divider">
-                    <View style="@style/SignUp.SeperatorView"/>
+                    <View style="@style/Player.TrackInfo.SeparatorView"/>
                 </TableRow>
 
                 <TableRow style="@style/Player.TrackInfo.Row"
@@ -48,9 +48,9 @@
                               android:id="@+id/commenters_txt"/>
                 </TableRow>
 
-                <TableRow style="@style/SignUp.SeperatorRow"
+                <TableRow style="@style/Player.TrackInfo.SeparatorRow"
                           android:id="@+id/comments_divider">
-                    <View style="@style/SignUp.SeperatorView"/>
+                    <View style="@style/Player.TrackInfo.SeparatorView"/>
                 </TableRow>
             </TableLayout>
 

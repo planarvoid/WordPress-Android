@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
       android:versionName="2.4-BETA"
-      android:installLocation="internalOnly"
+      android:installLocation="auto"
       android:versionCode="49">
 
     <supports-screens android:anyDensity="true" />
@@ -115,6 +115,10 @@
                 <data android:mimeType="vnd.soundcloud/search_item"/>
             </intent-filter>
 
+            <intent-filter>
+                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
 
         <activity android:name=".activity.landing.News">

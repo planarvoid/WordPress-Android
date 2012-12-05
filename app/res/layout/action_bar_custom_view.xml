@@ -25,11 +25,11 @@
                     android:background="@drawable/action_bar_item_selector"
                     android:id="@id/waveform_holder">
         <com.soundcloud.android.view.NowPlayingIndicator android:id="@+id/waveform_progress"
-                                                         android:layout_width="60dp"
+                                                         android:layout_width="62dp"
                                                          android:layout_height="20dp"
                                                          android:layout_centerVertical="true"
                                                          android:layout_marginLeft="13dp"
-                                                         android:layout_marginRight="10dp"
+                                                         android:layout_marginRight="11dp"
                                                          style="@android:style/Widget.ProgressBar.Horizontal"/>
     </RelativeLayout>
 </RelativeLayout>

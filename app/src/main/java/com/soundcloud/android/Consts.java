@@ -225,7 +225,8 @@ public final class Consts {
         String NOTIFICATIONS_FOLLOWERS              = "notificationsFollowers";
         String NOTIFICATIONS_WIFI_ONLY              = "notificationsWifiOnly";
         String NOTIFICATIONS_INCOMING               = "notificationsIncoming";
-        String NOTIFICATIONS_FAVORITINGS            = "notificationsFavoritings";
+        String NOTIFICATIONS_LIKES                  = "notificationsFavoritings";
+        String NOTIFICATIONS_REPOSTS                = "notificationsReposts";
         String NOTIFICATIONS_COMMENTS               = "notificationsComments";
         String NOTIFICATIONS_FREQUENCY              = "notificationsFrequency";
         String VERSION_KEY                          = "changeLogVersionCode";

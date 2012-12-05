@@ -19,7 +19,7 @@
                android:scaleType="centerCrop"/>
     <TextView android:id="@+id/user"
               android:layout_height="wrap_content"
-              style="@style/txt_list_sub"
+              style="@style/txt_list_track_user"
               android:text="@string/user"
               android:singleLine="true"
               android:ellipsize="marquee"

@@ -45,9 +45,11 @@ public class Home extends ScActivity implements ScLandingPage {
                         .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_SOUND_STREAM))
                         .commit();
 
-                ChangeLog changeLog = new ChangeLog(this);
-                if (changeLog.isFirstRun()) {
-                    changeLog.getDialog(true).show();
+                if (SoundCloudApplication.BETA_MODE){
+                    ChangeLog changeLog = new ChangeLog(this);
+                    if (changeLog.isFirstRun()) {
+                        changeLog.getDialog(true).show();
+                    }
                 }
             }
 

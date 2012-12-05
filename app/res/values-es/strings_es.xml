@@ -1,8 +1,8 @@
 <!-- generated with lolcatlizr at Tue Feb 28 2012 20:23:43 GMT+0000 (UTC) -->
 
 <resources xmlns:xliff="http://schemas.android.com/apk/res/android">
-  <string name="about">Acerca de</string>
-  <string name="about_summary">Información sobre los derechos de autor</string>
+  <!--<string name="about">Acerca de</string>-->
+  <string name="copyright_information">Información sobre los derechos de autor</string>
   <string name="account_one_active">Solamente puedes tener una cuenta activa</string>
   <string name="add_image">Añadir\nimagen</string>
   <string name="app_name">SoundCloud</string>
@@ -89,10 +89,6 @@
   <string name="connect_success">Conectado correctamente con %1$s</string>
   <string name="connection_list_error">¡Lo sentimos! Parece que existe un problema de conexión. Por favor, inténtelo de nuevo en unos minutos.</string>
   <string name="connection_list_footer">Para cambiar sus opciones de configuración por defecto, abra los ajustes de SoundCloud y seleccione \""Connections\""</string>
-  <string name="dashboard_filter_all">Todas las pistas de audio entrantes</string>
-  <string name="dashboard_filter_cancel">Cancelar</string>
-  <string name="dashboard_filter_exclusive">Solo pistas de audio exclusivas</string>
-  <string name="dashboard_filter_title">Qué visualizar en su dispositivo</string>
   <plurals name="dashboard_notifications_activity_message_activity">
     <item quantity="one">de %2$s sobre %1$s</item>
     <item quantity="other">Comentarios y gustos de %2$s, %3$s y otros</item>
@@ -137,14 +133,11 @@
     <item quantity="one">Nuevo me gusta</item>
     <item quantity="other">%d nuevos gustos</item>
   </plurals>
-  <string name="dashboard_notifications_message_exclusive">exclusivos de %s</string>
-  <string name="dashboard_notifications_message_exclusive_2">exclusivos de %1$s y %2$s</string>
-  <string name="dashboard_notifications_message_exclusive_others">exclusivos de %1$s, %2$s y otros</string>
   <string name="dashboard_notifications_message_follower">%s le está siguiendo. ¿Desea seguirle también?</string>
   <string name="dashboard_notifications_message_incoming">de %s</string>
   <string name="dashboard_notifications_message_incoming_2">de %1$s y %2$s</string>
   <string name="dashboard_notifications_message_incoming_others">de %1$s, %2$s y otros</string>
-  <string name="dashboard_notifications_message_single_exclusive">1 exclusivo de %s</string>
+
   <string name="dashboard_notifications_ticker">%s nuevos sonidos</string>
   <string name="dashboard_notifications_ticker_follower">Nuevo seguidor</string>
   <string name="dashboard_notifications_ticker_single">Un nuevo sonido</string>
@@ -280,6 +273,7 @@
   <string name="menu_load_more">Cargar más</string>
   <string name="menu_refresh">Actualizar</string>
   <string name="side_menu_settings">Ajustes</string>
+  <string name="title_settings">Ajustes</string>
   <string name="menu_stream_setting">Configuración Stream</string>
   <string name="menu_view_current_track">Reproductor</string>
   <plurals name="minutes_available">
@@ -309,8 +303,6 @@
   <string name="pref_notifications_comments">Comentarios</string>
   <string name="pref_notifications_comments_description">Reciba las actualizaciones sobre nuevos comentarios sobre sus sonidos</string>
   <string name="pref_notifications_description">¿Qué actualizaciones te gustaría recibir?</string>
-  <string name="pref_notifications_exclusive">Sonidos exclusivos</string>
-  <string name="pref_notifications_exclusive_description">Reciba actualizaciones sobre nuevos sonidos privados compartidos con usted</string>
   <string name="pref_notifications_favoritings">Gustos</string>
   <string name="pref_notifications_favoritings_description">Reciba actualizaciones sobre nuevos gustos sobre sus sonidos</string>
   <string name="pref_notifications_followers">Seguidores</string>

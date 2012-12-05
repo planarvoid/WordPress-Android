@@ -1,8 +1,8 @@
 <!-- generated with lolcatlizr at Tue Feb 28 2012 19:31:28 GMT+0000 (UTC) -->
 
 <resources xmlns:xliff="http://schemas.android.com/apk/res/android">
-  <string name="about">About</string>
-  <string name="about_summary">Copyright information</string>
+  <!--<string name="about">About</string>-->
+  <string name="copyright_information">Copyright information</string>
   <string name="account_one_active">You can only have one active account</string>
   <string name="add_image">Add\nImage</string>
   <string name="app_name">SoundCloud</string>
@@ -88,10 +88,6 @@
   <string name="connect_success">Successfully connected with %1$s</string>
   <string name="connection_list_error">Oops! There seems to be a connection problem. Please try again shortly.</string>
   <string name="connection_list_footer">To change your default sharing options, go to your settings on SoundCloud and select \'Connections\'</string>
-  <string name="dashboard_filter_all">All incoming tracks</string>
-  <string name="dashboard_filter_cancel">Cancel</string>
-  <string name="dashboard_filter_exclusive">Only exclusive tracks</string>
-  <string name="dashboard_filter_title">What to display in your stream</string>
   <plurals name="dashboard_notifications_activity_message_activity">
     <item quantity="one">from %2$s on %1$s</item>
     <item quantity="two">Comments and likes from %2$s and %3$s</item>
@@ -136,14 +132,11 @@
     <item quantity="one">A new like</item>
     <item quantity="other">%d new likes</item>
   </plurals>
-  <string name="dashboard_notifications_message_exclusive">exclusives from %s</string>
-  <string name="dashboard_notifications_message_exclusive_2">exclusives from %1$s and %2$s</string>
-  <string name="dashboard_notifications_message_exclusive_others">exclusives from %1$s, %2$s and others</string>
   <string name="dashboard_notifications_message_follower">%s is now following you. Follow back?</string>
   <string name="dashboard_notifications_message_incoming">from %s</string>
   <string name="dashboard_notifications_message_incoming_2">from %1$s and %2$s</string>
   <string name="dashboard_notifications_message_incoming_others">from %1$s, %2$s and others</string>
-  <string name="dashboard_notifications_message_single_exclusive">1 exclusive from %s</string>
+
   <string name="dashboard_notifications_ticker">%s new sounds</string>
   <string name="dashboard_notifications_ticker_follower">New follower</string>
   <string name="dashboard_notifications_ticker_single">1 new sound</string>
@@ -309,8 +302,6 @@
   <string name="pref_notifications_comments">Comments</string>
   <string name="pref_notifications_comments_description">Receive updates on new comments on your sounds</string>
   <string name="pref_notifications_description">Which updates would you like to receive?</string>
-  <string name="pref_notifications_exclusive">Exclusive Sounds</string>
-  <string name="pref_notifications_exclusive_description">Receive updates on new private sounds shared with you</string>
   <string name="pref_notifications_favoritings">Likes</string>
   <string name="pref_notifications_favoritings_description">Receive updates on new likes on your sounds</string>
   <string name="pref_notifications_followers">Followers</string>

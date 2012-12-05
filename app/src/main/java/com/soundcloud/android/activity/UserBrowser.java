@@ -35,6 +35,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,8 +45,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -67,10 +70,13 @@ public class UserBrowser extends ScActivity implements
     private String mIconURL;
     private ImageLoader.BindResult avatarResult;
     private FollowStatus mFollowStatus;
+    private UserFragmentAdapter mAdapter;
 
     private FetchUserTask mLoadUserTask;
     protected ViewPager mPager;
     protected TitlePageIndicator mIndicator;
+
+    private boolean mDelayContent;
 
     private UserDetailsFragment mUserDetailsFragment;
 
@@ -110,15 +116,19 @@ public class UserBrowser extends ScActivity implements
             }
         });
         mToggleFollow = (ToggleButton) findViewById(R.id.toggle_btn_follow);
-        UserFragmentAdapter adapter = new UserFragmentAdapter(getSupportFragmentManager());
 
+        // if root view is expanded, wait to instantiate the fragments until it is closed as it causes severe jank
+        mDelayContent = mRootView.isExpanded();
+
+        mAdapter = new UserFragmentAdapter(getSupportFragmentManager());
         mPager = (ViewPager) findViewById(R.id.pager);
-        mPager.setAdapter(adapter);
-        mPager.setBackgroundColor(Color.WHITE);
+        mPager.setAdapter(mDelayContent ? new TempAdapter() : mAdapter);
         mPager.setCurrentItem(Tab.tracks.ordinal());
+        mPager.setBackgroundColor(Color.WHITE);
 
         mIndicator = (TitlePageIndicator) findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
+
 
         Intent intent = getIntent();
         Configuration c = (Configuration) getLastCustomNonConfigurationInstance();
@@ -145,6 +155,19 @@ public class UserBrowser extends ScActivity implements
 
         loadDetails();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    @Override
+    public void onMenuClosed() {
+        super.onMenuClosed();
+
+        if (mDelayContent){
+            mDelayContent = false;
+            // store selected item to restore on new adapter
+            final int currentItem = mPager.getCurrentItem();
+            mPager.setAdapter(mAdapter);
+            mPager.setCurrentItem(currentItem, false);
+        }
     }
 
     protected void handleIntent(Intent intent) {
@@ -201,6 +224,8 @@ public class UserBrowser extends ScActivity implements
 
 
     class UserFragmentAdapter extends FragmentPagerAdapter {
+        View progress = View.inflate(UserBrowser.this, R.layout.empty_list,null);
+
         public UserFragmentAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -215,7 +240,6 @@ public class UserBrowser extends ScActivity implements
                 listFragment.setEmptyCollection(getEmptyScreenFromContent(position));
                 return listFragment;
             }
-
         }
 
         @Override
@@ -225,7 +249,33 @@ public class UserBrowser extends ScActivity implements
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return getString(isYou() ? Tab.values()[position].youTitle : Tab.values()[position].userTitle);
+            return Tab.getTitle(getResources(),position,isYou());
+        }
+    }
+
+    class TempAdapter extends PagerAdapter {
+        @Override
+        public int getCount() {
+            return Tab.values().length;
+        }
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return Tab.getTitle(getResources(),position,isYou());
+        }
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            final View v = View.inflate(UserBrowser.this, R.layout.empty_list,null);
+            container.addView(v);
+            return v;
+        }
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return object == view;
+        }
+
+        @Override
+        public void destroyItem(View collection, int position, Object view) {
+            ((ViewPager) collection).removeView((View) view);
         }
     }
 
@@ -531,6 +581,10 @@ public class UserBrowser extends ScActivity implements
                 if (t.action.equals(needle)) return t;
             }
             return null;
+        }
+
+        public static String getTitle(Resources resources, int position, boolean isYou){
+            return resources.getString(isYou ? Tab.values()[position].youTitle : Tab.values()[position].userTitle);
         }
     }
 }

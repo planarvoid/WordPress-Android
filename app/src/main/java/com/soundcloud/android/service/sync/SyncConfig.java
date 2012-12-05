@@ -33,17 +33,20 @@ public class SyncConfig {
     }
 
     public static boolean isIncomingEnabled(Context c, Bundle extras) {
-        PushEvent evt = PushEvent.fromExtras(extras);
-        return PreferenceManager
-                .getDefaultSharedPreferences(c)
-                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_INCOMING, true) && evt == PushEvent.NONE;
+        PushEvent evt = PushEvent.fromExtras(extras); return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_INCOMING, true)
+                && evt == PushEvent.NONE;
     }
 
     public static boolean isLikeEnabled(Context c, Bundle extras) {
         PushEvent evt = PushEvent.fromExtras(extras);
-        return PreferenceManager
-                .getDefaultSharedPreferences(c)
-                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_FAVORITINGS, true) && (evt == PushEvent.NONE || evt == PushEvent.LIKE);
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_LIKES, true)
+                && (evt == PushEvent.NONE || evt == PushEvent.LIKE);
+    }
+
+    public static boolean isRepostEnabled(Context c, Bundle extras) {
+        PushEvent evt = PushEvent.fromExtras(extras);
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_REPOSTS, true)
+                && (evt == PushEvent.NONE || evt == PushEvent.REPOST);
     }
 
     public static boolean isActivitySyncEnabled(Context c, Bundle extras) {

@@ -136,4 +136,116 @@
 
     <string name="yes">Sí</string>
     <string name="no">No</string>
+
+
+    <string name="dialog_transcoding_failed_title">Error en la transcodificación</string>
+    <string name="dialog_transcoding_failed_message">Huy, algo ha fallado y tu sonido no se puede reproducir. Puedes
+        eliminar el sonido de la lista mediante la página web. Para más información, contacta con nuestro servicio técnico.
+    </string>
+    <string name="visit_support">Visitar servicio técnico</string>
+
+    <string name="waiting_for_sync">Esperando sincronización...</string>
+
+    <string name="tab_title_my_sound_stream">Tu canal</string>
+    <string name="tab_title_my_info">Tu información</string>
+    <string name="tab_title_my_sounds">Tus sonidos</string>
+    <string name="tab_title_my_likes">Tus votos positivos</string>
+    <string name="tab_title_my_followers">Tus seguidores</string>
+    <string name="tab_title_my_followings">Gente a la que sigues</string>
+
+    <string name="tab_title_user_info">Información</string>
+    <string name="tab_title_user_sounds">Sonidos</string>
+    <string name="tab_title_user_likes">Votos positivos</string>
+    <string name="tab_title_user_followers">Seguidores</string>
+    <string name="tab_title_user_followings">Siguiendo</string>
+
+    <string name="dialog_transcoding_processing_title">Procesando sonido</string>
+    <string name="dialog_transcoding_processing_message">Tu sonido se está procesando y se podrá reproducir dentro de unos segundos.</string>
+
+    <string name="following_spam_warning">Has llegado al límite de usuarios a los que puedes seguir y esta opción queda temporalmente desactivada para tu cuenta.
+    </string>
+
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
+
+    <string name="action_bar_like">Dar voto positivo</string>
+    <string name="action_bar_search">Buscar</string>
+    <string name="action_bar_repost">Volver a publicar</string>
+    <string name="action_bar_comment">Comentar</string>
+    <string name="action_bar_share">Compartir</string>
+    <string name="action_bar_info">Información</string>
+
+    <string name="side_menu_activity">Actividad</string>
+    <string name="side_menu_record">Grabar</string>
+    <string name="title_search">Buscar</string>
+    <string name="side_menu_stream">Canal</string>
+    <string name="side_menu_you">Tú</string>
+    <string name="side_menu_settings">Ajustes</string>
+
+    <string name="side_menu_likes">Tus votos positivos</string>
+    <string name="side_menu_followings">Gente a la que sigues</string>
+    <string name="side_menu_friend_finder">Encontrar amigos</string>
+    <string name="side_menu_suggested_users">A quién seguir</string>
+
+    <string name="action_bar_follow">Seguir</string>
+    <string name="action_bar_unfollow">Dejar de seguir</string>
+
+    <string name="find_friends_on_facebook">Encontrar amigos en Facebook</string>
+    <string name="connect_to_facebook">Conectarse a Facebook</string>
+
+    <!--
+     no longer used !
+    <string name="problem_getting_connections">Error al intentar conexión</string>
+    <string name="list_no_facebook_friends">Actualmente no tienes amigos en Facebook</string>
+    -->
+
+    <!-- <el cheapo translation> -->
+
+    <!-- Connect with Facebook to discover which of your friends are already on SoundCloud. -->
+    <string name="list_empty_friend_finder_no_connections">Encontrar amigos en Facebook</string>
+    <!-- There was an error finding your friends. -->
+    <string name="list_empty_friend_finder_error">Error al intentar conexión</string>
+    <!-- None of your friends are currently on SoundCloud. -->
+    <string name="list_empty_friend_finder">Actualmente no tienes amigos en Facebook</string>
+    <string name="dashboard_notifications_activity_message_repost">%1$s ha vuelto a publicar %2$s</string>
+    <plurals name="dashboard_notifications_activity_message_repost">
+        <item quantity="one">sobre %1$s</item>
+        <item quantity="other">sobre %1$s, %2$s y otros sonidos</item>
+        <item quantity="two">sobre %1$s y %2$s</item>
+    </plurals>
+
+    <string name="pref_notifications_reposts">Volver a publicar</string>
+    <string name="pref_notifications_reposts_description">Reciba actualizaciones de los reposts nuevos en sus sonidos</string>
+
+    <string name="legal">Legal</string>
+    <string name="legal_summary">Información legal</string>
+
+    <string name="terms_of_service">Términos del servicio</string>
+    <string name="privacy_policy">Política de privacidad</string>
+
+    <!-- </el cheapo translation> -->
+
+    <string name="list_header_track_reposters">Gente que ha vuelto a publicar este sonido</string>
+
+    <string name="started_following_you">te ha empezado a seguir</string>
+
+    <string name="tour_title_1">Escucha los sonidos del mundo</string>
+    <string name="tour_text_1">Explora la mayor comunidad\nde artistas, bandas, podcasters y\ncreadores de música y audio</string>
+
+    <string name="tour_title_2">Descubre</string>
+    <string name="tour_text_2">Todo tipo de música y audio \nde estilo nuevo y original</string>
+
+    <string name="tour_title_3">Conectar y compartir</string>
+    <string name="tour_text_3">Encuentra seguidores y\ndeja que escuchen los\nsonidos que te gustan</string>
+
+    <string name="search_for_query">Busca \'%s\'</string>
+    <string name="authentication_recover_password_msg">Introduce tu dirección de correo electrónico y te enviaremos un enlace que te permitirá cambiar tu contraseña. ¿Problemas? Contacta con el servicio técnico.</string>
+    <string name="done">Hecho</string>
+    <string name="tour_signup_header">Regístrate con tu cuenta</string>
+    <string name="email">Correo electrónico</string>
+    <string name="password">Contraseña</string>
+    <string name="tour_login_header">Conéctate con tu cuenta</string>
+    <string name="confirm">Confirmar</string>
+
+    <string name="info">Info</string>
 </resources>
