@@ -13,19 +13,20 @@ import android.view.Gravity;
 import android.widget.Toast;
 
 public class FriendFinder extends ScActivity implements ScLandingPage {
-
-    public static final String FRAG_TAG = "ff_fragment";
-    FriendFinderFragment mFragment;
+    private static final String FRAG_TAG = "ff_fragment";
+    private FriendFinderFragment mFragment;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        setTitle(getString(R.string.side_menu_friend_finder));
+        setTitle(R.string.side_menu_friend_finder);
 
         if (state == null) {
             mFragment = FriendFinderFragment.newInstance();
-            getSupportFragmentManager().beginTransaction()
-                    .add(mRootView.getContentHolderId(), mFragment, FRAG_TAG).commit();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(mRootView.getContentHolderId(), mFragment, FRAG_TAG)
+                    .commit();
         } else {
             mFragment = (FriendFinderFragment) getSupportFragmentManager().findFragmentByTag(FRAG_TAG);
         }
@@ -39,7 +40,7 @@ public class FriendFinder extends ScActivity implements ScLandingPage {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         switch (requestCode) {
-            case Consts.RequestCodes.MAKE_CONNECTION:
+            case Consts.RequestCodes.MAKE_CONNECTION: {
                 if (resultCode == RESULT_OK) {
                     boolean success = result.getBooleanExtra("success", false);
                     String msg = getString(
@@ -59,13 +60,16 @@ public class FriendFinder extends ScActivity implements ScLandingPage {
                         if (mFragment != null) {
                             mFragment.setState(FriendFinderFragment.States.LOADING, false);
                         }
-                    }
-                } else {
-                    if (mFragment != null) {
-                        mFragment.executeRefreshTask();
+
+                        return;
                     }
                 }
+                // fallthrough, back button, or facebook connect failed
+                if (mFragment != null) {
+                    mFragment.requestConnections(this);
+                }
                 break;
+            }
         }
     }
 }

@@ -303,15 +303,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         }
     }
 
-    public void executeRefreshTask() {
-        final Context context = getActivity();
-        if (context != null) {
-            mRefreshTask = buildTask(context);
-            mRefreshTask.execute(getTaskParams(true));
-        }
-        configureEmptyCollection();
-    }
-
     @Override
     public void onLocalCollectionChanged() {
         refreshSyncData();
@@ -406,6 +397,16 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             mEmptyListView.setMode(wait ? EmptyListView.Mode.WAITING_FOR_DATA : EmptyListView.Mode.IDLE);
         }
     }
+
+    private void executeRefreshTask() {
+        final Context context = getActivity();
+        if (context != null) {
+            mRefreshTask = buildTask(context);
+            mRefreshTask.execute(getTaskParams(true));
+        }
+        configureEmptyCollection();
+    }
+
 
     private ScListView configureList(ScListView lv) {
         lv.getRefreshableView().setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);

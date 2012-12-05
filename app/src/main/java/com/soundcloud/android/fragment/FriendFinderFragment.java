@@ -33,10 +33,10 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
     AsyncTask<Connection.Service, Void, Uri> mConnectionTask;
 
     public interface States {
-        int LOADING = 1;
-        int NO_FB_CONNECTION = 2;
-        int FB_CONNECTION = 3;
-        int CONNECTION_ERROR = 4;
+        int LOADING          = 0;
+        int NO_FB_CONNECTION = 1;
+        int FB_CONNECTION    = 2;
+        int CONNECTION_ERROR = 3;
     }
 
     public static FriendFinderFragment newInstance() {
@@ -89,11 +89,13 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
         mCurrentState = state;
         configureEmptyCollection();
 
-        if (reset){
+        final BaseAdapter listAdapter = getListAdapter();
+        if (listAdapter == null) return;
+
+        if (reset) {
             reset();
         } else {
-            final BaseAdapter listAdapter = getListAdapter();
-            if (listAdapter != null) listAdapter.notifyDataSetChanged();
+            listAdapter.notifyDataSetChanged();
         }
     }
 
@@ -158,8 +160,8 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
         }
     }
 
-    private void requestConnections(Context context) {
-        if (getActivity() == null || getListAdapter() == null) return;
+    public void requestConnections(Context context) {
+        if (getActivity() == null) return;
 
         final ConnectionsCache connectionsCache = ConnectionsCache.get(context);
         mConnections = connectionsCache.getConnections();
