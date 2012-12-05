@@ -142,6 +142,7 @@ public class FollowStatus {
                     if (!success) {
                         Log.w(TAG, "error changing following status, resp=" + status);
                     } else {
+
                         // tell the list to refresh itself next time
                         LocalCollection.forceToStale(Content.ME_FOLLOWINGS.uri, mContext.getContentResolver());
                     }
@@ -158,6 +159,10 @@ public class FollowStatus {
                 if (success) {
                     // make sure the cache reflects the new state
                     SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.NONE).user_following = addFollowing;
+
+                    if (followings.isEmpty() && addFollowing){
+                        LocalCollection.forceToStale(Content.ME_SOUND_STREAM.uri, mContext.getContentResolver());
+                    }
 
                     for (Listener l : listeners.keySet()) {
                         l.onFollowChanged(true);

@@ -13,7 +13,6 @@ public class SyncConfig {
 
     public static final String PREF_SYNC_WIFI_ONLY          = "syncWifiOnly";
 
-    public static final long CHECK_BACKFILL_DELAY   = 15*1000;         // 15 seconds in ms
     public static final long DEFAULT_ATTEMPT_DELAY  = 30*60*1000;         // 30 mins in ms
     public static final long DEFAULT_STALE_TIME  = 60*60*1000;         // 1 hr in ms
     public static final long CLEANUP_DELAY       = DEFAULT_STALE_TIME * 24; // every 24 hours
