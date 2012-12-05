@@ -272,21 +272,26 @@
         <activity android:name=".activity.track.TrackComments" />
         <activity android:name=".activity.track.TracksByTag" />
 
-        <activity android:name=".activity.settings.Settings" android:label="@string/title_settings"/>
-        <activity android:name=".activity.settings.AccountSettings" android:theme="@style/Theme.Next.NoActionBar">
+        <!-- settings -->
+        <activity android:name=".activity.settings.Settings"
+                  android:label="@string/title_settings"
+                  android:theme="@style/Theme.Next.Settings"/>
+
+        <activity android:name=".activity.settings.AccountSettings"
+                  android:theme="@style/Theme.Next.Settings">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.ACCOUNT_PREF"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name=".activity.settings.NotificationSettings" android:label="Notifications Settings" android:theme="@style/Theme.Next.NoActionBar" />
+        <activity android:name=".activity.settings.NotificationSettings" android:label="Notifications Settings" android:theme="@style/Theme.Next.Settings" />
+        <activity android:name=".activity.settings.About" android:theme="@style/Theme.Next.Settings"/>
+        <!-- settings -->
+
         <activity android:name=".activity.create.EmailPicker" android:theme="@style/Theme.Next.NoActionBar"/>
         <activity android:name=".activity.create.LocationPicker" android:theme="@style/Theme.Next.NoActionBar"/>
         <activity android:name=".activity.auth.EmailConfirm"/>
         <activity android:name=".cropimage.CropImage" android:hardwareAccelerated="false"/>
-
-        <activity android:name=".activity.settings.About" android:theme="@style/Theme.Next.NoActionBar"/>
-
         <!-- for testing purposes -->
         <activity android:name="com.soundcloud.android.activity.test.ShareSound">
             <intent-filter>

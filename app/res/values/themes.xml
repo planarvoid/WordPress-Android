@@ -49,6 +49,7 @@
         <item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>
 
     </style>
+    <style name="Theme.Next.Settings" parent="Theme.Sherlock.Light.NoActionBar"/>
     <style name="Theme.Next.NoActionBar" parent="Theme.Sherlock.NoActionBar"/>
     <style name="Theme.ScDialog" parent="android:Theme.Dialog"/>
 
