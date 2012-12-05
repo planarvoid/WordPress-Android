@@ -101,7 +101,7 @@ public class RootView extends ViewGroup {
     private final int mDrowShadoWidth;
     private final int mBezelHitWidth;
     private int mActivePointerId;
-    private float mLastMotionX;
+    private float mLastMotionX, mLastMotionY;
     private int mTouchSlop;
 
     /**
@@ -584,7 +584,7 @@ public class RootView extends ViewGroup {
                     final float x = ev.getX(pointerIndex);
                     final int xDiff = (int) Math.abs(x - mLastMotionX);
                     if (xDiff > mTouchSlop) {
-                        return startDrag(ev, (int) x);
+                        return startDrag(ev, (int) x, (int) ev.getY(pointerIndex));
                     }
                 }
                 break;
@@ -599,7 +599,7 @@ public class RootView extends ViewGroup {
                 }
 
                 if (isExpanded()){
-                    return startDrag(ev, x);
+                    return startDrag(ev, x, (int) ev.getY());
                 }
 
                 /*
@@ -607,6 +607,7 @@ public class RootView extends ViewGroup {
                 * ACTION_DOWN always refers to pointer index 0.
                 */
                 mLastMotionX = x;
+                mLastMotionY = ev.getY();
                 mActivePointerId = ev.getPointerId(0);
 
                 VelocityTracker tracker = initOrResetVelocityTracker();
@@ -636,10 +637,11 @@ public class RootView extends ViewGroup {
         return mIsBeingDragged;
     }
 
-    private boolean startDrag(MotionEvent ev, int eventX) {
+    private boolean startDrag(MotionEvent ev, int eventX, int eventY) {
 
         mIsBeingDragged = true;
         mLastMotionX = eventX;
+        mLastMotionY = eventY;
 
         // Must be called before prepareTracking()
         prepareContent();
@@ -716,7 +718,7 @@ public class RootView extends ViewGroup {
 
                 // Remember where the motion event started
                 mActivePointerId = event.getPointerId(0);
-                startDrag(event, x);
+                startDrag(event, x, (int) event.getY());
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -729,9 +731,15 @@ public class RootView extends ViewGroup {
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL: {
-                VelocityTracker tracker = initVelocityTrackerIfNotExists();
-                tracker.computeCurrentVelocity(mVelocityUnits);
-                performFling(mContent.getLeft(), tracker.getXVelocity(), -1);
+                if (mExpandedState != COLLAPSED_FULL_CLOSED
+                        && Math.sqrt(Math.pow(mLastMotionX - event.getX(),2) + Math.pow(mLastMotionY - event.getY(),2)) < mTouchSlop){
+
+                    animateClose();
+                } else {
+                    VelocityTracker tracker = initVelocityTrackerIfNotExists();
+                    tracker.computeCurrentVelocity(mVelocityUnits);
+                    performFling(mContent.getLeft(), tracker.getXVelocity(), -1);
+                }
 
                 mActivePointerId = INVALID_POINTER;
                 mIsBeingDragged = false;

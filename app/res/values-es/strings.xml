@@ -192,8 +192,11 @@
 
     <string name="find_friends_on_facebook">Encontrar amigos en Facebook</string>
     <string name="connect_to_facebook">Conectarse a Facebook</string>
+
+    <!--
     <string name="problem_getting_connections">Error al intentar conexión</string>
     <string name="list_no_facebook_friends">Actualmente no tienes amigos en Facebook</string>
+    -->
 
     <string name="list_header_track_reposters">Gente que ha vuelto a publicar este sonido</string>
 
