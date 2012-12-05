@@ -1,12 +1,10 @@
 package com.soundcloud.android.service.sync;
 
-import static com.soundcloud.android.service.sync.ApiSyncer.TAG;
-
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
@@ -22,7 +20,11 @@ import android.util.Log;
 import java.util.HashSet;
 import java.util.Set;
 
-class ServiceResultReceiver extends ResultReceiver {
+/**
+ * Receives and processes the results from a sync run initiated in {@link SyncAdapterService}, creating
+ * notifications if necessary.
+ */
+class SyncServiceResultReceiver extends ResultReceiver {
     public static final int NOTIFICATION_MAX = 100;
     private static final String NOT_PLUS = (NOTIFICATION_MAX-1)+"+";
 
@@ -30,7 +32,7 @@ class ServiceResultReceiver extends ResultReceiver {
     private SoundCloudApplication app;
     private Bundle extras;
 
-    public ServiceResultReceiver(SoundCloudApplication app, SyncResult result, Bundle extras) {
+    public SyncServiceResultReceiver(SoundCloudApplication app, SyncResult result, Bundle extras) {
         super(new Handler());
         this.result = result;
         this.app = app;
@@ -94,12 +96,12 @@ class ServiceResultReceiver extends ResultReceiver {
             }
 
 
-            message = Message.getIncomingNotificationMessage(app, stream);
+            message = NotificationMessage.getIncomingNotificationMessage(app, stream);
             String artwork_url = stream.getFirstAvailableArtwork();
 
             prefetchArtwork(app, stream);
 
-            Message.showDashboardNotification(app, ticker, title, message, Message.createNotificationIntent(Actions.STREAM),
+            NotificationMessage.showDashboardNotification(app, ticker, title, message, NotificationMessage.createNotificationIntent(Actions.STREAM),
                     Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID, artwork_url);
 
             ContentStats.setLastNotified(app, Content.ME_SOUND_STREAM, System.currentTimeMillis());
@@ -116,29 +118,28 @@ class ServiceResultReceiver extends ResultReceiver {
         if (!activities.isEmpty()) {
             ContentStats.updateCount(app, Content.ME_ACTIVITIES, activities.size());
 
-            boolean likeEnabled = SyncConfig.isLikeEnabled(app, extras);
+            final boolean likeEnabled     = SyncConfig.isLikeEnabled(app, extras);
             final boolean commentsEnabled = SyncConfig.isCommentsEnabled(app, extras);
+            final boolean repostsEnabled  = SyncConfig.isRepostEnabled(app, extras);
 
-            Activities likes = likeEnabled ? activities.trackLikes() : Activities.EMPTY;
-            Activities comments    = commentsEnabled ? activities.comments() : Activities.EMPTY;
+            final Activities likes    = likeEnabled     ? activities.trackLikes()   : Activities.EMPTY;
+            final Activities comments = commentsEnabled ? activities.comments()     : Activities.EMPTY;
+            final Activities reposts  = repostsEnabled  ? activities.trackReposts() : Activities.EMPTY;
 
-            Activities notifyable = Activities.EMPTY;
-            if (likeEnabled && commentsEnabled){
-                notifyable = activities.commentsAndTrackLikes();
-            } else if (likeEnabled){
-                notifyable = likes;
-            } else if (commentsEnabled){
-                notifyable = comments;
-            }
+            Activities notifyable = new Activities();
+            if (likeEnabled)     notifyable = notifyable.merge(likes);
+            if (commentsEnabled) notifyable = notifyable.merge(comments);
+            if (repostsEnabled)  notifyable = notifyable.merge(reposts);
 
-            if (notifyable == null || notifyable.isEmpty()) return false;
-            Message msg = new Message(app.getResources(), notifyable, likes, comments);
+            if (notifyable.isEmpty()) return false;
+            notifyable.sort();
+            NotificationMessage msg = new NotificationMessage(app.getResources(), notifyable, likes, comments, reposts);
 
             if (activities.newerThan(ContentStats.getLastNotifiedItem(app, Content.ME_ACTIVITIES))) {
                 prefetchArtwork(app, activities);
 
-                Message.showDashboardNotification(app, msg.ticker, msg.title, msg.message,
-                        Message.createNotificationIntent(Actions.ACTIVITY),
+                NotificationMessage.showDashboardNotification(app, msg.ticker, msg.title, msg.message,
+                        NotificationMessage.createNotificationIntent(Actions.ACTIVITY),
                         Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID,
                         activities.getFirstAvailableAvatar());
 

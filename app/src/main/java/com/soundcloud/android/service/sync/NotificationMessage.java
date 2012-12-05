@@ -25,33 +25,64 @@ import android.widget.RemoteViews;
 
 import java.util.List;
 
-class Message {
+class NotificationMessage {
     public final CharSequence title, message, ticker;
-    public Message(Resources res, Activities activities, Activities favoritings, Activities comments) {
-        if (!favoritings.isEmpty() && comments.isEmpty()) {
-            // only trackLikes
-            List<Track> tracks = favoritings.getUniqueTracks();
+
+    public NotificationMessage(Resources res, Activities activities,
+                               Activities likes,
+                               Activities comments,
+                               Activities reposts) {
+
+
+        if (likes.isEmpty() && comments.isEmpty() && !reposts.isEmpty()) {
+            // only reposts
+            List<Track> tracks = reposts.getUniqueTracks();
+            ticker = res.getQuantityString(
+                    R.plurals.dashboard_notifications_activity_ticker_repost,
+                    reposts.size(),
+                    reposts.size());
+
+            title = res.getQuantityString(
+                    R.plurals.dashboard_notifications_activity_title_repost,
+                    reposts.size(),
+                    reposts.size());
+
+            if (tracks.size() == 1 && reposts.size() == 1) {
+                message = res.getString(R.string.dashboard_notifications_activity_message_repost,
+                        reposts.get(0).getUser().username,
+                        reposts.get(0).getTrack().title);
+            } else {
+                message = res.getQuantityString(R.plurals.dashboard_notifications_activity_message_repost,
+                        tracks.size(),
+                        tracks.get(0).title,
+                        (tracks.size() > 1 ? tracks.get(1).title : null));
+
+
+            }
+        } else if (!likes.isEmpty() && comments.isEmpty()) {
+            // only likes
+            List<Track> tracks = likes.getUniqueTracks();
             ticker = res.getQuantityString(
                     R.plurals.dashboard_notifications_activity_ticker_like,
-                    favoritings.size(),
-                    favoritings.size());
+                    likes.size(),
+                    likes.size());
 
             title = res.getQuantityString(
                     R.plurals.dashboard_notifications_activity_title_like,
-                    favoritings.size(),
-                    favoritings.size());
+                    likes.size(),
+                    likes.size());
 
-            if (tracks.size() == 1 && favoritings.size() == 1) {
+            if (tracks.size() == 1 && likes.size() == 1) {
                 message = res.getString(R.string.dashboard_notifications_activity_message_likes,
-                        favoritings.get(0).getUser().username,
-                        favoritings.get(0).getTrack().title);
+                        likes.get(0).getUser().username,
+                        likes.get(0).getTrack().title);
             } else {
                 message = res.getQuantityString(R.plurals.dashboard_notifications_activity_message_like,
                         tracks.size(),
                         tracks.get(0).title,
                         (tracks.size() > 1 ? tracks.get(1).title : null));
             }
-        } else if (favoritings.isEmpty() && !comments.isEmpty()) {
+        } else if (likes.isEmpty() && !comments.isEmpty()) {
             // only comments
             List<Track> tracks = comments.getUniqueTracks();
             List<User> users = comments.getUniqueUsers();
@@ -81,7 +112,7 @@ class Message {
                                 (users.size() > 1 ? users.get(1).username : null));
             }
         } else {
-           // mix of trackLikes and comments
+           // mix of likes, comments, reposts
             List<Track> tracks = activities.getUniqueTracks();
             List<User> users = activities.getUniqueUsers();
             ticker = res.getQuantityString(R.plurals.dashboard_notifications_activity_ticker_activity,
