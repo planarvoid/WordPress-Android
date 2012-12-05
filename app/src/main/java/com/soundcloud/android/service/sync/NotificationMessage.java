@@ -34,7 +34,7 @@ class NotificationMessage {
                                Activities reposts) {
 
 
-        if (likes.isEmpty() && comments.isEmpty() && !reposts.isEmpty()) {
+        if (!reposts.isEmpty() && likes.isEmpty() && comments.isEmpty()) {
             // only reposts
             List<Track> tracks = reposts.getUniqueTracks();
             ticker = res.getQuantityString(
@@ -59,7 +59,7 @@ class NotificationMessage {
 
 
             }
-        } else if (!likes.isEmpty() && comments.isEmpty()) {
+        } else if (!likes.isEmpty() && comments.isEmpty() && reposts.isEmpty()) {
             // only likes
             List<Track> tracks = likes.getUniqueTracks();
             ticker = res.getQuantityString(
@@ -82,7 +82,7 @@ class NotificationMessage {
                         tracks.get(0).title,
                         (tracks.size() > 1 ? tracks.get(1).title : null));
             }
-        } else if (likes.isEmpty() && !comments.isEmpty()) {
+        } else if (!comments.isEmpty() && likes.isEmpty() && reposts.isEmpty()) {
             // only comments
             List<Track> tracks = comments.getUniqueTracks();
             List<User> users = comments.getUniqueUsers();
