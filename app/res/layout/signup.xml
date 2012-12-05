@@ -24,8 +24,8 @@
                     </com.soundcloud.android.view.ClearText>
                 </TableRow>
 
-                <TableRow style="@style/SignUp.SeperatorRow">
-                    <View style="@style/SignUp.SeperatorView"/>
+                <TableRow style="@style/SignUp.SeparatorRow">
+                    <View style="@style/SignUp.SeparatorView"/>
                 </TableRow>
 
                 <TableRow style="@style/SignUp.LabelRow">
@@ -38,8 +38,8 @@
                                                            android:imeOptions="actionNext"/>
                 </TableRow>
 
-                <TableRow style="@style/SignUp.SeperatorRow">
-                    <View style="@style/SignUp.SeperatorView"/>
+                <TableRow style="@style/SignUp.SeparatorRow">
+                    <View style="@style/SignUp.SeparatorView"/>
                 </TableRow>
 
                 <TableRow style="@style/SignUp.LabelRow">
