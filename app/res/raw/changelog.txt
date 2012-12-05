@@ -2,8 +2,9 @@ $ 49
   % v current
   _ 2012-12-04
   ! Next
-    * Manual waveform drawing for speed and low memory
-    * lots of UI upgrades and fixes
+    * Bug fixes
+    - Manual waveform drawing for speed and low memory
+    - lots of UI upgrades and fixes
     - Follow button toggling fix
     - More UI upgrades
     - Added dashboard counters
