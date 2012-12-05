@@ -6,15 +6,6 @@
     <ImageView style="@style/SignUp.Background"
                android:id="@+id/tour_background_image"/>
 
-    <ImageView android:layout_width="110dp"
-               android:layout_height="110dp"
-               android:tag="parallax"
-               android:src="@drawable/tour_logo"
-               android:layout_alignParentTop="true"
-               android:layout_alignParentLeft="true"
-               android:layout_marginLeft="10dp"
-               android:layout_marginTop="10dp" />
-
     <LinearLayout android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
                   android:orientation="vertical"
