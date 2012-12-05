@@ -40,17 +40,20 @@
                  android:hardwareAccelerated="true"
                  android:name="SoundCloudApplication">
 
+        <activity android:name=".activity.Launch"
+                  android:noHistory="true"
+                  android:theme="@style/Theme.Next.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
         <activity android:name=".activity.landing.Home">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.STREAM"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-
         </activity>
 
         <!-- activities -->
@@ -163,12 +166,11 @@
         </activity>
 
 
-        <activity android:name=".activity.auth.Start" android:label="@string/app_name" android:exported="true" android:theme="@style/Theme.ScAuth" />
+        <activity android:name=".activity.auth.Onboard" android:label="@string/app_name" android:exported="true" android:theme="@style/Theme.ScAuth" />
         <activity android:name=".activity.auth.Recover" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScAuth"  />
         <activity android:name=".activity.auth.Facebook" android:theme="@style/Theme.Next.NoActionBar"/>
         <activity android:name=".activity.auth.FacebookWebFlow" android:theme="@style/Theme.Next.NoActionBar" android:label="@string/app_name" android:configChanges="orientation"/>
         <activity android:name=".activity.auth.FacebookSSO" android:theme="@style/Theme.Next.NoActionBar"/>
-        <activity android:name=".activity.auth.SuggestedUsers" android:label="@string/app_name" android:configChanges="orientation"/>
 
         <activity android:name=".activity.auth.Connect"
                   android:theme="@style/Theme.Next.NoActionBar"
@@ -270,21 +272,26 @@
         <activity android:name=".activity.track.TrackComments" />
         <activity android:name=".activity.track.TracksByTag" />
 
-        <activity android:name=".activity.settings.Settings" android:label="@string/title_settings"/>
-        <activity android:name=".activity.settings.AccountSettings" android:theme="@style/Theme.Next.NoActionBar">
+        <!-- settings -->
+        <activity android:name=".activity.settings.Settings"
+                  android:label="@string/title_settings"
+                  android:theme="@style/Theme.Next.Settings"/>
+
+        <activity android:name=".activity.settings.AccountSettings"
+                  android:theme="@style/Theme.Next.Settings">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.ACCOUNT_PREF"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name=".activity.settings.NotificationSettings" android:label="Notifications Settings" android:theme="@style/Theme.Next.NoActionBar" />
+        <activity android:name=".activity.settings.NotificationSettings" android:label="Notifications Settings" android:theme="@style/Theme.Next.Settings" />
+        <activity android:name=".activity.settings.About" android:theme="@style/Theme.Next.Settings"/>
+        <!-- settings -->
+
         <activity android:name=".activity.create.EmailPicker" android:theme="@style/Theme.Next.NoActionBar"/>
         <activity android:name=".activity.create.LocationPicker" android:theme="@style/Theme.Next.NoActionBar"/>
         <activity android:name=".activity.auth.EmailConfirm"/>
         <activity android:name=".cropimage.CropImage" android:hardwareAccelerated="false"/>
-
-        <activity android:name=".activity.settings.About" android:theme="@style/Theme.Next.NoActionBar"/>
-
         <!-- for testing purposes -->
         <activity android:name="com.soundcloud.android.activity.test.ShareSound">
             <intent-filter>

@@ -19,4 +19,10 @@
             <solid android:color="#202020"/>
         </shape>
     </item>
+
+    <item>
+        <bitmap android:src="@drawable/header_separator"
+                android:gravity="left|center_vertical"
+                android:tileMode="clamp"/>
+    </item>
 </layer-list>

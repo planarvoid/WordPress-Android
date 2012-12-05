@@ -17,6 +17,7 @@ import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.RootView;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -53,15 +54,12 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
     public static final String NOTIFICATION_SETTINGS = "notificationSettings";
 
     private ProgressDialog mDeleteDialog;
-    private ActionBarController mActionBarController;
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
         addPreferencesFromResource(R.xml.settings);
-
-        mActionBarController = new ActionBarController(this, null);
 
         PreferenceGroup extras = (PreferenceGroup) findPreference(EXTRAS);
         if (AlarmClock.isFeatureEnabled(this)) {
@@ -207,25 +205,6 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
         }
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-        mActionBarController.onSaveInstanceState(savedInstanceState);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        mActionBarController.onRestoreInstanceState(savedInstanceState);
-    }
-
-    @Override
-    protected void onTitleChanged(CharSequence title, int color) {
-        super.onTitleChanged(title, color);
-        mActionBarController.setTitle(title);
-    }
-
-
     public void safeShowDialog(int dialogId) {
         if (!isFinishing()) {
             showDialog(dialogId);
@@ -246,21 +225,6 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
         getApp().track(getClass());
         updateClearCacheTitles();
         super.onResume();
-        mActionBarController.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        getApp().track(getClass());
-        updateClearCacheTitles();
-        super.onResume();
-        mActionBarController.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mActionBarController.onDestroy();
     }
 
     private void setClearCacheTitle(final String pref, final int key, final File dir) {

@@ -15,6 +15,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 
 public class Resolve extends Activity implements FetchModelTask.FetchModelListener<ScResource> {
     @Nullable
@@ -23,20 +24,29 @@ public class Resolve extends Activity implements FetchModelTask.FetchModelListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.resolve);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         Intent intent = getIntent();
         Uri data = intent.getData();
-        if (data == null || (!Intent.ACTION_VIEW.equals(intent.getAction()) && !FacebookSSO.handleFacebookView(this, intent))) {
-            finish(); // nothing to do
-        } else {
+
+        final boolean shouldResolve = data != null &&
+                (Intent.ACTION_VIEW.equals(intent.getAction()) || FacebookSSO.handleFacebookView(this, intent));
+
+        if (shouldResolve) {
+            findViewById(R.id.progress).setVisibility(View.VISIBLE);
             mResolveTask = new ResolveFetchTask(getApp());
             mResolveTask.setListener(this);
             mResolveTask.execute(data);
+
+        } else {
+            finish();
         }
     }
-
 
     private SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();

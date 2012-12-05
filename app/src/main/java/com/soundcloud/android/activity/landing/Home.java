@@ -3,10 +3,12 @@ package com.soundcloud.android.activity.landing;
 import static com.soundcloud.android.SoundCloudApplication.MODEL_MANAGER;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.auth.EmailConfirm;
+import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
@@ -36,8 +38,6 @@ public class Home extends ScActivity implements ScLandingPage {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setTitle(getString(R.string.side_menu_stream));
-
-
         final SoundCloudApplication app = getApp();
         if (app.getAccount() != null) {
             if (state == null) {
@@ -70,7 +70,7 @@ public class Home extends ScActivity implements ScLandingPage {
     protected void onResume() {
         super.onResume();
         if (getApp().getAccount() == null) {
-            getApp().addAccount(this, managerCallback);
+            getApp().addAccount(this);
             finish();
         }
     }
@@ -107,27 +107,4 @@ public class Home extends ScActivity implements ScLandingPage {
     private boolean justAuthenticated(Intent intent) {
         return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
     }
-
-
-    private final AccountManagerCallback<Bundle> managerCallback = new AccountManagerCallback<Bundle>() {
-        @Override
-        public void run(AccountManagerFuture<Bundle> future) {
-            try {
-                // NB: important to call future.getResult() for side effects
-                Bundle result = future.getResult();
-                // restart main activity
-
-                startActivity(new Intent(Home.this, Home.class)
-                        .putExtra(AuthenticatorService.KEY_ACCOUNT_RESULT, result)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-
-            } catch (OperationCanceledException ignored) {
-                finish();
-            } catch (IOException e) {
-                Log.w(TAG, e);
-            } catch (AuthenticatorException e) {
-                Log.w(TAG, e);
-            }
-        }
-    };
 }

@@ -323,6 +323,10 @@ public class RootView extends ViewGroup {
         setExpandedState();
     }
 
+    public void onDestroy() {
+        mMenu.onDestroy();
+    }
+
     private void setExpandedState() {
         if (!mAnimating && !mIsBeingDragged) {
             switch (mExpandedState) {
@@ -572,9 +576,8 @@ public class RootView extends ViewGroup {
                     break;
                 }
 
-                initVelocityTrackerIfNotExists();
-                mVelocityTracker.addMovement(ev);
-
+                VelocityTracker tracker = initVelocityTrackerIfNotExists();
+                tracker.addMovement(ev);
 
                 final int pointerIndex = ev.findPointerIndex(activePointerId);
                 if (pointerIndex >= 0 && pointerIndex < ev.getPointerCount()) {
@@ -606,8 +609,8 @@ public class RootView extends ViewGroup {
                 mLastMotionX = x;
                 mActivePointerId = ev.getPointerId(0);
 
-                initOrResetVelocityTracker();
-                mVelocityTracker.addMovement(ev);
+                VelocityTracker tracker = initOrResetVelocityTracker();
+                tracker.addMovement(ev);
                 /*
                 * If being flinged and user touches the screen, initiate drag;
                 * otherwise don't.  mScroller.isFinished should be false when
@@ -653,12 +656,13 @@ public class RootView extends ViewGroup {
         return true;
     }
 
-    private void initOrResetVelocityTracker() {
+    private @NotNull VelocityTracker initOrResetVelocityTracker() {
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
         } else {
             mVelocityTracker.clear();
         }
+        return mVelocityTracker;
     }
 
     private @NotNull VelocityTracker initVelocityTrackerIfNotExists() {

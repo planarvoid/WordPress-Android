@@ -216,10 +216,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-    public AccountManagerFuture<Bundle> addAccount(Activity activity, AccountManagerCallback<Bundle> callback) {
+    public AccountManagerFuture<Bundle> addAccount(Activity activity) {
         return getAccountManager().addAccount(
                 getString(R.string.account_type),
-                Token.ACCESS_TOKEN, null, null, activity, callback, null);
+                Token.ACCESS_TOKEN, null, null, activity, null, null);
     }
 
     public boolean addUserAccount(User user, Token token, SignupVia via) {

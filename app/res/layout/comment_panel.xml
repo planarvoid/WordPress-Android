@@ -9,6 +9,7 @@
                android:layout_width="@dimen/list_icon_width"
                android:layout_height="@dimen/list_icon_height"
                android:layout_marginRight="@dimen/list_icon_margin_right"
+               android:layout_marginLeft="@dimen/list_icon_margin_right"
                android:background="@drawable/avatar_badge"
                android:scaleType="center"/>
     <TableLayout android:id="@+id/comment_header"

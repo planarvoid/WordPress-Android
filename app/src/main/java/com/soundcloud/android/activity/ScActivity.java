@@ -148,7 +148,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void setContentView(View layout) {
-        layout.setBackgroundDrawable(getWindow().getDecorView().getBackground());
+        layout.setBackgroundColor(Color.WHITE);
         layout.setDrawingCacheBackgroundColor(Color.WHITE);
         mRootView.setContent(layout);
     }
@@ -195,6 +195,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         if (mActionBarController != null) {
             mActionBarController.onDestroy();
         }
+        mRootView.onDestroy();
     }
 
     @Override
@@ -218,7 +219,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         super.onResume();
 
         if (getApp().getAccount() == null && !(this instanceof Home)) {
-            startActivity(new Intent(this, Home.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            startActivity(new Intent(this, Launch.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
             finish();
             return;
         }

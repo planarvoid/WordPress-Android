@@ -24,7 +24,7 @@ import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.EmptyCollection;
+import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -47,7 +47,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -230,64 +229,64 @@ public class UserBrowser extends ScActivity implements
         }
     }
 
-    private EmptyCollection getEmptyScreenFromContent(int position) {
+    private EmptyListView getEmptyScreenFromContent(int position) {
         switch (isYou() ? Tab.values()[position].youContent : Tab.values()[position].userContent){
             case ME_SOUNDS:
-                return new EmptyCollection(this, new Intent(Actions.RECORD))
+                return new EmptyListView(this, new Intent(Actions.RECORD))
                         .setMessageText(R.string.list_empty_user_sounds_message)
                         .setActionText(R.string.list_empty_user_sounds_action)
                         .setImage(R.drawable.empty_rec);
 
             case USER_TRACKS:
-                return new EmptyCollection(this).setMessageText(getString(R.string.empty_user_tracks_text,
+                return new EmptyListView(this).setMessageText(getString(R.string.empty_user_tracks_text,
                         mUser.username == null ? getString(R.string.this_user)
                                 : mUser.username));
 
             case ME_LIKES:
-                return new EmptyCollection(this,
-                            new Intent(Actions.FRIEND_FINDER),
+                return new EmptyListView(this,
+                            new Intent(Actions.WHO_TO_FOLLOW),
                             new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101"))
                         ).setMessageText(R.string.list_empty_user_likes_message)
                         .setActionText(R.string.list_empty_user_likes_action)
                         .setImage(R.drawable.empty_like);
 
             case USER_LIKES:
-                return new EmptyCollection(this).setMessageText(getString(R.string.empty_user_likes_text,
+                return new EmptyListView(this).setMessageText(getString(R.string.empty_user_likes_text,
                         mUser.username == null ? getString(R.string.this_user)
                                 : mUser.username));
 
             case ME_FOLLOWERS:
                 User loggedInUser = getApp().getLoggedInUser();
                 if (loggedInUser == null || loggedInUser.track_count > 0) {
-                    return new EmptyCollection(this, new Intent(Actions.YOUR_SOUNDS))
+                    return new EmptyListView(this, new Intent(Actions.YOUR_SOUNDS))
                             .setMessageText(R.string.list_empty_user_followers_message)
                             .setActionText(R.string.list_empty_user_followers_action)
                             .setImage(R.drawable.empty_rec);
                 } else {
-                    return new EmptyCollection(this, new Intent(Actions.RECORD))
+                    return new EmptyListView(this, new Intent(Actions.RECORD))
                             .setMessageText(R.string.list_empty_user_followers_nosounds_message)
                             .setActionText(R.string.list_empty_user_followers_nosounds_action)
                             .setImage(R.drawable.empty_share);
                 }
 
             case USER_FOLLOWERS:
-                return new EmptyCollection(this)
+                return new EmptyListView(this)
                         .setMessageText(getString(R.string.empty_user_followers_text,
                                 mUser.username == null ? getString(R.string.this_user)
                                         : mUser.username));
 
             case ME_FOLLOWINGS:
-                return new EmptyCollection(this, new Intent(Actions.FRIEND_FINDER))
+                return new EmptyListView(this, new Intent(Actions.WHO_TO_FOLLOW))
                         .setMessageText(R.string.list_empty_user_following_message)
                         .setActionText(R.string.list_empty_user_following_action)
                         .setImage(R.drawable.empty_follow_3row);
 
             case USER_FOLLOWINGS:
-                return new EmptyCollection(this).setMessageText(getString(R.string.empty_user_followings_text,
+                return new EmptyListView(this).setMessageText(getString(R.string.empty_user_followings_text,
                         mUser.username == null ? getString(R.string.this_user)
                                 : mUser.username));
             default:
-                return new EmptyCollection(this);
+                return new EmptyListView(this);
         }
     }
 

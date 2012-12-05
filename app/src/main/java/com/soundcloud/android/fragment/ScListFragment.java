@@ -32,7 +32,7 @@ import com.soundcloud.android.task.collection.ReturnData;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
-import com.soundcloud.android.view.EmptyCollection;
+import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
@@ -70,7 +70,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     @Nullable private ScListView mListView;
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
-    protected @Nullable EmptyCollection mEmptyCollection;
+    protected @Nullable EmptyListView mEmptyListView;
     private @Nullable Content mContent;
     private @NotNull Uri mContentUri;
     private NetworkConnectivityListener connectivityListener;
@@ -233,10 +233,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mListView = configureList(new ScListView(getActivity()));
         mListView.setOnRefreshListener(this);
         mListView.setOnScrollListener(this);
-        setEmptyCollection((mEmptyCollection == null) ?
-                EmptyCollection.fromContent(context, mContent) : mEmptyCollection);
+        setEmptyCollection((mEmptyListView == null) ?
+                EmptyListView.fromContent(context, mContent) : mEmptyListView);
 
-        mListView.setEmptyView(mEmptyCollection);
+        mListView.setEmptyView(mEmptyListView);
 
         if (isRefreshing() || waitingOnInitialSync()){
             mListView.setRefreshing(false);
@@ -262,8 +262,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         }
     }
 
-    public void setEmptyCollection(EmptyCollection emptyCollection){
-        mEmptyCollection = emptyCollection;
+    public void setEmptyCollection(EmptyListView emptyCollection){
+        mEmptyListView = emptyCollection;
         configureEmptyCollection();
         if (getView() != null && getListView() != null) {
             getListView().setEmptyView(emptyCollection);
@@ -301,15 +301,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 break;
             }
         }
-    }
-
-    public void executeRefreshTask() {
-        final Context context = getActivity();
-        if (context != null) {
-            mRefreshTask = buildTask(context);
-            mRefreshTask.execute(getTaskParams(true));
-        }
-        configureEmptyCollection();
     }
 
     @Override
@@ -402,10 +393,20 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     protected void configureEmptyCollection(){
         final boolean wait = canAppend() || isRefreshing() || waitingOnInitialSync();
-        if (mEmptyCollection != null) {
-            mEmptyCollection.setMode(wait ? EmptyCollection.Mode.WAITING_FOR_DATA : EmptyCollection.Mode.IDLE);
+        if (mEmptyListView != null) {
+            mEmptyListView.setMode(wait ? EmptyListView.Mode.WAITING_FOR_DATA : EmptyListView.Mode.IDLE);
         }
     }
+
+    private void executeRefreshTask() {
+        final Context context = getActivity();
+        if (context != null) {
+            mRefreshTask = buildTask(context);
+            mRefreshTask.execute(getTaskParams(true));
+        }
+        configureEmptyCollection();
+    }
+
 
     private ScListView configureList(ScListView lv) {
         lv.getRefreshableView().setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);

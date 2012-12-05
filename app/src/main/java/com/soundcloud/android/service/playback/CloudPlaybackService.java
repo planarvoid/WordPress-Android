@@ -109,6 +109,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private static final int STREAM_EXCEPTION = 7;
     private static final int CHECK_TRACK_EVENT = 8;
     private static final int NOTIFY_META_CHANGED = 9;
+    private static final int CHECK_BUFFERING   = 10;
 
     private static final int PLAYBACKSERVICE_STATUS_ID = 1;
 
@@ -1011,6 +1012,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 Log.d(TAG, "handleMessage("+msg.what+", state="+state+")");
             }
             switch (msg.what) {
+                case CHECK_BUFFERING:
+                    if (!state.equals(State.PAUSED_FOR_BUFFERING)){
+                        notifyChange(BUFFERING_COMPLETE);
+                    }
+                    break;
+
                 case NOTIFY_META_CHANGED:
                     notifyChange(META_CHANGED);
                     break;
@@ -1206,8 +1213,11 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     // normal play, unless first start (autopause=true)
                     } else {
                         setVolume(0);
+
+                        // sometimes paused for buffering happens right after prepare, so check buffering on a delay
+                        mPlayerHandler.sendEmptyMessageDelayed(CHECK_BUFFERING,500);
+
                         //  FADE_IN will call play()
-                        notifyChange(BUFFERING_COMPLETE);
                         if (!mAutoPause && mFocus.requestMusicFocus(CloudPlaybackService.this, IAudioManager.FOCUS_GAIN)) {
                             mPlayerHandler.sendEmptyMessage(FADE_IN);
                         }

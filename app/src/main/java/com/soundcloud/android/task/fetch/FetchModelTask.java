@@ -9,14 +9,12 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.ContentResolver;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.util.Log;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,7 +23,6 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
     private Set<WeakReference<FetchModelListener<Model>>> mListenerWeakReferences;
     private long mModelId;
     private Class<? extends Model> mModel;
-    private boolean mFinished;
 
     public String action;
 
@@ -45,7 +42,6 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
 
     @Override
     protected void onPostExecute(Model result) {
-        mFinished = true;
         if (mListenerWeakReferences != null) {
             for (WeakReference<FetchModelListener<Model>> listenerRef : mListenerWeakReferences) {
                 final FetchModelListener<Model> listener = listenerRef.get();
@@ -60,6 +56,7 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
         }
     }
 
+    @Nullable
     public Model resolve(Request request) {
         try {
             HttpResponse resp = mApi.get(request);
@@ -83,9 +80,8 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
         }
     }
 
-
     @Override
-    public Model doInBackground(Request... request) {
+    protected Model doInBackground(Request... request) {
         if (request == null || request.length == 0) throw new IllegalArgumentException("need path to executeAppendTask");
         return resolve(request[0]);
     }

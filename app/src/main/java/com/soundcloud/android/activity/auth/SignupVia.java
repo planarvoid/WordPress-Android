@@ -6,7 +6,7 @@ public enum SignupVia {
     API("api"),
     FACEBOOK_SSO("facebook:access-token"),
     FACEBOOK_WEBFLOW("facebook:web-flow"),
-    UNKNOWN("unknown");
+    NONE("none");
 
     public static final String EXTRA = "signed_up";
 
@@ -24,7 +24,7 @@ public enum SignupVia {
         for (SignupVia v : values()) {
             if (v.name.equals(s)) return v;
         }
-        return UNKNOWN;
+        return NONE;
 
     }
 

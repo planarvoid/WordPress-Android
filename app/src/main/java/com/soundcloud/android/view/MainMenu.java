@@ -1,19 +1,23 @@
 package com.soundcloud.android.view;
 
 
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
+import org.jetbrains.annotations.NotNull;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.database.ContentObserver;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.SparseIntArray;
@@ -36,31 +40,28 @@ import java.util.List;
 
 public class MainMenu extends LinearLayout {
     private int mSelectedMenuId = -1;
-
-    private ListView mList;
-    private MenuAdapter mMenuAdapter;
+    private @NotNull ListView mList;
+    private @NotNull MenuAdapter mMenuAdapter;
     private OnMenuItemClickListener mClickListener;
 
-    public void refresh() {
-       mMenuAdapter.notifyDataSetChanged();
+
+    @SuppressWarnings("UnusedDeclaration")
+    public MainMenu(Context context) {
+        super(context);
+        init();
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public MainMenu(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init();
     }
 
     /**
      * Callback invoked when a menu item is clicked.
      */
     public static interface OnMenuItemClickListener {
-
         public boolean onMenuItemClicked(int id);
-    }
-
-    public MainMenu(Context context) {
-        super(context);
-        init();
-    }
-
-    public MainMenu(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
     }
 
     private void init() {
@@ -86,6 +87,13 @@ public class MainMenu extends LinearLayout {
 
         mMenuAdapter = new MenuAdapter(getContext());
         mList.setAdapter(mMenuAdapter);
+
+        // observe user data to refresh icon (used after signup)
+        getContext().getContentResolver().registerContentObserver(Content.ME.uri, false, mObserver);
+    }
+
+    public void refresh() {
+        mMenuAdapter.notifyDataSetChanged();
     }
 
     public void setOnItemClickListener(OnMenuItemClickListener onMenuItemClickListener) {
@@ -93,7 +101,7 @@ public class MainMenu extends LinearLayout {
     }
 
     public void setSelectedMenuId(int selectedMenuId) {
-        this.mSelectedMenuId = selectedMenuId;
+        mSelectedMenuId = selectedMenuId;
         setSelectedMenuItem();
     }
 
@@ -130,6 +138,10 @@ public class MainMenu extends LinearLayout {
         setSelectedMenuItem();
     }
 
+    public void onDestroy() {
+        getContext().getContentResolver().unregisterContentObserver(mObserver);
+    }
+
     public void setOffsetRight(int offsetRight) {
         mMenuAdapter.setOffsetRight(offsetRight);
     }
@@ -144,17 +156,29 @@ public class MainMenu extends LinearLayout {
         mMenuAdapter.notifyDataSetChanged();
     }
 
+    private final ContentObserver mObserver = new ContentObserver(new Handler()) {
+        @Override
+        public void onChange(boolean selfChange) {
+            onChange(selfChange, null);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            mMenuAdapter.notifyDataSetChanged();
+        }
+    };
+
     private static class SimpleListMenuItem {
-        int id;
-        CharSequence text;
-        Drawable icon;
-        int layoutId;
+        final int id;
+        final CharSequence text;
+        final Drawable icon;
+        final int layoutId;
 
         public SimpleListMenuItem(TypedArray a) {
-            this.id         = a.getResourceId(R.styleable.SimpleMenu_android_id, 0);
-            this.text       = a.getText(R.styleable.SimpleMenu_android_text);
-            this.icon       = a.getDrawable(R.styleable.SimpleMenu_android_icon);
-            this.layoutId   = a.getResourceId(R.styleable.SimpleMenu_android_layout, 0);
+            id = a.getResourceId(R.styleable.SimpleMenu_android_id, 0);
+            text = a.getText(R.styleable.SimpleMenu_android_text);
+            icon = a.getDrawable(R.styleable.SimpleMenu_android_icon);
+            layoutId = a.getResourceId(R.styleable.SimpleMenu_android_layout, 0);
         }
     }
 
@@ -184,12 +208,11 @@ public class MainMenu extends LinearLayout {
             }
         }
 
-        void addItem(SimpleListMenuItem item) {
+        private void addItem(SimpleListMenuItem item) {
             mMenuItems.add(item);
             if (mLayouts.get(item.layoutId, -1) == -1) {
                 mLayouts.put(item.layoutId, mLayouts.size());
             }
-
         }
 
         @Override
@@ -266,7 +289,8 @@ public class MainMenu extends LinearLayout {
                 if (u != null) {
                     holder.text.setText(u.username);
                     final String listAvatarUri = u.getListAvatarUri(mContext);
-                    setDefaultImage = TextUtils.isEmpty(listAvatarUri) || ImageLoader.get(mContext).bind(this, holder.image, listAvatarUri) != ImageLoader.BindResult.OK;
+                    setDefaultImage = TextUtils.isEmpty(listAvatarUri) ||
+                                      ImageLoader.get(mContext).bind(this, holder.image, listAvatarUri) != ImageLoader.BindResult.OK;
                 } else {
                     holder.text.setText(menuItem.text);
                 }
@@ -288,7 +312,7 @@ public class MainMenu extends LinearLayout {
             return convertView;
         }
 
-        public int getPositionById(int mSelectedMenuId) {
+        private int getPositionById(int mSelectedMenuId) {
             int i = 0;
             for (SimpleListMenuItem menuItem : mMenuItems){
                 if (mSelectedMenuId == menuItem.id) return i;

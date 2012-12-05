@@ -10,7 +10,7 @@ import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.create.NewConnectionTask;
-import com.soundcloud.android.view.EmptyCollection;
+import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.FriendFinderEmptyCollection;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,10 +33,10 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
     AsyncTask<Connection.Service, Void, Uri> mConnectionTask;
 
     public interface States {
-        int LOADING = 1;
-        int NO_FB_CONNECTION = 2;
-        int FB_CONNECTION = 3;
-        int CONNECTION_ERROR = 4;
+        int LOADING          = 0;
+        int NO_FB_CONNECTION = 1;
+        int FB_CONNECTION    = 2;
+        int CONNECTION_ERROR = 3;
     }
 
     public static FriendFinderFragment newInstance() {
@@ -67,8 +67,8 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
-        if (mEmptyCollection != null) {
-            mEmptyCollection.setButtonActionListener(new EmptyCollection.ActionListener() {
+        if (mEmptyListView != null) {
+            mEmptyListView.setButtonActionListener(new EmptyListView.ActionListener() {
                 @Override
                 public void onAction() {
                     if (isTaskFinished(mConnectionTask)) {
@@ -88,11 +88,14 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
     public void setState(int state, boolean reset) {
         mCurrentState = state;
         configureEmptyCollection();
-        if (reset){
+
+        final BaseAdapter listAdapter = getListAdapter();
+        if (listAdapter == null) return;
+
+        if (reset) {
             reset();
         } else {
-            final BaseAdapter listAdapter = getListAdapter();
-            if (listAdapter != null) listAdapter.notifyDataSetChanged();
+            listAdapter.notifyDataSetChanged();
         }
     }
 
@@ -104,18 +107,18 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
 
     @Override
     protected void configureEmptyCollection() {
-        if (mEmptyCollection != null) {
+        if (mEmptyListView != null) {
             switch (mCurrentState) {
                 case States.LOADING:
-                    mEmptyCollection.setMode(EmptyCollection.Mode.WAITING_FOR_DATA);
+                    mEmptyListView.setMode(EmptyListView.Mode.WAITING_FOR_DATA);
                     break;
 
                 case States.CONNECTION_ERROR:
-                    mEmptyCollection.setMode(FriendFinderEmptyCollection.FriendFinderMode.CONNECTION_ERROR);
+                    mEmptyListView.setMode(FriendFinderEmptyCollection.FriendFinderMode.CONNECTION_ERROR);
                     break;
 
                 case States.NO_FB_CONNECTION:
-                    mEmptyCollection.setMode(FriendFinderEmptyCollection.FriendFinderMode.NO_CONNECTIONS);
+                    mEmptyListView.setMode(FriendFinderEmptyCollection.FriendFinderMode.NO_CONNECTIONS);
                     break;
 
                 case States.FB_CONNECTION:
@@ -157,8 +160,8 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
         }
     }
 
-    private void requestConnections(Context context) {
-        if (getActivity() == null || getListAdapter() == null) return;
+    public void requestConnections(Context context) {
+        if (getActivity() == null) return;
 
         final ConnectionsCache connectionsCache = ConnectionsCache.get(context);
         mConnections = connectionsCache.getConnections();

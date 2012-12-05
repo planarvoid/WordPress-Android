@@ -7,6 +7,8 @@ import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.ParseException;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.http.message.BasicLineParser;
 
@@ -131,7 +133,7 @@ public class StreamProxy implements Runnable {
 
                 Log.d(LOG_TAG, "client connected");
                 try {
-                    final HttpGet request = readRequest(client.getInputStream());
+                    final HttpUriRequest request = readRequest(client.getInputStream());
                     new Thread("handle-proxy-request") {
                         @Override
                         public void run() {
@@ -154,7 +156,7 @@ public class StreamProxy implements Runnable {
         Log.d(LOG_TAG, "Proxy interrupted. Shutting down.");
     }
 
-    /* package */ static HttpGet readRequest(InputStream is) throws IOException, URISyntaxException {
+    /* package */ static HttpUriRequest readRequest(InputStream is) throws IOException, URISyntaxException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is), 8192);
         String line = reader.readLine();
 
@@ -163,16 +165,20 @@ public class StreamProxy implements Runnable {
         }
 
         StringTokenizer st = new StringTokenizer(line);
+        if (!st.hasMoreTokens()) throw new IOException("Invalid request: "+line);
         String method = st.nextToken();
-
-        if (!"GET".equalsIgnoreCase(method)) {
-            throw new IOException("only GET is supported, got: " + method);
-        }
+        if (!st.hasMoreTokens()) throw new IOException("Invalid request: "+line);
         String uri = st.nextToken();
         String realUri = uri.substring(1);
 
-
-        final HttpGet request = new HttpGet(new URI(realUri));
+        final HttpUriRequest request;
+        if ("GET".equalsIgnoreCase(method)) {
+            request = new HttpGet(new URI(realUri));
+        } else if ("HEAD".equalsIgnoreCase(method)) {
+            request = new HttpHead(new URI(realUri));
+        } else {
+            throw new IOException("only GET/HEAD is supported, got: " + method);
+        }
         while ((line = reader.readLine()) != null) {
             if ("".equals(line)) break;
             // copy original headers in new request
@@ -228,7 +234,7 @@ public class StreamProxy implements Runnable {
         return startByte < 0 ? 0 : startByte; // we don't support final byte ranges (-100)
     }
 
-    private void processRequest(HttpGet request, Socket client) {
+    private void processRequest(HttpUriRequest request, Socket client) {
         if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
             logRequest(request);
         }
@@ -251,9 +257,9 @@ public class StreamProxy implements Runnable {
 
             final File completeFile = storage.completeFileForUrl(streamUrl);
             if (completeFile.exists()) {
-                streamCompleteFile(streamUrl, nextUrl, completeFile, startByte, channel, headers);
+                streamCompleteFile(request, streamUrl, nextUrl, completeFile, startByte, channel, headers);
             } else {
-                writeChunks(streamUrl, nextUrl, startByte, channel, headers);
+                writeChunks(request, streamUrl, nextUrl, startByte, channel, headers);
             }
         } catch (SocketException e) {
             final String msg = e.getMessage();
@@ -285,7 +291,7 @@ public class StreamProxy implements Runnable {
         }
     }
 
-    private void logRequest(HttpGet request) {
+    private void logRequest(HttpUriRequest request) {
         for (Header h : request.getAllHeaders()) {
             Log.d(LOG_TAG, h.getName()+": "+h.getValue());
             }
@@ -327,7 +333,8 @@ public class StreamProxy implements Runnable {
         return ByteBuffer.wrap(sb.toString().getBytes());
     }
 
-    private void writeChunks(String streamUrl, String nextUrl, final long startByte, SocketChannel channel,
+    private void writeChunks(HttpUriRequest request, String streamUrl, String nextUrl, final long startByte,
+                             SocketChannel channel,
                              Map<String, String> headers)
             throws IOException, InterruptedException, TimeoutException, ExecutionException {
 
@@ -352,6 +359,8 @@ public class StreamProxy implements Runnable {
 
                     // since we already got some data for this track, ready to queue next one
                     queueNextUrl(nextUrl, 10000);
+
+                    if (request.getMethod().equalsIgnoreCase("HEAD")) break;
                 } else {
                     // subsequent chunks
                     buffer = stream.get(TRANSFER_TIMEOUT, TimeUnit.SECONDS);
@@ -397,11 +406,15 @@ public class StreamProxy implements Runnable {
         return h;
     }
 
-    private void streamCompleteFile(String streamUrl, String nextUrl,
-                                    File file, long offset, SocketChannel channel, Map<String, String> headers) throws IOException {
+    private void streamCompleteFile(HttpUriRequest request, String streamUrl, String nextUrl,
+                                    File file, long offset,
+                                    SocketChannel channel,
+                                    Map<String, String> headers) throws IOException {
         Log.d(LOG_TAG, "streaming complete file " + file);
         headers.put("Content-Length", String.valueOf(file.length() - offset));
         channel.write(getHeader(offset, headers));
+
+        if (request.getMethod().equalsIgnoreCase("HEAD")) return;
 
         if (!loader.logPlaycount(streamUrl)) {
             Log.w(LOG_TAG, "could not queue playcount log");
