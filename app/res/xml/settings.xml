@@ -84,6 +84,13 @@
                 android:title="@string/about"
                 android:summary="@string/about_summary"
                 />
+
+        <PreferenceScreen
+                android:key="terms_of_service"
+                android:title="@string/terms_of_service"
+                android:summary="@string/terms_of_service_summary"
+                />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:key="extras" android:title="@string/pref_dev_extras">
