@@ -3,7 +3,6 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.fromString;
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
@@ -123,6 +122,12 @@ public class ActivitiesTest {
     }
 
     @Test
+    public void testSelectReposts() throws Exception {
+        Activities reposts = getActivitiesWithRepost().trackReposts();
+        expect(reposts.size()).toEqual(1);
+    }
+
+    @Test
     public void testGroupedByTrack() throws Exception {
         Map<Track,Activities> grouped = getActivities().groupedByTrack();
         expect(grouped.size()).toEqual(5);
@@ -141,6 +146,10 @@ public class ActivitiesTest {
 
     private Activities getActivities() throws IOException {
         return manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities.json"));
+    }
+
+    private Activities getActivitiesWithRepost() throws IOException {
+        return manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_with_repost.json"));
     }
 
     @Test

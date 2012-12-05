@@ -130,7 +130,7 @@ public class SyncAdapterService extends Service {
         final Intent syncIntent = getSyncIntent(app, extras);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
             // ServiceResultReceiver does most of the work
-            syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ServiceResultReceiver(app, syncResult, extras) {
+            syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new SyncServiceResultReceiver(app, syncResult, extras) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
                     try {
@@ -221,7 +221,7 @@ public class SyncAdapterService extends Service {
             if (id != -1) {
                 User u = SoundCloudApplication.MODEL_MANAGER.getUser(id);
                 if (u != null && !u.isStale()){
-                    Message.showNewFollower(app, u);
+                    NotificationMessage.showNewFollower(app, u);
                     return true;
                 } else {
                     try {
@@ -229,7 +229,7 @@ public class SyncAdapterService extends Service {
                         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                             u = app.getMapper().readValue(resp.getEntity().getContent(), User.class);
                             SoundCloudApplication.MODEL_MANAGER.write(u);
-                            Message.showNewFollower(app, u);
+                            NotificationMessage.showNewFollower(app, u);
                             return true;
                         }
                     } catch (IOException e) {
