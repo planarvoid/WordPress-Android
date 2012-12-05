@@ -296,6 +296,17 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
+    <style name="Player.TrackInfo.SeparatorRow">
+        <item name="android:background">@color/track_info_separator</item>
+        <item name="android:layout_span">2</item>
+    </style>
+
+    <style name="Player.TrackInfo.SeparatorView">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/track_info_separator</item>
+    </style>
+
     <style name="Player.TrackInfo.Icon">
         <item name="android:layout_width">20dip</item>
         <item name="android:layout_height">20dip</item>
