@@ -284,7 +284,9 @@ public class ActionBarController {
     }
 
     public void closeSearch(boolean instant) {
-        mSearchView.clearFocus();
+        if (mSearchView != null) {
+            mSearchView.clearFocus();
+        }
         if (mRootView != null)mRootView.unBlock(instant);
         if (mInSearchMode) toggleSearch();
     }
