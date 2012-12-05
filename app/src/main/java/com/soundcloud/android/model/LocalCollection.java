@@ -1,23 +1,19 @@
 package com.soundcloud.android.model;
 
-import android.content.AsyncQueryHandler;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.ContentObserver;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Handler;
-import android.text.TextUtils;
-import android.util.Log;
-
-import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncer;
 import com.soundcloud.android.service.sync.SyncConfig;
-import org.jetbrains.annotations.Nullable;
+
+import android.content.AsyncQueryHandler;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.database.ContentObserver;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Handler;
+import android.text.TextUtils;
 
 /**
  * Represents the state of a local collection sync, including last sync and size.
@@ -41,7 +37,6 @@ public class LocalCollection {
     private ContentResolver mContentResolver;
     private ContentObserver mChangeObserver;
 
-    private LocalCollectionQueryHandler mQueryHandler;
     private OnChangeListener mChangeListener;
 
 
@@ -282,8 +277,8 @@ public class LocalCollection {
 
         @Override
         public void onChange(boolean selfChange) {
-            mQueryHandler = new LocalCollectionQueryHandler(mContentResolver);
-            mQueryHandler.startQuery(0, null, Content.COLLECTIONS.uri, null, "_id = ?", new String[]{String.valueOf(id)}, null);
+            LocalCollectionQueryHandler handler = new LocalCollectionQueryHandler(mContentResolver);
+            handler.startQuery(0, null, Content.COLLECTIONS.uri, null, "_id = ?", new String[]{String.valueOf(id)}, null);
         }
     }
 
