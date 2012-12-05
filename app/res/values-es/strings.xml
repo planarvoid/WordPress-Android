@@ -216,6 +216,13 @@
 
     <string name="pref_notifications_reposts">Volver a publicar</string>
     <string name="pref_notifications_reposts_description">Reciba actualizaciones de los reposts nuevos en sus sonidos</string>
+
+    <string name="legal">Legal</string>
+    <string name="legal_summary">Información legal</string>
+
+    <string name="terms_of_service">Términos del servicio</string>
+    <string name="privacy_policy">Política de privacidad</string>
+
     <!-- </el cheapo translation> -->
 
     <string name="list_header_track_reposters">Gente que ha vuelto a publicar este sonido</string>

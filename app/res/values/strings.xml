@@ -1,7 +1,10 @@
 <resources>
 
+    <string name="legal">Legal</string>
+    <string name="legal_summary">Legal information</string>
+
     <string name="terms_of_service">Terms of Service</string>
-    <string name="terms_of_service_summary">Legal information</string>
+    <string name="privacy_policy">Privacy Policy</string>
 
     <string name="dialog_transcoding_failed_title">Transcoding failed</string>
     <string name="dialog_transcoding_failed_message">Ooops, something went wrong and your sound can\'t be played. You

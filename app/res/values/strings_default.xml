@@ -1,8 +1,8 @@
 <!-- generated with lolcatlizr at Tue Feb 28 2012 19:31:28 GMT+0000 (UTC) -->
 
 <resources xmlns:xliff="http://schemas.android.com/apk/res/android">
-  <string name="about">About</string>
-  <string name="about_summary">Copyright information</string>
+  <!--<string name="about">About</string>-->
+  <string name="copyright_information">Copyright information</string>
   <string name="account_one_active">You can only have one active account</string>
   <string name="add_image">Add\nImage</string>
   <string name="app_name">SoundCloud</string>

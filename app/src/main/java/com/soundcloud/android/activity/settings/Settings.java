@@ -46,8 +46,9 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
     public static final String STREAM_CACHE_SIZE = "streamCacheSize";
     public static final String CLEAR_STREAM_CACHE = "clearStreamCache";
     public static final String WIRELESS = "wireless";
-    public static final String ABOUT = "about";
+    public static final String COPYRIGHT_INFORMATION = "copyright_information";
     public static final String TERMS_OF_SERVICE = "terms_of_service";
+    public static final String PRIVACY_POLICY   = "privacy_policy";
     public static final String EXTRAS = "extras";
     public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
     public static final String NOTIFICATION_SETTINGS = "notificationSettings";
@@ -189,7 +190,7 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
                 });
 
 
-        findPreference(ABOUT).setOnPreferenceClickListener(
+        findPreference(COPYRIGHT_INFORMATION).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         startActivity(new Intent(Settings.this, About.class));
@@ -202,6 +203,14 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://soundcloud.com/pages/plain_terms_and_conditions")));
+                        return true;
+                    }
+                });
+
+        findPreference(PRIVACY_POLICY).setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference preference) {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://soundcloud.com/pages/plain_privacy")));
                         return true;
                     }
                 });

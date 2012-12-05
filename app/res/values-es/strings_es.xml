@@ -1,8 +1,8 @@
 <!-- generated with lolcatlizr at Tue Feb 28 2012 20:23:43 GMT+0000 (UTC) -->
 
 <resources xmlns:xliff="http://schemas.android.com/apk/res/android">
-  <string name="about">Acerca de</string>
-  <string name="about_summary">Información sobre los derechos de autor</string>
+  <!--<string name="about">Acerca de</string>-->
+  <string name="copyright_information">Información sobre los derechos de autor</string>
   <string name="account_one_active">Solamente puedes tener una cuenta activa</string>
   <string name="add_image">Añadir\nimagen</string>
   <string name="app_name">SoundCloud</string>
