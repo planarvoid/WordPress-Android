@@ -131,7 +131,6 @@
                   android:layout_height="wrap_content"
                   android:singleLine="true"
                   android:layout_toRightOf="@id/vr_like_count"
-                  android:paddingRight="5dip"
                   style="@style/txt_list_sub_secondary"/>
 
         <View android:id="@+id/vr_repost_count"
