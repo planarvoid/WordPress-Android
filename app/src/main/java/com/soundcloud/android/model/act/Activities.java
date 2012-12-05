@@ -6,7 +6,6 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
@@ -18,6 +17,7 @@ import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
@@ -100,20 +100,10 @@ public class Activities extends CollectionHolder<Activity> {
         return tracks;
     }
 
-    public List<Comment> getUniqueComments() {
-            List<Comment> tracks = new ArrayList<Comment>();
-            for (Activity a : this) {
-                if (a instanceof CommentActivity && ((CommentActivity)a).comment != null && !tracks.contains(((CommentActivity)a).comment)) {
-                    tracks.add(((CommentActivity)a).comment);
-                }
-            }
-            return tracks;
-        }
-
-    public Activities selectType(Class[] types) {
+    public Activities selectType(Class<? extends Activity>... types) {
         List<Activity> activities = new ArrayList<Activity>();
         for (Activity e : this) {
-            for (Class type : types)
+            for (Class<? extends Activity> type : types)
             if (type.isAssignableFrom(e.getClass())) {
                 activities.add(e);
             }
@@ -122,42 +112,44 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public Activities trackLikes() {
-        return selectType(new Class[]{TrackLikeActivity.class});
+        return selectType(TrackLikeActivity.class);
     }
 
     public Activities comments() {
-        return selectType(new Class[]{CommentActivity.class});
+        return selectType(CommentActivity.class);
     }
 
     public Activities sharings() {
-        return selectType(new Class[]{TrackSharingActivity.class});
+        return selectType(TrackSharingActivity.class);
     }
 
     public Activities tracks() {
-        return selectType(new Class[]{TrackActivity.class});
+        return selectType(TrackActivity.class);
     }
 
-    public Activities commentsAndTrackLikes() {
-        return selectType(new Class[]{CommentActivity.class, TrackLikeActivity.class});
+    public Activities trackReposts() {
+        return selectType(TrackRepostActivity.class);
     }
 
     public Map<Track, Activities> groupedByTrack() {
         Map<Track,Activities> grouped = new HashMap<Track, Activities>();
 
         for (Activity e : this) {
-            Activities evts = grouped.get(e.getTrack());
-            if (evts == null) {
-                evts = new Activities();
-                grouped.put(e.getTrack(), evts);
+            Activities activities = grouped.get(e.getTrack());
+            if (activities == null) {
+                activities = new Activities();
+                grouped.put(e.getTrack(), activities);
             }
-            evts.add(e);
+            activities.add(e);
         }
         return grouped;
     }
 
+    public void sort() {
+        Collections.sort(collection);
+    }
 
-    // TODO, get rid of future href and next href and generate them
-    public Activities merge(Activities old) {
+    public @NotNull Activities merge(Activities old) {
         //noinspection ObjectEquality
         if (old == EMPTY) return this;
 
@@ -165,9 +157,9 @@ public class Activities extends CollectionHolder<Activity> {
         merged.future_href = future_href;
         merged.next_href = old.next_href;
 
-        for (Activity e : old) {
-            if (!merged.collection.contains(e)) {
-                merged.collection.add(e);
+        for (Activity a : old) {
+            if (!merged.collection.contains(a)) {
+                merged.collection.add(a);
             }
         }
         return merged;
@@ -190,14 +182,6 @@ public class Activities extends CollectionHolder<Activity> {
             return 0;
         } else {
             return collection.get(0).created_at.getTime();
-        }
-    }
-
-    public long getLastTimestamp() {
-        if (collection.isEmpty()) {
-            return 0;
-        } else {
-            return collection.get(collection.size()-1).created_at.getTime();
         }
     }
 
@@ -389,35 +373,6 @@ public class Activities extends CollectionHolder<Activity> {
         return cv;
     }
 
-    public Set<ScResource> getScResources() {
-        final Set<ScResource> resources = new HashSet<ScResource>();
-        for (Activity a : this) {
-            Track t = a.getTrack();
-            if (t != null ) {
-                resources.add(t);
-            }
-            User u = a.getUser();
-            if (u != null) {
-                resources.add(u);
-            }
-        }
-        return resources;
-    }
-
-    public List<Comment> getComments() {
-        final List<Comment> comments = new ArrayList<Comment>();
-        for (Activity a : this) {
-            if (a instanceof CommentActivity){
-                comments.add(((CommentActivity) a).comment);
-            }
-        }
-        return comments;
-    }
-
-    public ContentValues[] getCommentContentValues() {
-        return buildContentValues(getComments());
-    }
-
     public static ContentValues[] buildContentValues(List<? extends ScModel> models) {
         ContentValues[] cv = new ContentValues[models.size()];
         for (int i=0; i<models.size(); i++) {
@@ -446,11 +401,6 @@ public class Activities extends CollectionHolder<Activity> {
         }
 
         return resolver.bulkInsert(content.uri, buildContentValues(content.id));
-    }
-
-    public void mergeAndSort(Activities toMerge) {
-        if (!toMerge.isEmpty()) collection.addAll(toMerge.collection);
-        Collections.sort(collection);
     }
 
     public Set<String> artworkUrls() {

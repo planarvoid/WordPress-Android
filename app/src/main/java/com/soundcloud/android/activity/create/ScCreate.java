@@ -974,40 +974,5 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        MenuItem followItem = menu.findItem(R.id.action_bar_local_recordings);
-        if (followItem != null){
-            switch (mCurrentState) {
-                case GENERATING_WAVEFORM:
-                case IDLE_RECORD:
-                case RECORD:
-                    followItem.setIcon(R.drawable.ic_rec_you_dark);
-                    break;
-                default:
-                    followItem.setIcon(R.drawable.ic_rec_you);
-                    break;
-            }
-        }
-        return true;
-    }
-
-
-    @Override
-    public int getMenuResourceId() {
-        return R.menu.sc_create;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_bar_local_recordings:
-                startActivity(new Intent(this, UserBrowser.class).putExtra(UserBrowser.Tab.EXTRA,UserBrowser.Tab.tracks));
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
     /* package, for testing */ CreateState getState() { return mCurrentState; }
 }

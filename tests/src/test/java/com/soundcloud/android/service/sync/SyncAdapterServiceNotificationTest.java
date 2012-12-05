@@ -20,7 +20,7 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
     @Test
     public void testIncomingNotificationMessage() throws Exception {
         Activities activities = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(getClass().getResourceAsStream("e1_stream.json"));
-        String message = Message.getIncomingNotificationMessage(
+        String message = NotificationMessage.getIncomingNotificationMessage(
                 DefaultTestRunner.application, activities);
 
         expect(message).toEqual("from WADR, T-E-E-D and others");
@@ -92,31 +92,67 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
                 .toEqual(Actions.ACTIVITY);
     }
 
+    // --------------- likes ---------------
     @Test
-    public void shouldNotifyAboutActivityFavoritingOne() throws Exception {
-        assertNotification("own_one_favoriting.json",
+    public void shouldNotifyAboutActivityLikeOne() throws Exception {
+        assertNotification("own_one_like.json",
                 "New like",
                 "A new like",
                 "Paul Ko likes P. Watzlawick - Anleitung zum Ungl\u00fccklichsein");
     }
 
     @Test
-    public void shouldNotifyAboutActivityFavoritingTwo() throws Exception {
-        assertNotification("own_two_favoritings.json",
+    public void shouldNotifyAboutActivityLikeTwo() throws Exception {
+        assertNotification("own_two_likes.json",
                 "2 new likes",
                 "2 new likes",
                 "on P. Watzlawick - Anleitung zum Ungl\u00fccklichsein");
     }
 
     @Test
-    public void shouldNotifyAboutActivityFavoritingMultiple() throws Exception {
-        assertNotification("own_multi_favoritings.json",
+    public void shouldNotifyAboutActivityLikeMultiple() throws Exception {
+        assertNotification("own_multi_likes.json",
                 "3 new likes",
                 "3 new likes",
                 "on P. Watzlawick - Anleitung zum Ungl\u00fccklichsein, William Gibson & Cory Doctorow on 'Zero History'" +
                         " and other sounds");
     }
 
+    // --------------- reposts ---------------
+    @Test
+    public void shouldNotifyAboutActivityRepostOne() throws Exception {
+        assertNotification("own_one_repost.json",
+                "New repost",
+                "A new repost",
+                "jberkel_testing reposted Ole L. - Chant Of The Raw Material");
+    }
+
+    @Test
+    public void shouldNotifyAboutActivityRepostTwo() throws Exception {
+        assertNotification("own_two_reposts.json",
+                "2 new reposts",
+                "2 new reposts",
+                "on Ole L. - Chant Of The Raw Material");
+    }
+
+    @Test
+    public void shouldNotifyAboutActivityRepostTwoDifferentSounds() throws Exception {
+        assertNotification("own_multi_reposts.json",
+                "3 new reposts",
+                "3 new reposts",
+                "on Momus sings Ashes To Ashes at Bei Roy and Ole L. - Chant Of The Raw Material");
+    }
+
+    @Test
+    public void shouldNotifyAboutActivityRepostThreeDifferentSounds() throws Exception {
+        assertNotification("own_multi_reposts_2.json",
+                "4 new reposts",
+                "4 new reposts",
+                "on Nobody home, Momus sings Ashes To Ashes at Bei Roy and other sounds");
+    }
+
+
+    // --------------- comments ---------------
     @Test
     public void shouldNotifyAboutActivityCommentingSingle() throws Exception {
         assertNotification("own_one_comment.json",
@@ -150,24 +186,24 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
     }
 
     @Test
-    public void shouldNotifyAboutActivityCommentingAndFavoritingTwoUsers() throws Exception {
-        assertNotification("own_comment_favoriting_same_track.json",
+    public void shouldNotifyAboutActivityCommentingLikeTwoUsers() throws Exception {
+        assertNotification("own_comment_like_same_track.json",
                 "2 new activities",
                 "2 new activities",
                 "from fronx on Autotune at MTV");
     }
 
     @Test
-    public void shouldNotifyAboutActivityCommentingAndFavoritingTwoDifferentUsers() throws Exception {
-        assertNotification("own_comment_favoriting_different_tracks_two_users.json",
+    public void shouldNotifyAboutActivityCommentingAndLikeTwoDifferentUsers() throws Exception {
+        assertNotification("own_comment_like_different_tracks_two_users.json",
                 "5 new activities",
                 "5 new activities",
                 "Comments and likes from bronx and fronx");
     }
 
     @Test
-    public void shouldNotifyAboutActivityCommentingAndFavoritingMultipleDifferentUsers() throws Exception {
-        assertNotification("own_comment_favoriting_different_tracks.json",
+    public void shouldNotifyAboutActivityCommentingAndLikeMultipleDifferentUsers() throws Exception {
+        assertNotification("own_comment_like_different_tracks.json",
                 "5 new activities",
                 "5 new activities",
                 "Comments and likes from Paul Ko, changmangoo and others");
