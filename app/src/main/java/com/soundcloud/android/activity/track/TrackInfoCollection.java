@@ -9,6 +9,8 @@ import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -42,6 +44,13 @@ public abstract class TrackInfoCollection extends ScActivity implements   FetchT
 
 
         mTrack.refreshInfoAsync(getApp(),this);
+    }
+
+    //xxx hack
+    @Override
+    public void setContentView(View layout) {
+        super.setContentView(layout);
+        layout.setBackgroundColor(Color.WHITE);
     }
 
     protected abstract Uri getContentUri();

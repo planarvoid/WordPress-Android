@@ -12,6 +12,7 @@ import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -37,6 +38,13 @@ public class TracksByTag extends ScActivity {
             }
             getSupportFragmentManager().beginTransaction().add(R.id.listHolder,ScListFragment.newInstance(contentUri)).commit();
         }
+    }
+
+    //xxx hack
+    @Override
+    public void setContentView(View layout) {
+        super.setContentView(layout);
+        layout.setBackgroundColor(Color.WHITE);
     }
 
     @Override

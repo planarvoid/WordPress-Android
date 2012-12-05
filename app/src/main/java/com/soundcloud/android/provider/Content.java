@@ -229,20 +229,12 @@ public enum Content  {
 
     public Request request(Uri contentUri) {
         if (remoteUri != null) {
-            String[] args = null;
+            String query = null;
             if (contentUri != null){
-                // get args
-                final Set<String> queryParameterNames = contentUri.getQueryParameterNames();
-                if (!queryParameterNames.isEmpty()) {
-                    args = new String[queryParameterNames.size() * 2];
-                    int i = 0;
-                    for (String name : queryParameterNames) {
-                        args[i] = name;
-                        args[i + 1] = contentUri.getQueryParameter(name);
-                        i = i + 2;
-                    }
-                }
+                query = contentUri.getQuery();
             }
+
+            final String resource = remoteUri + (query != null ? "?" + query : "");
             if (remoteUri.contains("%d")) {
                 int substitute = 0;
                 if (contentUri != null) {
@@ -254,9 +246,10 @@ public enum Content  {
                         }
                     }
                 }
-                return Request.to(remoteUri, substitute).with(args);
+
+                return Request.to(resource, substitute);
             } else {
-                return Request.to(remoteUri).with(args);
+                return Request.to(resource);
             }
         } else {
             throw new IllegalArgumentException("no remote uri defined for content" + this);
