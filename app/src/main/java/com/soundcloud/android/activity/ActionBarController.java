@@ -10,6 +10,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.view.NowPlayingIndicator;
 import com.soundcloud.android.view.RootView;
 import org.jetbrains.annotations.NotNull;
@@ -32,21 +33,28 @@ import android.widget.AutoCompleteTextView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.net.URL;
+
 public class ActionBarController {
     @NotNull  private ActionBarOwner mOwner;
     @NotNull  private Activity mActivity;
     @Nullable private RootView mRootView;
 
-    private View mActionBarCustomView;
-    private RelativeLayout mSearchCustomView;
-    private SearchView mSearchView;
+    @NotNull private View           mActionBarCustomView;
+    @NotNull private RelativeLayout mSearchCustomView;
+    @NotNull private SearchView     mSearchView;
+
+    @NotNull private NowPlayingIndicator mNowPlaying;
+    @NotNull private View                mNowPlayingHolder;
+
     private View mMenuIndicator;
     private SuggestionsAdapter mSuggestionsAdapter;
-    private NowPlayingIndicator mNowPlaying;
+
     private boolean mInSearchMode;
     private boolean mCloseSearchOnResume;
 
     public interface ActionBarOwner {
+
         @NotNull
         public Activity     getActivity();
         public ActionBar    getSupportActionBar();
@@ -54,17 +62,55 @@ public class ActionBarController {
         public void         invalidateOptionsMenu();
         public int          getMenuResourceId();
     }
-
-    public ActionBarController(@NotNull ActionBarOwner owner, @Nullable RootView rootView) {
-        mOwner = owner;
+    public ActionBarController(@NotNull ActionBarOwner owner, @NotNull RootView rootView) {
+        mOwner    = owner;
         mActivity = owner.getActivity();
         mRootView = rootView;
-        configureCustomView();
 
+        View.OnClickListener toggleRootView = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mRootView.animateToggleMenu();
+            }
+        };
+
+        // No open the player if we're already there
+        View.OnClickListener openPlayer = mActivity instanceof ScPlayer ? null : new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mRootView.isExpanded()) {
+                    ScActivity.startNavActivity(mActivity, ScPlayer.class, mRootView.getMenuBundle());
+                } else {
+                    mActivity.startActivity(new Intent(Actions.PLAYER));
+                }
+            }
+        };
+
+        mActionBarCustomView = createDefaultCustomView(mActivity, toggleRootView, openPlayer);
+        mNowPlaying       = (NowPlayingIndicator) mActionBarCustomView.findViewById(R.id.waveform_progress);
+        mNowPlayingHolder = mActionBarCustomView.findViewById(R.id.waveform_holder);
+
+        Context themedContext = mOwner.getSupportActionBar().getThemedContext();
+        mSearchCustomView     = createSearchCustomView(themedContext);
+        mSearchView           = createSearchView(themedContext);
+        setupSearchView(mSearchView);
+
+        mSearchCustomView.addView(mSearchView);
+
+        configureCustomView();
+    }
+
+    private void updateWaveformVisibility() {
+        if (mActivity instanceof ScPlayer || CloudPlaybackService.getCurrentTrackId() < 0) {
+            mNowPlayingHolder.setVisibility(View.GONE);
+        } else {
+            mNowPlayingHolder.setVisibility(View.VISIBLE);
+        }
     }
 
     public void setTitle(CharSequence title) {
-        ((TextView) getDefaultCustomView().findViewById(R.id.title)).setText(title);
+        TextView titleView = (TextView) mActionBarCustomView.findViewById(R.id.title);
+        titleView.setText(title);
     }
 
     public void onCloseSearch() {
@@ -84,9 +130,12 @@ public class ActionBarController {
     }
 
     public void onResume() {
-        if (mNowPlaying != null) {
+        if (!(mActivity instanceof ScPlayer)) {
             mNowPlaying.resume();
         }
+
+        updateWaveformVisibility();
+
         if (mCloseSearchOnResume) {
             closeSearch(true);
             mCloseSearchOnResume = false;
@@ -94,7 +143,7 @@ public class ActionBarController {
     }
 
     public void onPause() {
-        if (mNowPlaying != null) {
+        if (!(mActivity instanceof ScPlayer)) {
             mNowPlaying.pause();
         }
     }
@@ -127,69 +176,39 @@ public class ActionBarController {
         }
     }
 
-
     private void configureCustomView(){
         if (mOwner.getSupportActionBar() != null) {
             mOwner.getSupportActionBar().setCustomView(mInSearchMode && mRootView != null ?
-                    getSearchCustomView() : getDefaultCustomView(), new ActionBar.LayoutParams(Gravity.FILL_HORIZONTAL)
+                    mSearchCustomView : mActionBarCustomView, new ActionBar.LayoutParams(Gravity.FILL_HORIZONTAL)
             );
         }
     }
 
-    private View getDefaultCustomView() {
-            if (mActionBarCustomView == null) {
-                final boolean inPlayer = (mActivity instanceof ScPlayer);
-                mActionBarCustomView = View.inflate(mActivity, R.layout.action_bar_custom_view, null);
 
-                if (mRootView != null){
-                    mActionBarCustomView.findViewById(R.id.custom_home).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            mRootView.animateToggleMenu();
-                        }
-                    });
-                }
-                if (!inPlayer) {
-                    mNowPlaying = (NowPlayingIndicator) mActionBarCustomView.findViewById(R.id.waveform_progress);
-                    mNowPlaying.resume();
-                    mActionBarCustomView.findViewById(R.id.waveform_holder).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            if (!(mActivity instanceof ScPlayer)) {
-                                if (mRootView != null && mRootView.isExpanded()) {
-                                    ScActivity.startNavActivity(mActivity, ScPlayer.class,mRootView.getMenuBundle());
-                                } else {
-                                    mActivity.startActivity(new Intent(Actions.PLAYER));
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    mActionBarCustomView.findViewById(R.id.waveform_progress).setVisibility(View.GONE);
-                }
-                mMenuIndicator = mActionBarCustomView.findViewById(R.id.custom_up);
-                if (mRootView == null) mMenuIndicator.setVisibility(View.INVISIBLE);
-            }
-            return mActionBarCustomView;
-        }
+    private static View createDefaultCustomView(Activity activity,
+                                                @Nullable View.OnClickListener homeListener,
+                                                @Nullable View.OnClickListener waveformListener) {
+        View defaultCustomView = View.inflate(activity, R.layout.action_bar_custom_view, null);
 
-        private View getSearchCustomView() {
-            if (mSearchCustomView == null) {
-                mSearchCustomView = new RelativeLayout(mOwner.getSupportActionBar().getThemedContext());
-                mSearchCustomView.addView(getSearchView());
-            }
-            return mSearchCustomView;
-        }
+        defaultCustomView.findViewById(R.id.custom_home).setOnClickListener(homeListener);
+        defaultCustomView.findViewById(R.id.waveform_holder).setOnClickListener(waveformListener);
 
-        private SearchView getSearchView(){
-            if (mSearchView == null) {
-                mSearchView = new SearchView(mOwner.getSupportActionBar().getThemedContext());
-                mSearchView.setLayoutParams(new ActionMenuView.LayoutParams(ActionMenuView.LayoutParams.WRAP_CONTENT, ActionMenuView.LayoutParams.MATCH_PARENT));
-                mSearchView.setGravity(Gravity.LEFT);
-                setupSearchView(mSearchView); // sets up listeners
-            }
-            return mSearchView;
-        }
+        return defaultCustomView;
+    }
+
+    private static RelativeLayout createSearchCustomView(Context themedContext) {
+        RelativeLayout searchCustomView = new RelativeLayout(themedContext);
+
+        return searchCustomView;
+    }
+
+    private static SearchView createSearchView(Context themedContext) {
+        SearchView searchView = new SearchView(themedContext);
+        searchView.setLayoutParams(new ActionMenuView.LayoutParams(ActionMenuView.LayoutParams.WRAP_CONTENT, ActionMenuView.LayoutParams.MATCH_PARENT));
+        searchView.setGravity(Gravity.LEFT);
+
+        return searchView;
+    }
 
     /**
         * Configure search view to function how we want it
@@ -246,7 +265,7 @@ public class ActionBarController {
                    mCloseSearchOnResume = true;
 
                    // close IME
-                   getSearchView().clearFocus();
+                   mSearchView.clearFocus();
 
                    final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
                    mActivity.startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
@@ -284,26 +303,28 @@ public class ActionBarController {
            }
        }
 
+
+
     /**
-         * Search Handling
-         */
+     * Search Handling
+     */
 
-        private void toggleSearch() {
-            mInSearchMode = !mInSearchMode;
-            configureCustomView();
-            mActivity.invalidateOptionsMenu();
-        }
+    private void toggleSearch() {
+        mInSearchMode = !mInSearchMode;
+        configureCustomView();
+        mActivity.invalidateOptionsMenu();
+    }
 
-        public void closeSearch(boolean instant) {
-            mSearchView.clearFocus();
-            if (mRootView != null)mRootView.unBlock(instant);
-            if (mInSearchMode) toggleSearch();
-        }
+    public void closeSearch(boolean instant) {
+        mSearchView.clearFocus();
+        if (mRootView != null)mRootView.unBlock(instant);
+        if (mInSearchMode) toggleSearch();
+    }
 
-        private boolean useFullScreenSearch(){
-            return (mActivity.getResources().getConfiguration().screenLayout &
-                                    Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE;
-        }
+    private boolean useFullScreenSearch(){
+        return (mActivity.getResources().getConfiguration().screenLayout &
+                                Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE;
+    }
 
     public void onCreateOptionsMenu(Menu menu) {
         if (mInSearchMode) {
@@ -332,5 +353,9 @@ public class ActionBarController {
             default:
                 return false;
         }
+    }
+
+    public SearchView getSearchView() {
+        return mSearchView;
     }
 }
