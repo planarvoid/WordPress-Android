@@ -21,7 +21,7 @@ def current_version() pom.root.elements["version"].text end
 
 [:device, :emu].each do |t|
   def android_home
-    dir = %w(ANDROID_HOME ANDROID_SDK_ROOT ANDROID_SDK_HOME).map { |e| ENV[e] }.find { |d| File.directory?(d) }
+    dir = %w(ANDROID_HOME ANDROID_SDK_ROOT ANDROID_SDK_HOME).map { |e| ENV[e] }.compact.find { |d| File.directory?(d) }
     dir or raise "no android home defined"
   end
   def package() "com.soundcloud.android" end
