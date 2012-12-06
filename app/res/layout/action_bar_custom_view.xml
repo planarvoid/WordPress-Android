@@ -12,6 +12,7 @@
               android:layout_toRightOf="@id/custom_logo_holder"
               android:layout_toLeftOf="@+id/waveform_holder"
               android:layout_marginLeft="8dip"
+              android:layout_alignWithParentIfMissing="true"
               style="@style/TextAppearance.Sherlock.Widget.ActionBar.Title.Inverse"
               android:gravity="center_vertical|left"
               android:layout_width="0dp"
