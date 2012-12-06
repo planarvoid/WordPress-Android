@@ -2,6 +2,13 @@ $ 49
   % v current
   _ 2012-12-06
   ! Next
+    * Fixed unresponsive play controls after unlock
+    * Missing titles are back
+
+$ 49
+  % v current
+  _ 2012-12-06
+  ! Next
     * Major UI overhaul
     * Highly Improved Search
     * Listen to and create Reposts
