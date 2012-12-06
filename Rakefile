@@ -160,12 +160,12 @@ namespace :release do
     sh "mvn clean install -DskipTests -Psign,soundcloud,release"
   end
 
-  desc "sets the release version to the version specified in the manifest"
+  desc "sets the release version to the version specified in the manifest, creates bump commit"
   task :bump do
     raise "#{versionName}: Not a release version" if versionName.to_s =~ /-BETA(\d+)?\Z/
     raise "Uncommitted changes in working tree" unless system("git diff --exit-code --quiet")
     update_version(versionName)
-    sh "git tag -a #{versionName} -m #{versionName} && git push --tags && git push"
+    sh "git commit -a -m 'Bumped to #{newVersion}'"
   end
 end
 
