@@ -286,16 +286,17 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     private final View.OnClickListener mPauseListener = new View.OnClickListener() {
         public void onClick(View v) {
-            if (mPlaybackService != null) {
-                final PlayQueueManager playQueueManager = getPlayQueueManager();
-                if (playQueueManager != null) {
-                    if (getCurrentDisplayedTrackPosition() != playQueueManager.getPosition()) {
-                        mPlaybackService.setQueuePosition(getCurrentDisplayedTrackPosition());
-                    } else {
-                        mPlaybackService.togglePlayback();
-                    }
+            final PlayQueueManager playQueueManager = getPlayQueueManager();
+            if (mPlaybackService != null && playQueueManager != null) {
+                if (getCurrentDisplayedTrackPosition() != playQueueManager.getPosition()) {
+                    mPlaybackService.setQueuePosition(getCurrentDisplayedTrackPosition());
+                } else {
+                    mPlaybackService.togglePlayback();
                 }
+            } else {
+                startService(new Intent(CloudPlaybackService.TOGGLEPAUSE_ACTION));
             }
+
             setPlaybackState();
         }
     };
@@ -357,52 +358,51 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     private final View.OnClickListener mPrevListener = new View.OnClickListener() {
         public void onClick(View v) {
+            mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
-            if (mPlaybackService != null) {
-                mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
+            final PlayQueueManager playQueueManager = getPlayQueueManager();
+            if (mPlaybackService != null && playQueueManager != null) {
+                final int playPosition = playQueueManager.getPosition();
+                if (mPlaybackService.getProgress() < 2000 && playPosition > 0) {
 
-                final PlayQueueManager playQueueManager = getPlayQueueManager();
-                if (playQueueManager != null) {
-                    final int playPosition = playQueueManager.getPosition();
-                    if (mPlaybackService.getProgress() < 2000 && playPosition > 0) {
-
-                        final Track currentTrack = CloudPlaybackService.getCurrentTrack();
-                        if (currentTrack != null) {
-                            track(Media.fromTrack(currentTrack), Media.Action.Backward);
-                        }
-
-                        if (getCurrentDisplayedTrackPosition() == playPosition) {
-                            mChangeTrackFast = true;
-                            mTrackPager.prev();
-                        } else {
-                            mPlaybackService.setQueuePosition(playPosition - 1);
-                            setTrackDisplayFromService();
-                        }
-
-                    } else if (isSeekable()) {
-                        mPlaybackService.seek(0, true);
-
-                    } else {
-                        mPlaybackService.restartTrack();
+                    final Track currentTrack = CloudPlaybackService.getCurrentTrack();
+                    if (currentTrack != null) {
+                        track(Media.fromTrack(currentTrack), Media.Action.Backward);
                     }
+
+                    if (getCurrentDisplayedTrackPosition() == playPosition) {
+                        mChangeTrackFast = true;
+                        mTrackPager.prev();
+                    } else {
+                        mPlaybackService.setQueuePosition(playPosition - 1);
+                        setTrackDisplayFromService();
+                    }
+
+                } else if (isSeekable()) {
+                    mPlaybackService.seek(0, true);
+
+                } else {
+                    mPlaybackService.restartTrack();
                 }
+            } else {
+                startService(new Intent(CloudPlaybackService.PREVIOUS_ACTION));
             }
         }
     };
 
     private final View.OnClickListener mNextListener = new View.OnClickListener() {
         public void onClick(View v) {
-            if (mPlaybackService != null) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
                 final Track currentTrack = CloudPlaybackService.getCurrentTrack();
                 if (currentTrack != null) {
                     track(Media.fromTrack(currentTrack), Media.Action.Forward);
                 }
+
                 final PlayQueueManager playQueueManager = getPlayQueueManager();
-                if (playQueueManager != null) {
+                if (mPlaybackService != null && playQueueManager != null) {
                     final int playPosition = playQueueManager.getPosition();
-                    if (mPlaybackService.getPlaylistManager().length() > playPosition + 1) {
+                    if (playQueueManager.length() > playPosition + 1) {
                         if (getCurrentDisplayedTrackPosition() == playPosition) {
                             mChangeTrackFast = true;
                             mTrackPager.next();
@@ -411,8 +411,10 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                             setTrackDisplayFromService();
                         }
                     }
+                } else {
+                    startService(new Intent(CloudPlaybackService.NEXT_ACTION));
                 }
-            }
+
         }
     };
 
