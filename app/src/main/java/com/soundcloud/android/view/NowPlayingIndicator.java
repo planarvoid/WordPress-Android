@@ -33,15 +33,13 @@ public class NowPlayingIndicator extends ProgressBar {
     private static final int SEPARATOR_ORANGE = 0xFF661400;
     private static final int BOTTOM_ORANGE    = 0xFFAA2200;
 
-    private static final int TOP_GREY       = 0xFF4B4B4B;
+    private static final int TOP_GREY       = 0xFF666666;
     private static final int SEPARATOR_GREY = 0xFF2D2D2D;
-    private static final int BOTTOM_GREY    = 0xFF3B3B3B;
+    private static final int BOTTOM_GREY    = 0xFF535353;
 
     private static final float TOP_WAVEFORM_FRACTION = 0.75f;
 
-    private @Nullable Bitmap mWaveform;
-    private @Nullable
-    Bitmap mWaveformMask;
+    private @Nullable Bitmap mWaveformMask;
     private @Nullable Track  mTrack;
 
     private long mRefreshDelay;
@@ -207,7 +205,6 @@ public class NowPlayingIndicator extends ProgressBar {
 
     public void destroy(){
         pause();
-        mWaveform = null;
         mWaveformMask = null;
     }
 
