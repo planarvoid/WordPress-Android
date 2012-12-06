@@ -151,6 +151,11 @@ namespace :release do
       sh "git tag -a #{versionName} -m #{versionName} && git push --tags && git push"
     end
   end
+
+  desc "builds the release version"
+  task :build do
+    sh "mvn clean install -DskipTests -Psign,soundcloud,release"
+  end
 end
 
 namespace :beta do
