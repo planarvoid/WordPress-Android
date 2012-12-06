@@ -15,7 +15,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.speech.RecognizerIntent;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 import android.view.View;
@@ -64,24 +63,6 @@ public class ScSearch extends ScActivity {
                 return !isFinishing() && actionId == EditorInfo.IME_ACTION_SEARCH && perform(getSearch());
             }
         });
-
-        // Disable button if no recognition service is present
-        PackageManager pm = getPackageManager();
-        List<ResolveInfo> activities = pm.queryIntentActivities(
-                new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
-        if (activities.isEmpty()) {
-            mTxtQuery.setDefaultDrawableClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-                        .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                        .putExtra(RecognizerIntent.EXTRA_PROMPT, "What do you want to find?");
-                    startActivityForResult(intent, VOICE_RECOGNITION_REQUEST_CODE);
-                }
-            });
-        } else {
-            //use alternative drawable, disable button
-        }
 
         Object[] previousState = getLastCustomNonConfigurationInstance();
         if (previousState != null) {
@@ -209,18 +190,5 @@ public class ScSearch extends ScActivity {
         }
     }
 
-    /**
-     * Handle the results from the voice recognition activity.
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
-            ArrayList<String> matches = data.getStringArrayListExtra(
-                    RecognizerIntent.EXTRA_RESULTS);
-            if (matches.size() > 0) {
-                mTxtQuery.setText(matches.get(0));
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
+
 }
