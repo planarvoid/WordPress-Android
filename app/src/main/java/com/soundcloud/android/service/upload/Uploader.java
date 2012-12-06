@@ -25,6 +25,7 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
 
 public class Uploader extends BroadcastReceiver implements Runnable {
     private AndroidCloudAPI api;
@@ -110,7 +111,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
                     //noinspection fallthrough
                 default:
-                    final String message = String.format("Upload failed: %d (%s), try=%d",
+                    final String message = String.format(Locale.US,  "Upload failed: %d (%s), try=%d",
                             status.getStatusCode(),
                             status.getReasonPhrase(),
                             tries);

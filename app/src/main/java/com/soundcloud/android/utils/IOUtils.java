@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
+import java.util.Locale;
 
 public final class IOUtils {
     private static final int BUFFER_SIZE = 8192;
@@ -405,7 +406,7 @@ public final class IOUtils {
         final String name = file.getName();
         final int lastDot = name.lastIndexOf('.');
         if (lastDot != -1 && lastDot != name.length() -1) {
-            return name.substring(lastDot+1, name.length()).toLowerCase();
+            return name.substring(lastDot+1, name.length()).toLowerCase(Locale.US);
         } else {
             return null;
         }

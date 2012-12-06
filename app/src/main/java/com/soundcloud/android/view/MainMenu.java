@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
@@ -162,7 +163,7 @@ public class MainMenu extends LinearLayout {
             onChange(selfChange, null);
         }
 
-        @Override
+        @Override @TargetApi(16)
         public void onChange(boolean selfChange, Uri uri) {
             mMenuAdapter.notifyDataSetChanged();
         }

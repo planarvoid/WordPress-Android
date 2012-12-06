@@ -42,6 +42,7 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public interface AndroidCloudAPI extends CloudAPI {
@@ -261,7 +262,7 @@ public interface AndroidCloudAPI extends CloudAPI {
         }
 
         private CloudDateFormat() {
-            dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
+            dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z", Locale.US);
             dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         }
 

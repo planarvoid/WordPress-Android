@@ -49,6 +49,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -527,7 +528,7 @@ public class Track extends Sound implements Playable {
 
             sb.append("Licensed under a Creative Commons License ");
             sb.append('(').append("<a href='").append(getCCLink(cc)).append("'>")
-               .append(cc.toUpperCase())
+               .append(cc.toUpperCase(Locale.US))
                .append("</a>")
                .append(')');
         } else if ("no-rights-reserved".equals(license)) {

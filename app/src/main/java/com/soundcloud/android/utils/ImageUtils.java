@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.EnumSet;
+import java.util.Locale;
 
 public final class ImageUtils {
     private static final String TAG = ImageUtils.class.getSimpleName();
@@ -374,7 +375,7 @@ public final class ImageUtils {
 
     public static boolean checkIconShouldLoad(String url) {
         return !(TextUtils.isEmpty(url)
-                || url.toLowerCase().equals("null")
+                || url.toLowerCase(Locale.US).equals("null")
                 || url.contains("default_avatar"));
     }
 
