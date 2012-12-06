@@ -411,12 +411,12 @@ public class WaveformController extends TouchLayout {
 
         if (WaveformCache.get().getData(track, new WaveformCache.WaveformCallback() {
             @Override
-            public void onWaveformDataLoaded(Track track, WaveformData data) {
+            public void onWaveformDataLoaded(Track track, WaveformData data, boolean fromCache) {
                 if (track.equals(mTrack)) {
                     mWaveformErrorCount = 0;
                     mWaveformState = WaveformState.OK;
                     mOverlay.setBackgroundDrawable(new WaveformDrawable(data, mWaveformColor, !isLandscape()));
-                    onDoneLoadingWaveform(true, mOnScreen);
+                    onDoneLoadingWaveform(true, !fromCache && mOnScreen);
                 }
             }
             @Override

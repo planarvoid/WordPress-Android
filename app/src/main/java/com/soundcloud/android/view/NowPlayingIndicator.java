@@ -158,7 +158,7 @@ public class NowPlayingIndicator extends ProgressBar {
             } else {
                 if (WaveformCache.get().getData(mTrack, new WaveformCache.WaveformCallback() {
                     @Override
-                    public void onWaveformDataLoaded(Track track, WaveformData data) {
+                    public void onWaveformDataLoaded(Track track, WaveformData data, boolean fromCache) {
                         if (track.equals(mTrack)){
                             mWaveformErrorCount = 0;
                             mWaveformState = WaveformController.WaveformState.OK;
