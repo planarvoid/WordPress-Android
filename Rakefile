@@ -18,6 +18,9 @@ DISABLED_LEVELS = %w()
 # help methods to access pom data
 def pom() @pom ||= REXML::Document.new(File.read(File.dirname(__FILE__)+'/pom.xml')) end
 def current_version() pom.root.elements["version"].text end
+def update_version(new_version)
+  sh "mvn versions:set -DnewVersion=#{new_version} -DgenerateBackupPoms=false -DupdateMatchingVersions=false"
+end
 
 [:device, :emu].each do |t|
   def android_home
@@ -156,6 +159,14 @@ namespace :release do
   task :build do
     sh "mvn clean install -DskipTests -Psign,soundcloud,release"
   end
+
+  desc "sets the release version to the version specified in the manifest"
+  task :bump do
+    raise "#{versionName}: Not a release version" if versionName.to_s =~ /-BETA(\d+)?\Z/
+    raise "Uncommitted changes in working tree" unless system("git diff --exit-code --quiet")
+    update_version(versionName)
+    sh "git tag -a #{versionName} -m #{versionName} && git push --tags && git push"
+  end
 end
 
 namespace :beta do
@@ -254,10 +265,8 @@ namespace :beta do
 
     current_beta = $1.to_i
     new_version = version.gsub(/BETA#{current_beta}\Z/, "BETA#{current_beta+1}")
-    sh <<-END
-      mvn --batch-mode release:update-versions -DdevelopmentVersion=#{new_version} &&
-      git commit -a -m 'Bumped to #{new_version}'
-    END
+    update_version(new_version)
+    sh "git commit -a -m 'Bumped to #{new_version}'"
   end
 end
 
