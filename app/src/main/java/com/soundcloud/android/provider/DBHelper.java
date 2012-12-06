@@ -18,7 +18,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DBHelper";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 19;
+    public static final int DATABASE_VERSION  = 19;
     private static final String DATABASE_NAME = "SoundCloud";
 
     public DBHelper(Context context) {
@@ -84,15 +84,10 @@ public class DBHelper extends SQLiteOpenHelper {
                         case 15:
                             success = upgradeTo15(db, oldVersion);
                             break;
-                        case 16:
-                            success = upgradeTo16(db, oldVersion);
-                            break;
-                        case 17:
-                            success = upgradeTo17(db, oldVersion);
-                            break;
-                        case 18:
-                            success = upgradeTo18(db, oldVersion);
-                            break;
+
+                        case 16: break;
+                        case 17: break;
+                        case 18: break;
                         case 19:
                             success = upgradeTo19(db, oldVersion);
                             break;
@@ -831,8 +826,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static boolean upgradeTo9(SQLiteDatabase db, int oldVersion) {
         try {
-            Table.TRACK_PLAYS.drop(db);
-
             Table.SOUNDS.alterColumns(db);
             Table.USERS.alterColumns(db);
 
@@ -858,7 +851,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static boolean upgradeTo10(SQLiteDatabase db, int oldVersion) {
         try {
-            Table.TRACK_PLAYS.drop(db);
             Table.TRACK_METADATA.create(db);
             Table.SOUND_VIEW.recreate(db);
             Table.USERS.alterColumns(db);
@@ -921,6 +913,8 @@ public class DBHelper extends SQLiteOpenHelper {
         return false;
     }
 
+
+    // Schema used in 2.3.2
     private static boolean upgradeTo15(SQLiteDatabase db, int oldVersion) {
         try {
             Table.RECORDINGS.alterColumns(db);
@@ -932,71 +926,27 @@ public class DBHelper extends SQLiteOpenHelper {
         return false;
     }
 
-    private static boolean upgradeTo16(SQLiteDatabase db, int oldVersion) {
+
+    // Schema used in 2.4.0
+    private static boolean upgradeTo19(SQLiteDatabase db, int oldVersion) {
         try {
             // legacy tables
             db.execSQL("DROP TABLE IF EXISTS PlaylistItems");
             db.execSQL("DROP TABLE IF EXISTS Playlist");
+            db.execSQL("DROP TABLE IF EXISTS Tracks");
+            db.execSQL("DROP TABLE IF EXISTS TrackPlays");
+            db.execSQL("DROP VIEW  IF EXISTS TrackView");
 
-            cleanActivities(db);
-            Table.COLLECTION_ITEMS.alterColumns(db);
-            Table.SOUNDS.alterColumns(db);
-            Table.SOUND_VIEW.recreate(db);
-            Table.ACTIVITY_VIEW.recreate(db);
-            Table.PLAYLIST_TRACKS.create(db);
-            Table.PLAY_QUEUE.create(db);
-            Table.SOUND_ASSOCIATION_VIEW.create(db);
-            return true;
-
+            for (Table t : Table.values()) {
+                if (t == Table.RECORDINGS) continue;
+                t.recreate(db);
+            }
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade16 " +
+            SoundCloudApplication.handleSilentException("error during upgrade19" +
                     "(from " + oldVersion + ")", e);
+            return false;
         }
-        return false;
-    }
-
-    private static boolean upgradeTo17(SQLiteDatabase db, int oldVersion) {
-        try {
-            Table.SOUNDS.alterColumns(db);
-            Table.ACTIVITIES.alterColumns(db);
-            Table.SOUND_VIEW.recreate(db);
-            Table.ACTIVITY_VIEW.recreate(db);
-            return true;
-        } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade17 " +
-                    "(from " + oldVersion + ")", e);
-        }
-        return false;
-    }
-
-    private static boolean upgradeTo18(SQLiteDatabase db, int oldVersion) {
-        try {
-            Table.SUGGESTIONS.recreate(db);
-            return true;
-        } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade18 " +
-                    "(from " + oldVersion + ")", e);
-        }
-        return false;
-    }
-
-    /*
-    Stream items upgrade
-     */
-    private static boolean upgradeTo19(SQLiteDatabase db, int oldVersion) {
-        try {
-            Table.SOUNDS.alterColumns(db); // added playlist support
-            Table.USERS.alterColumns(db); // added type column
-            Table.ACTIVITIES.alterColumns(db);
-            Table.SOUND_VIEW.recreate(db);
-            Table.ACTIVITY_VIEW.recreate(db);
-            Table.COLLECTION_ITEMS.alterColumns(db);
-            return true;
-        } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade18 " +
-                    "(from " + oldVersion + ")", e);
-        }
-        return false;
+        return true;
     }
 
     public static String getWhereInClause(String column, List<Long> idSet){
