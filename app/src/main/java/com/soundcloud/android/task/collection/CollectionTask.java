@@ -35,7 +35,7 @@ public class CollectionTask extends ParallelAsyncTask<CollectionParams, ReturnDa
     @Override
     protected ReturnData doInBackground(CollectionParams... xparams) {
         CollectionParams params = xparams[0];
-        Log.d(TAG, getClass().getSimpleName() + "Loading collection with params: " + params);
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, getClass().getSimpleName() + "Loading collection with params: " + params);
 
         final Class<? extends ScModel> resourceType = params.getContent().modelType;
         if (resourceType != null && Activity.class.isAssignableFrom(resourceType)) {

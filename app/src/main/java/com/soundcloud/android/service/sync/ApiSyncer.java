@@ -374,12 +374,12 @@ public class ApiSyncer {
             int inserted = 0;
             if (!cvs.isEmpty()) {
                 inserted = mResolver.bulkInsert(c.uri, cvs.toArray(new ContentValues[cvs.size()]));
-                Log.d(TAG, "inserted " + inserted + " generic models");
+                log("inserted " + inserted + " generic models");
             }
 
             result.setSyncData(System.currentTimeMillis(), inserted, null);
             result.success = true;
-        } else {
+        } else if (Log.isLoggable(TAG, Log.WARN)){
             Log.w(TAG, "request "+ request +" returned "+resp.getStatusLine());
         }
         return result;
@@ -429,7 +429,7 @@ public class ApiSyncer {
                 int inserted = 0;
                 if (!cvs.isEmpty()) {
                     inserted = mResolver.bulkInsert(Content.ME_CONNECTIONS.uri, cvs.toArray(new ContentValues[cvs.size()]));
-                    Log.d(TAG, "inserted " + inserted + " generic models");
+                    log("inserted " + inserted + " generic models");
                 }
 
                 result.setSyncData(System.currentTimeMillis(), inserted, null);
@@ -450,7 +450,7 @@ public class ApiSyncer {
         resources.addAll(SoundCloudApplication.MODEL_MANAGER.getCollectionFromStream(is).collection);
 
         final int inserted = SoundCloudDB.bulkInsertModels(mResolver, resources);
-        Log.d(TAG, "inserted " +inserted + " resources");
+        log("inserted " +inserted + " resources");
         result.change = inserted > 0 ? Result.CHANGED : Result.UNCHANGED;
         result.success = true;
         return result;

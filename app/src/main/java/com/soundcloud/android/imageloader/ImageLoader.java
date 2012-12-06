@@ -343,17 +343,17 @@ public class ImageLoader {
     private void flushRequests() {
         checkUIThread();
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "flushRequests(): size "+mRequests.size()+", active="+mActiveTaskCount);
+        log("flushRequests(): size "+mRequests.size()+", active="+mActiveTaskCount);
         if (!isBlocked()) {
             while (mActiveTaskCount < mMaxTaskCount && !mRequests.isEmpty()) {
                 final ImageRequest request = mRequests.poll();
                 if (request != null) {
-                    Log.d(TAG, "executing task "+request);
+                    log("executing task "+request);
                     new ImageTask().executeOnThreadPool(request);
                 }
             }
         } else {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "flushRequests: isBLocked");
+            log("flushRequests: isBLocked");
         }
     }
 
@@ -534,7 +534,7 @@ public class ImageLoader {
 
         private Bitmap loadImage(URL url) throws IOException {
             // fallback - open connection and use whatever is provided by the system
-            Log.d(TAG, "loading "+url+" for "+mImageCallbacks);
+            log("loading "+url+" for "+mImageCallbacks);
             return (Bitmap) mBitmapContentHandler.getContent(url.openConnection());
         }
 
@@ -692,9 +692,7 @@ public class ImageLoader {
         protected ImageRequest doInBackground(ImageRequest... requests) {
             if (requests != null && requests.length > 0) {
                 for (ImageRequest request : requests) {
-                    if (Log.isLoggable(TAG, Log.DEBUG)) {
-                        Log.d(TAG, "startExecute("+request+")");
-                    }
+                    log("startExecute("+request+")");
                     if (request.execute()) {
                         publishProgress(request);
                     }
@@ -712,7 +710,6 @@ public class ImageLoader {
 
         @Override
         protected void onPostExecute(ImageRequest result) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onPostExecute("+result+"");
             mActiveTaskCount--;
             mAllRequests.remove(result);
             flushRequests();
@@ -828,5 +825,9 @@ public class ImageLoader {
         if (Looper.myLooper() != Looper.getMainLooper()) {
             throw new RuntimeException("ImageLoader operations need to be executed on the UI thread");
         }
+    }
+
+    private static void log(String msg) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, msg);
     }
 }
