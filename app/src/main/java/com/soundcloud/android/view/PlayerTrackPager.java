@@ -73,7 +73,7 @@ public class PlayerTrackPager extends ViewPager {
                 }
 
 
-                PlayQueueManager playQueueManager = CloudPlaybackService.getPlayQueueManager();
+                PlayQueueManager playQueueManager = CloudPlaybackService.getPlaylistManager();
                 final long queueLength = playQueueManager == null ? 1 : playQueueManager.length();
 
                 if (state == ViewPager.SCROLL_STATE_IDLE) {

@@ -1,7 +1,7 @@
 
 package com.soundcloud.android.activity;
 
-import static com.soundcloud.android.service.playback.CloudPlaybackService.getPlayQueueManager;
+import static com.soundcloud.android.service.playback.CloudPlaybackService.getPlaylistManager;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -100,7 +100,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     @Override
     public void onPageSettling() {
-        final PlayQueueManager playQueueManager = getPlayQueueManager();
+        final PlayQueueManager playQueueManager = getPlaylistManager();
         if (playQueueManager != null) {
             if (playQueueManager.getPosition() != getCurrentDisplayedTrackPosition() // different track
                     && !mHandler.hasMessages(SEND_CURRENT_QUEUE_POSITION) // not already changing
@@ -214,15 +214,17 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     protected void onPlaybackServiceBound(@NotNull CloudPlaybackService service) {
-        if (CloudPlaybackService.getCurrentTrackId() == -1 && !service.configureLastPlaylist()) {
-            // nothing to show, send them back to main
-            Intent intent = new Intent(this, Home.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-        } else if (mPendingPlayPosition != -1){
+        if (mPendingPlayPosition != -1) {
             service.setQueuePosition(mPendingPlayPosition);
             mPendingPlayPosition = -1;
+        } else {
+            final PlayQueueManager playQueueManager = CloudPlaybackService.getPlaylistManager();
+            if (playQueueManager != null && (!playQueueManager.isEmpty() && mTrackPager.getChildCount() == 0)) {
+                // everything is fine, configure from service
+                onMetaChanged(playQueueManager.getPosition());
+            }
         }
+
     }
 
     @Override
@@ -286,7 +288,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     private final View.OnClickListener mPauseListener = new View.OnClickListener() {
         public void onClick(View v) {
-            final PlayQueueManager playQueueManager = getPlayQueueManager();
+            final PlayQueueManager playQueueManager = getPlaylistManager();
             if (mPlaybackService != null && playQueueManager != null) {
                 if (getCurrentDisplayedTrackPosition() != playQueueManager.getPosition()) {
                     mPlaybackService.setQueuePosition(getCurrentDisplayedTrackPosition());
@@ -306,7 +308,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         super.onStart();
         mActivityPaused = false;
 
-        bindService(new Intent(this, CloudPlaybackService.class), osc, 0);
+        bindService(new Intent(this, CloudPlaybackService.class), osc, BIND_AUTO_CREATE);
         IntentFilter f = new IntentFilter();
         f.addAction(CloudPlaybackService.PLAYQUEUE_CHANGED);
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
@@ -328,12 +330,16 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
         if (!mIgnoreServiceQueue) {
             // this will configure the playlist from the service
-            final PlayQueueManager playQueueManager = CloudPlaybackService.getPlayQueueManager();
-            if (playQueueManager != null) onMetaChanged(playQueueManager.getPosition());
+            final PlayQueueManager playQueueManager = CloudPlaybackService.getPlaylistManager();
+            if (playQueueManager != null && (!playQueueManager.isEmpty())) {
+                // everything is fine, configure from service
+                onMetaChanged(playQueueManager.getPosition());
+            }
         } else {
             // set to false for coming back from lock screen
             mIgnoreServiceQueue = false;
         }
+
     }
 
     @Override
@@ -360,7 +366,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         public void onClick(View v) {
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
-            final PlayQueueManager playQueueManager = getPlayQueueManager();
+            final PlayQueueManager playQueueManager = getPlaylistManager();
             if (mPlaybackService != null && playQueueManager != null) {
                 final int playPosition = playQueueManager.getPosition();
                 if (mPlaybackService.getProgress() < 2000 && playPosition > 0) {
@@ -399,7 +405,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                     track(Media.fromTrack(currentTrack), Media.Action.Forward);
                 }
 
-                final PlayQueueManager playQueueManager = getPlayQueueManager();
+                final PlayQueueManager playQueueManager = getPlaylistManager();
                 if (mPlaybackService != null && playQueueManager != null) {
                     final int playPosition = playQueueManager.getPosition();
                     if (playQueueManager.length() > playPosition + 1) {
@@ -529,7 +535,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     private void setTrackDisplayFromService(int queuePosition) {
-        final PlayQueueManager playQueueManager = getPlayQueueManager();
+        final PlayQueueManager playQueueManager = getPlaylistManager();
 
         mTrackPager.configureFromService(this, playQueueManager, queuePosition);
         final long queueLength = playQueueManager == null ? 1 :playQueueManager.length();

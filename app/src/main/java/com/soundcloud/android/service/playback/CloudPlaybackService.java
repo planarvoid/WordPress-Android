@@ -62,7 +62,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private static @Nullable CloudPlaybackService instance;
     public static @Nullable CloudPlaybackService getInstance() { return instance; }
-    public static @Nullable PlayQueueManager getPlayQueueManager() { return instance == null ? null : instance.getPlaylistManager(); }
+    public static @Nullable PlayQueueManager getPlaylistManager() { return instance == null ? null : instance.getPlayQueueManager(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
 
     private static State state = STOPPED;
@@ -79,6 +79,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static final String STOP_ACTION          = "com.soundcloud.android.playback.stop"; // from the notification
     public static final String ADD_LIKE_ACTION      = "com.soundcloud.android.favorite.add";
     public static final String REMOVE_LIKE_ACTION   = "com.soundcloud.android.favorite.remove";
+    public static final String RELOAD_QUEUE         = "com.soundcloud.android.favorite.reloadqueue";
 
     // broadcast notifications
     public static final String UPDATE_WIDGET_ACTION = "com.soundcloud.android.playback.updatewidgetaction";
@@ -191,6 +192,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         commandFilter.addAction(RESET_ALL);
         commandFilter.addAction(STOP_ACTION);
         commandFilter.addAction(PLAYQUEUE_CHANGED);
+        commandFilter.addAction(RELOAD_QUEUE);
+
 
         registerReceiver(mIntentReceiver, commandFilter);
         registerReceiver(mNoisyReceiver, new IntentFilter(Consts.AUDIO_BECOMING_NOISY));
@@ -284,6 +287,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     public boolean configureLastPlaylist() {
+        if (state.isSupposedToBePlaying()) {
+            togglePlayback();
+        }
+
         mResumeTime = mPlayQueueManager.reloadQueue();
         currentTrack = mPlayQueueManager.getCurrentTrack();
         if (currentTrack != null && mResumeTime > 0) {
@@ -837,7 +844,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         openCurrent();
     }
 
-    public PlayQueueManager getPlaylistManager() {
+    public PlayQueueManager getPlayQueueManager() {
         return mPlayQueueManager;
     }
 
@@ -982,7 +989,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         Track track = intent.getParcelableExtra(Track.EXTRA);
         if (track != null) {
             // go to the cache to ensure 1 copy of each track app wide
-            mPlayQueueManager.setTrack(SoundCloudApplication.MODEL_MANAGER.cache(track, ScResource.CacheUpdateMode.NONE));
+            mPlayQueueManager.setTrack(SoundCloudApplication.MODEL_MANAGER.cache(track, ScResource.CacheUpdateMode.NONE), true);
             openCurrent();
         } else if (intent.hasExtra(EXTRA_TRACK_ID)) {
             mPlayQueueManager.setTrack(intent.getLongExtra(EXTRA_TRACK_ID, -1l));

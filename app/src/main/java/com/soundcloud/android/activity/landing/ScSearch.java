@@ -174,14 +174,17 @@ public class ScSearch extends ScActivity {
                 break;
         }
 
-        mSearchFragment.setCurrentSearch(search);
+        if (mSearchFragment != null){
+            mSearchFragment.setCurrentSearch(search);
+            mCurrentSearch = search;
+        } else {
+            pendingSearch = search;
+        }
 
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (mgr != null) {
             mgr.hideSoftInputFromWindow(mTxtQuery.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
-
-        mCurrentSearch = search;
         return true;
     }
 

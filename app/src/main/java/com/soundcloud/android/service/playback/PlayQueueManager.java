@@ -142,17 +142,18 @@ public class PlayQueueManager {
     public void setTrack(long toBePlayed) {
         Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(toBePlayed);
         if (t != null) {
-            setTrack(t);
+            setTrack(t, true);
         }
     }
 
-    public void setTrack(Track toBePlayed) {
+    public void setTrack(Track toBePlayed, boolean saveQueue) {
         SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScResource.CacheUpdateMode.NONE);
         mPlayQueue = new Track[] { toBePlayed };
         mPlayQueueUri = new PlayQueueUri();
         mPlayPos = 0;
-        saveQueue(0, true);
+
         broadcastPlayQueueChanged();
+        if (saveQueue) saveQueue(0, true);
     }
 
     public void loadUri(Uri uri, int position, long initialTrackId) {
@@ -174,7 +175,7 @@ public class PlayQueueManager {
      */
     public void loadUri(Uri uri, int position, @Nullable Track initialTrack) {
         if (initialTrack != null) {
-            setTrack(initialTrack);
+            setTrack(initialTrack, false);
         } else {
             // no track yet, load async
             mPlayQueue = new Track[0];
