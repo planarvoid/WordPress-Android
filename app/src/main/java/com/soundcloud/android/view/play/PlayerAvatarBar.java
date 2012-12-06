@@ -273,25 +273,26 @@ public class PlayerAvatarBar extends View {
     };
 
     private void drawCommentOnCanvas(Comment comment, Canvas canvas, Paint linePaint, Paint imagePaint, Matrix matrix){
-        if (canvas != null) {
-            if (!comment.shouldLoadIcon() || comment.avatar == null || comment.avatar.isRecycled()) {
-                if (mLandscape) {
-                    refreshDefaultAvatar();
-                    matrix.setScale(mDefaultAvatarScale, mDefaultAvatarScale);
-                    matrix.postTranslate(comment.xPos, 0);
-                    canvas.drawBitmap(mDefaultAvatar, matrix, imagePaint);
-                }
-                canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
+        if (canvas == null) return;
+        final Bitmap avatar = comment.avatar;
 
-                if (comment.avatar != null && comment.avatar.isRecycled()) loadAvatar(comment);
-
-            } else if (comment.avatar != null) {
-                final float drawScale = ((float) mAvatarWidth) / comment.avatar.getHeight();
-                matrix.setScale(drawScale, drawScale);
+        if (avatar == null || avatar.isRecycled() || !comment.shouldLoadIcon()) {
+            if (mLandscape) {
+                refreshDefaultAvatar();
+                matrix.setScale(mDefaultAvatarScale, mDefaultAvatarScale);
                 matrix.postTranslate(comment.xPos, 0);
-                canvas.drawBitmap(comment.avatar, matrix, imagePaint);
-                canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
+                canvas.drawBitmap(mDefaultAvatar, matrix, imagePaint);
             }
+            canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
+
+            if (avatar != null && avatar.isRecycled()) loadAvatar(comment);
+
+        } else {
+            final float drawScale = ((float) mAvatarWidth) / avatar.getHeight();
+            matrix.setScale(drawScale, drawScale);
+            matrix.postTranslate(comment.xPos, 0);
+            canvas.drawBitmap(avatar, matrix, imagePaint);
+            canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
         }
     }
 
