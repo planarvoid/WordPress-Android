@@ -165,7 +165,7 @@ namespace :release do
     raise "#{versionName}: Not a release version" if versionName.to_s =~ /-BETA(\d+)?\Z/
     raise "Uncommitted changes in working tree" unless system("git diff --exit-code --quiet")
     update_version(versionName)
-    sh "git commit -a -m 'Bumped to #{newVersion}'"
+    sh "git commit -a -m 'Bumped to #{versionName}'"
   end
 end
 
