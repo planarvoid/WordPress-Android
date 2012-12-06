@@ -50,6 +50,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -541,7 +542,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 return true;
 
             case HttpStatus.SC_UNAUTHORIZED:
-                //getActivity().safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
+                final FragmentActivity activity = getActivity();
+                if (activity != null && !activity.isFinishing()) {
+                    activity.showDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
+                }
                 //noinspection fallthrough
             default:
                 Log.w(TAG, "unexpected responseCode " + responseCode);
