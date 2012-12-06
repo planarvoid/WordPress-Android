@@ -64,6 +64,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static @Nullable CloudPlaybackService getInstance() { return instance; }
     public static @Nullable PlayQueueManager getPlaylistManager() { return instance == null ? null : instance.getPlayQueueManager(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
+    public static int getLoadingPercent() { return instance == null ? -1 : instance.loadPercent(); }
 
     private static State state = STOPPED;
     public static State getState() { return state; }
