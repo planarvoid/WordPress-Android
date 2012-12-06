@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>com.soundcloud.android</groupId>
     <artifactId>parent</artifactId>
     <version>2.4.1-BETA1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>SoundCloud for Android</name>
+
+    <name>Parent</name>
+
     <description>SoundCloud for Android</description>
+
+    <organization>
+        <name>SoundCloud Ltd.</name>
+        <url>http://soundcloud.com</url>
+    </organization>
 
     <build>
         <pluginManagement>
@@ -86,4 +94,14 @@
         <connection>scm:git:https://github.com/soundcloud/SoundCloud-Android.git</connection>
         <url>https://github.com/soundcloud/SoundCloud-Android</url>
     </scm>
+
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/soundcloud/SoundCloud-Android/issues</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>jenkins</system>
+        <url>http://builder.soundcloud.com/view/Android/</url>
+    </ciManagement>
 </project>
