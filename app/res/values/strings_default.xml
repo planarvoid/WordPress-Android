@@ -234,7 +234,7 @@
   <string name="info_comments_comments">Comments</string>
   <string name="info_empty_other_message">This person hasn\'t added\na profile description yet.</string>
   <string name="info_empty_you_action">Edit your profile</string>
-  <string name="info_empty_you_message">Your profile is empty./nLet people know about you!</string>
+  <string name="info_empty_you_message">Your profile is empty.\nLet people know about you!</string>
   <string name="info_error">Unable to get info</string>
   <string name="list_empty_activity_action">Make your sounds social</string>
   <string name="list_empty_activity_message">Oh no! Your sounds don’t have any comments or likes. But you can change that by making your sounds social!\n\n        Share your sounds with friends and social networks to get Activity on your sounds.</string>
