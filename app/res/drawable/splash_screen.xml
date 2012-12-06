@@ -11,6 +11,8 @@
     </item>
     <item>
         <bitmap android:src="@drawable/splash_logo"
-                android:gravity="center"/>
+                android:gravity="center"
+                android:left="-50dp"
+                android:top="-400dp"/>
     </item>
 </layer-list>
