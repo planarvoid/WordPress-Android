@@ -191,7 +191,8 @@ public class PlayerTrackPager extends ViewPager {
 
         setCurrentItem(playPosition == 0 ? 0 : // beginning
                 onLastTrack ? mViews.size() - 1 : // end
-                1); // middle
+                1, // middle
+                false); // no animate
     }
 
     public @Nullable PlayerTrackView getCurrentTrackView() {

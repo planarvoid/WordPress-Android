@@ -34,6 +34,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -217,14 +218,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         if (mPendingPlayPosition != -1) {
             service.setQueuePosition(mPendingPlayPosition);
             mPendingPlayPosition = -1;
-        } else {
-            final PlayQueueManager playQueueManager = CloudPlaybackService.getPlaylistManager();
-            if (playQueueManager != null && (!playQueueManager.isEmpty() && mTrackPager.getChildCount() == 0)) {
-                // everything is fine, configure from service
-                onMetaChanged(playQueueManager.getPosition());
-            }
         }
-
     }
 
     @Override
@@ -308,7 +302,25 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         super.onStart();
         mActivityPaused = false;
 
-        bindService(new Intent(this, CloudPlaybackService.class), osc, BIND_AUTO_CREATE);
+        if (!mIgnoreServiceQueue) {
+
+            // this will configure the playlist from the service
+            final PlayQueueManager playQueueManager = CloudPlaybackService.getPlaylistManager();
+            if (playQueueManager != null && !playQueueManager.isEmpty()) {
+                // everything is fine, configure from service
+                onMetaChanged(playQueueManager.getPosition());
+
+            } else {
+                // service doesn't exist, start it, it will reload queue and broadcast changes
+                startService(new Intent(this, CloudPlaybackService.class));
+            }
+
+        } else {
+            // set to false for coming back from lock screen
+            mIgnoreServiceQueue = false;
+        }
+
+        bindService(new Intent(this, CloudPlaybackService.class), osc, 0);
         IntentFilter f = new IntentFilter();
         f.addAction(CloudPlaybackService.PLAYQUEUE_CHANGED);
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
@@ -327,19 +339,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         f.addAction(Sound.ACTION_SOUND_INFO_ERROR);
         f.addAction(Sound.ACTION_COMMENT_ADDED);
         registerReceiver(mStatusListener, new IntentFilter(f));
-
-        if (!mIgnoreServiceQueue) {
-            // this will configure the playlist from the service
-            final PlayQueueManager playQueueManager = CloudPlaybackService.getPlaylistManager();
-            if (playQueueManager != null && (!playQueueManager.isEmpty())) {
-                // everything is fine, configure from service
-                onMetaChanged(playQueueManager.getPosition());
-            }
-        } else {
-            // set to false for coming back from lock screen
-            mIgnoreServiceQueue = false;
-        }
-
     }
 
     @Override
@@ -505,6 +504,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     };
 
     private void onMetaChanged(int queuePos) {
+
         mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
         final int playPosition = getCurrentDisplayedTrackPosition();
         if (playPosition != queuePos) {
