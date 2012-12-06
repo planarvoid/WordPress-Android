@@ -300,6 +300,15 @@ public class Track extends Sound implements Playable {
             dest.writeString(permalink_url);
             dest.writeString(external_url);
         }
+
+        public static final Parcelable.Creator<CreatedWith> CREATOR = new Parcelable.Creator<CreatedWith>() {
+            public CreatedWith createFromParcel(Parcel in) {
+                return new CreatedWith(in);
+            }
+            public CreatedWith[] newArray(int size) {
+                return new CreatedWith[size];
+            }
+        };
     }
 
     public Track() {
