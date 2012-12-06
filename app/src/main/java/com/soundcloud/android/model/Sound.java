@@ -264,7 +264,6 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
             reposts_count = updatedItem.reposts_count;
             user_like = updatedItem.user_like;
             created_at = updatedItem.created_at;
-            //user_repost = updatedItem.user_repost; THIS DOES NOT COME FROM THE API, ONLY UPDATE FROM DB
 
             // these will get refreshed
             mElapsedTime = null;
