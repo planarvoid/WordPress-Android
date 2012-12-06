@@ -129,7 +129,7 @@ public enum Page implements Event {
     }
 
     private static String expandVariables(String template, Track track) {
-        if (template.contains(track_permalink)) {
+        if (template.contains(track_permalink) && track.permalink != null) {
             template = template.replace(track_permalink, track.permalink);
         }
         if (track.user != null) {
