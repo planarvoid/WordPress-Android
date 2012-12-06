@@ -84,10 +84,11 @@ public class DBHelper extends SQLiteOpenHelper {
                         case 15:
                             success = upgradeTo15(db, oldVersion);
                             break;
-
-                        case 16: break;
-                        case 17: break;
-                        case 18: break;
+                        case 16:
+                        case 17:
+                        case 18:
+                            success = true;
+                            break;
                         case 19:
                             success = upgradeTo19(db, oldVersion);
                             break;
@@ -941,12 +942,13 @@ public class DBHelper extends SQLiteOpenHelper {
                 if (t == Table.RECORDINGS) continue;
                 t.recreate(db);
             }
+            return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade19" +
                     "(from " + oldVersion + ")", e);
             return false;
         }
-        return true;
+
     }
 
     public static String getWhereInClause(String column, List<Long> idSet){
