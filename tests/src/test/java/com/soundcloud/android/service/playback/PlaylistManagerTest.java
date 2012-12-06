@@ -272,7 +272,7 @@ public class PlaylistManagerTest {
     @Test
     public void shouldSetSingleTrack() throws Exception {
         List<Track> tracks = createTracks(1, true, 0);
-        pm.setTrack(tracks.get(0));
+        pm.setTrack(tracks.get(0), true);
         expect(pm.length()).toEqual(1);
         expect(pm.getCurrentTrack()).toBe(tracks.get(0));
     }

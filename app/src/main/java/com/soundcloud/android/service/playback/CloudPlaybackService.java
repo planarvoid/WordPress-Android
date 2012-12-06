@@ -992,7 +992,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             mPlayQueueManager.setTrack(SoundCloudApplication.MODEL_MANAGER.cache(track, ScResource.CacheUpdateMode.NONE), true);
             openCurrent();
         } else if (intent.hasExtra(EXTRA_TRACK_ID)) {
-            mPlayQueueManager.setTrack(intent.getLongExtra(EXTRA_TRACK_ID, -1l));
+            mPlayQueueManager.setTrackById(intent.getLongExtra(EXTRA_TRACK_ID, -1l));
             openCurrent();
         } else if (intent.getData() != null) {
             mPlayQueueManager.loadUri(intent.getData(),

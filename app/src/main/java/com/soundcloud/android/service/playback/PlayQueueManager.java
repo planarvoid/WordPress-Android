@@ -139,7 +139,7 @@ public class PlayQueueManager {
         }
     }
 
-    public void setTrack(long toBePlayed) {
+    public void setTrackById(long toBePlayed) {
         Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(toBePlayed);
         if (t != null) {
             setTrack(t, true);
