@@ -234,8 +234,9 @@ public class ActionBarController {
                 // don't do the whole unblocking animation until after exit
                 mCloseSearchOnResume = true;
 
-                // close IME
+                // close IME and kill search text
                 getSearchView().clearFocus();
+                if (search_text != null) search_text.setText("");
 
                 final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
                 mActivity.startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
@@ -248,6 +249,12 @@ public class ActionBarController {
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
+                    // don't do the whole unblocking animation until after exit
+                    mCloseSearchOnResume = true;
+
+                    // close IME and kill search text
+                    getSearchView().clearFocus();
+                    if (search_text != null) search_text.setText("");
                     return false;
                 }
 
@@ -264,7 +271,7 @@ public class ActionBarController {
                     public void onChanged() {
                         if (mSuggestionsAdapter.getCount() > 0 && !TextUtils.isEmpty(search_text.getText())) {
                             mRootView.block();
-                        } else {
+                        } else if (!mCloseSearchOnResume) {
                             mRootView.unBlock(false);
                         }
                     }

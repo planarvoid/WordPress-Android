@@ -2,7 +2,7 @@
 <resources>
 
     <style name="Theme.Next" parent="@style/Theme.Sherlock.Light.DarkActionBar">
-        <item name="android:background">@null</item>
+        <item name="android:windowBackground">@color/main_menu_bg</item>
 
         <item name="actionBarItemBackground">@drawable/action_bar_item_selector</item>
         <item name="android:actionBarItemBackground">@drawable/action_bar_item_selector</item>
