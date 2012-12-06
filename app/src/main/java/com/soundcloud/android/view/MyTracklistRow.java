@@ -3,23 +3,23 @@ package com.soundcloud.android.view;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.os.Parcelable;
-import android.text.TextUtils;
-import android.view.ViewStub;
-import android.widget.BaseAdapter;
-import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.adapter.TrackInfoBar;
 
+import android.content.Context;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewStub;
+import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -31,17 +31,23 @@ public class MyTracklistRow extends TrackInfoBar {
     private Drawable mPrivateBgDrawable;
     private Drawable mVeryPrivateBgDrawable;
 
-    public MyTracklistRow(Context activity, LazyBaseAdapter adapter) {
+    public MyTracklistRow(Context activity, IScAdapter adapter) {
         super(activity, adapter);
         mTitle = (TextView) findViewById(R.id.track);
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
         mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
+
     }
 
     @Override
-    protected int getRowResourceId() {
-        return R.layout.record_list_item_row;
+    protected View addContent() {
+        return View.inflate(getContext(), R.layout.record_list_item_row, this);
     }
+
+    //    @Override
+//    protected int getRowResourceId() {
+//        return R.layout.record_list_item_row;
+//    }
 
     private Drawable getPrivateBgDrawable(){
           if (mPrivateBgDrawable == null) {
@@ -61,7 +67,7 @@ public class MyTracklistRow extends TrackInfoBar {
 
      @Override
     public void display(Cursor cursor) {
-        display(cursor.getPosition(), new Track(cursor));
+        display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor));
     }
     @Override
     public void display(int position, Parcelable p) {

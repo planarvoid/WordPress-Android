@@ -5,7 +5,7 @@ from com.android.monkeyrunner import MonkeyRunner, MonkeyDevice
 
 
 package  = "com.soundcloud.android"
-activity = ".activity.Main"
+activity = ".activity.landing.Home"
 
 login    = sys.argv[1] if len(sys.argv) > 1 else "aeffle:m0nk3yz"
 apk      = sys.argv[2] if len(sys.argv) > 2 else None
@@ -32,7 +32,8 @@ press(device, 'KEYCODE_MENU')
 
 MonkeyRunner.sleep(10)
 
-press(device, 'KEYCODE_DPAD_DOWN')
+press(device, 'KEYCODE_DPAD_RIGHT')
+press(device, 'KEYCODE_DPAD_RIGHT')
 press(device, 'KEYCODE_ENTER')
 device.type(username)
 press(device, 'KEYCODE_DPAD_DOWN')

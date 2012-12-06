@@ -3,12 +3,10 @@ package com.soundcloud.android.provider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Build;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,31 +16,34 @@ import java.util.Collections;
 import java.util.List;
 
 public enum Table {
-    TRACKS("Tracks", false, DBHelper.DATABASE_CREATE_TRACKS, DBHelper.Tracks.ALL_FIELDS),
-    TRACK_PLAYS("TrackPlays", false, null),
+    SOUNDS("Sounds", false, DBHelper.DATABASE_CREATE_SOUNDS, DBHelper.Sounds.ALL_FIELDS),
     TRACK_METADATA("TrackMetadata", false, DBHelper.DATABASE_CREATE_TRACK_METADATA, DBHelper.TrackMetadata.ALL_FIELDS),
     USERS("Users", false, DBHelper.DATABASE_CREATE_USERS, DBHelper.Users.ALL_FIELDS),
     COMMENTS("Comments", false, DBHelper.DATABASE_CREATE_COMMENTS),
     ACTIVITIES("Activities", false, DBHelper.DATABASE_CREATE_ACTIVITIES),
     RECORDINGS("Recordings", false, DBHelper.DATABASE_CREATE_RECORDINGS, DBHelper.Recordings.ALL_FIELDS),
     SEARCHES("Searches", false, DBHelper.DATABASE_CREATE_SEARCHES),
+    PLAYLIST_TRACKS("PlaylistTracks", false, DBHelper.DATABASE_CREATE_PLAYLIST_TRACKS),
 
-    PLAYLIST("Playlist", false, DBHelper.DATABASE_CREATE_PLAYLIST),
-    PLAYLIST_ITEMS("PlaylistItems", false, DBHelper.DATABASE_CREATE_PLAYLIST_ITEMS),
+    PLAY_QUEUE("PlayQueue", false, DBHelper.DATABASE_CREATE_PLAY_QUEUE),
 
     COLLECTION_ITEMS("CollectionItems", false, DBHelper.DATABASE_CREATE_COLLECTION_ITEMS),
     COLLECTIONS("Collections", false, DBHelper.DATABASE_CREATE_COLLECTIONS),
     COLLECTION_PAGES("CollectionPages", false, DBHelper.DATABASE_CREATE_COLLECTION_PAGES),
 
+    SUGGESTIONS("Suggestions", false, DBHelper.DATABASE_CREATE_SUGGESTIONS, DBHelper.Suggestions.ALL_FIELDS),
+    CONNECTIONS("Connections", false, DBHelper.DATABASE_CREATE_CONNECTIONS),
+
     // views
-    TRACK_VIEW("TrackView", true, DBHelper.DATABASE_CREATE_TRACK_VIEW),
+    SOUND_VIEW("SoundView", true, DBHelper.DATABASE_CREATE_SOUND_VIEW),
     ACTIVITY_VIEW("ActivityView", true, DBHelper.DATABASE_CREATE_ACTIVITY_VIEW),
-    ;
+    SOUND_ASSOCIATION_VIEW("SoundAssociationView", true, DBHelper.DATABASE_CREATE_SOUND_ASSOCIATION_VIEW);
 
 
     public final String name;
     public final String createString;
     public final String id;
+    public final String type;
     public final String[] fields;
     public final boolean view;
     public static final String TAG = DBHelper.TAG;
@@ -57,6 +58,7 @@ public enum Table {
             createString = null;
         }
         id = this.name +"."+BaseColumns._ID;
+        type = this.name + "." + DBHelper.ResourceTable._TYPE;
         this.fields = fields;
     }
 
@@ -94,10 +96,14 @@ public enum Table {
     }
 
     public void create(SQLiteDatabase db) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "creating " + name);
         if (!TextUtils.isEmpty(createString)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "creating " + (view ? "view" : "table") + " " + name);
+            }
             db.execSQL(createString);
-        } else if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "NOT creating " + name);
+        } else if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "NOT creating " + name);
+        }
     }
 
     public void recreate(SQLiteDatabase db) {
@@ -218,11 +224,12 @@ public enum Table {
         return updated;
     }
 
-    public int upsertSingle(SQLiteDatabase db, ContentValues cv) {
-        return upsert(db, new ContentValues[] { cv } );
+    public long upsertSingle(SQLiteDatabase db, ContentValues cv) {
+        upsert(db, new ContentValues[] { cv } );
+        return cv.getAsLong(BaseColumns._ID);
     }
 
-    public int upsertSingleArgs(SQLiteDatabase db, Object... args) {
+    public long upsertSingleArgs(SQLiteDatabase db, Object... args) {
         return upsertSingle(db, build(args));
     }
 
@@ -230,31 +237,8 @@ public enum Table {
         return insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
-    @TargetApi(8)
     public long insertWithOnConflict(SQLiteDatabase db, ContentValues cv, int conflict) {
-        if (Build.VERSION.SDK_INT == 0 /* robolectric */ || Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
-            return db.insertWithOnConflict(name, null, cv, conflict);
-        } else {
-            // 2.1 compatible code
-            switch (conflict) {
-                case SQLiteDatabase.CONFLICT_REPLACE: {
-                    final long id = db.insert(name, null, cv);
-                    if (id == -1) {
-                        Long lid = cv.getAsLong(BaseColumns._ID);
-                        if (lid != null) {
-                            if (db.update(name, cv, "_id = ?", new String[]{String.valueOf(lid)}) == 1) {
-                                return lid;
-                            } else {
-                                return -1;
-                            }
-                        } else return -1;
-                    } else return id;
-                }
-
-                default:
-                    return -1;
-            }
-        }
+        return db.insertWithOnConflict(name, null, cv, conflict);
     }
 
     public long insertOrReplaceArgs(SQLiteDatabase db, Object... args) {

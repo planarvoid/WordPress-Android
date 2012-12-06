@@ -86,13 +86,12 @@ public class AlarmClockTest {
 
     @Test
     public void playShouldStartService() throws Exception {
-        alarm.play(Robolectric.application, Content.ME_FAVORITES.uri);
+        alarm.play(Robolectric.application, Content.ME_LIKES.uri);
 
         Intent intent = shadowOf(Robolectric.application).getNextStartedService();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(CloudPlaybackService.PLAY_ACTION);
-        expect(intent.getData()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/me/favorites");
-        expect(shadowOf(intent).getIntentClass().getSimpleName()).toEqual("CloudPlaybackService");
+        expect(intent.getData()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/me/likes");
         expect(intent.getData().getQueryParameter(ScContentProvider.Parameter.CACHED)).toBeNull();
     }
 
@@ -100,13 +99,12 @@ public class AlarmClockTest {
     public void playShouldUseCachedItemsIfNoConnection() throws Exception {
         TestHelper.simulateOffline();
 
-        alarm.play(Robolectric.application, Content.ME_FAVORITES.uri);
+        alarm.play(Robolectric.application, Content.ME_LIKES.uri);
 
         Intent intent = shadowOf(Robolectric.application).getNextStartedService();
         expect(intent).not.toBeNull();
         expect(intent.getData().getQueryParameter(ScContentProvider.Parameter.CACHED)).toEqual("1");
     }
-
 
     @Test
     public void receiverShouldScheduleAnotherAlarmIfFlightmodeSet() throws Exception {

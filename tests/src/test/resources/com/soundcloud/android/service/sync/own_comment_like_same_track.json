@@ -1,0 +1,67 @@
+{
+  "collection": [
+    {
+      "type": "comment",
+      "tags": "own, affiliated",
+      "created_at": "2011/05/29 11:53:09 +0000",
+      "uuid": "b035de80-6dc9-11e1-84dc-sd8f7d64",
+      "comment": {
+        "track_id": 16110503,
+        "user_id": 375367,
+        "body": "heh :)",
+        "timestamp": null,
+        "kind": "comment",
+        "created_at": "2011/05/29 11:51:16 +0000",
+        "id": 17485296,
+        "track": {
+          "user_id": 133201,
+          "permalink_url": "http://soundcloud.com/jberkel/autotune-at-mtv",
+          "kind": "track",
+          "id": 16110503,
+          "permalink": "autotune-at-mtv",
+          "user_uri": "https://api.soundcloud.com/users/133201",
+          "title": "Autotune at MTV",
+          "stream_url": "https://api.soundcloud.com/tracks/16110503/stream",
+          "uri": "https://api.soundcloud.com/tracks/16110503"
+        },
+        "uri": "https://api.soundcloud.com/comments/17485296",
+        "user": {
+          "username": "fronx",
+          "permalink_url": "http://soundcloud.com/fronx",
+          "kind": "user",
+          "id": 375367,
+          "permalink": "fronx",
+          "avatar_url": "http://i1.sndcdn.com/avatars-000003575192-wqnp00-large.jpg?8935bc4",
+          "uri": "https://api.soundcloud.com/users/375367"
+        }
+      }
+    },
+    {
+      "type": "track-like",
+      "tags": "own",
+      "created_at": "2011/07/29 22:30:59 +0000",
+      "uuid": "b035de80-6dc9-11e1-84dc-89s7dfs4",
+
+        "track": {
+          "user_id": 133201,
+          "permalink_url": "http://soundcloud.com/jberkel/autotune-at-mtv",
+          "kind": "track",
+          "id": 16110503,
+          "permalink": "autotune-at-mtv",
+          "user_uri": "https://api.soundcloud.com/users/133201",
+          "title": "Autotune at MTV",
+          "stream_url": "https://api.soundcloud.com/tracks/16110503/stream",
+          "uri": "https://api.soundcloud.com/tracks/16110503"
+        },
+        "user": {
+          "username": "fronx",
+          "permalink_url": "http://soundcloud.com/fronx",
+          "kind": "user",
+          "id": 375367,
+          "permalink": "fronx",
+          "avatar_url": "http://i1.sndcdn.com/avatars-000003575192-wqnp00-large.jpg?8935bc4",
+          "uri": "https://api.soundcloud.com/users/375367"
+      }
+    }
+  ]
+}

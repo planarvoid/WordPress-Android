@@ -6,7 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.PlaylistManager;
+import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -134,18 +134,14 @@ public final class AlarmClock {
 
     /* package */ void play(Context context, Uri uri) {
         // TODO: should be handled via intent parameter
-        PlaylistManager.clearLastPlayed(context);
+        PlayQueueManager.clearLastPlayed(context);
 
         if (!IOUtils.isConnected(context)) {
             // just use cached items if there is no network connection
             uri = uri.buildUpon().appendQueryParameter(
                     ScContentProvider.Parameter.CACHED, "1").build();
         }
-        context.startService(new Intent(
-                context,
-                CloudPlaybackService.class)
-                .setAction(CloudPlaybackService.PLAY_ACTION)
-                .setData(uri)
+        context.startService(new Intent(CloudPlaybackService.PLAY_ACTION, uri)
                 .putExtra(CloudPlaybackService.EXTRA_UNMUTE, true));
     }
 

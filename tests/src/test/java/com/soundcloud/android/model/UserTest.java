@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -68,6 +69,16 @@ public class UserTest {
     }
 
     @Test
+    public void shouldGetWebsiteTitle() throws Exception {
+        User u = new User();
+        expect(u.getWebSiteTitle()).toBeNull();
+        u.website = "http://foo.com";
+        expect(u.getWebSiteTitle()).toEqual("foo.com");
+        u.website_title = "Foo";
+        expect(u.getWebSiteTitle()).toEqual("Foo");
+    }
+
+    @Test
     public void shouldBeParcelable() throws Exception {
         User user = new User();
         user.id = 1;
@@ -85,11 +96,11 @@ public class UserTest {
         user.website_title = "Peters World";
         user.myspace_name = "peter93";
         user.discogs_name = "peter_discogs";
-        user.track_count      = 1;
-        user.followers_count  = 2;
+        user.track_count = 1;
+        user.followers_count = 2;
         user.followings_count = 3;
-        user.public_favorites_count = 4;
-        user.private_tracks_count   = 5;
+        user.public_likes_count = 4;
+        user.private_tracks_count = 5;
 
 
         Parcel p = Parcel.obtain();
@@ -115,7 +126,30 @@ public class UserTest {
         expect(u.track_count).toEqual(user.track_count);
         expect(u.followers_count).toEqual(user.followers_count);
         expect(u.followings_count).toEqual(user.followings_count);
-        expect(u.public_favorites_count).toEqual(user.public_favorites_count);
+        expect(u.public_likes_count).toEqual(user.public_likes_count);
         expect(u.private_tracks_count).toEqual(user.private_tracks_count);
+    }
+
+    @Test
+    public void shouldDeserializeUser() throws Exception {
+        User u = TestHelper.readJson(User.class, "/com/soundcloud/android/model/user.json");
+
+        expect(u.id).not.toBeNull();
+        expect(u.username).not.toBeNull();
+        expect(u.uri).not.toBeNull();
+        expect(u.avatar_url).not.toBeNull();
+        expect(u.permalink).not.toBeNull();
+        expect(u.permalink_url).not.toBeNull();
+        expect(u.full_name).not.toBeNull();
+        expect(u.description).not.toBeNull();
+        expect(u.city).not.toBeNull();
+        expect(u.country).not.toBeNull();
+        expect(u.website).not.toBeNull();
+        expect(u.website_title).not.toBeNull();
+        expect(u.track_count).not.toBeNull();
+        expect(u.followers_count).not.toBeNull();
+        expect(u.followings_count).not.toBeNull();
+        expect(u.public_likes_count).not.toBeNull();
+        expect(u.private_tracks_count).not.toBeNull();
     }
 }

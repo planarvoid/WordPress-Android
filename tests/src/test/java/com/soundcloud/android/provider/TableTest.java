@@ -2,7 +2,6 @@ package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,49 +20,49 @@ public class TableTest {
 
     @Test
     public void shouldProvideACreateStringForViews() throws Exception {
-        Table view = Table.TRACK_VIEW;
+        Table view = Table.SOUND_VIEW;
         expect(view.view).toBe(true);
         expect(view.createString).toMatch("CREATE VIEW IF NOT EXISTS "+view.name);
     }
 
     @Test
     public void shouldProvideACreateStringForTables() throws Exception {
-        Table table = Table.TRACKS;
+        Table table = Table.SOUNDS;
         expect(table.view).toBe(false);
         expect(table.createString).toMatch("CREATE TABLE IF NOT EXISTS " + table.name);
     }
 
     @Test
     public void shouldHaveFieldMethod() throws Exception {
-        Table table = Table.TRACKS;
-        expect(table.field("foo")).toEqual("Tracks.foo");
+        Table table = Table.SOUNDS;
+        expect(table.field("foo")).toEqual("Sounds.foo");
     }
 
     @Test
     public void shouldHaveAllFieldMethod() throws Exception {
-        Table table = Table.TRACKS;
-        expect(table.allFields()).toEqual("Tracks.*");
+        Table table = Table.SOUNDS;
+        expect(table.allFields()).toEqual("Sounds.*");
     }
 
     @Test
     public void shouldGetTableByName() throws Exception {
-        Table t = Table.get("Tracks");
+        Table t = Table.get("Sounds");
         expect(t).not.toBeNull();
-        expect(t.name).toEqual("Tracks");
+        expect(t.name).toEqual("Sounds");
         expect(Table.get("zombo")).toBeNull();
     }
 
     @Test
     public void shouldGetColumnNames() throws Exception {
         SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
-        List<String> columns = Table.TRACKS.getColumnNames(db);
+        List<String> columns = Table.SOUNDS.getColumnNames(db);
         expect(columns.isEmpty()).toBeFalse();
     }
 
     @Test
     public void shouldDropAndCreateTable() throws Exception {
         SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
-        Table table = Table.TRACKS;
+        Table table = Table.SOUNDS;
 
         expect(table.exists(db)).toBeTrue();
         table.drop(db);
@@ -78,12 +77,12 @@ public class TableTest {
     public void shouldAddColumnToTracks() throws Exception {
         SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
 
-        String oldSchema = Table.TRACKS.createString;
+        String oldSchema = Table.SOUNDS.createString;
         db.execSQL(oldSchema);
 
-        String newSchema = Table.TRACKS.createString.substring(0, Table.TRACKS.createString.lastIndexOf(")")) + ", new_column INTEGER);";
-        final int colCount = Table.alterColumns(db, Table.TRACKS.name, newSchema, new String[0], new String[0]).size();
-        final List<String> columnNames = Table.getColumnNames(db, Table.TRACKS.name);
+        String newSchema = Table.SOUNDS.createString.substring(0, Table.SOUNDS.createString.lastIndexOf(")")) + ", new_column INTEGER);";
+        final int colCount = Table.alterColumns(db, Table.SOUNDS.name, newSchema, new String[0], new String[0]).size();
+        final List<String> columnNames = Table.getColumnNames(db, Table.SOUNDS.name);
         expect(columnNames).toContain("new_column");
         expect(columnNames.size()).toEqual(colCount + 1);
     }
@@ -201,11 +200,10 @@ public class TableTest {
         );
         expect(id).not.toBe(0l);
 
-        int changed = Table.RECORDINGS.upsertSingleArgs(db,
+        Table.RECORDINGS.upsertSingleArgs(db,
             DBHelper.Recordings._ID, id,
             DBHelper.Recordings.WHAT_TEXT, "was"
         );
-        expect(changed).toEqual(1);
 
         Cursor c = DefaultTestRunner.application.getContentResolver().
                 query(Content.RECORDINGS.forId(id),

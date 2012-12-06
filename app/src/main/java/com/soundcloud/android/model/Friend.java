@@ -1,38 +1,26 @@
-
 package com.soundcloud.android.model;
 
+import android.net.Uri;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import android.os.Parcel;
-import android.os.Parcelable;
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-//TODO not used, merge with user later
-@Deprecated
-public class Friend extends ScModel implements Refreshable, Origin {
+public class Friend extends ScResource implements Refreshable {
+    @SuppressWarnings("UnusedDeclaration")
     public long[] connection_ids;
     public User user;
 
     public Friend() {
     }
 
-    public Friend(Parcel in) {
-        readFromParcel(in);
+    public Friend(User user) {
+        this.user = user;
     }
 
-    public static final Parcelable.Creator<Friend> CREATOR = new Parcelable.Creator<Friend>() {
-        public Friend createFromParcel(Parcel in) {
-            return new Friend(in);
-        }
-
-        public Friend[] newArray(int size) {
-            return new Friend[size];
-        }
-    };
+    @Override
+    public Uri getBulkInsertUri() {
+        return null;
+    }
 
     @Override
-    public Track getTrack() {
+    public Track getSound() {
         return null;
     }
 
@@ -42,12 +30,7 @@ public class Friend extends ScModel implements Refreshable, Origin {
     }
 
     @Override
-    public long getRefreshableId() {
-        return user.id;
-    }
-
-    @Override
-    public ScModel getRefreshableResource() {
+    public ScResource getRefreshableResource() {
         return user;
     }
 

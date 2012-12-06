@@ -47,7 +47,7 @@ public class VorbisReader extends AudioReader {
         final int ret = decoder.decode(buffer, length);
         if (ret == 0) {
             return EOF;
-        } else if (ret > 0) {
+        } else if (ret > 0 && ret <= buffer.limit()) {
             buffer.position(ret);
             return ret;
         } else {

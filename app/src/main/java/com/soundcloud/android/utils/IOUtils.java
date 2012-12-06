@@ -36,10 +36,9 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
-import java.util.Comparator;
 
 public final class IOUtils {
-    private static final int BUFFER_SIZE = 4096;
+    private static final int BUFFER_SIZE = 8192;
 
     private IOUtils() {}
 
@@ -116,12 +115,8 @@ public final class IOUtils {
     }
 
     public static String readInputStream(InputStream in) throws IOException {
-        StringBuilder stream = new StringBuilder();
-        byte[] b = new byte[BUFFER_SIZE];
-        for (int n; (n = in.read(b)) != -1;) {
-            stream.append(new String(b, 0, n));
-        }
-        return stream.toString();
+        final byte[] bytes = readInputStreamAsBytes(in);
+        return new String(bytes, 0, bytes.length, "UTF-8");
     }
 
     public static byte[] readInputStreamAsBytes(InputStream in) throws IOException {

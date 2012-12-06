@@ -1,27 +1,18 @@
 package com.soundcloud.android.activity.track;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.SectionedAdapter;
-import com.soundcloud.android.adapter.SectionedCommentAdapter;
-import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.tracking.Page;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 
-import android.os.Parcelable;
-
-import java.util.ArrayList;
+import android.net.Uri;
+import android.os.Bundle;
 
 public class TrackComments extends TrackInfoCollection {
-    @Override
-    protected SectionedAdapter createSectionedAdapter() {
-        return new SectionedCommentAdapter(this, mTrack);
-    }
 
     @Override
-    protected SectionedAdapter.Section createSection() {
-        return new SectionedAdapter.Section(R.string.list_header_track_comments,
-                Comment.class, new ArrayList<Parcelable>(), null, Request.to(Endpoints.TRACK_COMMENTS, mTrack.id));
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setTitle(R.string.list_header_track_comments);
     }
 
     @Override
@@ -30,5 +21,15 @@ public class TrackComments extends TrackInfoCollection {
         if (mTrack != null) {
             track(Page.Sounds_info__comment, mTrack);
         }
+    }
+
+    @Override
+    protected int getSelectedMenuId() {
+        return -1;
+    }
+
+    @Override
+    protected Uri getContentUri() {
+        return Content.TRACK_COMMENTS.forId(mTrack.id);
     }
 }

@@ -46,11 +46,22 @@ public class AppTest {
             NamedNodeMap attributes = n.getAttributes();
             if (attributes != null) {
                 Node name = attributes.getNamedItem("android:name");
-                if (name != null && "android.intent.category.LAUNCHER".equals(name.getTextContent())) {
+                if (name != null && "android.intent.category.LAUNCHER".equals(name.getNodeValue())) {
                     launchers++;
                 }
             }
         }
         expect(launchers).toEqual(1);
+    }
+
+    @Test
+    public void shouldHaveOpenGLEnabled() throws Exception {
+        DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
+        f.setNamespaceAware(true);
+        Document doc = f.newDocumentBuilder().parse(new File("../app/AndroidManifest.xml"));
+        NodeList nl = (NodeList) XPathFactory.newInstance().newXPath().compile("//application").evaluate(doc, XPathConstants.NODESET);
+        expect(nl.getLength()).toEqual(1);
+        Node app = nl.item(0);
+        expect(app.getAttributes().getNamedItem("android:hardwareAccelerated").getNodeValue()).toEqual("true");
     }
 }

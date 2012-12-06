@@ -4,9 +4,10 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScListActivity;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.task.AddCommentTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.MotionEventUtils;
@@ -24,11 +25,13 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class AddCommentDialog extends Dialog {
-    private ScListActivity mActivity;
+    private ScActivity mActivity;
     private EditText mInput;
 
-    public AddCommentDialog(ScListActivity context) {
+    public AddCommentDialog(ScActivity context) {
         super(context, R.style.Theme_AddCommentDialog);
         mActivity = context;
 
@@ -41,7 +44,7 @@ public class AddCommentDialog extends Dialog {
         setCancelable(true);
         setCanceledOnTouchOutside(true);
 
-        final Comment comment = mActivity.getApp().pendingComment;
+        final Comment comment = ScPlayer.pendingComment;
 
         if (comment == null) {
             dismiss();
@@ -90,9 +93,9 @@ public class AddCommentDialog extends Dialog {
     @Override
     protected void onStart() {
         super.onStart();
-        final Comment comment = mActivity.getApp().pendingComment;
+        final Comment comment = ScPlayer.pendingComment;
         if (comment != null) {
-            mActivity.track(Page.Sounds_add_comment, comment.getTrack());
+            mActivity.track(Page.Sounds_add_comment, comment.getSound());
         }
     }
 
@@ -130,7 +133,11 @@ public class AddCommentDialog extends Dialog {
             // cannot simply dismiss, or state will be saved
             mActivity.removeDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
 
-            SoundCloudApplication.TRACK_CACHE.addCommentToTrack(comment);
+            final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(comment.track_id);
+            if (track != null) {
+                if (track.comments == null) track.comments = new ArrayList<Comment>();
+                track.comments.add(comment);
+            }
 
             if (mActivity instanceof ScPlayer) {
                 ((ScPlayer)mActivity).onNewComment(comment);

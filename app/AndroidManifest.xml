@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="2.3.2"
-      android:installLocation="internalOnly"
+      android:versionName="2.4"
+      android:installLocation="auto"
       android:versionCode="49">
 
     <supports-screens android:anyDensity="true" />
-    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="10"/>
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16"/>
 
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
@@ -33,21 +33,34 @@
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
     <application android:icon="@drawable/launcher"
-        android:label="@string/app_name"
-        android:theme="@style/Theme.ScBaseLight"
-        android:configChanges="keyboard|keyboardHidden"
-        android:name="SoundCloudApplication">
+                 android:logo="@drawable/empty"
+                 android:label="@string/app_name"
+                 android:theme="@style/Theme.Next"
+                 android:configChanges="orientation|keyboardHidden|keyboard"
+                 android:hardwareAccelerated="true"
+                 android:name="SoundCloudApplication">
+
+        <activity android:name=".activity.Launch"
+                  android:noHistory="true"
+                  android:theme="@style/Theme.Next.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".activity.landing.Home">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.STREAM"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
 
         <!-- activities -->
-        <activity android:name=".activity.Main"
-                  android:label="@string/app_name"
-                  android:launchMode="singleTask"
+        <activity android:name=".activity.Resolve"
+                  android:noHistory="true"
+                  android:theme="@style/Theme.Next.NoActionBar"
                   android:windowSoftInputMode="adjustPan">
-
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
 
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
@@ -77,7 +90,6 @@
                 <data android:scheme="https" android:host="snd.sc"/>
             </intent-filter>
 
-            <!-- soundcloud:users:12345#show | soundcloud:tracks:12345#play -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -85,111 +97,145 @@
                 <data android:scheme="soundcloud"/>
             </intent-filter>
 
+        </activity>
+
+        <activity android:name=".activity.landing.ScSearch">
+            <meta-data android:name="android.app.searchable" android:resource="@xml/searchable"/>
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>
             </intent-filter>
-
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.STREAM"/>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.ACTIVITY"/>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.MESSAGE"/>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.PROFILE"/>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.SEARCH"/>
-                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:mimeType="vnd.soundcloud/search_item"/>
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.MY_PROFILE"/>
-                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.USER_BROWSER"/>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.ACCOUNT_PREF"/>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.PLAYER"/>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <meta-data android:name="android.app.searchable"
-                       android:resource="@xml/searchable" />
         </activity>
 
-        <activity android:name=".activity.auth.Start" android:label="@string/app_name" android:exported="true" android:theme="@style/Theme.ScAuth" />
-        <activity android:name=".activity.auth.Login" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScAuth"  />
-        <activity android:name=".activity.auth.SignUp" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScAuth"  />
-        <activity android:name=".activity.auth.SignupDetails" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScAuth" />
+        <activity android:name=".activity.landing.News">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.ACTIVITY"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".activity.landing.You">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.YOU"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.YOUR_INFO"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.YOUR_SOUNDS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.YOUR_LIKES"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.YOUR_FOLLOWERS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.YOUR_FOLLOWINGS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".activity.landing.SuggestedUsers" android:label="@string/side_menu_suggested_users">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.WHO_TO_FOLLOW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activity.landing.FriendFinder" android:label="@string/side_menu_friend_finder"
+                  android:configChanges="orientation">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.FRIEND_FINDER"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+
+        <activity android:name=".activity.auth.Onboard" android:label="@string/app_name" android:exported="true" android:theme="@style/Theme.ScAuth" />
         <activity android:name=".activity.auth.Recover" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScAuth"  />
-        <activity android:name=".activity.auth.Facebook"/>
-        <activity android:name=".activity.auth.FacebookWebFlow" android:label="@string/app_name" android:configChanges="orientation"/>
-        <activity android:name=".activity.auth.FacebookSSO"/>
-        <activity android:name=".activity.auth.SuggestedUsers" android:label="@string/app_name" android:configChanges="orientation"/>
+        <activity android:name=".activity.auth.Facebook" android:theme="@style/Theme.Next.NoActionBar"/>
+        <activity android:name=".activity.auth.FacebookWebFlow" android:theme="@style/Theme.Next.NoActionBar" android:label="@string/app_name" android:configChanges="orientation"/>
+        <activity android:name=".activity.auth.FacebookSSO" android:theme="@style/Theme.Next.NoActionBar"/>
 
         <activity android:name=".activity.auth.Connect"
-            android:label="Connect"
-            android:configChanges="orientation|keyboardHidden">
-
-            <intent-filter>
-              <action android:name="android.intent.action.VIEW" />
-              <category android:name="android.intent.category.DEFAULT" />
-              <category android:name="android.intent.category.BROWSABLE" />
-              <data android:scheme="soundcloud" android:host="auth" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".activity.Dashboard" >
-            <intent-filter>
-                <!-- not used anymore, but there are still some shortcuts around -->
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
+                  android:theme="@style/Theme.Next.NoActionBar"
+                  android:label="Connect"
+                  android:configChanges="orientation|keyboardHidden">
         </activity>
 
         <activity android:name=".activity.ScPlayer"
-                  android:label="SoundCloud Player"
                   android:windowSoftInputMode="adjustPan"
-                  android:theme="@style/Theme.ScPlayer" />
+                  android:launchMode="singleTask"
+                  android:theme="@style/Theme.ScDark">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.PLAYER"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
 
-        <activity android:name=".activity.auth.Tour" android:screenOrientation="portrait" />
-        <activity android:name=".activity.track.TrackFavoriters" />
-        <activity android:name=".activity.track.TrackComments" />
-        <activity android:name=".activity.track.TracksByTag" />
-        <activity android:name=".activity.ScSearch"/>
-        <activity android:name=".activity.settings.Settings" android:label="Settings"/>
-        <activity android:name=".activity.settings.AccountSettings" />
-        <activity android:name=".activity.settings.NotificationSettings" android:label="Notifications Settings" />
-        <activity android:name=".activity.UserBrowser" android:label="Profile"/>
-        <activity android:name=".activity.create.EmailPicker" android:theme="@style/Theme.ScDark"/>
-        <activity android:name=".activity.create.LocationPicker"/>
-        <activity android:name=".activity.auth.EmailConfirm"/>
+            <!-- play with playlist uri -->
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.PLAY"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="content"
+                      android:host="com.soundcloud.android.provider.ScContentProvider"
+                        />
+            </intent-filter>
+
+            <!-- play with track extra -->
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.PLAY"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".activity.landing.Home"/>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:mimeType="vnd.soundcloud/track"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".activity.UserBrowser" android:label="Profile">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.USER_BROWSER"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:mimeType="vnd.soundcloud/user"/>
+            </intent-filter>
+        </activity>
+
         <activity android:name=".activity.create.ScCreate"
                   android:theme="@style/Theme.ScCreate"
                   android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.RECORD"/>
-                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.RECORD_START"/>
@@ -200,15 +246,12 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name=".cropimage.CropImage" />
         <activity android:name=".activity.create.UploadMonitor"
-                  android:launchMode="singleTask"
-                  android:theme="@style/Theme.ScCreate" >
+                  android:theme="@style/Theme.Next.NoActionBar">
             <intent-filter>
                 <action android:name="com.soundcloud.android.actions.upload.monitor"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <data android:mimeType="vnd.soundcloud/recording"/>
-
             </intent-filter>
         </activity>
 
@@ -228,8 +271,31 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.settings.About"/>
+        <activity android:name=".activity.track.TrackLikers" />
+        <activity android:name=".activity.track.TrackReposters" />
+        <activity android:name=".activity.track.TrackComments" />
+        <activity android:name=".activity.track.TracksByTag" />
 
+        <!-- settings -->
+        <activity android:name=".activity.settings.Settings"
+                  android:label="@string/title_settings"
+                  android:theme="@style/Theme.Next.Settings"/>
+
+        <activity android:name=".activity.settings.AccountSettings"
+                  android:theme="@style/Theme.Next.Settings">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.ACCOUNT_PREF"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activity.settings.NotificationSettings" android:label="Notifications Settings" android:theme="@style/Theme.Next.Settings" />
+        <activity android:name=".activity.settings.About" android:theme="@style/Theme.Next.Settings"/>
+        <!-- settings -->
+
+        <activity android:name=".activity.create.EmailPicker" android:theme="@style/Theme.Next.NoActionBar"/>
+        <activity android:name=".activity.create.LocationPicker" android:theme="@style/Theme.Next.NoActionBar"/>
+        <activity android:name=".activity.auth.EmailConfirm"/>
+        <activity android:name=".cropimage.CropImage" android:hardwareAccelerated="false"/>
         <!-- for testing purposes -->
         <activity android:name="com.soundcloud.android.activity.test.ShareSound">
             <intent-filter>
@@ -237,24 +303,37 @@
             </intent-filter>
         </activity>
 
+        <!-- hockey app -->
+        <activity android:name="net.hockeyapp.android.UpdateActivity" />
+
         <!-- providers -->
         <provider android:name=".provider.ScContentProvider"
                   android:authorities="com.soundcloud.android.provider.ScContentProvider"/>
-
 
         <!-- services -->
         <service android:name=".service.sync.ApiSyncService"/>
         <service android:name=".service.record.SoundRecorderService"/>
         <service android:name=".service.playback.CloudPlaybackService"
                  android:exported="false">
+
             <intent-filter>
-                <action android:name="com.soundcloud.android.playback.play"/>
+                <action android:name="com.soundcloud.android.playback.start"/>
+                <data android:scheme="content"
+                      android:host="com.soundcloud.android.provider.ScContentProvider"/>
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="com.soundcloud.android.playback.start"/>
                 <action android:name="com.soundcloud.android.playback.togglepause"/>
                 <action android:name="com.soundcloud.android.playback.pause"/>
                 <action android:name="com.soundcloud.android.playback.next"/>
                 <action android:name="com.soundcloud.android.playback.previous"/>
                 <action android:name="com.soundcloud.android.playback.close"/>
                 <action android:name="com.soundcloud.android.playback.reset"/>
+                <action android:name="com.soundcloud.android.playback.stop"/>
+
+                <action android:name="com.soundcloud.android.favorite.add"/>
+                <action android:name="com.soundcloud.android.favorite.remove"/>
             </intent-filter>
         </service>
 
@@ -284,8 +363,6 @@
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/sync" />
         </service>
-
-        <service android:name=".service.beta.BetaService"/>
 
         <!-- receivers -->
         <receiver android:label="SoundCloud Player"
@@ -345,12 +422,6 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".service.beta.WifiMonitor" android:enabled="false">
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
-            </intent-filter>
-        </receiver>
-
         <receiver android:name=".CodeReceiver">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SECRET_CODE"/>
@@ -366,7 +437,7 @@
         </receiver>
 
         <meta-data android:name="android.app.default_searchable"
-                   android:value=".activity.Main"/>
+                   android:value=".activity.landing.ScSearch"/>
     </application>
 
 </manifest>

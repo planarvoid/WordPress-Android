@@ -3,8 +3,6 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:background="@drawable/tag_bg_states"
-          android:paddingLeft="12dip"
-          android:paddingRight="12dip"
           android:focusable="true"
           android:textColor="@color/white"/>
 

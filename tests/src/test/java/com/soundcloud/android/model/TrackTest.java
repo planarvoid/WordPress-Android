@@ -5,7 +5,6 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +25,13 @@ public class TrackTest {
         Track t = new Track();
         t.tag_list = "soundcloud:source=web-record jazz geo:lat=10.23 geo:long=32.232 punk";
         expect(t.humanTags()).toContainInOrder("jazz", "punk");
+    }
+
+    @Test
+    public void shouldHandleMultiWordTags() throws Exception {
+        Track t = new Track();
+        t.tag_list = "\"multiword tags\" \"in the api\" suck bigtime";
+        expect(t.humanTags()).toContainInOrder("multiword tags", "in the api", "suck", "bigtime");
     }
 
     @Test
@@ -96,7 +102,7 @@ public class TrackTest {
         t.id = 1000;
         ContentValues v = t.buildContentValues();
         expect(v).not.toBeNull();
-        expect(v.getAsLong(DBHelper.Tracks._ID)).toEqual(1000L);
+        expect(v.getAsLong(DBHelper.Sounds._ID)).toEqual(1000L);
     }
 
     @Test
@@ -104,16 +110,16 @@ public class TrackTest {
         Track t = new Track();
         t.id = 1000;
         ContentValues v = t.buildContentValues();
-        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).toBeNull();
+        expect(v.get(DBHelper.Sounds.LAST_UPDATED)).toBeNull();
         t.created_at = new Date(System.currentTimeMillis());
         v = t.buildContentValues();
-        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).toBeNull();
+        expect(v.get(DBHelper.Sounds.LAST_UPDATED)).toBeNull();
         t.duration = 1000;
         v = t.buildContentValues();
-        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).toBeNull();
+        expect(v.get(DBHelper.Sounds.LAST_UPDATED)).toBeNull();
         t.state = Track.State.FINISHED;
         v = t.buildContentValues();
-        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).not.toBeNull();
+        expect(v.get(DBHelper.Sounds.LAST_UPDATED)).not.toBeNull();
     }
 
     @Test
@@ -144,7 +150,7 @@ public class TrackTest {
         t.permalink = "permalink";
         Intent i = new Intent();
         i.putExtra("track_id", t.id);
-        SoundCloudApplication.TRACK_CACHE.put(t);
+        SoundCloudApplication.MODEL_MANAGER.cache(t);
         expect(Track.fromIntent(i, null)).toEqual(t);
     }
 
@@ -176,7 +182,7 @@ public class TrackTest {
     @Test
     public void shouldGenerateShareIntentForPublicTrack() throws Exception {
         Track t = new Track();
-        t.sharing = Track.Sharing.PUBLIC;
+        t.sharing = Sharing.PUBLIC;
         t.title = "A track";
         t.permalink_url = "http://soundcloud.com/foo/bar";
         Intent intent = t.getShareIntent();
@@ -241,7 +247,7 @@ public class TrackTest {
                 getClass().getResourceAsStream("track.json"),
                 Track.class);
 
-        Uri uri = SoundCloudDB.insertTrack(resolver,t);
+        Uri uri = SoundCloudApplication.MODEL_MANAGER.write(t);
         expect(uri).not.toBeNull();
 
         Cursor cursor = resolver.query(uri, null, null, null, null);
@@ -269,6 +275,14 @@ public class TrackTest {
         compareTracks(t, t2);
     }
 
+    @Test
+    public void shouldGetWaveformDataURL() throws Exception {
+        Track t = new Track();
+        expect(t.getWaveformDataURL()).toBeNull();
+        t.waveform_url = "http://waveforms.soundcloud.com/bypOn0pnRvFf_m.png";
+        expect(t.getWaveformDataURL().toString()).toEqual("http://wis.sndcdn.com/bypOn0pnRvFf_m.png");
+    }
+
     private void compareTracks(Track t, Track t2) {
         expect(t2.id).toEqual(t.id);
         expect(t2.title).toEqual(t.title);
@@ -288,7 +302,7 @@ public class TrackTest {
         expect(t2.playback_count).toEqual(t.playback_count);
         expect(t2.download_count).toEqual(t.download_count);
         expect(t2.comment_count).toEqual(t.comment_count);
-        expect(t2.favoritings_count).toEqual(t.favoritings_count);
+        expect(t2.likes_count).toEqual(t.likes_count);
         expect(t2.shared_to_count).toEqual(t.shared_to_count);
         expect(t2.user_id).toEqual(t.user_id);
         expect(t2.commentable).toEqual(t.commentable);

@@ -6,8 +6,11 @@
 
     <dimen name="tab_text_size">18sp</dimen>
 
-    <dimen name="list_icon_width">100sp</dimen>
-    <dimen name="list_icon_height">100sp</dimen>
+    <dimen name="search_list_icon_width">67px</dimen>
+    <dimen name="search_list_icon_height">67px</dimen>
+
+    <dimen name="list_icon_width">100px</dimen>
+    <dimen name="list_icon_height">100px</dimen>
     <dimen name="list_txt_pull_size">18sp</dimen>
     <dimen name="list_txt_main_size">18sp</dimen>
     <dimen name="list_txt_sub_size">16sp</dimen>
@@ -38,4 +41,6 @@
     <dimen name="player_comment_bar_txt_size">22sp</dimen>
 
     <dimen name="rec_toggle_fade_margin_top">30dp</dimen>
+
+    <dimen name="txt_empty_msg_size">20sp</dimen>
 </resources>

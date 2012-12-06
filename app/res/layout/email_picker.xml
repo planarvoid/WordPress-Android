@@ -21,7 +21,6 @@
               android:layout_width="fill_parent"
               android:background="@color/recButtonBarSeparator"></View>
         <LinearLayout
-                android:layout_below="@id/email"
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="@dimen/button_bar_height">

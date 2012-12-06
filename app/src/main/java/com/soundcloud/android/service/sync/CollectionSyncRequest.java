@@ -57,6 +57,8 @@ import java.io.IOException;
         }
 
         try {
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "syncing " + contentUri);
+
             result = syncer.syncContent(contentUri, action);
             localCollection.onSyncComplete(result, context.getContentResolver());
         } catch (CloudAPI.InvalidTokenException e) {
@@ -73,7 +75,7 @@ import java.io.IOException;
         }
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Executed sync on " + this);
+            Log.d(TAG, "executed sync on " + this);
         }
 
         return this;

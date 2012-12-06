@@ -8,9 +8,8 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Transformation;
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BitmapCallback;
+import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader.BitmapCallback;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
@@ -30,8 +29,8 @@ public class PlayerAvatarBar extends View {
 
     private long mDuration;
 
-    private List<Comment> mCurrentComments;
-    private Comment mCurrentComment;
+    private @Nullable List<Comment> mCurrentComments;
+    private @Nullable Comment mCurrentComment;
 
     private Matrix mBgMatrix;
     private Matrix mActiveMatrix;
@@ -48,7 +47,7 @@ public class PlayerAvatarBar extends View {
 
     private Thread mAvatarRefreshThread;
 
-    private Bitmap mCanvasBmp;
+    private @Nullable Bitmap mCanvasBmp;
     private Bitmap mNextCanvasBmp;
 
     private Bitmap mDefaultAvatar;
@@ -162,8 +161,8 @@ public class PlayerAvatarBar extends View {
 
         ImageUtils.getBitmapSubstitute(mContext, c.user.avatar_url, getAvatarBarGraphicSize(mContext), new BitmapCallback() {
             @Override
-            public void onImageLoaded(Bitmap mBitmap, String uri) {
-                c.avatar = mBitmap;
+            public void onImageLoaded(Bitmap bitmap, String uri) {
+                c.avatar = bitmap;
                 if (c.topLevelComment) {
                     if (!mUIHandler.hasMessages(REFRESH_AVATARS)) {
                         Message msg = mUIHandler.obtainMessage(REFRESH_AVATARS);
@@ -312,15 +311,6 @@ public class PlayerAvatarBar extends View {
             drawCommentOnCanvas(mCurrentComment,canvas,mActiveLinePaint, mActiveImagePaint,mActiveMatrix);
             canvas.drawLine(mCurrentComment.xPos, 0, mCurrentComment.xPos, getHeight(), mActiveLinePaint);
         }
-    }
-
-    public float getCurrentTransformY(){
-        if (getAnimation() == null) return 0f;
-        Transformation t = new Transformation();
-        float[] values = new float[9];
-        getAnimation().getTransformation(getDrawingTime(), t);
-        t.getMatrix().getValues(values);
-        return values[5];
     }
 
     public void getHitRect(Rect outRect) {

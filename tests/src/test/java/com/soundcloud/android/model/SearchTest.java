@@ -32,7 +32,7 @@ public class SearchTest {
         expect(u).not.toBeNull();
         expect(u.toString()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/searches/1");
 
-        expect(Content.SEARCH).toHaveCount(1);
+        expect(Content.SEARCHES_ITEM).toHaveCount(1);
 
         List<Search> searches =  Search.getHistory(Robolectric.application.getContentResolver());
         expect(searches.size()).toEqual(1);
@@ -48,7 +48,7 @@ public class SearchTest {
             Search.forSounds("blaz").insert(resolver);
         }
         Search.forSounds("blaz-different").insert(resolver);
-        expect(Content.SEARCH).toHaveCount(2);
+        expect(Content.SEARCHES_ITEM).toHaveCount(2);
     }
 
     @Test
@@ -57,8 +57,8 @@ public class SearchTest {
             Search.forSounds("sound"+i).insert(resolver);
         }
 
-        expect(Content.SEARCH).toHaveCount(5);
+        expect(Content.SEARCHES_ITEM).toHaveCount(5);
         Search.clearState(resolver, USER_ID);
-        expect(Content.SEARCH).toBeEmpty();
+        expect(Content.SEARCHES_ITEM).toBeEmpty();
     }
 }

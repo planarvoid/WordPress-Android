@@ -1,27 +1,37 @@
 {
   "collection": [
-     {
-      "type": "favoriting",
-      "created_at": "2011\/07\/29 22:30:59 +0000",
-      "origin": {
+    {
+      "tags": "own",
+      "type": "track-like",
+      "uuid": "213123-1243412-213123",
+      "created_at": "2011/07/29 22:30:59 +0000",
         "track": {
-          "id": 10853436,
-          "permalink": "recording-on-sunday-night",
+          "permalink_url": "http://soundcloud.com/soundcloud-android-mwc/recording-on-sunday-night",
+          "uri": "http://api.soundcloud.com/tracks/10853436",
+          "user_uri": "http://api.soundcloud.com/users/3135930",
           "title": "recording on sunday night (edit)",
+          "kind": "track",
           "user_id": 3135930,
-          "uri": "http:\/\/api.soundcloud.com\/tracks\/10853436",
-          "user_uri": "http:\/\/api.soundcloud.com\/users\/3135930",
-          "permalink_url": "http:\/\/soundcloud.com\/soundcloud-android-mwc\/recording-on-sunday-night",
-          "stream_url": "http:\/\/api.soundcloud.com\/tracks\/10853436\/stream"
+          "id": 10853436,
+          "stream_url": "http://api.soundcloud.com/tracks/10853436/stream",
+          "permalink": "recording-on-sunday-night",
+          "user": {
+                  "permalink_url": "http://soundcloud.com/soundcloud-android-mwc",
+                  "id": 3135930,
+                  "permalink": "soundcloud-android-mwc",
+                  "kind": "user",
+                  "uri": "http://api.soundcloud.com/users/3135930",
+                  "avatar_url": "http://i1.soundcloud.com/avatars-000002679242-0j7zgk-large.jpg?05a778",
+                  "username": "SoundCloud Android @ MWC"
+                }
         },
         "user": {
+          "permalink_url": "http://soundcloud.com/soundcloud-android-mwc",
+          "uri": "http://api.soundcloud.com/users/3135930",
+          "kind": "user",
           "id": 3135930,
-          "username": "I'm your father",
-          "uri": "http:\/\/api.soundcloud.com\/users\/3135930",
-          "permalink_url": "http:\/\/soundcloud.com\/soundcloud-android-mwc"
+          "username": "I'm your father"
         }
-      },
-      "tags": "own"
     }
   ]
- }
+}

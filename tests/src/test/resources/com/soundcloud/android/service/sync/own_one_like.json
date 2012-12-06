@@ -1,0 +1,30 @@
+{
+  "collection": [
+    {
+      "tags": "own",
+        "track": {
+          "id": 13090155,
+          "stream_url": "https://api.soundcloud.com/tracks/13090155/stream",
+          "user_uri": "https://api.soundcloud.com/users/133201",
+          "uri": "https://api.soundcloud.com/tracks/13090155",
+          "user_id": 133201,
+          "permalink_url": "http://soundcloud.com/jberkel/p-watzlawick-anleitung-zum",
+          "kind": "track",
+          "permalink": "p-watzlawick-anleitung-zum",
+          "title": "P. Watzlawick - Anleitung zum Unglücklichsein"
+        },
+        "user": {
+          "id": 6311652,
+          "uri": "https://api.soundcloud.com/users/6311652",
+          "permalink_url": "http://soundcloud.com/paulko",
+          "kind": "user",
+          "permalink": "paulko",
+          "avatar_url": "http://i1.sndcdn.com/avatars-000005077051-ttwttz-large.jpg?8935bc4",
+          "username": "Paul Ko"
+      },
+      "type": "track-like",
+      "uuid": "734ad180-cab5-11e1-9570-52fa262dac01",
+      "created_at": "2011/07/29 22:30:59 +0000"
+    }
+  ]
+}

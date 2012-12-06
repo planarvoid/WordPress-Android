@@ -18,7 +18,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
@@ -77,7 +76,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                 // actual c2dm message
                 onReceiveMessage(context, intent);
             } else if (intent.getAction().equals(Actions.ACCOUNT_ADDED)) {
-                onAccountAdded(context, intent.<User>getParcelableExtra("user"));
+                onAccountAdded(context, intent.<User>getParcelableExtra(User.EXTRA));
             } else {
                 Log.w(TAG, "unhandled intent: "+intent);
             }
@@ -337,7 +336,7 @@ public class C2DMReceiver extends BroadcastReceiver {
     }
 
     private static boolean isEnabled() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO;
+        return true;
     }
 
     private static PowerManager.WakeLock makeLock(Context context) {

@@ -4,13 +4,14 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:paddingBottom="5dip"
-                android:paddingTop="5dip">
+                android:paddingTop="@dimen/list_item_padding_top"
+                android:paddingLeft="@dimen/list_item_padding_left"
+                android:paddingRight="@dimen/list_item_padding_right"
+                android:paddingBottom="@dimen/list_item_padding_bottom">
 
     <ImageView android:id="@+id/icon"
                android:layout_width="@dimen/list_icon_width"
                android:layout_height="@dimen/list_icon_height"
-               android:layout_marginLeft="@dimen/list_icon_margin_left"
                android:layout_marginRight="@dimen/list_icon_margin_right"
                android:background="@drawable/avatar_badge"
                android:scaleType="centerCrop"/>
@@ -38,14 +39,14 @@
                 android:layout_height="wrap_content">
 
             <TextView android:id="@+id/tracks"
-                  android:layout_width="wrap_content"
-                  android:drawableLeft="@drawable/ic_stats_sounds_states"
-                  android:drawablePadding="3dip"
-                  android:layout_height="wrap_content"
-                  android:text="@string/track_count"
-                  android:layout_alignParentLeft="true"
-                  android:singleLine="true"
-                  style="@style/txt_list_sub_secondary"/>
+                      android:layout_width="wrap_content"
+                      android:drawableLeft="@drawable/ic_stats_sounds_states"
+                      android:drawablePadding="3dip"
+                      android:layout_height="wrap_content"
+                      android:text="@string/track_count"
+                      android:layout_alignParentLeft="true"
+                      android:singleLine="true"
+                      style="@style/txt_list_sub_secondary"/>
 
             <View style="@style/stat_pipe"
                   android:layout_alignWithParentIfMissing="true"
@@ -57,36 +58,32 @@
                   android:id="@+id/vr_stats"/>
 
             <TextView android:id="@+id/followers"
-                  android:layout_width="wrap_content"
-                  android:layout_alignWithParentIfMissing="true"
-                  android:drawableLeft="@drawable/ic_stats_followers_states"
-                  android:drawablePadding="3dip"
-                  android:layout_height="wrap_content"
-                  android:text="@string/follower_count"
-                  android:layout_toRightOf="@id/vr_stats"
-                  android:singleLine="true"
-                  style="@style/txt_list_sub_secondary"/>
+                      android:layout_width="wrap_content"
+                      android:layout_alignWithParentIfMissing="true"
+                      android:drawableLeft="@drawable/ic_stats_followers_states"
+                      android:drawablePadding="3dip"
+                      android:layout_height="wrap_content"
+                      android:text="@string/follower_count"
+                      android:layout_toRightOf="@id/vr_stats"
+                      android:singleLine="true"
+                      style="@style/txt_list_sub_secondary"/>
         </RelativeLayout>
     </RelativeLayout>
 
     <RelativeLayout android:id="@+id/toggleFollowingHolder"
-                 android:layout_alignParentRight="true"
-                 android:gravity="center"
-                 android:layout_width="wrap_content"
-                 android:layout_height="fill_parent">
-
-        <Button android:id="@+id/toggleFollowing"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignTop="@id/icon"
+                    android:layout_alignBottom="@id/icon"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp">
+        <ToggleButton
+                android:id="@id/toggle_btn_follow"
+                android:duplicateParentState="true"
+                android:layout_marginLeft="10dp"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_centerVertical="true"
-                android:singleLine="true"
-                style="@style/btn_following" />
-
-        <Button android:id="@+id/toggleFollow"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:singleLine="true"
-                style="@style/btn_follow"
-                android:layout_centerVertical="true" />
+                android:textOn="@string/btn_following"
+                android:textOff="@string/btn_follow"
+                style="@style/UserListFollow"/>
     </RelativeLayout>
 </RelativeLayout>

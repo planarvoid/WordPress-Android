@@ -1,29 +1,22 @@
 package com.soundcloud.android.activity;
 
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BindResult;
+import static android.text.TextUtils.isEmpty;
+
+import com.actionbarsherlock.app.ActionBar;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.create.ScCreate;
-import com.soundcloud.android.activity.create.ScUpload;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.MyTracksAdapter;
-import com.soundcloud.android.adapter.RemoteCollectionAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.adapter.UserlistAdapter;
-import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.cache.ParcelCache;
-import com.soundcloud.android.model.Connection;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.fragment.ScListFragment;
+import com.soundcloud.android.fragment.UserDetailsFragment;
+import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.SoundRecorder;
+import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.EventAware;
@@ -31,88 +24,61 @@ import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.view.EmptyCollection;
-import com.soundcloud.android.view.FriendFinderView;
+import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.FullImageDialog;
-import com.soundcloud.android.view.ScListView;
-import com.soundcloud.android.view.ScTabView;
-import com.soundcloud.android.view.UserlistLayout;
-import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+import com.viewpagerindicator.TitlePageIndicator;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
-import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.ToggleButton;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class UserBrowser extends ScListActivity implements
-        ParcelCache.Listener<Connection>,
+public class UserBrowser extends ScActivity implements
         FollowStatus.Listener,
-        FetchUserTask.FetchUserListener,
-        EventAware {
+        EventAware, ActionBar.OnNavigationListener, FetchModelTask.FetchModelListener<User> {
+
+    public static final String EXTRA_USER_ID = "userId";
+    public static final String EXTRA_USER = "user";
 
     /* package */ @Nullable User mUser;
 
-    private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
+    private TextView mUsername, mFullName, mFollowerCount, mTrackCount;
+    private ToggleButton mToggleFollow;
     private View mVrStats;
     private ImageView mIcon;
     private String mIconURL;
     private ImageLoader.BindResult avatarResult;
+    private FollowStatus mFollowStatus;
+    private UserFragmentAdapter mAdapter;
 
-    private EmptyCollection mEmptyInfoView;
-    boolean mDisplayedInfo, mInfoError;
-
-    private ScTabView mMyTracksView;
-    private FrameLayout mInfoView;
-    private FriendFinderView mFriendFinderView;
-    private Button mFollowBtn, mFollowingBtn;
-    private UserlistLayout mUserlistBrowser;
     private FetchUserTask mLoadUserTask;
-    private boolean mUpdateInfo;
+    protected ViewPager mPager;
+    protected TitlePageIndicator mIndicator;
 
-    private List<Connection> mConnections;
-    private Object[] mAdapterStates;
+    private boolean mDelayContent;
 
-    public enum Tab {
-        tracks(Page.Users_sounds, Page.You_sounds),
-        favorites(Page.Users_likes, Page.You_likes),
-        details(Page.Users_info, Page.You_info),
-        followings(Page.Users_following, Page.You_following),
-        followers(Page.Users_followers, Page.You_followers),
-        friend_finder(null, Page.You_find_friends);
-
-        public static final String EXTRA = "userBrowserTag";
-
-        public final Page user, you;
-        public final String tag;
-
-        Tab(Page user, Page you) {
-            this.user = user;
-            this.you = you;
-            this.tag = this.name();
-        }
-    }
+    private UserDetailsFragment mUserDetailsFragment;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -120,7 +86,7 @@ public class UserBrowser extends ScListActivity implements
         super.onCreate(bundle);
         setContentView(R.layout.user_browser);
 
-        mInfoView = (FrameLayout) getLayoutInflater().inflate(R.layout.user_browser_details_view, null);
+        mFollowStatus = FollowStatus.get(this);
 
         mIcon = (ImageView) findViewById(R.id.user_icon);
         mUsername = (TextView) findViewById(R.id.username);
@@ -135,13 +101,6 @@ public class UserBrowser extends ScListActivity implements
         AndroidUtils.setTextShadowForGrayBg(mFollowerCount);
         AndroidUtils.setTextShadowForGrayBg(mTrackCount);
 
-        mLocation = (TextView) mInfoView.findViewById(R.id.location);
-        mWebsite = (TextView) mInfoView.findViewById(R.id.website);
-        mDiscogsName = (TextView) mInfoView.findViewById(R.id.discogs_name);
-        mMyspaceName = (TextView) mInfoView.findViewById(R.id.myspace_name);
-        mDescription = (TextView) mInfoView.findViewById(R.id.description);
-
-        mIcon.setScaleType(ScaleType.CENTER_INSIDE);
         if (getResources().getDisplayMetrics().density > 1 || ImageUtils.isScreenXL(this)) {
             mIcon.getLayoutParams().width = 100;
             mIcon.getLayoutParams().height = 100;
@@ -151,162 +110,246 @@ public class UserBrowser extends ScListActivity implements
             @Override
             public void onClick(View v) {
                 if (ImageUtils.checkIconShouldLoad(mIconURL)) {
-                    new FullImageDialog(
-                        UserBrowser.this,
-                        Consts.GraphicSize.CROP.formatUri(mIconURL)
-                    ).show();
+                    new FullImageDialog(UserBrowser.this, Consts.GraphicSize.CROP.formatUri(mIconURL)).show();
                 }
 
             }
         });
+        mToggleFollow = (ToggleButton) findViewById(R.id.toggle_btn_follow);
 
-        mFollowBtn = (Button) findViewById(R.id.btn_followState);
-        mFollowingBtn = (Button) findViewById(R.id.btn_followingState);
+        // if root view is expanded, wait to instantiate the fragments until it is closed as it causes severe jank
+        mDelayContent = mRootView.isExpanded();
 
-        mFollowBtn.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                follow(mUser);
-            }
-        });
+        mAdapter = new UserFragmentAdapter(getSupportFragmentManager());
+        mPager = (ViewPager) findViewById(R.id.pager);
+        mPager.setAdapter(mDelayContent ? new TempAdapter() : mAdapter);
+        mPager.setCurrentItem(Tab.tracks.ordinal());
+        mPager.setBackgroundColor(Color.WHITE);
 
-        mFollowingBtn.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                unfollow(mUser);
-            }
-        });
+        mIndicator = (TitlePageIndicator) findViewById(R.id.indicator);
+        mIndicator.setViewPager(mPager);
+
 
         Intent intent = getIntent();
-        // XXX in case user is already loaded - should be handled here, not in caller
-        mUpdateInfo = intent.getBooleanExtra("updateInfo",true);
-
-        Configuration c = (Configuration) getLastNonConfigurationInstance();
+        Configuration c = (Configuration) getLastCustomNonConfigurationInstance();
         if (c != null) {
             fromConfiguration(c);
         } else {
-            if (intent.hasExtra("user")) {
-                loadUserByObject((User) intent.getParcelableExtra("user"));
-            } else if (intent.hasExtra("userId")) {
-                loadUserById(intent.getLongExtra("userId", -1));
-            } else {
-                loadYou();
-            }
-
-            build();
-
-            if (!isMe()) FollowStatus.get().requestUserFollowings(getApp(), this, false);
-
-            if (intent.hasExtra(Tab.EXTRA)) {
-                mUserlistBrowser.initByTag(intent.getStringExtra(Tab.EXTRA));
-            } else if (isMe()) {
-                final int initialTab = getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX);
-                if (initialTab == -1) {
-                    mUserlistBrowser.initWorkspace(1);//tracks tab
-                } else {
-                    mUserlistBrowser.initWorkspace(initialTab);
-                }
-            } else {
-                mUserlistBrowser.initWorkspace(1);//tracks tab
-            }
-
-            if (isMe()) {
-                mConnections = Connections.get().getObjectsOrNull();
-                mFriendFinderView.onConnections(mConnections, true);
-                Connections.get().requestUpdate(getApp(), false, this);
-            }
+            handleIntent(intent);
         }
 
-        mMyTracksView.onVisible();
-        ((ScTabView) mUserlistBrowser.getCurrentWorkspaceView()).onVisible();
-        loadDetails();
+        mUserDetailsFragment = UserDetailsFragment.newInstance(mUser.id);
 
+        if (isYou()){
+            mToggleFollow.setVisibility(View.GONE);
+        } else {
+            mToggleFollow.setChecked(mFollowStatus.isFollowing(mUser));
+            mToggleFollow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    toggleFollowing(mUser);
+                    getApp().track(mUser.user_following ? Click.Follow : Click.Unfollow, mUser, Level2.Users);
+                }
+            });
+        }
+
+        loadDetails();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
-    private void follow(User user) {
-        getApp().track(Click.Follow, user, Level2.Users);
-        toggleFollowing(user);
+    @Override
+    public void onMenuClosed() {
+        super.onMenuClosed();
+
+        if (mDelayContent){
+            mDelayContent = false;
+            // store selected item to restore on new adapter
+            final int currentItem = mPager.getCurrentItem();
+            mPager.setAdapter(mAdapter);
+            mPager.setCurrentItem(currentItem, false);
+        }
     }
 
-    private void unfollow(User user) {
-        getApp().track(Click.Unfollow, user, Level2.Users);
-        toggleFollowing(user);
+    protected void handleIntent(Intent intent) {
+        if (intent.hasExtra(EXTRA_USER)) {
+            loadUserByObject((User) intent.getParcelableExtra(EXTRA_USER));
+        } else if (intent.hasExtra(EXTRA_USER_ID)) {
+            loadUserById(intent.getLongExtra(EXTRA_USER_ID, -1));
+        } else if (intent.getData() == null || !loadUserByUri(intent.getData())){
+            loadYou();
+        }
+
+        if (!isYou()) mFollowStatus.requestUserFollowings(this);
+
+        if (intent.hasExtra(Tab.EXTRA)) {
+            mPager.setCurrentItem(Tab.indexOf(intent.getStringExtra(Tab.EXTRA)));
+            intent.removeExtra(Tab.EXTRA);
+        }
     }
 
-    public void setTab(String tag) {
-        mUserlistBrowser.setCurrentScreenByTag(tag);
-    }
+    @Override
+    public void onStart() {
+        super.onStart();
 
-    public boolean isShowingTab(Tab tab) {
-        return mUserlistBrowser.getCurrentTag().equals(tab.tag);
+        // update action bar record option based on recorder status
+        invalidateOptionsMenu();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(SoundRecorder.RECORD_STARTED);
+        filter.addAction(SoundRecorder.RECORD_ERROR);
+        filter.addAction(SoundRecorder.RECORD_FINISHED);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRecordListener, filter);
     }
-
 
     @Override
     protected void onResume() {
-        if (getApp().getAccount() != null && mAdapterStates != null){
-            restoreAdapterStates(mAdapterStates);
-            mAdapterStates = null;
-        }
         trackScreen();
-
         super.onResume();
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        for (ScListView list : mLists) {
-            list.checkForManualDetatch();
-        }
-    }
-
-    @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
-        FollowStatus.get().removeListener(this);
-        mAdapterStates = new Object[mLists.size()];
-        int i = 0;
-        for (ScListView list : mLists) {
-            if (list.getWrapper() != null) {
-                mAdapterStates[i] = list.getWrapper().saveState();
-                list.getWrapper().cleanup();
-                list.postDetach(); // detach from window to clear recycler
-            }
-            i++;
-        }
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRecordListener);
     }
 
     @Override
-    public Configuration onRetainNonConfigurationInstance() {
-        return toConfiguration();
+    protected int getSelectedMenuId() {
+        return -1;
     }
 
-    private void restoreAdapterStates(Object[] adapterStates) {
-        int i = 0;
-        for (Object adapterState : adapterStates) {
-            if (adapterState != null) {
-                mLists.get(i).getWrapper().restoreState((Object[]) adapterState);
-            }
-            i++;
+    @Override
+    public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+        return false;
+    }
+
+
+    class UserFragmentAdapter extends FragmentPagerAdapter {
+        View progress = View.inflate(UserBrowser.this, R.layout.empty_list,null);
+
+        public UserFragmentAdapter(FragmentManager fm) {
+            super(fm);
         }
+
+        @Override
+        public Fragment getItem(int position) {
+            if (Tab.values()[position] == Tab.details){
+                return mUserDetailsFragment;
+            } else {
+                ScListFragment listFragment = ScListFragment.newInstance(isYou() ?
+                        Tab.values()[position].youContent.uri : Tab.values()[position].userContent.forId(mUser.id));
+                listFragment.setEmptyCollection(getEmptyScreenFromContent(position));
+                return listFragment;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return Tab.values().length;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return Tab.getTitle(getResources(),position,isYou());
+        }
+    }
+
+    class TempAdapter extends PagerAdapter {
+        @Override
+        public int getCount() {
+            return Tab.values().length;
+        }
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return Tab.getTitle(getResources(),position,isYou());
+        }
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            final View v = View.inflate(UserBrowser.this, R.layout.empty_list,null);
+            container.addView(v);
+            return v;
+        }
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return object == view;
+        }
+
+        @Override
+        public void destroyItem(View collection, int position, Object view) {
+            ((ViewPager) collection).removeView((View) view);
+        }
+    }
+
+    private EmptyListView getEmptyScreenFromContent(int position) {
+        switch (isYou() ? Tab.values()[position].youContent : Tab.values()[position].userContent){
+            case ME_SOUNDS:
+                return new EmptyListView(this, new Intent(Actions.RECORD))
+                        .setMessageText(R.string.list_empty_user_sounds_message)
+                        .setActionText(R.string.list_empty_user_sounds_action)
+                        .setImage(R.drawable.empty_rec);
+
+            case USER_TRACKS:
+                return new EmptyListView(this).setMessageText(getString(R.string.empty_user_tracks_text,
+                        mUser.username == null ? getString(R.string.this_user)
+                                : mUser.username));
+
+            case ME_LIKES:
+                return new EmptyListView(this,
+                            new Intent(Actions.WHO_TO_FOLLOW),
+                            new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101"))
+                        ).setMessageText(R.string.list_empty_user_likes_message)
+                        .setActionText(R.string.list_empty_user_likes_action)
+                        .setImage(R.drawable.empty_like);
+
+            case USER_LIKES:
+                return new EmptyListView(this).setMessageText(getString(R.string.empty_user_likes_text,
+                        mUser.username == null ? getString(R.string.this_user)
+                                : mUser.username));
+
+            case ME_FOLLOWERS:
+                User loggedInUser = getApp().getLoggedInUser();
+                if (loggedInUser == null || loggedInUser.track_count > 0) {
+                    return new EmptyListView(this, new Intent(Actions.YOUR_SOUNDS))
+                            .setMessageText(R.string.list_empty_user_followers_message)
+                            .setActionText(R.string.list_empty_user_followers_action)
+                            .setImage(R.drawable.empty_rec);
+                } else {
+                    return new EmptyListView(this, new Intent(Actions.RECORD))
+                            .setMessageText(R.string.list_empty_user_followers_nosounds_message)
+                            .setActionText(R.string.list_empty_user_followers_nosounds_action)
+                            .setImage(R.drawable.empty_share);
+                }
+
+            case USER_FOLLOWERS:
+                return new EmptyListView(this)
+                        .setMessageText(getString(R.string.empty_user_followers_text,
+                                mUser.username == null ? getString(R.string.this_user)
+                                        : mUser.username));
+
+            case ME_FOLLOWINGS:
+                return new EmptyListView(this, new Intent(Actions.WHO_TO_FOLLOW))
+                        .setMessageText(R.string.list_empty_user_following_message)
+                        .setActionText(R.string.list_empty_user_following_action)
+                        .setImage(R.drawable.empty_follow_3row);
+
+            case USER_FOLLOWINGS:
+                return new EmptyListView(this).setMessageText(getString(R.string.empty_user_followings_text,
+                        mUser.username == null ? getString(R.string.this_user)
+                                : mUser.username));
+            default:
+                return new EmptyListView(this);
+        }
+    }
+
+
+    @Override
+    public Configuration onRetainCustomNonConfigurationInstance() {
+        return toConfiguration();
     }
 
     @Override
      protected void onDataConnectionChanged(boolean isConnected) {
         super.onDataConnectionChanged(isConnected);
         if (isConnected && avatarResult == BindResult.ERROR) reloadAvatar();
-    }
-
-    public void refreshConnections(){
-        if (isMe()) {
-            Connections.get().requestUpdate(getApp(), true, this);
-            if (mFriendFinderView != null) mFriendFinderView.setState(FriendFinderView.States.LOADING, true);
-        }
-    }
-
-    public void onChanged(List<Connection> connections, ParcelCache<Connection> cache) {
-        mConnections = connections;
-        mFriendFinderView.onConnections(connections, true);
     }
 
     private void loadYou() {
@@ -316,8 +359,8 @@ public class UserBrowser extends ScListActivity implements
     private void loadUserById(long userId) {
         if (userId != -1) {
             // check DB first as the cached user might be incomplete
-            final User u = SoundCloudDB.getUserById(getContentResolver(), userId);
-            setUser(u != null ? u : SoundCloudApplication.USER_CACHE.get(userId));
+            final User u = SoundCloudApplication.MODEL_MANAGER.getUser(userId);
+            setUser(u != null ? u : SoundCloudApplication.MODEL_MANAGER.getCachedUser(userId));
         }
         if (mUser == null) {
             mUser = new User();
@@ -325,27 +368,30 @@ public class UserBrowser extends ScListActivity implements
         }
     }
 
+    private boolean loadUserByUri(Uri uri) {
+        if (uri != null) mUser = User.fromUri(uri, getContentResolver(), true);
+        return (mUser != null);
+    }
+
     private void loadUserByObject(User user) {
         if (user == null || user.id == -1) return;
 
         // show a user out of db if possible because he will be a complete user unlike
         // a parceled user that came from a track, list or comment
-        final User dbUser = SoundCloudDB.getUserById(getContentResolver(), user.id);
+        final User dbUser = SoundCloudApplication.MODEL_MANAGER.getUser(user.id);
         setUser(dbUser != null ? dbUser : user);
     }
 
     private void loadDetails() {
-        if (!mUpdateInfo) return;
-
-        if (mLoadUserTask == null) {
+        if (mLoadUserTask == null && mUser != null) {
             mLoadUserTask = new FetchUserTask(getApp(), mUser.id);
             mLoadUserTask.addListener(this);
             mLoadUserTask.execute(Request.to(Endpoints.USER_DETAILS, mUser.id));
         }
     }
 
-    public void onChange(boolean success, FollowStatus status) {
-        setFollowingButton();
+    public void onFollowChanged(boolean success) {
+        mToggleFollow.setChecked(mFollowStatus.isFollowing(mUser));
     }
 
     private void trackScreen() {
@@ -353,224 +399,25 @@ public class UserBrowser extends ScListActivity implements
     }
 
     public Page getEvent() {
-        Tab current = Tab.valueOf(mUserlistBrowser.getCurrentTag());
-        return isMe() ? current.you : current.user;
-    }
-
-    private void build() {
-
-        mUserlistBrowser = (UserlistLayout) findViewById(R.id.userlist_browser);
-        final boolean isMe = isMe();
-
-        // Tracks View
-        LazyBaseAdapter adp = isOtherUser() ? new TracklistAdapter(this,
-                new ArrayList<Parcelable>(), Track.class) : new MyTracksAdapter(this,
-                new ArrayList<Parcelable>(), Track.class);
-
-        LazyEndlessAdapter adpWrap = new RemoteCollectionAdapter(this, adp,
-                isMe ?  Content.ME_TRACKS.uri : null,
-                isMe ?  null : Request.to(Endpoints.USER_TRACKS, mUser.id), false);
-
-
-        if (isMe) {
-            adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_sounds_message)
-                    .setActionText(R.string.list_empty_user_sounds_action)
-                    .setImage(R.drawable.empty_rec)
-                    .setButtonActionListener(new EmptyCollection.ActionListener() {
-                        @Override
-                        public void onAction() {
-                            startActivity(new Intent(Actions.RECORD)
-                                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
-                        }
-
-                        @Override
-                        public void onSecondaryAction() {
-                        }
-                    }));
-        } else {
-            if (mUser != null) {
-                adpWrap.setEmptyViewText(R.string.empty_user_tracks_text,
-                        mUser.username == null ? getResources().getString(R.string.this_user)
-                                : mUser.username);
-            }
-        }
-
-        mMyTracksView = new ScTabView(this);
-        mMyTracksView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_TRACKS, true);
-
-        // Favorites View
-        adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
-
-        adpWrap = new RemoteCollectionAdapter(this, adp,
-                isMe ?  Content.ME_FAVORITES.uri : null,//CloudUtils.replaceWildcard(Content.USER_FAVORITES.uri, mUser.id),
-                isMe ?  null : Request.to(Endpoints.USER_FAVORITES, mUser.id), false);
-
-        if (isMe) {
-            adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_likes_message)
-                    .setActionText(R.string.list_empty_user_likes_action)
-                    .setImage(R.drawable.empty_like)
-                    .setButtonActionListener(new EmptyCollection.ActionListener() {
-                        @Override
-                        public void onAction() {
-                            mUserlistBrowser.setCurrentScreenByTag(Tab.friend_finder.tag);
-                        }
-
-                        @Override
-                        public void onSecondaryAction() {
-                            startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
-                        }
-                    }));
-        } else {
-            if (mUser != null) {
-                adpWrap.setEmptyViewText(R.string.empty_user_favorites_text,
-                        mUser.username == null ? getResources().getString(R.string.this_user)
-                                : mUser.username);
-            }
-
-        }
-
-
-        ScTabView favoritesView = new ScTabView(this);
-        favoritesView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_FAVORITES, true);
-
-        // Followings View
-        adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
-        adpWrap = new RemoteCollectionAdapter(this, adp,
-                isMe ?  Content.ME_FOLLOWINGS.uri : null, //CloudUtils.replaceWildcard(Content.USER_FOLLOWINGS.uri, mUser.id),
-                isMe ?  null : Request.to(Endpoints.USER_FOLLOWINGS, mUser.id), false);
-
-        if (isMe) {
-            adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_following_message)
-                    .setActionText(R.string.list_empty_user_following_action)
-                    .setImage(R.drawable.empty_follow_3row)
-                    .setButtonActionListener(new EmptyCollection.ActionListener() {
-                        @Override
-                        public void onAction() {
-                            mUserlistBrowser.setCurrentScreenByTag(Tab.friend_finder.tag);
-                        }
-
-                        @Override
-                        public void onSecondaryAction() {
-                        }
-                    }));
-        } else {
-            if (mUser != null) {
-                adpWrap.setEmptyViewText(R.string.empty_user_followings_text,
-                        mUser.username == null ? getResources().getString(R.string.this_user)
-                                : mUser.username);
-            }
-        }
-
-        final ScTabView followingsView = new ScTabView(this);
-        followingsView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWINGS, true);
-
-
-        // Followers View
-        adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class, isMe);
-        adpWrap = new RemoteCollectionAdapter(this, adp,
-                isMe ?  Content.ME_FOLLOWERS.uri : null,//CloudUtils.replaceWildcard(Content.USER_FOLLOWERS.uri, mUser.id),
-                isMe ?  null : Request.to(Endpoints.USER_FOLLOWERS, mUser.id), false);
-        if (isMe) {
-            if (mUser.track_count > 0){
-                adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_message)
-                    .setActionText(R.string.list_empty_user_followers_action)
-                    .setImage(R.drawable.empty_rec)
-                    .setButtonActionListener(new EmptyCollection.ActionListener() {
-                        @Override
-                        public void onAction() {
-                            mUserlistBrowser.setCurrentScreenByTag(Tab.tracks.tag);
-                        }
-
-                        @Override
-                        public void onSecondaryAction() {
-                        }
-                    }));
-            } else {
-                adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_nosounds_message)
-                    .setActionText(R.string.list_empty_user_followers_nosounds_action)
-                    .setImage(R.drawable.empty_share)
-                    .setButtonActionListener(new EmptyCollection.ActionListener() {
-                        @Override
-                        public void onAction() {
-                            startActivity(new Intent(Actions.RECORD).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
-                        }
-
-                        @Override
-                        public void onSecondaryAction() {
-                        }
-                    }));
-            }
-        } else {
-            if (mUser != null) {
-                adpWrap.setEmptyViewText(R.string.empty_user_followers_text,
-                        mUser.username == null ? getResources().getString(R.string.this_user)
-                                : mUser.username);
-            }
-        }
-        final ScTabView followersView = new ScTabView(this);
-        followersView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, true);
-
-        // Details View
-        final ScTabView infoView = new ScTabView(this);
-        infoView.addView(mInfoView);
-
-        for (ScListView list : mLists){
-            list.setFadingEdgeLength(0);
-        }
-
-        // Friend Finder View
-        if (isMe) {
-            mFriendFinderView = new FriendFinderView(this);
-            if (mConnections == null) {
-                mFriendFinderView.setState(FriendFinderView.States.LOADING, false);
-            } else {
-                mFriendFinderView.onConnections(mConnections, false);
-            }
-        }
-
-        if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, getString(R.string.user_browser_tab_friend_finder), getResources().getDrawable(R.drawable.ic_user_tab_friendfinder), Tab.friend_finder.tag);
-        mUserlistBrowser.addView(mMyTracksView,  getString(R.string.user_browser_tab_sounds), getResources().getDrawable(R.drawable.ic_user_tab_sounds), Tab.tracks.tag);
-        mUserlistBrowser.addView(favoritesView, getString(R.string.user_browser_tab_likes), getResources().getDrawable(R.drawable.ic_user_tab_likes), Tab.favorites.tag);
-        mUserlistBrowser.addView(followingsView, getString(R.string.user_browser_tab_followings), getResources().getDrawable(R.drawable.ic_user_tab_following), Tab.followings.tag);
-        mUserlistBrowser.addView(followersView, getString(R.string.user_browser_tab_followers), getResources().getDrawable(R.drawable.ic_user_tab_followers), Tab.followers.tag);
-        mUserlistBrowser.addView(infoView, getString(R.string.user_browser_tab_info), getResources().getDrawable(R.drawable.ic_user_tab_info), Tab.details.tag);
-
-        mUserlistBrowser.setOnScreenChangedListener(new WorkspaceView.OnScreenChangeListener() {
-            @Override public void onScreenChanged(View newScreen, int newScreenIndex) {
-                trackScreen();
-
-                if (isMe) {
-                    getApp().setAccountData(User.DataKeys.PROFILE_IDX, Integer.toString(newScreenIndex));
-                }
-            }
-            @Override public void onScreenChanging(View newScreen, int newScreenIndex) {}
-
-            @Override
-            public void onNextScreenVisible(View newScreen, int newScreenIndex) {
-                ((ScTabView) newScreen).onVisible();
-            }
-        });
+        //Tab current = Tab.valueOf(mUserlistBrowser.getCurrentTag());
+        //return isYou() ? current.you : current.user;
+        return Page.Users_sounds;
     }
 
     private boolean isOtherUser() {
-        return !isMe();
+        return !isYou();
     }
 
-    private boolean isMe() {
+    protected boolean isYou() {
        return mUser != null && mUser.id == getCurrentUserId();
     }
 
     private void toggleFollowing(User user) {
-        mFollowBtn.setEnabled(false);
-        mFollowingBtn.setEnabled(false);
-
-        FollowStatus.get().toggleFollowing(user.id, getApp(), new Handler() {
-            @Override public void handleMessage(Message msg) {
-                mFollowBtn.setEnabled(true);
-                mFollowingBtn.setEnabled(true);
-
+        mFollowStatus.toggleFollowing(user, getApp(), new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
                 if (msg.what != FollowStatus.FOLLOW_STATUS_SUCCESS) {
-                    setFollowingButton();
+                    invalidateOptionsMenu();
 
                     if (msg.what == FollowStatus.FOLLOW_STATUS_SPAM) {
                         AndroidUtils.showToast(UserBrowser.this, R.string.following_spam_warning);
@@ -580,44 +427,32 @@ public class UserBrowser extends ScListActivity implements
                 }
             }
         });
-        setFollowingButton();
-    }
-
-    private void setFollowingButton() {
-        if (isOtherUser()) {
-            if (FollowStatus.get().isFollowing(mUser)) {
-                mFollowingBtn.setVisibility(View.VISIBLE);
-                mFollowBtn.setVisibility(View.INVISIBLE);
-            }  else {
-                mFollowingBtn.setVisibility(View.INVISIBLE);
-                mFollowBtn.setVisibility(View.VISIBLE);
-            }
-        } else {
-            mFollowBtn.setVisibility(View.INVISIBLE);
-            mFollowingBtn.setVisibility(View.INVISIBLE);
-        }
+        mToggleFollow.setChecked(mFollowStatus.isFollowing(mUser));
     }
 
     @Override
     public void onSuccess(User user, String action) {
-        mInfoError = false;
+
+        user.last_updated = System.currentTimeMillis();
+        // update user locally and ensure 1 instance
+        mUser = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
+
         setUser(user);
+        mUserDetailsFragment.onSuccess(mUser);
     }
 
     @Override
     public void onError(long userId) {
-        mInfoError = true;
-        if (!mDisplayedInfo) {
-            configureEmptyView();
-        }
+        mUserDetailsFragment.onError();
     }
 
     private void setUser(final User user) {
         if (user == null || user.id < 0) return;
         mUser = user;
 
-        if (!TextUtils.isEmpty(user.username)) mUsername.setText(user.username);
-        if (TextUtils.isEmpty(user.full_name)){
+        if (!isEmpty(user.username)) mUsername.setText(user.username);
+
+        if (isEmpty(user.full_name)) {
             mFullName.setVisibility(View.GONE);
         } else {
             mFullName.setText(user.full_name);
@@ -630,138 +465,33 @@ public class UserBrowser extends ScListActivity implements
             mTrackCount.setVisibility(View.GONE);
         } else {
             mTrackCount.setVisibility(View.VISIBLE);
-            mTrackCount.setText(Integer.toString(user.track_count));
+            mTrackCount.setText(String.valueOf(user.track_count));
         }
 
         if (user.followers_count <= 0) {
             mFollowerCount.setVisibility(View.GONE);
         } else {
             mFollowerCount.setVisibility(View.VISIBLE);
-            mFollowerCount.setText(Integer.toString(user.followers_count));
+            mFollowerCount.setText(String.valueOf(user.followers_count));
         }
 
-        setFollowingButton();
+        invalidateOptionsMenu();
+
         if (user.shouldLoadIcon()) {
             if (mIconURL == null
                 || avatarResult == BindResult.ERROR
-                || !user.avatar_url.substring(0, user.avatar_url.indexOf("?")).equals(mIconURL.substring(0, mIconURL.indexOf("?")))) {
+                || (user.avatar_url != null && !mIconURL.equals(user.avatar_url))) {
                 mIconURL = user.avatar_url;
+
                 reloadAvatar();
             }
         }
 
-        if (!TextUtils.isEmpty(user.website)) {
-            mDisplayedInfo = true;
-            mWebsite.setText(
-                    TextUtils.isEmpty(user.website_title) ?
-                    user.website.replace("http://www.", "").replace("http://", "") : user.website_title);
-            mWebsite.setVisibility(View.VISIBLE);
-            mWebsite.setFocusable(true);
-            mWebsite.setClickable(true);
-            mWebsite.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent viewIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(user.website));
-                    startActivity(viewIntent);
-                }
-            });
-        } else {
-            mWebsite.setVisibility(View.GONE);
-        }
-
-        if (!TextUtils.isEmpty(user.discogs_name)) {
-            mDisplayedInfo = true;
-            mDiscogsName.setMovementMethod(LinkMovementMethod.getInstance());
-            mDiscogsName.setVisibility(View.VISIBLE);
-            mDiscogsName.setFocusable(true);
-            mDiscogsName.setClickable(true);
-            mDiscogsName.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent viewIntent = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("http://www.discogs.com/artist/"+user.discogs_name));
-                    startActivity(viewIntent);
-                }
-            });
-        } else {
-            mDiscogsName.setVisibility(View.GONE);
-        }
-
-        if (!TextUtils.isEmpty(user.myspace_name)) {
-            mDisplayedInfo = true;
-            mMyspaceName.setMovementMethod(LinkMovementMethod.getInstance());
-            mMyspaceName.setVisibility(View.VISIBLE);
-            mMyspaceName.setFocusable(true);
-            mMyspaceName.setClickable(true);
-            mMyspaceName.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    Intent viewIntent =
-                            new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("http://www.myspace.com/"+user.myspace_name));
-                    startActivity(viewIntent);
-                }
-            });
-        } else {
-            mMyspaceName.setVisibility(View.GONE);
-        }
-
-        final String location = user.getLocation();
-        if (!TextUtils.isEmpty(location)) {
-            mDisplayedInfo = true;
-            mLocation.setText(getString(R.string.from)+" "+location);
-            mLocation.setVisibility(View.VISIBLE);
-        } else {
-            mLocation.setVisibility(View.GONE);
-        }
-
-        if (!TextUtils.isEmpty(user.description)) {
-            mDisplayedInfo = true;
-            mDescription.setText(ScTextUtils.fromHtml(user.description));
-            mDescription.setMovementMethod(LinkMovementMethod.getInstance());
-        }
-        configureEmptyView();
     }
 
-    private void configureEmptyView(){
-        if (mDisplayedInfo && mEmptyInfoView != null && mEmptyInfoView.getParent() == mInfoView) {
-            mInfoView.removeView(mEmptyInfoView);
-        } else if (!mDisplayedInfo) {
-            if (mEmptyInfoView == null) mEmptyInfoView = new EmptyCollection(this);
-            if (mInfoError) {
-                mEmptyInfoView.setMessageText(R.string.info_error);
-                mEmptyInfoView.setImage(R.drawable.empty_connection);
-                mEmptyInfoView.setActionText(-1);
-            } else {
-                if (isOtherUser()) {
-                    mEmptyInfoView.setMessageText(R.string.info_empty_other_message);
-                    mEmptyInfoView.setActionText(-1);
-                } else {
-                    mEmptyInfoView.setMessageText(R.string.info_empty_you_message);
-                    mEmptyInfoView.setActionText(R.string.info_empty_you_action);
-                    mEmptyInfoView.setButtonActionListener(new EmptyCollection.ActionListener() {
-                        @Override
-                        public void onAction() {
-                            startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings")));
-                        }
 
-                        @Override
-                        public void onSecondaryAction() {
-                        }
-                    });
-                }
-            }
-
-            if (getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
-                // won't fit in most landscape views
-                mEmptyInfoView.setImageVisibility(false);
-                mEmptyInfoView.setActionText(-1);
-            }
-
-            if (mEmptyInfoView.getParent() != mInfoView) {
-                mInfoView.addView(mEmptyInfoView);
-            }
-        }
-
+    public User getUser() {
+        return mUser;
     }
 
     private void reloadAvatar() {
@@ -780,106 +510,81 @@ public class UserBrowser extends ScListActivity implements
         }
     }
 
-    @Override
-    protected void handleRecordingClick(final Recording recording) {
-        if (recording.upload_status == Recording.Status.UPLOADING) {
-            startActivity(recording.getMonitorIntent());
-        } else {
-            startActivity(new Intent(UserBrowser.this,
-                    (recording.external_upload ? ScUpload.class : ScCreate.class)).
-                    setData(recording.toUri()));
-
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent result) {
-        switch (requestCode) {
-            case Consts.RequestCodes.MAKE_CONNECTION:
-                if (resultCode == RESULT_OK) {
-                    boolean success = result.getBooleanExtra("success", false);
-                    String msg = getString(
-                            success ? R.string.connect_success : R.string.connect_failure,
-                            result.getStringExtra("service"));
-                    Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.BOTTOM, 0, 0);
-                    toast.show();
-
-                    if (success && isMe()) {
-                        Connections.get().requestUpdate(getApp(), true, this);
-
-                        if (mFriendFinderView != null) {
-                            mFriendFinderView.setState(FriendFinderView.States.LOADING, false);
-                        }
-                    }
-                }
-            //noinspection fallthrough
-            default:
-        }
-    }
-
     private Configuration toConfiguration() {
         Configuration c = new Configuration();
         c.loadUserTask = mLoadUserTask;
         c.user = mUser;
-        c.connections = mConnections;
-        c.workspaceIndex = mUserlistBrowser.getCurrentWorkspaceIndex();
-        c.adapterStates = mAdapterStates;
-        c.friendFinderState = mFriendFinderView != null ? mFriendFinderView.getCurrentState() : -1;
-        c.infoError = mInfoError;
+        c.pagerIndex = mPager.getCurrentItem();
         return c;
     }
 
     private void fromConfiguration(Configuration c){
-        mInfoError = c.infoError;
         setUser(c.user);
-        build(); //build here because the rest of the state needs a constructed userlist browser
 
         if (c.loadUserTask != null) {
             mLoadUserTask = c.loadUserTask;
         }
-        if (isMe()) mConnections = c.connections;
-        mUserlistBrowser.initWorkspace(c.workspaceIndex);
-        if (c.friendFinderState != -1) {
-            if (c.friendFinderState == FriendFinderView.States.LOADING){
-                refreshConnections();
-            } else {
-                mFriendFinderView.setState(c.friendFinderState, false);
-            }
-        }
-        restoreAdapterStates(c.adapterStates);
+        mPager.setCurrentItem(c.pagerIndex);
     }
 
     private static class Configuration {
         FetchUserTask loadUserTask;
         User user;
-        List<Connection> connections;
-        int workspaceIndex;
-        Object[] adapterStates;
-        int friendFinderState;
+        int pagerIndex;
         boolean infoError;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        SoundRecorder soundRecorder = SoundRecorder.getInstance(this);
-        if (!isMe() && (!soundRecorder.isRecording() || soundRecorder.getRecording().getRecipient() == mUser)) {
-            menu.add(menu.size(), Consts.OptionsMenu.PRIVATE_MESSAGE,
-                menu.size(), R.string.menu_private_message).setIcon(R.drawable.ic_options_menu_rec);
-        }
-        return super.onCreateOptionsMenu(menu);
-    }
+    private final BroadcastReceiver mRecordListener = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                invalidateOptionsMenu();
+            }
+    };
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case Consts.OptionsMenu.PRIVATE_MESSAGE:
-                Intent intent = new Intent(this, ScCreate.class);
-                intent.putExtra(ScCreate.EXTRA_PRIVATE_MESSAGE_RECIPIENT,mUser);
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+
+    public enum Tab {
+        details(Actions.YOUR_INFO, Page.Users_info, Page.You_info, Content.USER, Content.ME, R.string.tab_title_user_info, R.string.tab_title_my_info),
+        tracks(Actions.YOUR_SOUNDS,Page.Users_sounds, Page.You_sounds, Content.USER_SOUNDS, Content.ME_SOUNDS, R.string.tab_title_user_sounds, R.string.tab_title_my_sounds),
+        likes(Actions.YOUR_LIKES,Page.Users_likes, Page.You_likes, Content.USER_LIKES, Content.ME_LIKES, R.string.tab_title_user_likes, R.string.tab_title_my_likes),
+        followings(Actions.YOUR_FOLLOWINGS,Page.Users_following, Page.You_following, Content.USER_FOLLOWINGS, Content.ME_FOLLOWINGS, R.string.tab_title_user_followings, R.string.tab_title_my_followings),
+        followers(Actions.YOUR_FOLLOWERS, Page.Users_followers, Page.You_followers, Content.USER_FOLLOWERS, Content.ME_FOLLOWERS, R.string.tab_title_user_followers, R.string.tab_title_my_followers);
+
+        public static final String EXTRA = "userBrowserTag";
+
+        public final Page userPage, youPage;
+        public final Content userContent, youContent;
+        public final int userTitle, youTitle;
+        public final String tag;
+        public final String action;
+
+        Tab(String action, Page userPage, Page youPage, Content userContent, Content youContent, int userTitle, int youTitle) {
+            this.action = action;
+            this.userPage = userPage;
+            this.youPage = youPage;
+            this.userContent = userContent;
+            this.youContent = youContent;
+            this.userTitle = userTitle;
+            this.youTitle = youTitle;
+            this.tag = this.name();
+        }
+
+        public static int indexOf(String tag) {
+            for (int i = 0; i < values().length; i++)
+                if (values()[i].tag.equalsIgnoreCase(tag)) {
+                    return i;
+                }
+            return -1;
+        }
+
+        public static Tab fromAction(String needle) {
+            for (Tab t : values()){
+                if (t.action.equals(needle)) return t;
+            }
+            return null;
+        }
+
+        public static String getTitle(Resources resources, int position, boolean isYou){
+            return resources.getString(isYou ? Tab.values()[position].youTitle : Tab.values()[position].userTitle);
         }
     }
 }

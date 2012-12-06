@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import com.at.ATParams;
 import com.at.ATTag;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.settings.Settings;
@@ -119,7 +118,7 @@ public class ATTracker implements SharedPreferences.OnSharedPreferenceChangeList
             setCustom(event, CUSTOM_SOUNDS, user.track_count);
             setCustom(event, CUSTOM_FOLLOWERS, user.followers_count);
             setCustom(event, CUSTOM_FOLLOWINGS, user.followings_count);
-            setCustom(event, CUSTOM_LIKES, user.public_favorites_count);
+            setCustom(event, CUSTOM_LIKES, user.public_likes_count);
             event.setCustomCritera(CUSTOM_FB_SIGNUP, user.via != null && user.via.isFacebook() ? "1" : "0");
         }
 

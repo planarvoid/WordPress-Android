@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.net.Uri;
 
 import java.util.List;
@@ -18,15 +19,18 @@ import java.util.List;
 public class SyncContentTest {
     ContentResolver resolver;
 
+    private static final int ACTIVE_SYNC_ENDPOINTS = SyncContent.values().length - 1; /* follower disabled */
+
     @Before
     public void before() {
         resolver = Robolectric.application.getContentResolver();
+        SyncContent.setAllSyncEnabledPrefs(Robolectric.application,true);
     }
 
     @Test
     public void shouldSyncAll() throws Exception {
         List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
-        expect(urisToSync.size()).toEqual(3);
+        expect(urisToSync.size()).toEqual(ACTIVE_SYNC_ENDPOINTS);
     }
 
     @Test
@@ -41,7 +45,7 @@ public class SyncContentTest {
                 resolver);
 
         List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
-        expect(urisToSync.size()).toEqual(2);
+        expect(urisToSync.size()).toEqual(ACTIVE_SYNC_ENDPOINTS - 1);
     }
 
     @Test
@@ -56,7 +60,7 @@ public class SyncContentTest {
                 resolver);
 
         List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
-        expect(urisToSync.size()).toEqual(2);
+        expect(urisToSync.size()).toEqual(ACTIVE_SYNC_ENDPOINTS -1);
     }
 
     @Test
@@ -71,7 +75,7 @@ public class SyncContentTest {
                 resolver);
 
         List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
-        expect(urisToSync.size()).toEqual(3);
+        expect(urisToSync.size()).toEqual(ACTIVE_SYNC_ENDPOINTS );
     }
 
     @Test
@@ -86,7 +90,8 @@ public class SyncContentTest {
                 resolver);
 
         List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
-        expect(urisToSync.size()).toEqual(2);
+        expect(urisToSync.size()).toEqual(ACTIVE_SYNC_ENDPOINTS -1);
+        expect(urisToSync).not.toContain(SyncContent.MySounds.content.uri);
     }
 
     @Test
@@ -101,13 +106,13 @@ public class SyncContentTest {
                 resolver);
 
         List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
-        expect(urisToSync.size()).toEqual(3);
+        expect(urisToSync.size()).toEqual(ACTIVE_SYNC_ENDPOINTS);
 
         android.os.Bundle syncResult = new android.os.Bundle();
         syncResult.putBoolean(SyncContent.MySounds.content.uri.toString(),false);
         SyncContent.updateCollections(Robolectric.application, syncResult);
 
         urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
-        expect(urisToSync.size()).toEqual(2);
+        expect(urisToSync.size()).toEqual(ACTIVE_SYNC_ENDPOINTS-1);
     }
 }

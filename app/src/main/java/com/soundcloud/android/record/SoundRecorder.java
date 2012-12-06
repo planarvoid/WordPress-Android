@@ -10,11 +10,11 @@ import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.audio.ScAudioTrack;
 import com.soundcloud.android.audio.TrimPreview;
 import com.soundcloud.android.audio.filter.FadeFilter;
+import com.soundcloud.android.audio.managers.AudioManagerFactory;
+import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.audio.managers.AudioManagerFactory;
-import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.service.record.RecordAppWidgetProvider;
 import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.tracking.Event;
@@ -31,6 +31,7 @@ import android.media.AudioTrack;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -262,12 +263,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         return mState;
     }
 
-    public @NotNull Recording startRecording(@Nullable User user) throws IOException {
-        return startRecording(user,null);
-    }
-
     // Sets output file path, call directly after construction/reset.
-    public @NotNull Recording startRecording(@Nullable User user, @Nullable String tip_key) throws IOException {
+    public @NotNull Recording startRecording(@Nullable String tip_key) throws IOException {
         if (!IOUtils.isSDCardAvailable()) {
             throw new IOException(mContext.getString(R.string.record_insert_sd_card));
         } else if (!mRemainingTimeCalculator.isDiskSpaceAvailable()) {
@@ -277,7 +274,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         mRemainingTimeCalculator.reset();
         if (mState != State.RECORDING) {
             if (mRecording == null) {
-                mRecording = Recording.create(user, tip_key);
+                mRecording = Recording.create(tip_key);
 
                 mRecordStream.setWriters(mRecording.getRawFile(),
                         shouldEncodeWhileRecording() ? mRecording.getEncodedFile() : null);
@@ -741,7 +738,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 }
                 Log.d(TAG, "exiting reader loop, stopping recording (mState=" + mState + ")");
                 mAudioRecord.stop();
-
+                String message = null;
                 if (mRecording != null) {
                     if (mState != SoundRecorder.State.ERROR) {
                         try {
@@ -753,20 +750,21 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                                 mPlaybackStream.resetBounds();
                             }
                             saveState();
-                            broadcast(RECORD_FINISHED);
+                            message = RECORD_FINISHED;
                         } catch (IOException e) {
                             mState = SoundRecorder.State.ERROR;
-                            broadcast(RECORD_ERROR);
+                            message = RECORD_ERROR;
                             Log.w(TAG,e);
                         }
 
                     } else {
                         mPlaybackStream = null;
-                        broadcast(RECORD_ERROR);
+                        message = RECORD_ERROR;
                     }
                 }
                 mState = SoundRecorder.State.IDLE;
                 mReaderThread = null;
+                if (!TextUtils.isEmpty(message)) broadcast(message);
             }
         }
     }

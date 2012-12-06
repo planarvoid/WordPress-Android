@@ -1,10 +1,12 @@
 package com.soundcloud.android.record;
 
+import com.soundcloud.android.tests.NonUiTest;
 import com.soundcloud.android.tests.ScAndroidTestCase;
 
 import java.io.File;
 import java.util.Arrays;
 
+@NonUiTest
 public class AmplitudeDataTest extends ScAndroidTestCase {
 
     public void testStoreAndReadAmplitudeData() throws Exception {

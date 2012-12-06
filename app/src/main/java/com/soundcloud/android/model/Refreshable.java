@@ -1,8 +1,8 @@
 package com.soundcloud.android.model;
 
+import org.jetbrains.annotations.Nullable;
 
 public interface Refreshable {
-    long getRefreshableId();
-    ScModel getRefreshableResource();
+    @Nullable ScResource getRefreshableResource();
     boolean isStale();
 }

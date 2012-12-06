@@ -7,7 +7,7 @@
                   android:orientation="vertical"
                   android:gravity="bottom"
                   android:layout_height="fill_parent">
-        <com.soundcloud.android.view.WorkspaceView
+        <com.soundcloud.android.view.PlayerTrackPager
                         android:id="@+id/track_view"
                         android:layout_width="fill_parent"
                         android:layout_height="0dp"

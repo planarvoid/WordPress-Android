@@ -25,8 +25,8 @@ import java.io.InputStreamReader;
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
  *
- * @author: Karsten Priegnitz
- * see: http://code.google.com/p/android-change-log/
+ * @author Karsten Priegnitz
+ * @see <a href="http://code.google.com/p/android-change-log/">http://code.google.com/p/android-change-log</a>
  */
 public class ChangeLog {
     private final Context mContext;
@@ -37,15 +37,6 @@ public class ChangeLog {
 
     private Listmode mListMode = Listmode.NONE;
     private StringBuilder mSb;
-    private int oldVersionCode;
-
-    public int getCurrentVersionCode() {
-        return mThisVersion;
-    }
-
-    public int getOldVersionCode() {
-        return mOldVersion;
-    }
 
     private enum Listmode {
         NONE,
@@ -72,7 +63,7 @@ public class ChangeLog {
      * @return true if this version of your app is started the first time
      */
     public boolean isFirstRun() {
-        return mOldVersion < mThisVersion;
+        return mOldVersion > 0 && mOldVersion < mThisVersion;
     }
 
 

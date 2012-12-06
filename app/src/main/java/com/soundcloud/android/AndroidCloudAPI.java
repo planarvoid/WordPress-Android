@@ -1,15 +1,9 @@
 package com.soundcloud.android;
 
-import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.soundcloud.android.json.ActivityDeserializer;
-import com.soundcloud.android.json.UserDeserializer;
-import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.ApiWrapper;
@@ -22,14 +16,12 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.jetbrains.annotations.Nullable;
 
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.SSLCertificateSocketFactory;
 import android.net.SSLSessionCache;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -76,21 +68,13 @@ public interface AndroidCloudAPI extends CloudAPI {
 
         static {
             Mapper = createMapper();
-            // need to create separate mapper (for user deserialization)
-            final ObjectMapper mapper = createMapper();
-
-            Mapper.registerModule(new SimpleModule("CustomDeserialization", new Version(1, 0, 0, null, null, null))
-                    .addDeserializer(User.class, new UserDeserializer(mapper))
-                    .addDeserializer(Activity.class, new ActivityDeserializer(Mapper)));
         }
 
         private Context mContext;
         private String userAgent;
 
         public static Wrapper create(Context context, @Nullable Token initialToken) {
-            final Env env = Env.LIVE;  // AndroidUtils.isRunOnBuilder(context) ? Env.SANDBOX : Env.LIVE;
-            String clientId = context.getString(env == Env.LIVE ? R.string.client_id : R.string.sandbox_client_id);
-            return new Wrapper(context, clientId, getClientSecret(env == Env.LIVE), REDIRECT_URI, initialToken, env);
+            return new Wrapper(context, context.getString(R.string.client_id), getClientSecret(true), REDIRECT_URI, initialToken);
         }
 
         /* package */ static String getClientSecret(boolean production) {
@@ -111,8 +95,8 @@ public interface AndroidCloudAPI extends CloudAPI {
             return ScTextUtils.deobfuscate(production ? prod2 : sandbox);
         }
 
-        public Wrapper(Context context, String clientId, String clientSecret, URI redirectUri, Token token, Env env) {
-            super(clientId, clientSecret, redirectUri, token, env);
+        public Wrapper(Context context, String clientId, String clientSecret, URI redirectUri, Token token) {
+            super(clientId, clientSecret, redirectUri, token);
             // context can be null in tests
             if (context == null) return;
 
@@ -156,11 +140,9 @@ public interface AndroidCloudAPI extends CloudAPI {
         }
 
         @SuppressWarnings({"PointlessBooleanExpression", "ConstantConditions"})
-        @TargetApi(8)
         @Override protected SSLSocketFactory getSSLSocketFactory() {
             if (SoundCloudApplication.DALVIK &&
-                env == Env.LIVE &&
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+                env == Env.LIVE) {
                 // make use of android's implementation
                 return SSLCertificateSocketFactory.getHttpSocketFactory(ApiWrapper.TIMEOUT,
                         new SSLSessionCache(mContext));

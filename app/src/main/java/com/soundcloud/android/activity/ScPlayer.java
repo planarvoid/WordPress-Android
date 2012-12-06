@@ -1,22 +1,25 @@
 
 package com.soundcloud.android.activity;
 
+import static com.soundcloud.android.service.playback.CloudPlaybackService.getPlayQueueManager;
+
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.PlaylistManager;
+import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.tracking.Media;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.view.WorkspaceView;
+import com.soundcloud.android.utils.PlayUtils;
+import com.soundcloud.android.view.PlayerTrackPager;
 import com.soundcloud.android.view.play.PlayerTrackView;
 import com.soundcloud.android.view.play.TransportBar;
 import com.soundcloud.android.view.play.WaveformController;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
@@ -30,31 +33,28 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.util.Log;
-import android.view.MenuItem;
+import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.RelativeLayout;
 
-public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenChangeListener, WorkspaceView.OnScrollListener {
-    public static final String PLAYER_SHOWING_COMMENTS = "playerShowingComments";
+public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPageListener {
     public static final int REFRESH_DELAY = 1000;
 
+    private static final String STATE_PAGER_QUEUE_POSITION = "pager_queue_position";
+    private static final String PLAYER_SHOWING_COMMENTS = "playerShowingComments";
     private static final int REFRESH = 1;
     private static final int SEND_CURRENT_QUEUE_POSITION = 2;
     private static final long TRACK_SWIPE_UPDATE_DELAY = 1000;
     private static final long TRACK_NAV_DELAY = 500;
-
-    protected CloudPlaybackService mPlaybackService;
+    public static final boolean SMOOTH_PROGRESS = Build.VERSION.SDK_INT >= WaveformController.MINIMUM_SMOOTH_PROGRESS_SDK;
 
     private long mSeekPos = -1;
-    private boolean mActivityPaused, mIsCommenting, mChangeTrackFast, mShouldShowComments;
-    private Track mPlayingTrack;
-    private RelativeLayout mContainer;
-    private WorkspaceView mTrackWorkspace;
-    private int mCurrentQueuePosition = -1;
+    private boolean mActivityPaused, mChangeTrackFast, mShouldShowComments, mIgnoreServiceQueue;
+    private PlayerTrackPager mTrackPager;
     private TransportBar mTransportBar;
+    private @Nullable CloudPlaybackService mPlaybackService;
+
+    private int mPendingPlayPosition = -1;
 
     public interface PlayerError {
         int PLAYBACK_ERROR    = 0;
@@ -62,116 +62,55 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         int TRACK_UNAVAILABLE = 2;
     }
 
+    public @Nullable static Comment pendingComment;
+
     @Override
-    public void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
         setContentView(R.layout.sc_player);
+        setTitle("");
 
-        mContainer = (RelativeLayout) findViewById(R.id.container);
-
-        mTrackWorkspace = (WorkspaceView) findViewById(R.id.track_view);
-        mTrackWorkspace.setVisibility(View.GONE);
-        mTrackWorkspace.setOnScreenChangeListener(this);
-        mTrackWorkspace.setOnScrollListener(this, false);
+        mTrackPager = (PlayerTrackPager) findViewById(R.id.track_view);
+        mTrackPager.setPageMarginDrawable(R.drawable.track_view_separator);
+        mTrackPager.setPageMargin((int) (5*getResources().getDisplayMetrics().density));
+        mTrackPager.setListener(this);
 
         mTransportBar = (TransportBar) findViewById(R.id.transport_bar);
         mTransportBar.setOnPrevListener(mPrevListener);
         mTransportBar.setOnNextListener(mNextListener);
         mTransportBar.setOnPauseListener(mPauseListener);
-        mTransportBar.setOnCommentListener(mCommentListener);
-        mTransportBar.setOnFavoriteListener(mFavoriteListener);
 
         mShouldShowComments = getApp().getAccountDataBoolean(PLAYER_SHOWING_COMMENTS);
-        final Object[] saved = (Object[]) getLastNonConfigurationInstance();
-        if (saved != null && saved[0] != null) mPlayingTrack = (Track) saved[0];
 
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-    }
 
-    public void toggleCommentMode(int playPos) {
-        mIsCommenting = !mIsCommenting;
-
-        final PlayerTrackView ptv = getTrackView(playPos);
-        if (ptv != null) {
-            ptv.setCommentMode(mIsCommenting);
-        }
-
-        mTransportBar.setCommentMode(mIsCommenting);
-
-        if (mPlaybackService != null) {
-            mPlaybackService.setAutoAdvance(!mIsCommenting);
-        }
-    }
-
-    public ViewGroup getCommentHolder() {
-        return mContainer;
-    }
-
-    @Override
-    public void onScroll(float screenFraction) {
-        if (screenFraction != Math.round(screenFraction)){
-            mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
-        }
-    }
-
-    @Override public void onScreenChanging(View newScreen, int newScreenIndex) {}
-
-    @Override public void onNextScreenVisible(View newScreen, int newScreenIndex) {
-        if (newScreen instanceof PlayerTrackView) {
-            ((PlayerTrackView) newScreen).setOnScreen(true);
+        if (bundle == null) {
+            handleIntent(getIntent());
+        } else {
+            // orientation change, activity got recreated
+            mIgnoreServiceQueue = false;
         }
     }
 
     @Override
-    public void onScreenChanged(View newScreen, int newScreenIndex) {
-
-        if (newScreen == null) return;
-        final int newQueuePos = ((PlayerTrackView) newScreen).getPlayPosition();
-
+    public void onPageDrag() {
         mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
-        if (mCurrentQueuePosition != newQueuePos){
-            mCurrentQueuePosition = newQueuePos;
-            mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
-                    mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
-        }
-        mChangeTrackFast = false;
+    }
 
-        final long prevTrackId;
-        final long nextTrackId;
-
-        final PlaylistManager playlistManager = mPlaybackService.getPlaylistManager();
-        prevTrackId = newQueuePos > 0
-                ? playlistManager.getTrackIdAt(newQueuePos - 1) : -1;
-        nextTrackId =  newQueuePos < playlistManager.length() - 1
-                ? playlistManager.getTrackIdAt(newQueuePos + 1) : -1;
-
-        final PlayerTrackView ptv;
-        if (newScreenIndex == 0 && prevTrackId != -1) {
-            final Track prevTrack = getTrackById(prevTrackId);
-            if (prevTrack != null) {
-                if (mTrackWorkspace.getScreenCount() > 2) {
-                    ptv = (PlayerTrackView) mTrackWorkspace.cycleBackViewToFront();
-                    ptv.clear();
-                } else {
-                    ptv = new PlayerTrackView(this);
-                    mTrackWorkspace.addViewToFront(ptv);
-                }
-                ptv.setTrack(prevTrack, newQueuePos - 1, false, false);
+    @Override
+    public void onPageSettling() {
+        final PlayQueueManager playQueueManager = getPlayQueueManager();
+        if (playQueueManager != null) {
+            if (playQueueManager.getPosition() != getCurrentDisplayedTrackPosition() // different track
+                    && !mHandler.hasMessages(SEND_CURRENT_QUEUE_POSITION) // not already changing
+                    && (mChangeTrackFast || CloudPlaybackService.getState().isSupposedToBePlaying()) // responding to transport click or already playing
+                    ) {
+                mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
+                mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
+                        mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
             }
-
-        } else if (newScreenIndex == mTrackWorkspace.getScreenCount() - 1 && nextTrackId != -1) {
-            final Track nextTrack = getTrackById(nextTrackId);
-            if (nextTrack != null) {
-                if (mTrackWorkspace.getScreenCount() > 2) {
-                    ptv = (PlayerTrackView) mTrackWorkspace.cycleFrontViewToBack();
-                    ptv.clear();
-                } else {
-                    ptv = new PlayerTrackView(this);
-                    mTrackWorkspace.addViewToBack(ptv);
-                }
-                ptv.setTrack(nextTrack, newQueuePos + 1, false, false);
-            }
+            mChangeTrackFast = false;
         }
     }
 
@@ -184,29 +123,32 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         return mShouldShowComments;
     }
 
-
-    public long setSeekMarker(float seekPercent) {
+    public long setSeekMarker(int queuePosition, float seekPercent) {
         if (mPlaybackService != null) {
-            if (!mPlaybackService.isSeekable()) {
-                mSeekPos = -1;
-                return mPlaybackService.getProgress();
+            if (mPlaybackService.getPlaylistManager().getPosition() != queuePosition) {
+                mPlaybackService.setQueuePosition(queuePosition);
             } else {
-                if (mPlayingTrack != null) {
-                    // where would we be if we had seeked
-                    mSeekPos = mPlaybackService.seek((long) (mPlayingTrack.duration * seekPercent), false);
+                if (!mPlaybackService.isSeekable()) {
+                    mSeekPos = -1;
+                    return mPlaybackService.getProgress();
+                } else {
+                    // returns where would we be if we had seeked
+                    mSeekPos = mPlaybackService.seek(seekPercent, false);
                     return mSeekPos;
                 }
             }
         }
-        return 0;
+
+        return -1;
     }
 
     public long sendSeek(float seekPercent) {
+
         if (mPlaybackService == null || !mPlaybackService.isSeekable()) {
             return -1;
         }
         mSeekPos = -1;
-        return mPlaybackService.seek((long) (mPlayingTrack.duration * seekPercent),true);
+        return mPlaybackService.seek(seekPercent,true);
     }
 
     public boolean isSeekable() {
@@ -214,8 +156,14 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     }
 
     public boolean toggleLike(Track track) {
-        if (track == null) return false;
-        mPlaybackService.setFavoriteStatus(track.id, !track.user_favorite);
+        if (track == null || mPlaybackService == null) return false;
+        mPlaybackService.setLikeStatus(track.id, !track.user_like);
+        return true;
+    }
+
+    public boolean toggleRepost(Track track) {
+        if (track == null || mPlaybackService == null) return false;
+        mPlaybackService.setRepostStatus(track.id, !track.user_repost);
         return true;
     }
 
@@ -226,35 +174,99 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        final PlayerTrackView currentTrackView = mTrackPager.getCurrentTrackView();
+        if (currentTrackView == null || !currentTrackView.onBackPressed() ){
+            super.onBackPressed();
+        }
+    }
 
     @Override
     public void onSaveInstanceState(Bundle state) {
-        state.putBoolean("paused", mActivityPaused);
+        state.putInt(STATE_PAGER_QUEUE_POSITION, getCurrentDisplayedTrackPosition());
         super.onSaveInstanceState(state);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
-        mActivityPaused = state.getBoolean("paused");
+        final int position = state.getInt(STATE_PAGER_QUEUE_POSITION, -1);
+        if (position != -1 && position != getCurrentDisplayedTrackPosition()){
+            mPendingPlayPosition = position;
+        }
         super.onRestoreInstanceState(state);
     }
 
-    @Override
-    public Object onRetainNonConfigurationInstance() {
-        return new Object[] {mPlayingTrack};
+    public void addNewComment(final Comment comment) {
+        pendingComment = comment;
+        safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case Consts.OptionsMenu.REFRESH:
-                mPlayingTrack.full_track_info_loaded = false;
-                mPlayingTrack.comments = null;
-                final PlayerTrackView ptv = getCurrentTrackView();
-                if (ptv != null) ptv.onRefresh();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    @Override
+    protected int getSelectedMenuId() {
+        return -1;
+    }
+
+    protected void onPlaybackServiceBound(@NotNull CloudPlaybackService service) {
+        if (CloudPlaybackService.getCurrentTrackId() == -1 && !service.configureLastPlaylist()) {
+            // nothing to show, send them back to main
+            Intent intent = new Intent(this, Home.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        } else if (mPendingPlayPosition != -1){
+            service.setQueuePosition(mPendingPlayPosition);
+            mPendingPlayPosition = -1;
+        }
+    }
+
+    @Override
+    protected void onDataConnectionChanged(boolean isConnected) {
+        super.onDataConnectionChanged(isConnected);
+        if (isConnected) {
+            if (mTrackPager != null) {
+                for (PlayerTrackView ptv : mTrackPager.playerTrackViews()) {
+                    ptv.onDataConnected();
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        for (PlayerTrackView ptv : mTrackPager.playerTrackViews()) {
+            ptv.onDestroy();
+        }
+        super.onDestroy();
+    }
+
+    private void handleIntent(Intent intent) {
+        final String action = intent.getAction();
+        Track displayTrack = null;
+        if (!TextUtils.isEmpty(action)) {
+            if (Actions.PLAY.equals(action)) {
+                // play from a normal play intent (created by PlayUtils)
+                startService(new Intent(CloudPlaybackService.PLAY_ACTION, intent.getData()).putExtras(intent));
+                displayTrack = PlayUtils.getTrackFromIntent(intent);
+            } else if (Intent.ACTION_VIEW.equals(action)) {
+                // Play from a View Intent, this probably came from quicksearch
+                if (intent.getData() != null) {
+                    displayTrack = Track.fromUri(intent.getData(), getContentResolver(), true);
+                    if (displayTrack != null) {
+                        startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(Track.EXTRA, displayTrack));
+                    }
+                }
+            }
+        }
+        if (displayTrack != null) {
+            mTrackPager.configureFromTrack(this, displayTrack,
+                    intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition, 0));
+            mIgnoreServiceQueue = true;
         }
     }
 
@@ -263,125 +275,146 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         public void onServiceConnected(ComponentName classname, IBinder obj) {
             if (obj instanceof LocalBinder) {
                 mPlaybackService = (CloudPlaybackService) ((LocalBinder)obj).getService();
-                onPlaybackServiceBound();
+                onPlaybackServiceBound(mPlaybackService);
             }
         }
-
         @Override
         public void onServiceDisconnected(ComponentName classname) {
             mPlaybackService = null;
         }
     };
 
-    protected void onPlaybackServiceBound() {
-        if (CloudPlaybackService.getCurrentTrackId() == -1 && !mPlaybackService.configureLastPlaylist()) {
-
-            // nothing to show, send them back to main
-            Intent intent = new Intent(this, Main.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-
-        } else {
-            setTrackDisplayFromService();
-
-            if (getIntent().getBooleanExtra("commentMode", false)) {
-                final PlayerTrackView view = getCurrentTrackView();
-                if (view != null) {
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            toggleCommentMode(view.getPlayPosition());
-                        }
-                    }, 200l);
-                    getIntent().putExtra("commentMode", false);
-                }
-            }
-        }
-    }
-
-    @Override
-    protected void onDataConnectionChanged(boolean isConnected) {
-        super.onDataConnectionChanged(isConnected);
-        if (mPlayingTrack != null && isConnected) {
-            if (mTrackWorkspace != null) {
-                for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
-                    ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).onDataConnected();
-                }
-            }
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++) {
-            ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).onDestroy();
-        }
-        super.onDestroy();
-    }
-
     private final View.OnClickListener mPauseListener = new View.OnClickListener() {
         public void onClick(View v) {
-            doPauseResume();
-        }
-    };
-
-    private final View.OnClickListener mCommentListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            final PlayerTrackView playerTrackView = getCurrentTrackView();
-            if (playerTrackView != null) {
-                toggleCommentMode(playerTrackView.getPlayPosition());
+            if (mPlaybackService != null) {
+                final PlayQueueManager playQueueManager = getPlayQueueManager();
+                if (playQueueManager != null) {
+                    if (getCurrentDisplayedTrackPosition() != playQueueManager.getPosition()) {
+                        mPlaybackService.setQueuePosition(getCurrentDisplayedTrackPosition());
+                    } else {
+                        mPlaybackService.togglePlayback();
+                    }
+                }
             }
-
+            setPlaybackState();
         }
     };
 
-    private final View.OnClickListener mFavoriteListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            toggleLike(mPlayingTrack);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mActivityPaused = false;
+
+        bindService(new Intent(this, CloudPlaybackService.class), osc, 0);
+        IntentFilter f = new IntentFilter();
+        f.addAction(CloudPlaybackService.PLAYQUEUE_CHANGED);
+        f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
+        f.addAction(CloudPlaybackService.META_CHANGED);
+        f.addAction(CloudPlaybackService.PLAYBACK_ERROR);
+        f.addAction(CloudPlaybackService.TRACK_UNAVAILABLE);
+        f.addAction(CloudPlaybackService.STREAM_DIED);
+        f.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
+        f.addAction(CloudPlaybackService.BUFFERING);
+        f.addAction(CloudPlaybackService.BUFFERING_COMPLETE);
+        f.addAction(CloudPlaybackService.COMMENTS_LOADED);
+        f.addAction(CloudPlaybackService.SEEKING);
+        f.addAction(CloudPlaybackService.SEEK_COMPLETE);
+        f.addAction(Sound.ACTION_TRACK_ASSOCIATION_CHANGED);
+        f.addAction(Sound.ACTION_SOUND_INFO_UPDATED);
+        f.addAction(Sound.ACTION_SOUND_INFO_ERROR);
+        f.addAction(Sound.ACTION_COMMENT_ADDED);
+        registerReceiver(mStatusListener, new IntentFilter(f));
+
+        if (!mIgnoreServiceQueue) {
+            // this will configure the playlist from the service
+            final PlayQueueManager playQueueManager = CloudPlaybackService.getPlayQueueManager();
+            if (playQueueManager != null) onMetaChanged(playQueueManager.getPosition());
+        } else {
+            // set to false for coming back from lock screen
+            mIgnoreServiceQueue = false;
         }
-    };
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setPlaybackState();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unbindService(osc);
+        for (PlayerTrackView ptv : mTrackPager.playerTrackViews()){
+            ptv.onStop(true);
+        }
+
+        mActivityPaused = true;
+        mHandler.removeMessages(REFRESH);
+        unregisterReceiver(mStatusListener);
+        mPlaybackService = null;
+    }
 
     private final View.OnClickListener mPrevListener = new View.OnClickListener() {
         public void onClick(View v) {
+
             if (mPlaybackService != null) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
-                if (mPlaybackService.getProgress() < 2000 && mCurrentQueuePosition > 0) {
-                    if (mPlayingTrack != null) {
-                        track(Media.fromTrack(mPlayingTrack), Media.Action.Backward);
+
+                final PlayQueueManager playQueueManager = getPlayQueueManager();
+                if (playQueueManager != null) {
+                    final int playPosition = playQueueManager.getPosition();
+                    if (mPlaybackService.getProgress() < 2000 && playPosition > 0) {
+
+                        final Track currentTrack = CloudPlaybackService.getCurrentTrack();
+                        if (currentTrack != null) {
+                            track(Media.fromTrack(currentTrack), Media.Action.Backward);
+                        }
+
+                        if (getCurrentDisplayedTrackPosition() == playPosition) {
+                            mChangeTrackFast = true;
+                            mTrackPager.prev();
+                        } else {
+                            mPlaybackService.setQueuePosition(playPosition - 1);
+                            setTrackDisplayFromService();
+                        }
+
+                    } else if (isSeekable()) {
+                        mPlaybackService.seek(0, true);
+
+                    } else {
+                        mPlaybackService.restartTrack();
                     }
-                    mChangeTrackFast = true;
-                    mTrackWorkspace.scrollLeft();
-                } else if (isSeekable()) {
-                    mPlaybackService.seek(0, true);
-                } else {
-                    mPlaybackService.restartTrack();
                 }
             }
         }
     };
-
 
     private final View.OnClickListener mNextListener = new View.OnClickListener() {
         public void onClick(View v) {
             if (mPlaybackService != null) {
-                if (mPlayingTrack != null) {
-                    track(Media.fromTrack(mPlayingTrack), Media.Action.Forward);
-                }
-
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
-                if (mPlaybackService.getPlaylistManager().length() > mCurrentQueuePosition + 1) {
-                    mChangeTrackFast = true;
-                    mTrackWorkspace.scrollRight();
+
+                final Track currentTrack = CloudPlaybackService.getCurrentTrack();
+                if (currentTrack != null) {
+                    track(Media.fromTrack(currentTrack), Media.Action.Forward);
                 }
-                mTrackWorkspace.scrollRight();
+                final PlayQueueManager playQueueManager = getPlayQueueManager();
+                if (playQueueManager != null) {
+                    final int playPosition = playQueueManager.getPosition();
+                    if (mPlaybackService.getPlaylistManager().length() > playPosition + 1) {
+                        if (getCurrentDisplayedTrackPosition() == playPosition) {
+                            mChangeTrackFast = true;
+                            mTrackPager.next();
+                        } else {
+                            mPlaybackService.setQueuePosition(playPosition + 1);
+                            setTrackDisplayFromService();
+                        }
+                    }
+                }
             }
         }
     };
-
-    private void doPauseResume() {
-        if (mPlaybackService != null) mPlaybackService.togglePlayback();
-        setPlaybackState();
-    }
 
     private void queueNextRefresh(long delay) {
         if (!mActivityPaused) {
@@ -401,8 +434,10 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
 
         final PlayerTrackView ptv = getTrackView(queuePos);
         if (ptv != null){
-            ptv.setProgress(progress, mPlaybackService.loadPercent(), Build.VERSION.SDK_INT >= WaveformController.MINIMUM_SMOOTH_PROGRESS_SDK &&
-                    (mPlaybackService.isPlaying() && !mPlaybackService.isBuffering()));
+            ptv.setProgress(progress,
+                    mPlaybackService.loadPercent(),
+                    SMOOTH_PROGRESS &&
+                    mPlaybackService.isPlaying() && !mPlaybackService.isBuffering());
         }
 
         // return the number of milliseconds until the next full second, so
@@ -419,7 +454,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
                     queueNextRefresh(next);
                     break;
                 case SEND_CURRENT_QUEUE_POSITION:
-                    if (mPlaybackService != null) mPlaybackService.setQueuePosition(mCurrentQueuePosition);
+                    if (mPlaybackService != null) mPlaybackService.setQueuePosition(getCurrentDisplayedTrackPosition());
                     break;
                 default:
                     break;
@@ -433,218 +468,105 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
             final int queuePos = intent.getIntExtra(CloudPlaybackService.BroadcastExtras.queuePosition, -1);
             String action = intent.getAction();
 
-            if (action.equals(CloudPlaybackService.PLAYLIST_CHANGED)) {
+            if (action.equals(CloudPlaybackService.PLAYQUEUE_CHANGED)) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
                 setTrackDisplayFromService();
             } else if (action.equals(CloudPlaybackService.META_CHANGED)) {
-                mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
-                if (mCurrentQueuePosition != queuePos) {
-                    if (mCurrentQueuePosition != -1
-                            && queuePos == mCurrentQueuePosition + 1
-                            && !mTrackWorkspace.isScrolling()
-                            && mTrackWorkspace.isScrollerFinished()) {
-                        // auto advance
-                        mTrackWorkspace.scrollRight();
-                    } else {
-                        setTrackDisplayFromService();
-                    }
-                }
-                for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++) {
-                    if (((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).getPlayPosition() != queuePos) {
-                        ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).getWaveformController().reset(false);
-                    }
-                }
+                onMetaChanged(queuePos);
 
-                setCurrentTrackDataFromService(intent.getLongExtra("id",-1));
-                long next = refreshNow();
-                queueNextRefresh(next);
-
-            } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
-                setPlaybackState();
-                if (getTrackView(queuePos) != null) {
-                    getTrackView(queuePos).setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
-                }
-
-            } else if (action.equals(CloudPlaybackService.FAVORITE_SET) ||
-                        action.equals(CloudPlaybackService.COMMENTS_LOADED) ||
-                        action.equals(Actions.COMMENT_ADDED)) {
-                for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
-                    ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).handleIdBasedIntent(intent);
-                }
-                if (action.equals(CloudPlaybackService.FAVORITE_SET)) setFavoriteStatus();
             } else {
-                if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
+                if (CloudPlaybackService.PLAYBACK_COMPLETE.equals(action) || action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
                     setPlaybackState();
-                }
-                if (getTrackView(queuePos) != null) {
-                    getTrackView(queuePos).handleStatusIntent(intent);
+                    final PlayerTrackView trackView = getTrackView(queuePos);
+                    if (trackView != null) {
+                        if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)){
+                            trackView.setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
+                        } else {
+                            trackView.handleStatusIntent(intent);
+                        }
+                    }
+                } else {
+                    // unhandled here, pass along to trackviews who may be interested
+                    for (PlayerTrackView ptv : mTrackPager.playerTrackViews()) {
+                        ptv.handleIdBasedIntent(intent);
+                    }
                 }
             }
+
         }
     };
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mActivityPaused = false;
-
-        AndroidUtils.bindToService(this, CloudPlaybackService.class, osc);
-
-        IntentFilter f = new IntentFilter();
-        f.addAction(CloudPlaybackService.PLAYLIST_CHANGED);
-        f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
-        f.addAction(CloudPlaybackService.META_CHANGED);
-        f.addAction(CloudPlaybackService.PLAYBACK_ERROR);
-        f.addAction(CloudPlaybackService.TRACK_UNAVAILABLE);
-        f.addAction(CloudPlaybackService.STREAM_DIED);
-        f.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
-        f.addAction(CloudPlaybackService.BUFFERING);
-        f.addAction(CloudPlaybackService.BUFFERING_COMPLETE);
-        f.addAction(CloudPlaybackService.COMMENTS_LOADED);
-        f.addAction(CloudPlaybackService.SEEKING);
-        f.addAction(CloudPlaybackService.SEEK_COMPLETE);
-        f.addAction(CloudPlaybackService.FAVORITE_SET);
-        f.addAction(Actions.COMMENT_ADDED);
-        registerReceiver(mStatusListener, new IntentFilter(f));
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setPlaybackState();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        AndroidUtils.unbindFromService(this, CloudPlaybackService.class);
-
-        for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
-            ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).onStop(true);
-        }
-        mActivityPaused = true;
-        mHandler.removeMessages(REFRESH);
-        unregisterReceiver(mStatusListener);
-        mPlaybackService = null;
-    }
-
-    private Track getTrackById(long trackId) {
-        Track t = SoundCloudApplication.TRACK_CACHE.get(trackId);
-        // TODO : StrictMode policy violation; ~duration=106 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=23 violation=2
-        return t != null ? t : SoundCloudDB.getTrackById(getContentResolver(), trackId);
-    }
-
-    private void setCurrentTrackDataFromService() {
-        setCurrentTrackDataFromService(CloudPlaybackService.getCurrentTrackId());
-    }
-
-    private void setCurrentTrackDataFromService(long id) {
-        if (mPlaybackService == null) return;
-
-        mCurrentQueuePosition = mPlaybackService.getPlaylistManager().getPosition();
-        mPlayingTrack = getTrackById(id);
-        if (mPlayingTrack == null) {
-            mPlayingTrack = CloudPlaybackService.getCurrentTrack();
+    private void onMetaChanged(int queuePos) {
+        mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
+        final int playPosition = getCurrentDisplayedTrackPosition();
+        if (playPosition != queuePos) {
+            if (playPosition != -1
+                    && queuePos == playPosition + 1
+                    && !mTrackPager.isScrolling()) {
+                // auto advance
+                mTrackPager.next();
+            } else {
+                setTrackDisplayFromService();
+            }
         }
 
-        setFavoriteStatus();
+        for (PlayerTrackView ptv : mTrackPager.playerTrackViews()) {
+            if (ptv.getPlayPosition() != queuePos) {
+                ptv.getWaveformController().reset(false);
+            }
+        }
         setPlaybackState();
+        long next = refreshNow();
+        if (CloudPlaybackService.getState().isSupposedToBePlaying()){
+            queueNextRefresh(next);
+        }
     }
 
     private void setTrackDisplayFromService() {
-        if (mPlaybackService == null) return;
+        setTrackDisplayFromService(-1);
+    }
 
-        setCurrentTrackDataFromService();
+    private void setTrackDisplayFromService(int queuePosition) {
+        final PlayQueueManager playQueueManager = getPlayQueueManager();
 
-        final long queueLength = mPlaybackService.getPlaylistManager().length();
-        if (queueLength == 0) {
-            Log.w(CloudPlaybackService.TAG, "play queue is empty!");
-        }
-
-        // setup initial workspace, reusing them if possible
-        int workspaceIndex = 0;
-        for (int pos = Math.max(0, mCurrentQueuePosition - 1); pos < Math.min(mCurrentQueuePosition + 2, queueLength); pos++) {
-            final PlayerTrackView ptv;
-            if (mTrackWorkspace.getScreenCount() > workspaceIndex) {
-                ptv = ((PlayerTrackView) mTrackWorkspace.getScreenAt(workspaceIndex));
-            } else {
-                ptv = new PlayerTrackView(this);
-                mTrackWorkspace.addViewAtScreenPosition(ptv, workspaceIndex);
-            }
-
-            final boolean priority = pos == mCurrentQueuePosition;
-            ptv.setOnScreen(priority);
-
-            final Track track = priority ? mPlayingTrack : getTrackById(mPlaybackService.getPlaylistManager().getTrackIdAt(pos));
-            if (track != null) {
-                ptv.setTrack(track, pos, false, priority);
-                workspaceIndex++;
-            }
-        }
-
-        if (queueLength < mTrackWorkspace.getScreenCount()) {
-            while (queueLength < mTrackWorkspace.getScreenCount()) {
-                ((PlayerTrackView) mTrackWorkspace.getLastScreen()).destroy();
-                mTrackWorkspace.removeViewFromBack();
-            }
-        }
-
-        mTrackWorkspace.resetScroll();
-
-        final int workspacePos = mCurrentQueuePosition > 0 ? 1 : 0;
-        if (!mTrackWorkspace.isInitialized()) {
-            mTrackWorkspace.setVisibility(View.VISIBLE);
-            mTrackWorkspace.setSeparator(R.drawable.track_view_separator);
-            mTrackWorkspace.initWorkspace(workspacePos);
-        } else if (workspacePos != mTrackWorkspace.getCurrentScreen()) {
-            mTrackWorkspace.setCurrentScreenNow(mCurrentQueuePosition > 0 ? 1 : 0, false);
-        }
-
-        PlayerTrackView currentTrackView = getCurrentTrackView();
-        if (mPlaybackService.isBuffering() && currentTrackView != null) {
-            currentTrackView.onBuffering();
-        }
-
-        if (mIsCommenting) toggleCommentMode(0);
+        mTrackPager.configureFromService(this, playQueueManager, queuePosition);
+        final long queueLength = playQueueManager == null ? 1 :playQueueManager.length();
         mTransportBar.setNavEnabled(queueLength > 1);
-
+        setPlaybackState();
     }
 
-    private void setFavoriteStatus() {
-        if (mPlayingTrack != null) mTransportBar.setFavoriteStatus(mPlayingTrack.user_favorite);
+
+    private int getCurrentDisplayedTrackPosition() {
+        final PlayerTrackView currentTrackView = mTrackPager.getCurrentTrackView();
+        return currentTrackView == null ? -1 : currentTrackView.getPlayPosition();
     }
 
-    private @Nullable PlayerTrackView getCurrentTrackView() {
-        return ((PlayerTrackView) mTrackWorkspace.getScreenAt(mTrackWorkspace.getCurrentScreen()));
-    }
-
-    private PlayerTrackView getTrackView(int playPos){
-        for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
-            if (((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).getPlayPosition() == playPos) {
-                return ((PlayerTrackView) mTrackWorkspace.getScreenAt(i));
+    private @Nullable PlayerTrackView getTrackView(int playPos){
+        for (PlayerTrackView ptv : mTrackPager.playerTrackViews()){
+            if (ptv.getPlayPosition() == playPos) {
+                return ptv;
             }
         }
         return null;
     }
 
-    private PlayerTrackView getTrackViewById(long track_id) {
-        for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
-            if (((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).getTrackId() == track_id) {
-                return ((PlayerTrackView) mTrackWorkspace.getScreenAt(i));
+    private @Nullable PlayerTrackView getTrackViewById(long track_id) {
+        for (PlayerTrackView ptv : mTrackPager.playerTrackViews()){
+            if (ptv.getTrackId() == track_id) {
+                return ptv;
             }
         }
         return null;
     }
 
-     private void setPlaybackState() {
+    private void setPlaybackState() {
         final boolean showPlayState = CloudPlaybackService.getState().isSupposedToBePlaying();
 
-        if (showPlayState){
+        if (showPlayState) {
             long next = refreshNow();
             queueNextRefresh(next);
         }
 
-         mTransportBar.setPlaybackState(showPlayState);
+        mTransportBar.setPlaybackState(showPlayState);
     }
 }

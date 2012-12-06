@@ -2,11 +2,8 @@ package com.soundcloud.android.utils;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 
-import android.annotation.TargetApi;
 import android.net.http.AndroidHttpClient;
-import android.os.Build;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -55,16 +52,10 @@ public final class HttpUtils {
         }
     }
 
-    @TargetApi(8)
     public static HttpClient createHttpClient(String userAgent) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-            return AndroidHttpClient.newInstance(userAgent);
-        } else {
-            return new DefaultHttpClient();
-        }
+        return AndroidHttpClient.newInstance(userAgent);
     }
 
-    @TargetApi(8)
     public static void closeHttpClient(HttpClient client) {
         if (client instanceof AndroidHttpClient) {
             // avoid leak error logging

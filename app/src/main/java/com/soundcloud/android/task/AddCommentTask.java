@@ -3,6 +3,7 @@ package com.soundcloud.android.task;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
@@ -54,12 +55,12 @@ public class AddCommentTask extends AsyncTask<Comment, String, Comment> {
     @Override
     protected void onPostExecute(Comment comment) {
         if (comment != null) {
-            if (SoundCloudApplication.TRACK_CACHE.containsKey(comment.track_id)) {
-                final Track track = SoundCloudApplication.TRACK_CACHE.get(comment.track_id);
-                if (track.comments == null) track.comments = new ArrayList<Comment>();
-                track.comments.add(comment);
+            Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(comment.track_id);
+            if (t != null) {
+                if (t.comments == null) t.comments = new ArrayList<Comment>();
+                t.comments.add(comment);
             }
-            app.sendBroadcast(new Intent(Actions.COMMENT_ADDED)
+            app.sendBroadcast(new Intent(Sound.ACTION_COMMENT_ADDED)
                     .putExtra("id", comment.track_id)
                     .putExtra("comment", comment));
         } else if (exception instanceof UnknownHostException || exception instanceof SocketException) {

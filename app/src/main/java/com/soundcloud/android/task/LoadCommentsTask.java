@@ -38,7 +38,7 @@ public class LoadCommentsTask extends LoadJsonTask<Long, Comment> {
     @Override
     protected void onPostExecute(List<Comment> comments) {
         if (comments != null) {
-            Track cached =  SoundCloudApplication.TRACK_CACHE.get(mTrackId);
+            Track cached =  SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
 
             if (cached != null) {
                 cached.comments = comments;

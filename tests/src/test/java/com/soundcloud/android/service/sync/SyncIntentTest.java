@@ -42,7 +42,7 @@ public class SyncIntentTest {
 
         ArrayList<Uri> uris = new ArrayList<Uri>();
         uris.add(Content.ME_FOLLOWERS.uri);
-        uris.add(Content.ME_FAVORITES.uri);
+        uris.add(Content.ME_LIKES.uri);
 
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, uris);
         SyncIntent req = new SyncIntent(DefaultTestRunner.application, intent);

@@ -17,9 +17,11 @@ public class SyncConfig {
     public static final long DEFAULT_STALE_TIME  = 60*60*1000;         // 1 hr in ms
     public static final long CLEANUP_DELAY       = DEFAULT_STALE_TIME * 24; // every 24 hours
 
-    public static final long ACTIVITY_STALE_TIME = DEFAULT_STALE_TIME;
-    public static final long TRACK_STALE_TIME    = DEFAULT_STALE_TIME;
-    public static final long USER_STALE_TIME     = DEFAULT_STALE_TIME * 12;  // users aren't as crucial
+    public static final long ACTIVITY_STALE_TIME        = DEFAULT_STALE_TIME;
+    public static final long TRACK_STALE_TIME           = DEFAULT_STALE_TIME;
+    public static final long USER_STALE_TIME            = DEFAULT_STALE_TIME * 12;  // users aren't as crucial
+    public static final long CONNECTIONS_STALE_TIME     = DEFAULT_STALE_TIME * 24;
+    public static final long SHORTCUTS_STALE_TIME       = DEFAULT_STALE_TIME * 24;
 
     public static final long DEFAULT_SYNC_DELAY   = 3600L; // interval between syncs
     public static int[] TRACK_BACKOFF_MULTIPLIERS = new int[]{1, 2, 4, 8, 12, 18, 24, 48, 72, 96};
@@ -31,24 +33,20 @@ public class SyncConfig {
     }
 
     public static boolean isIncomingEnabled(Context c, Bundle extras) {
-        PushEvent evt = PushEvent.fromExtras(extras);
-        return PreferenceManager
-                .getDefaultSharedPreferences(c)
-                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_INCOMING, true) && evt == PushEvent.NONE;
-    }
-
-    public static boolean isExclusiveEnabled(Context c, Bundle extras) {
-        PushEvent evt = PushEvent.fromExtras(extras);
-        return PreferenceManager
-                .getDefaultSharedPreferences(c)
-                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_EXCLUSIVE, true) && evt == PushEvent.NONE;
+        PushEvent evt = PushEvent.fromExtras(extras); return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_INCOMING, true)
+                && evt == PushEvent.NONE;
     }
 
     public static boolean isLikeEnabled(Context c, Bundle extras) {
         PushEvent evt = PushEvent.fromExtras(extras);
-        return PreferenceManager
-                .getDefaultSharedPreferences(c)
-                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_FAVORITINGS, true) && (evt == PushEvent.NONE || evt == PushEvent.LIKE);
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_LIKES, true)
+                && (evt == PushEvent.NONE || evt == PushEvent.LIKE);
+    }
+
+    public static boolean isRepostEnabled(Context c, Bundle extras) {
+        PushEvent evt = PushEvent.fromExtras(extras);
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_REPOSTS, true)
+                && (evt == PushEvent.NONE || evt == PushEvent.REPOST);
     }
 
     public static boolean isActivitySyncEnabled(Context c, Bundle extras) {

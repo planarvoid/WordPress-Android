@@ -6,6 +6,7 @@ import com.soundcloud.android.audio.WavHeader;
 import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.service.upload.UserCanceledException;
 import com.soundcloud.android.tests.AudioTestCase;
+import com.soundcloud.android.tests.NonUiTest;
 import com.soundcloud.android.tests.SlowTest;
 import com.soundcloud.android.utils.IOUtils;
 import junit.framework.AssertionFailedError;
@@ -14,7 +15,6 @@ import android.os.Debug;
 import android.os.Environment;
 import android.os.Parcel;
 import android.os.SystemClock;
-import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.Suppress;
 
 import java.io.File;
@@ -24,7 +24,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
-@LargeTest @SlowTest
+@SlowTest @NonUiTest
 public class VorbisEncoderTest extends AudioTestCase {
 
     private static final boolean PROFILE = false;

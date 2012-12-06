@@ -1,36 +1,40 @@
 
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.activity.ScListActivity;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.create.ScCreate;
+import com.soundcloud.android.activity.create.ScUpload;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
-import com.soundcloud.android.view.LazyRow;
+import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.MyTracklistRow;
-import com.soundcloud.android.view.TrackInfoBar;
+import com.soundcloud.android.view.adapter.LazyRow;
+import com.soundcloud.android.view.adapter.TrackInfoBar;
 
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Handler;
-import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyTracksAdapter extends TracklistAdapter {
+public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
     private Cursor mCursor;
     private boolean mDataValid;
     private List<Recording> mRecordingData;
-    private ScListActivity mActivity;
+    private ScActivity mActivity;
 
     private static final int TYPE_PENDING_RECORDING = 0;
     private static final int TYPE_TRACK = 1;
     private ChangeObserver mChangeObserver;
 
-    public MyTracksAdapter(ScListActivity activity, ArrayList<Parcelable> data,
-            Class<?> model) {
-        super(activity, data, model);
+    public MyTracksAdapter(ScActivity activity, Uri uri) {
+        super(activity, uri);
         mActivity = activity;
         refreshCursor();
 
@@ -41,17 +45,31 @@ public class MyTracksAdapter extends TracklistAdapter {
 
     @Override
     public int getItemViewType(int position) {
+        int type = super.getItemViewType(position);
+        if (type == IGNORE_ITEM_VIEW_TYPE) return type;
+
         return (position < getPendingRecordingsCount()) ? TYPE_PENDING_RECORDING : TYPE_TRACK;
     }
 
     @Override
     public int getViewTypeCount() {
-        return 1;
+        return 2;
     }
 
     @Override
     protected LazyRow createRow(int position) {
-        return getItemViewType(position) == TYPE_PENDING_RECORDING ? new MyTracklistRow(mContext, this) : new TrackInfoBar(mContext,this);
+        return getItemViewType(position) == TYPE_PENDING_RECORDING ?
+                new MyTracklistRow(mContext, this) : new TrackInfoBar(mContext,this);
+    }
+
+    @Override
+    protected boolean isPositionOfProgressElement(int position) {
+        return mIsLoadingData && (position == getItemCount());
+    }
+
+    @Override
+    public int getItemCount() {
+        return mRecordingData == null ? super.getItemCount() : mRecordingData.size() + super.getItemCount();
     }
 
     public boolean needsItems() {
@@ -60,11 +78,6 @@ public class MyTracksAdapter extends TracklistAdapter {
 
     public int getPendingRecordingsCount(){
         return mRecordingData == null ? 0 : mRecordingData.size();
-    }
-
-    @Override
-    public int positionOffset() {
-        return getPendingRecordingsCount();
     }
 
     private void refreshCursor() {
@@ -115,7 +128,7 @@ public class MyTracksAdapter extends TracklistAdapter {
         }
     }
     @Override
-    public Object getItem(int position) {
+    public ScModel getItem(int position) {
         if (mRecordingData != null) {
             if (position < mRecordingData.size()) {
                 return mRecordingData.get(position);
@@ -140,6 +153,7 @@ public class MyTracksAdapter extends TracklistAdapter {
         }
     }
 
+
     /**
      * Called when the {@link ContentObserver} on the cursor receives a change notification.
      * The default implementation provides the auto-requery logic, but may be overridden by
@@ -159,6 +173,26 @@ public class MyTracksAdapter extends TracklistAdapter {
         if (!mDataValid) {
             onContentChanged();
         }
+    }
+
+    @Override
+    public int handleListItemClick(int position, long id) {
+        if (getItemViewType(position) == TYPE_PENDING_RECORDING){
+            final Recording r = (Recording) getItem(position);
+            if (r.upload_status == Recording.Status.UPLOADING) {
+                mContext.startActivity(r.getMonitorIntent());
+            } else {
+                mContext.startActivity(new Intent(mContext,(r.external_upload ? ScUpload.class : ScCreate.class)).setData(r.toUri()));
+            }
+        } else {
+            PlayUtils.playFromAdapter(mContext, this, mData, position - mRecordingData.size());
+        }
+        return ItemClickResults.LEAVING;
+    }
+
+    @Override
+    public Uri getPlayableUri() {
+        return mContentUri;
     }
 
     public void onDestroy(){

@@ -1,14 +1,118 @@
 <resources>
 
+    <string name="legal">Legal</string>
+    <string name="legal_summary">Legal information</string>
+
+    <string name="terms_of_service">Terms of Service</string>
+    <string name="privacy_policy">Privacy Policy</string>
+
     <string name="dialog_transcoding_failed_title">Transcoding failed</string>
-    <string name="dialog_transcoding_failed_message">Ooops, something went wrong and your sound can\'t be played. You can remove the sound from your list via the website. For more information please contact our support.</string>
+    <string name="dialog_transcoding_failed_message">Ooops, something went wrong and your sound can\'t be played. You
+        can remove the sound from your list via the website. For more information please contact our support.
+    </string>
     <string name="visit_support">Visit Support</string>
+
+    <string name="waiting_for_sync">Waiting for sync...</string>
+
+    <string name="tab_title_my_sound_stream">Your Stream</string>
+    <string name="tab_title_my_info">Your Info</string>
+    <string name="tab_title_my_sounds">Your Sounds</string>
+    <string name="tab_title_my_likes">Your Likes</string>
+    <string name="tab_title_my_followers">Your followers</string>
+    <string name="tab_title_my_followings">People you follow</string>
+
+    <string name="tab_title_user_info">Info</string>
+    <string name="tab_title_user_sounds">Sounds</string>
+    <string name="tab_title_user_likes">Likes</string>
+    <string name="tab_title_user_followers">Followers</string>
+    <string name="tab_title_user_followings">Following</string>
 
     <string name="dialog_transcoding_processing_title">Sound processing</string>
     <string name="dialog_transcoding_processing_message">Your sound is being processed and will be playable in few seconds.</string>
 
-    <string name="following_spam_warning">You have reached the limit for following users and this options is temporarily disabled for your account.</string>
+    <string name="following_spam_warning">You have reached the limit for following users and this options is temporarily
+        disabled for your account.
+    </string>
 
     <string name="yes">Yes</string>
     <string name="no">No</string>
+
+    <string name="info">Info</string>
+
+    <string name="action_bar_like">Like</string>
+    <string name="action_bar_search">Search</string>
+    <string name="action_bar_repost">Repost</string>
+    <string name="action_bar_comment">Comment</string>
+    <string name="action_bar_share">Share</string>
+    <string name="action_bar_info">Info</string>
+
+    <string name="side_menu_activity">Activity</string>
+    <string name="side_menu_record">Record</string>
+    <string name="title_search">Search</string>
+    <string name="side_menu_stream">Stream</string>
+    <string name="side_menu_you">You</string>
+    <string name="side_menu_settings">Settings</string>
+
+    <string name="side_menu_likes">Your likes</string>
+    <string name="side_menu_followings">People you follow</string>
+    <string name="side_menu_friend_finder">Find friends</string>
+    <string name="side_menu_suggested_users">Who to follow</string>
+
+    <string name="action_bar_follow">Follow</string>
+    <string name="action_bar_unfollow">Unfollow</string>
+
+    <string name="find_friends_on_facebook">Find friends on facebook</string>
+    <string name="connect_to_facebook">Connect to facebook</string>
+
+    <string name="list_header_track_reposters">People who reposted this sound</string>
+
+    <string name="started_following_you">started following you</string>
+
+    <string name="tour_title_1">Hear the world\'s sounds</string>
+    <string name="tour_text_1">Explore the largest community\nof artists, bands, podcasters and\ncreators of music &amp; audio</string>
+
+    <string name="tour_title_2">Discover</string>
+    <string name="tour_text_2">All kinds of new and\nunique music &amp; audio</string>
+
+    <string name="tour_title_3">Connect &amp; Share</string>
+    <string name="tour_text_3">Find followers and\nlet them hear the\nsounds you love</string>
+
+    <string name="search_for_query">Search for \'%s\'</string>
+    <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link that\'ll allow you to change your password. Problems? Contact support.</string>
+    <string name="done">Done</string>
+    <string name="tour_signup_header">Sign up with your account</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="tour_login_header">Log in with your account</string>
+    <string name="confirm">Confirm</string>
+
+    <string name="title_settings">Settings</string>
+
+    <string name="list_empty_friend_finder_error">There was an error finding your friends.</string>
+    <string name="list_empty_friend_finder_no_connections">Connect with Facebook to discover which of your friends are already on SoundCloud.</string>
+    <string name="list_empty_friend_finder">None of your friends are currently on SoundCloud.</string>
+
+    <!-- repost notifications -->
+    <!-- title -->
+    <plurals name="dashboard_notifications_activity_title_repost">
+        <item quantity="one">A new repost</item>
+        <item quantity="other">%d new reposts</item>
+    </plurals>
+
+    <!-- ticker -->
+    <plurals name="dashboard_notifications_activity_ticker_repost">
+        <item quantity="one">New repost</item>
+        <item quantity="other">%d new reposts</item>
+    </plurals>
+
+    <!-- message -->
+    <string name="dashboard_notifications_activity_message_repost">%1$s reposted %2$s</string>
+    <plurals name="dashboard_notifications_activity_message_repost">
+        <item quantity="one">on %1$s</item>
+        <item quantity="two">on %1$s and %2$s</item>
+        <item quantity="other">on %1$s, %2$s and other sounds</item>
+    </plurals>
+
+    <string name="pref_notifications_reposts">Reposts</string>
+    <string name="pref_notifications_reposts_description">Receive updates on new reposts on your sounds</string>
 </resources>

@@ -55,7 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class Recording extends ScModel implements Comparable<Recording> {
+public class Recording extends ScResource implements Comparable<Recording> {
 
     public static final File IMAGE_DIR = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
     public static final String EXTRA = "recording";
@@ -93,9 +93,9 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public String service_ids;
 
     // private message to another user
-    private User   recipient;
-    /* package */ String recipient_username;
-    /* package */ long   recipient_user_id;
+    @Deprecated private User   recipient;
+    /* package */ @Deprecated String recipient_username;
+    /* package */ @Deprecated long   recipient_user_id;
 
     // status
     public boolean external_upload;
@@ -116,6 +116,21 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return TextUtils.isEmpty(title) ? sharingNote(r) : title;
     }
 
+    @Override
+    public Uri getBulkInsertUri() {
+        return Content.RECORDINGS.uri;
+    }
+
+    @Override
+    public User getUser() {
+        return null;
+    }
+
+    @Override
+    public Track getSound() {
+        return null;
+    }
+
     public static interface Status {
         int NOT_YET_UPLOADED    = 0; // not yet uploaded, or canceled by user
         int UPLOADING           = 1; // currently uploading
@@ -124,15 +139,13 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public Recording(File f) {
-        this(f, null, null);
+        this(f, null);
     }
 
-    private Recording(File f, @Nullable User user, @Nullable String tip_key) {
+    private Recording(File f, @Nullable String tip_key) {
         if (f == null) throw new IllegalArgumentException("file is null");
         audio_path = f;
-        if (user != null) {
-            setRecipient(user);
-        }
+
         if (!TextUtils.isEmpty(tip_key)){
             this.tip_key = tip_key;
         }
@@ -248,7 +261,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return audio_path.exists() || getEncodedFile().exists();
     }
 
-    private void setRecipient(User recipient) {
+    @Deprecated private void setRecipient(User recipient) {
         this.recipient     = recipient;
         recipient_user_id  = recipient.id;
         recipient_username = recipient.getDisplayName();
@@ -326,7 +339,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public Uri toUri() {
-        return id > 0 ? Content.RECORDING.forId(id) : Content.RECORDINGS.uri;
+        return id > 0 ? Content.RECORDING.forId(id) : getBulkInsertUri();
     }
 
     public boolean isLegacyRecording(){
@@ -401,11 +414,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public Intent getViewIntent() {
-        if (recipient_user_id > 0) {
-            return new Intent(Actions.MESSAGE).putExtra("recipient", recipient_user_id);
-        } else {
-            return new Intent(Actions.RECORD);
-        }
+        return new Intent(Actions.RECORD);
     }
 
     public Map<String, ?> toParamsMap(Context context) {
@@ -700,25 +709,20 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public static @NotNull Recording create() {
-        return create(null, null);
+        return create(null);
     }
 
-    public static @NotNull Recording create(@Nullable User user) {
-        return create(user, null);
-    }
 
     /**
-     * @param user the user this recording is for, or null if there's no recipient
      * @param tip_key the key of the suggestion (tip) that was present when recording started
      * @return a recording initialised with a file path (which will be used for the recording).
      */
-    public static @NotNull Recording create(@Nullable User user, @Nullable String tip_key ) {
+    public static @NotNull Recording create(@Nullable String tip_key ) {
         File file = new File(SoundRecorder.RECORD_DIR,
                 System.currentTimeMillis()
-                + (user == null ? "" : "_" + user.id)
                 + "."+WavReader.EXTENSION);
 
-        return new Recording(file, user, tip_key);
+        return new Recording(file, tip_key);
     }
 
     @Override
@@ -787,6 +791,11 @@ public class Recording extends ScModel implements Comparable<Recording> {
         external_upload = data.getBoolean("external_upload", false);
         upload_status = data.getInt("upload_status");
         if (!external_upload) mPlaybackStream = data.getParcelable("playback_stream");
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     @Override

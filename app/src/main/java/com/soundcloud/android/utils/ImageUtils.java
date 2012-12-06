@@ -1,10 +1,12 @@
 package com.soundcloud.android.utils;
 
 
-import com.soundcloud.android.cropimage.CropImage;
-import com.google.android.imageloader.ImageLoader;
+import static com.soundcloud.android.imageloader.ImageLoader.Options;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.cropimage.CropImage;
+import com.soundcloud.android.imageloader.ImageLoader;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -15,16 +17,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PorterDuff.Mode;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.ExifInterface;
@@ -111,27 +110,6 @@ public final class ImageUtils {
             bmp.recycle();
             System.gc();
         }
-    }
-
-    public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, int pixels) {
-        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap
-                .getHeight(), Config.ARGB_8888);
-        Canvas canvas = new Canvas(output);
-
-        final int color = 0xff424242;
-        final Paint paint = new Paint();
-        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-        final RectF rectF = new RectF(rect);
-
-        paint.setAntiAlias(true);
-        canvas.drawARGB(0, 0, 0, 0);
-        paint.setColor(color);
-        canvas.drawRoundRect(rectF, pixels, pixels, paint);
-
-        paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
-        canvas.drawBitmap(bitmap, rect, rect, paint);
-
-        return output;
     }
 
     public static Bitmap loadContactPhoto(ContentResolver cr, long id) {
@@ -228,48 +206,6 @@ public final class ImageUtils {
             return false;
         }
     }
-
-    public static boolean setImageRemoteView(File imageFile, ImageView imageView, int viewWidth, int viewHeight) {
-            Bitmap bitmap;
-            try {
-                BitmapFactory.Options opt = determineResizeOptions(imageFile, viewWidth, viewHeight, false);
-
-                BitmapFactory.Options sampleOpt = new BitmapFactory.Options();
-                sampleOpt.inSampleSize = opt.inSampleSize;
-
-                bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), sampleOpt);
-
-                Matrix m = new Matrix();
-                float scale;
-                float dx = 0, dy = 0;
-
-                // assumes height and width are the same
-                if (bitmap.getWidth() > bitmap.getHeight()) {
-                    scale = (float) viewHeight / (float) bitmap.getHeight();
-                    dx = (viewWidth - bitmap.getWidth() * scale) * 0.5f;
-                } else {
-                    scale = (float) viewWidth / (float) bitmap.getWidth();
-                    dy = (viewHeight - bitmap.getHeight() * scale) * 0.5f;
-                }
-
-                m.setScale(scale, scale);
-                m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
-                int exifRotation = getExifRotation(imageFile);
-                if (exifRotation != 0) {
-                    m.postRotate(exifRotation, viewWidth / 2, viewHeight / 2);
-                }
-
-                imageView.setScaleType(ImageView.ScaleType.MATRIX);
-                imageView.setImageMatrix(m);
-
-                imageView.setImageBitmap(bitmap);
-                imageView.setVisibility(View.VISIBLE);
-                return true;
-            } catch (IOException e) {
-                Log.e(TAG, "error", e);
-                return false;
-            }
-        }
 
     public static boolean resizeImageFile(File inputFile, File outputFile, int width, int height) throws IOException {
         BitmapFactory.Options options = determineResizeOptions(inputFile, width, height, false);
@@ -498,19 +434,19 @@ public final class ImageUtils {
                                                              String uri,
                                                              Consts.GraphicSize targetSize,
                                                              ImageLoader.Callback callback,
-                                                             ImageLoader.Options options) {
+                                                             Options options) {
 
         final String targetUri = targetSize.formatUri(uri);
         final ImageLoader imageLoader = ImageLoader.get(c);
-        if (options == null) options = new ImageLoader.Options();
-        Bitmap targetBitmap = imageLoader.getBitmap(targetUri, null, new ImageLoader.Options(false));
+        if (options == null) options = new Options();
+        Bitmap targetBitmap = imageLoader.getBitmap(targetUri, null, Options.dontLoadRemote());
         if (targetBitmap != null) {
             return imageLoader.bind(imageView, targetUri, callback, options);
         } else {
             for (Consts.GraphicSize gs : Consts.GraphicSize.values()) {
                 final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri),
                         null,
-                        new ImageLoader.Options(false));
+                        Options.dontLoadRemote());
 
                 if (tempBitmap != null) {
                     options.temporaryBitmapRef = new WeakReference<Bitmap>(tempBitmap);
@@ -526,17 +462,17 @@ public final class ImageUtils {
     public static Bitmap getBitmapSubstitute(Context c, String uri,
                                              Consts.GraphicSize targetSize,
                                              ImageLoader.BitmapCallback callback,
-                                             ImageLoader.Options options){
+                                             Options options) {
         final String targetUri = targetSize.formatUri(uri);
         final ImageLoader imageLoader = ImageLoader.get(c);
-        if (options == null) options = new ImageLoader.Options();
+        if (options == null) options = new Options();
 
-        Bitmap targetBitmap = imageLoader.getBitmap(targetUri,null,new ImageLoader.Options(false));
+        Bitmap targetBitmap = imageLoader.getBitmap(targetUri, null, Options.dontLoadRemote());
         if (targetBitmap != null){
             return imageLoader.getBitmap(uri, callback, options);
         } else {
             for (Consts.GraphicSize gs : EnumSet.allOf(Consts.GraphicSize.class)) {
-                final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri),null,new ImageLoader.Options(false));
+                final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri), null, Options.dontLoadRemote());
                 if (tempBitmap != null && !tempBitmap.isRecycled()) {
                     if (callback != null) {
                         callback.onImageLoaded(tempBitmap, uri);
@@ -572,14 +508,50 @@ public final class ImageUtils {
         activity.startActivityForResult(intent, Consts.RequestCodes.IMAGE_CROP);
     }
 
-    public static void recycleImageViewBitmap(ImageView imageView){
-        if (imageView.getDrawable() != null) {
-            if (imageView.getDrawable() instanceof BitmapDrawable &&
-                    ((BitmapDrawable) imageView.getDrawable()).getBitmap() != null &&
-                    !((BitmapDrawable) imageView.getDrawable()).getBitmap().isRecycled()) {
-                clearBitmap(((BitmapDrawable) imageView.getDrawable()).getBitmap());
-                imageView.setImageDrawable(null);
+    public static void recycleImageViewBitmap(ImageView view) {
+        if (view.getDrawable() instanceof BitmapDrawable) {
+            Bitmap bitmap = ((BitmapDrawable) view.getDrawable()).getBitmap();
+            if (bitmap != null && !bitmap.isRecycled()) {
+                clearBitmap(bitmap);
+                view.setImageDrawable(null);
             }
         }
+    }
+
+    /*
+    http://developer.android.com/training/displaying-bitmaps/load-bitmap.html
+     */
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+            if (width > height) {
+                inSampleSize = Math.round((float) height / (float) reqHeight);
+            } else {
+                inSampleSize = Math.round((float) width / (float) reqWidth);
+            }
+        }
+        return inSampleSize;
+    }
+
+    public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
+            int reqWidth, int reqHeight) {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeResource(res, resId, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeResource(res, resId, options);
     }
 }

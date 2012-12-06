@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;

@@ -1,0 +1,66 @@
+{
+  "collection": [
+    {
+      "uuid": "ee57b180-0959-11e2-8afd-9083bddf9fde",
+      "tags": "affiliated",
+      "type": "track",
+      "created_at": "2012/09/28 10:47:43 +0000",
+      "sharing_note": {
+        "created_at": "2012/09/28 10:47:43 +0000",
+        "text": ""
+      },
+      "track": {
+        "uri": "https://api.soundcloud.com/tracks/61467451",
+        "video_url": null,
+        "streamable": true,
+        "key_signature": "",
+        "label_id": null,
+        "purchase_url": null,
+        "license": "cc-by-nc-sa",
+        "label_name": "",
+        "commentable": true,
+        "attachments_uri": "https://api.soundcloud.com/tracks/61467451/attachments",
+        "download_url": "https://api.soundcloud.com/tracks/61467451/download",
+        "original_format": "mp3",
+        "bpm": null,
+        "isrc": "",
+        "release": "",
+        "description": "",
+        "title": "Info Chez Vous 2012-28-09 Premiere Edition",
+        "id": 61467451,
+        "permalink_url": "http://soundcloud.com/westafricademocracyradio/info-chez-vous-2012-28-09",
+        "user_favorite": false,
+        "user": {
+          "uri": "https://api.soundcloud.com/users/3456575",
+          "avatar_url": "https://i1.sndcdn.com/avatars-000003045503-mad1pp-large.jpg?04ad178",
+          "id": 3456575,
+          "permalink_url": "http://soundcloud.com/westafricademocracyradio",
+          "username": "WADR",
+          "permalink": "westafricademocracyradio",
+          "kind": "user"
+        },
+        "genre": "",
+        "downloadable": true,
+        "user_id": 3456575,
+        "release_day": null,
+        "artwork_url": "https://i1.sndcdn.com/artworks-000031166300-xqnhrz-large.jpg?04ad178",
+        "purchase_title": null,
+        "embeddable_by": "all",
+        "duration": 1832373,
+        "stream_url": "https://api.soundcloud.com/tracks/61467451/stream",
+        "user_playback_count": 1,
+        "created_at": "2012/09/28 10:47:43 +0000",
+        "waveform_url": "https://w1.sndcdn.com/Won4rAyge7jV_m.png",
+        "release_year": null,
+        "state": "finished",
+        "release_month": null,
+        "track_type": "",
+        "permalink": "info-chez-vous-2012-28-09",
+        "tag_list": "",
+        "sharing": "public",
+        "original_content_size": 29314821,
+        "kind": "track"
+      }
+    }
+  ]
+}

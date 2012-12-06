@@ -1,17 +1,15 @@
 package com.soundcloud.android;
 
-import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.audio.WavHeader;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.tracking.Event;
-import com.soundcloud.api.Env;
 import com.soundcloud.api.Token;
 
 import android.accounts.Account;
 import android.content.Intent;
 import android.widget.BaseAdapter;
-import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 
 import java.io.File;
@@ -38,7 +36,7 @@ public class TestApplication extends SoundCloudApplication {
 
     public TestApplication(Token token) {
         this.token = token;
-        mCloudApi = new Wrapper(null, "id", "secret", null, token, Env.LIVE);
+        mCloudApi = new Wrapper(null, "id", "secret", null, token);
     }
 
     @Override
@@ -82,11 +80,6 @@ public class TestApplication extends SoundCloudApplication {
         return new ImageLoader() {
             @Override
             public BindResult bind(BaseAdapter adapter, ImageView view, String url, Options options) {
-                return BindResult.LOADING;
-            }
-
-            @Override
-            public BindResult bind(BaseExpandableListAdapter adapter, ImageView view, String url, Options options) {
                 return BindResult.LOADING;
             }
         };

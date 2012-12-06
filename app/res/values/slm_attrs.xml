@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <declare-styleable name="SimpleMenu">
+        <attr name="android:id"/>
+        <attr name="android:text"/>
+        <attr name="android:icon" />
+        <attr name="android:layout" />
+        <attr name="asHeader" format="boolean" />
+    </declare-styleable>
+</resources>

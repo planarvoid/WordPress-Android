@@ -1,6 +1,7 @@
 package com.soundcloud.android.tests;
 
 import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
@@ -37,6 +38,10 @@ public class Han extends Solo {
         clickOnText(getString(android.R.string.ok));
     }
 
+    public void clickOnDone() {
+        clickOnButtonResId(R.string.btn_done);
+    }
+
     public void clickOnNext() {
         clickOnButtonResId(R.string.btn_next);
     }
@@ -64,24 +69,24 @@ public class Han extends Solo {
 
     public void assertText(int resId, Object... args) {
         final String text = getString(resId, args);
-        assertTrue("Text '"+text+"' not found", waitForText(Pattern.quote(text)));
+        assertTrue("Text '" + text + "' not found", waitForText(Pattern.quote(text)));
     }
 
     public void assertVisibleTextId(int resId, Object... args) {
         assertTrue(waitForText(Pattern.quote(getString(resId, args)), 0, DEFAULT_TIMEOUT, false, true));
     }
 
-    public void assertVisibleText(String text, long timeout ) {
+    public void assertVisibleText(String text, long timeout) {
         assertTrue(waitForText(text, 0, timeout, false, true));
     }
 
     public void assertText(String text) {
-        assertTrue("text "+text+" not found", waitForText(text));
+        assertTrue("text " + text + " not found", waitForText(text));
     }
 
     public void assertNoText(int resId, Object... args) {
         String text = getString(resId, args);
-        assertFalse("Did not expect to find text: "+text, searchText(Pattern.quote(text), true));
+        assertFalse("Did not expect to find text: " + text, searchText(Pattern.quote(text), true));
     }
 
     public <T extends Activity> T assertActivity(Class<T> a) {
@@ -99,7 +104,9 @@ public class Han extends Solo {
     }
 
     public void assertActivityFinished() {
-        assertTrue(getCurrentActivity().isFinishing());
+        Activity a = getCurrentActivity();
+        assertNotNull("activity is null", a);
+        assertTrue("Activity "+a+" not finished", a.isFinishing());
     }
 
     public void assertDialogClosed() {
@@ -129,7 +136,7 @@ public class Han extends Solo {
         View v = getCurrentActivity().findViewById(resId);
         if (v instanceof EditText) {
             enterText((EditText) v, text);
-        } else fail("could not find edit text with id "+resId);
+        } else fail("could not find edit text with id " + resId);
     }
 
     public void swipe(int side) {
@@ -164,7 +171,7 @@ public class Han extends Solo {
         int[] xy = new int[2];
         view.getLocationOnScreen(xy);
         drag(Math.max(xy[0], 0),
-             Math.max(Math.min(getScreenWidth(), xy[0] + n), 0),
+                Math.max(Math.min(getScreenWidth(), xy[0] + n), 0),
                 xy[1],
                 xy[1],
                 steps);
@@ -177,7 +184,8 @@ public class Han extends Solo {
     }
 
     public void logoutViaSettings() {
-        clickOnMenuItem(R.string.menu_settings);
+        clickOnView(R.id.custom_home);
+        clickOnMenuItem(R.string.side_menu_settings);
         clickOnText(R.string.pref_revoke_access);
         assertText(R.string.menu_clear_user_title);
         clickOnOK();
@@ -191,6 +199,33 @@ public class Han extends Solo {
     public void log(View view) {
         int[] xy = new int[2];
         view.getLocationOnScreen(xy);
-        log("View: "+view.getClass().getSimpleName() + " loc: "+ Arrays.toString(xy));
+        log("View: " + view.getClass().getSimpleName() + " loc: " + Arrays.toString(xy));
+    }
+
+
+    /**
+     * Tell the CI/development machine (i.e. maven build process) to take a screenshot
+     * @see <a href="https://github.com/rtyley/android-screenshot-lib/blob/master/celebrity/src/main/java/com/github/rtyley/android/screenshot/celebrity/Screenshots.java">
+     *     android-screenshot-lib
+     *     </a>
+     */
+    public void poseForScreenshot() {
+        poseForScreenshotWithKeyValueString("");
+    }
+
+    public void poseForScreenshot(String name) {
+        poseForScreenshotWithKeyValue("name", name);
+    }
+
+    private void poseForScreenshotWithKeyValue(String key, String value) {
+        poseForScreenshotWithKeyValueString(key + "=" + value);
+    }
+
+    private void poseForScreenshotWithKeyValueString(String keyValueString) {
+        /* Note that the log message can not be blank, otherwise it won't register with logcat. */
+        Log.d("screenshot_request", "{" + keyValueString + "}");
+
+        /* Wait for the development machine to take the screenshot (can take about 900ms) */
+        sleep(1000);
     }
 }

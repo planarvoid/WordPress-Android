@@ -18,7 +18,7 @@
         <item>200</item>
     </string-array>
 
-     <string-array name="pref_dashboard_store_max_values">
+    <string-array name="pref_dashboard_store_max_values">
         <item>20</item>
         <item>50</item>
         <item>100</item>
@@ -90,6 +90,12 @@
         <item>private_liked_their_sound</item>
         <item>private_leave_feedback</item>
 
+    </string-array>
+
+    <string-array name="search_types">
+        <item>Everything</item>
+        <item>Sounds</item>
+        <item>Users</item>
     </string-array>
 
 </resources>

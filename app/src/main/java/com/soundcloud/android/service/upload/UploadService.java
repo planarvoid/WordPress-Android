@@ -8,7 +8,8 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -305,7 +306,7 @@ public class UploadService extends Service {
         String message = getString(R.string.cloud_uploader_notification_transcoding_error_message, track.title);
         String tickerText = getString(R.string.cloud_uploader_notification_transcoding_error_ticker);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(Actions.MY_PROFILE).putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks),
+                new Intent(Actions.YOUR_SOUNDS),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification notification = new Notification(R.drawable.ic_notification_cloud, tickerText, System.currentTimeMillis());
@@ -347,16 +348,16 @@ public class UploadService extends Service {
         }
     }
 
-    private void sendNotification(ScModel r, Notification n) {
+    private void sendNotification(ScResource r, Notification n) {
         // ugly way to help uniqueness
         nm.notify(getNotificationId(r), n);
     }
 
-    private void cancelNotification(ScModel r) {
+    private void cancelNotification(ScResource r) {
         nm.cancel(getNotificationId(r));
     }
 
-    private int getNotificationId(ScModel r){
+    private int getNotificationId(ScResource r){
         return (int) (9990000 + r.id);
     }
 
@@ -493,8 +494,7 @@ public class UploadService extends Service {
             message = getString(R.string.cloud_uploader_notification_finished_message, recording.title);
             tickerText = getString(R.string.cloud_uploader_notification_finished_ticker);
             contentIntent = PendingIntent.getActivity(this, 0,
-                    new Intent(Actions.MY_PROFILE).putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks),
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                    new Intent(Actions.YOUR_SOUNDS),PendingIntent.FLAG_UPDATE_CURRENT);
 
         } else if (recording.isError()) {
             title = getString(R.string.cloud_uploader_notification_error_title);

@@ -42,7 +42,7 @@ public class LoadCommentsTaskTest {
     public void shouldSetTrackObjectOnCommentIfCached() throws Exception {
         Track t = new Track();
         t.id = 100;
-        SoundCloudApplication.TRACK_CACHE.put(t);
+        SoundCloudApplication.MODEL_MANAGER.cache(t);
 
         TestHelper.addCannedResponse(getClass(), "/tracks/100/comments?limit=50", "comments.json");
         LoadCommentsTask task = new LoadCommentsTask(DefaultTestRunner.application);

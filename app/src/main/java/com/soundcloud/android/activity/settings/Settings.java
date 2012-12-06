@@ -3,18 +3,19 @@ package com.soundcloud.android.activity.settings;
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.auth.Tour;
+import com.soundcloud.android.activity.ActionBarController;
 import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.service.beta.BetaPreferences;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.IOUtils;
+import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -27,18 +28,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceGroup;
 import android.util.Log;
 
 import java.io.File;
 
 @Tracking(page = Page.Settings_main)
-public class Settings extends PreferenceActivity {
+public class Settings extends SherlockPreferenceActivity implements ActionBarController.ActionBarOwner {
     private static final int DIALOG_CACHE_DELETING = 0;
     private static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
 
-    public static final String TOUR = "tour";
     public static final String CHANGE_LOG = "changeLog";
     public static final String LOGOUT = "logout";
     public static final String HELP = "help";
@@ -47,7 +46,9 @@ public class Settings extends PreferenceActivity {
     public static final String STREAM_CACHE_SIZE = "streamCacheSize";
     public static final String CLEAR_STREAM_CACHE = "clearStreamCache";
     public static final String WIRELESS = "wireless";
-    public static final String ABOUT = "about";
+    public static final String COPYRIGHT_INFORMATION = "copyright_information";
+    public static final String TERMS_OF_SERVICE = "terms_of_service";
+    public static final String PRIVACY_POLICY   = "privacy_policy";
     public static final String EXTRAS = "extras";
     public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
     public static final String NOTIFICATION_SETTINGS = "notificationSettings";
@@ -57,11 +58,8 @@ public class Settings extends PreferenceActivity {
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        addPreferencesFromResource(R.xml.settings);
 
-        if (SoundCloudApplication.BETA_MODE) {
-            BetaPreferences.add(this, getPreferenceScreen());
-        }
+        addPreferencesFromResource(R.xml.settings);
 
         PreferenceGroup extras = (PreferenceGroup) findPreference(EXTRAS);
         if (AlarmClock.isFeatureEnabled(this)) {
@@ -91,16 +89,6 @@ public class Settings extends PreferenceActivity {
                         return true;
                     }
         });
-
-        findPreference(TOUR).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    public boolean onPreferenceClick(Preference preference) {
-                        Intent intent = new Intent(Settings.this, Tour.class);
-                        startActivity(intent);
-                        return true;
-                    }
-                });
-
 
         final ChangeLog cl = new ChangeLog(this);
         findPreference(CHANGE_LOG).setOnPreferenceClickListener(
@@ -202,13 +190,31 @@ public class Settings extends PreferenceActivity {
                 });
 
 
-        findPreference(ABOUT).setOnPreferenceClickListener(
+        findPreference(COPYRIGHT_INFORMATION).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         startActivity(new Intent(Settings.this, About.class));
                         return true;
                     }
                 });
+
+
+        findPreference(TERMS_OF_SERVICE).setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference preference) {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://soundcloud.com/pages/plain_terms_and_conditions")));
+                        return true;
+                    }
+                });
+
+        findPreference(PRIVACY_POLICY).setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference preference) {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://soundcloud.com/pages/plain_privacy")));
+                        return true;
+                    }
+                });
+
 
         if (!SoundCloudApplication.DEV_MODE) {
             getPreferenceScreen().removePreference(findPreference(DevSettings.PREF_KEY));
@@ -314,5 +320,16 @@ public class Settings extends PreferenceActivity {
                     }
                 })
                 .create();
+    }
+
+    @NotNull
+    @Override
+    public Activity getActivity() {
+        return this;
+    }
+
+    @Override
+    public int getMenuResourceId() {
+        return R.menu.main;
     }
 }

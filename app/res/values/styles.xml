@@ -9,9 +9,10 @@
         <item name="android:windowExitAnimation">@anim/add_comment_exit</item>
     </style>
 
-    <style name="notification_progress_bar_label" parent="@android:style/TextAppearance.StatusBar.EventContent">
+    <style name="notification_progress_bar_label">
         <item name="android:textSize">10sp</item>
     </style>
+
     <style name="notification_progress_bar" parent="@android:style/Widget.ProgressBar.Horizontal">
         <item name="android:minHeight">3dp</item>
         <item name="android:maxHeight">3dp</item>
@@ -100,6 +101,12 @@
         <item name="android:textSize">@dimen/list_txt_sub_size</item>
     </style>
 
+    <style name="txt_list_main_dark">
+        <item name="android:textColor">@drawable/txt_list_main_dark_states</item>
+        <item name="android:textSize">@dimen/list_txt_main_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="txt_list_main">
         <item name="android:textColor">@drawable/txt_list_main_states</item>
         <item name="android:textSize">@dimen/list_txt_main_size</item>
@@ -152,7 +159,7 @@
     <style name="stat_pipe">
         <item name="android:layout_marginRight">6dip</item>
         <item name="android:layout_marginLeft">6dip</item>
-        <item name="android:background">?android:attr/listDivider</item>
+        <item name="android:background">@drawable/stat_divider</item>
     </style>
 
     <style name="txt_auth_title" parent="@android:style/TextAppearance.Large">
@@ -198,6 +205,21 @@
         <item name="android:shadowDx">0</item>
         <item name="android:shadowDy">-1</item>
         <item name="android:shadowRadius">1</item>
+    </style>
+
+    <style name="txt_search" parent="android:Widget.TextView">
+        <item name="android:textSize">@dimen/slm_item_text_size</item>
+        <item name="android:paddingTop">@dimen/slm_search_item_text_padding</item>
+        <item name="android:paddingBottom">@dimen/slm_search_item_text_padding</item>
+        <item name="android:paddingLeft">@dimen/slm_search_item_text_padding</item>
+        <item name="android:paddingRight">@dimen/slm_search_item_text_padding</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+
+    <style name="txt_search_menu" parent="txt_search">
+        <item name="android:background">@drawable/txt_menu_search_bg_states</item>
+        <item name="android:textColor">#333333</item>
+        <item name="android:textColorHint">@drawable/txt_menu_search_states</item>
     </style>
 
     <style name="toggle_blue">
@@ -404,7 +426,7 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
-    <style name="btn_sc_widget_favorite" parent="btn_sc_widget">
+    <style name="btn_sc_widget_like" parent="btn_sc_widget">
         <item name="android:layout_width">40dip</item>
         <item name="android:layout_height">40dip</item>
     </style>
@@ -482,6 +504,22 @@
         <item name="android:padding">3dip</item>
         <item name="android:gravity">center</item>
     </style>
+
+    <style name="ScProgressBarHolo" parent="android:Widget.ProgressBar">
+        <item name="android:indeterminateDrawable">@drawable/progress_medium_holo</item>
+        <item name="android:animationResolution">33</item>
+    </style>
+
+    <style name="ScProgressBarHolo.List" parent="android:Widget.ProgressBar">
+        <item name="android:indeterminateDrawable">@drawable/progress_medium_holo</item>
+        <item name="android:animationResolution">33</item>
+    </style>
+
+    <style name="ScProgressBarHolo.Small" parent="android:Widget.ProgressBar.Small">
+        <item name="android:indeterminateDrawable">@drawable/progress_medium_holo</item>
+        <item name="android:animationResolution">33</item>
+    </style>
+
 
     <style name="ScProgressBarRound">
         <item name="android:background">@drawable/progress_bar_round_bg</item>
@@ -617,13 +655,13 @@
     </style>
 
     <style name="txt_empty_collection_message">
-      <item name="android:textColor">#ff000000</item>
+      <item name="android:textColor">#ff666666</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:textColorLink">@drawable/txt_dark_states</item>
-        <item name="android:layout_marginTop">10dp</item>
-        <item name="android:layout_marginBottom">10dp</item>
-        <item name="android:layout_marginLeft">15dp</item>
-        <item name="android:layout_marginRight">15dp</item>
+        <item name="android:textColorLink">@drawable/txt_gray_states</item>
+        <item name="android:layout_marginTop">15dp</item>
+        <item name="android:layout_marginBottom">15dp</item>
+        <item name="android:layout_marginLeft">20dp</item>
+        <item name="android:layout_marginRight">20dp</item>
     </style>
 
     <style name="txt_empty_collection_link" parent="txt_empty_collection_message">
@@ -631,20 +669,14 @@
         <item name="android:textSize">12sp</item>
     </style>
     <style name="btn_empty_collection" parent="txt_empty_collection_message">
+        <item name="android:background">@drawable/btn_default_states</item>
         <item name="android:paddingLeft">30dp</item>
         <item name="android:paddingRight">30dp</item>
+        <item name="android:singleLine">false</item>
         <item name="android:layout_marginTop">5dp</item>
         <item name="android:layout_marginBottom">5dp</item>
         <item name="android:layout_marginLeft">10dp</item>
         <item name="android:layout_marginRight">10dp</item>
-    </style>
-
-    <style name="rdo_tour" parent="@android:style/Widget.CompoundButton.RadioButton">
-        <item name="android:button">@drawable/rdo_tour</item>
-        <item name="android:layout_width">10dp</item>
-        <item name="android:layout_height">10dp</item>
-        <item name="android:layout_marginLeft">7dp</item>
-        <item name="android:layout_marginRight">7dp</item>
     </style>
 
     <style name="txt_tour_title" parent="txt_tour_start">
@@ -684,6 +716,66 @@
         <item name="android:gravity">center</item>
     </style>
 
+
+    <!-- Side menu -->
+
+    <style name="side_menu_item">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+
+        <item name="android:paddingTop">@dimen/slm_item_padding_topbottom</item>
+        <item name="android:paddingBottom">@dimen/slm_item_padding_topbottom</item>
+        <item name="android:paddingLeft">@dimen/slm_item_padding_left</item>
+        <item name="android:paddingRight">@dimen/slm_item_padding_right</item>
+
+        <item name="android:orientation">horizontal</item>
+
+        <item name="android:background">@drawable/sidebar_item_background</item>
+    </style>
+
+    <style name="side_menu_item_icon">
+        <item name="android:layout_height">24dp</item>
+        <item name="android:layout_width">24dp</item>
+
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
+
+    <style name="side_menu_item_text">
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:paddingLeft">@dimen/slm_item_text_padding_left</item>
+
+        <item name="android:textSize">@dimen/slm_item_text_size</item>
+        <item name="android:textColor">@color/fim_item_text_color</item>
+
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+
+        <item name="android:shadowColor">#000000</item>
+        <item name="android:shadowRadius">1</item>
+        <item name="android:shadowDy">2</item>
+        <item name="android:shadowDx">0</item>
+    </style>
+
+    <style name="side_menu_dashboard_counter">
+        <item name="android:paddingLeft">7dp</item>
+        <item name="android:paddingRight">7dp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:textSize">@dimen/slm_item_dashboard_counter_text_size</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:background">@drawable/activity_bubble</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:gravity">center</item>
+
+        <item name="android:shadowColor">#000000</item>
+        <item name="android:shadowRadius">1</item>
+        <item name="android:shadowDy">-1</item>
+        <item name="android:shadowDx">0</item>
+    </style>
+
+    <style name="search_suggestion_text" parent="side_menu_item_text">
+        <item name="android:textColor">@color/search_suggestion_text_color</item>
+    </style>
 
     <style name="Animations" />
 

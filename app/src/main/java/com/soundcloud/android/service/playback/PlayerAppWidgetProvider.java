@@ -10,13 +10,14 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
+
+import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.view.play.PlaybackRemoteViews;
 
 public class PlayerAppWidgetProvider extends AppWidgetProvider {
     private static final String TAG = "PlayerWidget";
     private long mCurrentTrackId = -1;
 
-    public static final String CMDAPPWIDGETUPDATE = "playerwidgetupdate";
     static final ComponentName THIS_APPWIDGET =
             new ComponentName("com.soundcloud.android",
                     "com.soundcloud.android.service.playback.PlayerAppWidgetProvider");
@@ -57,7 +58,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
     private void pushUpdate(Context context, int[] appWidgetIds, RemoteViews views) {
         // Update specific list of appWidgetIds if given, otherwise default to all
         final AppWidgetManager gm = AppWidgetManager.getInstance(context);
-        if (appWidgetIds != null) {
+        if (appWidgetIds != null && appWidgetIds.length > 0) {
             gm.updateAppWidget(appWidgetIds, views);
         } else {
             gm.updateAppWidget(THIS_APPWIDGET, views);
@@ -71,6 +72,9 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
     }
 
     /* package */ void notifyChange(Context context, Intent intent) {
+
+        // TODO, move to ScModelManager to get data
+
         String action = intent.getAction();
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "notify change " + intent);
         if (hasInstances(context)) {
@@ -80,37 +84,32 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
                     action.equals(CloudPlaybackService.BUFFERING) ||
                     action.equals(CloudPlaybackService.BUFFERING_COMPLETE) ||
                     action.equals(CloudPlaybackService.PLAYBACK_ERROR) ||
-                    action.equals(CloudPlaybackService.FAVORITE_SET)) {
+                    action.equals(Sound.ACTION_TRACK_ASSOCIATION_CHANGED)
+                            && intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1) == mCurrentTrackId) {
 
-                performUpdate(context, null, intent);
+                performUpdate(context, new int[0], intent);
             }
         }
     }
 
     /* package */  void performUpdate(Context context, int[] appWidgetIds, Intent intent) {
         final PlaybackRemoteViews views = new PlaybackRemoteViews(context.getPackageName(), R.layout.appwidget_player);
-
-
         views.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isSupposedToBePlaying, false));
 
         final long trackId = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1);
         if (trackId != -1){
-            views.setImageViewResource(R.id.btn_favorite, intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isFavorite, false)
-                    ? R.drawable.ic_widget_favorited_states : R.drawable.ic_widget_favorite_states);
+            views.setImageViewResource(R.id.btn_like, intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false)
+                    ? R.drawable.ic_widget_favorited_states : R.drawable.ic_widget_like_states);
 
             if (mCurrentTrackId != trackId) {
                 mCurrentTrackId = trackId;
                 views.setCurrentTrackTitle(intent.getStringExtra(CloudPlaybackService.BroadcastExtras.title));
                 views.setCurrentUsername(intent.getStringExtra(CloudPlaybackService.BroadcastExtras.username));
             }
-
             views.linkButtonsNotification(context);
 
             pushUpdate(context, appWidgetIds, views);
         }
-
     }
-
-
 }
 

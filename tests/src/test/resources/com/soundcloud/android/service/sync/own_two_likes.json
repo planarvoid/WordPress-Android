@@ -1,0 +1,57 @@
+{
+  "collection": [
+    {
+
+        "track": {
+          "user_id": 133201,
+          "id": 13090155,
+          "stream_url": "https://api.soundcloud.com/tracks/13090155/stream",
+          "user_uri": "https://api.soundcloud.com/users/133201",
+          "permalink": "p-watzlawick-anleitung-zum",
+          "title": "P. Watzlawick - Anleitung zum Unglücklichsein",
+          "uri": "https://api.soundcloud.com/tracks/13090155",
+          "permalink_url": "http://soundcloud.com/jberkel/p-watzlawick-anleitung-zum",
+          "kind": "track"
+        },
+        "user": {
+          "id": 6311652,
+          "permalink": "paulko",
+          "uri": "https://api.soundcloud.com/users/6311652",
+          "permalink_url": "http://soundcloud.com/paulko",
+          "kind": "user",
+          "avatar_url": "http://i1.sndcdn.com/avatars-000005077051-ttwttz-large.jpg?8935bc4",
+          "username": "Paul Ko"
+      },
+      "type": "track-like",
+      "uuid": "b035de80-6dc9-11e1-84dc-sd789fsd64",
+      "created_at": "2011/07/29 22:30:59 +0000",
+      "tags": "own"
+    },
+    {
+        "track": {
+          "user_id": 133201,
+          "id": 13090155,
+          "stream_url": "https://api.soundcloud.com/tracks/13090155/stream",
+          "user_uri": "https://api.soundcloud.com/users/133201",
+          "permalink": "p-watzlawick-anleitung-zum",
+          "title": "P. Watzlawick - Anleitung zum Unglücklichsein",
+          "uri": "https://api.soundcloud.com/tracks/13090155",
+          "permalink_url": "http://soundcloud.com/jberkel/p-watzlawick-anleitung-zum",
+          "kind": "track"
+        },
+        "user": {
+          "id": 128329,
+          "permalink": "jeanpaul",
+          "uri": "https://api.soundcloud.com/users/6311652",
+          "permalink_url": "http://soundcloud.com/paulko",
+          "kind": "user",
+          "avatar_url": "http://i1.sndcdn.com/avatars-000005077051-ttwttz-large.jpg?8935bc4",
+          "username": "Jean Paul"
+      },
+      "type": "track-like",
+      "uuid": "a8y78dfs0-6dc9-11e1-84dc-e1bbf59e9e64",
+      "created_at": "2011/07/29 22:30:59 +0000",
+      "tags": "own"
+    }
+  ]
+}

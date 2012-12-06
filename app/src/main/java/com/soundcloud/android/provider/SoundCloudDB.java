@@ -1,8 +1,11 @@
 package com.soundcloud.android.provider;
 
-import com.soundcloud.android.model.Origin;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Refreshable;
+import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.Sound;
+import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.IOUtils;
@@ -13,7 +16,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Parcelable;
 import android.util.Log;
 
 import java.io.File;
@@ -55,12 +57,13 @@ public class SoundCloudDB {
         Uri uri = track.toUri();
         resolver.update(uri, track.buildContentValues(), null, null);
         if (track.user != null) {
-            insertUser(resolver, track.user);
+            upsertUser(resolver, track.user);
         }
         return uri;
     }
 
-    public static @Nullable Uri insertUser(ContentResolver resolver, User user) {
+    public static @Nullable
+    Uri insertUser(ContentResolver resolver, User user) {
         return resolver.insert(Content.USERS.uri, user.buildContentValues(getUserId(resolver) == user.id));
     }
 
@@ -88,121 +91,75 @@ public class SoundCloudDB {
         return uri;
     }
 
-
-    public static @Nullable Track getTrackById(ContentResolver resolver, long id) {
-        if (id >= 0) {
-            return getTrackByUri(resolver, Content.TRACKS.forId(id));
-        } else {
-            return null;
-        }
+    public static int bulkInsertModels(ContentResolver resolver, List<? extends ScResource> models) {
+        return bulkInsertModels(resolver, models, null, -1);
     }
 
-    /* package */ static @Nullable Track getTrackByUri(ContentResolver resolver, Uri uri) {
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        if (cursor != null && cursor.getCount() != 0) {
-            cursor.moveToFirst();
-            Track track = new Track(cursor);
-            cursor.close();
-            return track;
-        }
-
-        if (cursor != null) cursor.close();
-        return null;
-    }
-
-    public static boolean markTrackAsPlayed(ContentResolver resolver, Track track) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(DBHelper.TrackMetadata._ID, track.id);
-        return resolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
-    }
-
-    public static @Nullable User getUserById(ContentResolver resolver, long id) {
-        if (id >= 0) {
-            return getUserByUri(resolver, Content.USERS.forId(id));
-        } else {
-            return null;
-        }
-    }
-
-    public static @Nullable User getUserByUri(ContentResolver resolver, Uri uri) {
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        User user = null;
-        if (cursor != null && cursor.getCount() != 0) {
-            cursor.moveToFirst();
-            user = new User(cursor);
-        }
-        if (cursor != null) cursor.close();
-        return user;
-    }
-
-
-    public static int bulkInsertParcelables(ContentResolver resolver, List<Parcelable> items) {
-        return bulkInsertParcelables(resolver, items, null, -1);
-    }
-
-    public static int bulkInsertParcelables(ContentResolver resolver,
-                                            List<? extends Parcelable> items,
-                                            @Nullable Uri uri,
-                                            long ownerId) {
+    public static int bulkInsertModels(ContentResolver resolver,
+                                       List<? extends ScResource> models,
+                                       @Nullable Uri uri,
+                                       long ownerId) {
         if (uri != null && ownerId < 0) {
             throw new IllegalArgumentException("need valid ownerId for collection");
         }
 
-        if (items == null) return 0;
+        if (models == null) return 0;
 
         Set<User> usersToInsert = new HashSet<User>();
-        Set<Track> tracksToInsert = new HashSet<Track>();
-        ContentValues[] bulkValues = uri == null ? null : new ContentValues[items.size()];
+        Set<Sound> soundsToInsert = new HashSet<Sound>();
 
-        for (int i=0; i <items.size(); i++) {
-            Parcelable p = items.get(i);
-            if (p == null) continue;
+        ContentValues[] bulkValues = uri == null ? null : new ContentValues[models.size()];
 
-            long id = ((ScModel) p).id;
-            if (p instanceof Origin) {
-                Origin origin = (Origin) p;
-                Track track = origin.getTrack();
-                if (track != null) {
-                    tracksToInsert.add(track);
+        int index = 0;
+        for (int i=0; i <models.size(); i++) {
+
+            ScResource r = models.get(i);
+            if (r != null) {
+                Sound sound = r.getSound();
+                if (sound != null) {
+                    soundsToInsert.add(sound);
                 }
-                User user = origin.getUser();
+
+                User user = r.getUser();
                 if (user != null) {
                     usersToInsert.add(user);
                 }
-            }
 
-            if (uri != null) {
-                ContentValues cv = new ContentValues();
-                switch (Content.match(uri)) {
-                    case PLAYLIST:
-                        cv.put(DBHelper.PlaylistItems.USER_ID, ownerId);
-                        cv.put(DBHelper.PlaylistItems.POSITION, i);
-                        cv.put(DBHelper.PlaylistItems.TRACK_ID, id);
-                        break;
+                long id = r.id;
+                if (uri != null) {
+                    ContentValues cv = new ContentValues();
+                    cv.put(DBHelper.CollectionItems.USER_ID, ownerId);
+                    switch (Content.match(uri)) {
+                        case PLAY_QUEUE:
+                            cv.put(DBHelper.PlayQueue.POSITION, i);
+                            cv.put(DBHelper.PlayQueue.TRACK_ID, id);
+                            break;
 
-                    default:
-                        cv.put(DBHelper.CollectionItems.USER_ID, ownerId);
-                        cv.put(DBHelper.CollectionItems.POSITION, i);
-                        cv.put(DBHelper.CollectionItems.ITEM_ID, id);
-                        break;
+                        default:
+                            cv.put(DBHelper.CollectionItems.POSITION, i);
+                            cv.put(DBHelper.CollectionItems.ITEM_ID, id);
+                            break;
+
+                    }
+                    bulkValues[index] = cv;
+                    index++;
                 }
-                bulkValues[i] = cv;
             }
         }
 
-        ContentValues[] tracksCv = new ContentValues[tracksToInsert.size()];
+        ContentValues[] soundsCv = new ContentValues[soundsToInsert.size()];
         ContentValues[] usersCv = new ContentValues[usersToInsert.size()];
-        Track[] _tracksToInsert = tracksToInsert.toArray(new Track[tracksToInsert.size()]);
+        Sound[] _soundssToInsert = soundsToInsert.toArray(new Sound[soundsToInsert.size()]);
         User[] _usersToInsert = usersToInsert.toArray(new User[usersToInsert.size()]);
 
-        for (int i=0; i< _tracksToInsert.length; i++) {
-            tracksCv[i] = _tracksToInsert[i].buildContentValues();
+        for (int i=0; i< _soundssToInsert.length; i++) {
+            soundsCv[i] = _soundssToInsert[i].buildContentValues();
         }
         for (int i=0; i< _usersToInsert.length; i++) {
             usersCv[i] = _usersToInsert[i].buildContentValues();
         }
 
-        int tracksInserted = resolver.bulkInsert(Content.TRACKS.uri, tracksCv);
+        int tracksInserted = resolver.bulkInsert(Content.SOUNDS.uri, soundsCv);
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, tracksInserted + " tracks bulk inserted");
 
         int usersInserted = resolver.bulkInsert(Content.USERS.uri, usersCv);
@@ -215,7 +172,8 @@ public class SoundCloudDB {
         return usersInserted + tracksInserted;
     }
 
-    public static @Nullable Recording upsertRecording(ContentResolver resolver, Recording r, @Nullable ContentValues values) {
+    public static @Nullable
+    Recording upsertRecording(ContentResolver resolver, Recording r, @Nullable ContentValues values) {
         if (r.getRecipient() != null) {
             upsertUser(resolver, r.getRecipient());
         }
@@ -270,7 +228,14 @@ public class SoundCloudDB {
         }
     }
 
-    public static @NotNull List<Long> idCursorToList(Cursor c) {
+    public static List<Long> getStoredIds(ContentResolver resolver, Uri uri, int offset, int limit) {
+        return idCursorToList(resolver.query(SoundCloudDB.addPagingParams(uri, offset, limit)
+                .appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY, "1").build(),
+                null, null, null, null));
+    }
+
+    public static @NotNull
+    List<Long> idCursorToList(Cursor c) {
         List<Long> ids = new ArrayList<Long>();
         if (c != null && c.moveToFirst()) {
             do {
@@ -281,7 +246,7 @@ public class SoundCloudDB {
         return ids;
     }
 
-    public static Uri addPagingParams(Uri uri, int offset, int limit) {
+    public static Uri.Builder addPagingParams(Uri uri, int offset, int limit) {
         if (uri == null) return null;
 
         Uri.Builder b = uri.buildUpon();
@@ -289,7 +254,7 @@ public class SoundCloudDB {
             b.appendQueryParameter("offset", String.valueOf(offset));
         }
         b.appendQueryParameter("limit", String.valueOf(limit));
-        return b.build();
+        return b;
 
     }
 }

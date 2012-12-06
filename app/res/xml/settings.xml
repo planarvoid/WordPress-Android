@@ -71,11 +71,6 @@
                 android:title="@string/pref_app_details">
 
         <Preference
-                android:title="@string/pref_take_tour"
-                android:summary="@string/pref_take_tour_desc"
-                android:key="tour"/>
-
-        <Preference
                 android:title="@string/pref_change_log"
                 android:summary="@string/pref_change_log_desc"
                 android:key="changeLog"/>
@@ -84,11 +79,28 @@
                 android:summary="@string/pref_help_desc"
                 android:key="help"/>
 
+
+
         <PreferenceScreen
-                android:key="about"
-                android:title="@string/about"
-                android:summary="@string/about_summary"
-                />
+                android:key="legal"
+                android:title="@string/legal"
+                android:summary="@string/legal_summary">
+
+            <Preference
+                    android:key="copyright_information"
+                    android:title="@string/copyright_information"
+                    />
+
+            <Preference
+                    android:key="terms_of_service"
+                    android:title="@string/terms_of_service"
+                    />
+
+            <Preference
+                    android:key="privacy_policy"
+                    android:title="@string/privacy_policy"
+                    />
+        </PreferenceScreen>
     </PreferenceCategory>
 
     <PreferenceCategory android:key="extras" android:title="@string/pref_dev_extras">

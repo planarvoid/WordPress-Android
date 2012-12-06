@@ -24,7 +24,6 @@ public enum Click implements Event {
 
     Stream_main_stream_setting      ("Stream_main", "stream_setting",        Type.action, Level2.Stream),
     Stream_box_stream_all_tracks    ("Stream_box",  "stream_all_tracks",     Type.action, Level2.Stream),
-    Stream_box_stream_only_Exclusive("Stream_box",  "stream_only_exclusive", Type.action, Level2.Stream),
     Stream_box_stream_cancel        ("Stream_box",  "stream_cancel",         Type.action, Level2.Stream),
 
     // New recording keys
@@ -50,6 +49,7 @@ public enum Click implements Event {
     Log_out_box_cancel("Log_out_box", "cancel",     Type.action, Level2.Settings),
 
     Like      ("Like",       "user_permalink::track_permalink", Type.action, Level2.Sounds),
+    Repost    ("Repost",     "user_permalink::track_permalink", Type.action, Level2.Sounds),
     Comment   ("Comment",    "user_permalink::track_permalink", Type.action, Level2.Sounds),
     Share_main("Share_main", "user_permalink::track_permalink", Type.action, Level2.Sounds),
     /* NOT USED */ Share_fb  ("Share_fb",   "user_permalink::track_permalink", Type.action, Level2.Sounds),

@@ -9,7 +9,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -58,6 +60,8 @@ public class ScUpload extends ScActivity {
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
+        setTitle(R.string.share);
+
         final Intent intent = getIntent();
         if (intent != null && (mRecording = Recording.fromIntent(intent, getContentResolver(), getCurrentUserId())) != null) {
             setContentView(mRecording.isPrivateMessage() ? R.layout.sc_message_upload : R.layout.sc_upload);
@@ -67,7 +71,6 @@ public class ScUpload extends ScActivity {
                 // 3rd party upload, disable "record another sound button"
                 ((ViewGroup) findViewById(R.id.share_user_layout)).addView(
                         new ShareUserHeader(this, getApp().getLoggedInUser()));
-                findViewById(R.id.txt_title).setVisibility(View.GONE);
             }
 
             if (mRecording.exists()) {
@@ -80,6 +83,11 @@ public class ScUpload extends ScActivity {
             setResult(RESULT_OK, null);
             finish();
         }
+    }
+
+    @Override
+    protected int getSelectedMenuId() {
+        return -1;
     }
 
     @Override
@@ -182,7 +190,7 @@ public class ScUpload extends ScActivity {
     protected void onResume() {
         super.onResume();
         if (!mRecording.isPrivateMessage()) {
-            mConnectionList.getAdapter().loadIfNecessary();
+            mConnectionList.getAdapter().loadIfNecessary(this);
         }
         track(getClass(), getApp().getLoggedInUser());
     }
@@ -323,7 +331,11 @@ public class ScUpload extends ScActivity {
                     toast.show();
 
                     if (success) {
-                        mConnectionList.getAdapter().load();
+                        // this should reload the services and the list should auto refresh
+                        // from the content observer
+                        startService(new Intent(this, ApiSyncService.class)
+                                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                                        .setData(Content.ME_CONNECTIONS.uri));
                     }
                 }
         }
