@@ -55,8 +55,9 @@ public final class PlayUtils {
     public static Track getTrackFromIntent(Intent intent){
         if (intent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferCache,false)){
             final int position = intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition,-1);
-            if (position > -1 && position < CloudPlaybackService.playlistXfer.size()){
-                return  CloudPlaybackService.playlistXfer.get(position).getTrack();
+            final List<Playable> list = CloudPlaybackService.playlistXfer;
+            if (list != null && position > -1 && position < list.size()){
+                return list.get(position).getTrack();
             }
         } else if (intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l) > 0) {
             return SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l));
