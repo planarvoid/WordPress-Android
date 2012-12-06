@@ -766,32 +766,33 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
             }
 
             case Consts.RequestCodes.SIGNUP_VIA_FACEBOOK: {
+                if (resultCode != RESULT_OK || intent == null ) break;
                 SoundCloudApplication app = (SoundCloudApplication) getApplication();
-                if (intent != null){
-                    final String error = intent.getStringExtra("error");
-                    if (error == null) {
-                        final User user = intent.getParcelableExtra("user");
-                        final Token token = (Token) intent.getSerializableExtra("token");
-                        SignupVia via = SignupVia.fromIntent(intent);
+                final String error = intent.getStringExtra("error");
+                if (error == null) {
+                    final User user = intent.getParcelableExtra("user");
+                    final Token token = (Token) intent.getSerializableExtra("token");
+                    SignupVia via = SignupVia.fromIntent(intent);
 
-                        // API signup will already have created the account
-                        if (app.addUserAccount(user, token, via)) {
-                            final Bundle result = new Bundle();
-                            result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
-                            result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
-                            onAuthenticated(via, user);
+                    // API signup will already have created the account
+                    if (app.addUserAccount(user, token, via)) {
+                        final Bundle result = new Bundle();
+                        result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
+                        result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
+                        onAuthenticated(via, user);
 
-                        } else {
-                            AndroidUtils.showToast(this, R.string.error_creating_account);
-                        }
                     } else {
-                        AndroidUtils.showToast(this, error);
+                        AndroidUtils.showToast(this, R.string.error_creating_account);
                     }
+                } else {
+                    AndroidUtils.showToast(this, error);
                 }
                 break;
             }
             case Consts.RequestCodes.RECOVER_CODE: {
+                if (resultCode != RESULT_OK || intent == null) break;
                 final boolean success = intent.getBooleanExtra("success", false);
+
                 if (success) {
                     AndroidUtils.showToast(this, R.string.authentication_recover_password_success);
                 } else {
