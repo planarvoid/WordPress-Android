@@ -975,12 +975,9 @@ public class RootView extends ViewGroup {
 
         onScrollComplete();
 
-        if (mExpandedState == COLLAPSED_FULL_CLOSED) {
-            return;
-        }
-
         mExpandedState = COLLAPSED_FULL_CLOSED;
         if (mOnMenuStateListener != null) mOnMenuStateListener.onMenuClosed();
+
     }
 
     private void openLeft() {
@@ -991,10 +988,6 @@ public class RootView extends ViewGroup {
         invalidate();
 
         onScrollComplete();
-
-        if (mExpandedState == EXPANDED_LEFT) {
-            return;
-        }
 
         mExpandedState = EXPANDED_LEFT;
         if (mOnMenuStateListener != null) mOnMenuStateListener.onMenuOpenLeft();
@@ -1014,12 +1007,9 @@ public class RootView extends ViewGroup {
 
         onScrollComplete();
 
-        if (mExpandedState == EXPANDED_RIGHT) {
-            return;
-        }
-
-        mExpandedState = EXPANDED_RIGHT;
         if (mOnMenuStateListener != null) mOnMenuStateListener.onMenuOpenRight();
+        mExpandedState = EXPANDED_RIGHT;
+
     }
 
     /**

@@ -4,6 +4,7 @@ $ 49
   ! Next
     * Fixed unresponsive play controls after unlock
     * Missing titles are back
+    * Fixed menu indicator state
 
 $ 49
   % v current
