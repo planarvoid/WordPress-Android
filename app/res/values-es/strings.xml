@@ -236,7 +236,6 @@
     <string name="tour_text_2">Todo tipo de música y audio \nde estilo nuevo y original</string>
 
     <string name="tour_title_3">Conectar y compartir</string>
-    <string name="tour_text_3">Encuentra seguidores y\ndeja que escuchen los\nsonidos que te gustan</string>
 
     <string name="search_for_query">Busca \'%s\'</string>
     <string name="authentication_recover_password_msg">Introduce tu dirección de correo electrónico y te enviaremos un enlace que te permitirá cambiar tu contraseña. ¿Problemas? Contacta con el servicio técnico.</string>
