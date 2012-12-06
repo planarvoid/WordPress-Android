@@ -6,13 +6,13 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.getPl
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.android.service.playback.State;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.PlayerTrackPager;
@@ -34,7 +34,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -125,8 +124,9 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     public long setSeekMarker(int queuePosition, float seekPercent) {
-        if (mPlaybackService != null) {
-            if (mPlaybackService.getPlaylistManager().getPosition() != queuePosition) {
+        final PlayQueueManager playlistManager = getPlaylistManager();
+        if (mPlaybackService != null && playlistManager != null) {
+            if (playlistManager.getPosition() != queuePosition) {
                 mPlaybackService.setQueuePosition(queuePosition);
             } else {
                 if (!mPlaybackService.isSeekable()) {
@@ -432,24 +432,22 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     private long refreshNow() {
-        if (mPlaybackService == null)
-            return REFRESH_DELAY;
+        long progress = CloudPlaybackService.getCurrentProgress();
+        final PlayQueueManager playlistManager = CloudPlaybackService.getPlaylistManager();
 
-        long progress = mPlaybackService.getProgress();
+        if (playlistManager != null){
+            final PlayerTrackView ptv = getTrackView(playlistManager.getPosition());
+            if (ptv != null) {
+                ptv.setProgress(progress, (int) CloudPlaybackService.getLoadingPercent(),
+                        SMOOTH_PROGRESS && CloudPlaybackService.getState() == State.PLAYING);
+            }
+        } else return  REFRESH_DELAY;
+
         long remaining = REFRESH_DELAY - (progress % REFRESH_DELAY);
-        int queuePos = mPlaybackService.getPlaylistManager().getPosition();
-
-        final PlayerTrackView ptv = getTrackView(queuePos);
-        if (ptv != null){
-            ptv.setProgress(progress,
-                    mPlaybackService.loadPercent(),
-                    SMOOTH_PROGRESS &&
-                    mPlaybackService.isPlaying() && !mPlaybackService.isBuffering());
-        }
 
         // return the number of milliseconds until the next full second, so
         // the counter can be updated at just the right time
-        return !mPlaybackService.isPlaying() ? REFRESH_DELAY : remaining;
+        return !CloudPlaybackService.getState().isSupposedToBePlaying() ? REFRESH_DELAY : remaining;
     }
 
     private final Handler mHandler = new Handler() {
