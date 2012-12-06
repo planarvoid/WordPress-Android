@@ -171,16 +171,16 @@ public class TrackInfoBar extends LazyRow {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
             if (track.shared_to_count == 0){
-                mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange);
+                mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
                 mPrivateIndicator.setText(R.string.tracklist_item_shared_count_unavailable);
             } else if (track.shared_to_count == 1){
-                mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange);
+                mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
                 mPrivateIndicator.setText(track.user_id == SoundCloudApplication.getUserId() ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
             } else {
                 if (track.shared_to_count < 8){
-                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange);
+                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
                 } else {
-                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_gray);
+                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_gray_states);
                 }
                 mPrivateIndicator.setText(context.getString(R.string.tracklist_item_shared_with_x_people, track.shared_to_count));
             }
