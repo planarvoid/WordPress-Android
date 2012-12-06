@@ -3,12 +3,13 @@ package com.soundcloud.android.fragment;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.api.Request;
+import org.jetbrains.annotations.Nullable;
 
 import android.os.Bundle;
 import android.text.TextUtils;
 
 public class ScSearchFragment extends ScListFragment {
-    private Search mCurrentSearch;
+    private @Nullable Search mCurrentSearch;
 
     public ScSearchFragment() {
         super();
@@ -36,7 +37,7 @@ public class ScSearchFragment extends ScListFragment {
 
     @Override
     protected Request getRequest(boolean isRefresh) {
-        if (TextUtils.isEmpty(mNextHref) || isRefresh) {
+        if (mCurrentSearch != null && (TextUtils.isEmpty(mNextHref) || isRefresh)) {
             // first page
             return mCurrentSearch.request();
         } else {
