@@ -205,8 +205,9 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case TourLayout.IMAGE_LOADED:
+                    case TourLayout.IMAGE_ERROR:
                         setState(StartState.TOUR);
-                        return;
+                        break;
                 }
             }
         });

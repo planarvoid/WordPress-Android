@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 public class TourLayout extends FrameLayout {
     public static final int IMAGE_LOADED = 1;
+    public static final int IMAGE_ERROR  = 2 ;
 
     private final int[] bitmapSize = new int[] { -1, -1 };
 
@@ -72,11 +73,14 @@ public class TourLayout extends FrameLayout {
     }
 
     private void onBitmapLoaded(Bitmap bitmap) {
-        bitmapSize[0] = bitmap.getWidth();
-        bitmapSize[1] = bitmap.getHeight();
-        mBgImageView.setImageBitmap(bitmap);
-
-        if (mLoadHandler != null) mLoadHandler.sendEmptyMessage(IMAGE_LOADED);
+        if (bitmap != null) {
+            bitmapSize[0] = bitmap.getWidth();
+            bitmapSize[1] = bitmap.getHeight();
+            mBgImageView.setImageBitmap(bitmap);
+        }
+        if (mLoadHandler != null) {
+            mLoadHandler.sendEmptyMessage(bitmap == null ? IMAGE_ERROR : IMAGE_LOADED);
+        }
     }
 
     private Point getDisplaySize() {
