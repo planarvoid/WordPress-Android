@@ -250,7 +250,8 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
         mSignUpBundle        = savedInstanceState.getBundle(BUNDLE_SIGN_UP);
         mUserDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
 
-        setState((StartState) savedInstanceState.getSerializable(BUNDLE_STATE), false);
+        final StartState state = (StartState) savedInstanceState.getSerializable(BUNDLE_STATE);
+        setState(state == StartState.TOUR ? StartState.LOADING : state, false);
     }
 
 
@@ -435,7 +436,7 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
         if (result.getBoolean(Consts.Keys.WAS_SIGNUP)) {
             startActivity(new Intent(this, SuggestedUsers.class)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .putExtra(Consts.Keys.WAS_SIGNUP,true));
+                    .putExtra(Consts.Keys.WAS_SIGNUP, true));
         } else {
             startActivity(new Intent(this, Home.class)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
