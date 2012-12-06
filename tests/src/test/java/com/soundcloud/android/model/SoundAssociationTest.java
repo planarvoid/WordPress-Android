@@ -10,10 +10,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.ContentResolver;
 import android.os.Parcel;
-
-import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class SoundAssociationTest {
@@ -50,8 +47,6 @@ public class SoundAssociationTest {
         expect(sounds.size()).toEqual(38);
 
         expect(manager.writeCollection(sounds,
-                Content.ME_SOUNDS.uri,
-                100l,
                 ScResource.CacheUpdateMode.NONE)).toEqual(41); // 38 tracks and 3 diff users
 
         expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),

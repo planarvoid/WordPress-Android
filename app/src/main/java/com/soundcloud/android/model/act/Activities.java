@@ -232,7 +232,7 @@ public class Activities extends CollectionHolder<Activity> {
         }
     }
 
-    public static Activities fetch(AndroidCloudAPI api,
+    public static @Nullable Activities fetch(AndroidCloudAPI api,
                                    final Request request) throws IOException {
         HttpResponse response = api.get(request);
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {

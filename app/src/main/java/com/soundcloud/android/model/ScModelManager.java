@@ -69,8 +69,10 @@ public class ScModelManager {
         return activities;
     }
 
-    public Activities getActivitiesFromJson(InputStream is) throws IOException {
+    public @Nullable Activities getActivitiesFromJson(InputStream is) throws IOException {
         Activities activities = mMapper.readValue(is, Activities.class);
+        if (activities == null) return null;
+
         for (Activity a : activities) {
             a.setCachedTrack(cache(a.getTrack(), ScResource.CacheUpdateMode.MINI));
             a.setCachedUser(cache(a.getUser(), ScResource.CacheUpdateMode.MINI));
@@ -466,8 +468,6 @@ public class ScModelManager {
     }
 
     public int writeCollection(CollectionHolder<? extends ScResource> models,
-                               Uri uri,
-                               long userId,
                                ScResource.CacheUpdateMode mode) {
         if (models.isEmpty()) return 0;
         for (ScResource m : models) {
