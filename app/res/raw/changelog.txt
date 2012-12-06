@@ -1,36 +1,11 @@
 $ 49
   % v current
-  _ 2012-12-05
+  _ 2012-12-06
   ! Next
-    * final release candidate
-    * facebook login fixes
-    * lots of UI improvements + bug fixes
-    - Bug fixes
-    - Manual waveform drawing for speed and low memory
-    - lots of UI upgrades and fixes
-    - Follow button toggling fix
-    - More UI upgrades
-    - Added dashboard counters
-    - Upgraded pull to refresh listview
-    - Faster transition to player activity
-    - minor UI fixes
-    - Even more Search Styling
-    - Parallax in start page tour
-    - Fancificated login overlay
-    - Fixed a recurring search crash
-    - Remote search suggestions added
-    - fixed reposts layout
-    - Added affiliations and reposts to activities list
-    - assorted bug fixes
-    - Menu styling and optimizations
-    - Added Friend Finder back
-    - Added You shortcuts back
-    - Fixed notification handling
-    - Fixed left trim handle dragging in Record Edit screen
-    - Fixed url resolving
-    - various UI improvements
-    - New UI
-    - Extra media button handling
+    * Major UI overhaul
+    * Highly Improved Search
+    * Listen to and create Reposts
+    * New Sign Up experience
 
 $ 48
   % v 2.3.2
