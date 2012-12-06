@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity;
 
 import static android.text.TextUtils.isEmpty;
+import static com.soundcloud.android.utils.AndroidUtils.setTextShadowForGrayBg;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.soundcloud.android.Actions;
@@ -96,10 +97,7 @@ public class UserBrowser extends ScActivity implements
         mTrackCount = (TextView) findViewById(R.id.tracks);
         mVrStats = findViewById(R.id.vr_stats);
 
-        AndroidUtils.setTextShadowForGrayBg(mUsername);
-        AndroidUtils.setTextShadowForGrayBg(mFullName);
-        AndroidUtils.setTextShadowForGrayBg(mFollowerCount);
-        AndroidUtils.setTextShadowForGrayBg(mTrackCount);
+        setTextShadowForGrayBg(mUsername, mFullName, mFollowerCount, mTrackCount);
 
         if (getResources().getDisplayMetrics().density > 1 || ImageUtils.isScreenXL(this)) {
             mIcon.getLayoutParams().width = 100;
@@ -138,23 +136,28 @@ public class UserBrowser extends ScActivity implements
             handleIntent(intent);
         }
 
-        mUserDetailsFragment = UserDetailsFragment.newInstance(mUser.id);
+        if (mUser != null) {
+            mUserDetailsFragment = UserDetailsFragment.newInstance(mUser.id);
 
-        if (isYou()){
-            mToggleFollow.setVisibility(View.GONE);
+            if (isYou()){
+                mToggleFollow.setVisibility(View.GONE);
+            } else {
+                mToggleFollow.setChecked(mFollowStatus.isFollowing(mUser));
+                mToggleFollow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        toggleFollowing(mUser);
+                        getApp().track(mUser.user_following ? Click.Follow : Click.Unfollow, mUser, Level2.Users);
+                    }
+                });
+            }
+
+            loadDetails();
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         } else {
-            mToggleFollow.setChecked(mFollowStatus.isFollowing(mUser));
-            mToggleFollow.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    toggleFollowing(mUser);
-                    getApp().track(mUser.user_following ? Click.Follow : Click.Unfollow, mUser, Level2.Users);
-                }
-            });
+            // if the user is null at this stage there is nothing we can do, except finishing
+            finish();
         }
-
-        loadDetails();
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     @Override
@@ -224,8 +227,6 @@ public class UserBrowser extends ScActivity implements
 
 
     class UserFragmentAdapter extends FragmentPagerAdapter {
-        View progress = View.inflate(UserBrowser.this, R.layout.empty_list,null);
-
         public UserFragmentAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -404,10 +405,6 @@ public class UserBrowser extends ScActivity implements
         return Page.Users_sounds;
     }
 
-    private boolean isOtherUser() {
-        return !isYou();
-    }
-
     protected boolean isYou() {
        return mUser != null && mUser.id == getCurrentUserId();
     }
@@ -531,7 +528,6 @@ public class UserBrowser extends ScActivity implements
         FetchUserTask loadUserTask;
         User user;
         int pagerIndex;
-        boolean infoError;
     }
 
     private final BroadcastReceiver mRecordListener = new BroadcastReceiver() {

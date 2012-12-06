@@ -7,9 +7,7 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
-import android.app.Service;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -221,8 +219,10 @@ public final class AndroidUtils {
         }
     }
 
-    public static void setTextShadowForGrayBg(TextView tv){
-        tv.setShadowLayer(1, 0, 1, Color.WHITE);
+    public static void setTextShadowForGrayBg(TextView... views) {
+        for (TextView tv : views) {
+            tv.setShadowLayer(1, 0, 1, Color.WHITE);
+        }
     }
 
     public static String suggestEmail(Context context) {
