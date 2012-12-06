@@ -89,7 +89,8 @@ public final class ImageUtils {
         return options;
     }
 
-    public static int getExifRotation(File imageFile){
+    public static int getExifRotation(File imageFile) {
+        if (imageFile == null) return -1;
         try {
             ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
             // We only recognize a subset of orientation tag values.
