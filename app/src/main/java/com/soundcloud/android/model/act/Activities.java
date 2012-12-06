@@ -270,9 +270,9 @@ public class Activities extends CollectionHolder<Activity> {
         return resolver.delete(contentToDelete.uri, null, null);
     }
 
-    public static Activity getLastActivity(Content content, ContentResolver resolver) {
+    public static @Nullable Activity getLastActivity(Content content, ContentResolver resolver) {
         Activity a = null;
-        Cursor c = resolver.query(Content.ME_ALL_ACTIVITIES.uri,
+        Cursor c = resolver.query(content.uri,
                     null,
                 DBHelper.ActivityView.CONTENT_ID+" = ?",
                 new String[] { String.valueOf(content.id) },
@@ -284,9 +284,9 @@ public class Activities extends CollectionHolder<Activity> {
         return a;
     }
 
-    public static Activity getFirstActivity(Content content, ContentResolver resolver) {
+    public static @Nullable Activity getFirstActivity(Content content, ContentResolver resolver) {
         Activity a = null;
-        Cursor c = resolver.query(Content.ME_ALL_ACTIVITIES.uri,
+        Cursor c = resolver.query(content.uri,
                 null,
                 DBHelper.ActivityView.CONTENT_ID+" = ?",
                 new String[] { String.valueOf(content.id) },

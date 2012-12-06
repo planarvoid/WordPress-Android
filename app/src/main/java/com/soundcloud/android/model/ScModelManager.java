@@ -48,8 +48,10 @@ public class ScModelManager {
         mMapper = mapper;
     }
 
-    public Activity getActivityFromCursor(Cursor cursor){
-        Activity a = Activity.Type.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE))).fromCursor(cursor);
+    public Activity getActivityFromCursor(Cursor cursor) {
+        Activity a = Activity.Type
+                .fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE)))
+                .fromCursor(cursor);
         if (a != null) {
             a.setCachedTrack(getTrackFromCursor(cursor, DBHelper.ActivityView.SOUND_ID));
             a.setCachedUser(getUserFromActivityCursor(cursor));

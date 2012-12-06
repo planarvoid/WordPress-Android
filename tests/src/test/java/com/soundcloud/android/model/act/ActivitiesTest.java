@@ -385,20 +385,50 @@ public class ActivitiesTest {
         expect(a.getFirstAvailableAvatar()).toEqual(avatar_2);
     }
 
-    @Test
-    @Ignore
+    @Test @Ignore
     public void shouldNotCreateNewUserObjectsIfObjectIdIsTheSame() throws Exception {
 
         Activities a = manager.getActivitiesFromJson(
-                ApiSyncServiceTest.class.getResourceAsStream("two_activities_by_same_user.json"));
-
-        // fronx favorites + comments
+                Activities.class.getResourceAsStream("two_activities_by_same_user.json"));
+        // two comments by same user
         User u1 = a.get(0).getUser();
         User u2 = a.get(1).getUser();
 
         expect(u1).toBe(u2);
     }
 
+    @Test
+    public void shouldGetFirstAndLastActivity() throws Exception {
+        Activity first = Activities.getFirstActivity(Content.ME_SOUND_STREAM, resolver);
+        Activity last = Activities.getLastActivity(Content.ME_SOUND_STREAM, resolver);
+        expect(first).toBeNull();
+        expect(last).toBeNull();
+
+        Activities one_of_each = manager.getActivitiesFromJson(
+                ApiSyncServiceTest.class.getResourceAsStream("e1_one_of_each_activity.json"));
+
+        expect(one_of_each.insert(Content.ME_SOUND_STREAM, resolver)).toBe(7);
+        first = Activities.getFirstActivity(Content.ME_SOUND_STREAM, resolver);
+        expect(first).not.toBeNull();
+        expect(first.uuid).toEqual("8e3bf200-0744-11e2-9817-590114067ab0");
+
+        last = Activities.getLastActivity(Content.ME_SOUND_STREAM, resolver);
+        expect(last).not.toBeNull();
+        expect(last.uuid).toEqual("b035de80-6dc9-11e1-84dc-e1bbf59e9e64");
+        expect(first.created_at.after(last.created_at)).toBeTrue();
+    }
+
+    @Test
+    public void shouldGetFirstNonPlaylistActivity() throws Exception {
+        Activities one_of_each = manager.getActivitiesFromJson(
+                getClass().getResourceAsStream("e1_stream_playlist_repost_first.json"));
+
+        expect(one_of_each.insert(Content.ME_SOUND_STREAM, resolver)).toBe(2);
+        Activity first = Activities.getFirstActivity(Content.ME_SOUND_STREAM, resolver);
+        expect(first).not.toBeNull();
+        expect(first.uuid).toEqual("734ad180-cab5-11e1-9570-52fa262dac01");
+        expect(first instanceof TrackLikeActivity).toBeTrue();
+    }
 
     private Activity makeActivity(Track t){
         TrackActivity a = new TrackActivity();
