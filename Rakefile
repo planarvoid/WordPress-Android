@@ -197,15 +197,17 @@ namespace :beta do
 
   desc "build beta"
   task :build do
-    version_code = get_last_published_version
-    if version_code.nil?
-      version_code = 0
+    with_beta do |version|
+      version_code = get_last_published_version
+      if version_code.nil?
+        version_code = 0
+      end
+      sh <<-END
+        mvn clean install -DskipTests -Psign,soundcloud,beta \
+          -Dandroid.manifest.versionCode=#{version_code+1} \
+          -Dandroid.manifest.debuggable=true
+      END
     end
-    sh <<-END
-      mvn clean install -DskipTests -Psign,soundcloud,beta \
-        -Dandroid.manifest.versionCode=#{version_code+1} \
-        -Dandroid.manifest.debuggable=true
-    END
   end
 
   desc "install beta on device"
@@ -229,9 +231,15 @@ namespace :beta do
 
   desc "tag the current beta"
   task :tag do
+    with_beta do |version|
+      sh "git tag -a #{version} -m #{version} && git push --tags && git push"
+    end
+  end
+
+  def with_beta(&block)
     version = current_version.gsub(/-SNAPSHOT\Z/, '')
     if version.to_s =~ /-BETA(\d+)?\Z/
-      sh "git tag -a #{version} -m #{version} && git push --tags && git push"
+      block.call(version)
     else
       raise "#{version}: not a beta version"
     end
