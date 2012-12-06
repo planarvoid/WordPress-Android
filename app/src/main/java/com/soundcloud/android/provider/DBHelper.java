@@ -627,6 +627,11 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String CONTENT_ID  = "content_id";
         public static final String SHARING_NOTE_TEXT = "sharing_note_text";
         public static final String SHARING_NOTE_CREATED_AT = "sharing_note_created_at";
+
+        public static final String[] ALL_FIELDS = {
+                _ID, UUID, TYPE, TAGS, USER_ID, SOUND_ID, COMMENT_ID, CREATED_AT,
+                CONTENT_ID, SHARING_NOTE_TEXT, SHARING_NOTE_CREATED_AT
+        };
     }
 
     /**
@@ -716,6 +721,19 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String USER_USERNAME = "activity_user_username";
         public static final String USER_PERMALINK = "activity_user_permalink";
         public static final String USER_AVATAR_URL = "activity_user_avatar_url";
+
+        public static final String[] ALL_VIEW_FIELDS = {
+            COMMENT_BODY, COMMENT_TIMESTAMP, COMMENT_CREATED_AT,
+            USER_USERNAME, USER_PERMALINK, USER_AVATAR_URL
+        };
+
+        public static final String[] ALL_FIELDS;
+        static {
+            // sometimes java feels like C all over again
+            ALL_FIELDS = new String[Activities.ALL_FIELDS.length + ALL_VIEW_FIELDS.length];
+            System.arraycopy(Activities.ALL_FIELDS, 0 , ALL_FIELDS, 0, Activities.ALL_FIELDS.length);
+            System.arraycopy(ALL_VIEW_FIELDS, 0 , ALL_FIELDS, Activities.ALL_FIELDS.length, ALL_VIEW_FIELDS.length);
+        }
     }
 
     public final static class SoundAssociationView extends SoundView {

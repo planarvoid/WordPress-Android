@@ -1,26 +1,19 @@
-package com.soundcloud.android.model;
+package com.soundcloud.android.model.act;
 
 import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.fromString;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.act.Activities;
-import com.soundcloud.android.model.act.Activity;
-import com.soundcloud.android.model.act.AffiliationActivity;
-import com.soundcloud.android.model.act.CommentActivity;
-import com.soundcloud.android.model.act.TrackActivity;
-import com.soundcloud.android.model.act.TrackLikeActivity;
-import com.soundcloud.android.model.act.TrackRepostActivity;
-import com.soundcloud.android.model.act.TrackSharingActivity;
+import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -29,7 +22,6 @@ import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Intent;
 
 import java.io.IOException;
 import java.util.Date;

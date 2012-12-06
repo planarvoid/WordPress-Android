@@ -61,7 +61,7 @@ public class CollectionHolder<T> implements Iterable<T> {
         return collection.get(index);
     }
 
-    protected void add(T e) {
+    public void add(T e) {
         collection.add(e);
     }
 

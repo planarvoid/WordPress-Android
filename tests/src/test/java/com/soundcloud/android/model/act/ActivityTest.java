@@ -1,17 +1,17 @@
-package com.soundcloud.android.model;
+package com.soundcloud.android.model.act;
 
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.model.act.Activity;
-import com.soundcloud.android.model.act.CommentActivity;
-import com.soundcloud.android.model.act.TrackActivity;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentValues;
+import android.database.MatrixCursor;
 
 import java.util.Date;
 import java.util.UUID;
@@ -75,5 +75,18 @@ public class ActivityTest {
         final String date = "2012/01/07 13:17:35 +0000";
         a.created_at = AndroidCloudAPI.CloudDateFormat.fromString(date);
         expect(a.getDateString()).toEqual(date);
+    }
+
+    @Test
+    public void allActivityTypesShouldBeInstantiableFromCursor() throws Exception {
+        MatrixCursor cursor = new MatrixCursor(DBHelper.ActivityView.ALL_FIELDS);
+        cursor.addRow(new Object[DBHelper.ActivityView.ALL_FIELDS.length]);
+        cursor.moveToFirst();
+
+        for (Activity.Type t : Activity.Type.values()) {
+            Activity instance = t.fromCursor(cursor);
+            expect(instance).not.toBeNull();
+            expect(instance.getClass().isAssignableFrom(t.activityClass)).toBeTrue();
+        }
     }
 }

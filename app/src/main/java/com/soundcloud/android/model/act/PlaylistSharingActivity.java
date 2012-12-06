@@ -6,11 +6,17 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 
+import android.database.Cursor;
+
 public class PlaylistSharingActivity extends Activity {
     @JsonProperty public Playlist playlist;
 
     public PlaylistSharingActivity() {
         super();
+    }
+
+    public PlaylistSharingActivity(Cursor c) {
+        super(c);
     }
 
     @Override
