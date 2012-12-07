@@ -151,4 +151,9 @@ public abstract class ActivityRow extends LazyRow {
         }
         return mPressedDrawable;
     }
+
+    @Override
+    protected int getDefaultArtworkResId() {
+        return R.drawable.avatar_badge;
+    }
 }

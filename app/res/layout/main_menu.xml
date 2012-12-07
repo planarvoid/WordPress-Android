@@ -7,7 +7,6 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:cacheColorHint="#222222"
-              android:background="#222222"
               android:headerDividersEnabled="true"
               android:footerDividersEnabled="true"
               android:dividerHeight="1px"

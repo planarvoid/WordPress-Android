@@ -102,6 +102,11 @@ public class UserlistRow extends LazyRow {
         }
     }
 
+    @Override
+    protected int getDefaultArtworkResId() {
+        return R.drawable.avatar_badge;
+    }
+
     private void setFollowingStatus(boolean enabled) {
         final boolean following = FollowStatus.get(getContext()).isFollowing(mUser);
         if (mUser.id == getCurrentUserId()) {

@@ -29,7 +29,6 @@
             <FrameLayout android:layout_width="fill_parent"
                          android:layout_height="fill_parent"
                          android:layout_alignParentTop="true"
-                         android:background="@drawable/artwork_player"
                          android:gravity="top">
                 <ImageView android:layout_width="fill_parent"
                            android:layout_height="fill_parent"

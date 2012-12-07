@@ -95,7 +95,6 @@ public class TrackInfoBar extends LazyRow {
         if (mAdapter == null) {
             // player view, these need to be set
             setId(R.id.track_info_bar);
-            setBackgroundResource(R.color.playerControlBackground);
         } else {
             if (mIcon != null && mAdapter.getQuickActionMenu() != null) {
                 final QuickTrackMenu quickTrackMenu = (QuickTrackMenu) mAdapter.getQuickActionMenu();
@@ -274,6 +273,11 @@ public class TrackInfoBar extends LazyRow {
         }
 
         display(mPlayable, CloudPlaybackService.getCurrentTrackId(), false, false, true);
+    }
+
+    @Override
+    protected int getDefaultArtworkResId() {
+        return R.drawable.artwork_badge;
     }
 
     @Override

@@ -70,7 +70,8 @@ public abstract class LazyRow extends FrameLayout {
                 if (bmp != null) {
                     // we have a bitmap, check to see if this was previously empty (should be animated in)
                     if (mAdapter.getIconNotReady(id)) {
-                        TransitionDrawable tDrawable = (TransitionDrawable) (drawable = new TransitionDrawable(new Drawable[]{mIcon.getBackground(), new BitmapDrawable(bmp)}));
+                        TransitionDrawable tDrawable = (TransitionDrawable) (drawable = new TransitionDrawable(
+                                new Drawable[]{getResources().getDrawable(getDefaultArtworkResId()), new BitmapDrawable(bmp)}));
                         tDrawable.setCrossFadeEnabled(true);
                         tDrawable.setCallback(new android.graphics.drawable.Drawable.Callback() {
                             @Override public void invalidateDrawable(Drawable drawable) { mIcon.invalidate();}
@@ -90,14 +91,16 @@ public abstract class LazyRow extends FrameLayout {
                     mImageLoader.bind((BaseAdapter) mAdapter, mIcon, iconUri, mIconOptions);
                 } else {
                     // already loading, just make sure we aren't displaying an old one
-                    mIcon.setImageBitmap(null);
+                    mIcon.setImageResource(getDefaultArtworkResId());
                 }
             }
         } else {
             mImageLoader.unbind(mIcon);
-            mIcon.setImageDrawable(null);
+            mIcon.setImageResource(getDefaultArtworkResId());
         }
     }
+
+    abstract protected int getDefaultArtworkResId();
 
     public String getIconRemoteUri() {
         return "";
