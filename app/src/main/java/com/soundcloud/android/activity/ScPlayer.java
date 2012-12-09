@@ -280,23 +280,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         }
     };
 
-    private final View.OnClickListener mPauseListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            final PlayQueueManager playQueueManager = getPlaylistManager();
-            if (mPlaybackService != null && playQueueManager != null) {
-                if (getCurrentDisplayedTrackPosition() != playQueueManager.getPosition()) {
-                    mPlaybackService.setQueuePosition(getCurrentDisplayedTrackPosition());
-                } else {
-                    mPlaybackService.togglePlayback();
-                }
-            } else {
-                startService(new Intent(CloudPlaybackService.TOGGLEPAUSE_ACTION));
-            }
-
-            setPlaybackState();
-        }
-    };
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -360,6 +343,23 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         unregisterReceiver(mStatusListener);
         mPlaybackService = null;
     }
+
+    private final View.OnClickListener mPauseListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            final PlayQueueManager playQueueManager = getPlaylistManager();
+            if (mPlaybackService != null && playQueueManager != null) {
+                if (getCurrentDisplayedTrackPosition() != playQueueManager.getPosition()) {
+                    mPlaybackService.setQueuePosition(getCurrentDisplayedTrackPosition());
+                } else {
+                    mPlaybackService.togglePlayback();
+                }
+            } else {
+                startService(new Intent(CloudPlaybackService.TOGGLEPAUSE_ACTION));
+            }
+
+            setPlaybackState();
+        }
+    };
 
     private final View.OnClickListener mPrevListener = new View.OnClickListener() {
         public void onClick(View v) {

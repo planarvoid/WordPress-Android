@@ -7,7 +7,7 @@
                     android:layout_height="fill_parent">
         <ImageButton android:layout_centerInParent="true"
                      android:id="@+id/prev"
-                     style="@style/btn_sc_transparent"
+                     style="@style/btn_sc_transport"
                      android:src="@drawable/ic_prev_states"/>
     </RelativeLayout>
     <RelativeLayout android:layout_weight="1"
@@ -15,7 +15,7 @@
                     android:layout_height="fill_parent">
         <ImageButton android:layout_centerInParent="true"
                      android:id="@+id/pause"
-                     style="@style/btn_sc_transparent"
+                     style="@style/btn_sc_transport"
                      android:src="@drawable/ic_play_states"/>
     </RelativeLayout>
     <RelativeLayout android:layout_weight="1"
@@ -23,7 +23,7 @@
                     android:layout_height="fill_parent">
         <ImageButton android:layout_centerInParent="true"
                      android:id="@+id/next"
-                     style="@style/btn_sc_transparent"
+                     style="@style/btn_sc_transport"
                      android:src="@drawable/ic_next_states"/>
     </RelativeLayout>
 </merge>
