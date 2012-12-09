@@ -156,6 +156,25 @@ public class ApiSyncerTest {
     }
 
     @Test
+    public void shouldSyncSoundsAndLikes() throws Exception {
+        addResourceResponse("/e1/me/sounds/mini?limit=200&linked_partitioning=1", "me_sounds_mini.json");
+
+        Result result = sync(Content.ME_SOUNDS.uri);
+        expect(result.success).toBeTrue();
+        expect(result.synced_at).toBeGreaterThan(0l);
+
+        addResourceResponse("/e1/me/likes?limit=200&linked_partitioning=1", "e1_likes.json");
+
+        result = sync(Content.ME_LIKES.uri);
+        expect(result.success).toBeTrue();
+        expect(result.synced_at).toBeGreaterThan(0l);
+
+        expect(Content.TRACKS).toHaveCount(49);
+        expect(Content.ME_SOUNDS).toHaveCount(48);
+        expect(Content.ME_LIKES).toHaveCount(2);
+    }
+
+    @Test
     public void shouldSyncFriends() throws Exception {
         addIdResponse("/me/connections/friends/ids?linked_partitioning=1", 792584, 1255758, 308291);
         addResourceResponse("/users?linked_partitioning=1&limit=200&ids=792584%2C1255758%2C308291", "users.json");
