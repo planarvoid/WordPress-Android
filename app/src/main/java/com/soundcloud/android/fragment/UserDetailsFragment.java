@@ -169,12 +169,12 @@ public class UserDetailsFragment extends Fragment {
 
     private boolean setupDescription(User user) {
         if (!isEmpty(user.description)) {
-            mLocation.setVisibility(View.VISIBLE);
+            mDescription.setVisibility(View.VISIBLE);
             mDescription.setText(ScTextUtils.fromHtml(user.description));
             mDescription.setMovementMethod(LinkMovementMethod.getInstance());
             return true;
         } else {
-            mLocation.setVisibility(View.GONE);
+            mDescription.setVisibility(View.GONE);
             return false;
         }
     }
