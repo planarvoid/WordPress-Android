@@ -8,7 +8,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.view.View;
 import android.widget.RemoteViews;
 
 import com.soundcloud.android.model.Sound;
@@ -46,10 +45,6 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
 
     private void updateWidget(Context context, int[] appWidgetIds) {
         final WidgetPlaybackRemoteViews views = new WidgetPlaybackRemoteViews(context.getPackageName());
-        views.setTextViewText(R.id.title_txt, context.getString(R.string.widget_touch_to_open));
-        views.setViewVisibility(R.id.by_txt, View.GONE);
-        views.setViewVisibility(R.id.user_txt, View.GONE);
-
         // initialize controls
         views.linkButtonsWidget(context, -1, -1, false);
         pushUpdate(context, appWidgetIds, views);
