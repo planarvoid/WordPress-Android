@@ -12,7 +12,7 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import com.soundcloud.android.model.Sound;
-import com.soundcloud.android.view.play.PlaybackRemoteViews;
+import com.soundcloud.android.view.play.WidgetPlaybackRemoteViews;
 
 public class PlayerAppWidgetProvider extends AppWidgetProvider {
     private static final String TAG = "PlayerWidget";
@@ -45,7 +45,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
     }
 
     private void updateWidget(Context context, int[] appWidgetIds) {
-        final PlaybackRemoteViews views = new PlaybackRemoteViews(context.getPackageName(), R.layout.appwidget_player);
+        final WidgetPlaybackRemoteViews views = new WidgetPlaybackRemoteViews(context.getPackageName());
         views.setTextViewText(R.id.title_txt, context.getString(R.string.widget_touch_to_open));
         views.setViewVisibility(R.id.by_txt, View.GONE);
         views.setViewVisibility(R.id.user_txt, View.GONE);
@@ -72,9 +72,6 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
     }
 
     /* package */ void notifyChange(Context context, Intent intent) {
-
-        // TODO, move to ScModelManager to get data
-
         String action = intent.getAction();
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "notify change " + intent);
         if (hasInstances(context)) {
@@ -93,12 +90,15 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
     }
 
     /* package */  void performUpdate(Context context, int[] appWidgetIds, Intent intent) {
-        final PlaybackRemoteViews views = new PlaybackRemoteViews(context.getPackageName(), R.layout.appwidget_player);
+        // TODO, move to ScModelManager to get data
+        final WidgetPlaybackRemoteViews views = new WidgetPlaybackRemoteViews(context.getPackageName());
         views.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isSupposedToBePlaying, false));
 
         final long trackId = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1);
-        if (trackId != -1){
-            views.setImageViewResource(R.id.btn_like, intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false)
+        final long userId = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.user_id, -1);
+        if (trackId != -1) {
+            final boolean isLike = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false);
+            views.setImageViewResource(R.id.btn_like, isLike
                     ? R.drawable.ic_widget_favorited_states : R.drawable.ic_widget_like_states);
 
             if (mCurrentTrackId != trackId) {
@@ -106,8 +106,8 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
                 views.setCurrentTrackTitle(intent.getStringExtra(CloudPlaybackService.BroadcastExtras.title));
                 views.setCurrentUsername(intent.getStringExtra(CloudPlaybackService.BroadcastExtras.username));
             }
-            views.linkButtonsNotification(context);
 
+            views.linkButtonsWidget(context, trackId, userId, isLike);
             pushUpdate(context, appWidgetIds, views);
         }
     }
