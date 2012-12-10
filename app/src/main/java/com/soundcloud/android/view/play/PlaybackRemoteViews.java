@@ -14,7 +14,7 @@ import android.os.Parcel;
 import android.view.View;
 import android.widget.RemoteViews;
 
-public class PlaybackRemoteViews extends RemoteViews{
+public class PlaybackRemoteViews extends RemoteViews {
 
     private int mPlayBtnId;
     private int mPauseBtnId;

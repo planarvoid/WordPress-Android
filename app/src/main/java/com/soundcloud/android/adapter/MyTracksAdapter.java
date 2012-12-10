@@ -140,20 +140,6 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
         }
     }
 
-    @Override
-    public long getItemId(int position) {
-        if (mRecordingData != null) {
-            if (position < mRecordingData.size()){
-                return mRecordingData.get(position).id;
-            } else {
-                return super.getItemId(position - mRecordingData.size());
-            }
-        } else {
-            return super.getItemId(position);
-        }
-    }
-
-
     /**
      * Called when the {@link ContentObserver} on the cursor receives a change notification.
      * The default implementation provides the auto-requery logic, but may be overridden by

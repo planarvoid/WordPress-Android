@@ -79,6 +79,11 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         sharing_note.text = c.getString(c.getColumnIndex(DBHelper.ActivityView.SHARING_NOTE_TEXT));
     }
 
+    @Override
+    public long getListItemId() {
+        return toUUID().hashCode();
+    }
+
     public CharSequence getTimeSinceCreated(Context context) {
         if (_elapsedTime == null){
             refreshTimeSinceCreated(context);
