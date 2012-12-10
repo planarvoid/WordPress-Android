@@ -655,8 +655,8 @@
         <item name="android:textColorLink">@drawable/txt_gray_states</item>
         <item name="android:layout_marginTop">15dp</item>
         <item name="android:layout_marginBottom">15dp</item>
-        <item name="android:layout_marginLeft">20dp</item>
-        <item name="android:layout_marginRight">20dp</item>
+        <item name="android:layout_marginLeft">15dp</item>
+        <item name="android:layout_marginRight">15dp</item>
     </style>
 
     <style name="txt_empty_collection_link" parent="txt_empty_collection_message">

@@ -87,7 +87,7 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
 
     public void setState(int state, boolean reset) {
         mCurrentState = state;
-        configureEmptyCollection();
+        configureEmptyView();
 
         final BaseAdapter listAdapter = getListAdapter();
         if (listAdapter == null) return;
@@ -106,7 +106,7 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
     }
 
     @Override
-    protected void configureEmptyCollection() {
+    protected void configureEmptyView() {
         if (mEmptyListView != null) {
             switch (mCurrentState) {
                 case States.LOADING:
@@ -122,7 +122,7 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
                     break;
 
                 case States.FB_CONNECTION:
-                    super.configureEmptyCollection();
+                    super.configureEmptyView();
                     break;
             }
         }

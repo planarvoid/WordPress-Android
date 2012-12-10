@@ -4,6 +4,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.track.TrackComments;
 import com.soundcloud.android.activity.track.TrackReposters;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
@@ -44,10 +45,16 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
         return getItem(position).getType().ordinal();
     }
 
-    public boolean isExpired() {
-        if (mData.size() == 0) return true;
-        final Activity firstActivity = Activities.getFirstActivity(mContent, mContext.getContentResolver());
-        return (firstActivity == null || firstActivity.created_at.getTime() > mData.get(0).created_at.getTime());
+    public boolean isExpired(LocalCollection localCollection) {
+        if (localCollection == null || (localCollection.size == 0 && mData.size() == 0)) {
+            return false; //both are empty
+        } else if (mData.size() == 0) {
+            return true; // need to pull from DB
+        } else {
+            // check if there is anything newer
+            final Activity firstActivity = Activities.getFirstActivity(mContent, mContext.getContentResolver());
+            return (firstActivity == null || firstActivity.created_at.getTime() > mData.get(0).created_at.getTime());
+        }
     }
 
     @Override

@@ -137,7 +137,8 @@ public class UserDetailsFragment extends Fragment {
                 if (mEmptyInfoView.getParent() instanceof ViewGroup){
                     ((ViewGroup) mEmptyInfoView.getParent()).removeView(mEmptyInfoView);
                 }
-                mInfoView.addView(mEmptyInfoView);
+                mInfoView.addView(mEmptyInfoView,
+                        new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             }
         }
 

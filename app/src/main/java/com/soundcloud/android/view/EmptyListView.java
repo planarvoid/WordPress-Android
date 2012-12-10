@@ -139,7 +139,6 @@ public class EmptyListView extends RelativeLayout {
                     }
                 }
             });
-            setMode(Mode.WAITING_FOR_DATA);
         } else {
             mEmptyLayout.setVisibility(View.VISIBLE);
         }
