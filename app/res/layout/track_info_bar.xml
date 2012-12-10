@@ -67,14 +67,12 @@
               style="@style/txt_list_main"
               android:ellipsize="marquee"
               android:text="@string/track"/>
-    <RelativeLayout
-            android:id="@+id/stats"
-            android:layout_below="@id/track"
-            android:layout_alignLeft="@id/user"
-            android:layout_alignParentRight="true"
-            android:layout_width="0dp"
-            android:paddingTop="3dip"
-            android:layout_height="wrap_content">
+    <RelativeLayout android:layout_below="@id/track"
+                    android:layout_alignLeft="@id/user"
+                    android:layout_alignParentRight="true"
+                    android:layout_width="0dp"
+                    android:paddingTop="3dip"
+                    android:layout_height="20dp">
         <TextView android:id="@+id/private_indicator"
                   android:singleLine="true"
                   android:ellipsize="none"
@@ -88,68 +86,8 @@
                   android:text="@string/tracklist_item_shared_with_x_people"
                   android:layout_height="wrap_content"/>
 
-        <TextView android:id="@+id/play_count"
-                  android:layout_width="wrap_content"
-                  android:layout_alignWithParentIfMissing="true"
-                  android:drawableLeft="@drawable/ic_stats_plays_states"
-                  android:singleLine="true"
-                  android:drawablePadding="3dip"
-                  android:layout_height="wrap_content"
-                  android:layout_toRightOf="@id/private_indicator"
-                  style="@style/txt_list_sub_secondary"/>
-
-        <View android:id="@+id/vr_play_count"
-              android:layout_toRightOf="@+id/play_count"
-              android:layout_alignBottom="@+id/play_count"
-              android:layout_alignTop="@+id/play_count"
-              android:layout_height="0dp"
-              android:layout_width="1dip"
-              style="@style/stat_pipe"
-              />
-
-        <TextView android:id="@+id/like_count"
-                  android:layout_width="wrap_content"
-                  android:layout_alignWithParentIfMissing="true"
-                  android:drawablePadding="3dip"
-                  android:singleLine="true"
-                  android:layout_height="wrap_content"
-                  android:layout_toRightOf="@id/vr_play_count"
-                  style="@style/txt_list_sub_secondary"/>
-
-        <View android:id="@+id/vr_like_count"
-              android:layout_toRightOf="@+id/like_count"
-              android:layout_alignBottom="@+id/like_count"
-              android:layout_alignTop="@+id/like_count"
-              android:layout_height="0dp"
-              style="@style/stat_pipe"
-              android:layout_width="1dip"/>
-
-        <TextView android:id="@+id/repost_count"
-                  android:layout_width="wrap_content"
-                  android:layout_alignWithParentIfMissing="true"
-                  android:drawablePadding="3dip"
-                  android:layout_height="wrap_content"
-                  android:singleLine="true"
-                  android:layout_toRightOf="@id/vr_like_count"
-                  style="@style/txt_list_sub_secondary"/>
-
-        <View android:id="@+id/vr_repost_count"
-                      android:layout_toRightOf="@+id/repost_count"
-                      android:layout_alignBottom="@+id/repost_count"
-                      android:layout_alignTop="@+id/repost_count"
-                      android:layout_height="0dp"
-                      android:layout_width="1dip"
-                      style="@style/stat_pipe" />
-
-        <TextView android:id="@+id/comment_count"
-                  android:layout_width="wrap_content"
-                  android:layout_alignWithParentIfMissing="true"
-                  android:drawableLeft="@drawable/ic_stats_comments_states"
-                  android:drawablePadding="3dip"
-                  android:layout_height="wrap_content"
-                  android:singleLine="true"
-                  android:layout_toRightOf="@id/vr_repost_count"
-                  android:paddingRight="5dip"
-                  style="@style/txt_list_sub_secondary"/>
+        <com.soundcloud.android.view.StatsView android:id="@+id/stats"
+                                               android:layout_width="wrap_content"
+                                               android:layout_height="wrap_content" />
     </RelativeLayout>
 </RelativeLayout>

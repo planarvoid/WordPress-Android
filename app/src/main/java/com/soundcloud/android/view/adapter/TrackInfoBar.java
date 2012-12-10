@@ -14,6 +14,7 @@ import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.view.StatsView;
 import com.soundcloud.android.view.quickaction.QuickTrackMenu;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,12 +43,8 @@ public class TrackInfoBar extends LazyRow {
     private TextView mCreatedAt;
     private TextView mPrivateIndicator;
 
-    private TextView mLikeCount;
-    private TextView mPlayCount;
-    private TextView mCommentCount;
-    private TextView mRepostCount;
+    private StatsView mStatsView;
 
-    private View mPlayCountSeparator, mRepostCountSeparator, mLikeCountSeparator;
     private boolean mShouldLoadIcon;
 
     private SpannableStringBuilder mSpanBuilder;
@@ -83,14 +80,8 @@ public class TrackInfoBar extends LazyRow {
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
 
         mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
-        mPlayCount = (TextView) findViewById(R.id.play_count);
-        mLikeCount = (TextView) findViewById(R.id.like_count);
-        mRepostCount = (TextView) findViewById(R.id.repost_count);
-        mCommentCount = (TextView) findViewById(R.id.comment_count);
 
-        mPlayCountSeparator = findViewById(R.id.vr_play_count);
-        mLikeCountSeparator = findViewById(R.id.vr_like_count);
-        mRepostCountSeparator = findViewById(R.id.vr_repost_count);
+        mStatsView = (StatsView) findViewById(R.id.stats);
 
         if (mAdapter == null) {
             // player view, these need to be set
@@ -112,12 +103,12 @@ public class TrackInfoBar extends LazyRow {
     }
 
     public void addTextShadows(){
-        AndroidUtils.setTextShadowForGrayBg(mTitle);
-        AndroidUtils.setTextShadowForGrayBg(mUser);
-        AndroidUtils.setTextShadowForGrayBg(mCreatedAt);
-        AndroidUtils.setTextShadowForGrayBg(mLikeCount);
-        AndroidUtils.setTextShadowForGrayBg(mPlayCount);
-        AndroidUtils.setTextShadowForGrayBg(mCommentCount);
+//        AndroidUtils.setTextShadowForGrayBg(mTitle);
+//        AndroidUtils.setTextShadowForGrayBg(mUser);
+//        AndroidUtils.setTextShadowForGrayBg(mCreatedAt);
+//        AndroidUtils.setTextShadowForGrayBg(mLikeCount);
+//        AndroidUtils.setTextShadowForGrayBg(mPlayCount);
+//        AndroidUtils.setTextShadowForGrayBg(mCommentCount);
     }
 
 
@@ -187,26 +178,19 @@ public class TrackInfoBar extends LazyRow {
         }
 
         if (showFullStats){
-            setStats(track.playback_count,
-                    track.comment_count,
-                    track.likes_count,
-                    track.reposts_count, keepHeight);
+            mStatsView.setPlays(track.playback_count);
+            mStatsView.setLikes(track.likes_count);
+            mStatsView.setResposts(track.reposts_count);
+            mStatsView.setComments(track.comment_count);
         } else {
-            setStats(track.playback_count,0,0,0,keepHeight);
+            mStatsView.setPlays(track.playback_count);
+            mStatsView.setLikes(0);
+            mStatsView.setResposts(0);
+            mStatsView.setComments(0);
         }
 
-
-        if (track.user_like) {
-            mLikeCount.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_stats_liked_states, 0, 0, 0);
-        } else {
-            mLikeCount.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_stats_likes_states, 0, 0, 0);
-        }
-
-        if (track.user_repost) {
-            mRepostCount.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_stats_reposted_states, 0, 0, 0);
-        } else {
-            mRepostCount.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_stats_reposts_states, 0, 0, 0);
-        }
+        mStatsView.setLiked(track.user_like);
+        mStatsView.setReposted(track.user_repost);
 
         setTitle(false);
 
@@ -320,24 +304,4 @@ public class TrackInfoBar extends LazyRow {
         }
 
     };
-
-    public void setStats(int plays, int comments, int likes, int reposts, boolean maintainSize) {
-
-        mPlayCount.setText(String.valueOf(plays));
-        mCommentCount.setText(String.valueOf(comments));
-        mLikeCount.setText(String.valueOf(likes));
-        mRepostCount.setText(String.valueOf(reposts));
-
-        mPlayCount.setVisibility(plays <= 0 ? View.GONE : View.VISIBLE);
-        mPlayCountSeparator.setVisibility(plays <= 0 || (comments <= 0 && likes <= 0 && reposts <= 0) ? View.GONE : View.VISIBLE);
-
-        mLikeCount.setVisibility(likes <= 0 ? View.GONE : View.VISIBLE);
-        mLikeCountSeparator.setVisibility(likes <= 0 || reposts <= 0 && comments <= 0 ? View.GONE : View.VISIBLE);
-
-        mRepostCount.setVisibility(reposts <= 0 ? View.GONE : View.VISIBLE);
-        mRepostCountSeparator.setVisibility(reposts <= 0 || comments <= 0 ? View.GONE : View.VISIBLE);
-
-        mCommentCount.setVisibility(comments <= 0 ? maintainSize ? View.INVISIBLE : View.GONE : View.VISIBLE);
-    }
-
 }
