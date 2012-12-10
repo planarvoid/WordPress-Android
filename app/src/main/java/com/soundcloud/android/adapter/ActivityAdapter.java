@@ -80,7 +80,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
     public long getItemId(int position) {
         Activity a = getItem(position);
         if (a != null) {
-            a.created_at.getTime();
+            return a.created_at.getTime();
         }
         return position;
     }
