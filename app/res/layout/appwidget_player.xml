@@ -93,13 +93,14 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:background="@color/transparent"
-                android:src="@drawable/ic_widget_prev_states"/>
+                android:src="@drawable/ic_prev_states"/>
 
         <ImageView
+                android:id="@+id/vr_1"
                 android:background="@drawable/widget_gray_gradient_vertical"
                 android:layout_height="fill_parent"
                 android:layout_width="1dp"
-                android:id="@+id/vr_1"/>
+                />
 
         <ImageButton
                 android:id="@+id/pause"
@@ -107,13 +108,14 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:background="@color/transparent"
-                android:src="@drawable/ic_widget_play_states"/>
+                android:src="@drawable/ic_play_states"/>
 
         <ImageView
+                android:id="@+id/vr_2"
                 android:background="@drawable/widget_gray_gradient_vertical"
                 android:layout_height="fill_parent"
                 android:layout_width="1dp"
-                android:id="@+id/vr_2"/>
+                />
 
         <ImageButton
                 android:id="@+id/next"
@@ -121,6 +123,6 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:background="@color/transparent"
-                android:src="@drawable/ic_widget_next_states"/>
+                android:src="@drawable/ic_next_states"/>
     </LinearLayout>
 </LinearLayout>
