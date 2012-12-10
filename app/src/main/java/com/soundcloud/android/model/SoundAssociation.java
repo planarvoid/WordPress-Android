@@ -66,6 +66,11 @@ public class SoundAssociation extends ScResource implements Playable, Refreshabl
     }
 
     @Override
+    public long getListItemId() {
+        return getSound().id << 32 + associationType;
+    }
+
+    @Override
     public ScResource getRefreshableResource() {
         return track; // TODO, playlist
     }

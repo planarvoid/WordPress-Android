@@ -21,6 +21,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -79,6 +80,11 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         sharing_note.text = c.getString(c.getColumnIndex(DBHelper.ActivityView.SHARING_NOTE_TEXT));
     }
 
+    @Override
+    public long getListItemId() {
+        return toUUID().hashCode();
+    }
+
     public CharSequence getTimeSinceCreated(Context context) {
         if (_elapsedTime == null){
             refreshTimeSinceCreated(context);
@@ -101,9 +107,9 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     }
 
     public UUID toUUID() {
-        if (created_at == null) {
-            return null;
-        } else {
+        if (!TextUtils.isEmpty(uuid)){
+            return UUID.fromString(uuid);
+        } else if (created_at != null) {
             // snippet from http://wiki.apache.org/cassandra/FAQ#working_with_timeuuid_in_java
             final long origTime = created_at.getTime();
             final long time = origTime * 10000 + NUM_100NS_INTERVALS_SINCE_UUID_EPOCH;
@@ -112,12 +118,18 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
             final long timeHi  = time & 0xfff000000000000L;
             final long upperLong = (timeLow << 32) | (timeMid >> 16) | (1 << 12) | (timeHi >> 48) ;
             return new UUID(upperLong, 0xC000000000000000L);
+        } else {
+            return null;
         }
     }
 
     public String toGUID() {
-        final UUID uuid = toUUID();
-        return uuid != null ? toUUID().toString() : null;
+        if (!TextUtils.isEmpty(uuid)){
+            return uuid;
+        } else {
+            UUID gen = toUUID();
+            return gen == null ? null :gen.toString();
+        }
     }
 
     @Override

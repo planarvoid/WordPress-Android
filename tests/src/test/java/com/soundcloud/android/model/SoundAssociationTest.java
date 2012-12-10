@@ -58,6 +58,21 @@ public class SoundAssociationTest {
         expect(newItems.size()).toEqual(38);
     }
 
+    @Test
+    public void shouldProvideUniqueListItemId() throws Exception {
+
+        SoundAssociation soundAssociation1 = new SoundAssociation();
+        soundAssociation1.track = new Track(123l);
+        soundAssociation1.setType(SoundAssociation.Type.TRACK.type);
+
+        SoundAssociation soundAssociation2 = new SoundAssociation();
+        soundAssociation2.track = soundAssociation1.track;
+        soundAssociation2.setType(SoundAssociation.Type.TRACK_REPOST.type);
+
+        expect(soundAssociation1.getListItemId()).not.toEqual(soundAssociation2.getListItemId());
+    }
+
+
     private void compareSoundItems(SoundAssociation soundItem, SoundAssociation soundItem2) {
         expect(soundItem2.id).toEqual(soundItem.id);
         expect(soundItem2.created_at).toEqual(soundItem.created_at);
