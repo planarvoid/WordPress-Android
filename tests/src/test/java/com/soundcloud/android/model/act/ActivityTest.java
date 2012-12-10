@@ -20,6 +20,19 @@ import java.util.UUID;
 public class ActivityTest {
 
     @Test
+    public void shouldUseUuidAndIgnoreCreatedAt() throws Exception {
+        Activity a = new TrackActivity();
+        expect(a.toGUID()).toBeNull();
+
+        final String uuidStr = "ffffffff-1111-11e1-c000-000000000000";
+        a.uuid = uuidStr;
+        a.created_at = AndroidCloudAPI.CloudDateFormat.fromString("2012/01/07 13:17:35 +0000");
+
+        expect(a.toUUID().toString()).toEqual(uuidStr);
+        expect(a.toGUID()).toEqual(uuidStr);
+    }
+
+    @Test
     public void shouldGenerateAGuidBasedOnCreatedAt() throws Exception {
         Activity a = new TrackActivity();
         expect(a.toGUID()).toBeNull();

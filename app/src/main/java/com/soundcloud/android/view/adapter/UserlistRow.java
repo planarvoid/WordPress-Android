@@ -109,9 +109,11 @@ public class UserlistRow extends LazyRow {
 
     private void setFollowingStatus(boolean enabled) {
         final boolean following = FollowStatus.get(getContext()).isFollowing(mUser);
+        mFollowBtn.setEnabled(enabled);
         if (mUser.id == getCurrentUserId()) {
             mFollowBtn.setVisibility(View.INVISIBLE);
         } else {
+            mFollowBtn.setVisibility(View.VISIBLE);
             mFollowBtn.setChecked(following);
         }
     }

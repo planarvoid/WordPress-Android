@@ -104,8 +104,8 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     @Override
     public long getItemId(int position) {
         Object o = getItem(position);
-        if (o instanceof ScResource && ((ScResource) o).id != -1) {
-            return ((ScResource) o).id;
+        if (o instanceof ScModel && ((ScModel) o).getListItemId() != -1) {
+            return ((ScModel) o).getListItemId();
         }
         return position;
     }
