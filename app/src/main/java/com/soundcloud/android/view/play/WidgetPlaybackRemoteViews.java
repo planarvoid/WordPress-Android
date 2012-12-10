@@ -17,8 +17,8 @@ import android.os.Parcel;
 public class WidgetPlaybackRemoteViews extends PlaybackRemoteViews {
     public WidgetPlaybackRemoteViews(String packageName) {
         super(packageName, R.layout.appwidget_player,
-                R.drawable.ic_widget_play_states,
-                R.drawable.ic_widget_pause_states);
+                R.drawable.ic_play_states,
+                R.drawable.ic_pause_states);
     }
 
     @SuppressWarnings("UnusedDeclaration")
