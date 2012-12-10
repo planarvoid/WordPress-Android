@@ -9,13 +9,11 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 
 public class SuggestedUsers extends ScActivity implements ScLandingPage{
-
-
-
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -44,6 +42,12 @@ public class SuggestedUsers extends ScActivity implements ScLandingPage{
                     .add(listHolderId, ScListFragment.newInstance(Content.SUGGESTED_USERS))
                     .commit();
         }
+    }
+
+    @Override
+    public void setContentView(View layout) {
+        super.setContentView(layout);
+        layout.setBackgroundColor(Color.WHITE);
     }
 
     @Override
