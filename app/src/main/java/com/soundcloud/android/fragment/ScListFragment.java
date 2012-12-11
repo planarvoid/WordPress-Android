@@ -215,7 +215,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                      adapter = new TrackAdapter(getActivity(), mContentUri);
             }
             setListAdapter(adapter);
-            configureEmptyCollection();
+            configureEmptyView();
             if (canAppend()) {
                 append(false);
             } else {
@@ -268,7 +268,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     public void setEmptyCollection(EmptyListView emptyCollection){
         mEmptyListView = emptyCollection;
-        configureEmptyCollection();
+        configureEmptyView();
         if (getView() != null && getListView() != null) {
             getListView().setEmptyView(emptyCollection);
         }
@@ -300,8 +300,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                         mKeepGoing = true;
                         append(false);
                     }
-                } else if (!isRefreshTaskActive()) {
-                    executeRefreshTask();
+                } else if (!nothingChanged) {
+                    // something was changed by the sync, if we aren't refreshing already, do it
+                    if (!isRefreshTaskActive()) {
+                        executeRefreshTask();
+                    }
                 }
                 break;
             }
@@ -318,14 +321,25 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         final ScBaseAdapter adapter = getListAdapter();
         if (adapter == null) return;
 
-        if (data.success) mNextHref       = data.nextHref;
-        if (!data.wasRefresh) mKeepGoing = data.keepGoing;
+        if (data.success) {
+            mNextHref = data.nextHref;
+        }
+
+        if (data.wasRefresh) {
+            mRefreshTask = null; // allows isRefreshing to return false for display purposes
+        } else {
+            mKeepGoing = data.keepGoing;
+        }
 
         adapter.handleTaskReturnData(data);
-
-        if ((data.wasRefresh || !isRefreshing()) && !waitingOnInitialSync()) doneRefreshing();
         handleResponseCode(data.responseCode);
-        configureEmptyCollection();
+
+        final boolean notRefreshing = (data.wasRefresh || !isRefreshing()) && !waitingOnInitialSync();
+        if (notRefreshing) {
+            doneRefreshing();
+        } else {
+            configureEmptyView();
+        }
 
         if (adapter.isEmpty() && mKeepGoing){
             // this can happen if we manually filter out the entire collection (e.g. all playlists)
@@ -371,20 +385,22 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     protected void refresh(final boolean userRefresh) {
-        final ScBaseAdapter adapter = getListAdapter();
-        if (adapter == null) return;
-
-        if (userRefresh) {
-            if (adapter instanceof FollowStatus.Listener) {
-                FollowStatus.get(getActivity()).requestUserFollowings((FollowStatus.Listener) adapter);
-            }
-        }
-
+        // this needs to happen regardless of context/adapter availability, it will setup a pending sync if needed
         if (isSyncable()) {
             requestSync();
-        } else if (getActivity() != null) {
-            executeRefreshTask();
-            adapter.notifyDataSetChanged();
+        }
+
+        final ScBaseAdapter adapter = getListAdapter();
+        if (adapter != null) {
+            if (userRefresh) {
+                if (adapter instanceof FollowStatus.Listener) {
+                    FollowStatus.get(getActivity()).requestUserFollowings((FollowStatus.Listener) adapter);
+                }
+            }
+            if (!isSyncable() && getActivity() != null) {
+                executeRefreshTask();
+                adapter.notifyDataSetChanged();
+            }
         }
     }
 
@@ -392,7 +408,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mNextHref = "";
         mKeepGoing = true;
         clearRefreshTask();
-        configureEmptyCollection();
+        configureEmptyView();
 
         final ScBaseAdapter adp = getListAdapter();
         if (adp != null) {
@@ -404,7 +420,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (canAppend()) append(false);
     }
 
-    protected void configureEmptyCollection(){
+    protected void configureEmptyView(){
         final boolean wait = canAppend() || isRefreshing() || waitingOnInitialSync();
         if (mEmptyListView != null) {
             mEmptyListView.setMode(wait ? EmptyListView.Mode.WAITING_FOR_DATA : EmptyListView.Mode.IDLE);
@@ -418,7 +434,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             mRefreshTask = buildTask(context);
             mRefreshTask.execute(getTaskParams(adapter, true));
         }
-        configureEmptyCollection();
+        configureEmptyView();
     }
 
 
@@ -478,7 +494,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (mListView != null) {
             mListView.onRefreshComplete();
         }
-        configureEmptyCollection();
+        configureEmptyView();
     }
 
     private boolean isSyncable() {
@@ -503,7 +519,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     private void onContentChanged() {
-        if (getListAdapter() instanceof ActivityAdapter && ((ActivityAdapter) getListAdapter()).isExpired()){
+        final ScBaseAdapter listAdapter = getListAdapter();
+        if (listAdapter instanceof ActivityAdapter && ((ActivityAdapter) listAdapter).isExpired(mLocalCollection)) {
             executeRefreshTask();
         }
     }

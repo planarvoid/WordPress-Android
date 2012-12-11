@@ -39,4 +39,8 @@ public class ScModel implements Parcelable {
         final int index = c.getColumnIndex(column);
         return c.isNull(index) ? NOT_SET : c.getInt(index);
     }
+
+    public long getListItemId(){
+        return id;
+    }
 }

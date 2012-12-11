@@ -137,7 +137,8 @@ public class UserDetailsFragment extends Fragment {
                 if (mEmptyInfoView.getParent() instanceof ViewGroup){
                     ((ViewGroup) mEmptyInfoView.getParent()).removeView(mEmptyInfoView);
                 }
-                mInfoView.addView(mEmptyInfoView);
+                mInfoView.addView(mEmptyInfoView,
+                        new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             }
         }
 
@@ -169,12 +170,12 @@ public class UserDetailsFragment extends Fragment {
 
     private boolean setupDescription(User user) {
         if (!isEmpty(user.description)) {
-            mLocation.setVisibility(View.VISIBLE);
+            mDescription.setVisibility(View.VISIBLE);
             mDescription.setText(ScTextUtils.fromHtml(user.description));
             mDescription.setMovementMethod(LinkMovementMethod.getInstance());
             return true;
         } else {
-            mLocation.setVisibility(View.GONE);
+            mDescription.setVisibility(View.GONE);
             return false;
         }
     }

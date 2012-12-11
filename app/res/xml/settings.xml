@@ -111,14 +111,6 @@
                         android:title="@string/pref_dev_settings">
 
         <ListPreference
-            android:title="@string/pref_dashboard_store_max"
-            android:summary="@string/pref_dashboard_store_max_desc"
-            android:key="dev.dashboardMaxStored"
-            android:defaultValue="100"
-            android:entries="@array/pref_dashboard_store_max_entries"
-            android:entryValues="@array/pref_dashboard_store_max_values"/>
-
-        <ListPreference
             android:title="@string/pref_dev_record_type"
             android:summary="@string/pref_dev_record_type_desc"
             android:key="dev.defaultRecordingType"

@@ -216,31 +216,33 @@ public class PlayerAvatarBar extends View {
         public void run() {
             // XXX race condition with current comments
             final List<Comment> comments = mCurrentComments;
-            if (comments == null || getWidth() <= 0) return;
-
-            try {
-                mNextCanvasBmp = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-            } catch (OutOfMemoryError e){
-                // XXX really catch oom here?
-                Log.e(TAG,"Out of memory during avatar refresher bitmap creation");
-            }
-
-            if (mNextCanvasBmp != null && !mNextCanvasBmp.isRecycled()) {
-                Canvas canvas = new Canvas(mNextCanvasBmp);
-                for (Comment comment : comments){
-                    if (Thread.currentThread().isInterrupted()) break;
-                    if (comment.timestamp == 0) continue;
-                    drawCommentOnCanvas(comment, canvas, mLinePaint, mImagePaint, mBgMatrix);
+            final int width = getWidth();
+            final int height = getHeight();
+            if (comments != null || width <= 0 || height == 0) {
+                try {
+                    mNextCanvasBmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                } catch (OutOfMemoryError e) {
+                    // XXX really catch oom here?
+                    Log.e(TAG, "Out of memory during avatar refresher bitmap creation");
                 }
 
-                if (Thread.currentThread().isInterrupted()) {
-                    mNextCanvasBmp.recycle();
-                } else {
-                    if (!mUIHandler.hasMessages(AVATARS_REFRESHED)) {
-                        Message msg = mUIHandler.obtainMessage(AVATARS_REFRESHED);
-                        PlayerAvatarBar.this.mUIHandler.sendMessageDelayed(msg, 200);
+                if (mNextCanvasBmp != null && !mNextCanvasBmp.isRecycled()) {
+                    Canvas canvas = new Canvas(mNextCanvasBmp);
+                    for (Comment comment : comments) {
+                        if (Thread.currentThread().isInterrupted()) break;
+                        if (comment.timestamp == 0) continue;
+                        drawCommentOnCanvas(comment, canvas, mLinePaint, mImagePaint, mBgMatrix);
                     }
 
+                    if (Thread.currentThread().isInterrupted()) {
+                        mNextCanvasBmp.recycle();
+                    } else {
+                        if (!mUIHandler.hasMessages(AVATARS_REFRESHED)) {
+                            Message msg = mUIHandler.obtainMessage(AVATARS_REFRESHED);
+                            PlayerAvatarBar.this.mUIHandler.sendMessageDelayed(msg, 200);
+                        }
+
+                    }
                 }
             }
         }
