@@ -243,9 +243,9 @@ public class PlayerTrackPager extends ViewPager {
         @Override
         public Object instantiateItem(View collection, int position) {
             final View v = (mViews == null || position >= mViews.size()) ?
-                    View.inflate(getContext(), R.layout.empty_player, null) : mViews.get(position)
+                    View.inflate(getContext(), R.layout.empty_player, null) : mViews.get(position);
             ((ViewPager) collection).addView(v);
-            return mViews.get(position);
+            return v;
         }
 
         @Override
