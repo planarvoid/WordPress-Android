@@ -19,6 +19,8 @@ import static java.lang.StrictMath.max;
 
 public class StatsView extends View {
     private final Paint textPaint;
+    private final int mTextColor, mPressedColor;
+
     private final Drawable mPlaysIcon, mLikesIcon, mLikedIcon, mRepostsIcon, mRepostedIcon, mCommentsIcon, mSeparator;
     private final int mPlayIconOffset, mLikesIconOffset, mRepostsIconOffset, mCommentsIconOffset;
     private final int mItemPadding, mSeparatorWidth;
@@ -42,11 +44,6 @@ public class StatsView extends View {
     }
 
     {
-        textPaint = new Paint();
-        textPaint.setColor(Color.BLACK);
-        textPaint.setStyle(Paint.Style.FILL);
-        textPaint.setTextSize(23);
-
         Resources r = getResources();
 
         mPlaysIcon    = r.getDrawable(R.drawable.ic_stats_plays_states);
@@ -66,6 +63,14 @@ public class StatsView extends View {
         mSeparatorWidth = (int) r.getDimension(R.dimen.stats_view_separator_width);
 
         mFontOffset = (int) r.getDimension(R.dimen.stats_view_font_offset);
+
+        mTextColor    = r.getColor(R.color.listTxtValue);
+        mPressedColor = r.getColor(R.color.listTxtSecondary);
+
+        textPaint = new Paint();
+        textPaint.setColor(mTextColor);
+        textPaint.setStyle(Paint.Style.FILL);
+        textPaint.setTextSize(23);
     }
 
     @Override
@@ -156,7 +161,7 @@ public class StatsView extends View {
             }
         }
 
-        textPaint.setColor(isPressed() ? 0x66FFFFFF : 0xFF828282);
+        textPaint.setColor(isPressed() ? mPressedColor : mTextColor);
 
         if (changed) invalidate();
     }
