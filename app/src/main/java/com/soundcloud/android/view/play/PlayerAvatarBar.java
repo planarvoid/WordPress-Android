@@ -53,6 +53,7 @@ public class PlayerAvatarBar extends View {
     private Bitmap mDefaultAvatar;
 
     private ImageLoader mBitmapLoader;
+    private Consts.GraphicSize mAvatarGraphicsSize;
 
     private Context mContext;
     private boolean mLandscape;
@@ -62,6 +63,14 @@ public class PlayerAvatarBar extends View {
 
         mContext = context;
         mBitmapLoader = ImageLoader.get(context.getApplicationContext());
+
+        if (ImageUtils.isScreenXL(mContext)) {
+            mAvatarGraphicsSize= Consts.GraphicSize.LARGE;
+        } else {
+            mAvatarGraphicsSize = mContext.getResources().getDisplayMetrics().density > 1 ?
+                    Consts.GraphicSize.BADGE :
+                    Consts.GraphicSize.SMALL;
+        }
 
         mImagePaint = new Paint();
         mImagePaint.setAntiAlias(false);
@@ -89,17 +98,6 @@ public class PlayerAvatarBar extends View {
             mTargetSize = Consts.GraphicSize.BADGE;
             mAvatarWidth = (int) (AVATAR_WIDTH * mDensity);
         }
-    }
-
-    public static Consts.GraphicSize getAvatarBarGraphicSize(Context c) {
-        if (ImageUtils.isScreenXL(c)) {
-            return Consts.GraphicSize.LARGE;
-        } else {
-            return c.getResources().getDisplayMetrics().density > 1 ?
-                    Consts.GraphicSize.BADGE :
-                    Consts.GraphicSize.SMALL;
-        }
-
     }
 
     public int getAvatarWidth(){
@@ -159,7 +157,7 @@ public class PlayerAvatarBar extends View {
     private void loadAvatar(final Comment c){
         if (c == null || !c.shouldLoadIcon()) return;
 
-        ImageUtils.getBitmapSubstitute(mContext, c.user.avatar_url, getAvatarBarGraphicSize(mContext), new BitmapCallback() {
+        ImageLoader.get(mContext).getBitmap(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new BitmapCallback() {
             @Override
             public void onImageLoaded(Bitmap bitmap, String uri) {
                 c.avatar = bitmap;

@@ -2,7 +2,7 @@
 <resources>
 
     <style name="Theme.Next" parent="@style/Theme.Sherlock.Light.DarkActionBar">
-        <item name="android:windowBackground">@color/main_menu_bg</item>
+        <item name="android:windowBackground">@color/white</item>
 
         <item name="actionBarItemBackground">@drawable/action_bar_item_selector</item>
         <item name="android:actionBarItemBackground">@drawable/action_bar_item_selector</item>
@@ -59,6 +59,7 @@
 
     <style name="Theme.ScMenu" parent="Theme.Next">
         <item name="android:textColor">@drawable/txt_light_states</item>
+        <item name="android:background">@color/main_menu_bg</item>
     </style>
 
     <style name="Theme.ScAuth" parent="Theme.Next.NoActionBar">

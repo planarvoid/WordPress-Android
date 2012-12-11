@@ -54,6 +54,7 @@ public class PlayerTrackView extends LinearLayout implements
     private ScPlayer mPlayer;
 
     private ImageView mArtwork, mAvatar;
+    private FrameLayout mArtworkHolder;
     private ImageLoader.BindResult mCurrentArtBindResult;
 
     private WaveformController mWaveformController;
@@ -102,8 +103,10 @@ public class PlayerTrackView extends LinearLayout implements
         mTrackInfoBar.addTextShadows();
         mArtwork = (ImageView) findViewById(R.id.artwork);
         if (mArtwork != null) {
-            mArtwork.setVisibility(View.INVISIBLE);
+            mArtworkHolder = (FrameLayout) mArtwork.getParent();
+            showDefaultArtwork();
             mArtwork.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
             mLandscape = false;
         } else {
             mLandscape = true;
@@ -286,7 +289,7 @@ public class PlayerTrackView extends LinearLayout implements
         ImageLoader.get(getContext()).unbind(mArtwork);
         if (TextUtils.isEmpty(mTrack.getArtwork())) {
             // no artwork
-            mArtwork.setVisibility(View.INVISIBLE);
+            showDefaultArtwork();
         } else {
             // executeAppendTask artwork as necessary
             if ((mCurrentArtBindResult = ImageUtils.loadImageSubstitute(
@@ -306,17 +309,39 @@ public class PlayerTrackView extends LinearLayout implements
                             onArtworkSet(mOnScreen);
                         }
             }, postAtFront ? Options.postAtFront() : new Options())) != ImageLoader.BindResult.OK) {
-                mArtwork.setVisibility(View.INVISIBLE);
+                showDefaultArtwork();
             } else {
                 onArtworkSet(false);
             }
         }
     }
 
-     private void onArtworkSet(boolean animate) {
-        if (mArtwork.getVisibility() == View.INVISIBLE || mArtwork.getVisibility() == View.GONE) {
-            if (animate) AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
-            mArtwork.setVisibility(View.VISIBLE);
+    private void showDefaultArtwork() {
+        if (mArtwork != null) {
+            mArtwork.setImageDrawable(null);
+            mArtworkHolder.setBackgroundResource(R.drawable.artwork_player);
+        }
+    }
+
+    private void onArtworkSet(boolean animate) {
+        if (animate) {
+            AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
+            mArtwork.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    if (animation == mArtwork.getAnimation()) mArtworkHolder.setBackgroundDrawable(null);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+                }
+            });
+        } else {
+            mArtworkHolder.setBackgroundDrawable(null);
         }
     }
 
@@ -701,7 +726,7 @@ public class PlayerTrackView extends LinearLayout implements
     public void clear() {
         mOnScreen = false;
         onStop(true);
-        if (mArtwork != null) mArtwork.setImageBitmap(null);
+        showDefaultArtwork();
         mAvatar.setImageBitmap(null);
         mWaveformController.reset(true);
         mWaveformController.setOnScreen(false);
