@@ -185,7 +185,7 @@
         <activity android:name=".activity.ScPlayer"
                   android:windowSoftInputMode="adjustPan"
                   android:launchMode="singleTask"
-                  android:theme="@style/Theme.ScDark">
+                  android:theme="@style/Theme.Next.Dark">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.PLAYER"/>
                 <category android:name="android.intent.category.DEFAULT"/>

@@ -40,7 +40,6 @@
         <item name="spinnerItemStyle">@style/next_SpinnerItem</item>
         <item name="android:spinnerItemStyle">@style/next_SpinnerItem</item>-->
 
-        <item name="ptrLoadingProgressStyle">@style/ScProgressBarHolo</item>
         <item name="ptrAnimationStyle">flip</item>
 
         <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
@@ -53,7 +52,7 @@
     <style name="Theme.Next.NoActionBar" parent="Theme.Sherlock.NoActionBar"/>
     <style name="Theme.ScDialog" parent="android:Theme.Dialog"/>
 
-    <style name="Theme.ScDark" parent="Theme.Next">
+    <style name="Theme.Next.Dark" parent="Theme.Next">
         <item name="android:windowBackground">@color/darkBg</item>
     </style>
 

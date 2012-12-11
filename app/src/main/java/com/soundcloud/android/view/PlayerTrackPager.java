@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Track;
@@ -236,13 +237,14 @@ public class PlayerTrackPager extends ViewPager {
     private PagerAdapter mPageViewAdapter = new PagerAdapter() {
         @Override
         public int getCount() {
-            return mViews.size();
+            return mViews == null || mViews.isEmpty() ? 1  : mViews.size();
         }
 
         @Override
         public Object instantiateItem(View collection, int position) {
-            if (mViews.size() == 0) return null;
-            ((ViewPager) collection).addView(mViews.get(position));
+            final View v = (mViews == null || position >= mViews.size()) ?
+                    View.inflate(getContext(), R.layout.empty_player, null) : mViews.get(position)
+            ((ViewPager) collection).addView(v);
             return mViews.get(position);
         }
 
