@@ -3,8 +3,6 @@ package com.soundcloud.android.view.tour;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static java.lang.Math.max;
 
-import android.os.Handler;
-import com.integralblue.httpresponsecache.compat.java.util.Arrays;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -13,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Display;
@@ -100,12 +99,7 @@ public class TourLayout extends FrameLayout {
 
     public static void load(final Context context, TourLayout... layouts) {
         if (layouts == null || layouts.length == 0) throw new IllegalArgumentException();
-
-        try {
-            loadAsync(context, layouts);
-        } catch (Exception ignored) {
-            Log.w(TAG, ignored);
-        }
+        loadAsync(context, layouts);
     }
 
     private static AsyncTask loadAsync(final Context context, TourLayout... layouts) {
@@ -114,12 +108,20 @@ public class TourLayout extends FrameLayout {
             protected Void doInBackground(TourLayout... layouts) {
                 for (TourLayout layout : layouts) {
                     Point size = layout.getDisplaySize();
-                    Bitmap bitmap = ImageUtils.decodeSampledBitmapFromResource(
-                            context.getResources(),
-                            layout.mBgResId,
-                            size.x,
-                            size.y
-                    );
+                    Bitmap bitmap = null;
+                    // try / catch mostly for OOM of the huge images, but who knows really
+                    try {
+                        bitmap = ImageUtils.decodeSampledBitmapFromResource(
+                                context.getResources(),
+                                layout.mBgResId,
+                                size.x,
+                                size.y
+                        );
+                    } catch (Error ignored) { // will catch OOM
+                        Log.w(TAG, ignored);
+                    } catch (Exception ignored) {
+                        Log.w(TAG, ignored);
+                    }
                     publishProgress(Pair.create(layout, bitmap));
                 }
                 return null;
