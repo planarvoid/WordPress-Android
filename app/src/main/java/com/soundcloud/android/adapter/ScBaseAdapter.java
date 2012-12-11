@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.support.v4.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 
 import java.util.ArrayList;
@@ -103,6 +104,8 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     @Override
     public long getItemId(int position) {
+        if (position >= mData.size()) return AdapterView.INVALID_ROW_ID;
+
         Object o = getItem(position);
         if (o instanceof ScModel && ((ScModel) o).getListItemId() != -1) {
             return ((ScModel) o).getListItemId();
