@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Layout;
@@ -45,6 +46,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
 
+import java.lang.ref.SoftReference;
 import java.util.List;
 
 public class PlayerTrackView extends LinearLayout implements
@@ -85,6 +87,8 @@ public class PlayerTrackView extends LinearLayout implements
     private ToggleButton mToggleRepost;
     private ToggleButton mToggleInfo;
     private ImageButton mShareButton;
+
+    private SoftReference<Drawable> mArtworkBgDrawable;
 
     private View mArtworkOverlay;
 
@@ -320,7 +324,16 @@ public class PlayerTrackView extends LinearLayout implements
         if (mArtwork != null) {
             mArtwork.setVisibility(View.GONE);
             mArtwork.setImageDrawable(null);
-            mArtworkHolder.setBackgroundResource(R.drawable.artwork_player);
+            if (mArtworkBgDrawable == null || mArtworkBgDrawable.get() == null){
+                try {
+                    mArtworkBgDrawable = new SoftReference<Drawable>(getResources().getDrawable(R.drawable.artwork_player));
+                } catch (OutOfMemoryError e){}
+            }
+        }
+        if (mArtworkBgDrawable == null || mArtworkBgDrawable.get() == null) {
+            mArtwork.setBackgroundColor(0xFFFFFFFF);
+        } else {
+            mArtworkHolder.setBackgroundDrawable(mArtworkBgDrawable.get());
         }
     }
 
