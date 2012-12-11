@@ -178,19 +178,13 @@ public class TrackInfoBar extends LazyRow {
         }
 
         if (showFullStats){
-            mStatsView.setPlays(track.playback_count);
-            mStatsView.setLikes(track.likes_count);
-            mStatsView.setResposts(track.reposts_count);
-            mStatsView.setComments(track.comment_count);
+            mStatsView.updateWithTrack(track);
         } else {
             mStatsView.setPlays(track.playback_count);
             mStatsView.setLikes(0);
             mStatsView.setResposts(0);
             mStatsView.setComments(0);
         }
-
-        mStatsView.setLiked(track.user_like);
-        mStatsView.setReposted(track.user_repost);
 
         setTitle(false);
 

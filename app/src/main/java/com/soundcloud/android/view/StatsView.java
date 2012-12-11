@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Launch;
+import com.soundcloud.android.model.Track;
 
 import java.util.ArrayList;
 
@@ -172,6 +173,16 @@ public class StatsView extends View {
 
     public void setTypeface(Typeface typeface) {
         textPaint.setTypeface(typeface);
+    }
+
+    public void updateWithTrack(Track track) {
+        mPlays    = track.playback_count;
+        mLikes    = track.likes_count;
+        mResposts = track.reposts_count;
+        mComments = track.comment_count;
+
+        mReposted = track.user_repost;
+        mLiked    = track.user_like;
     }
 
     public int getPlays() {
