@@ -59,7 +59,8 @@ public class AssociationManager {
         Intent intent = new Intent(Sound.ACTION_TRACK_ASSOCIATION_CHANGED)
                 .putExtra(CloudPlaybackService.BroadcastExtras.id, sound.id)
                 .putExtra(CloudPlaybackService.BroadcastExtras.isRepost, sound.user_repost)
-                .putExtra(CloudPlaybackService.BroadcastExtras.isLike, sound.user_like);
+                .putExtra(CloudPlaybackService.BroadcastExtras.isLike, sound.user_like)
+                .putExtra(CloudPlaybackService.BroadcastExtras.isSupposedToBePlaying, CloudPlaybackService.getState().isSupposedToBePlaying());
 
         mContext.sendBroadcast(intent);
         PlayerAppWidgetProvider.getInstance().notifyChange(mContext, intent);

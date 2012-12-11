@@ -15,9 +15,6 @@ import android.widget.RelativeLayout;
 import java.util.List;
 
 public class WaveformCommentLines extends View {
-
-    private static final String TAG = "WaveformHolder";
-
     private Paint mPaint;
     private Paint mActiveLinePaint;
 
@@ -63,7 +60,6 @@ public class WaveformCommentLines extends View {
                 if (comment.xPos == -1) comment.calculateXPos(getWidth(), mDuration);
             }
         }
-
     }
 
     @Override
@@ -79,6 +75,4 @@ public class WaveformCommentLines extends View {
             canvas.drawLine(mCurrentComment.xPos, 0, mCurrentComment.xPos, getHeight(), mActiveLinePaint);
         }
     }
-
-
 }
