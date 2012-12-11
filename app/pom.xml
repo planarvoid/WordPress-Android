@@ -138,7 +138,7 @@
         <dependency>
             <groupId>com.actionbarsherlock</groupId>
             <artifactId>actionbarsherlock</artifactId>
-            <version>4.2.0</version>
+            <version>4.2.0-SOUNDCLOUD</version>
             <type>apklib</type>
             <scope>compile</scope>
         </dependency>
