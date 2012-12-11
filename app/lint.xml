@@ -19,8 +19,25 @@
     <!-- should probably re-enable later once more important things are fixed -->
     <issue id="ContentDescription" severity="ignore"/>
 
-
     <issue id="NewApi" severity="error"/>
+
+    <issue id="NewApi">
+      <ignore path="target/classes/com/viewpagerindicator/IcsLinearLayout.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/app/ActionBarImpl$1.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/ActionBarSherlockNative.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/ActionBarSherlockNative$ActionModeWrapper.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/app/ActionBarWrapper.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/app/ActionBarWrapper$TabWrapper.class"/>
+      <itnore path="target/classes/com/actionbarsherlock/internal/nineoldandroids/widget/NineLinearLayout.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/view/ActionProviderWrapper.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/view/menu/ActionMenuItemView.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/view/menu/MenuItemWrapper.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/view/menu/ActionMenuPresenter$HasPermanentMenuKey.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsAdapterView.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsProgressBar.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/widget/ActionBarView$HomeView.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/widget/SearchView.class"/>
+    </issue>
 
     <issue id="NewApi">
         <!-- make sure these still work on 2.2 -->
