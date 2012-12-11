@@ -52,6 +52,10 @@
     <style name="Theme.Next.NoActionBar" parent="Theme.Sherlock.NoActionBar"/>
     <style name="Theme.ScDialog" parent="android:Theme.Dialog"/>
 
+    <style name="Theme.Next.NoBg" parent="Theme.Next">
+        <item name="android:windowBackground">@null</item>
+    </style>
+
     <style name="Theme.Next.Dark" parent="Theme.Next">
         <item name="android:windowBackground">@color/darkBg</item>
     </style>
