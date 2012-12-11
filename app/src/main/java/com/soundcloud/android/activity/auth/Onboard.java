@@ -88,6 +88,7 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
     @Nullable private User mUser;
 
     private View mTourBottomBar;
+    private View mTourLogo;
 
     private TourLayout[] mTourPages;
 
@@ -106,8 +107,9 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
         mTourBottomBar = findViewById(R.id.tour_bottom_bar);
+        mTourLogo      = findViewById(R.id.tour_logo);
         mViewPager     = (ViewPager) findViewById(R.id.tour_view);
-        mSplash =           findViewById(R.id.splash);
+        mSplash        = findViewById(R.id.splash);
 
         mTourPages = new TourLayout[]{
             new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1),
@@ -628,6 +630,7 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
 
     private void showForegroundViews(boolean animated) {
         showView(mTourBottomBar, animated);
+        showView(mTourLogo,      animated);
 
         for (View view : allChildViewsOf(getCurrentTourLayout())) {
             if (isForegroundView(view)) showView(view, animated);
@@ -636,6 +639,7 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
 
     private void hideForegroundViews(boolean animated) {
         hideView(mTourBottomBar, animated);
+        hideView(mTourLogo,      animated);
 
         for (View view : allChildViewsOf(getCurrentTourLayout())) {
             if (isForegroundView(view)) hideView(view, animated);

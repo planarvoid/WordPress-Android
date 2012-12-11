@@ -12,7 +12,8 @@
 
                                                         android:visibility="gone"/>
 
-        <ImageView android:layout_width="110dp"
+        <ImageView android:id="@+id/tour_logo"
+                   android:layout_width="110dp"
                    android:layout_height="110dp"
                    android:tag="foreground"
                    android:src="@drawable/tour_logo"
