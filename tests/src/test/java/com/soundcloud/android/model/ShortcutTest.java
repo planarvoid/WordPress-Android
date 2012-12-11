@@ -86,4 +86,18 @@ public class ShortcutTest {
         expect(cv.getAsString(DBHelper.Suggestions.KIND)).toEqual("like");
         expect(cv.getAsLong(DBHelper.Suggestions.ID)).toEqual(64629168l);
     }
+
+    @Test
+    public void shouldReturnNullContentValuesWithoutKind() throws Exception {
+        like.kind = null;
+        expect(like.buildContentValues()).toBeNull();
+    }
+
+    @Test
+    public void shouldReturnNullContentValuesWithoutText() throws Exception {
+        like.username = "";
+        like.title = "";
+        like.name = "";
+        expect(like.buildContentValues()).toBeNull();
+    }
 }

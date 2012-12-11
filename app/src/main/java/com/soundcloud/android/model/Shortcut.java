@@ -25,6 +25,11 @@ public class Shortcut extends ScModel {
         final Uri dataUri = getDataUri();
         if (dataUri == null) return null;
 
+        final String text = getText();
+
+        // db constraints
+        if (TextUtils.isEmpty(kind) || TextUtils.isEmpty(text)) return null;
+
         ContentValues cv = new ContentValues();
 
         cv.put(DBHelper.Suggestions.ID,   id);
