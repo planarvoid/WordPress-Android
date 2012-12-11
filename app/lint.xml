@@ -61,6 +61,18 @@
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/ActionBarView$HomeView.class"/>
     </issue>
 
+    <issue id="FloatMath">
+        <ignore path="target/classes/com/actionbarsherlock/internal/nineoldandroids/view/animation/AnimatorProxy.class"/>
+        <ignore path="target/classes/com/viewpagerindicator/LinePageIndicator.class"/>
+        <ignore path="target/classes/com/handmark/pulltorefresh/library/PullToRefreshWebView.class"/>
+        <ignore path="target/classes/com/handmark/pulltorefresh/library/PullToRefreshWebView$InternalWebViewSDK9.class"/>
+    </issue>
+
+    <issue id="DefaultLocale">
+        <ignore path="target/classes/com/actionbarsherlock/internal/widget/CapitalizingButton.class"/>
+        <ignore path="target/classes/com/actionbarsherlock/internal/widget/CapitalizingTextView.class"/>
+    </issue>
+
     <issue id="NewApi">
         <!-- make sure these still work on 2.2 -->
         <ignore path="res/layout/abs__search_view.xml"/>
