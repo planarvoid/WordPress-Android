@@ -6,8 +6,7 @@
               android:orientation="vertical"
               android:gravity="center_horizontal">
 
-    <ImageView android:src="@drawable/empty_collection"
-               android:layout_height="0dp"
+    <ImageView android:layout_height="0dp"
                android:layout_width="fill_parent"
                android:layout_weight="1"
                android:id="@+id/img_1"

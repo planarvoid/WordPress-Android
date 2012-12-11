@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.task.create.NewConnectionTask;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -28,9 +26,10 @@ public class EmptyListView extends RelativeLayout {
 
     @Nullable protected ViewGroup mEmptyLayout;
 
+    private RelativeLayout mEmptyViewHolder;
     private TextView mTxtMessage;
     private TextView mTxtLink;
-    @Nullable private ImageView mImage;
+    @Nullable private ImageView mImage, mError;
     protected Button mBtnAction;
 
     private int     mMessageResource, mLinkResource, mImageResource, mActionTextResource;
@@ -74,6 +73,7 @@ public class EmptyListView extends RelativeLayout {
         ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.empty_list, this);
 
+        mEmptyViewHolder = ((RelativeLayout) findViewById(R.id.empty_view_holder));
         mProgressBar = (ProgressBar) findViewById(R.id.list_loading);
     }
 
@@ -84,6 +84,7 @@ public class EmptyListView extends RelativeLayout {
                 case Mode.WAITING_FOR_DATA:
                     mProgressBar.setVisibility(View.VISIBLE);
                     if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
+                    if (mError != null) mError.setVisibility(View.GONE);
                     return true;
 
                 case Mode.IDLE:
@@ -92,14 +93,8 @@ public class EmptyListView extends RelativeLayout {
                     return true;
 
                 case Mode.ERROR:
-                    showEmptyLayout(false);
                     mProgressBar.setVisibility(View.GONE);
-                    mTxtMessage.setVisibility(View.GONE);
-                    mBtnAction.setVisibility(View.GONE);
-                    mTxtLink.setVisibility(View.GONE);
-                    if (mImage != null) {
-                        mImage.setImageResource(R.drawable.empty_connection);
-                    }
+                    showError();
                     return true;
             }
             return false;
@@ -107,19 +102,25 @@ public class EmptyListView extends RelativeLayout {
         return true;
     }
 
-    protected void showEmptyLayout() {
-        showEmptyLayout(true);
+    private void showError(){
+        if (mError == null) {
+            mError = (ImageView) View.inflate(getContext(), R.layout.empty_list_error, null);
+        }
+        mEmptyViewHolder.addView(mError);
+
+        if (mEmptyLayout != null && mEmptyLayout.getParent().equals(mEmptyViewHolder)) {
+            mEmptyLayout.removeView(mEmptyLayout);
+        }
     }
 
-    protected void showEmptyLayout(boolean setValues) {
+    protected void showEmptyLayout() {
         if (mEmptyLayout == null){
             mEmptyLayout = (ViewGroup) View.inflate(getContext(), getEmptyViewLayoutId(), null);
 
             final RelativeLayout.LayoutParams params =
                     new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
-            ((RelativeLayout) findViewById(R.id.empty_view_holder))
-                    .addView(mEmptyLayout, params);
+            mEmptyViewHolder.addView(mEmptyLayout, params);
 
             mTxtMessage = (TextView) findViewById(R.id.txt_message);
             mTxtLink = (TextView) findViewById(R.id.txt_link);
@@ -142,25 +143,26 @@ public class EmptyListView extends RelativeLayout {
                 }
             });
 
+            // set values
+            if (TextUtils.isEmpty(mMessage)) {
+                setMessageText(mMessageResource);
+            } else {
+                setMessageText(mMessage);
+            }
+            setSecondaryText(mLinkResource);
+            setActionText(mActionTextResource);
+            if (mImage != null) {
+                setImage(mImageResource);
+            }
+
         } else {
             mEmptyLayout.setVisibility(View.VISIBLE);
         }
-        if (setValues) setEmptyValues();
-    }
 
-    private void setEmptyValues() {
-        if (TextUtils.isEmpty(mMessage)) {
-            setMessageText(mMessageResource);
-        } else {
-            setMessageText(mMessage);
+
+        if (mError != null && mError.getParent().equals(mEmptyViewHolder)) {
+            mEmptyViewHolder.removeView(mError);
         }
-        setSecondaryText(mLinkResource);
-        setActionText(mActionTextResource);
-        if (mImage != null) {
-            setImage(mImageResource);
-        }
-
-
     }
 
     protected int getEmptyViewLayoutId() {

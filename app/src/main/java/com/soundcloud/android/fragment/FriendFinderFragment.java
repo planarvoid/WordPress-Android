@@ -110,15 +110,15 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
         if (mEmptyListView != null) {
             switch (mCurrentState) {
                 case States.LOADING:
-                    mEmptyListView.setMode(EmptyListView.Mode.WAITING_FOR_DATA);
+                    setEmptyMode(EmptyListView.Mode.WAITING_FOR_DATA);
                     break;
 
                 case States.CONNECTION_ERROR:
-                    mEmptyListView.setMode(FriendFinderEmptyCollection.FriendFinderMode.CONNECTION_ERROR);
+                    setEmptyMode(FriendFinderEmptyCollection.FriendFinderMode.CONNECTION_ERROR);
                     break;
 
                 case States.NO_FB_CONNECTION:
-                    mEmptyListView.setMode(FriendFinderEmptyCollection.FriendFinderMode.NO_CONNECTIONS);
+                    setEmptyMode(FriendFinderEmptyCollection.FriendFinderMode.NO_CONNECTIONS);
                     break;
 
                 case States.FB_CONNECTION:
