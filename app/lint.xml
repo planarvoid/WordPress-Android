@@ -26,10 +26,11 @@
     <issue id="NewApi">
       <ignore path="target/classes/com/viewpagerindicator/IcsLinearLayout.class"/>
       <ignore path="target/classes/com/actionbarsherlock/widget/SearchView.class"/>
-      <ignore path="target/classes/com/actionbarsherlock/internal/app/SherlockActivity.class"/>
-      <ignore path="target/classes/com/actionbarsherlock/internal/app/SherlockExpandableListActivity.class"/>
-      <ignore path="target/classes/com/actionbarsherlock/internal/app/SherlockListActivity.class"/>
-      <ignore path="target/classes/com/actionbarsherlock/internal/app/SherlockPreferenceActivity.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/app/SherlockActivity.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/app/SherlockExpandableListActivity.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/app/SherlockListActivity.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/app/SherlockPreferenceActivity.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/widget/ActivityChooserView$SetActivated.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/app/ActionBarWrapper.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/app/ActionBarImpl.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/app/ActionBarImpl$1.class"/>
@@ -52,12 +53,12 @@
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/CapitalizingButton.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/CapitalizingTextView.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsAbsSpinner.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsLinearLayout.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsListPopupWindow.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/ScrollingTabContainerView.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsAdapterView.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsProgressBar.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/ActionBarView$HomeView.class"/>
-      <ignore path="target/classes/com/actionbarsherlock/internal/widget/ActivityChooserView$SetActivated.class"/>
     </issue>
 
     <issue id="NewApi">
