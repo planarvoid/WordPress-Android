@@ -19,24 +19,45 @@
     <!-- should probably re-enable later once more important things are fixed -->
     <issue id="ContentDescription" severity="ignore"/>
 
+    <!-- flag NewApi as error -->
     <issue id="NewApi" severity="error"/>
 
+    <!-- ABS + ViewPagerIndicator -->
     <issue id="NewApi">
       <ignore path="target/classes/com/viewpagerindicator/IcsLinearLayout.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/widget/SearchView.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/app/SherlockActivity.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/app/SherlockExpandableListActivity.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/app/SherlockListActivity.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/app/SherlockPreferenceActivity.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/app/ActionBarWrapper.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/app/ActionBarImpl.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/app/ActionBarImpl$1.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/app/ActionBarWrapper$TabWrapper.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/ActionBarSherlockNative.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/ActionBarSherlockNative$ActionModeWrapper.class"/>
-      <ignore path="target/classes/com/actionbarsherlock/internal/app/ActionBarWrapper.class"/>
-      <ignore path="target/classes/com/actionbarsherlock/internal/app/ActionBarWrapper$TabWrapper.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/ActionBarSherlockNative$ActionModeCallbackWrapper.class"/>
+      <itnore path="target/classes/com/actionbarsherlock/internal/nineoldandroids/view/NineViewGroup.class"/>
       <itnore path="target/classes/com/actionbarsherlock/internal/nineoldandroids/widget/NineLinearLayout.class"/>
+      <itnore path="target/classes/com/actionbarsherlock/internal/nineoldandroids/widget/NineFrameLayout.class"/>
+      <itnore path="target/classes/com/actionbarsherlock/internal/nineoldandroids/widget/NineHorizontalScrollView.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/view/ActionProviderWrapper.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/view/menu/ActionMenuItemView.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/view/menu/BaseMenuPresenter.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/view/menu/MenuItemWrapper.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/view/menu/ActionMenuPresenter$HasPermanentMenuKey.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/widget/AbsActionBarView.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/widget/ActionBarContextView.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/widget/ActionBarView.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/widget/CapitalizingButton.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/widget/CapitalizingTextView.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsAbsSpinner.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsListPopupWindow.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/widget/ScrollingTabContainerView.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsAdapterView.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsProgressBar.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/ActionBarView$HomeView.class"/>
-      <ignore path="target/classes/com/actionbarsherlock/widget/SearchView.class"/>
+      <ignore path="target/classes/com/actionbarsherlock/internal/widget/ActivityChooserView$SetActivated.class"/>
     </issue>
 
     <issue id="NewApi">
