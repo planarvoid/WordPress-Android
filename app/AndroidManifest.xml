@@ -49,7 +49,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.landing.Home">
+        <activity android:name=".activity.landing.Home" android:label="@string/side_menu_stream">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.STREAM"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -121,14 +121,14 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.landing.News">
+        <activity android:name=".activity.landing.News" android:label="@string/side_menu_activity">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.ACTIVITY"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.landing.You">
+        <activity android:name=".activity.landing.You" android:label="" android:theme="@style/Theme.Next.NoBg">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.YOU"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -185,6 +185,7 @@
         <activity android:name=".activity.ScPlayer"
                   android:windowSoftInputMode="adjustPan"
                   android:launchMode="singleTask"
+                  android:label=""
                   android:theme="@style/Theme.Next.NoBg">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.PLAYER"/>
@@ -216,7 +217,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.UserBrowser" android:label="Profile">
+        <activity android:name=".activity.UserBrowser" android:label="" android:theme="@style/Theme.Next.NoBg">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.USER_BROWSER"/>
                 <category android:name="android.intent.category.DEFAULT"/>
