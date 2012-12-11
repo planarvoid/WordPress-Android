@@ -318,30 +318,35 @@ public class PlayerTrackView extends LinearLayout implements
 
     private void showDefaultArtwork() {
         if (mArtwork != null) {
+            mArtwork.setVisibility(View.GONE);
             mArtwork.setImageDrawable(null);
             mArtworkHolder.setBackgroundResource(R.drawable.artwork_player);
         }
     }
 
     private void onArtworkSet(boolean animate) {
-        if (animate) {
-            AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
-            mArtwork.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                }
+        if (mArtwork.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
+            if (animate) {
+                AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
+                mArtwork.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
 
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    if (animation == mArtwork.getAnimation()) mArtworkHolder.setBackgroundDrawable(null);
-                }
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        if (animation == mArtwork.getAnimation()) mArtworkHolder.setBackgroundDrawable(null);
+                    }
 
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-                }
-            });
-        } else {
-            mArtworkHolder.setBackgroundDrawable(null);
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+                });
+                mArtwork.setVisibility(View.VISIBLE);
+            } else {
+                mArtwork.setVisibility(View.VISIBLE);
+                mArtworkHolder.setBackgroundDrawable(null);
+            }
         }
     }
 
