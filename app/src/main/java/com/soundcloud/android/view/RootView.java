@@ -167,7 +167,7 @@ public class RootView extends ViewGroup {
         mMenu.setSelectedMenuId(selectedMenuId);
 
         mContent = (ViewGroup) findViewById(R.id.content_frame);
-        mContent.setBackground(contentBg);
+        mContent.setBackgroundDrawable(contentBg);
         //mPlayer = findViewById(R.id.player_frame);
 
         mScroller = new Scroller(context,new DecelerateInterpolator());
