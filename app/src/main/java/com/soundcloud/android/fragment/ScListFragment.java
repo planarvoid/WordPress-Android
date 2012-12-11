@@ -300,8 +300,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                         mKeepGoing = true;
                         append(false);
                     }
-                } else if (!isRefreshTaskActive()) {
-                    executeRefreshTask();
+                } else if (!nothingChanged) {
+                    // something was changed by the sync, if we aren't refreshing already, do it
+                    if (!isRefreshTaskActive()) {
+                        executeRefreshTask();
+                    }
                 }
                 break;
             }
