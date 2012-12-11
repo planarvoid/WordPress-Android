@@ -158,7 +158,7 @@ public class MainMenu extends LinearLayout {
     }
 
     private final ContentObserver mObserver = new ContentObserver(new Handler()) {
-        @Override
+        @Override @TargetApi(16)
         public void onChange(boolean selfChange) {
             onChange(selfChange, null);
         }
