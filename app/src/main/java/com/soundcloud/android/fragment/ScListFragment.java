@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.soundcloud.android.R;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Actions;
@@ -329,13 +330,13 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         }
 
         adapter.handleTaskReturnData(data);
-        handleResponseCode(data.responseCode);
+        boolean responseOk = handleResponseCode(data.responseCode);
 
         final boolean notRefreshing = (data.wasRefresh || !isRefreshing()) && !waitingOnInitialSync();
         if (notRefreshing) {
             doneRefreshing();
         } else {
-            configureEmptyView();
+            configureEmptyView(responseOk);
         }
 
         if (adapter.isEmpty() && mKeepGoing){
@@ -417,10 +418,16 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (canAppend()) append(false);
     }
 
-    protected void configureEmptyView(){
+    protected void configureEmptyView() {
+        configureEmptyView(true);
+    }
+
+    private void configureEmptyView(boolean responseOk) {
+        Log.i("asdf","Configure empty view " + responseOk);
         final boolean wait = canAppend() || isRefreshing() || waitingOnInitialSync();
         if (mEmptyListView != null) {
-            mEmptyListView.setMode(wait ? EmptyListView.Mode.WAITING_FOR_DATA : EmptyListView.Mode.IDLE);
+            mEmptyListView.setMode(wait ? EmptyListView.Mode.WAITING_FOR_DATA :
+                    (responseOk ? EmptyListView.Mode.IDLE : EmptyListView.Mode.ERROR));
         }
     }
 
@@ -563,6 +570,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     private boolean handleResponseCode(int responseCode) {
+        Log.i("asdf","Handling response code " + responseCode);
         switch (responseCode) {
             case HttpStatus.SC_CONTINUE: // do nothing
             case HttpStatus.SC_OK: // do nothing
@@ -576,6 +584,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 }
                 //noinspection fallthrough
             default:
+                mEmptyListView.setImage(R.drawable.empty_connection)
+                                            .setActionText(-1);
                 Log.w(TAG, "unexpected responseCode " + responseCode);
                 return false;
         }

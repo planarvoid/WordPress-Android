@@ -43,6 +43,7 @@ public class EmptyListView extends RelativeLayout {
     public interface Mode {
         int WAITING_FOR_DATA = 1;
         int IDLE = 2;
+        int ERROR = 3;
     }
 
     public EmptyListView(final Context context, final Intent... intents) {
@@ -89,6 +90,17 @@ public class EmptyListView extends RelativeLayout {
                     mProgressBar.setVisibility(View.GONE);
                     showEmptyLayout();
                     return true;
+
+                case Mode.ERROR:
+                    showEmptyLayout(false);
+                    mProgressBar.setVisibility(View.GONE);
+                    mTxtMessage.setVisibility(View.GONE);
+                    mBtnAction.setVisibility(View.GONE);
+                    mTxtLink.setVisibility(View.GONE);
+                    if (mImage != null) {
+                        mImage.setImageResource(R.drawable.empty_connection);
+                    }
+                    return true;
             }
             return false;
         }
@@ -96,6 +108,10 @@ public class EmptyListView extends RelativeLayout {
     }
 
     protected void showEmptyLayout() {
+        showEmptyLayout(true);
+    }
+
+    protected void showEmptyLayout(boolean setValues) {
         if (mEmptyLayout == null){
             mEmptyLayout = (ViewGroup) View.inflate(getContext(), getEmptyViewLayoutId(), null);
 
@@ -106,31 +122,17 @@ public class EmptyListView extends RelativeLayout {
                     .addView(mEmptyLayout, params);
 
             mTxtMessage = (TextView) findViewById(R.id.txt_message);
-            if (TextUtils.isEmpty(mMessage)){
-                setMessageText(mMessageResource);
-            } else {
-                setMessageText(mMessage);
-            }
-
             mTxtLink = (TextView) findViewById(R.id.txt_link);
-            setSecondaryText(mLinkResource);
-
             mBtnAction = (Button) findViewById(R.id.btn_action);
-            setActionText(mActionTextResource);
-
             mImage = (ImageView) findViewById(R.id.img_1);
-            if (mImage != null) {
-                mImage.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (mImageActionListener != null) {
-                            mImageActionListener.onAction();
-                        }
+            mImage.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mImageActionListener != null) {
+                        mImageActionListener.onAction();
                     }
-                });
-                setImage(mImageResource);
-            }
-
+                }
+            });
             mBtnAction.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -139,9 +141,26 @@ public class EmptyListView extends RelativeLayout {
                     }
                 }
             });
+
         } else {
             mEmptyLayout.setVisibility(View.VISIBLE);
         }
+        if (setValues) setEmptyValues();
+    }
+
+    private void setEmptyValues() {
+        if (TextUtils.isEmpty(mMessage)) {
+            setMessageText(mMessageResource);
+        } else {
+            setMessageText(mMessage);
+        }
+        setSecondaryText(mLinkResource);
+        setActionText(mActionTextResource);
+        if (mImage != null) {
+            setImage(mImageResource);
+        }
+
+
     }
 
     protected int getEmptyViewLayoutId() {
@@ -149,6 +168,7 @@ public class EmptyListView extends RelativeLayout {
     }
 
     public EmptyListView setImage(int imageId){
+        mImageResource = imageId;
         if (mImage != null){
             if (imageId > 0){
                 mImage.setVisibility(View.VISIBLE);
@@ -156,14 +176,13 @@ public class EmptyListView extends RelativeLayout {
             } else {
                 mImage.setVisibility(View.GONE);
             }
-        } else {
-            mImageResource = imageId;
         }
-
         return this;
     }
 
     public EmptyListView setMessageText(int messageId){
+        mMessageResource = messageId;
+        mMessage = null;
         if (mTxtMessage != null) {
             if (messageId > 0) {
                 mTxtMessage.setText(messageId);
@@ -171,14 +190,13 @@ public class EmptyListView extends RelativeLayout {
             } else {
                 mTxtMessage.setVisibility(View.GONE);
             }
-        } else {
-            mMessageResource = messageId;
-            mMessage = null;
         }
         return this;
     }
 
     public EmptyListView setMessageText(String s) {
+        mMessage = s;
+        mMessageResource = -1;
         if (mTxtMessage != null) {
             if (!TextUtils.isEmpty(s)) {
                 mTxtMessage.setText(s);
@@ -186,14 +204,12 @@ public class EmptyListView extends RelativeLayout {
             } else {
                 mTxtMessage.setVisibility(View.GONE);
             }
-        } else {
-            mMessage = s;
-            mMessageResource = -1;
         }
         return this;
     }
 
     public EmptyListView setSecondaryText(int secondaryTextId) {
+        mLinkResource = secondaryTextId;
         if (mTxtLink != null) {
             if (secondaryTextId > 0) {
                 mTxtLink.setText(secondaryTextId);
@@ -209,13 +225,12 @@ public class EmptyListView extends RelativeLayout {
             } else {
                 mTxtLink.setVisibility(View.GONE);
             }
-        } else {
-            mLinkResource = secondaryTextId;
         }
         return this;
     }
 
     public EmptyListView setActionText(int textId){
+        mActionTextResource = textId;
         if (mBtnAction != null){
             if (textId > 0){
                 mBtnAction.setVisibility(View.VISIBLE);
@@ -223,8 +238,6 @@ public class EmptyListView extends RelativeLayout {
             } else {
                 mBtnAction.setVisibility(View.INVISIBLE);
             }
-        } else {
-            mActionTextResource = textId;
         }
         return this;
     }
