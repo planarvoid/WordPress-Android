@@ -1,6 +1,7 @@
 package com.soundcloud.android.view;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -18,9 +19,10 @@ import static java.lang.StrictMath.max;
 
 public class StatsView extends View {
     private final Paint textPaint;
-    private final Drawable mPlaysIcon, mLikesIcon, mRepostsIcon, mCommentsIcon, mSeparator;
-
-    private final int mItemPadding;
+    private final Drawable mPlaysIcon, mLikesIcon, mLikedIcon, mRepostsIcon, mRepostedIcon, mCommentsIcon, mSeparator;
+    private final int mPlayIconOffset, mLikesIconOffset, mRepostsIconOffset, mCommentsIconOffset;
+    private final int mItemPadding, mSeparatorWidth;
+    private final int mFontOffset;
 
     private int mPlays, mLikes, mResposts, mComments;
 
@@ -45,13 +47,25 @@ public class StatsView extends View {
         textPaint.setStyle(Paint.Style.FILL);
         textPaint.setTextSize(23);
 
-        mPlaysIcon    = getResources().getDrawable(R.drawable.ic_stats_plays_states);
-        mLikesIcon    = getResources().getDrawable(R.drawable.ic_stats_likes_states);
-        mRepostsIcon  = getResources().getDrawable(R.drawable.ic_stats_reposts_states);
-        mCommentsIcon = getResources().getDrawable(R.drawable.ic_stats_comments_states);
-        mSeparator    = getResources().getDrawable(R.drawable.stat_divider);
+        Resources r = getResources();
 
-        mItemPadding = (int) (6 * getContext().getResources().getDisplayMetrics().density);
+        mPlaysIcon    = r.getDrawable(R.drawable.ic_stats_plays_states);
+        mLikesIcon    = r.getDrawable(R.drawable.ic_stats_likes_states);
+        mLikedIcon    = r.getDrawable(R.drawable.ic_stats_liked_states);
+        mRepostsIcon  = r.getDrawable(R.drawable.ic_stats_reposts_states);
+        mRepostedIcon = r.getDrawable(R.drawable.ic_stats_reposted_states);
+        mCommentsIcon = r.getDrawable(R.drawable.ic_stats_comments_states);
+        mSeparator    = r.getDrawable(R.drawable.stat_divider);
+
+        mPlayIconOffset     = (int) r.getDimension(R.dimen.stats_view_play_icon_offset);
+        mLikesIconOffset    = (int) r.getDimension(R.dimen.stats_view_likes_icon_offset);
+        mRepostsIconOffset  = (int) r.getDimension(R.dimen.stats_view_reposts_icon_offset);
+        mCommentsIconOffset = (int) r.getDimension(R.dimen.stats_view_comments_icon_offset);
+
+        mItemPadding    = (int) r.getDimension(R.dimen.stats_view_item_padding);
+        mSeparatorWidth = (int) r.getDimension(R.dimen.stats_view_separator_width);
+
+        mFontOffset = (int) r.getDimension(R.dimen.stats_view_font_offset);
     }
 
     @Override
@@ -69,7 +83,7 @@ public class StatsView extends View {
             String   string = Integer.toString(counts[i]);
 
             if (hasDrawn) {
-                width += 2;
+                width += mSeparatorWidth;
                 width += mItemPadding;
             }
 
@@ -86,14 +100,18 @@ public class StatsView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        Log.d("robb", "drawing");
+        int[] counts  = {mPlays,          mLikes,           mResposts,          mComments};
+        int[] offsets = {mPlayIconOffset, mLikesIconOffset, mRepostsIconOffset, mCommentsIconOffset};
+
+        Drawable[] icons = {
+            mPlaysIcon,
+            isLiked() ?    mLikedIcon    : mLikesIcon,
+            isReposted() ? mRepostedIcon : mRepostsIcon,
+            mCommentsIcon
+        };
 
         int x = 0;
-
-        int[]      counts   = {mPlays, mLikes, mResposts, mComments};
-        Drawable[] icons    = {mPlaysIcon, mLikesIcon, mRepostsIcon, mCommentsIcon};
-        boolean    hasDrawn = false;
-
+        boolean hasDrawn = false;
         for (int i = 0; i < icons.length; i++) {
             if (counts[i] <= 0) continue;
 
@@ -101,15 +119,15 @@ public class StatsView extends View {
             String   string = Integer.toString(counts[i]);
 
             if (hasDrawn) {
-                mSeparator.setBounds(x, 0, x + 2, getHeight());
+                mSeparator.setBounds(x, 0, x + mSeparatorWidth, getHeight());
                 mSeparator.draw(canvas);
 
-                x += 2;
+                x += mSeparatorWidth;
                 x += mItemPadding;
             }
 
             int iconHeight = icon.getIntrinsicHeight();
-            int iconY      = (getHeight() - iconHeight) / 2;
+            int iconY      = (getHeight() - iconHeight) / 2 + offsets[i];
 
             icon.setBounds(x, iconY, x + icon.getIntrinsicWidth(), iconY + icon.getIntrinsicHeight());
             icon.draw(canvas);
@@ -117,7 +135,7 @@ public class StatsView extends View {
             x += icon.getIntrinsicWidth();
             x += mItemPadding;
 
-            int textY = (int) (getHeight() - (getHeight() - textPaint.getTextSize()) / 2);
+            int textY = (int) (getHeight() - (getHeight() - textPaint.getTextSize()) / 2) + mFontOffset;
 
             canvas.drawText(string, x, textY, textPaint);
             x += textPaint.measureText(string);

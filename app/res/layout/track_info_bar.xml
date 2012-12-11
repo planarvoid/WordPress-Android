@@ -72,7 +72,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_width="0dp"
                     android:paddingTop="3dip"
-                    android:layout_height="20dp">
+                    android:layout_height="16dp">
         <TextView android:id="@+id/private_indicator"
                   android:singleLine="true"
                   android:ellipsize="none"
