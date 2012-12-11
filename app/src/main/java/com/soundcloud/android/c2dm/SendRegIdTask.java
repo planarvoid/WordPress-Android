@@ -17,23 +17,8 @@ import java.io.IOException;
 public class SendRegIdTask extends AsyncApiTask<String,Void, String> {
     private static final String DEVICE_ENDPOINT = "/me/devices";
 
-    private PowerManager.WakeLock lock;
-
-    public SendRegIdTask(AndroidCloudAPI api, PowerManager.WakeLock wakeLock) {
+    public SendRegIdTask(AndroidCloudAPI api) {
         super(api);
-        lock = wakeLock;
-    }
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        if (lock != null) lock.acquire();
-    }
-
-    @Override
-    protected void onPostExecute(String location) {
-        super.onPostExecute(location);
-        if (lock != null) lock.release();
     }
 
     @Override
