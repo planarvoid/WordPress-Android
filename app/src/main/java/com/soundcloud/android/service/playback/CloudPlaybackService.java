@@ -27,7 +27,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.play.PlaybackRemoteViews;
+import com.soundcloud.android.view.play.NotificationPlaybackRemoteViews;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Notification;
@@ -669,7 +669,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
         if (track == null || state == STOPPED ||
                 (Consts.SdkSwitches.useRichNotifications && status != null && status.contentView != null &&
-                    ((PlaybackRemoteViews) status.contentView).isAlreadyNotifying(track, state.isSupposedToBePlaying()))){
+                    ((NotificationPlaybackRemoteViews) status.contentView).isAlreadyNotifying(track, state.isSupposedToBePlaying()))){
             return;
         }
 
@@ -684,10 +684,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         if (!Consts.SdkSwitches.useRichNotifications) {
             notification.setLatestEventInfo(this, track.getUserName(), track.title, pi);
         } else {
-            final PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(),
-                    R.layout.playback_status_v11,
-                    R.drawable.ic_notification_play_states,
-                    R.drawable.ic_notification_pause_states);
+            final NotificationPlaybackRemoteViews view = new NotificationPlaybackRemoteViews(getPackageName());
 
             view.setNotification(track, state.isSupposedToBePlaying());
             view.linkButtonsNotification(this);

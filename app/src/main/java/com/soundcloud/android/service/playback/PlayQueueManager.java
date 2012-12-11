@@ -217,7 +217,7 @@ public class PlayQueueManager {
                     mTrackCursor = cursor;
                     final Track t = getTrackAt(position);
                     // adjust if the track has moved positions
-                    if (t != null && t.id != playingId && mPlayQueueUri.isCollectionUri()) {
+                    if (t != null && t.id != playingId && Content.match(uri).isCollectionItem()) {
                         mPlayPos = getPlayQueuePositionFromUri(mContext.getContentResolver(), uri, playingId);
                     } else {
                         mPlayPos = position;

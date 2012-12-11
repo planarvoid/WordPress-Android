@@ -2,8 +2,10 @@ $ 51
   % v current
   _ 2012-12-11
   ! Next
+    * Fixed widget sizes
     * Removed duplicates from your sounds
-    - Play hit area
+    * Fixed unreliable transport controls
+    * Various bug fixes and optimizations
 
 $ 50
   % v 2.4.1

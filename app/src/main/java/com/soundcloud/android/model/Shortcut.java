@@ -25,6 +25,11 @@ public class Shortcut extends ScModel {
         final Uri dataUri = getDataUri();
         if (dataUri == null) return null;
 
+        final String text = getText();
+
+        // db constraints
+        if (TextUtils.isEmpty(kind) || TextUtils.isEmpty(text)) return null;
+
         ContentValues cv = new ContentValues();
 
         cv.put(DBHelper.Suggestions.ID,   id);
@@ -40,9 +45,9 @@ public class Shortcut extends ScModel {
             cv.put(DBHelper.Suggestions.PERMALINK_URL, permalink_url);
         }
 
-        if (!TextUtils.isEmpty(getText())) {
-            cv.put(DBHelper.Suggestions.COLUMN_TEXT1, getText());
-            cv.put(DBHelper.Suggestions.TEXT, getText());
+        if (!TextUtils.isEmpty(text)) {
+            cv.put(DBHelper.Suggestions.COLUMN_TEXT1, text);
+            cv.put(DBHelper.Suggestions.TEXT, text);
         }
 
         if (dataUri != null) {

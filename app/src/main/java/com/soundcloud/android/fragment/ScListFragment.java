@@ -301,8 +301,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                         mKeepGoing = true;
                         append(false);
                     }
-                } else if (!isRefreshTaskActive()) {
-                    executeRefreshTask();
+                } else if (!nothingChanged) {
+                    // something was changed by the sync, if we aren't refreshing already, do it
+                    if (!isRefreshTaskActive()) {
+                        executeRefreshTask();
+                    }
                 }
                 break;
             }
@@ -311,7 +314,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     @Override
     public void onLocalCollectionChanged() {
-        refreshSyncData();
+        // do not autorefresh me_followings based on observing because this would refresh everytime you use the in list toggles
+        if (mContent != Content.ME_FOLLOWINGS) refreshSyncData();
     }
 
     @Override

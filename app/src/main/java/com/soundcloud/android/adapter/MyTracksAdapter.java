@@ -114,12 +114,6 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
     }
 
     @Override
-    public void clearData() {
-        super.clearData();
-        refreshCursor();
-    }
-
-    @Override
     public int getCount() {
         if (mRecordingData != null) {
             return mRecordingData.size() + super.getCount();
