@@ -9,6 +9,7 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -189,7 +190,7 @@ public class PlayQueueManager {
     }
 
     private AsyncTask loadCursor(final Uri uri, final int position) {
-        return new AsyncTask<Uri,Void,Cursor>() {
+        return new ParallelAsyncTask<Uri,Void,Cursor>() {
             @Override protected Cursor doInBackground(Uri... params) {
                 Cursor cursor = null;
                 try {
@@ -254,7 +255,7 @@ public class PlayQueueManager {
     private void persistPlayQueue() {
         if (mUserId < 0) return;
 
-        new AsyncTask<Void, Void, Void>() {
+        new ParallelAsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
                 List<Track> tracks = new ArrayList<Track>();
