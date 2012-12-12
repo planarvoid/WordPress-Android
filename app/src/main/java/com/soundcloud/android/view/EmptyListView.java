@@ -105,12 +105,11 @@ public class EmptyListView extends RelativeLayout {
     private void showError(){
         if (mError == null) {
             mError = (ImageView) View.inflate(getContext(), R.layout.empty_list_error, null);
+            mEmptyViewHolder.addView(mError);
+        } else {
+            mError.setVisibility(View.VISIBLE);
         }
-        mEmptyViewHolder.addView(mError);
-
-        if (mEmptyLayout != null && mEmptyLayout.getParent().equals(mEmptyViewHolder)) {
-            mEmptyLayout.removeView(mEmptyLayout);
-        }
+        if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
     }
 
     protected void showEmptyLayout() {
@@ -160,9 +159,7 @@ public class EmptyListView extends RelativeLayout {
         }
 
 
-        if (mError != null && mError.getParent().equals(mEmptyViewHolder)) {
-            mEmptyViewHolder.removeView(mError);
-        }
+        if (mError != null) mError.setVisibility(View.GONE);
     }
 
     protected int getEmptyViewLayoutId() {

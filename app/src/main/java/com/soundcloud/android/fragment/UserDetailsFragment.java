@@ -108,12 +108,11 @@ public class UserDetailsFragment extends Fragment {
             if (!mAllowEmpty) {
                 mEmptyInfoView.setMode(EmptyListView.Mode.WAITING_FOR_DATA);
             } else {
-                mEmptyInfoView.setMode(EmptyListView.Mode.IDLE);
                 if (mInfoError) {
-                    mEmptyInfoView.setMessageText(R.string.info_error)
-                            .setImage(R.drawable.empty_connection)
-                            .setActionText(-1);
+                    mEmptyInfoView.setMode(EmptyListView.Mode.ERROR);
+
                 } else {
+                    mEmptyInfoView.setMode(EmptyListView.Mode.IDLE);
                     if (mUserId == SoundCloudApplication.getUserId()) {
                         if (getActivity() != null) {
                             mEmptyInfoView.setMessageText(R.string.info_empty_you_message)
@@ -124,13 +123,14 @@ public class UserDetailsFragment extends Fragment {
                         mEmptyInfoView.setMessageText(R.string.info_empty_other_message)
                                 .setActionText(-1);
                     }
+                    if (getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+                        // won't fit in most landscape views
+                        mEmptyInfoView.setImage(-1);
+                        mEmptyInfoView.setActionText(-1);
+                    }
                 }
 
-                if (getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
-                    // won't fit in most landscape views
-                    mEmptyInfoView.setImage(-1);
-                    mEmptyInfoView.setActionText(-1);
-                }
+
             }
 
             if (mEmptyInfoView.getParent() != mInfoView) {

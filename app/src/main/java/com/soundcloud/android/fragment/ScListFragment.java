@@ -4,7 +4,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.soundcloud.android.R;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Actions;
@@ -244,7 +243,12 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mListView.setEmptyView(mEmptyListView);
 
         if (isRefreshing() || waitingOnInitialSync()){
-            mListView.setRefreshing(false);
+            final ScBaseAdapter listAdapter = getListAdapter();
+            if (listAdapter == null || listAdapter.isEmpty()){
+                configureEmptyView();
+            } else {
+                mListView.setRefreshing(false);
+            }
         }
 
         root.addView(mListView, new FrameLayout.LayoutParams(
@@ -275,11 +279,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (getView() != null && getListView() != null) {
             getListView().setEmptyView(emptyCollection);
         }
-    }
-
-    protected void setEmptyMode(int emptyMode) {
-        mEmptyMode = emptyMode;
-        if (mEmptyListView != null) mEmptyListView.setMode(emptyMode);
     }
 
     @Nullable
@@ -432,11 +431,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     private void configureEmptyView(boolean responseOk) {
-        Log.i("asdf","Configure empty view " + responseOk);
         final boolean wait = canAppend() || isRefreshing() || waitingOnInitialSync();
         if (mEmptyListView != null) {
-            setEmptyMode(wait ? EmptyListView.Mode.WAITING_FOR_DATA :
-                    (responseOk ? EmptyListView.Mode.IDLE : EmptyListView.Mode.ERROR));
+            int emptyMode = wait ? EmptyListView.Mode.WAITING_FOR_DATA :
+                    (responseOk ? EmptyListView.Mode.IDLE : EmptyListView.Mode.ERROR);
+            mEmptyListView.setMode(emptyMode);
         }
     }
 
@@ -447,7 +446,9 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             mRefreshTask = buildTask(context);
             mRefreshTask.execute(getTaskParams(adapter, true));
         }
-        configureEmptyView();
+        if (!mListView.isRefreshing()) {
+            configureEmptyView();
+        }
     }
 
 
