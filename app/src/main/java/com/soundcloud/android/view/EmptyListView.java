@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -29,7 +30,8 @@ public class EmptyListView extends RelativeLayout {
     private RelativeLayout mEmptyViewHolder;
     private TextView mTxtMessage;
     private TextView mTxtLink;
-    @Nullable private ImageView mImage, mError;
+    @Nullable private ImageView mImage;
+    @Nullable private LinearLayout mError;
     protected Button mBtnAction;
 
     private int     mMessageResource, mLinkResource, mImageResource, mActionTextResource;
@@ -104,7 +106,7 @@ public class EmptyListView extends RelativeLayout {
 
     private void showError(){
         if (mError == null) {
-            mError = (ImageView) View.inflate(getContext(), R.layout.empty_list_error, null);
+            mError = (LinearLayout) View.inflate(getContext(), R.layout.empty_list_error, null);
             mEmptyViewHolder.addView(mError);
         } else {
             mError.setVisibility(View.VISIBLE);
