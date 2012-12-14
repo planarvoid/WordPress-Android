@@ -291,6 +291,8 @@
         </activity>
         <activity android:name=".activity.settings.NotificationSettings" android:label="Notifications Settings" android:theme="@style/Theme.Next.Settings" />
         <activity android:name=".activity.settings.About" android:theme="@style/Theme.Next.Settings"/>
+        <activity android:name=".activity.settings.Legal" android:theme="@style/Theme.Next.Settings"/>
+
         <!-- settings -->
 
         <activity android:name=".activity.create.EmailPicker" android:theme="@style/Theme.Next.NoActionBar"/>

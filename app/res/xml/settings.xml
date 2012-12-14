@@ -38,7 +38,7 @@
     <PreferenceCategory
             android:title="@string/pref_connection_and_data">
 
-        <PreferenceScreen
+        <Preference
                 android:key="wireless"
                 android:title="@string/wifi_settings"
                 android:summary="@string/wifi_settings_summary"/>
@@ -86,20 +86,9 @@
                 android:title="@string/legal"
                 android:summary="@string/legal_summary">
 
-            <Preference
-                    android:key="copyright_information"
-                    android:title="@string/copyright_information"
-                    />
-
-            <Preference
-                    android:key="terms_of_service"
-                    android:title="@string/terms_of_service"
-                    />
-
-            <Preference
-                    android:key="privacy_policy"
-                    android:title="@string/privacy_policy"
-                    />
+            <intent android:action="android.intent.action.VIEW"
+                    android:targetPackage="com.soundcloud.android"
+                    android:targetClass="com.soundcloud.android.activity.settings.Legal"/>
         </PreferenceScreen>
     </PreferenceCategory>
 
