@@ -1,51 +1,52 @@
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.model.Track;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Typeface;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Launch;
-import com.soundcloud.android.model.Track;
-
-import java.util.ArrayList;
-
-import static java.lang.StrictMath.max;
 
 public class StatsView extends View {
     private final Paint textPaint;
     private final int mTextColor, mPressedColor;
 
     private final Drawable mPlaysIcon, mLikesIcon, mLikedIcon, mRepostsIcon, mRepostedIcon, mCommentsIcon, mSeparator;
-    private final int mPlayIconOffset, mLikesIconOffset, mRepostsIconOffset, mCommentsIconOffset;
     private final int mItemPadding, mSeparatorWidth;
     private final int mFontOffset;
 
     private int mPlays, mLikes, mResposts, mComments;
+    private Rect mBounds;
 
     private boolean mLiked;
     private boolean mReposted;
 
+    int[] mOffsets;
+
+    @SuppressWarnings("UnusedDeclaration")
     public StatsView(Context context) {
         super(context);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public StatsView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public StatsView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
     {
         Resources r = getResources();
+
+        mBounds = new Rect();
 
         mPlaysIcon    = r.getDrawable(R.drawable.ic_stats_plays_states);
         mLikesIcon    = r.getDrawable(R.drawable.ic_stats_likes_states);
@@ -54,11 +55,6 @@ public class StatsView extends View {
         mRepostedIcon = r.getDrawable(R.drawable.ic_stats_reposted_states);
         mCommentsIcon = r.getDrawable(R.drawable.ic_stats_comments_states);
         mSeparator    = r.getDrawable(R.drawable.stat_divider);
-
-        mPlayIconOffset     = (int) r.getDimension(R.dimen.stats_view_play_icon_offset);
-        mLikesIconOffset    = (int) r.getDimension(R.dimen.stats_view_likes_icon_offset);
-        mRepostsIconOffset  = (int) r.getDimension(R.dimen.stats_view_reposts_icon_offset);
-        mCommentsIconOffset = (int) r.getDimension(R.dimen.stats_view_comments_icon_offset);
 
         mItemPadding    = (int) r.getDimension(R.dimen.stats_view_item_padding);
         mSeparatorWidth = (int) r.getDimension(R.dimen.stats_view_separator_width);
@@ -70,17 +66,31 @@ public class StatsView extends View {
 
         textPaint = new Paint();
         textPaint.setColor(mTextColor);
+        textPaint.setAntiAlias(true );
         textPaint.setStyle(Paint.Style.FILL);
-        textPaint.setTextSize(23);
+        textPaint.setTextSize(r.getDimension(R.dimen.stats_view_item_text_size));
+
+        mOffsets    =   new int[]{
+                (int) r.getDimension(R.dimen.stats_view_play_icon_offset),
+                (int) r.getDimension(R.dimen.stats_view_likes_icon_offset),
+                (int) r.getDimension(R.dimen.stats_view_reposts_icon_offset),
+                (int) r.getDimension(R.dimen.stats_view_comments_icon_offset)
+        };
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = 0;
+        int height = 0;
 
         int[]      counts   = {mPlays, mLikes, mResposts, mComments};
         Drawable[] icons    = {mPlaysIcon, mLikesIcon, mRepostsIcon, mCommentsIcon};
         boolean    hasDrawn = false;
+
+        final int paddingLeft = getPaddingLeft();
+        final int paddingRight = getPaddingRight();
+        final int paddingTop = getPaddingTop();
+        final int paddingBottom = getPaddingBottom();
 
         for (int i = 0; i < icons.length; i++) {
             if (counts[i] <= 0) continue;
@@ -93,22 +103,23 @@ public class StatsView extends View {
                 width += mItemPadding;
             }
 
+            textPaint.getTextBounds(string, 0, string.length(), mBounds);
+
             width += icon.getIntrinsicWidth();
             width += mItemPadding;
-            width += textPaint.measureText(string);
+            width += mBounds.width();
             width += mItemPadding;
 
+            height = Math.max(icon.getIntrinsicHeight() + mOffsets[i], Math.max(height, mBounds.height()));
             hasDrawn = true;
         }
 
-        setMeasuredDimension(width, heightMeasureSpec);
+        setMeasuredDimension(width + paddingLeft + paddingRight, height + paddingTop + paddingBottom);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        int[] counts  = {mPlays,          mLikes,           mResposts,          mComments};
-        int[] offsets = {mPlayIconOffset, mLikesIconOffset, mRepostsIconOffset, mCommentsIconOffset};
-
+        int[] counts   = {mPlays, mLikes, mResposts, mComments};
         Drawable[] icons = {
             mPlaysIcon,
             isLiked() ?    mLikedIcon    : mLikesIcon,
@@ -133,7 +144,7 @@ public class StatsView extends View {
             }
 
             int iconHeight = icon.getIntrinsicHeight();
-            int iconY      = (getHeight() - iconHeight) / 2 + offsets[i];
+            int iconY      = (getHeight() - iconHeight) / 2 + mOffsets[i];
 
             icon.setBounds(x, iconY, x + icon.getIntrinsicWidth(), iconY + icon.getIntrinsicHeight());
             icon.draw(canvas);
@@ -167,14 +178,6 @@ public class StatsView extends View {
         if (changed) invalidate();
     }
 
-    public Typeface getTypeface() {
-        return textPaint.getTypeface();
-    }
-
-    public void setTypeface(Typeface typeface) {
-        textPaint.setTypeface(typeface);
-    }
-
     public void updateWithTrack(Track track) {
         mPlays    = track.playback_count;
         mLikes    = track.likes_count;
@@ -185,32 +188,16 @@ public class StatsView extends View {
         mLiked    = track.user_like;
     }
 
-    public int getPlays() {
-        return mPlays;
-    }
-
     public void setPlays(int plays) {
         mPlays = plays;
-    }
-
-    public int getLikes() {
-        return mLikes;
     }
 
     public void setLikes(int likes) {
         mLikes = likes;
     }
 
-    public int getResposts() {
-        return mResposts;
-    }
-
     public void setResposts(int resposts) {
         mResposts = resposts;
-    }
-
-    public int getComments() {
-        return mComments;
     }
 
     public void setComments(int comments) {
@@ -221,15 +208,7 @@ public class StatsView extends View {
         return mLiked;
     }
 
-    public void setLiked(boolean liked) {
-        mLiked = liked;
-    }
-
     public boolean isReposted() {
         return mReposted;
-    }
-
-    public void setReposted(boolean reposted) {
-        mReposted = reposted;
     }
 }
