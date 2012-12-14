@@ -10,7 +10,7 @@
                android:layout_width="@dimen/list_icon_width"
                android:layout_height="@dimen/list_icon_height"
                android:layout_marginRight="@dimen/list_icon_margin_right"
-               android:background="@drawable/artwork_badge"
+               android:src="@drawable/artwork_badge"
                android:scaleType="centerCrop"/>
 
     <ViewStub android:id="@+id/processing_progress_stub"
