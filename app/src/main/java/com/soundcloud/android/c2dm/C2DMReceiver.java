@@ -116,7 +116,7 @@ public class C2DMReceiver extends BroadcastReceiver {
             final String devUrl = getRegistrationData(context, Consts.PrefKeys.C2DM_DEVICE_URL);
             // make sure there is a server-side device registered
             if (devUrl == null) {
-                sendRegId(context, regId, lock);
+                sendRegId(context, regId);
             } else {
                 // would be good to have a way to make sure the devUrl is still valid -
                 // however me/devices/id only supports POST/DELETE at the moment.
@@ -150,17 +150,24 @@ public class C2DMReceiver extends BroadcastReceiver {
         if (regId != null) {
             // save the reg_id
             setRegistrationData(context, PREF_REG_ID, regId);
-            sendRegId(context, regId, mWakeLock);
+            sendRegId(context, regId);
         } else {
             Log.w(TAG, "received registration intent without id");
         }
     }
 
-    private static AsyncTask<String, Void, String> sendRegId(final Context context, String regId,
-                                                             PowerManager.WakeLock lock) {
+    private static AsyncTask<String, Void, String> sendRegId(final Context context, String regId) {
 
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "sendRegId("+regId+")");
-        return new SendRegIdTask((AndroidCloudAPI) context.getApplicationContext(), lock) {
+
+        final PowerManager.WakeLock lock = makeLock(context);
+        return new SendRegIdTask((AndroidCloudAPI) context.getApplicationContext()) {
+
+            @Override
+            protected void onPreExecute() {
+                lock.acquire();
+            }
+
             @Override
             protected void onPostExecute(String url) {
                 if (url != null) {
@@ -173,6 +180,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                     // mark the current device as unregistered by removing the url key
                     setRegistrationData(context, Consts.PrefKeys.C2DM_DEVICE_URL, null);
                 }
+                lock.release();
             }
         }.execute(regId, AndroidUtils.getPackagename(context), AndroidUtils.getUniqueDeviceID(context));
     }

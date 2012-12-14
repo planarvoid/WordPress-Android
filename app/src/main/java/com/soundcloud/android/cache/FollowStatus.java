@@ -127,16 +127,18 @@ public class FollowStatus {
                     status = (addFollowing ? app.put(request) : app.delete(request)).getStatusLine().getStatusCode();
                     final boolean success;
                     if (addFollowing) {
-                        followedAtStamps.put(u.id, System.currentTimeMillis());
-                        unFollowedAtStamps.remove(u.id);
-
                         // new following or already following
                         success = status == HttpStatus.SC_CREATED || status == HttpStatus.SC_OK;
+                        if (success){
+                            followedAtStamps.put(u.id, System.currentTimeMillis());
+                            unFollowedAtStamps.remove(u.id);
+                        }
                     } else {
-                        unFollowedAtStamps.put(u.id,System.currentTimeMillis());
-                        followedAtStamps.remove(u.id);
-
                         success = status == HttpStatus.SC_OK || status == HttpStatus.SC_NOT_FOUND;
+                        if (success){
+                            unFollowedAtStamps.put(u.id,System.currentTimeMillis());
+                            followedAtStamps.remove(u.id);
+                        }
                     }
                     if (!success) {
                         Log.w(TAG, "error changing following status, resp=" + status);
@@ -163,9 +165,6 @@ public class FollowStatus {
                         LocalCollection.forceToStale(Content.ME_SOUND_STREAM.uri, mContext.getContentResolver());
                     }
 
-                    for (Listener l : listeners.keySet()) {
-                        l.onFollowChanged(true);
-                    }
                     if (handler != null) {
                         Message.obtain(handler, FOLLOW_STATUS_SUCCESS).sendToTarget();
                     }
@@ -175,6 +174,9 @@ public class FollowStatus {
                     if (handler != null) {
                         Message.obtain(handler, status == 429 ? FOLLOW_STATUS_SPAM : FOLLOW_STATUS_FAIL).sendToTarget();
                     }
+                }
+                for (Listener l : listeners.keySet()) {
+                    l.onFollowChanged(success);
                 }
             }
         }.execute(user);

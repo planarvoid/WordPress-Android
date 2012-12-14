@@ -19,7 +19,7 @@ public class SendRegIdTaskTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldCheckNumberOfParameters() throws Exception {
-        new SendRegIdTask(DefaultTestRunner.application, null).doInBackground("reg_id", "com.soundcloud.android");
+        new SendRegIdTask(DefaultTestRunner.application).doInBackground("reg_id", "com.soundcloud.android");
     }
 
     @Test
@@ -29,14 +29,14 @@ public class SendRegIdTaskTest {
         Robolectric.addPendingHttpResponse(HttpStatus.SC_CREATED, "",
                 new BasicHeader("Location", location));
 
-        expect(new SendRegIdTask(DefaultTestRunner.application, null)
+        expect(new SendRegIdTask(DefaultTestRunner.application)
                 .doInBackground("reg_id", "com.soundcloud.android", "some_id")).toEqual(location);
     }
 
     @Test
     public void testExecuteFailure() throws Exception {
         Robolectric.addPendingHttpResponse(HttpStatus.SC_FORBIDDEN, "");
-        expect(new SendRegIdTask(DefaultTestRunner.application, null).doInBackground("reg_id", "com.soundcloud.android", "some_id")).toBeNull();
+        expect(new SendRegIdTask(DefaultTestRunner.application).doInBackground("reg_id", "com.soundcloud.android", "some_id")).toBeNull();
     }
 
     @Test
@@ -46,7 +46,7 @@ public class SendRegIdTaskTest {
                         .method("POST")
                         .path("me/devices"), new IOException("boom")));
 
-        expect(new SendRegIdTask(DefaultTestRunner.application, null)
+        expect(new SendRegIdTask(DefaultTestRunner.application)
                 .doInBackground("reg_id", "com.soundcloud.android", "some_id")).toBeNull();
     }
 }

@@ -247,4 +247,6 @@
     <string name="confirm">Confirmar</string>
 
     <string name="info">Info</string>
+
+    <string name="no_internet_connection">Oops, no son capaces de conectarse a Internet</string>
 </resources>

@@ -39,7 +39,7 @@ public class Launch extends Activity {
                     startActivity(new Intent(Launch.this, Home.class));
                 }
             }
-        }, 600);
+        }, 900);
     }
 
     private SoundCloudApplication getApp() {

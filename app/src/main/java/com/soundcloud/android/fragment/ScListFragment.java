@@ -82,6 +82,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private CollectionTask mAppendTask;
     protected String mNextHref;
 
+    private int mEmptyMode;
+
     public static ScListFragment newInstance(Content content) {
         return newInstance(content.uri);
     }
@@ -241,7 +243,12 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mListView.setEmptyView(mEmptyListView);
 
         if (isRefreshing() || waitingOnInitialSync()){
-            mListView.setRefreshing(false);
+            final ScBaseAdapter listAdapter = getListAdapter();
+            if (listAdapter == null || listAdapter.isEmpty()){
+                configureEmptyView();
+            } else {
+                mListView.setRefreshing(false);
+            }
         }
 
         root.addView(mListView, new FrameLayout.LayoutParams(
@@ -268,7 +275,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     public void setEmptyCollection(EmptyListView emptyCollection){
         mEmptyListView = emptyCollection;
-        configureEmptyView();
+        mEmptyListView.setMode(mEmptyMode);
         if (getView() != null && getListView() != null) {
             getListView().setEmptyView(emptyCollection);
         }
@@ -313,7 +320,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     @Override
     public void onLocalCollectionChanged() {
-        refreshSyncData();
+        // do not autorefresh me_followings based on observing because this would refresh everytime you use the in list toggles
+        if (mContent != Content.ME_FOLLOWINGS) refreshSyncData();
     }
 
     @Override
@@ -332,13 +340,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         }
 
         adapter.handleTaskReturnData(data);
-        handleResponseCode(data.responseCode);
+        configureEmptyView(handleResponseCode(data.responseCode));
 
         final boolean notRefreshing = (data.wasRefresh || !isRefreshing()) && !waitingOnInitialSync();
         if (notRefreshing) {
             doneRefreshing();
-        } else {
-            configureEmptyView();
         }
 
         if (adapter.isEmpty() && mKeepGoing){
@@ -420,10 +426,16 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (canAppend()) append(false);
     }
 
-    protected void configureEmptyView(){
+    protected void configureEmptyView() {
+        configureEmptyView(true);
+    }
+
+    private void configureEmptyView(boolean responseOk) {
         final boolean wait = canAppend() || isRefreshing() || waitingOnInitialSync();
         if (mEmptyListView != null) {
-            mEmptyListView.setMode(wait ? EmptyListView.Mode.WAITING_FOR_DATA : EmptyListView.Mode.IDLE);
+            int emptyMode = wait ? EmptyListView.Mode.WAITING_FOR_DATA :
+                    (responseOk ? EmptyListView.Mode.IDLE : EmptyListView.Mode.ERROR);
+            mEmptyListView.setMode(emptyMode);
         }
     }
 
@@ -434,7 +446,9 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             mRefreshTask = buildTask(context);
             mRefreshTask.execute(getTaskParams(adapter, true));
         }
-        configureEmptyView();
+        if (!mListView.isRefreshing()) {
+            configureEmptyView();
+        }
     }
 
 
@@ -494,7 +508,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (mListView != null) {
             mListView.onRefreshComplete();
         }
-        configureEmptyView();
     }
 
     private boolean isSyncable() {

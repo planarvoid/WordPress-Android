@@ -10,6 +10,7 @@
                 android:paddingBottom="@dimen/list_item_padding_bottom">
 
     <ImageView android:id="@+id/icon"
+               android:src="@drawable/avatar_badge"
                android:layout_width="@dimen/list_icon_width"
                android:layout_height="@dimen/list_icon_height"
                android:layout_marginRight="@dimen/list_icon_margin_right"

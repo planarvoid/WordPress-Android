@@ -461,6 +461,7 @@ public final class ImageUtils {
         }
     }
 
+    @SuppressWarnings("UnusedDeclaration") // useful, keep plz
     public static Bitmap getBitmapSubstitute(Context c, String uri,
                                              Consts.GraphicSize targetSize,
                                              ImageLoader.BitmapCallback callback,
@@ -471,7 +472,7 @@ public final class ImageUtils {
 
         Bitmap targetBitmap = imageLoader.getBitmap(targetUri, null, Options.dontLoadRemote());
         if (targetBitmap != null){
-            return imageLoader.getBitmap(uri, callback, options);
+            return imageLoader.getBitmap(targetUri, callback, options);
         } else {
             for (Consts.GraphicSize gs : EnumSet.allOf(Consts.GraphicSize.class)) {
                 final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri), null, Options.dontLoadRemote());
