@@ -89,6 +89,7 @@ public abstract class LazyRow extends FrameLayout {
                     // mark it as not ready and tell the imageloader to load it (it will notify the adapter when done)
                     mAdapter.setIconNotReady(id);
                     mImageLoader.bind((BaseAdapter) mAdapter, mIcon, iconUri, mIconOptions);
+                    mIcon.setImageResource(getDefaultArtworkResId());
                 } else {
                     // already loading, just make sure we aren't displaying an old one
                     mIcon.setImageResource(getDefaultArtworkResId());
