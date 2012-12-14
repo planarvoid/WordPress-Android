@@ -579,7 +579,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     private boolean handleResponseCode(int responseCode) {
-        Log.i("asdf","Handling response code " + responseCode);
         switch (responseCode) {
             case HttpStatus.SC_CONTINUE: // do nothing
             case HttpStatus.SC_OK: // do nothing
