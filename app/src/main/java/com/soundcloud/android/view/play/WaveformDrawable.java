@@ -31,7 +31,7 @@ public class WaveformDrawable extends Drawable {
         canvas.drawColor(Color.TRANSPARENT);
         final WaveformData scaled = mData.scale(canvas.getWidth());
 
-        final int height = canvas.getHeight();
+        final int height = getBounds().height();
 
         if (mDrawHalf){
             for (int i = 0; i < scaled.samples.length; i++) {
