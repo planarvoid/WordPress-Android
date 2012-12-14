@@ -216,7 +216,7 @@ public class PlayerAvatarBar extends View {
             final List<Comment> comments = mCurrentComments;
             final int width = getWidth();
             final int height = getHeight();
-            if (comments != null && width > 0 || height > 0) {
+            if (comments != null && width > 0 && height > 0) {
                 try {
                     mNextCanvasBmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
                 } catch (OutOfMemoryError e) {
