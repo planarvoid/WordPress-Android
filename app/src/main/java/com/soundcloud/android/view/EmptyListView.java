@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.task.create.NewConnectionTask;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,8 +16,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -28,9 +27,11 @@ public class EmptyListView extends RelativeLayout {
 
     @Nullable protected ViewGroup mEmptyLayout;
 
+    private RelativeLayout mEmptyViewHolder;
     private TextView mTxtMessage;
     private TextView mTxtLink;
     @Nullable private ImageView mImage;
+    @Nullable private LinearLayout mError;
     protected Button mBtnAction;
 
     private int     mMessageResource, mLinkResource, mImageResource, mActionTextResource;
@@ -43,6 +44,7 @@ public class EmptyListView extends RelativeLayout {
     public interface Mode {
         int WAITING_FOR_DATA = 1;
         int IDLE = 2;
+        int ERROR = 3;
     }
 
     public EmptyListView(final Context context, final Intent... intents) {
@@ -73,6 +75,7 @@ public class EmptyListView extends RelativeLayout {
         ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.empty_list, this);
 
+        mEmptyViewHolder = ((RelativeLayout) findViewById(R.id.empty_view_holder));
         mProgressBar = (ProgressBar) findViewById(R.id.list_loading);
     }
 
@@ -83,16 +86,32 @@ public class EmptyListView extends RelativeLayout {
                 case Mode.WAITING_FOR_DATA:
                     mProgressBar.setVisibility(View.VISIBLE);
                     if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
+                    if (mError != null) mError.setVisibility(View.GONE);
                     return true;
 
                 case Mode.IDLE:
                     mProgressBar.setVisibility(View.GONE);
                     showEmptyLayout();
                     return true;
+
+                case Mode.ERROR:
+                    mProgressBar.setVisibility(View.GONE);
+                    showError();
+                    return true;
             }
             return false;
         }
         return true;
+    }
+
+    private void showError(){
+        if (mError == null) {
+            mError = (LinearLayout) View.inflate(getContext(), R.layout.empty_list_error, null);
+            mEmptyViewHolder.addView(mError);
+        } else {
+            mError.setVisibility(View.VISIBLE);
+        }
+        if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
     }
 
     protected void showEmptyLayout() {
@@ -102,35 +121,20 @@ public class EmptyListView extends RelativeLayout {
             final RelativeLayout.LayoutParams params =
                     new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
-            ((RelativeLayout) findViewById(R.id.empty_view_holder))
-                    .addView(mEmptyLayout, params);
+            mEmptyViewHolder.addView(mEmptyLayout, params);
 
             mTxtMessage = (TextView) findViewById(R.id.txt_message);
-            if (TextUtils.isEmpty(mMessage)){
-                setMessageText(mMessageResource);
-            } else {
-                setMessageText(mMessage);
-            }
-
             mTxtLink = (TextView) findViewById(R.id.txt_link);
-            setSecondaryText(mLinkResource);
-
             mBtnAction = (Button) findViewById(R.id.btn_action);
-            setActionText(mActionTextResource);
-
             mImage = (ImageView) findViewById(R.id.img_1);
-            if (mImage != null) {
-                mImage.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (mImageActionListener != null) {
-                            mImageActionListener.onAction();
-                        }
+            mImage.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mImageActionListener != null) {
+                        mImageActionListener.onAction();
                     }
-                });
-                setImage(mImageResource);
-            }
-
+                }
+            });
             mBtnAction.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -139,9 +143,25 @@ public class EmptyListView extends RelativeLayout {
                     }
                 }
             });
+
+            // set values
+            if (TextUtils.isEmpty(mMessage)) {
+                setMessageText(mMessageResource);
+            } else {
+                setMessageText(mMessage);
+            }
+            setSecondaryText(mLinkResource);
+            setActionText(mActionTextResource);
+            if (mImage != null) {
+                setImage(mImageResource);
+            }
+
         } else {
             mEmptyLayout.setVisibility(View.VISIBLE);
         }
+
+
+        if (mError != null) mError.setVisibility(View.GONE);
     }
 
     protected int getEmptyViewLayoutId() {
@@ -149,6 +169,7 @@ public class EmptyListView extends RelativeLayout {
     }
 
     public EmptyListView setImage(int imageId){
+        mImageResource = imageId;
         if (mImage != null){
             if (imageId > 0){
                 mImage.setVisibility(View.VISIBLE);
@@ -156,14 +177,13 @@ public class EmptyListView extends RelativeLayout {
             } else {
                 mImage.setVisibility(View.GONE);
             }
-        } else {
-            mImageResource = imageId;
         }
-
         return this;
     }
 
     public EmptyListView setMessageText(int messageId){
+        mMessageResource = messageId;
+        mMessage = null;
         if (mTxtMessage != null) {
             if (messageId > 0) {
                 mTxtMessage.setText(messageId);
@@ -171,14 +191,13 @@ public class EmptyListView extends RelativeLayout {
             } else {
                 mTxtMessage.setVisibility(View.GONE);
             }
-        } else {
-            mMessageResource = messageId;
-            mMessage = null;
         }
         return this;
     }
 
     public EmptyListView setMessageText(String s) {
+        mMessage = s;
+        mMessageResource = -1;
         if (mTxtMessage != null) {
             if (!TextUtils.isEmpty(s)) {
                 mTxtMessage.setText(s);
@@ -186,14 +205,12 @@ public class EmptyListView extends RelativeLayout {
             } else {
                 mTxtMessage.setVisibility(View.GONE);
             }
-        } else {
-            mMessage = s;
-            mMessageResource = -1;
         }
         return this;
     }
 
     public EmptyListView setSecondaryText(int secondaryTextId) {
+        mLinkResource = secondaryTextId;
         if (mTxtLink != null) {
             if (secondaryTextId > 0) {
                 mTxtLink.setText(secondaryTextId);
@@ -209,13 +226,12 @@ public class EmptyListView extends RelativeLayout {
             } else {
                 mTxtLink.setVisibility(View.GONE);
             }
-        } else {
-            mLinkResource = secondaryTextId;
         }
         return this;
     }
 
     public EmptyListView setActionText(int textId){
+        mActionTextResource = textId;
         if (mBtnAction != null){
             if (textId > 0){
                 mBtnAction.setVisibility(View.VISIBLE);
@@ -223,8 +239,6 @@ public class EmptyListView extends RelativeLayout {
             } else {
                 mBtnAction.setVisibility(View.INVISIBLE);
             }
-        } else {
-            mActionTextResource = textId;
         }
         return this;
     }
