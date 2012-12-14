@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -142,7 +143,7 @@ public class RootView extends ViewGroup {
      * Based on the Android SlidingDrawer component, with additional functionality
      * and ideas credited to http://android.cyrilmottier.com/?p=658
      */
-    public RootView(Context context, int selectedMenuId) {
+    public RootView(Context context, Drawable contentBg, int selectedMenuId) {
         super(context, null, 0);
 
         View.inflate(context, R.layout.root_view, this);
@@ -166,7 +167,7 @@ public class RootView extends ViewGroup {
         mMenu.setSelectedMenuId(selectedMenuId);
 
         mContent = (ViewGroup) findViewById(R.id.content_frame);
-        mContent.setBackgroundColor(Color.WHITE);
+        mContent.setBackgroundDrawable(contentBg);
         //mPlayer = findViewById(R.id.player_frame);
 
         mScroller = new Scroller(context,new DecelerateInterpolator());
@@ -193,12 +194,7 @@ public class RootView extends ViewGroup {
 
         mExpandedState = COLLAPSED_FULL_CLOSED;
         mActivePointerId = INVALID_POINTER;
-
-
-
-        setBackgroundColor(getResources().getColor(R.color.main_menu_bg));
         setAlwaysDrawnWithCacheEnabled(false);
-
     }
 
     public void setCloseOnResume(boolean closeOnResume){

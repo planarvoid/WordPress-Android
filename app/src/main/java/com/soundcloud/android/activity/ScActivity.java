@@ -73,9 +73,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         // Volume mode should always be music in this app
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-        mRootView = new RootView(this, getSelectedMenuId());
+        mRootView = new RootView(this, getWindow().getDecorView().getBackground(), getSelectedMenuId());
         super.setContentView(mRootView);
-
+        getWindow().setBackgroundDrawable(null);
 
         mRootView.setOnMenuStateListener(this);
         mRootView.configureMenu(R.menu.main_nav, new MainMenu.OnMenuItemClickListener() {
@@ -149,14 +149,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Override
     public void setContentView(View layout) {
-        final Drawable drawable = getWindow().getDecorView().getBackground();
-        if (drawable != null){
-            layout.setBackgroundDrawable(drawable);
-        } else {
-            layout.setBackgroundColor(Color.WHITE);
-        }
-
-        layout.setDrawingCacheBackgroundColor(Color.WHITE);
         mRootView.setContent(layout);
     }
 
