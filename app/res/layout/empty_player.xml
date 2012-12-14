@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:background="@color/main_menu_bg"
                 android:layout_width="fill_parent"
-                android:padding="5dp"
-                android:id="@+id/sizer"
                 android:layout_height="fill_parent">
 
         <ProgressBar android:id="@+id/list_loading"

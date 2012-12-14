@@ -2,7 +2,7 @@
 <resources>
 
     <style name="Theme.Next" parent="@style/Theme.Sherlock.Light.DarkActionBar">
-        <item name="android:windowBackground">@color/main_menu_bg</item>
+        <item name="android:windowBackground">@color/white</item>
 
         <item name="actionBarItemBackground">@drawable/action_bar_item_selector</item>
         <item name="android:actionBarItemBackground">@drawable/action_bar_item_selector</item>
@@ -40,7 +40,6 @@
         <item name="spinnerItemStyle">@style/next_SpinnerItem</item>
         <item name="android:spinnerItemStyle">@style/next_SpinnerItem</item>-->
 
-        <item name="ptrLoadingProgressStyle">@style/ScProgressBarHolo</item>
         <item name="ptrAnimationStyle">flip</item>
 
         <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
@@ -53,12 +52,17 @@
     <style name="Theme.Next.NoActionBar" parent="Theme.Sherlock.NoActionBar"/>
     <style name="Theme.ScDialog" parent="android:Theme.Dialog"/>
 
-    <style name="Theme.ScDark" parent="Theme.Next">
+    <style name="Theme.Next.NoBg" parent="Theme.Next">
+        <item name="android:windowBackground">@null</item>
+    </style>
+
+    <style name="Theme.Next.Dark" parent="Theme.Next">
         <item name="android:windowBackground">@color/darkBg</item>
     </style>
 
     <style name="Theme.ScMenu" parent="Theme.Next">
         <item name="android:textColor">@drawable/txt_light_states</item>
+        <item name="android:background">@color/main_menu_bg</item>
     </style>
 
     <style name="Theme.ScAuth" parent="Theme.Next.NoActionBar">
