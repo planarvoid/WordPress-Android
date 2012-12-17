@@ -1,27 +1,26 @@
 package com.soundcloud.android.view.play;
 
-import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
-
-import android.widget.TableRow;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.track.TrackComments;
 import com.soundcloud.android.activity.track.TrackLikers;
 import com.soundcloud.android.activity.track.TrackReposters;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.FlowLayout;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.util.Linkify;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 public class PlayerTrackDetails extends RelativeLayout {
@@ -39,10 +38,10 @@ public class PlayerTrackDetails extends RelativeLayout {
     private final TextView mLikersText;
     private final TextView mRepostersText;
     private final TextView mCommentersText;
+    private final TextView mTxtInfo;
 
     private @Nullable Track mPlayingTrack;
-
-    private boolean mTrackInfoFilled;
+    private @Nullable Track.TagsHolder mLastTags;
 
     public PlayerTrackDetails(ScPlayer player) {
         super(player);
@@ -105,20 +104,33 @@ public class PlayerTrackDetails extends RelativeLayout {
                 }
             }
         });
+
+        mTxtInfo = (TextView) findViewById(R.id.txtInfo);
     }
 
     public void setPlayingTrack(Track t){
-        if (mPlayingTrack == null || mPlayingTrack.id != t.id){
-            mTrackInfoFilled = false;
+        if (!t.equals(mPlayingTrack)){
+            mPlayingTrack = t;
+            fillTrackDetails(false);
         }
-        mPlayingTrack = t;
     }
 
-    public boolean getIsTrackInfoFilled(){
-        return mTrackInfoFilled;
+    public void onOpenDetails() {
+        boolean showLoading = false;
+        // according to this logic, we will only load the info if we haven't yet or there was an error
+        // there is currently no manual or stale refresh logic
+        if (mPlayingTrack != null) {
+            if (mPlayingTrack.load_info_task == null || mPlayingTrack.load_info_task.wasError()) {
+                mPlayer.startService(new Intent(CloudPlaybackService.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mPlayingTrack.id));
+                fillTrackDetails(true);
+            } else if (!AndroidUtils.isTaskFinished(mPlayingTrack.load_info_task)) {
+                fillTrackDetails(true);
+            }
+        }
+
     }
 
-    public void fillTrackDetails() {
+    public void fillTrackDetails(boolean showLoading) {
         if (mPlayingTrack == null) return;
 
         setViewVisibility(mPlayingTrack.likes_count > 0, mLikersRow, mLikersDivider);
@@ -136,22 +148,43 @@ public class PlayerTrackDetails extends RelativeLayout {
                                                                  mPlayingTrack.comment_count,
                                                                  mPlayingTrack.comment_count));
 
-        mTrackTags.removeAllViews();
-        mPlayingTrack.fillTags(mTrackTags, mPlayer);
 
-        TextView txtInfo = (TextView) findViewById(R.id.txtInfo);
-        if (txtInfo != null && mPlayingTrack != null) { // should never be null, but sure enough it is in rare cases. Maybe not inflated yet??
-            txtInfo.setText(ScTextUtils.fromHtml(mPlayingTrack.trackInfo()));
-            Linkify.addLinks(txtInfo, Linkify.WEB_URLS);
+        // check for equality to avoid extra view inflation
+        if (!mPlayingTrack.checkTagsEqual(mLastTags)) {
+            mTrackTags.removeAllViews();
+            mLastTags = mPlayingTrack.fillTags(mTrackTags, mPlayer);
+        }
+
+        final String trackInfo = mPlayingTrack.trackInfo();
+        if (!TextUtils.isEmpty(trackInfo)) {
+            mTxtInfo.setGravity(Gravity.LEFT);
+            mTxtInfo.setText(ScTextUtils.fromHtml(trackInfo));
+            Linkify.addLinks(mTxtInfo, Linkify.WEB_URLS);
 
             // for some reason this needs to be set to support links
             // http://www.mail-archive.com/android-beginners@googlegroups.com/msg04465.html
-            MovementMethod mm = txtInfo.getMovementMethod();
+            MovementMethod mm = mTxtInfo.getMovementMethod();
             if (!(mm instanceof LinkMovementMethod)) {
-                txtInfo.setMovementMethod(LinkMovementMethod.getInstance());
+                mTxtInfo.setMovementMethod(LinkMovementMethod.getInstance());
+            }
+        } else {
+            if (!showLoading){
+                mTxtInfo.setText(R.string.no_info_available);
+                mTxtInfo.setGravity(Gravity.CENTER_HORIZONTAL);
+            } else {
+                mTxtInfo.setText("");
             }
         }
-        mTrackInfoFilled = true;
+
+        if (showLoading) {
+            if (findViewById(R.id.loading_layout) != null) {
+                findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
+            } else {
+                findViewById(R.id.stub_loading).setVisibility(View.VISIBLE);
+            }
+        } else if (findViewById(R.id.loading_layout) != null) {
+            findViewById(R.id.loading_layout).setVisibility(View.GONE);
+        }
     }
 
     private static void setViewVisibility(boolean visible, View... views) {
@@ -160,47 +193,5 @@ public class PlayerTrackDetails extends RelativeLayout {
         for (View view : views) {
             view.setVisibility(visibility);
         }
-    }
-
-    public void onInfoLoadError() {
-        if (findViewById(R.id.loading_layout) != null) {
-            findViewById(R.id.loading_layout).setVisibility(View.GONE);
-        }
-
-        if (findViewById(android.R.id.empty) != null) {
-            findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
-        } else {
-            addView(buildEmptyView(mPlayer, getResources().getString(R.string.info_error)), getChildCount() - 2);
-        }
-        if (findViewById(R.id.info_view) != null){
-            findViewById(R.id.info_view).setVisibility(View.GONE);
-        }
-    }
-
-    public void onInfoLoadSuccess() {
-        fillTrackDetails();
-        final View loading = findViewById(R.id.loading_layout);
-        if (loading != null) {
-            findViewById(R.id.loading_layout).setVisibility(View.GONE);
-        }
-        final int empty = android.R.id.empty;
-        if (findViewById(empty) != null) {
-            findViewById(android.R.id.empty).setVisibility(View.GONE);
-        }
-
-        final View infoView = findViewById(R.id.info_view);
-        if (infoView != null) {
-            findViewById(R.id.info_view).setVisibility(View.VISIBLE);
-        }
-    }
-
-    private static TextView buildEmptyView(Context context, CharSequence emptyText) {
-        TextView emptyView = new TextView(context);
-        emptyView.setLayoutParams(new ViewGroup.LayoutParams(FILL_PARENT, FILL_PARENT));
-        emptyView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-        emptyView.setTextAppearance(context, R.style.txt_empty_view);
-        emptyView.setText(emptyText);
-        emptyView.setId(android.R.id.empty);
-        return emptyView;
     }
 }

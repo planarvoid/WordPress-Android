@@ -57,8 +57,10 @@ import java.util.regex.Pattern;
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Track extends Sound implements Playable {
-    private static final String TAG = "Track";
     public static final String EXTRA = "track";
+    public static final String EXTRA_ID = "track_id";
+
+    private static final String TAG = "Track";
     private static final Pattern TAG_PATTERN = Pattern.compile("(\"([^\"]+)\")");
 
     // API fields
@@ -422,12 +424,27 @@ public class Track extends Sound implements Playable {
         return state != null && created_at != null && duration > 0;
     }
 
-    public void fillTags(ViewGroup view, final Context context){
+    public static class TagsHolder {
+        String genre;
+        List<String> humanTags;
+
+        public TagsHolder(String genre, List<String> humanTags) {
+            this.genre = genre;
+            this.humanTags = humanTags;
+        }
+    }
+
+    public boolean checkTagsEqual(@Nullable TagsHolder holder) {
+        return holder != null && TextUtils.equals(holder.genre, genre) && holder.humanTags.equals(humanTags());
+    }
+
+    public TagsHolder fillTags(ViewGroup view, final Context context){
+
+        TagsHolder holder = new TagsHolder(genre,humanTags());
         TextView txt;
         FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(10, 10);
 
         final LayoutInflater inflater = LayoutInflater.from(context);
-
         if (!TextUtils.isEmpty(genre)) {
             txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
             txt.setOnClickListener(new View.OnClickListener() {
@@ -441,7 +458,7 @@ public class Track extends Sound implements Playable {
             txt.setText(genre);
             view.addView(txt, flowLP);
         }
-        for (final String t : humanTags()) {
+        for (final String t : holder.humanTags) {
             if (!TextUtils.isEmpty(t)) {
                 txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
                 txt.setOnClickListener(new View.OnClickListener() {
@@ -456,6 +473,7 @@ public class Track extends Sound implements Playable {
                 view.addView(txt, flowLP);
             }
         }
+        return holder;
     }
 
     // TODO, THIS SUCKS
@@ -653,7 +671,7 @@ public class Track extends Sound implements Playable {
         if (intent == null) throw new IllegalArgumentException("intent is null");
         Track t = intent.getParcelableExtra(EXTRA);
         if (t == null) {
-            t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra("track_id", 0));
+            t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(EXTRA_ID, 0));
             if (t == null) {
                 throw new IllegalArgumentException("Could not obtain track from intent "+intent);
             }

@@ -102,5 +102,6 @@
     <color name="search_suggestion_text_color">#CCCCCC</color>
     <color name="track_info_separator">#FFE5E5E5</color>
 
+    <color name="txt_description_color">#FF666666</color>
 
 </resources>

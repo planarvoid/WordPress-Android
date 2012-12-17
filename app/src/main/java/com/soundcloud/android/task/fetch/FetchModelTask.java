@@ -25,6 +25,7 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
     private Class<? extends Model> mModel;
 
     public String action;
+    private boolean mError;
 
     public FetchModelTask(AndroidCloudAPI api, Class<? extends Model> model, long modelId) {
         mApi = api;
@@ -42,11 +43,12 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
 
     @Override
     protected void onPostExecute(Model result) {
+        mError = result == null;
         if (mListenerWeakReferences != null) {
             for (WeakReference<FetchModelListener<Model>> listenerRef : mListenerWeakReferences) {
                 final FetchModelListener<Model> listener = listenerRef.get();
                 if (listener != null) {
-                    if (result != null) {
+                    if (!mError) {
                         listener.onSuccess(result, action);
                     } else {
                         listener.onError(mModelId);
@@ -78,6 +80,10 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
             Log.e(TAG, "error", e);
             return null;
         }
+    }
+
+    public boolean wasError(){
+        return mError;
     }
 
     @Override

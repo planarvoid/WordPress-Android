@@ -396,7 +396,7 @@ public class PlayerTrackView extends LinearLayout implements
                 mTrackDetailsView.setPlayingTrack(mTrack);
                 trackFlipper.addView(mTrackDetailsView);
             }
-            if (!mTrackDetailsView.getIsTrackInfoFilled()) mTrackDetailsView.fillTrackDetails();
+            mTrackDetailsView.onOpenDetails();
 
             trackFlipper.setInAnimation(AnimUtils.inFromRightAnimation(new AccelerateDecelerateInterpolator()));
             trackFlipper.setOutAnimation(AnimUtils.outToLeftAnimation(new AccelerateDecelerateInterpolator()));
@@ -650,13 +650,13 @@ public class PlayerTrackView extends LinearLayout implements
             if (t != null) {
                 setTrack(t, mQueuePosition, true, mOnScreen);
                 if (mTrackDetailsView != null) {
-                    mTrackDetailsView.onInfoLoadSuccess();
+                    mTrackDetailsView.fillTrackDetails(false);
                 }
             }
 
         } else if (Sound.ACTION_SOUND_INFO_ERROR.equals(action)) {
             if (mTrackDetailsView != null) {
-                mTrackDetailsView.onInfoLoadError();
+                mTrackDetailsView.fillTrackDetails(false);
             }
 
         } else if (CloudPlaybackService.BUFFERING.equals(action)) {

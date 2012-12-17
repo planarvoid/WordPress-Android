@@ -59,25 +59,19 @@
                                                     android:layout_height="wrap_content"
                                                     android:layout_width="fill_parent"
                                                     android:padding="5dip"/>
-
+            <ViewStub android:id="@+id/stub_loading"
+                          android:inflatedId="@+id/loading_layout"
+                          android:layout="@layout/track_info_loading_layout"
+                          android:layout_width="fill_parent"
+                          android:layout_height="wrap_content"/>
             <TextView android:id="@+id/txtInfo"
                       android:layout_height="wrap_content"
                       style="@style/txt_player_track_info"
-                      android:padding="3dip"
-                      android:linksClickable="true"
                       android:layout_width="fill_parent"/>
-            <ViewStub android:id="@+id/stub_comments_list"
-                      android:inflatedId="@+id/comments_list"
-                      android:layout="@layout/info_comments_list"
-                      android:layout_width="fill_parent"
-                      android:layout_height="wrap_content"/>
         </LinearLayout>
+
     </ScrollView>
-    <ViewStub android:id="@+id/stub_loading"
-              android:inflatedId="@+id/loading_layout"
-              android:layout="@layout/track_info_loading_layout"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"/>
+
     <View android:layout_width="fill_parent"
           android:layout_alignParentTop="true"
           android:layout_height="5dip"
