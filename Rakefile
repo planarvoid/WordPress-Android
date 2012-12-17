@@ -340,6 +340,8 @@ task :lint do
   result = "app/target/lint-result.html"
   rm_f result
   lint_ok = system("mvn compile && lint --config app/lint.xml --exitcode --html #{result} app")
-  sh "open #{result}" if File.exists?(result)
+  if File.exists?(result) && RUBY_PLATFORM =~ /darwin/
+    sh "open #{result}"
+  end
   raise "Lint failure" unless lint_ok
 end
