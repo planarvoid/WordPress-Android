@@ -520,8 +520,22 @@ public class ScContentProvider extends ContentProvider {
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 break;
 
-            case ME_TRACKS:
+            case ME_SOUNDS:
+                // add userId
+                String whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + SoundCloudApplication.getUserIdFromContext(getContext());
+                // append possible types
+                int[] collectionType = new int[]{CollectionItemTypes.TRACK, CollectionItemTypes.REPOST};
+                for (int i = 0; i < collectionType.length; i++) {
+                    whereAppend += (i == 0 ? " AND (" : " OR ")
+                            + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + collectionType[i]
+                            + (i == collectionType.length - 1 ? ")" : "");
+                }
+
+                where = TextUtils.isEmpty(where) ? whereAppend : where + " AND " + whereAppend;
+                break;
+
             case ME_LIKES:
+            case ME_TRACKS:
             case ME_REPOSTS:
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
@@ -531,7 +545,7 @@ public class ScContentProvider extends ContentProvider {
             case USER_FOLLOWINGS:
             case USER_FOLLOWERS:
             case ME_FRIENDS:
-                final String whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + SoundCloudApplication.getUserIdFromContext(getContext())
+                whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + SoundCloudApplication.getUserIdFromContext(getContext())
                         + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + content.collectionType;
                 where = TextUtils.isEmpty(where) ? whereAppend
                         : where + " AND " + whereAppend;
@@ -824,6 +838,7 @@ public class ScContentProvider extends ContentProvider {
 
     static SCQueryBuilder makeSoundAssociationSelection(SCQueryBuilder qb, String userId, int[] collectionType) {
         qb.appendWhere(Table.SOUND_ASSOCIATION_VIEW.name + "." + DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID + " = " + userId);
+        // TODO PLAYLISTS
         qb.appendWhere(" AND " + Table.SOUND_ASSOCIATION_VIEW.name + "." + DBHelper.SoundView._TYPE + " = " + Track.DB_TYPE_TRACK);
         for (int i = 0; i < collectionType.length; i++) {
             qb.appendWhere((i == 0 ? " AND (" : " OR ")

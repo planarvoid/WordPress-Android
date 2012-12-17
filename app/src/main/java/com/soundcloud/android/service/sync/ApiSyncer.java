@@ -6,7 +6,6 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
-import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
@@ -153,6 +152,7 @@ public class ApiSyncer {
                 SoundAssociationHolder.class);
 
         if (holder != null) {
+            holder.removeMissingLocallyStoredItems(mResolver, uri);
             holder.insert(mResolver);
 
             result.setSyncData(System.currentTimeMillis(), holder.collection.size(), null);
@@ -171,6 +171,7 @@ public class ApiSyncer {
                 SoundAssociationHolder.class);
 
         if (holder != null) {
+            holder.removeMissingLocallyStoredItems(mResolver, uri);
             holder.insert(mResolver);
 
             result.setSyncData(System.currentTimeMillis(), holder.collection.size(), null);
@@ -321,7 +322,7 @@ public class ApiSyncer {
     }
 
     private List<Long> handleDeletions(Content content, List<Long> local, List<Long> remote) {
-        // deletions can happen here, has no impact
+        // This only works when items are unique in a collection, fine for now
         List<Long> itemDeletions = new ArrayList<Long>(local);
         itemDeletions.removeAll(remote);
         if (!itemDeletions.isEmpty()) {
