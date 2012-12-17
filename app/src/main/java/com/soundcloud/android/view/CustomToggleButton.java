@@ -70,13 +70,7 @@ public class CustomToggleButton extends ToggleButton {
 
         @Override
         public boolean setState(int[] stateSet) {
-            boolean changed = false;
-
-            if (mBackground != null) {
-                changed |= mBackground.setState(stateSet);
-            }
-
-            return changed;
+            return mBackground.setState(stateSet);
         }
     }
 
