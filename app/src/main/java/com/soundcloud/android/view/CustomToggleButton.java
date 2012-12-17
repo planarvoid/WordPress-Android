@@ -87,7 +87,7 @@ public class CustomToggleButton extends ToggleButton {
     }
 
     {
-        setBackground(new CustomToggleButtonDrawable(getBackground()));
+        setBackgroundDrawable(new CustomToggleButtonDrawable(getBackground()));
     }
 
 
