@@ -1,5 +1,7 @@
 package com.soundcloud.android.view.adapter;
 
+import static com.soundcloud.android.utils.AndroidUtils.setTextShadowForGrayBg;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -13,6 +15,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.StatsView;
 import com.soundcloud.android.view.quickaction.QuickTrackMenu;
 import org.jetbrains.annotations.Nullable;
@@ -284,4 +287,10 @@ public class TrackInfoBar extends LazyRow {
         }
 
     };
+
+    public void addTextShadows() {
+        setTextShadowForGrayBg(mTitle);
+        setTextShadowForGrayBg(mUser);
+        setTextShadowForGrayBg(mCreatedAt);
+    }
 }

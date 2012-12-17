@@ -103,6 +103,7 @@ public class PlayerTrackView extends LinearLayout implements
         mTrackInfoBar.setEnabled(false);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
 
+        mTrackInfoBar.addTextShadows();
         mArtwork = (ImageView) findViewById(R.id.artwork);
         if (mArtwork != null) {
             mArtworkHolder = (FrameLayout) mArtwork.getParent();
