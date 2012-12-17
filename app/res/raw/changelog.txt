@@ -1,7 +1,8 @@
 $ 51
   % v current
-  _ 2012-12-11
-  ! Next
+  _ 2012-12-14
+  ! Maintenance
+    * Fixed waveform rendering on 2.3.x
     * Fixed widget sizes
     * Removed duplicates from your sounds
     * Fixed transport controls

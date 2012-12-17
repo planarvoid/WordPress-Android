@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+            android:key="copyright_information"
+            android:title="@string/copyright_information"
+            >
+
+        <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="com.soundcloud.android"
+                android:targetClass="com.soundcloud.android.activity.settings.About"/>
+    </Preference>
+
+    <Preference android:key="terms_of_service"
+            android:title="@string/terms_of_service"
+            >
+
+        <intent android:action="android.intent.action.VIEW"
+                android:data="http://soundcloud.com/pages/plain_terms_and_conditions"/>
+
+    </Preference>
+
+    <Preference android:key="privacy_policy"
+            android:title="@string/privacy_policy"
+            >
+        <intent android:action="android.intent.action.VIEW"
+                android:data="http://soundcloud.com/pages/plain_privacy"/>
+    </Preference>
+
+</PreferenceScreen>

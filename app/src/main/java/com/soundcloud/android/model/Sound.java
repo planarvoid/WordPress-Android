@@ -258,12 +258,32 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
             duration = updatedItem.duration;
             sharing = updatedItem.sharing;
             streamable = updatedItem.streamable;
+            downloadable = updatedItem.downloadable;
             artwork_url = updatedItem.artwork_url;
+            permalink_url = updatedItem.permalink_url;
             user = updatedItem.user;
             likes_count = updatedItem.likes_count;
             reposts_count = updatedItem.reposts_count;
             user_like = updatedItem.user_like;
             created_at = updatedItem.created_at;
+            description = updatedItem.description;
+            tag_list = updatedItem.tag_list;
+            license = updatedItem.license;
+            label_id = updatedItem.label_id;
+            label_name = updatedItem.label_name;
+            ean = updatedItem.ean;
+            genre = updatedItem.genre;
+            type = updatedItem.type;
+
+            purchase_url = updatedItem.purchase_url;
+            purchase_title = updatedItem.purchase_title;
+
+            release = updatedItem.release;
+            release_day = updatedItem.release_day;
+            release_year = updatedItem.release_year;
+            release_month = updatedItem.release_month;
+
+            embeddable_by = updatedItem.embeddable_by;
 
             // these will get refreshed
             mElapsedTime = null;
