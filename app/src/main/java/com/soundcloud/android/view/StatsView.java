@@ -20,14 +20,13 @@ public class StatsView extends View {
     private final Drawable[] mIcons;
     private final int mItemPadding, mSeparatorWidth;
     private final int mFontOffset;
+    private final Rect mBounds;
+    private final int[] mOffsets;
 
+    // track stats
     private int mPlays, mLikes, mReposts, mComments;
-    private Rect mBounds;
-
     private boolean mLiked;
     private boolean mReposted;
-
-    private int[] mOffsets;
 
     @SuppressWarnings("UnusedDeclaration")
     public StatsView(Context context) {
