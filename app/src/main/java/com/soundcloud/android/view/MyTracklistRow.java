@@ -44,11 +44,6 @@ public class MyTracklistRow extends TrackInfoBar {
         return View.inflate(getContext(), R.layout.record_list_item_row, this);
     }
 
-    //    @Override
-//    protected int getRowResourceId() {
-//        return R.layout.record_list_item_row;
-//    }
-
     private Drawable getPrivateBgDrawable(){
           if (mPrivateBgDrawable == null) {
               mPrivateBgDrawable = getResources().getDrawable(R.drawable.round_rect_gray);

@@ -109,5 +109,15 @@
 
     <dimen name="txt_empty_msg_size">16sp</dimen>
 
+    <dimen name="stats_view_font_offset">-1dp</dimen>
 
+    <dimen name="stats_view_play_icon_offset">1dp</dimen>
+    <dimen name="stats_view_likes_icon_offset">1dp</dimen>
+    <dimen name="stats_view_reposts_icon_offset">1dp</dimen>
+    <dimen name="stats_view_comments_icon_offset">2dp</dimen>
+
+    <dimen name="stats_view_item_padding">4dp</dimen>
+    <dimen name="stats_view_separator_width">1dp</dimen>
+
+    <dimen name="stats_view_item_text_size">12sp</dimen>
 </resources>
