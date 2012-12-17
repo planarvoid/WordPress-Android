@@ -17,6 +17,7 @@ public class StatsView extends View {
     private final int mTextColor, mPressedColor;
 
     private final Drawable mPlaysIcon, mLikesIcon, mLikedIcon, mRepostsIcon, mRepostedIcon, mCommentsIcon, mSeparator;
+    private final Drawable[] mIcons;
     private final int mItemPadding, mSeparatorWidth;
     private final int mFontOffset;
 
@@ -54,6 +55,8 @@ public class StatsView extends View {
         mRepostsIcon  = r.getDrawable(R.drawable.ic_stats_reposts_states);
         mRepostedIcon = r.getDrawable(R.drawable.ic_stats_reposted_states);
         mCommentsIcon = r.getDrawable(R.drawable.ic_stats_comments_states);
+        mIcons        = new Drawable[]{ mPlaysIcon, mLikesIcon, mRepostsIcon, mCommentsIcon };
+
         mSeparator    = r.getDrawable(R.drawable.stat_divider);
 
         mItemPadding    = r.getDimensionPixelSize(R.dimen.stats_view_item_padding);
@@ -70,7 +73,7 @@ public class StatsView extends View {
         textPaint.setStyle(Paint.Style.FILL);
         textPaint.setTextSize(r.getDimensionPixelSize(R.dimen.stats_view_item_text_size));
 
-        mOffsets    =   new int[]{
+        mOffsets = new int[]{
                 r.getDimensionPixelSize(R.dimen.stats_view_play_icon_offset),
                 r.getDimensionPixelSize(R.dimen.stats_view_likes_icon_offset),
                 r.getDimensionPixelSize(R.dimen.stats_view_reposts_icon_offset),
@@ -82,9 +85,8 @@ public class StatsView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width  = 0;
         int height = 0;
-
         int[]      counts   = {mPlays, mLikes, mReposts, mComments};
-        Drawable[] icons    = {mPlaysIcon, mLikesIcon, mRepostsIcon, mCommentsIcon};
+
         boolean    hasDrawn = false;
 
         final int paddingLeft = getPaddingLeft();
@@ -92,12 +94,10 @@ public class StatsView extends View {
         final int paddingTop = getPaddingTop();
         final int paddingBottom = getPaddingBottom();
 
-        for (int i = 0; i < icons.length; i++) {
+        for (int i = 0; i < mIcons.length; i++) {
             if (counts[i] <= 0) continue;
-
-            Drawable icon   = icons[i];
+            Drawable icon   = mIcons[i];
             String   string = Integer.toString(counts[i]);
-
             if (hasDrawn) {
                 width += mSeparatorWidth;
                 width += mItemPadding;
