@@ -99,7 +99,7 @@ public class CustomToggleButton extends ToggleButton {
          * For some reason, custom drawing operations in this onDraw method would not show up.
          * I assume this is because of some underlying optimizations of TextView that violate
          * the contract of onDraw. To work around this without having to write my own toggle
-         * button, the actually drawing is done in the CustomToggleButtonDrawable set as this
+         * button, the actual drawing is done in the CustomToggleButtonDrawable set as this
          * button's background.
          */
     }
