@@ -13,7 +13,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.StatsView;
 import com.soundcloud.android.view.quickaction.QuickTrackMenu;
 import org.jetbrains.annotations.Nullable;
@@ -102,17 +101,6 @@ public class TrackInfoBar extends LazyRow {
         }
     }
 
-    public void addTextShadows(){
-//        AndroidUtils.setTextShadowForGrayBg(mTitle);
-//        AndroidUtils.setTextShadowForGrayBg(mUser);
-//        AndroidUtils.setTextShadowForGrayBg(mCreatedAt);
-//        AndroidUtils.setTextShadowForGrayBg(mLikeCount);
-//        AndroidUtils.setTextShadowForGrayBg(mPlayCount);
-//        AndroidUtils.setTextShadowForGrayBg(mCommentCount);
-    }
-
-
-
     /**
      *  update the displayed track
      * @param p the playable to display
@@ -160,7 +148,7 @@ public class TrackInfoBar extends LazyRow {
         if (track.isPublic()) {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
-            if (track.shared_to_count == 0){
+            if (track.shared_to_count == 0) {
                 mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
                 mPrivateIndicator.setText(R.string.tracklist_item_shared_count_unavailable);
             } else if (track.shared_to_count == 1){
@@ -177,24 +165,24 @@ public class TrackInfoBar extends LazyRow {
             mPrivateIndicator.setVisibility(View.VISIBLE);
         }
 
-        if (showFullStats){
+        if (showFullStats) {
             mStatsView.updateWithTrack(track);
         } else {
             mStatsView.setPlays(track.playback_count);
             mStatsView.setLikes(0);
-            mStatsView.setResposts(0);
+            mStatsView.setReposts(0);
             mStatsView.setComments(0);
         }
 
         setTitle(false);
 
-        if (track.isProcessing()){
+        if (track.isProcessing()) {
             if (findViewById(R.id.processing_progress) != null){
                 findViewById(R.id.processing_progress).setVisibility(View.VISIBLE);
             } else {
                 ((ViewStub) findViewById(R.id.processing_progress_stub)).inflate();
             }
-        } else if (findViewById(R.id.processing_progress) != null){
+        } else if (findViewById(R.id.processing_progress) != null) {
             findViewById(R.id.processing_progress).setVisibility(View.GONE);
         }
 
@@ -263,9 +251,7 @@ public class TrackInfoBar extends LazyRow {
          super.getChildStaticTransformation(child, t);
          t.setAlpha(0.4f);
          return true;
-
      }
-
 
     /** Non-list, Icon functions **/
 

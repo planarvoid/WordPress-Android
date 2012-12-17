@@ -20,13 +20,13 @@ public class StatsView extends View {
     private final int mItemPadding, mSeparatorWidth;
     private final int mFontOffset;
 
-    private int mPlays, mLikes, mResposts, mComments;
+    private int mPlays, mLikes, mReposts, mComments;
     private Rect mBounds;
 
     private boolean mLiked;
     private boolean mReposted;
 
-    int[] mOffsets;
+    private int[] mOffsets;
 
     @SuppressWarnings("UnusedDeclaration")
     public StatsView(Context context) {
@@ -56,10 +56,10 @@ public class StatsView extends View {
         mCommentsIcon = r.getDrawable(R.drawable.ic_stats_comments_states);
         mSeparator    = r.getDrawable(R.drawable.stat_divider);
 
-        mItemPadding    = (int) r.getDimension(R.dimen.stats_view_item_padding);
-        mSeparatorWidth = (int) r.getDimension(R.dimen.stats_view_separator_width);
+        mItemPadding    = r.getDimensionPixelSize(R.dimen.stats_view_item_padding);
+        mSeparatorWidth = r.getDimensionPixelSize(R.dimen.stats_view_separator_width);
 
-        mFontOffset = (int) r.getDimension(R.dimen.stats_view_font_offset);
+        mFontOffset = r.getDimensionPixelSize(R.dimen.stats_view_font_offset);
 
         mTextColor    = r.getColor(R.color.listTxtValue);
         mPressedColor = r.getColor(R.color.listTxtSecondary);
@@ -68,22 +68,22 @@ public class StatsView extends View {
         textPaint.setColor(mTextColor);
         textPaint.setAntiAlias(true );
         textPaint.setStyle(Paint.Style.FILL);
-        textPaint.setTextSize(r.getDimension(R.dimen.stats_view_item_text_size));
+        textPaint.setTextSize(r.getDimensionPixelSize(R.dimen.stats_view_item_text_size));
 
         mOffsets    =   new int[]{
-                (int) r.getDimension(R.dimen.stats_view_play_icon_offset),
-                (int) r.getDimension(R.dimen.stats_view_likes_icon_offset),
-                (int) r.getDimension(R.dimen.stats_view_reposts_icon_offset),
-                (int) r.getDimension(R.dimen.stats_view_comments_icon_offset)
+                r.getDimensionPixelSize(R.dimen.stats_view_play_icon_offset),
+                r.getDimensionPixelSize(R.dimen.stats_view_likes_icon_offset),
+                r.getDimensionPixelSize(R.dimen.stats_view_reposts_icon_offset),
+                r.getDimensionPixelSize(R.dimen.stats_view_comments_icon_offset)
         };
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int width = 0;
+        int width  = 0;
         int height = 0;
 
-        int[]      counts   = {mPlays, mLikes, mResposts, mComments};
+        int[]      counts   = {mPlays, mLikes, mReposts, mComments};
         Drawable[] icons    = {mPlaysIcon, mLikesIcon, mRepostsIcon, mCommentsIcon};
         boolean    hasDrawn = false;
 
@@ -104,7 +104,6 @@ public class StatsView extends View {
             }
 
             textPaint.getTextBounds(string, 0, string.length(), mBounds);
-
             width += icon.getIntrinsicWidth();
             width += mItemPadding;
             width += mBounds.width();
@@ -119,7 +118,7 @@ public class StatsView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        int[] counts   = {mPlays, mLikes, mResposts, mComments};
+        int[] counts   = {mPlays, mLikes, mReposts, mComments};
         Drawable[] icons = {
             mPlaysIcon,
             isLiked() ?    mLikedIcon    : mLikesIcon,
@@ -143,19 +142,21 @@ public class StatsView extends View {
                 x += mItemPadding;
             }
 
-            int iconHeight = icon.getIntrinsicHeight();
-            int iconY      = (getHeight() - iconHeight) / 2 + mOffsets[i];
+            final int iconHeight = icon.getIntrinsicHeight();
+            final int iconWidth  = icon.getIntrinsicWidth();
+            final int iconY      = (getHeight() - iconHeight) / 2 + mOffsets[i];
 
-            icon.setBounds(x, iconY, x + icon.getIntrinsicWidth(), iconY + icon.getIntrinsicHeight());
+            icon.setBounds(x, iconY, x + iconWidth, iconY + iconHeight);
             icon.draw(canvas);
 
-            x += icon.getIntrinsicWidth();
+            x += iconWidth;
             x += mItemPadding;
 
             int textY = (int) (getHeight() - (getHeight() - textPaint.getTextSize()) / 2) + mFontOffset;
 
             canvas.drawText(string, x, textY, textPaint);
-            x += textPaint.measureText(string);
+            textPaint.getTextBounds(string, 0, string.length(), mBounds);
+            x += mBounds.width();
             x += mItemPadding;
 
             hasDrawn = true;
@@ -181,27 +182,33 @@ public class StatsView extends View {
     public void updateWithTrack(Track track) {
         mPlays    = track.playback_count;
         mLikes    = track.likes_count;
-        mResposts = track.reposts_count;
+        mReposts  = track.reposts_count;
         mComments = track.comment_count;
 
         mReposted = track.user_repost;
         mLiked    = track.user_like;
+
+        invalidate();
     }
 
     public void setPlays(int plays) {
         mPlays = plays;
+        invalidate();
     }
 
     public void setLikes(int likes) {
         mLikes = likes;
+        invalidate();
     }
 
-    public void setResposts(int resposts) {
-        mResposts = resposts;
+    public void setReposts(int reposts) {
+        mReposts = reposts;
+        invalidate();
     }
 
     public void setComments(int comments) {
         mComments = comments;
+        invalidate();
     }
 
     public boolean isLiked() {
