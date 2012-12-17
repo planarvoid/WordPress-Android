@@ -339,7 +339,7 @@ desc "run lint"
 task :lint do
   result = "app/target/lint-result.html"
   rm_f result
-  lint_ok = system("mvn compile && lint --config app/lint.xml --html #{result} app")
+  lint_ok = system("mvn compile && lint --config app/lint.xml --exitcode --html #{result} app")
   sh "open #{result}" if File.exists?(result)
   raise "Lint failure" unless lint_ok
 end
