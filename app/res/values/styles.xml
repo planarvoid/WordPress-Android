@@ -397,7 +397,10 @@
     <style name="txt_player_track_info">
         <item name="android:textColor">@color/txt_description_color</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:padding">10dip</item>
+        <item name="android:paddingTop">10dip</item>
+        <item name="android:paddingBottom">10dip</item>
+        <item name="android:paddingLeft">@dimen/list_item_padding_left</item>
+        <item name="android:paddingRight">@dimen/list_item_padding_right</item>
         <item name="android:linksClickable">true</item>
     </style>
 
