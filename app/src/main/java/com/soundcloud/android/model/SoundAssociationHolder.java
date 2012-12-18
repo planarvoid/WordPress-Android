@@ -72,6 +72,7 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
                     deletions.get(resourceType).add(id);
                 }
             }
+            c.close();
 
             for (Integer type : deletions.keySet()) {
                 for (Long id : deletions.get(type)) {
@@ -80,7 +81,6 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
                             new String[]{String.valueOf(id), String.valueOf(type)});
                 }
             }
-            c.close();
         }
 
         return deleted;
