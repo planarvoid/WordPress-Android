@@ -19,6 +19,7 @@ import android.text.util.Linkify;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -26,19 +27,10 @@ import android.widget.TextView;
 import java.util.List;
 
 public class PlayerTrackDetails extends RelativeLayout {
-    private final FlowLayout mTrackTags;
-
-    private final TableRow mLikersRow;
-    private final TableRow mRepostersRow;
-    private final TableRow mCommentersRow;
-
-    private final TableRow mLikersDivider;
-    private final TableRow mRepostersDivider;
-    private final TableRow mCommentersDivider;
-
-    private final TextView mLikersText;
-    private final TextView mRepostersText;
-    private final TextView mCommentersText;
+    private final ViewGroup mTrackTags;
+    private final TableRow mLikersRow,     mRepostersRow,     mCommentersRow;
+    private final TableRow mLikersDivider, mRepostersDivider, mCommentersDivider;
+    private final TextView mLikersText,    mRepostersText,    mCommentersText;
     private final TextView mTxtInfo;
 
     private long mTrackId;
@@ -49,7 +41,7 @@ public class PlayerTrackDetails extends RelativeLayout {
         View.inflate(context, R.layout.track_info, this);
         setBackgroundColor(0xFFFFFFFF);
 
-        mTrackTags = (FlowLayout) findViewById(R.id.tags_holder);
+        mTrackTags = (ViewGroup) findViewById(R.id.tags_holder);
 
         mLikersText    = (TextView) findViewById(R.id.likers_txt);
         mLikersRow     = (TableRow) findViewById(R.id.likers_row);
