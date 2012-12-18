@@ -400,7 +400,15 @@ public class PlayerTrackView extends LinearLayout implements
             // there is currently no manual or stale refresh logic
             if (mTrack != null) {
                 if (mTrack.shouldLoadInfo()) {
-                    mPlayer.startService(new Intent(CloudPlaybackService.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrack.id));
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!mPlayer.isFinishing()) {
+                                mPlayer.startService(new Intent(CloudPlaybackService.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrack.id));
+                            }
+                        }
+                    }, 400); //flipper animation time is 250, so this should be enough to allow the animation to end
+
                     mTrackDetailsView.fillTrackDetails(mTrack, true);
                 } else {
                     mTrackDetailsView.fillTrackDetails(mTrack);
