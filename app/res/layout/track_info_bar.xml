@@ -68,19 +68,17 @@
               style="@style/txt_list_main"
               android:ellipsize="marquee"
               android:text="@string/track"/>
-    <RelativeLayout android:layout_below="@id/track"
-                    android:layout_alignLeft="@id/user"
-                    android:layout_alignParentRight="true"
-                    android:layout_width="0dp"
-                    android:paddingTop="3dip"
-                    android:layout_height="16dp">
+
         <TextView android:id="@+id/private_indicator"
+                  android:layout_below="@id/track"
+                  android:layout_toRightOf="@id/icon"
+                  android:layout_marginLeft="@dimen/list_text_margin_left"
                   android:singleLine="true"
                   android:ellipsize="none"
-                  android:layout_alignParentLeft="true"
                   android:drawableLeft="@drawable/lock_states"
                   android:drawablePadding="2dp"
-                  android:layout_marginRight="5dp"
+                  android:layout_marginRight="3dp"
+                  android:layout_marginTop="3dp"
                   android:textColor="@color/privacy_indicator"
                   android:textSize="@dimen/list_txt_sub_size"
                   android:layout_width="wrap_content"
@@ -88,7 +86,11 @@
                   android:layout_height="wrap_content"/>
 
         <com.soundcloud.android.view.StatsView android:id="@+id/stats"
+                                               android:layout_below="@id/track"
+                                               android:layout_marginLeft="@dimen/list_text_margin_left"
+                                               android:layout_alignWithParentIfMissing="true"
+                                               android:layout_marginTop="5dp"
+                                               android:layout_toRightOf="@id/private_indicator"
                                                android:layout_width="wrap_content"
                                                android:layout_height="wrap_content" />
-    </RelativeLayout>
 </RelativeLayout>
