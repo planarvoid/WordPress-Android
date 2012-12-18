@@ -210,9 +210,9 @@ public class PlayerTrackDetails extends RelativeLayout {
         }
     }
 
-    public static class TagsHolder {
-        String genre;
-        List<String> humanTags;
+    private static class TagsHolder {
+        final String genre;
+        final List<String> humanTags;
 
         public TagsHolder(Track track) {
             this.genre = track.genre;
