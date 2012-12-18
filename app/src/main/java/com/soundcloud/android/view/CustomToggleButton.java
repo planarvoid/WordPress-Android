@@ -1,22 +1,19 @@
 package com.soundcloud.android.view;
 
+import org.jetbrains.annotations.Nullable;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
-import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.widget.CompoundButton;
 import android.widget.ToggleButton;
-import com.soundcloud.android.R;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 
 public class CustomToggleButton extends ToggleButton {
+
     private class CustomToggleButtonDrawable extends StateListDrawable {
         @Nullable private Drawable  mBackground;
 
@@ -55,7 +52,7 @@ public class CustomToggleButton extends ToggleButton {
 
 
             int textSize = (int) (paint.getTextSize() - paint.getFontMetrics().bottom);
-            int textY = (int) (height - (height - textSize) / 2);
+            int textY = height - (height - textSize) / 2;
             canvas.drawText(text, x, textY, paint);
         }
 
@@ -74,14 +71,17 @@ public class CustomToggleButton extends ToggleButton {
         }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public CustomToggleButton(Context context) {
         super(context);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public CustomToggleButton(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public CustomToggleButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
