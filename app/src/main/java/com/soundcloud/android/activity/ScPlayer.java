@@ -263,6 +263,11 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                     intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition, 0));
             mIgnoreServiceQueue = true;
         }
+
+        // only want to handle a playback intent once. might have to change this if we start sending unrelated extras
+        final Bundle extras = intent.getExtras();
+        if (extras != null) extras.clear();
+        intent.setData(null);
     }
 
     private final ServiceConnection osc = new ServiceConnection() {
@@ -479,6 +484,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 onMetaChanged(queuePos);
 
             } else {
+
                 if (CloudPlaybackService.PLAYBACK_COMPLETE.equals(action) || action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
                     setPlaybackState();
                     final PlayerTrackView trackView = getTrackView(queuePos);
