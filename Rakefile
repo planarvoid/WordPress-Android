@@ -339,7 +339,7 @@ desc "run lint"
 task :lint do
   result = "app/target/lint-result.html"
   rm_f result
-  lint_ok = system("#{android_home}/bin/lint --config app/lint.xml --exitcode --html #{result} app")
+  lint_ok = system("#{android_home}/tools/lint --config app/lint.xml --exitcode --html #{result} app")
   if File.exists?(result) && RUBY_PLATFORM =~ /darwin/
     sh "open #{result}"
   end
