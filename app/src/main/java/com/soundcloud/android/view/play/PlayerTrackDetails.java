@@ -147,14 +147,12 @@ public class PlayerTrackDetails extends RelativeLayout {
             if (!(mm instanceof LinkMovementMethod)) {
                 mTxtInfo.setMovementMethod(LinkMovementMethod.getInstance());
             }
+        } else if (!showLoading && track.likes_count <= 0 && track.reposts_count <= 0 && track.comment_count <= 0
+                && mLastTags.isEmpty()) {
+            mTxtInfo.setText(R.string.no_info_available);
+            mTxtInfo.setGravity(Gravity.CENTER_HORIZONTAL);
         } else {
-            if (!showLoading && track.likes_count <= 0 && track.reposts_count <= 0 && track.comment_count <= 0
-                    && mLastTags.isEmpty()){
-                mTxtInfo.setText(R.string.no_info_available);
-                mTxtInfo.setGravity(Gravity.CENTER_HORIZONTAL);
-            } else {
-                mTxtInfo.setText("");
-            }
+            mTxtInfo.setText("");
         }
 
         if (showLoading) {
