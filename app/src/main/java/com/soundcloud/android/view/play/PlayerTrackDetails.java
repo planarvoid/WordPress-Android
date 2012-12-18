@@ -41,7 +41,7 @@ public class PlayerTrackDetails extends RelativeLayout {
     private final TextView mCommentersText;
     private final TextView mTxtInfo;
 
-    private @Nullable long mTrackId;
+    private long mTrackId;
     private @Nullable TagsHolder mLastTags;
 
     public PlayerTrackDetails(Context context) {
