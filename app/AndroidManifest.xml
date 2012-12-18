@@ -334,7 +334,8 @@
                 <action android:name="com.soundcloud.android.playback.close"/>
                 <action android:name="com.soundcloud.android.playback.reset"/>
                 <action android:name="com.soundcloud.android.playback.stop"/>
-                <action android:name="com.soundcloud.android.favorite.reloadqueue"/>
+                <action android:name="com.soundcloud.android.reloadqueue"/>
+                <action android:name="com.soundcloud.android.loadTrackInfo"/>
 
                 <action android:name="com.soundcloud.android.favorite.add"/>
                 <action android:name="com.soundcloud.android.favorite.remove"/>

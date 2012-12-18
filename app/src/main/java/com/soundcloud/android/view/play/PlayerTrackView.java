@@ -225,7 +225,7 @@ public class PlayerTrackView extends LinearLayout implements
         mWaveformController.updateTrack(mTrack, queuePosition, priority);
 
         mTrackInfoBar.display(mTrack, -1, false, true, false);
-        if (mTrackDetailsView != null) mTrackDetailsView.setPlayingTrack(mTrack);
+        if (mTrackDetailsView != null) mTrackDetailsView.fillTrackDetails(mTrack);
         updateAvatar(priority);
 
         if (mDuration != mTrack.duration) {
@@ -347,7 +347,7 @@ public class PlayerTrackView extends LinearLayout implements
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
-                        if (animation == mArtwork.getAnimation()) mArtworkHolder.setBackgroundDrawable(null);
+                        if (animation.equals(mArtwork.getAnimation())) mArtworkHolder.setBackgroundDrawable(null);
                     }
 
                     @Override
@@ -392,10 +392,27 @@ public class PlayerTrackView extends LinearLayout implements
             mWaveformController.closeComment(false);
             if (mTrackDetailsView == null) {
                 mTrackDetailsView = new PlayerTrackDetails(mPlayer);
-                mTrackDetailsView.setPlayingTrack(mTrack);
                 trackFlipper.addView(mTrackDetailsView);
             }
-            if (!mTrackDetailsView.getIsTrackInfoFilled()) mTrackDetailsView.fillTrackDetails();
+
+            // according to this logic, we will only load the info if we haven't yet or there was an error
+            // there is currently no manual or stale refresh logic
+            if (mTrack != null) {
+                if (mTrack.shouldLoadInfo()) {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!mPlayer.isFinishing()) {
+                                mPlayer.startService(new Intent(CloudPlaybackService.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrack.id));
+                            }
+                        }
+                    }, 400); //flipper animation time is 250, so this should be enough to allow the animation to end
+
+                    mTrackDetailsView.fillTrackDetails(mTrack, true);
+                } else {
+                    mTrackDetailsView.fillTrackDetails(mTrack);
+                }
+            }
 
             trackFlipper.setInAnimation(AnimUtils.inFromRightAnimation(new AccelerateDecelerateInterpolator()));
             trackFlipper.setOutAnimation(AnimUtils.outToLeftAnimation(new AccelerateDecelerateInterpolator()));
@@ -559,7 +576,7 @@ public class PlayerTrackView extends LinearLayout implements
             @Override public void onAnimationRepeat(Animation animation) {}
             @Override
             public void onAnimationEnd(Animation animation) {
-                if (target.getAnimation() == animation) {
+                if (target.getAnimation().equals(animation)) {
                     target.setVisibility(visibility);
                     target.setEnabled(true);
                 }
@@ -573,9 +590,8 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public void onDestroy() {
-        if (mWaveformController != null) {
-            mWaveformController.onDestroy();
-        }
+        clear();
+        mWaveformController.onDestroy();
     }
 
     public boolean waveformVisible(){
@@ -649,13 +665,13 @@ public class PlayerTrackView extends LinearLayout implements
             if (t != null) {
                 setTrack(t, mQueuePosition, true, mOnScreen);
                 if (mTrackDetailsView != null) {
-                    mTrackDetailsView.onInfoLoadSuccess();
+                    mTrackDetailsView.fillTrackDetails(mTrack);
                 }
             }
 
         } else if (Sound.ACTION_SOUND_INFO_ERROR.equals(action)) {
             if (mTrackDetailsView != null) {
-                mTrackDetailsView.onInfoLoadError();
+                mTrackDetailsView.fillTrackDetails(mTrack);
             }
 
         } else if (CloudPlaybackService.BUFFERING.equals(action)) {
@@ -719,8 +735,9 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public void onBuffering() {
-        if (mTrack != null) {
-            mTrack.last_playback_error = -1;
+        final Track track = getTrack();
+        if (track != null) {
+            track.last_playback_error = -1;
             hideUnplayable();
             mWaveformController.onBufferingStart();
             mWaveformController.stopSmoothProgress();
@@ -733,11 +750,6 @@ public class PlayerTrackView extends LinearLayout implements
 
     public long getTrackId() {
         return mTrack == null ? -1 : mTrack.id;
-    }
-
-    public void destroy() {
-        clear();
-        mWaveformController.onDestroy();
     }
 
     public void clear() {

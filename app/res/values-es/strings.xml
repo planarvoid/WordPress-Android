@@ -249,4 +249,5 @@
     <string name="info">Info</string>
 
     <string name="no_internet_connection">Oops, no son capaces de conectarse a Internet</string>
+    <string name="no_info_available">No hay información disponible</string>
 </resources>

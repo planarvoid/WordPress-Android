@@ -10,10 +10,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.activity.track.TracksByTag;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -22,7 +20,6 @@ import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.FlowLayout;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
@@ -39,10 +36,6 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.FloatMath;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -57,8 +50,10 @@ import java.util.regex.Pattern;
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Track extends Sound implements Playable {
-    private static final String TAG = "Track";
     public static final String EXTRA = "track";
+    public static final String EXTRA_ID = "track_id";
+
+    private static final String TAG = "Track";
     private static final Pattern TAG_PATTERN = Pattern.compile("(\"([^\"]+)\")");
 
     // API fields
@@ -265,12 +260,12 @@ public class Track extends Sound implements Playable {
 
     @JsonIgnoreProperties(ignoreUnknown=true)
     public static class CreatedWith implements Parcelable {
+
         @JsonView(Views.Full.class) public long id;
         @JsonView(Views.Full.class) public String name;
         @JsonView(Views.Full.class) public String uri;
         @JsonView(Views.Full.class) public String permalink_url;
         @JsonView(Views.Full.class) public String external_url;
-
         public CreatedWith() {
             super();
         }
@@ -310,8 +305,8 @@ public class Track extends Sound implements Playable {
                 return new CreatedWith[size];
             }
         };
-    }
 
+    }
     public Track() {
         super();
     }
@@ -420,42 +415,6 @@ public class Track extends Sound implements Playable {
 
     private boolean isCompleteTrack(){
         return state != null && created_at != null && duration > 0;
-    }
-
-    public void fillTags(ViewGroup view, final Context context){
-        TextView txt;
-        FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(10, 10);
-
-        final LayoutInflater inflater = LayoutInflater.from(context);
-
-        if (!TextUtils.isEmpty(genre)) {
-            txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
-            txt.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(context, TracksByTag.class);
-                        intent.putExtra("genre", genre);
-                        context.startActivity(intent);
-                    }
-                });
-            txt.setText(genre);
-            view.addView(txt, flowLP);
-        }
-        for (final String t : humanTags()) {
-            if (!TextUtils.isEmpty(t)) {
-                txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
-                txt.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(context, TracksByTag.class);
-                        intent.putExtra("tag", t);
-                        context.startActivity(intent);
-                    }
-                });
-                txt.setText(t);
-                view.addView(txt, flowLP);
-            }
-        }
     }
 
     // TODO, THIS SUCKS
@@ -653,7 +612,7 @@ public class Track extends Sound implements Playable {
         if (intent == null) throw new IllegalArgumentException("intent is null");
         Track t = intent.getParcelableExtra(EXTRA);
         if (t == null) {
-            t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra("track_id", 0));
+            t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(EXTRA_ID, 0));
             if (t == null) {
                 throw new IllegalArgumentException("Could not obtain track from intent "+intent);
             }
@@ -669,10 +628,10 @@ public class Track extends Sound implements Playable {
         PROCESSING("processing");
 
         private final String name;
+
         private State(String name){
             this.name = name;
         }
-
         @JsonValue
         public String value() {
             return name;
@@ -694,12 +653,20 @@ public class Track extends Sound implements Playable {
         }
 
         public boolean isFailed()     { return FAILED == this; }
+
         public boolean isProcessing() { return PROCESSING == this; }
         public boolean isFinished()   { return FINISHED == this; }
     }
-
     @Override
     public int getTypeId() {
         return DB_TYPE_TRACK;
+    }
+
+    public boolean shouldLoadInfo(){
+        return load_info_task == null || load_info_task.wasError();
+    }
+
+    public boolean isLoadingInfo() {
+        return !AndroidUtils.isTaskFinished(load_info_task);
     }
 }
