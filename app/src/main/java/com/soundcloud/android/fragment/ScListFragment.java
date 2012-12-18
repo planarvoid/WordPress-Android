@@ -333,11 +333,16 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             mNextHref = data.nextHref;
         }
 
-        if (data.wasRefresh) {
-            mRefreshTask = null; // allows isRefreshing to return false for display purposes
-        } else {
+        // this will represent the end append state of the list on an append, or on a successful refresh
+        if (!data.wasRefresh || data.success){
             mKeepGoing = data.keepGoing;
         }
+
+        if (data.wasRefresh) {
+            mRefreshTask = null; // allows isRefreshing to return false for display purposes
+        }
+
+        mKeepGoing = data.keepGoing;
 
         adapter.handleTaskReturnData(data);
         configureEmptyView(handleResponseCode(data.responseCode));
