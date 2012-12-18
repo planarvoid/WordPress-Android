@@ -264,7 +264,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             mIgnoreServiceQueue = true;
         }
 
-        // only want to handle a playback intent once. might have to change this if we start sending unrelated extras
+        // only handle intent once for now (currently they are just one shot playback requests)
         final Bundle extras = intent.getExtras();
         if (extras != null) extras.clear();
         intent.setData(null);
@@ -442,7 +442,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         if (playlistManager != null){
             final PlayerTrackView ptv = getTrackView(playlistManager.getPosition());
             if (ptv != null) {
-                ptv.setProgress(progress, (int) CloudPlaybackService.getLoadingPercent(),
+                ptv.setProgress(progress, CloudPlaybackService.getLoadingPercent(),
                         SMOOTH_PROGRESS && CloudPlaybackService.getState() == State.PLAYING);
             }
         } else return  REFRESH_DELAY;
@@ -476,7 +476,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         public void onReceive(Context context, Intent intent) {
             final int queuePos = intent.getIntExtra(CloudPlaybackService.BroadcastExtras.queuePosition, -1);
             String action = intent.getAction();
-
             if (action.equals(CloudPlaybackService.PLAYQUEUE_CHANGED)) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
                 setTrackDisplayFromService();
