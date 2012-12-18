@@ -5,21 +5,23 @@ import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.track.TrackComments;
 import com.soundcloud.android.activity.track.TrackLikers;
 import com.soundcloud.android.activity.track.TrackReposters;
+import com.soundcloud.android.activity.track.TracksByTag;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.FlowLayout;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.Context;
 import android.content.Intent;
-import android.nfc.Tag;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.util.Linkify;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -111,12 +113,11 @@ public class PlayerTrackDetails extends RelativeLayout {
         mTxtInfo = (TextView) findViewById(R.id.txtInfo);
     }
 
-    public void fillTrackDetails(Track track, boolean showLoading) {
-        if (track == null){
-            mTrackId = -1;
-            return;
-        }
+    public void fillTrackDetails(Track track) {
+        fillTrackDetails(track, track.isLoadingInfo());
+    }
 
+    public void fillTrackDetails(Track track, boolean showLoading) {
         mTrackId = track.id;
 
         setViewVisibility(track.likes_count > 0, mLikersRow, mLikersDivider);
@@ -138,7 +139,7 @@ public class PlayerTrackDetails extends RelativeLayout {
         // check for equality to avoid extra view inflation
         if (mLastTags == null || !mLastTags.hasSameTags(track)) {
             mTrackTags.removeAllViews();
-            track.fillTags(mTrackTags, mPlayer);
+            fillTags(track);
             mLastTags = new TagsHolder(track);
         }
 
@@ -174,6 +175,42 @@ public class PlayerTrackDetails extends RelativeLayout {
             findViewById(R.id.loading_layout).setVisibility(View.GONE);
         }
     }
+
+    public void fillTags(final Track track) {
+        TextView txt;
+        FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(10, 10);
+
+        final LayoutInflater inflater = LayoutInflater.from(mPlayer);
+        if (!TextUtils.isEmpty(track.genre)) {
+            txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
+            txt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mPlayer, TracksByTag.class);
+                    intent.putExtra("genre", track.genre);
+                    mPlayer.startActivity(intent);
+                }
+            });
+            txt.setText(track.genre);
+            mTrackTags.addView(txt, flowLP);
+        }
+        for (final String t : track.humanTags()) {
+            if (!TextUtils.isEmpty(t)) {
+                txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
+                txt.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(mPlayer, TracksByTag.class);
+                        intent.putExtra("tag", t);
+                        mPlayer.startActivity(intent);
+                    }
+                });
+                txt.setText(t);
+                mTrackTags.addView(txt, flowLP);
+            }
+        }
+    }
+
 
     private static void setViewVisibility(boolean visible, View... views) {
         int visibility = visible ? VISIBLE : GONE;

@@ -95,7 +95,7 @@ public class PlayerTrackPager extends ViewPager {
                                 mViews.getFirst().addView(lastView);
 
                                 final int pos = currentView.getPlayPosition() - 1;
-                                lastView.setTrack(playQueueManager == null ? null : playQueueManager.getTrackIdAt(pos), pos, true, false);
+                                lastView.setTrack(playQueueManager == null ? null : playQueueManager.getTrackAt(pos), pos, true, false);
                                 lastView.setOnScreen(false);
                                 mPlayerTrackViews.add(0, mPlayerTrackViews.remove(mPlayerTrackViews.size() - 1));
                                 setCurrentItem(1, false);
@@ -116,7 +116,7 @@ public class PlayerTrackPager extends ViewPager {
                                 mViews.getLast().addView(firstView);
 
                                 final int pos = currentView.getPlayPosition() + 1;
-                                firstView.setTrack(playQueueManager == null ? null : playQueueManager.getTrackIdAt(pos), pos, true, false);
+                                firstView.setTrack(playQueueManager == null ? null : playQueueManager.getTrackAt(pos), pos, true, false);
                                 firstView.setOnScreen(false);
                                 mPlayerTrackViews.add(mPlayerTrackViews.remove(0));
                                 setCurrentItem(1, false);
@@ -145,8 +145,7 @@ public class PlayerTrackPager extends ViewPager {
         mPlayerTrackViews.add(ptv);
 
         ptv.setOnScreen(true);
-        SoundCloudApplication.MODEL_MANAGER.cache(track);
-        ptv.setTrack(track.id, playPosition,true,true);
+        ptv.setTrack(track, playPosition,true,true);
         mPageViewAdapter.notifyDataSetChanged();
         setCurrentItem(0);
     }
@@ -177,8 +176,12 @@ public class PlayerTrackPager extends ViewPager {
             ptv.setOnScreen(priority);
 
             final long trackId = playQueueManager == null ? CloudPlaybackService.getCurrentTrackId() : playQueueManager.getTrackIdAt(pos);
-            ptv.setTrack(trackId, pos, false, priority);
-            workspaceIndex++;
+            final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(trackId);
+
+            if (track != null) {
+                ptv.setTrack(track, pos, false, priority);
+                workspaceIndex++;
+            }
         }
 
         if (queueLength < mViews.size()) {

@@ -424,42 +424,6 @@ public class Track extends Sound implements Playable {
         return state != null && created_at != null && duration > 0;
     }
 
-    public void fillTags(ViewGroup view, final Context context){
-
-        TextView txt;
-        FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(10, 10);
-
-        final LayoutInflater inflater = LayoutInflater.from(context);
-        if (!TextUtils.isEmpty(genre)) {
-            txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
-            txt.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(context, TracksByTag.class);
-                        intent.putExtra("genre", genre);
-                        context.startActivity(intent);
-                    }
-                });
-            txt.setText(genre);
-            view.addView(txt, flowLP);
-        }
-        for (final String t : humanTags()) {
-            if (!TextUtils.isEmpty(t)) {
-                txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
-                txt.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(context, TracksByTag.class);
-                        intent.putExtra("tag", t);
-                        context.startActivity(intent);
-                    }
-                });
-                txt.setText(t);
-                view.addView(txt, flowLP);
-            }
-        }
-    }
-
     // TODO, THIS SUCKS
     public FetchModelTask<Track> refreshInfoAsync(AndroidCloudAPI api, FetchModelTask.FetchModelListener<Track> listener) {
         if (load_info_task == null && AndroidUtils.isTaskFinished(load_info_task)) {
