@@ -1,7 +1,6 @@
 package com.soundcloud.android.view.play;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.track.TrackComments;
 import com.soundcloud.android.activity.track.TrackLikers;
 import com.soundcloud.android.activity.track.TrackReposters;
@@ -17,11 +16,9 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.util.Linkify;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -29,7 +26,6 @@ import android.widget.TextView;
 import java.util.List;
 
 public class PlayerTrackDetails extends RelativeLayout {
-    private final ScPlayer   mPlayer;
     private final FlowLayout mTrackTags;
 
     private final TableRow mLikersRow;
@@ -48,12 +44,11 @@ public class PlayerTrackDetails extends RelativeLayout {
     private @Nullable long mTrackId;
     private @Nullable TagsHolder mLastTags;
 
-    public PlayerTrackDetails(ScPlayer player) {
-        super(player);
-        View.inflate(player, R.layout.track_info, this);
+    public PlayerTrackDetails(Context context) {
+        super(context);
+        View.inflate(context, R.layout.track_info, this);
         setBackgroundColor(0xFFFFFFFF);
 
-        mPlayer = player;
         mTrackTags = (FlowLayout) findViewById(R.id.tags_holder);
 
         mLikersText    = (TextView) findViewById(R.id.likers_txt);
@@ -67,9 +62,9 @@ public class PlayerTrackDetails extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 if (mTrackId > 0) {
-                    Intent i = new Intent(mPlayer, TrackLikers.class);
+                    Intent i = new Intent(getContext(), TrackLikers.class);
                     i.putExtra("track_id", mTrackId);
-                    mPlayer.startActivity(i);
+                    getContext().startActivity(i);
                 }
             }
         });
@@ -85,9 +80,9 @@ public class PlayerTrackDetails extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 if (mTrackId > 0) {
-                    Intent i = new Intent(mPlayer, TrackReposters.class);
+                    Intent i = new Intent(getContext(), TrackReposters.class);
                     i.putExtra("track_id", mTrackId);
-                    mPlayer.startActivity(i);
+                    getContext().startActivity(i);
                 }
             }
         });
@@ -103,9 +98,9 @@ public class PlayerTrackDetails extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 if (mTrackId > 0) {
-                    Intent i = new Intent(mPlayer, TrackComments.class);
+                    Intent i = new Intent(getContext(), TrackComments.class);
                     i.putExtra("track_id", mTrackId);
-                    mPlayer.startActivity(i);
+                    getContext().startActivity(i);
                 }
             }
         });
@@ -176,19 +171,19 @@ public class PlayerTrackDetails extends RelativeLayout {
         }
     }
 
-    public void fillTags(final Track track) {
+    private void fillTags(final Track track) {
         TextView txt;
         FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(10, 10);
 
-        final LayoutInflater inflater = LayoutInflater.from(mPlayer);
+        final LayoutInflater inflater = LayoutInflater.from(getContext());
         if (!TextUtils.isEmpty(track.genre)) {
             txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
             txt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(mPlayer, TracksByTag.class);
+                    Intent intent = new Intent(getContext(), TracksByTag.class);
                     intent.putExtra("genre", track.genre);
-                    mPlayer.startActivity(intent);
+                    getContext().startActivity(intent);
                 }
             });
             txt.setText(track.genre);
@@ -200,9 +195,9 @@ public class PlayerTrackDetails extends RelativeLayout {
                 txt.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(mPlayer, TracksByTag.class);
+                        Intent intent = new Intent(getContext(), TracksByTag.class);
                         intent.putExtra("tag", t);
-                        mPlayer.startActivity(intent);
+                        getContext().startActivity(intent);
                     }
                 });
                 txt.setText(t);
