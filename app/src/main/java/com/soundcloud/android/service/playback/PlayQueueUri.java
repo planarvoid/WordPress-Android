@@ -43,7 +43,7 @@ public class PlayQueueUri {
     }
 
     public Uri toUri(Track track, int mPlayPos, long seekPos) {
-        Uri.Builder builder = uri.buildUpon();
+        Uri.Builder builder = uri.buildUpon().query(null); //clear the query for the new params
         if (track != null) {
             builder.appendQueryParameter(PARAM_TRACK_ID, String.valueOf(track.id));
         }
