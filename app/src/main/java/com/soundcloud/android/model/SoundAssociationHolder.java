@@ -53,26 +53,24 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
         int deleted = 0;
         if (c != null) {
             Map<Integer, ArrayList<Long>> deletions = new HashMap<Integer, ArrayList<Long>>();
-            if (c.moveToFirst()) {
-                do {
-                    boolean found = false;
-                    final long id = c.getLong(0);
-                    final int resourceType = c.getInt(1);
+            while (c.moveToNext()) {
+                boolean found = false;
+                final long id = c.getLong(0);
+                final int resourceType = c.getInt(1);
 
-                    for (SoundAssociation a : this) {
-                        if (a.getSound().id == id && a.getResourceType() == resourceType) {
-                            found = true;
-                            break;
-                        }
+                for (SoundAssociation a : this) {
+                    if (a.getSound().id == id && a.getResourceType() == resourceType) {
+                        found = true;
+                        break;
                     }
-                    if (!found) {
-                        // this item no longer exists
-                        if (!deletions.containsKey(resourceType)) {
-                            deletions.put(resourceType, new ArrayList<Long>());
-                        }
-                        deletions.get(resourceType).add(id);
+                }
+                if (!found) {
+                    // this item no longer exists
+                    if (!deletions.containsKey(resourceType)) {
+                        deletions.put(resourceType, new ArrayList<Long>());
                     }
-                } while (c.moveToNext());
+                    deletions.get(resourceType).add(id);
+                }
             }
 
             for (Integer type : deletions.keySet()) {
@@ -82,6 +80,7 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
                             new String[]{String.valueOf(id), String.valueOf(type)});
                 }
             }
+            c.close();
         }
 
         return deleted;

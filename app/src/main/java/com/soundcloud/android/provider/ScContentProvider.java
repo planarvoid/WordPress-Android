@@ -526,8 +526,8 @@ public class ScContentProvider extends ContentProvider {
                 // append possible types
                 int[] collectionType = new int[]{CollectionItemTypes.TRACK, CollectionItemTypes.REPOST};
                 for (int i = 0; i < collectionType.length; i++) {
-                    whereAppend += (i == 0 ? " AND (" : " OR ")
-                            + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + collectionType[i]
+                    whereAppend += (i == 0 ? " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" : ", ")
+                            + collectionType[i]
                             + (i == collectionType.length - 1 ? ")" : "");
                 }
 
@@ -841,8 +841,8 @@ public class ScContentProvider extends ContentProvider {
         // TODO PLAYLISTS
         qb.appendWhere(" AND " + Table.SOUND_ASSOCIATION_VIEW.name + "." + DBHelper.SoundView._TYPE + " = " + Track.DB_TYPE_TRACK);
         for (int i = 0; i < collectionType.length; i++) {
-            qb.appendWhere((i == 0 ? " AND (" : " OR ")
-                    + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + collectionType[i]
+            qb.appendWhere((i == 0 ? " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" : ", ")
+                    + collectionType[i]
                     + (i == collectionType.length - 1 ? ")" : ""));
         }
         return qb;
