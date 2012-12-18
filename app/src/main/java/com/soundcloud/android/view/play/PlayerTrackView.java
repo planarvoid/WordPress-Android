@@ -120,7 +120,7 @@ public class PlayerTrackView extends LinearLayout implements
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
         findViewById(R.id.track_info_clicker).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
+                final Track track = getTrack();
                 if (track != null) {
                     // get a valid id somehow or don't bother
                     final long userId = track.user != null ? track.user.id : track.user_id;
@@ -152,7 +152,7 @@ public class PlayerTrackView extends LinearLayout implements
         mToggleLike.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                mPlayer.toggleLike(SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId));
+                mPlayer.toggleLike(getTrack());
             }
         });
 
@@ -160,7 +160,7 @@ public class PlayerTrackView extends LinearLayout implements
         mToggleRepost.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                mPlayer.toggleRepost(SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId));
+                mPlayer.toggleRepost(getTrack());
             }
         });
 
@@ -188,7 +188,7 @@ public class PlayerTrackView extends LinearLayout implements
         mShareButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
+                final Track track = getTrack();
                 if (track != null) {
                     Intent shareIntent = track.getShareIntent();
                     if (shareIntent != null) {
@@ -218,7 +218,7 @@ public class PlayerTrackView extends LinearLayout implements
         if (!(forceUpdate || changed)) return;
 
         mTrackId = trackId;
-        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
+        final Track track = getTrack();
 
         if (track == null) {
             mShareButton.setVisibility(View.GONE);
@@ -278,7 +278,7 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     private void refreshComments() {
-        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
+        final Track track = getTrack();
         if (track == null) return;
         if (AndroidUtils.isTaskFinished(track.load_comments_task)) {
             track.load_comments_task = new LoadCommentsTask(mPlayer.getApp());
@@ -290,7 +290,7 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public void onCommentsLoaded(long track_id, List<Comment> comments){
-        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
+        final Track track = getTrack();
         if (track != null && track.id == track_id){
             track.comments = comments;
             mWaveformController.setComments(track.comments, true);
@@ -298,7 +298,7 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     private void updateArtwork(boolean postAtFront) {
-        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
+        final Track track = getTrack();
         ImageLoader.get(getContext()).unbind(mArtwork);
         if (track != null) {
             if (TextUtils.isEmpty(track.getArtwork())) {
@@ -398,7 +398,7 @@ public class PlayerTrackView extends LinearLayout implements
         if (showDetails && trackFlipper.getDisplayedChild() == 0) {
             if (mIsCommenting) setCommentMode(false, true);
 
-            final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
+            final Track track = getTrack();
             if (track != null) {
                 mPlayer.track(Page.Sounds_info__main, track);
             }
@@ -440,12 +440,12 @@ public class PlayerTrackView extends LinearLayout implements
         }
 
         if (mCurrentAvatarBindResult == ImageLoader.BindResult.ERROR) {
-            updateAvatar(mOnScreen, SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId));
+            updateAvatar(mOnScreen, getTrack());
         }
     }
 
     private void setAssociationStatus() {
-        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
+        final Track track = getTrack();
         if (track != null){
             mToggleLike.setChecked(track.user_like);
             mToggleRepost.setChecked(track.user_repost);
@@ -651,7 +651,7 @@ public class PlayerTrackView extends LinearLayout implements
 
     public void handleStatusIntent(Intent intent) {
         String action = intent.getAction();
-        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
+        final Track track = getTrack();
 
         if (CloudPlaybackService.PLAYSTATE_CHANGED.equals(action)) {
 
@@ -718,7 +718,7 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public void onNewComment(Comment comment) {
-        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
+        final Track track = getTrack();
         if (track != null && comment.track_id == mTrackId) {
             if (track.comments != null) mWaveformController.setComments(track.comments, false, true);
             mWaveformController.showNewComment(comment);
@@ -746,7 +746,7 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public void onBuffering() {
-        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
+        final Track track = getTrack();
         if (track != null) {
             track.last_playback_error = -1;
             hideUnplayable();
