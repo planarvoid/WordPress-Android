@@ -120,7 +120,7 @@ public class PlayerTrackView extends LinearLayout implements
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
         findViewById(R.id.track_info_clicker).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                final Track track = getDisplayedTrack();
+                final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
                 if (track != null) {
                     // get a valid id somehow or don't bother
                     final long userId = track.user != null ? track.user.id : track.user_id;
@@ -152,7 +152,7 @@ public class PlayerTrackView extends LinearLayout implements
         mToggleLike.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                mPlayer.toggleLike(getDisplayedTrack());
+                mPlayer.toggleLike(SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId));
             }
         });
 
@@ -160,7 +160,7 @@ public class PlayerTrackView extends LinearLayout implements
         mToggleRepost.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                mPlayer.toggleRepost(getDisplayedTrack());
+                mPlayer.toggleRepost(SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId));
             }
         });
 
@@ -188,7 +188,7 @@ public class PlayerTrackView extends LinearLayout implements
         mShareButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Track track = getDisplayedTrack();
+                final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
                 if (track != null) {
                     Intent shareIntent = track.getShareIntent();
                     if (shareIntent != null) {
@@ -218,7 +218,7 @@ public class PlayerTrackView extends LinearLayout implements
         if (!(forceUpdate || changed)) return;
 
         mTrackId = trackId;
-        final Track track = getDisplayedTrack();
+        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
 
         if (track == null) {
             mShareButton.setVisibility(View.GONE);
@@ -270,10 +270,6 @@ public class PlayerTrackView extends LinearLayout implements
         }
     }
 
-    private Track getDisplayedTrack() {
-        return SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
-    }
-
     private void setTrackStats(ToggleButton button, int count, boolean checked) {
         final String countString = count < 0 ? "\u2014" : String.valueOf(count);
         button.setTextOff(countString);
@@ -282,7 +278,7 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     private void refreshComments() {
-        final Track track = getDisplayedTrack();
+        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
         if (track == null) return;
         if (AndroidUtils.isTaskFinished(track.load_comments_task)) {
             track.load_comments_task = new LoadCommentsTask(mPlayer.getApp());
@@ -294,7 +290,7 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public void onCommentsLoaded(long track_id, List<Comment> comments){
-        final Track track = getDisplayedTrack();
+        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
         if (track != null && track.id == track_id){
             track.comments = comments;
             mWaveformController.setComments(track.comments, true);
@@ -302,33 +298,35 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     private void updateArtwork(boolean postAtFront) {
-        final Track track = getDisplayedTrack();
+        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
         ImageLoader.get(getContext()).unbind(mArtwork);
-        if (TextUtils.isEmpty(track.getArtwork())) {
-            // no artwork
-            showDefaultArtwork();
-        } else {
-            // executeAppendTask artwork as necessary
-            if ((mCurrentArtBindResult = ImageUtils.loadImageSubstitute(
-                    getContext(),
-                    mArtwork,
-                    track.getArtwork(),
-                    Consts.GraphicSize.getPlayerGraphicSize(getContext()),
-                    new ImageLoader.Callback() {
-                        @Override
-                        public void onImageError(ImageView view, String url, Throwable error) {
-                            mCurrentArtBindResult = ImageLoader.BindResult.ERROR;
-                            Log.e(getClass().getSimpleName(), "Error loading artwork " + error);
-                        }
-
-                        @Override
-                        public void onImageLoaded(ImageView view, String url) {
-                            onArtworkSet(mOnScreen);
-                        }
-            }, postAtFront ? Options.postAtFront() : new Options())) != ImageLoader.BindResult.OK) {
+        if (track != null) {
+            if (TextUtils.isEmpty(track.getArtwork())) {
+                // no artwork
                 showDefaultArtwork();
             } else {
-                onArtworkSet(false);
+                // executeAppendTask artwork as necessary
+                if ((mCurrentArtBindResult = ImageUtils.loadImageSubstitute(
+                        getContext(),
+                        mArtwork,
+                        track.getArtwork(),
+                        Consts.GraphicSize.getPlayerGraphicSize(getContext()),
+                        new ImageLoader.Callback() {
+                            @Override
+                            public void onImageError(ImageView view, String url, Throwable error) {
+                                mCurrentArtBindResult = ImageLoader.BindResult.ERROR;
+                                Log.e(getClass().getSimpleName(), "Error loading artwork " + error);
+                            }
+
+                            @Override
+                            public void onImageLoaded(ImageView view, String url) {
+                                onArtworkSet(mOnScreen);
+                            }
+                        }, postAtFront ? Options.postAtFront() : new Options())) != ImageLoader.BindResult.OK) {
+                    showDefaultArtwork();
+                } else {
+                    onArtworkSet(false);
+                }
             }
         }
     }
@@ -361,7 +359,7 @@ public class PlayerTrackView extends LinearLayout implements
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
-                        if (animation == mArtwork.getAnimation()) mArtworkHolder.setBackgroundDrawable(null);
+                        if (animation.equals(mArtwork.getAnimation())) mArtworkHolder.setBackgroundDrawable(null);
                     }
 
                     @Override
@@ -400,7 +398,7 @@ public class PlayerTrackView extends LinearLayout implements
         if (showDetails && trackFlipper.getDisplayedChild() == 0) {
             if (mIsCommenting) setCommentMode(false, true);
 
-            final Track track = getDisplayedTrack();
+            final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
             if (track != null) {
                 mPlayer.track(Page.Sounds_info__main, track);
             }
@@ -442,12 +440,12 @@ public class PlayerTrackView extends LinearLayout implements
         }
 
         if (mCurrentAvatarBindResult == ImageLoader.BindResult.ERROR) {
-            updateAvatar(mOnScreen, getDisplayedTrack());
+            updateAvatar(mOnScreen, SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId));
         }
     }
 
     private void setAssociationStatus() {
-        final Track track = getDisplayedTrack();
+        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
         if (track != null){
             mToggleLike.setChecked(track.user_like);
             mToggleRepost.setChecked(track.user_repost);
@@ -586,7 +584,7 @@ public class PlayerTrackView extends LinearLayout implements
             @Override public void onAnimationRepeat(Animation animation) {}
             @Override
             public void onAnimationEnd(Animation animation) {
-                if (target.getAnimation() == animation) {
+                if (target.getAnimation().equals(animation)) {
                     target.setVisibility(visibility);
                     target.setEnabled(true);
                 }
@@ -600,9 +598,8 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public void onDestroy() {
-        if (mWaveformController != null) {
-            mWaveformController.onDestroy();
-        }
+        clear();
+        mWaveformController.onDestroy();
     }
 
     public boolean waveformVisible(){
@@ -654,7 +651,8 @@ public class PlayerTrackView extends LinearLayout implements
 
     public void handleStatusIntent(Intent intent) {
         String action = intent.getAction();
-        final Track track = getDisplayedTrack();
+        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
+
         if (CloudPlaybackService.PLAYSTATE_CHANGED.equals(action)) {
 
             if (intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isSupposedToBePlaying, false)) {
@@ -694,16 +692,16 @@ public class PlayerTrackView extends LinearLayout implements
                     intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
 
         } else if (CloudPlaybackService.PLAYBACK_ERROR.equals(action)) {
-            track.last_playback_error = ScPlayer.PlayerError.PLAYBACK_ERROR;
+            if (track != null) track.last_playback_error = ScPlayer.PlayerError.PLAYBACK_ERROR;
             onUnplayable(intent, track);
         } else if (CloudPlaybackService.STREAM_DIED.equals(action)) {
-            track.last_playback_error = ScPlayer.PlayerError.STREAM_ERROR;
+            if (track != null) track.last_playback_error = ScPlayer.PlayerError.STREAM_ERROR;
             onUnplayable(intent, track);
         } else if (CloudPlaybackService.TRACK_UNAVAILABLE.equals(action)) {
-            track.last_playback_error = ScPlayer.PlayerError.TRACK_UNAVAILABLE;
+            if (track != null) track.last_playback_error = ScPlayer.PlayerError.TRACK_UNAVAILABLE;
             onUnplayable(intent, track);
         } else if (CloudPlaybackService.COMMENTS_LOADED.equals(action)) {
-            mWaveformController.setComments(track.comments, true);
+            if (track != null) mWaveformController.setComments(track.comments, true);
         } else if (CloudPlaybackService.SEEKING.equals(action)) {
             mWaveformController.onSeek(intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, -1));
         } else if (CloudPlaybackService.SEEK_COMPLETE.equals(action)) {
@@ -720,8 +718,8 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public void onNewComment(Comment comment) {
-        if (comment.track_id == mTrackId) {
-            final Track track = getDisplayedTrack();
+        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
+        if (track != null && comment.track_id == mTrackId) {
             if (track.comments != null) mWaveformController.setComments(track.comments, false, true);
             mWaveformController.showNewComment(comment);
         }
@@ -748,7 +746,7 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public void onBuffering() {
-        final Track track = getDisplayedTrack();
+        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
         if (track != null) {
             track.last_playback_error = -1;
             hideUnplayable();
@@ -765,11 +763,6 @@ public class PlayerTrackView extends LinearLayout implements
         return mTrackId;
     }
 
-    public void destroy() {
-        clear();
-        mWaveformController.onDestroy();
-    }
-
     public void clear() {
         mOnScreen = false;
         onStop(true);
@@ -780,7 +773,7 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     @Nullable public Track getTrack() {
-        return getDisplayedTrack();
+        return SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
     }
 
     public boolean onBackPressed() {
