@@ -52,7 +52,7 @@ public enum Content  {
 
     ME_CONNECTION("me/connections/#",Endpoints.MY_CONNECTIONS, 130, Connection.class, -1, Table.CONNECTIONS),
     ME_CONNECTIONS("me/connections",Endpoints.MY_CONNECTIONS, 131, Connection.class, -1, Table.CONNECTIONS),
-    ME_SOUNDS("me/sounds", TempEndpoints.e1.MY_SOUNDS, 120, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
+    ME_SOUNDS("me/sounds", TempEndpoints.e1.MY_SOUNDS_MINI, 120, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
 
     // the ids of the following entries should not be changed, they are referenced in th db
     ME_SOUND_STREAM("me/stream", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),

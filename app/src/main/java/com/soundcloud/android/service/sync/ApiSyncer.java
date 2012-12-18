@@ -84,11 +84,8 @@ public class ApiSyncer {
                     break;
 
                 case ME_LIKES:
-                    result = syncLikes(uri);
-                    break;
-
                 case ME_SOUNDS:
-                    result = syncSounds(uri);
+                    result = syncSoundAssociations(uri);
                     break;
 
                 case ME_TRACKS:
@@ -143,12 +140,13 @@ public class ApiSyncer {
         return result;
     }
 
-    private Result syncLikes(Uri uri) throws IOException {
+    private Result syncSoundAssociations(Uri uri) throws IOException {
+        Content c = Content.match(uri);
         Result result = new Result(uri);
-        log("syncLikes(" + uri + ")");
+        log("syncSoundAssociations(" + uri + ")");
 
         SoundAssociationHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
-                Request.to(TempEndpoints.e1.MY_LIKES).with("limit", 200),
+                Request.to(c.remoteUri).with("limit", 200),
                 SoundAssociationHolder.class);
 
         if (holder != null) {
