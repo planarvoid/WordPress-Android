@@ -339,7 +339,9 @@ desc "run lint"
 task :lint do
   result = "app/target/lint-result.html"
   rm_f result
-  lint_ok = system("mvn compile && lint --config app/lint.xml --html #{result} app")
-  sh "open #{result}" if File.exists?(result)
+  lint_ok = system("#{android_home}/tools/lint --config app/lint.xml --exitcode --html #{result} app")
+  if File.exists?(result) && RUBY_PLATFORM =~ /darwin/
+    sh "open #{result}"
+  end
   raise "Lint failure" unless lint_ok
 end

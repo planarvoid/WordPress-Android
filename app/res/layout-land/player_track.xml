@@ -25,23 +25,23 @@
               android:layout_width="2dip"
               android:background="@drawable/player_track_vert_separator_bg"/>
 
-        <ToggleButton android:id="@+id/toggle_like"
-                      android:layout_marginLeft="5dp"
-                      style="@style/PlayerAction.ToggleButton"
-                      android:drawableLeft="@drawable/ic_toggle_player_like_states"/>
-        <ToggleButton android:id="@+id/toggle_repost"
-                      style="@style/PlayerAction.ToggleButton"
-                      android:layout_marginLeft="10dp"
-                      android:drawableLeft="@drawable/ic_toggle_player_repost_states"/>
-        <ToggleButton android:id="@+id/toggle_comment"
-                      android:layout_marginLeft="10dp"
-                      android:layout_marginRight="10dp"
-                      style="@style/PlayerAction.ToggleButton"
-                      android:drawableLeft="@drawable/ic_toggle_player_comment_states"/>
-        <ImageButton android:id="@+id/btn_share"
-                     android:layout_marginRight="15dp"
-                     style="@style/PlayerAction.ShareButton"
-                     android:src="@drawable/stats_share"/>
+        <com.soundcloud.android.view.CustomToggleButton  android:id="@+id/toggle_like"
+                                                         android:layout_marginLeft="5dp"
+                                                         style="@style/PlayerAction.ToggleButton"
+                                                         android:drawableLeft="@drawable/ic_toggle_player_like_states"/>
+        <com.soundcloud.android.view.CustomToggleButton  android:id="@+id/toggle_repost"
+                                                         style="@style/PlayerAction.ToggleButton"
+                                                         android:layout_marginLeft="10dp"
+                                                         android:drawableLeft="@drawable/ic_toggle_player_repost_states"/>
+        <com.soundcloud.android.view.CustomToggleButton  android:id="@+id/toggle_comment"
+                                                         android:layout_marginLeft="10dp"
+                                                         android:layout_marginRight="10dp"
+                                                         style="@style/PlayerAction.ToggleButton"
+                                                         android:drawableLeft="@drawable/ic_toggle_player_comment_states"/>
+        <com.soundcloud.android.view.CustomToggleButton  android:id="@+id/btn_share"
+                                                         android:layout_marginRight="15dp"
+                                                         style="@style/PlayerAction.ShareButton"
+                                                         android:src="@drawable/stats_share"/>
     </LinearLayout>
     <FrameLayout
             android:layout_weight="8"
