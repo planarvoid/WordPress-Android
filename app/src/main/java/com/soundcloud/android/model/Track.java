@@ -424,23 +424,8 @@ public class Track extends Sound implements Playable {
         return state != null && created_at != null && duration > 0;
     }
 
-    public static class TagsHolder {
-        String genre;
-        List<String> humanTags;
+    public void fillTags(ViewGroup view, final Context context){
 
-        public TagsHolder(String genre, List<String> humanTags) {
-            this.genre = genre;
-            this.humanTags = humanTags;
-        }
-    }
-
-    public boolean checkTagsEqual(@Nullable TagsHolder holder) {
-        return holder != null && TextUtils.equals(holder.genre, genre) && holder.humanTags.equals(humanTags());
-    }
-
-    public TagsHolder fillTags(ViewGroup view, final Context context){
-
-        TagsHolder holder = new TagsHolder(genre,humanTags());
         TextView txt;
         FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(10, 10);
 
@@ -458,7 +443,7 @@ public class Track extends Sound implements Playable {
             txt.setText(genre);
             view.addView(txt, flowLP);
         }
-        for (final String t : holder.humanTags) {
+        for (final String t : humanTags()) {
             if (!TextUtils.isEmpty(t)) {
                 txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
                 txt.setOnClickListener(new View.OnClickListener() {
@@ -473,7 +458,6 @@ public class Track extends Sound implements Playable {
                 view.addView(txt, flowLP);
             }
         }
-        return holder;
     }
 
     // TODO, THIS SUCKS

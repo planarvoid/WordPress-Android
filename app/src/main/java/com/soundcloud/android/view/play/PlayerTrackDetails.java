@@ -13,6 +13,7 @@ import com.soundcloud.android.view.FlowLayout;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
+import android.nfc.Tag;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
@@ -22,6 +23,8 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+
+import java.util.List;
 
 public class PlayerTrackDetails extends RelativeLayout {
     private final ScPlayer   mPlayer;
@@ -41,7 +44,7 @@ public class PlayerTrackDetails extends RelativeLayout {
     private final TextView mTxtInfo;
 
     private @Nullable Track mPlayingTrack;
-    private @Nullable Track.TagsHolder mLastTags;
+    private @Nullable TagsHolder mLastTags;
 
     public PlayerTrackDetails(ScPlayer player) {
         super(player);
@@ -150,9 +153,10 @@ public class PlayerTrackDetails extends RelativeLayout {
 
 
         // check for equality to avoid extra view inflation
-        if (!mPlayingTrack.checkTagsEqual(mLastTags)) {
+        if (mLastTags == null || !mLastTags.hasSameTags(mPlayingTrack)) {
             mTrackTags.removeAllViews();
-            mLastTags = mPlayingTrack.fillTags(mTrackTags, mPlayer);
+            mPlayingTrack.fillTags(mTrackTags, mPlayer);
+            mLastTags = new TagsHolder(mPlayingTrack);
         }
 
         final String trackInfo = mPlayingTrack.trackInfo();
@@ -192,6 +196,20 @@ public class PlayerTrackDetails extends RelativeLayout {
 
         for (View view : views) {
             view.setVisibility(visibility);
+        }
+    }
+
+    public static class TagsHolder {
+        String genre;
+        List<String> humanTags;
+
+        public TagsHolder(Track track) {
+            this.genre = track.genre;
+            this.humanTags = track.humanTags();
+        }
+
+        public boolean hasSameTags(Track track){
+            return track != null && TextUtils.equals(track.genre, genre) && humanTags.equals(track.humanTags());
         }
     }
 }
