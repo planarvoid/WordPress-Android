@@ -117,5 +117,5 @@
     <string name="pref_notifications_reposts_description">Receive updates on new reposts on your sounds</string>
 
     <string name="no_internet_connection">Oops, we aren\'t able to connect to the internet</string>
-    <string name="no_info_available">No info available</string>
+    <string name="no_info_available">No information available</string>
 </resources>

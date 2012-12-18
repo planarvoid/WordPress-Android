@@ -155,7 +155,8 @@ public class PlayerTrackDetails extends RelativeLayout {
                 mTxtInfo.setMovementMethod(LinkMovementMethod.getInstance());
             }
         } else {
-            if (!showLoading){
+            if (!showLoading && track.likes_count <= 0 && track.reposts_count <= 0 && track.comment_count <= 0
+                    && mLastTags.isEmpty()){
                 mTxtInfo.setText(R.string.no_info_available);
                 mTxtInfo.setGravity(Gravity.CENTER_HORIZONTAL);
             } else {
@@ -193,6 +194,10 @@ public class PlayerTrackDetails extends RelativeLayout {
 
         public boolean hasSameTags(Track track){
             return track != null && TextUtils.equals(track.genre, genre) && humanTags.equals(track.humanTags());
+        }
+
+        public boolean isEmpty() {
+            return TextUtils.isEmpty(genre) && (humanTags == null || humanTags.isEmpty());
         }
     }
 }
