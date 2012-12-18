@@ -187,6 +187,25 @@ public class PlaylistManagerTest {
     }
 
     @Test
+    public void shouldSaveAndRestoreFavoritesAsPlaylistTwice() throws Exception {
+        insertTracksAsUri(Content.ME_LIKE.uri);
+        pm.loadUri(Content.ME_LIKES.uri, 1, 10853436l);
+        expect(pm.getCurrentTrack().id).toEqual(10853436l);
+        pm.saveQueue(1000l);
+        expect(pm.reloadQueue()).toEqual(1000l);
+        expect(pm.getCurrentTrackId()).toEqual(10853436l);
+        expect(pm.getPosition()).toEqual(0);
+
+        // test overwrite
+        expect(pm.next()).toBeTrue();
+        expect(pm.getCurrentTrackId()).toEqual(10696200l);
+        pm.saveQueue(2000l);
+        expect(pm.reloadQueue()).toEqual(2000l);
+        expect(pm.getCurrentTrackId()).toEqual(10696200l);
+        expect(pm.getPosition()).toEqual(1);
+    }
+
+    @Test
     public void shouldSaveAndRestoreFavoritesAsPlaylistWithMovedTrack() throws Exception {
         insertTracksAsUri(Content.ME_LIKE.uri);
         pm.loadUri(Content.ME_LIKES.uri, 1, 10696200l);
