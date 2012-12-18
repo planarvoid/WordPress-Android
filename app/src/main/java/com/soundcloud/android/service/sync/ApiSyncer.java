@@ -160,25 +160,6 @@ public class ApiSyncer {
         return result;
     }
 
-    private Result syncSounds(Uri uri) throws IOException {
-        Result result = new Result(uri);
-        log("syncSounds(" + uri + ")");
-
-        SoundAssociationHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
-                Request.to(TempEndpoints.e1.MY_SOUNDS_MINI).with("limit", 200),
-                SoundAssociationHolder.class);
-
-        if (holder != null) {
-            holder.removeMissingLocallyStoredItems(mResolver, uri);
-            holder.insert(mResolver);
-
-            result.setSyncData(System.currentTimeMillis(), holder.collection.size(), null);
-            result.success = true;
-            result.change = Result.CHANGED;
-        }
-        return result;
-    }
-
     private Result syncActivities(Uri uri, String action) throws IOException {
         Result result = new Result(uri);
         log("syncActivities(" + uri + ")");
@@ -202,7 +183,7 @@ public class ApiSyncer {
             Request request = future_href == null ? c.request() : Request.to(future_href);
             activities = Activities.fetchRecent(mApi, request, MAX_LOOKUP_COUNT);
 
-            if (activities.hasMore()) {
+                if (activities.hasMore()) {
                 // delete all activities to avoid gaps in the data
                 mResolver.delete(c.uri, null, null);
             }
