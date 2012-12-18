@@ -43,7 +43,7 @@ public class PlayerTrackDetails extends RelativeLayout {
     private final TextView mCommentersText;
     private final TextView mTxtInfo;
 
-    private @Nullable Track mPlayingTrack;
+    private @Nullable long mTrackId;
     private @Nullable TagsHolder mLastTags;
 
     public PlayerTrackDetails(ScPlayer player) {
@@ -64,9 +64,9 @@ public class PlayerTrackDetails extends RelativeLayout {
         mLikersRow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mPlayingTrack != null) {
+                if (mTrackId > 0) {
                     Intent i = new Intent(mPlayer, TrackLikers.class);
-                    i.putExtra("track_id", mPlayingTrack.id);
+                    i.putExtra("track_id", mTrackId);
                     mPlayer.startActivity(i);
                 }
             }
@@ -82,9 +82,9 @@ public class PlayerTrackDetails extends RelativeLayout {
         mRepostersRow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mPlayingTrack != null) {
+                if (mTrackId > 0) {
                     Intent i = new Intent(mPlayer, TrackReposters.class);
-                    i.putExtra("track_id", mPlayingTrack.id);
+                    i.putExtra("track_id", mTrackId);
                     mPlayer.startActivity(i);
                 }
             }
@@ -100,9 +100,9 @@ public class PlayerTrackDetails extends RelativeLayout {
         mCommentersRow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mPlayingTrack != null) {
+                if (mTrackId > 0) {
                     Intent i = new Intent(mPlayer, TrackComments.class);
-                    i.putExtra("track_id", mPlayingTrack.id);
+                    i.putExtra("track_id", mTrackId);
                     mPlayer.startActivity(i);
                 }
             }
@@ -111,55 +111,38 @@ public class PlayerTrackDetails extends RelativeLayout {
         mTxtInfo = (TextView) findViewById(R.id.txtInfo);
     }
 
-    public void setPlayingTrack(Track t){
-        if (!t.equals(mPlayingTrack)){
-            mPlayingTrack = t;
-            fillTrackDetails(false);
-        }
-    }
-
-    public void onOpenDetails() {
-        boolean showLoading = false;
-        // according to this logic, we will only load the info if we haven't yet or there was an error
-        // there is currently no manual or stale refresh logic
-        if (mPlayingTrack != null) {
-            if (mPlayingTrack.load_info_task == null || mPlayingTrack.load_info_task.wasError()) {
-                mPlayer.startService(new Intent(CloudPlaybackService.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mPlayingTrack.id));
-                fillTrackDetails(true);
-            } else if (!AndroidUtils.isTaskFinished(mPlayingTrack.load_info_task)) {
-                fillTrackDetails(true);
-            }
+    public void fillTrackDetails(Track track, boolean showLoading) {
+        if (track == null){
+            mTrackId = -1;
+            return;
         }
 
-    }
+        mTrackId = track.id;
 
-    public void fillTrackDetails(boolean showLoading) {
-        if (mPlayingTrack == null) return;
-
-        setViewVisibility(mPlayingTrack.likes_count > 0, mLikersRow, mLikersDivider);
+        setViewVisibility(track.likes_count > 0, mLikersRow, mLikersDivider);
         mLikersText.setText(getResources().getQuantityString(R.plurals.track_info_likers,
-                mPlayingTrack.likes_count,
-                mPlayingTrack.likes_count));
+                track.likes_count,
+                track.likes_count));
 
-        setViewVisibility(mPlayingTrack.reposts_count > 0, mRepostersRow, mRepostersDivider);
+        setViewVisibility(track.reposts_count > 0, mRepostersRow, mRepostersDivider);
         mRepostersText.setText(getResources().getQuantityString(R.plurals.track_info_reposters,
-                                                                mPlayingTrack.reposts_count,
-                                                                mPlayingTrack.reposts_count));
+                track.reposts_count,
+                track.reposts_count));
 
-        setViewVisibility(mPlayingTrack.comment_count > 0, mCommentersRow, mCommentersDivider);
+        setViewVisibility(track.comment_count > 0, mCommentersRow, mCommentersDivider);
         mCommentersText.setText(getResources().getQuantityString(R.plurals.track_info_commenters,
-                                                                 mPlayingTrack.comment_count,
-                                                                 mPlayingTrack.comment_count));
+                track.comment_count,
+                track.comment_count));
 
 
         // check for equality to avoid extra view inflation
-        if (mLastTags == null || !mLastTags.hasSameTags(mPlayingTrack)) {
+        if (mLastTags == null || !mLastTags.hasSameTags(track)) {
             mTrackTags.removeAllViews();
-            mPlayingTrack.fillTags(mTrackTags, mPlayer);
-            mLastTags = new TagsHolder(mPlayingTrack);
+            track.fillTags(mTrackTags, mPlayer);
+            mLastTags = new TagsHolder(track);
         }
 
-        final String trackInfo = mPlayingTrack.trackInfo();
+        final String trackInfo = track.trackInfo();
         if (!TextUtils.isEmpty(trackInfo)) {
             mTxtInfo.setGravity(Gravity.LEFT);
             mTxtInfo.setText(ScTextUtils.fromHtml(trackInfo));
