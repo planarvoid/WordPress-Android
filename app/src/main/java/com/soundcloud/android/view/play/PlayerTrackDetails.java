@@ -62,9 +62,8 @@ public class PlayerTrackDetails extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 if (mTrackId > 0) {
-                    Intent i = new Intent(getContext(), TrackLikers.class);
-                    i.putExtra("track_id", mTrackId);
-                    getContext().startActivity(i);
+                    getContext().startActivity(
+                            new Intent(getContext(), TrackLikers.class).putExtra(Track.EXTRA_ID, mTrackId));
                 }
             }
         });
@@ -80,9 +79,8 @@ public class PlayerTrackDetails extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 if (mTrackId > 0) {
-                    Intent i = new Intent(getContext(), TrackReposters.class);
-                    i.putExtra("track_id", mTrackId);
-                    getContext().startActivity(i);
+                    getContext().startActivity(
+                        new Intent(getContext(), TrackReposters.class).putExtra(Track.EXTRA_ID, mTrackId));
                 }
             }
         });
@@ -98,9 +96,8 @@ public class PlayerTrackDetails extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 if (mTrackId > 0) {
-                    Intent i = new Intent(getContext(), TrackComments.class);
-                    i.putExtra("track_id", mTrackId);
-                    getContext().startActivity(i);
+                    getContext().startActivity(
+                        new Intent(getContext(), TrackComments.class).putExtra(Track.EXTRA_ID, mTrackId));
                 }
             }
         });
