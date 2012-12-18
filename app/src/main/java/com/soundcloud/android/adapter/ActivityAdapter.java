@@ -46,8 +46,8 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
     }
 
     public boolean isExpired(LocalCollection localCollection) {
-        if (localCollection == null || (localCollection.size == 0 && mData.size() == 0)) {
-            return false; //both are empty
+        if (localCollection == null) {
+            return false;
         } else if (mData.size() == 0) {
             return true; // need to pull from DB
         } else {
