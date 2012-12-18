@@ -413,10 +413,10 @@ public class PlayerTrackView extends LinearLayout implements
             // according to this logic, we will only load the info if we haven't yet or there was an error
             // there is currently no manual or stale refresh logic
             if (track != null) {
-                if (track.load_info_task == null || track.load_info_task.wasError()) {
+                if (track.shouldLoadInfo()) {
                     mPlayer.startService(new Intent(CloudPlaybackService.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrackId));
                     mTrackDetailsView.fillTrackDetails(track, true);
-                } else if (!AndroidUtils.isTaskFinished(track.load_info_task)) {
+                } else if (track.isLoadingInfo()) {
                     mTrackDetailsView.fillTrackDetails(track, true);
                 } else {
                     mTrackDetailsView.fillTrackDetails(track, false);

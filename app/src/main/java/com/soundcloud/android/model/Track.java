@@ -267,12 +267,12 @@ public class Track extends Sound implements Playable {
 
     @JsonIgnoreProperties(ignoreUnknown=true)
     public static class CreatedWith implements Parcelable {
+
         @JsonView(Views.Full.class) public long id;
         @JsonView(Views.Full.class) public String name;
         @JsonView(Views.Full.class) public String uri;
         @JsonView(Views.Full.class) public String permalink_url;
         @JsonView(Views.Full.class) public String external_url;
-
         public CreatedWith() {
             super();
         }
@@ -312,8 +312,8 @@ public class Track extends Sound implements Playable {
                 return new CreatedWith[size];
             }
         };
-    }
 
+    }
     public Track() {
         super();
     }
@@ -671,10 +671,10 @@ public class Track extends Sound implements Playable {
         PROCESSING("processing");
 
         private final String name;
+
         private State(String name){
             this.name = name;
         }
-
         @JsonValue
         public String value() {
             return name;
@@ -696,12 +696,20 @@ public class Track extends Sound implements Playable {
         }
 
         public boolean isFailed()     { return FAILED == this; }
+
         public boolean isProcessing() { return PROCESSING == this; }
         public boolean isFinished()   { return FINISHED == this; }
     }
-
     @Override
     public int getTypeId() {
         return DB_TYPE_TRACK;
+    }
+
+    public boolean shouldLoadInfo(){
+        return load_info_task == null || load_info_task.wasError();
+    }
+
+    public boolean isLoadingInfo() {
+        return !AndroidUtils.isTaskFinished(load_info_task);
     }
 }
