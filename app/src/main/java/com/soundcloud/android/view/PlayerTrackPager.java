@@ -79,12 +79,10 @@ public class PlayerTrackPager extends ViewPager {
                 PlayQueueManager playQueueManager = CloudPlaybackService.getPlaylistManager();
                 final long queueLength = playQueueManager == null ? 1 : playQueueManager.length();
 
-                if (state == ViewPager.SCROLL_STATE_IDLE) {
-
-                    PlayerTrackView currentView;
+                if (state == ViewPager.SCROLL_STATE_IDLE && !mViews.isEmpty()) {
                     switch (mDirection) {
-                        case LEFT:
-                            currentView = (PlayerTrackView) mViews.getFirst().getChildAt(0);
+                        case LEFT: {
+                            PlayerTrackView currentView = (PlayerTrackView) mViews.getFirst().getChildAt(0);
                             if (currentView.getPlayPosition() > 0) {
                                 // move the last trackview to the beginning
                                 PlayerTrackView lastView = (PlayerTrackView) mViews.getLast().getChildAt(0);
@@ -103,9 +101,9 @@ public class PlayerTrackPager extends ViewPager {
                                 setCurrentItem(1, false);
                             }
                             break;
-
-                        case RIGHT:
-                            currentView = (PlayerTrackView) mViews.getLast().getChildAt(0);
+                        }
+                        case RIGHT: {
+                            PlayerTrackView currentView = (PlayerTrackView) mViews.getLast().getChildAt(0);
                             if (currentView.getPlayPosition() < queueLength - 1) {
                                 // move the first trackview to the end
                                 PlayerTrackView firstView = (PlayerTrackView) mViews.getFirst().getChildAt(0);
@@ -123,6 +121,7 @@ public class PlayerTrackPager extends ViewPager {
                                 mPlayerTrackViews.add(mPlayerTrackViews.remove(0));
                                 setCurrentItem(1, false);
                             }
+                        }
                     }
                 }
             }
