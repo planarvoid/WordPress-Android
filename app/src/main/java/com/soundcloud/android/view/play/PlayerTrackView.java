@@ -49,6 +49,7 @@ import android.widget.ViewFlipper;
 import java.lang.ref.SoftReference;
 import java.util.List;
 
+@SuppressWarnings("deprecation")
 public class PlayerTrackView extends LinearLayout implements
         View.OnTouchListener,
         LoadCommentsTask.LoadCommentsListener {
@@ -68,8 +69,8 @@ public class PlayerTrackView extends LinearLayout implements
     private @Nullable PlayerTrackDetails mTrackDetailsView; // ditto
 
     private boolean mDraggingLabel = false;
-    private int mInitialX = -1;
-    private int mLastX    = -1;
+    private int mInitialX  = -1;
+    private int mLastX     = -1;
     private int mTextWidth = 0;
     private int mViewWidth = 0;
     private int mTouchSlop;
@@ -120,15 +121,14 @@ public class PlayerTrackView extends LinearLayout implements
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
         findViewById(R.id.track_info_clicker).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (mTrack != null) {
-                    // get a valid id somehow or don't bother
-                    final long userId = mTrack.user != null ? mTrack.user.id : mTrack.user_id;
-                    if (userId == -1) return;
+                if (mTrack != null && mTrack.getUserId() >= 0) {
+                    if (mTrack.user != null) {
+                        SoundCloudApplication.MODEL_MANAGER.cache(mTrack.user, ScResource.CacheUpdateMode.NONE);
+                    }
 
-                    if (mTrack.user != null) SoundCloudApplication.MODEL_MANAGER.cache(mTrack.user, ScResource.CacheUpdateMode.NONE);
-                    Intent intent = new Intent(getContext(), UserBrowser.class)
-                        .putExtra("userId", mTrack.user_id);
-                    getContext().startActivity(intent);
+                    getContext().startActivity(
+                        new Intent(getContext(), UserBrowser.class)
+                            .putExtra("userId", mTrack.getUserId()));
                 }
             }
         });
@@ -327,7 +327,7 @@ public class PlayerTrackView extends LinearLayout implements
             if (mArtworkBgDrawable == null || mArtworkBgDrawable.get() == null){
                 try {
                     mArtworkBgDrawable = new SoftReference<Drawable>(getResources().getDrawable(R.drawable.artwork_player));
-                } catch (OutOfMemoryError e){}
+                } catch (OutOfMemoryError ignored){}
             }
             if (mArtworkBgDrawable == null || mArtworkBgDrawable.get() == null) {
                 mArtwork.setBackgroundColor(0xFFFFFFFF);
