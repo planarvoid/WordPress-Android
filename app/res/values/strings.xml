@@ -87,6 +87,7 @@
     <string name="confirm">Confirm</string>
 
     <string name="title_settings">Settings</string>
+    <string name="settings_logging_out">Logging you out</string>
 
     <string name="list_empty_friend_finder_error">There was an error finding your friends.</string>
     <string name="list_empty_friend_finder_no_connections">Connect with Facebook to discover which of your friends are already on SoundCloud.</string>

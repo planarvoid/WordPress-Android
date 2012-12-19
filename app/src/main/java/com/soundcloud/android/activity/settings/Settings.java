@@ -260,18 +260,22 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
                 .setMessage(R.string.menu_clear_user_desc)
                 .setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
+                            public void onClick(final DialogInterface dialog, int whichButton) {
+                                final ProgressDialog progress = AndroidUtils.showProgress(a, R.string.settings_logging_out);
+
                                 app.track(Click.Log_out_box_ok);
                                 app.clearSoundCloudAccount(
                                         new Runnable() {
                                             @Override
                                             public void run() {
+                                                progress.dismiss();
                                                 a.finish();
                                             }
                                         },
                                         new Runnable() {
                                             @Override
                                             public void run() {
+                                                progress.dismiss();
                                                 new AlertDialog.Builder(a)
                                                         .setIcon(android.R.drawable.ic_dialog_alert)
                                                         .setMessage(R.string.settings_error_revoking_account_message)
