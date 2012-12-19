@@ -501,17 +501,21 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
     public boolean toggleFade() {
-        assert mPlaybackStream != null;
-        final boolean enabled = !mPlaybackStream.isFading();
-        mPlaybackStream.setFading(enabled);
-        return enabled;
+        if (mPlaybackStream != null){
+            final boolean enabled = !mPlaybackStream.isFading();
+            mPlaybackStream.setFading(enabled);
+            return enabled;
+        }
+        return false;
     }
 
     public boolean toggleOptimize() {
-        assert mPlaybackStream != null;
-        final boolean enabled = !mPlaybackStream.isOptimized();
-        mPlaybackStream.setOptimize(enabled);
-        return enabled;
+        if (mPlaybackStream != null) {
+            final boolean enabled = !mPlaybackStream.isOptimized();
+            mPlaybackStream.setOptimize(enabled);
+            return enabled;
+        }
+        return false;
     }
 
     public boolean isOptimized() {

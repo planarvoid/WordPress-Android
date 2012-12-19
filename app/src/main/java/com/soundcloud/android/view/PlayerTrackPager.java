@@ -15,6 +15,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
@@ -250,7 +251,7 @@ public class PlayerTrackPager extends ViewPager {
 
         @Override
         public void destroyItem(View collection, int position, Object view) {
-            ((ViewPager) collection).removeView((FrameLayout) view);
+            ((ViewPager) collection).removeView((ViewGroup) view);
         }
 
         @Override

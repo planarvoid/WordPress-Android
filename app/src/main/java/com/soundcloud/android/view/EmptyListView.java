@@ -127,14 +127,18 @@ public class EmptyListView extends RelativeLayout {
             mTxtLink = (TextView) findViewById(R.id.txt_link);
             mBtnAction = (Button) findViewById(R.id.btn_action);
             mImage = (ImageView) findViewById(R.id.img_1);
-            mImage.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mImageActionListener != null) {
-                        mImageActionListener.onAction();
+            if (mImage != null) {
+                mImage.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mImageActionListener != null) {
+                            mImageActionListener.onAction();
+                        }
                     }
-                }
-            });
+                });
+                setImage(mImageResource);
+            }
+
             mBtnAction.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -152,9 +156,7 @@ public class EmptyListView extends RelativeLayout {
             }
             setSecondaryText(mLinkResource);
             setActionText(mActionTextResource);
-            if (mImage != null) {
-                setImage(mImageResource);
-            }
+
 
         } else {
             mEmptyLayout.setVisibility(View.VISIBLE);

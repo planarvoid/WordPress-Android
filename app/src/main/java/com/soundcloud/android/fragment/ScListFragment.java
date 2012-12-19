@@ -451,7 +451,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             mRefreshTask = buildTask(context);
             mRefreshTask.execute(getTaskParams(adapter, true));
         }
-        if (!mListView.isRefreshing()) {
+
+        if (mListView != null && !mListView.isRefreshing()) {
             configureEmptyView();
         }
     }
@@ -466,7 +467,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private void onDataConnectionUpdated(boolean isConnected) {
         final ScBaseAdapter adapter = getListAdapter();
         if (isConnected && adapter != null) {
-            if (adapter.needsItems() && getScActivity().getApp().getAccount() != null) {
+            if (adapter.needsItems() && getScActivity() != null && getScActivity().getApp().getAccount() != null) {
                 refresh(false);
             }
         }
