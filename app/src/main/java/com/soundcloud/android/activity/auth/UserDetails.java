@@ -169,6 +169,7 @@ public class UserDetails extends RelativeLayout {
 
             if (result.getExtras().containsKey("error")) {
                 handleSilentException("error cropping image", (Exception) result.getSerializableExtra("error"));
+                Toast.makeText(getContext(),R.string.crop_image_error, Toast.LENGTH_SHORT).show();
             } else {
                 setImage(mAvatarFile);
             }

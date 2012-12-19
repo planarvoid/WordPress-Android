@@ -300,6 +300,7 @@ public class ScUpload extends ScActivity {
                 if (resultCode == RESULT_OK) {
                     if (result.getExtras().containsKey("error")) {
                         handleSilentException("error cropping image", (Exception) result.getSerializableExtra("error"));
+                        Toast.makeText(this,R.string.crop_image_error, Toast.LENGTH_SHORT).show();
                     } else {
                         mRecordingMetadata.setImage(mRecording.generateImageFile(Recording.IMAGE_DIR));
                     }
