@@ -151,7 +151,7 @@ public class TrackInfoBar extends LazyRow {
         if (track.isPublic()) {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
-            if (track.shared_to_count == 0) {
+            if (track.shared_to_count <= 0) {
                 mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
                 mPrivateIndicator.setText(R.string.tracklist_item_shared_count_unavailable);
             } else if (track.shared_to_count == 1){
