@@ -38,10 +38,10 @@
                                                          android:layout_marginRight="10dp"
                                                          style="@style/PlayerAction.ToggleButton"
                                                          android:drawableLeft="@drawable/ic_toggle_player_comment_states"/>
-        <com.soundcloud.android.view.CustomToggleButton  android:id="@+id/btn_share"
-                                                         android:layout_marginRight="15dp"
-                                                         style="@style/PlayerAction.ShareButton"
-                                                         android:src="@drawable/stats_share"/>
+        <ImageButton android:id="@+id/btn_share"
+                     android:layout_marginRight="15dp"
+                     style="@style/PlayerAction.ShareButton"
+                     android:src="@drawable/stats_share"/>
     </LinearLayout>
     <FrameLayout
             android:layout_weight="8"

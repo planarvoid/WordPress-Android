@@ -328,11 +328,11 @@ public class PlayerTrackView extends LinearLayout implements
                     mArtworkBgDrawable = new SoftReference<Drawable>(getResources().getDrawable(R.drawable.artwork_player));
                 } catch (OutOfMemoryError e){}
             }
-        }
-        if (mArtworkBgDrawable == null || mArtworkBgDrawable.get() == null) {
-            mArtwork.setBackgroundColor(0xFFFFFFFF);
-        } else {
-            mArtworkHolder.setBackgroundDrawable(mArtworkBgDrawable.get());
+            if (mArtworkBgDrawable == null || mArtworkBgDrawable.get() == null) {
+                mArtwork.setBackgroundColor(0xFFFFFFFF);
+            } else {
+                mArtworkHolder.setBackgroundDrawable(mArtworkBgDrawable.get());
+            }
         }
     }
 
