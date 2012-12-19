@@ -63,8 +63,8 @@ public class StatsView extends View {
 
         mFontOffset = r.getDimensionPixelSize(R.dimen.stats_view_font_offset);
 
-        mTextColor    = r.getColor(R.color.listTxtValue);
-        mPressedColor = r.getColor(R.color.listTxtSecondary);
+        mTextColor    = r.getColor(R.color.statsColor);
+        mPressedColor = r.getColor(R.color.statsColorPressed);
 
         textPaint = new Paint();
         textPaint.setColor(mTextColor);
