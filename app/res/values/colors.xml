@@ -8,6 +8,9 @@
     <color name="listTxtCreatedAt">#FFc9c9c9</color>
     <color name="listTxtTrackUser">#FF828282</color>
 
+    <color name="statsColor">#FF828282</color>
+    <color name="statsColorPressed">#88FFFFFF</color>
+
     <color name="listTxtDarkValue">#FFFFFFFF</color>
     <color name="listTxtDarkValuePressed">#88FFFFFF</color>
     <color name="listTxtDarkValueInactive">#FFa9a9a9</color>
