@@ -55,8 +55,9 @@ public class PlayerTrackView extends LinearLayout implements
 
     private ScPlayer mPlayer;
 
-    private ImageView mArtwork, mAvatar;
-    private FrameLayout mArtworkHolder;
+    private @Nullable ImageView mArtwork;
+    private ImageView mAvatar;
+    private @Nullable FrameLayout mArtworkHolder;
     private ImageLoader.BindResult mCurrentArtBindResult;
 
     private WaveformController mWaveformController;
@@ -320,7 +321,7 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     private void showDefaultArtwork() {
-        if (mArtwork != null) {
+        if (mArtwork != null && mArtworkHolder != null) {
             mArtwork.setVisibility(View.GONE);
             mArtwork.setImageDrawable(null);
             if (mArtworkBgDrawable == null || mArtworkBgDrawable.get() == null){
@@ -337,27 +338,29 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     private void onArtworkSet(boolean animate) {
-        if (mArtwork.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
-            if (animate) {
-                AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
-                mArtwork.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                    }
+        if (mArtwork != null && mArtworkHolder != null) {
+            if (mArtwork.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
+                if (animate) {
+                    AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
+                    mArtwork.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+                        }
 
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        if (animation.equals(mArtwork.getAnimation())) mArtworkHolder.setBackgroundDrawable(null);
-                    }
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            if (animation.equals(mArtwork.getAnimation())) mArtworkHolder.setBackgroundDrawable(null);
+                        }
 
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-                    }
-                });
-                mArtwork.setVisibility(View.VISIBLE);
-            } else {
-                mArtwork.setVisibility(View.VISIBLE);
-                mArtworkHolder.setBackgroundDrawable(null);
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+                        }
+                    });
+                    mArtwork.setVisibility(View.VISIBLE);
+                } else {
+                    mArtwork.setVisibility(View.VISIBLE);
+                    mArtworkHolder.setBackgroundDrawable(null);
+                }
             }
         }
     }
