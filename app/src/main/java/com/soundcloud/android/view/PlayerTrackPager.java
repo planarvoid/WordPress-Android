@@ -16,6 +16,7 @@ import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewManager;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
@@ -241,17 +242,17 @@ public class PlayerTrackPager extends ViewPager {
             return mViews == null || mViews.isEmpty() ? 1  : mViews.size();
         }
 
-        @Override
+        @Override @SuppressWarnings("deprecation")
         public Object instantiateItem(View collection, int position) {
             final View v = (mViews == null || position >= mViews.size()) ?
                     View.inflate(getContext(), R.layout.empty_player, null) : mViews.get(position);
-            ((ViewPager) collection).addView(v);
+            ((ViewGroup) collection).addView(v);
             return v;
         }
 
-        @Override
+        @Override @SuppressWarnings("deprecation")
         public void destroyItem(View collection, int position, Object view) {
-            ((ViewPager) collection).removeView((ViewGroup) view);
+            ((ViewManager) collection).removeView((View) view);
         }
 
         @Override
