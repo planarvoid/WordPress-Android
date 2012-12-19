@@ -397,6 +397,7 @@ public class WaveformController extends TouchLayout {
         mCurrentTimeDisplay.setDuration(mDuration);
 
         if (changed) {
+            hideWaiting();
             stopSmoothProgress();
             determineProgressInterval();
         }

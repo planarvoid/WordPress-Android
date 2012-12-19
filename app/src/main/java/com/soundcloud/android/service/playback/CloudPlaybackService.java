@@ -80,7 +80,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static final String STOP_ACTION          = "com.soundcloud.android.playback.stop"; // from the notification
     public static final String ADD_LIKE_ACTION      = "com.soundcloud.android.favorite.add";
     public static final String REMOVE_LIKE_ACTION   = "com.soundcloud.android.favorite.remove";
-    public static final String RELOAD_QUEUE         = "com.soundcloud.android.favorite.reloadqueue";
+    public static final String RELOAD_QUEUE         = "com.soundcloud.android.reloadqueue";
+    public static final String LOAD_TRACK_INFO      = "com.soundcloud.android.loadTrackInfo";
 
     // broadcast notifications
     public static final String UPDATE_WIDGET_ACTION = "com.soundcloud.android.playback.updatewidgetaction";
@@ -194,6 +195,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         commandFilter.addAction(STOP_ACTION);
         commandFilter.addAction(PLAYQUEUE_CHANGED);
         commandFilter.addAction(RELOAD_QUEUE);
+        commandFilter.addAction(LOAD_TRACK_INFO);
+
 
 
         registerReceiver(mIntentReceiver, commandFilter);
@@ -448,10 +451,13 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             sendBroadcast(new Intent(Sound.ACTION_SOUND_INFO_UPDATED)
                                         .putExtra(CloudPlaybackService.BroadcastExtras.id, track.id));
 
-            if (track.isStreamable()) {
-                onStreamableTrack(track);
-            } else {
-                onUnstreamableTrack(track.id);
+            if (track.equals(currentTrack) && (!isPlaying() && state.isSupposedToBePlaying())){
+                // we were waiting on this track
+                if (track.isStreamable()) {
+                    onStreamableTrack(track);
+                } else {
+                    onUnstreamableTrack(track.id);
+                }
             }
         }
 
@@ -962,6 +968,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 mResumeTime = getProgress();
                 mResumeTrackId = getCurrentTrackId();
                 stop();
+            } else if (LOAD_TRACK_INFO.equals(action)) {
+                final Track t = Track.fromIntent(intent,getContentResolver());
+                t.refreshInfoAsync(getApp(),mInfoListener);
 
             } else if (PLAYQUEUE_CHANGED.equals(action)) {
                 if (state == EMPTY_PLAYLIST) {

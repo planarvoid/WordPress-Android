@@ -21,7 +21,6 @@ import com.soundcloud.android.utils.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class LazyRow extends FrameLayout {
-    public static final ImageLoader.Options ICON_OPTIONS = ImageLoader.Options.dontLoadRemote();
 
     private ImageLoader.Options mIconOptions;
 
@@ -66,7 +65,7 @@ public abstract class LazyRow extends FrameLayout {
                 mIcon.setImageDrawable(drawable);
             } else {
                 // no drawable yet, check for a bitmap
-                final Bitmap bmp = mImageLoader.getBitmap(iconUri, null, ICON_OPTIONS);
+                final Bitmap bmp = mImageLoader.getBitmap(iconUri, null, ImageLoader.Options.dontLoadRemote());
                 if (bmp != null) {
                     // we have a bitmap, check to see if this was previously empty (should be animated in)
                     if (mAdapter.getIconNotReady(id)) {

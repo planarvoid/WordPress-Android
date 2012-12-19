@@ -293,5 +293,9 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
         return this;
     }
 
+    public long getUserId() {
+        return user != null ? user.id : user_id;
+    }
+
     public abstract int getTypeId();
 }

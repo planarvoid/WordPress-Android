@@ -8,6 +8,9 @@
     <color name="listTxtCreatedAt">#FFc9c9c9</color>
     <color name="listTxtTrackUser">#FF828282</color>
 
+    <color name="statsColor">#FF828282</color>
+    <color name="statsColorPressed">#88FFFFFF</color>
+
     <color name="listTxtDarkValue">#FFFFFFFF</color>
     <color name="listTxtDarkValuePressed">#88FFFFFF</color>
     <color name="listTxtDarkValueInactive">#FFa9a9a9</color>
@@ -102,5 +105,6 @@
     <color name="search_suggestion_text_color">#CCCCCC</color>
     <color name="track_info_separator">#FFE5E5E5</color>
 
+    <color name="txt_description_color">#FF666666</color>
 
 </resources>

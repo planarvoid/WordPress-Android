@@ -6,7 +6,6 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
-import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
@@ -85,11 +84,8 @@ public class ApiSyncer {
                     break;
 
                 case ME_LIKES:
-                    result = syncLikes(uri);
-                    break;
-
                 case ME_SOUNDS:
-                    result = syncSounds(uri);
+                    result = syncSoundAssociations(uri);
                     break;
 
                 case ME_TRACKS:
@@ -144,33 +140,17 @@ public class ApiSyncer {
         return result;
     }
 
-    private Result syncLikes(Uri uri) throws IOException {
+    private Result syncSoundAssociations(Uri uri) throws IOException {
+        Content c = Content.match(uri);
         Result result = new Result(uri);
-        log("syncLikes(" + uri + ")");
+        log("syncSoundAssociations(" + uri + ")");
 
         SoundAssociationHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
-                Request.to(TempEndpoints.e1.MY_LIKES).with("limit", 200),
+                Request.to(c.remoteUri).with("limit", 200),
                 SoundAssociationHolder.class);
 
         if (holder != null) {
-            holder.insert(mResolver);
-
-            result.setSyncData(System.currentTimeMillis(), holder.collection.size(), null);
-            result.success = true;
-            result.change = Result.CHANGED;
-        }
-        return result;
-    }
-
-    private Result syncSounds(Uri uri) throws IOException {
-        Result result = new Result(uri);
-        log("syncSounds(" + uri + ")");
-
-        SoundAssociationHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
-                Request.to(TempEndpoints.e1.MY_SOUNDS_MINI).with("limit", 200),
-                SoundAssociationHolder.class);
-
-        if (holder != null) {
+            holder.removeMissingLocallyStoredItems(mResolver, uri);
             holder.insert(mResolver);
 
             result.setSyncData(System.currentTimeMillis(), holder.collection.size(), null);
@@ -203,7 +183,7 @@ public class ApiSyncer {
             Request request = future_href == null ? c.request() : Request.to(future_href);
             activities = Activities.fetchRecent(mApi, request, MAX_LOOKUP_COUNT);
 
-            if (activities.hasMore()) {
+                if (activities.hasMore()) {
                 // delete all activities to avoid gaps in the data
                 mResolver.delete(c.uri, null, null);
             }
@@ -321,7 +301,7 @@ public class ApiSyncer {
     }
 
     private List<Long> handleDeletions(Content content, List<Long> local, List<Long> remote) {
-        // deletions can happen here, has no impact
+        // This only works when items are unique in a collection, fine for now
         List<Long> itemDeletions = new ArrayList<Long>(local);
         itemDeletions.removeAll(remote);
         if (!itemDeletions.isEmpty()) {

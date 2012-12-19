@@ -26,8 +26,9 @@
     <style name="PlayerAction.ToggleButton" parent="PlayerAction">
         <item name="android:layout_gravity">left|center</item>
         <item name="android:background">@drawable/toggle_player_action_states</item>
-        <item name="android:paddingLeft">10dp</item>
-        <item name="android:paddingRight">10dp</item>
+        <item name="android:paddingLeft">11dp</item>
+        <item name="android:paddingRight">11dp</item>
+        <item name="android:drawablePadding">6dp</item>
     </style>
 
     <style name="PlayerAction.ShareButton" parent="PlayerAction">

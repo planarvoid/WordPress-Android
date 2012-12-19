@@ -15,6 +15,8 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewManager;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
@@ -77,12 +79,10 @@ public class PlayerTrackPager extends ViewPager {
                 PlayQueueManager playQueueManager = CloudPlaybackService.getPlaylistManager();
                 final long queueLength = playQueueManager == null ? 1 : playQueueManager.length();
 
-                if (state == ViewPager.SCROLL_STATE_IDLE) {
-
-                    PlayerTrackView currentView;
+                if (state == ViewPager.SCROLL_STATE_IDLE && !mViews.isEmpty()) {
                     switch (mDirection) {
-                        case LEFT:
-                            currentView = (PlayerTrackView) mViews.getFirst().getChildAt(0);
+                        case LEFT: {
+                            PlayerTrackView currentView = (PlayerTrackView) mViews.getFirst().getChildAt(0);
                             if (currentView.getPlayPosition() > 0) {
                                 // move the last trackview to the beginning
                                 PlayerTrackView lastView = (PlayerTrackView) mViews.getLast().getChildAt(0);
@@ -101,9 +101,9 @@ public class PlayerTrackPager extends ViewPager {
                                 setCurrentItem(1, false);
                             }
                             break;
-
-                        case RIGHT:
-                            currentView = (PlayerTrackView) mViews.getLast().getChildAt(0);
+                        }
+                        case RIGHT: {
+                            PlayerTrackView currentView = (PlayerTrackView) mViews.getLast().getChildAt(0);
                             if (currentView.getPlayPosition() < queueLength - 1) {
                                 // move the first trackview to the end
                                 PlayerTrackView firstView = (PlayerTrackView) mViews.getFirst().getChildAt(0);
@@ -121,6 +121,7 @@ public class PlayerTrackPager extends ViewPager {
                                 mPlayerTrackViews.add(mPlayerTrackViews.remove(0));
                                 setCurrentItem(1, false);
                             }
+                        }
                     }
                 }
             }
@@ -240,17 +241,17 @@ public class PlayerTrackPager extends ViewPager {
             return mViews == null || mViews.isEmpty() ? 1  : mViews.size();
         }
 
-        @Override
+        @Override @SuppressWarnings("deprecation")
         public Object instantiateItem(View collection, int position) {
             final View v = (mViews == null || position >= mViews.size()) ?
                     View.inflate(getContext(), R.layout.empty_player, null) : mViews.get(position);
-            ((ViewPager) collection).addView(v);
+            ((ViewGroup) collection).addView(v);
             return v;
         }
 
-        @Override
+        @Override @SuppressWarnings("deprecation")
         public void destroyItem(View collection, int position, Object view) {
-            ((ViewPager) collection).removeView((FrameLayout) view);
+            ((ViewManager) collection).removeView((View) view);
         }
 
         @Override

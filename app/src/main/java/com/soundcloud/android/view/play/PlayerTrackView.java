@@ -49,14 +49,16 @@ import android.widget.ViewFlipper;
 import java.lang.ref.SoftReference;
 import java.util.List;
 
+@SuppressWarnings("deprecation")
 public class PlayerTrackView extends LinearLayout implements
         View.OnTouchListener,
         LoadCommentsTask.LoadCommentsListener {
 
     private ScPlayer mPlayer;
 
-    private ImageView mArtwork, mAvatar;
-    private FrameLayout mArtworkHolder;
+    private @Nullable ImageView mArtwork;
+    private ImageView mAvatar;
+    private @Nullable FrameLayout mArtworkHolder;
     private ImageLoader.BindResult mCurrentArtBindResult;
 
     private WaveformController mWaveformController;
@@ -67,8 +69,8 @@ public class PlayerTrackView extends LinearLayout implements
     private @Nullable PlayerTrackDetails mTrackDetailsView; // ditto
 
     private boolean mDraggingLabel = false;
-    private int mInitialX = -1;
-    private int mLastX    = -1;
+    private int mInitialX  = -1;
+    private int mLastX     = -1;
     private int mTextWidth = 0;
     private int mViewWidth = 0;
     private int mTouchSlop;
@@ -103,7 +105,6 @@ public class PlayerTrackView extends LinearLayout implements
         mTrackInfoBar.setEnabled(false);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
 
-
         mTrackInfoBar.addTextShadows();
         mArtwork = (ImageView) findViewById(R.id.artwork);
         if (mArtwork != null) {
@@ -120,15 +121,14 @@ public class PlayerTrackView extends LinearLayout implements
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
         findViewById(R.id.track_info_clicker).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (mTrack != null) {
-                    // get a valid id somehow or don't bother
-                    final long userId = mTrack.user != null ? mTrack.user.id : mTrack.user_id;
-                    if (userId == -1) return;
+                if (mTrack != null && mTrack.getUserId() >= 0) {
+                    if (mTrack.user != null) {
+                        SoundCloudApplication.MODEL_MANAGER.cache(mTrack.user, ScResource.CacheUpdateMode.NONE);
+                    }
 
-                    if (mTrack.user != null) SoundCloudApplication.MODEL_MANAGER.cache(mTrack.user, ScResource.CacheUpdateMode.NONE);
-                    Intent intent = new Intent(getContext(), UserBrowser.class)
-                        .putExtra("userId", mTrack.user_id);
-                    getContext().startActivity(intent);
+                    getContext().startActivity(
+                        new Intent(getContext(), UserBrowser.class)
+                            .putExtra("userId", mTrack.getUserId()));
                 }
             }
         });
@@ -226,7 +226,7 @@ public class PlayerTrackView extends LinearLayout implements
         mWaveformController.updateTrack(mTrack, queuePosition, priority);
 
         mTrackInfoBar.display(mTrack, -1, false, true, false);
-        if (mTrackDetailsView != null) mTrackDetailsView.setPlayingTrack(mTrack);
+        if (mTrackDetailsView != null) mTrackDetailsView.fillTrackDetails(mTrack);
         updateAvatar(priority);
 
         if (mDuration != mTrack.duration) {
@@ -321,44 +321,48 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     private void showDefaultArtwork() {
-        if (mArtwork != null) {
+        if (mArtwork != null && mArtworkHolder != null) {
             mArtwork.setVisibility(View.GONE);
             mArtwork.setImageDrawable(null);
             if (mArtworkBgDrawable == null || mArtworkBgDrawable.get() == null){
                 try {
                     mArtworkBgDrawable = new SoftReference<Drawable>(getResources().getDrawable(R.drawable.artwork_player));
-                } catch (OutOfMemoryError e){}
+                } catch (OutOfMemoryError ignored){}
             }
-        }
-        if (mArtworkBgDrawable == null || mArtworkBgDrawable.get() == null) {
-            mArtwork.setBackgroundColor(0xFFFFFFFF);
-        } else {
-            mArtworkHolder.setBackgroundDrawable(mArtworkBgDrawable.get());
+
+            final Drawable bg = mArtworkBgDrawable == null ? null : mArtworkBgDrawable.get();
+            if (bg == null) {
+                mArtwork.setBackgroundColor(0xFFFFFFFF);
+            } else {
+                mArtworkHolder.setBackgroundDrawable(bg);
+            }
         }
     }
 
     private void onArtworkSet(boolean animate) {
-        if (mArtwork.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
-            if (animate) {
-                AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
-                mArtwork.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                    }
+        if (mArtwork != null && mArtworkHolder != null) {
+            if (mArtwork.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
+                if (animate) {
+                    AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
+                    mArtwork.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+                        }
 
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        if (animation == mArtwork.getAnimation()) mArtworkHolder.setBackgroundDrawable(null);
-                    }
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            if (animation.equals(mArtwork.getAnimation())) mArtworkHolder.setBackgroundDrawable(null);
+                        }
 
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-                    }
-                });
-                mArtwork.setVisibility(View.VISIBLE);
-            } else {
-                mArtwork.setVisibility(View.VISIBLE);
-                mArtworkHolder.setBackgroundDrawable(null);
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+                        }
+                    });
+                    mArtwork.setVisibility(View.VISIBLE);
+                } else {
+                    mArtwork.setVisibility(View.VISIBLE);
+                    mArtworkHolder.setBackgroundDrawable(null);
+                }
             }
         }
     }
@@ -393,10 +397,27 @@ public class PlayerTrackView extends LinearLayout implements
             mWaveformController.closeComment(false);
             if (mTrackDetailsView == null) {
                 mTrackDetailsView = new PlayerTrackDetails(mPlayer);
-                mTrackDetailsView.setPlayingTrack(mTrack);
                 trackFlipper.addView(mTrackDetailsView);
             }
-            if (!mTrackDetailsView.getIsTrackInfoFilled()) mTrackDetailsView.fillTrackDetails();
+
+            // according to this logic, we will only load the info if we haven't yet or there was an error
+            // there is currently no manual or stale refresh logic
+            if (mTrack != null) {
+                if (mTrack.shouldLoadInfo()) {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!mPlayer.isFinishing()) {
+                                mPlayer.startService(new Intent(CloudPlaybackService.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrack.id));
+                            }
+                        }
+                    }, 400); //flipper animation time is 250, so this should be enough to allow the animation to end
+
+                    mTrackDetailsView.fillTrackDetails(mTrack, true);
+                } else {
+                    mTrackDetailsView.fillTrackDetails(mTrack);
+                }
+            }
 
             trackFlipper.setInAnimation(AnimUtils.inFromRightAnimation(new AccelerateDecelerateInterpolator()));
             trackFlipper.setOutAnimation(AnimUtils.outToLeftAnimation(new AccelerateDecelerateInterpolator()));
@@ -560,7 +581,7 @@ public class PlayerTrackView extends LinearLayout implements
             @Override public void onAnimationRepeat(Animation animation) {}
             @Override
             public void onAnimationEnd(Animation animation) {
-                if (target.getAnimation() == animation) {
+                if (target.getAnimation().equals(animation)) {
                     target.setVisibility(visibility);
                     target.setEnabled(true);
                 }
@@ -574,9 +595,8 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public void onDestroy() {
-        if (mWaveformController != null) {
-            mWaveformController.onDestroy();
-        }
+        clear();
+        mWaveformController.onDestroy();
     }
 
     public boolean waveformVisible(){
@@ -650,13 +670,13 @@ public class PlayerTrackView extends LinearLayout implements
             if (t != null) {
                 setTrack(t, mQueuePosition, true, mOnScreen);
                 if (mTrackDetailsView != null) {
-                    mTrackDetailsView.onInfoLoadSuccess();
+                    mTrackDetailsView.fillTrackDetails(mTrack);
                 }
             }
 
         } else if (Sound.ACTION_SOUND_INFO_ERROR.equals(action)) {
             if (mTrackDetailsView != null) {
-                mTrackDetailsView.onInfoLoadError();
+                mTrackDetailsView.fillTrackDetails(mTrack);
             }
 
         } else if (CloudPlaybackService.BUFFERING.equals(action)) {
@@ -720,8 +740,9 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public void onBuffering() {
-        if (mTrack != null) {
-            mTrack.last_playback_error = -1;
+        final Track track = getTrack();
+        if (track != null) {
+            track.last_playback_error = -1;
             hideUnplayable();
             mWaveformController.onBufferingStart();
             mWaveformController.stopSmoothProgress();
@@ -734,11 +755,6 @@ public class PlayerTrackView extends LinearLayout implements
 
     public long getTrackId() {
         return mTrack == null ? -1 : mTrack.id;
-    }
-
-    public void destroy() {
-        clear();
-        mWaveformController.onDestroy();
     }
 
     public void clear() {
