@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -165,7 +166,12 @@ public class UserDetails extends RelativeLayout {
 
     public void onImageCrop(int resultCode, Intent result) {
         if (resultCode == Activity.RESULT_OK) {
-            setImage(mAvatarFile);
+
+            if (result.getExtras().containsKey("error")) {
+                handleSilentException("error cropping image", (Exception) result.getSerializableExtra("error"));
+            } else {
+                setImage(mAvatarFile);
+            }
         }
     }
 

@@ -2,6 +2,7 @@ package com.soundcloud.android.activity.create;
 
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -297,7 +298,11 @@ public class ScUpload extends ScActivity {
 
             case Consts.RequestCodes.IMAGE_CROP: {
                 if (resultCode == RESULT_OK) {
-                    mRecordingMetadata.setImage(mRecording.generateImageFile(Recording.IMAGE_DIR));
+                    if (result.getExtras().containsKey("error")) {
+                        handleSilentException("error cropping image", (Exception) result.getSerializableExtra("error"));
+                    } else {
+                        mRecordingMetadata.setImage(mRecording.generateImageFile(Recording.IMAGE_DIR));
+                    }
                 }
                 break;
             }
