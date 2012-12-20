@@ -644,7 +644,7 @@ public class ImageLoader {
             }
 
             if (mBitmap != null) {
-                if (mOptions.fadeAfterLoad && imageView.getDrawable() != null){
+                if (mOptions.fadeAfterLoad){
                     final Drawable from = imageView.getDrawable();
                     TransitionDrawable tDrawable = new TransitionDrawable(
                             new Drawable[]{
