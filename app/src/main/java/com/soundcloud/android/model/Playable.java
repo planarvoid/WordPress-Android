@@ -1,9 +1,5 @@
 package com.soundcloud.android.model;
 
-import android.content.Context;
-
-public interface Playable {
+public interface Playable extends Creation {
     Track getTrack();
-    CharSequence getTimeSinceCreated(Context context);
-    void refreshTimeSinceCreated(Context context);
 }

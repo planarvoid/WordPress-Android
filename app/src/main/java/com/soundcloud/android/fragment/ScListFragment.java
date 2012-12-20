@@ -404,6 +404,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         final ScBaseAdapter adapter = getListAdapter();
         if (adapter != null) {
             if (userRefresh) {
+                adapter.refreshCreationStamps();
                 if (adapter instanceof FollowStatus.Listener) {
                     FollowStatus.get(getActivity()).requestUserFollowings((FollowStatus.Listener) adapter);
                 }
