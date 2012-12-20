@@ -44,7 +44,7 @@ public class AddCommentDialog extends Dialog {
         setCancelable(true);
         setCanceledOnTouchOutside(true);
 
-        final Comment comment = mActivity.getApp().pendingComment;
+        final Comment comment = ScPlayer.pendingComment;
 
         if (comment == null) {
             dismiss();
@@ -93,9 +93,9 @@ public class AddCommentDialog extends Dialog {
     @Override
     protected void onStart() {
         super.onStart();
-        final Comment comment = mActivity.getApp().pendingComment;
+        final Comment comment = ScPlayer.pendingComment;
         if (comment != null) {
-            mActivity.track(Page.Sounds_add_comment, comment.getTrack());
+            mActivity.track(Page.Sounds_add_comment, comment.getSound());
         }
     }
 

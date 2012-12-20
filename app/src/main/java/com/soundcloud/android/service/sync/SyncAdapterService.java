@@ -4,6 +4,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.c2dm.PushEvent;
+import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -32,6 +33,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Sync service - delegates to {@link ApiSyncService} for the actual syncing. This class is responsible for the setup
@@ -40,10 +42,9 @@ import java.util.ArrayList;
 public class SyncAdapterService extends Service {
     /* package */  static final String TAG = SyncAdapterService.class.getSimpleName();
     private static final boolean DEBUG_CANCEL = Boolean.valueOf(System.getProperty("syncadapter.debug.cancel", null));
-
+    public static final String SYNC_FINISHED = SyncAdapterService.class.getName() + ".syncFinished";
     public static final int MAX_ARTWORK_PREFETCH = 40; // only prefetch N amount of artwork links
 
-    public static final String EXTRA_CLEAR_MODE     = "clearMode";
     public static final String EXTRA_PUSH_EVENT     = "pushEvent";
     public static final String EXTRA_PUSH_EVENT_URI = "pushEventUri";
 
@@ -57,16 +58,23 @@ public class SyncAdapterService extends Service {
         mSyncAdapter = new AbstractThreadedSyncAdapter(this, false) {
             private Looper looper;
 
+            /**
+             * Called by the framework to indicate a sync request.
+             */
             @Override
             public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
                 if (DEBUG_CANCEL) DebugUtils.setLogLevels();
 
                 AndroidCloudAPI.Wrapper.setBackgroundMode(true);
 
+                // delegate to the ApiSyncService, use a looper + ResultReceiver to wait for the result
                 Looper.prepare();
                 looper = Looper.myLooper();
                 if (performSync((SoundCloudApplication) getApplication(), account, extras, syncResult, new Runnable() {
                     @Override public void run() {
+                        if(Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "sync finished");
+                        sendBroadcast(new Intent(SYNC_FINISHED));
+
                         looper.quit();
                     }
                 })) {
@@ -112,16 +120,17 @@ public class SyncAdapterService extends Service {
         }
 
         // for first sync set all last seen flags to "now"
-        if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {
+        if (ContentStats.getLastSeen(app, Content.ME_SOUND_STREAM) <= 0) {
             final long now = System.currentTimeMillis();
-            app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
-            app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
-            app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, now);
+            ContentStats.setLastSeen(app, Content.ME_SOUND_STREAM, now);
+            ContentStats.setLastNotified(app, Content.ME_SOUND_STREAM, now);
+            ContentStats.setLastSeen(app, Content.ME_ACTIVITIES, now);
         }
 
         final Intent syncIntent = getSyncIntent(app, extras);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
-            syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ServiceResultReceiver(app, syncResult, extras) {
+            // ServiceResultReceiver does most of the work
+            syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new SyncServiceResultReceiver(app, syncResult, extras) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
                     try {
@@ -172,12 +181,17 @@ public class SyncAdapterService extends Service {
                 final ArrayList<Uri> urisToSync = new ArrayList<Uri>();
                 if (SyncConfig.shouldUpdateDashboard(app)) {
                     if (SyncConfig.isIncomingEnabled(app, extras)) urisToSync.add(Content.ME_SOUND_STREAM.uri);
-                    if (SyncConfig.isExclusiveEnabled(app, extras)) urisToSync.add(Content.ME_EXCLUSIVE_STREAM.uri);
                     if (SyncConfig.isActivitySyncEnabled(app, extras)) urisToSync.add(Content.ME_ACTIVITIES.uri);
                 }
 
-                if (SyncConfig.shouldSyncCollections(app)) {
-                    urisToSync.addAll(SyncContent.getCollectionsDueForSync(app, manual));
+                if (manual || SyncConfig.shouldSyncCollections(app)) {
+                    final List<Uri> dueForSync = SyncContent.getCollectionsDueForSync(app, manual);
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "collection due for sync:" +dueForSync);
+                    }
+                    urisToSync.addAll(dueForSync);
+                } else if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "skipping collection sync, no wifi");
                 }
 
                 if (SyncConfig.shouldSync(app, Consts.PrefKeys.LAST_SYNC_CLEANUP, SyncConfig.CLEANUP_DELAY) || manual) {
@@ -207,7 +221,7 @@ public class SyncAdapterService extends Service {
             if (id != -1) {
                 User u = SoundCloudApplication.MODEL_MANAGER.getUser(id);
                 if (u != null && !u.isStale()){
-                    Message.showNewFollower(app, u);
+                    NotificationMessage.showNewFollower(app, u);
                     return true;
                 } else {
                     try {
@@ -215,7 +229,7 @@ public class SyncAdapterService extends Service {
                         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                             u = app.getMapper().readValue(resp.getEntity().getContent(), User.class);
                             SoundCloudApplication.MODEL_MANAGER.write(u);
-                            Message.showNewFollower(app, u);
+                            NotificationMessage.showNewFollower(app, u);
                             return true;
                         }
                     } catch (IOException e) {
@@ -232,27 +246,19 @@ public class SyncAdapterService extends Service {
     public static void requestNewSync(SoundCloudApplication app, int clearMode) {
         switch (clearMode) {
             case CLEAR_ALL:
-                app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1);
-                app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1);
-                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, 1);
-                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, 1);
-                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, 1);
+                ContentStats.clear(app);
                 clearActivities(app.getContentResolver());
                 break;
             case REWIND_LAST_DAY:
                 final long rewindTime = 24 * 3600000L; // 1d
-                rewind(app, User.DataKeys.LAST_INCOMING_SEEN, null, rewindTime);
-                rewind(app, User.DataKeys.LAST_OWN_SEEN, null, rewindTime);
-                rewind(app, User.DataKeys.LAST_OWN_NOTIFIED_ITEM, null,  rewindTime);
-                rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, null,  rewindTime);
-                rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_AT, null, rewindTime);
+                ContentStats.rewind(app, rewindTime);
                 clearActivities(app.getContentResolver());
                 break;
             default:
         }
 
         final Bundle extras = new Bundle();
-        extras.putInt(EXTRA_CLEAR_MODE, clearMode);
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, extras);
     }
 
@@ -262,9 +268,5 @@ public class SyncAdapterService extends Service {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "deleted "+deleted+ " activities");
         }
-    }
-
-    private static void rewind(SoundCloudApplication app, String key1, @Nullable String key2, long amount) {
-        app.setAccountData(key1, app.getAccountDataLong(key2 == null ? key1 : key2) - amount);
     }
 }

@@ -38,7 +38,7 @@
     <PreferenceCategory
             android:title="@string/pref_connection_and_data">
 
-        <PreferenceScreen
+        <Preference
                 android:key="wireless"
                 android:title="@string/wifi_settings"
                 android:summary="@string/wifi_settings_summary"/>
@@ -79,11 +79,17 @@
                 android:summary="@string/pref_help_desc"
                 android:key="help"/>
 
+
+
         <PreferenceScreen
-                android:key="about"
-                android:title="@string/about"
-                android:summary="@string/about_summary"
-                />
+                android:key="legal"
+                android:title="@string/legal"
+                android:summary="@string/legal_summary">
+
+            <intent android:action="android.intent.action.VIEW"
+                    android:targetPackage="com.soundcloud.android"
+                    android:targetClass="com.soundcloud.android.activity.settings.Legal"/>
+        </PreferenceScreen>
     </PreferenceCategory>
 
     <PreferenceCategory android:key="extras" android:title="@string/pref_dev_extras">
@@ -92,14 +98,6 @@
 
     <PreferenceCategory android:key="dev-settings"
                         android:title="@string/pref_dev_settings">
-
-        <ListPreference
-            android:title="@string/pref_dashboard_store_max"
-            android:summary="@string/pref_dashboard_store_max_desc"
-            android:key="dev.dashboardMaxStored"
-            android:defaultValue="100"
-            android:entries="@array/pref_dashboard_store_max_entries"
-            android:entryValues="@array/pref_dashboard_store_max_values"/>
 
         <ListPreference
             android:title="@string/pref_dev_record_type"

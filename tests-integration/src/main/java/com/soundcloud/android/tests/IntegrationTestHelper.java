@@ -8,6 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -17,6 +18,8 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Instrumentation;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.IOException;
@@ -28,11 +31,11 @@ public final class IntegrationTestHelper {
     private IntegrationTestHelper() {}
     private static final String TAG = IntegrationTestHelper.class.getSimpleName();
 
-    public static void loginAsDefault(final Instrumentation instrumentation) throws Exception {
-        loginAs(instrumentation, USERNAME, PASSWORD);
+    public static Account loginAsDefault(final Instrumentation instrumentation) throws Exception {
+        return loginAs(instrumentation, USERNAME, PASSWORD);
     }
 
-    public static void loginAs(final Instrumentation instrumentation,
+    public static Account loginAs(final Instrumentation instrumentation,
                                final String username,
                                final String password) throws Exception {
 
@@ -41,7 +44,7 @@ public final class IntegrationTestHelper {
         if (account != null && !account.name.equals(username)) {
             Log.d(TAG, "clearing account and logging in again");
             if (logOut(instrumentation.getTargetContext())) {
-                loginAs(instrumentation, username, password);
+                return loginAs(instrumentation, username, password);
             } else {
                 throw new RuntimeException("Could not log out");
             }
@@ -58,9 +61,11 @@ public final class IntegrationTestHelper {
             }
             User user = new FetchUserTask(wrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();
             assertNotNull("could not get test user", user);
-            assertNotNull("addAccount failed", SoundCloudApplication.addAccount(context, user, token, SignupVia.UNKNOWN));
+            assertNotNull("addAccount failed", SoundCloudApplication.addAccount(context, user, token, SignupVia.NONE));
+            return account;
         } else {
             Log.d(TAG, "already logged in as user "+account);
+            return account;
         }
     }
 
@@ -90,5 +95,35 @@ public final class IntegrationTestHelper {
         } else {
             throw new AssertionError("More than one account found");
         }
+    }
+
+    public static void clearDb(Instrumentation instrumentation) {
+        Log.d(TAG, "clearing out database");
+        final Context context = instrumentation.getTargetContext();
+        // clear out db
+
+        DBHelper helper = new DBHelper(context);
+        final SQLiteDatabase db = helper.getWritableDatabase();
+        helper.onRecreateDb(db);
+        db.close();
+    }
+
+    /**
+     * Need to initialize AsyncTask on UI thread, to have internal handler
+     * initialized correctly. Calls this at the beginning of your test.
+     * Android testing is fscked up.
+     */
+    public static void initAsyncTask(Instrumentation instrumentation) {
+        instrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                new AsyncTask<Void, Void, Void>()  {
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        return null;
+                    }
+                };
+            }
+        });
     }
 }

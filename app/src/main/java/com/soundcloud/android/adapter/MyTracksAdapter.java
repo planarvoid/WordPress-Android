@@ -1,9 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.create.ScUpload;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
@@ -21,7 +19,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,12 +114,6 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
     }
 
     @Override
-    public void clearData() {
-        super.clearData();
-        refreshCursor();
-    }
-
-    @Override
     public int getCount() {
         if (mRecordingData != null) {
             return mRecordingData.size() + super.getCount();
@@ -142,20 +133,6 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
             return super.getItem(position);
         }
     }
-
-    @Override
-    public long getItemId(int position) {
-        if (mRecordingData != null) {
-            if (position < mRecordingData.size()){
-                return mRecordingData.get(position).id;
-            } else {
-                return super.getItemId(position - mRecordingData.size());
-            }
-        } else {
-            return super.getItemId(position);
-        }
-    }
-
 
     /**
      * Called when the {@link ContentObserver} on the cursor receives a change notification.
@@ -188,7 +165,7 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
                 mContext.startActivity(new Intent(mContext,(r.external_upload ? ScUpload.class : ScCreate.class)).setData(r.toUri()));
             }
         } else {
-            PlayUtils.playFromAdapter(mContext, this, mData, position - mRecordingData.size(), getItem(position).id);
+            PlayUtils.playFromAdapter(mContext, this, mData, position - mRecordingData.size());
         }
         return ItemClickResults.LEAVING;
     }

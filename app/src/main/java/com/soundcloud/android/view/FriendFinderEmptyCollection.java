@@ -3,49 +3,56 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.R;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
-public class FriendFinderEmptyCollection extends EmptyCollection {
+public class FriendFinderEmptyCollection extends EmptyListView {
 
     public interface FriendFinderMode {
-        int NO_CONNECTIONS = 100;
+        int NO_CONNECTIONS   = 100;
         int CONNECTION_ERROR = 101;
     }
 
     public FriendFinderEmptyCollection(Context context) {
         super(context);
-
-        mBtnAction.setBackgroundResource(R.drawable.btn_fb_bg_states);
-        mBtnAction.setTextColor(getResources().getColorStateList(R.drawable.txt_btn_blue_states));
     }
 
     @Override
     public boolean setMode(int mode) {
-        if (!super.setMode(mode)) {
+
+        if (mMode != mode) {
+            mMode = mode;
             switch (mode) {
                 case FriendFinderMode.NO_CONNECTIONS:
-                    mEmptyLayout.setVisibility(View.VISIBLE);
-                    mSyncLayout.setVisibility(View.GONE);
-                    findViewById(R.id.txt_sync).setVisibility(View.GONE);
-                    setMessageText(-1);
+                    mProgressBar.setVisibility(View.GONE);
+                    showEmptyLayout();
+                    setMessageText(R.string.list_empty_friend_finder_no_connections);
                     mBtnAction.setVisibility(View.VISIBLE);
-                    setImageVisibility(false);
                     return true;
 
                 case FriendFinderMode.CONNECTION_ERROR:
-                    mEmptyLayout.setVisibility(View.VISIBLE);
-                    mSyncLayout.setVisibility(View.GONE);
-                    findViewById(R.id.txt_sync).setVisibility(View.GONE);
-                    setMessageText(R.string.problem_getting_connections);
+                    mProgressBar.setVisibility(View.GONE);
+                    showEmptyLayout();
+                    setMessageText(R.string.list_empty_friend_finder_error);
                     mBtnAction.setVisibility(View.GONE);
-                    setImageVisibility(true);
+                    return true;
+
+                case Mode.WAITING_FOR_DATA:
+                    mProgressBar.setVisibility(View.VISIBLE);
+                    if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
+                    return true;
+
+                case Mode.IDLE:
+                    mProgressBar.setVisibility(View.GONE);
+                    showEmptyLayout();
+                    setMessageText(R.string.list_empty_friend_finder);
                     return true;
             }
-        } else {
-            setImageVisibility(true);
         }
         return false;
+    }
+
+    @Override
+    protected int getEmptyViewLayoutId() {
+        return R.layout.friend_finder_empty_collection_view;
     }
 }

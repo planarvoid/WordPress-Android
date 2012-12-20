@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import static java.lang.Math.max;
 
 import com.soundcloud.android.R;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.annotation.TargetApi;
@@ -11,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,7 +21,6 @@ import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -27,55 +28,58 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Scroller;
 
 /*
     Touch Handling pulled from the Android ICS ScrollView class
+
+
 */
-
 public class RootView extends ViewGroup {
-    static String TAG = RootView.class.getSimpleName();
+    private static final float MAXIMUM_MINOR_VELOCITY   = 150.0f;
+    private static final float MAXIMUM_MAJOR_VELOCITY   = 200.0f;
+    private static final float MAXIMUM_ACCELERATION     = 2000.0f;
+    private static final float DROP_SHADOW_WIDTH        = 10.0f;
 
-    private static final float MAXIMUM_MINOR_VELOCITY = 150.0f;
-    private static final float MAXIMUM_MAJOR_VELOCITY = 200.0f;
-    private static final float MAXIMUM_ACCELERATION = 2000.0f;
-    private static final int VELOCITY_UNITS = 1000;
-    private static final int MSG_ANIMATE = 1000;
-    private static final int ANIMATION_DURATION = 300;
-    private static final int ANIMATION_FRAME_DURATION = 1000 / 60;
-
-    private static final int OFFSET_RIGHT = 60;// action bar home icon mRight
-    private static final int OFFSET_LEFT = 60; // whatever we want on the left
-    private static final int BEZEL_HIT_WIDTH = 30;
-
-    private static final float DROP_SHADOW_WIDTH = 10.0f;
-
-    private static int mExpandedState;
-    private static final int EXPANDED_LEFT = 100000;
-    private static final int COLLAPSED_FULL_CLOSED = 100001;
-    private static final int EXPANDED_RIGHT = 100002;
-
-    private static final int MAXIMUM_OVERLAY_ALPHA = 180;
+    private static final int INVALID_POINTER            = -1;
+    private static final int VELOCITY_UNITS             = 1000;
+    private static final int MSG_ANIMATE                = 1000;
+    private static final int ANIMATION_DURATION         = 300;
+    private static final int ANIMATION_FRAME_DURATION   = 1000 / 60;
+    private static final int MENU_TARGET_WIDTH          = 230;
+    private static final int BEZEL_HIT_WIDTH            = 30;
+    private static final int OFFSET_RIGHT               = 60;   // action bar home icon mRight
+    private static final int OFFSET_LEFT                = 60;   // whatever we want on the left
+    private static final int MAXIMUM_OVERLAY_ALPHA      = 180;  // max alpha of the player/menu dimmers
 
     private static final float PARALLAX_SPEED_RATIO = 0.5f;
 
-    public static final String EXTRA_ROOT_VIEW_STATE = "fim_menu_state";
-    private static final String KEY_MENU_STATE = "menuState_key";
-    private static final String STATE_KEY = "state_key";
-    public static final int MENU_TARGET_WIDTH = 250;
+    private static int mExpandedState; // YES, THIS NEEDS TO BE STATIC
+    private static final int EXPANDED_LEFT              = 100000;
+    private static final int COLLAPSED_FULL_CLOSED      = 100001;
+    private static final int EXPANDED_RIGHT             = 100002;
 
-    private static final int INVALID_POINTER = -1;
 
+    public static final String EXTRA_ROOT_VIEW_STATE    = "fim_menu_state";
+
+    private static final String KEY_MENU_STATE          = "menuState_key";
+    private static final String STATE_KEY               = "state_key";
+    private static final String BLOCK_KEY               = "block_key";
+
+    private boolean mIsBlocked;
     private MainMenu mMenu;
     private @Nullable View mPlayer;
     private ViewGroup mContent;
+    private View mBlocker;
 
-    private boolean mTrackOnMove;
     private boolean mIsBeingDragged;
     private boolean mAnimating;
+    private boolean mCloseOnResume;
 
-    private VelocityTracker mVelocityTracker;
+    private @Nullable VelocityTracker mVelocityTracker;
 
     private OnMenuStateListener mOnMenuStateListener;
 
@@ -98,7 +102,7 @@ public class RootView extends ViewGroup {
     private final int mDrowShadoWidth;
     private final int mBezelHitWidth;
     private int mActivePointerId;
-    private float mLastMotionX;
+    private float mLastMotionX, mLastMotionY;
     private int mTouchSlop;
 
     /**
@@ -127,22 +131,35 @@ public class RootView extends ViewGroup {
          */
         public void onScrollEnded();
 
+        /**
+         * Invoked when the user clicks the blocked view
+         */
+        public void onBlockerClick();
+
     }
     /**
      * A slide in navigation menu.
      *
      * Based on the Android SlidingDrawer component, with additional functionality
      * and ideas credited to http://android.cyrilmottier.com/?p=658
-     *
-     * @param context
-     * @param selectedMenuId
      */
-    public RootView(Context context, int selectedMenuId) {
+    public RootView(Context context, Drawable contentBg, int selectedMenuId) {
         super(context, null, 0);
 
         View.inflate(context, R.layout.root_view, this);
 
+        // TODO. GET A REAL ID
         setId(101010101);
+
+        mBlocker = findViewById(R.id.blocker);
+        mBlocker.setVisibility(View.GONE);
+        mBlocker.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnMenuStateListener != null) mOnMenuStateListener.onBlockerClick();
+            }
+        });
+        mIsBlocked = false;
 
         setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
@@ -150,7 +167,7 @@ public class RootView extends ViewGroup {
         mMenu.setSelectedMenuId(selectedMenuId);
 
         mContent = (ViewGroup) findViewById(R.id.content_frame);
-        mContent.setBackgroundColor(Color.WHITE);
+        mContent.setBackgroundDrawable(contentBg);
         //mPlayer = findViewById(R.id.player_frame);
 
         mScroller = new Scroller(context,new DecelerateInterpolator());
@@ -177,10 +194,57 @@ public class RootView extends ViewGroup {
 
         mExpandedState = COLLAPSED_FULL_CLOSED;
         mActivePointerId = INVALID_POINTER;
-
-        setBackgroundColor(getResources().getColor(R.color.main_menu_bg));
         setAlwaysDrawnWithCacheEnabled(false);
+    }
 
+    public void setCloseOnResume(boolean closeOnResume){
+        mCloseOnResume = closeOnResume;
+    }
+
+    public void block(){
+        if (!mIsBlocked){
+            mIsBlocked = true;
+            mBlocker.setVisibility(View.VISIBLE);
+            mBlocker.clearAnimation();
+            mBlocker.setEnabled(true);
+            mBlocker.setClickable(true);
+            Animation animation = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_in);
+            animation.setDuration(200);
+            mBlocker.startAnimation(animation);
+        }
+    }
+
+    public void unBlock(boolean instant){
+        if (mIsBlocked) {
+            mIsBlocked = false;
+            mBlocker.clearAnimation();
+            mBlocker.setClickable(false);
+            mBlocker.setEnabled(false);
+            if (instant){
+                mBlocker.setVisibility(View.GONE);
+            } else {
+                Animation animation = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_out);
+                animation.setDuration(200);
+                mBlocker.startAnimation(animation);
+                mBlocker.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+
+                        if (mBlocker.getAnimation() == animation) {
+                            mBlocker.setVisibility(View.GONE);
+                        }
+                    }
+                });
+            }
+        }
     }
 
     public int getContentHolderId() {
@@ -219,6 +283,8 @@ public class RootView extends ViewGroup {
         mMenu.saveHierarchyState(container);
         bundle.putSparseParcelableArray(RootView.KEY_MENU_STATE, container);
         bundle.putInt(RootView.STATE_KEY,mExpandedState);
+        bundle.putBoolean(RootView.BLOCK_KEY, mIsBlocked);
+
         return bundle;
     }
 
@@ -234,6 +300,10 @@ public class RootView extends ViewGroup {
                 }
             }, 100); // post on delay to avoid animation jank at start of activity
         }
+
+        mIsBlocked = state.getBoolean(RootView.BLOCK_KEY);
+        mBlocker.setVisibility(mIsBlocked ? View.VISIBLE : View.GONE);
+        mBlocker.setEnabled(mIsBlocked);
     }
 
 
@@ -241,8 +311,16 @@ public class RootView extends ViewGroup {
      * global expansion state may have changed in another activity. make sure we are showing the correct state
      */
     public void onResume() {
+        if (mCloseOnResume) {
+            mCloseOnResume = false;
+            mExpandedState = COLLAPSED_FULL_CLOSED;
+        }
         mMenu.onResume();
         setExpandedState();
+    }
+
+    public void onDestroy() {
+        mMenu.onDestroy();
     }
 
     private void setExpandedState() {
@@ -271,6 +349,8 @@ public class RootView extends ViewGroup {
     protected Parcelable onSaveInstanceState() {
         SavedState ss = new SavedState(super.onSaveInstanceState());
         ss.expanded = mExpandedState;
+        ss.blocked = mIsBlocked;
+        ss.closeOnResume = mCloseOnResume;
         return ss;
     }
 
@@ -281,6 +361,10 @@ public class RootView extends ViewGroup {
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
         mExpandedState = ss.expanded;
+        mCloseOnResume = ss.closeOnResume;
+        mIsBlocked = ss.blocked;
+        mBlocker.setVisibility(mIsBlocked ? View.VISIBLE : View.GONE);
+        mBlocker.setEnabled(mIsBlocked);
     }
 
     @Override
@@ -306,10 +390,8 @@ public class RootView extends ViewGroup {
 
         if (mPlayer != null) {
             int width = widthSpecSize - mOffsetLeft;
-            if (mPlayer != null) {
-                mPlayer.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(heightSpecSize, MeasureSpec.EXACTLY));
-            }
+            mPlayer.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(heightSpecSize, MeasureSpec.EXACTLY));
         }
 
         mShadowLeftDrawable.setBounds(0, 0, mDrowShadoWidth, getHeight());
@@ -320,6 +402,7 @@ public class RootView extends ViewGroup {
         final float density = getResources().getDisplayMetrics().density;
         mOffsetRight = (int) max(widthSpecSize - MENU_TARGET_WIDTH * density + 0.5f,
                                  OFFSET_RIGHT * density + 0.5f);
+        mMenu.setOffsetRight(mOffsetRight);
     }
 
 
@@ -410,6 +493,9 @@ public class RootView extends ViewGroup {
         } else {
             drawChild(canvas, mContent, drawingTime);
         }
+
+        if (mBlocker.getVisibility() == View.VISIBLE) drawChild(canvas, mBlocker,drawingTime);
+
     }
 
     @Override
@@ -427,6 +513,7 @@ public class RootView extends ViewGroup {
         mMenu.layout(0, 0, width, height);
         mContent.layout(mContent.getLeft(), 0, mContent.getLeft() + width, height);
         if (mPlayer != null) mPlayer.layout(0, 0, width - mOffsetLeft, height);
+        mBlocker.layout(0, 0, width, height);
     }
 
 
@@ -485,29 +572,30 @@ public class RootView extends ViewGroup {
                     break;
                 }
 
-                initVelocityTrackerIfNotExists();
-                mVelocityTracker.addMovement(ev);
-
+                VelocityTracker tracker = initVelocityTrackerIfNotExists();
+                tracker.addMovement(ev);
 
                 final int pointerIndex = ev.findPointerIndex(activePointerId);
-                final float x = ev.getX(pointerIndex);
-                final int xDiff = (int) Math.abs(x - mLastMotionX);
-                if (xDiff > mTouchSlop) {
-                    return startDrag(ev, (int) x);
+                if (pointerIndex >= 0 && pointerIndex < ev.getPointerCount()) {
+                    final float x = ev.getX(pointerIndex);
+                    final int xDiff = (int) Math.abs(x - mLastMotionX);
+                    if (xDiff > mTouchSlop) {
+                        return startDrag(ev, (int) x, (int) ev.getY(pointerIndex));
+                    }
                 }
                 break;
             }
 
             case MotionEvent.ACTION_DOWN: {
                 final int x = (int) ev.getX();
-                if (!checkShouldTrack(x)) {
+                if (!checkShouldTrack(x) || mIsBlocked) {
                     mIsBeingDragged = false;
                     recycleVelocityTracker();
                     break;
                 }
 
                 if (isExpanded()){
-                    return startDrag(ev, x);
+                    return startDrag(ev, x, (int) ev.getY());
                 }
 
                 /*
@@ -515,10 +603,11 @@ public class RootView extends ViewGroup {
                 * ACTION_DOWN always refers to pointer index 0.
                 */
                 mLastMotionX = x;
+                mLastMotionY = ev.getY();
                 mActivePointerId = ev.getPointerId(0);
 
-                initOrResetVelocityTracker();
-                mVelocityTracker.addMovement(ev);
+                VelocityTracker tracker = initOrResetVelocityTracker();
+                tracker.addMovement(ev);
                 /*
                 * If being flinged and user touches the screen, initiate drag;
                 * otherwise don't.  mScroller.isFinished should be false when
@@ -544,10 +633,11 @@ public class RootView extends ViewGroup {
         return mIsBeingDragged;
     }
 
-    private boolean startDrag(MotionEvent ev, int eventX) {
+    private boolean startDrag(MotionEvent ev, int eventX, int eventY) {
 
         mIsBeingDragged = true;
         mLastMotionX = eventX;
+        mLastMotionY = eventY;
 
         // Must be called before prepareTracking()
         prepareContent();
@@ -564,18 +654,20 @@ public class RootView extends ViewGroup {
         return true;
     }
 
-    private void initOrResetVelocityTracker() {
+    private @NotNull VelocityTracker initOrResetVelocityTracker() {
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
         } else {
             mVelocityTracker.clear();
         }
+        return mVelocityTracker;
     }
 
-    private void initVelocityTrackerIfNotExists() {
+    private @NotNull VelocityTracker initVelocityTrackerIfNotExists() {
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
         }
+        return mVelocityTracker;
     }
 
     private void recycleVelocityTracker() {
@@ -622,22 +714,28 @@ public class RootView extends ViewGroup {
 
                 // Remember where the motion event started
                 mActivePointerId = event.getPointerId(0);
-                startDrag(event, x);
+                startDrag(event, x, (int) event.getY());
                 break;
 
             case MotionEvent.ACTION_MOVE:
                 if (mIsBeingDragged) {
-                    initVelocityTrackerIfNotExists();
-                    mVelocityTracker.addMovement(event);
+                    VelocityTracker tracker = initVelocityTrackerIfNotExists();
+                    tracker.addMovement(event);
                     moveContent((int) (event.getX()) - mTouchDelta);
                 }
                 break;
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL: {
-                final VelocityTracker velocityTracker = mVelocityTracker;
-                velocityTracker.computeCurrentVelocity(mVelocityUnits);
-                performFling(mContent.getLeft(), velocityTracker.getXVelocity(), -1);
+                if (mExpandedState != COLLAPSED_FULL_CLOSED
+                        && Math.sqrt(Math.pow(mLastMotionX - event.getX(),2) + Math.pow(mLastMotionY - event.getY(),2)) < mTouchSlop){
+
+                    animateClose();
+                } else {
+                    VelocityTracker tracker = initVelocityTrackerIfNotExists();
+                    tracker.computeCurrentVelocity(mVelocityUnits);
+                    performFling(mContent.getLeft(), tracker.getXVelocity(), -1);
+                }
 
                 mActivePointerId = INVALID_POINTER;
                 mIsBeingDragged = false;
@@ -863,14 +961,6 @@ public class RootView extends ViewGroup {
     }
 
 
-    public void animatePlayerOpen() {
-        if (!canOpenRight()) return;
-
-        prepareContent();
-        animatePlayerOpen(mContent.getLeft());
-        sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
-    }
-
     private void setClosed() {
         moveContent(COLLAPSED_FULL_CLOSED);
         mContent.destroyDrawingCache();
@@ -881,12 +971,9 @@ public class RootView extends ViewGroup {
 
         onScrollComplete();
 
-        if (mExpandedState == COLLAPSED_FULL_CLOSED) {
-            return;
-        }
-
         mExpandedState = COLLAPSED_FULL_CLOSED;
         if (mOnMenuStateListener != null) mOnMenuStateListener.onMenuClosed();
+
     }
 
     private void openLeft() {
@@ -897,10 +984,6 @@ public class RootView extends ViewGroup {
         invalidate();
 
         onScrollComplete();
-
-        if (mExpandedState == EXPANDED_LEFT) {
-            return;
-        }
 
         mExpandedState = EXPANDED_LEFT;
         if (mOnMenuStateListener != null) mOnMenuStateListener.onMenuOpenLeft();
@@ -920,12 +1003,9 @@ public class RootView extends ViewGroup {
 
         onScrollComplete();
 
-        if (mExpandedState == EXPANDED_RIGHT) {
-            return;
-        }
-
-        mExpandedState = EXPANDED_RIGHT;
         if (mOnMenuStateListener != null) mOnMenuStateListener.onMenuOpenRight();
+        mExpandedState = EXPANDED_RIGHT;
+
     }
 
     /**
@@ -943,7 +1023,7 @@ public class RootView extends ViewGroup {
      * @return The View representing the handle of the menu, identified by
      *         the "handle" id in XML.
      */
-    public View getMenu() {
+    public MainMenu getMenu() {
         return mMenu;
     }
 
@@ -986,34 +1066,41 @@ public class RootView extends ViewGroup {
     }
 
     static class SavedState extends BaseSavedState {
-       int expanded;
+        int expanded;
+        boolean blocked;
+        boolean closeOnResume;
 
         SavedState(Parcelable superState) {
-          super(superState);
+            super(superState);
         }
 
         private SavedState(Parcel in) {
-          super(in);
-          this.expanded = in.readInt();
+            super(in);
+            this.expanded = in.readInt();
+            this.blocked = in.readInt() == 1;
+            this.closeOnResume = in.readInt() == 1;
         }
 
         @Override
         public void writeToParcel(Parcel out, int flags) {
-          super.writeToParcel(out, flags);
-          out.writeInt(mExpandedState);
+            super.writeToParcel(out, flags);
+            out.writeInt(expanded);
+            out.writeInt(blocked ? 1 : 0);
+            out.writeInt(closeOnResume ? 1 : 0);
         }
 
         //required field that makes Parcelables from a Parcel
         public static final Creator<SavedState> CREATOR =
-            new Creator<SavedState>() {
-              public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-              }
-              public SavedState[] newArray(int size) {
-                return new SavedState[size];
-              }
-        };
-      }
+                new Creator<SavedState>() {
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
+    }
 }
 
 

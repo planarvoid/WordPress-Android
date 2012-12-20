@@ -1,7 +1,7 @@
 package com.soundcloud.android.service.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.auth.Start;
+import com.soundcloud.android.activity.auth.Onboard;
 import com.soundcloud.android.utils.AndroidUtils;
 
 import android.accounts.AbstractAccountAuthenticator;
@@ -53,7 +53,7 @@ public class AuthenticatorService extends Service {
             AccountManager mgr = AccountManager.get(mContext);
             Account[] accounts = mgr.getAccountsByType(accountType);
             if (accounts.length == 0) {
-                Intent intent = new Intent(mContext, Start.class);
+                Intent intent = new Intent(mContext, Onboard.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
                 reply.putParcelable(AccountManager.KEY_INTENT, intent);

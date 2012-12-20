@@ -1,8 +1,8 @@
 <!-- generated with lolcatlizr at Tue Feb 28 2012 19:31:28 GMT+0000 (UTC) -->
 
 <resources xmlns:xliff="http://schemas.android.com/apk/res/android">
-  <string name="about">About</string>
-  <string name="about_summary">Copyright information</string>
+  <!--<string name="about">About</string>-->
+  <string name="copyright_information">Copyright information</string>
   <string name="account_one_active">You can only have one active account</string>
   <string name="add_image">Add\nImage</string>
   <string name="app_name">SoundCloud</string>
@@ -25,14 +25,14 @@
   <string name="authentication_error_title">Oops!</string>
   <string name="authentication_find_friends_on_facebook">\u0020\u0020\u0020\u0020Find Friends from Facebook</string>
   <string name="authentication_log_in">Log In</string>
-  <string name="authentication_log_in_with_facebook">Log In with Facebook</string>
+  <string name="authentication_log_in_with_facebook_two_lines">&lt;small&gt;Sign in with&lt;/small&gt; &lt;br&gt;&lt;b&gt;Facebook&lt;/b&gt;</string>
+  <string name="authentication_log_in_with_facebook">Sign in with Facebook</string>
   <string name="authentication_log_in_with_facebook_ssl_error">Error connecting to Facebook (SSL)</string>
   <string name="authentication_login_error_password_message">We couldn\'t log you in. Sure you had the right email and password?</string>
   <string name="authentication_login_progress_message">Logging you in</string>
   <string name="authentication_recover_password">Recover password</string>
   <string name="authentication_recover_password_failure">We can\'t recover your password right now. Please try again shortly</string>
   <string name="authentication_recover_password_failure_reason">Password recovery failed: %s</string>
-  <string name="authentication_recover_password_msg">Enter your e-mail address and we\'ll send you a link that\'ll allow you to change your password. Problems? Contact support.</string>
   <string name="authentication_recover_password_success">Go check your mail! You\'ll receive an email with instructions on how to reset your password shortly</string>
   <string name="authentication_recover_progress_message">Requesting password reset</string>
   <string name="authentication_repeat_your_password">Repeat your password</string>
@@ -88,10 +88,6 @@
   <string name="connect_success">Successfully connected with %1$s</string>
   <string name="connection_list_error">Oops! There seems to be a connection problem. Please try again shortly.</string>
   <string name="connection_list_footer">To change your default sharing options, go to your settings on SoundCloud and select \'Connections\'</string>
-  <string name="dashboard_filter_all">All incoming tracks</string>
-  <string name="dashboard_filter_cancel">Cancel</string>
-  <string name="dashboard_filter_exclusive">Only exclusive tracks</string>
-  <string name="dashboard_filter_title">What to display in your stream</string>
   <plurals name="dashboard_notifications_activity_message_activity">
     <item quantity="one">from %2$s on %1$s</item>
     <item quantity="two">Comments and likes from %2$s and %3$s</item>
@@ -136,14 +132,11 @@
     <item quantity="one">A new like</item>
     <item quantity="other">%d new likes</item>
   </plurals>
-  <string name="dashboard_notifications_message_exclusive">exclusives from %s</string>
-  <string name="dashboard_notifications_message_exclusive_2">exclusives from %1$s and %2$s</string>
-  <string name="dashboard_notifications_message_exclusive_others">exclusives from %1$s, %2$s and others</string>
   <string name="dashboard_notifications_message_follower">%s is now following you. Follow back?</string>
   <string name="dashboard_notifications_message_incoming">from %s</string>
   <string name="dashboard_notifications_message_incoming_2">from %1$s and %2$s</string>
   <string name="dashboard_notifications_message_incoming_others">from %1$s, %2$s and others</string>
-  <string name="dashboard_notifications_message_single_exclusive">1 exclusive from %s</string>
+
   <string name="dashboard_notifications_ticker">%s new sounds</string>
   <string name="dashboard_notifications_ticker_follower">New follower</string>
   <string name="dashboard_notifications_ticker_single">1 new sound</string>
@@ -213,10 +206,10 @@
   <string name="email_confirmation_you_need_to_confirm">To get the most out of SoundCloud you need to confirm your email address.</string>
   <string name="email_picker_clear">Clear</string>
   <string name="empty_list">No Results</string>
-  <string name="empty_user_likes_text">%1$s hasn\'t chosen any likes yet.</string>
-  <string name="empty_user_followers_text">%1$s isn\'t being followed by anyone yet.</string>
-  <string name="empty_user_followings_text">%1$s isn\'t following anyone yet.</string>
-  <string name="empty_user_tracks_text">%1$s hasn\'t uploaded any public sounds yet.</string>
+  <string name="empty_user_likes_text">%1$s hasn\'t\nchosen any likes yet.</string>
+  <string name="empty_user_followers_text">%1$s isn\'t\nbeing followed by anyone yet.</string>
+  <string name="empty_user_followings_text">%1$s isn\'t\nfollowing anyone yet.</string>
+  <string name="empty_user_tracks_text">%1$s hasn\'t uploaded\nany public sounds yet.</string>
   <string name="error_change_following_status">Error changing following status</string>
   <string name="error_creating_account">Error creating account</string>
   <string name="error_getting_recording">Error getting recording</string>
@@ -239,9 +232,9 @@
   <string name="image_where">How would you like to add an image?</string>
   <string name="info_comments_add_comment">Add a comment</string>
   <string name="info_comments_comments">Comments</string>
-  <string name="info_empty_other_message">This person hasn\'t added a profile description yet.</string>
+  <string name="info_empty_other_message">This person hasn\'t added\na profile description yet.</string>
   <string name="info_empty_you_action">Edit your profile</string>
-  <string name="info_empty_you_message">Your profile is empty. Let people know about you!</string>
+  <string name="info_empty_you_message">Your profile is empty.\nLet people know about you!</string>
   <string name="info_error">Unable to get info</string>
   <string name="list_empty_activity_action">Make your sounds social</string>
   <string name="list_empty_activity_message">Oh no! Your sounds don’t have any comments or likes. But you can change that by making your sounds social!\n\n        Share your sounds with friends and social networks to get Activity on your sounds.</string>
@@ -267,8 +260,8 @@
   <string name="list_header_track_comments">Comments on this sound</string>
   <string name="list_header_track_likers">People who liked this sound</string>
   <string name="list_header_track_results_for">Sound results for %s</string>
-  <string name="list_header_tracks_by_genre">Other tracks with the genre %s</string>
-  <string name="list_header_tracks_by_tag">Other tracks tagged with %s</string>
+  <string name="list_header_tracks_by_genre">%s</string>
+  <string name="list_header_tracks_by_tag">\"%s\"</string>
   <string name="list_header_user_results_for">User results for %s</string>
   <string name="location_picker_go_to_settings">Go to settings</string>
   <string name="location_picker_no_providers_enabled">No location providers enabled.</string>
@@ -309,8 +302,6 @@
   <string name="pref_notifications_comments">Comments</string>
   <string name="pref_notifications_comments_description">Receive updates on new comments on your sounds</string>
   <string name="pref_notifications_description">Which updates would you like to receive?</string>
-  <string name="pref_notifications_exclusive">Exclusive Sounds</string>
-  <string name="pref_notifications_exclusive_description">Receive updates on new private sounds shared with you</string>
   <string name="pref_notifications_favoritings">Likes</string>
   <string name="pref_notifications_favoritings_description">Receive updates on new likes on your sounds</string>
   <string name="pref_notifications_followers">Followers</string>
@@ -420,6 +411,10 @@
     <item quantity="one">1 person liked it</item>
     <item quantity="other">%d people liked it</item>
   </plurals>
+  <plurals name="track_info_reposters">
+      <item quantity="one">1 person reposted it</item>
+      <item quantity="other">%d people reposted it</item>
+  </plurals>
   <string name="tracklist_empty">No sounds available</string>
   <string name="tracklist_error">Unable to get sounds</string>
   <string name="tracklist_item_shared_count_unavailable">Private</string>
@@ -438,7 +433,7 @@
   <string name="user_browser_tab_sounds">Sounds</string>
   <string name="userlist_empty">No people available</string>
   <string name="userlist_error">Unable to get people</string>
-  <string name="username">username</string>
+  <string name="username">Username</string>
   <string name="wait_for_upload_to_finish">You can only upload one sound at a time</string>
   <string name="website">Website</string>
   <string name="what_hint">What</string>

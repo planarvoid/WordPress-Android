@@ -52,4 +52,9 @@ public class CommentRow extends LazyRow {
         if (mComment == null || mComment.getUser() == null || mComment.getUser().avatar_url == null) return "";
         return Consts.GraphicSize.formatUriForList(getContext(), mComment.getUser().avatar_url);
     }
+
+    @Override
+    protected int getDefaultArtworkResId() {
+        return R.drawable.artwork_badge;
+    }
 }

@@ -1,17 +1,26 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.activity.track.TrackComments;
+import com.soundcloud.android.activity.track.TrackReposters;
+import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.utils.PlayUtils;
+import com.soundcloud.android.view.adapter.AffiliationActivityRow;
 import com.soundcloud.android.view.adapter.CommentActivityRow;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.adapter.LikeActivityRow;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
+import com.soundcloud.android.view.adapter.TrackRepostActivityRow;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
@@ -36,10 +45,16 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
         return getItem(position).getType().ordinal();
     }
 
-    public boolean isExpired() {
-        if (mData.size() == 0) return true;
-        final Activity firstActivity = Activities.getFirstActivity(mContent, mContext.getContentResolver());
-        return (firstActivity == null || firstActivity.created_at.getTime() > mData.get(0).created_at.getTime());
+    public boolean isExpired(LocalCollection localCollection) {
+        if (localCollection == null) {
+            return false;
+        } else if (mData.size() == 0) {
+            return true; // need to pull from DB
+        } else {
+            // check if there is anything newer
+            final Activity firstActivity = Activities.getFirstActivity(mContent, mContext.getContentResolver());
+            return (firstActivity == null || firstActivity.created_at.getTime() > mData.get(0).created_at.getTime());
+        }
     }
 
     @Override
@@ -48,8 +63,11 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
-            case TRACK_REPOST:
                 return new TrackInfoBar(mContext, this);
+
+            case TRACK_REPOST:
+                return (mContent == Content.ME_ACTIVITIES) ?
+                        new TrackRepostActivityRow(mContext, this) : new TrackInfoBar(mContext, this);
 
             case COMMENT:
                 return new CommentActivityRow(mContext, this);
@@ -57,24 +75,19 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
             case TRACK_LIKE:
                 return new LikeActivityRow(mContext, this);
 
+            case AFFILIATION:
+                return new AffiliationActivityRow(mContext, this);
+
+
             default:
                 throw new IllegalArgumentException("no view for " + type + " yet");
         }
     }
 
-    public long getItemId(int position) {
-        Activity a = getItem(position);
-        if (a != null) {
-            a.created_at.getTime();
-        }
-        return position;
-    }
-
-
     @Override
     public CollectionParams getParams(boolean refresh) {
         CollectionParams params = super.getParams(refresh);
-        if (mData != null && mData.size() > 0) {
+        if (mData.size() > 0) {
             Activity first = getItem(0);
             Activity last  = getItem(getItemCount() -1);
             params.timestamp = refresh ? (first == null ? 0 : first.created_at.getTime())
@@ -104,9 +117,30 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
-            case TRACK_REPOST:
-                PlayUtils.playFromAdapter(mContext, this, mData, position, id);
+                PlayUtils.playFromAdapter(mContext, this, mData, position);
                 return ItemClickResults.LEAVING;
+
+            case TRACK_REPOST:
+                if (mContent == Content.ME_ACTIVITIES) {
+                    // todo, scroll to specific repost
+                    mContext.startActivity(new Intent(mContext, TrackReposters.class)
+                        .putExtra(Track.EXTRA, getItem(position).getTrack()));
+                } else {
+                    PlayUtils.playFromAdapter(mContext, this, mData, position);
+                }
+                return ItemClickResults.LEAVING;
+
+            case COMMENT:
+                mContext.startActivity(new Intent(mContext, TrackComments.class)
+                        .putExtra(Track.EXTRA, getItem(position).getTrack()));
+                // todo, scroll to specific comment
+                return ItemClickResults.LEAVING;
+
+            case AFFILIATION:
+                mContext.startActivity(new Intent(mContext, UserBrowser.class)
+                        .putExtra(UserBrowser.EXTRA_USER, getItem(position).getUser()));
+                return ItemClickResults.LEAVING;
+
             default:
                 Log.i(SoundCloudApplication.TAG, "Clicked on item " + id);
         }

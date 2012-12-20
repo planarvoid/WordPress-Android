@@ -6,7 +6,6 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
@@ -18,12 +17,14 @@ import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -99,19 +100,10 @@ public class Activities extends CollectionHolder<Activity> {
         return tracks;
     }
 
-    public List<Comment> getUniqueComments() {
-            List<Comment> tracks = new ArrayList<Comment>();
-            for (Activity a : this) {
-                if (a instanceof CommentActivity && ((CommentActivity)a).comment != null && !tracks.contains(((CommentActivity)a).comment)) {
-                    tracks.add(((CommentActivity)a).comment);
-                }
-            }
-            return tracks;
-        }
-
-    public Activities selectType(Class type) {
+    public Activities selectType(Class<? extends Activity>... types) {
         List<Activity> activities = new ArrayList<Activity>();
         for (Activity e : this) {
+            for (Class<? extends Activity> type : types)
             if (type.isAssignableFrom(e.getClass())) {
                 activities.add(e);
             }
@@ -135,23 +127,29 @@ public class Activities extends CollectionHolder<Activity> {
         return selectType(TrackActivity.class);
     }
 
+    public Activities trackReposts() {
+        return selectType(TrackRepostActivity.class);
+    }
+
     public Map<Track, Activities> groupedByTrack() {
         Map<Track,Activities> grouped = new HashMap<Track, Activities>();
 
         for (Activity e : this) {
-            Activities evts = grouped.get(e.getTrack());
-            if (evts == null) {
-                evts = new Activities();
-                grouped.put(e.getTrack(), evts);
+            Activities activities = grouped.get(e.getTrack());
+            if (activities == null) {
+                activities = new Activities();
+                grouped.put(e.getTrack(), activities);
             }
-            evts.add(e);
+            activities.add(e);
         }
         return grouped;
     }
 
+    public void sort() {
+        Collections.sort(collection);
+    }
 
-    // TODO, get rid of future href and next href and generate them
-    public Activities merge(Activities old) {
+    public @NotNull Activities merge(Activities old) {
         //noinspection ObjectEquality
         if (old == EMPTY) return this;
 
@@ -159,9 +157,9 @@ public class Activities extends CollectionHolder<Activity> {
         merged.future_href = future_href;
         merged.next_href = old.next_href;
 
-        for (Activity e : old) {
-            if (!merged.collection.contains(e)) {
-                merged.collection.add(e);
+        for (Activity a : old) {
+            if (!merged.collection.contains(a)) {
+                merged.collection.add(a);
             }
         }
         return merged;
@@ -184,14 +182,6 @@ public class Activities extends CollectionHolder<Activity> {
             return 0;
         } else {
             return collection.get(0).created_at.getTime();
-        }
-    }
-
-    public long getLastTimestamp() {
-        if (collection.isEmpty()) {
-            return 0;
-        } else {
-            return collection.get(collection.size()-1).created_at.getTime();
         }
     }
 
@@ -242,7 +232,7 @@ public class Activities extends CollectionHolder<Activity> {
         }
     }
 
-    public static Activities fetch(AndroidCloudAPI api,
+    public static @Nullable Activities fetch(AndroidCloudAPI api,
                                    final Request request) throws IOException {
         HttpResponse response = api.get(request);
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
@@ -280,9 +270,9 @@ public class Activities extends CollectionHolder<Activity> {
         return resolver.delete(contentToDelete.uri, null, null);
     }
 
-    public static Activity getLastActivity(Content content, ContentResolver resolver) {
+    public static @Nullable Activity getLastActivity(Content content, ContentResolver resolver) {
         Activity a = null;
-        Cursor c = resolver.query(Content.ME_ALL_ACTIVITIES.uri,
+        Cursor c = resolver.query(content.uri,
                     null,
                 DBHelper.ActivityView.CONTENT_ID+" = ?",
                 new String[] { String.valueOf(content.id) },
@@ -294,9 +284,9 @@ public class Activities extends CollectionHolder<Activity> {
         return a;
     }
 
-    public static Activity getFirstActivity(Content content, ContentResolver resolver) {
+    public static @Nullable Activity getFirstActivity(Content content, ContentResolver resolver) {
         Activity a = null;
-        Cursor c = resolver.query(Content.ME_ALL_ACTIVITIES.uri,
+        Cursor c = resolver.query(content.uri,
                 null,
                 DBHelper.ActivityView.CONTENT_ID+" = ?",
                 new String[] { String.valueOf(content.id) },
@@ -363,6 +353,15 @@ public class Activities extends CollectionHolder<Activity> {
         return SoundCloudApplication.MODEL_MANAGER.getActivitiesFromCursor(resolver.query(uri, projection, where, whereArgs, sort));
     }
 
+    public static int getCountSince(ContentResolver contentResolver, long since, Content content){
+        Cursor c = contentResolver.query(content.uri,
+                    new String[]{"Count("+BaseColumns._ID+") as unseen"},
+                    DBHelper.ActivityView.CONTENT_ID + " = ? AND " + DBHelper.ActivityView.CREATED_AT + "> ?",
+                    new String[]{String.valueOf(content.id), String.valueOf(since)},
+                    null);
+        return c != null && c.moveToFirst() ? c.getInt(c.getColumnIndex("unseen")) : 0;
+    }
+
     public ContentValues[] buildContentValues(final int contentId) {
         ContentValues[] cv = new ContentValues[size()];
         for (int i=0; i<size(); i++) {
@@ -374,35 +373,6 @@ public class Activities extends CollectionHolder<Activity> {
         return cv;
     }
 
-    public Set<ScResource> getScResources() {
-        final Set<ScResource> resources = new HashSet<ScResource>();
-        for (Activity a : this) {
-            Track t = a.getTrack();
-            if (t != null ) {
-                resources.add(t);
-            }
-            User u = a.getUser();
-            if (u != null) {
-                resources.add(u);
-            }
-        }
-        return resources;
-    }
-
-    public List<Comment> getComments() {
-        final List<Comment> comments = new ArrayList<Comment>();
-        for (Activity a : this) {
-            if (a instanceof CommentActivity){
-                comments.add(((CommentActivity) a).comment);
-            }
-        }
-        return comments;
-    }
-
-    public ContentValues[] getCommentContentValues() {
-        return buildContentValues(getComments());
-    }
-
     public static ContentValues[] buildContentValues(List<? extends ScModel> models) {
         ContentValues[] cv = new ContentValues[models.size()];
         for (int i=0; i<models.size(); i++) {
@@ -412,9 +382,6 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public int insert(Content content, ContentResolver resolver) {
-//        SoundCloudApplication.MODEL_MANAGER.writeCollection(new ArrayList<ScResource>(getScResources()),
-//                ScModel.CacheUpdateMode.MINI);
-
         Set<ScResource> models = new HashSet<ScResource>();
         for (Activity a : this) {
             models.addAll(a.getDependentModels());
@@ -434,11 +401,6 @@ public class Activities extends CollectionHolder<Activity> {
         }
 
         return resolver.bulkInsert(content.uri, buildContentValues(content.id));
-    }
-
-    public void mergeAndSort(Activities toMerge) {
-        if (!toMerge.isEmpty()) collection.addAll(toMerge.collection);
-        Collections.sort(collection);
     }
 
     public Set<String> artworkUrls() {

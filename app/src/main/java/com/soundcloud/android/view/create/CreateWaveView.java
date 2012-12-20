@@ -253,8 +253,10 @@ public class CreateWaveView extends View {
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        mMaxWaveHeight = h - mGlowHeight;
+    protected void onSizeChanged(int width, int height, int oldw, int oldh) {
+        if (width == 0 || height == 0) return;
+
+        mMaxWaveHeight = height - mGlowHeight;
         LinearGradient lg = new LinearGradient(0, 0, 0, mMaxWaveHeight,
                 new int[]{
                         getResources().getColor(R.color.cloudProgressStart),
@@ -267,11 +269,11 @@ public class CreateWaveView extends View {
         PLAYED_PAINT.setShader(lg);
 
         Bitmap old = mZoomBitmap1;
-        mZoomBitmap1 = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        mZoomBitmap1 = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         if (old != null) old.recycle();
 
         old = mZoomBitmap2;
-        mZoomBitmap2 = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        mZoomBitmap2 = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         if (old != null) old.recycle();
 
         nextBitmapX = -1;

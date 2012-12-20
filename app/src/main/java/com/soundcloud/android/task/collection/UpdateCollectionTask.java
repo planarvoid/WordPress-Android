@@ -4,73 +4,59 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.api.Endpoints;
+import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
-import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.BaseAdapter;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.Map;
+import java.util.Set;
 
-public class UpdateCollectionTask extends AsyncTask<Map<Long, ? extends ScResource>, String, Boolean> {
-    protected AndroidCloudAPI mApp;
-    protected Class<?> mLoadModel;
-    protected WeakReference<BaseAdapter> mAdapterReference;
+public class UpdateCollectionTask extends ParallelAsyncTask<Set<Long>, String, Boolean> {
+    private AndroidCloudAPI mApi;
+    private String mEndpoint;
+    private WeakReference<BaseAdapter> mAdapterReference;
 
-    public UpdateCollectionTask(SoundCloudApplication app, Class<?> loadModel) {
-        mApp = app;
-        mLoadModel = loadModel;
-        if (!(Track.class.equals(mLoadModel) || User.class.equals(mLoadModel))) {
-            throw new IllegalArgumentException("Collection updating only allowed for tracks, users and Friends");
-        }
+    public UpdateCollectionTask(AndroidCloudAPI api, String endpoint) {
+        if (TextUtils.isEmpty(endpoint)) throw new IllegalArgumentException("endpoint is empty");
+
+        mApi = api;
+        mEndpoint = endpoint;
     }
 
     public void setAdapter(BaseAdapter lazyEndlessAdapter) {
         mAdapterReference = new WeakReference<BaseAdapter>(lazyEndlessAdapter);
     }
 
-
-
     @Override
-    protected void onProgressUpdate(String... values) {
+    protected void onPostExecute(Boolean success) {
         final BaseAdapter adapter = mAdapterReference.get();
-        if (adapter != null){
+        if (adapter != null && success) {
             adapter.notifyDataSetChanged();
         }
     }
 
     @Override
-    protected void onPostExecute(Boolean success) {
-    }
-
-    @Override
-    protected Boolean doInBackground(Map<Long, ? extends ScResource>... params) {
-        Map<Long,? extends ScResource> itemsToUpdate = params[0];
-        Log.i(TAG,"Updating " + itemsToUpdate.size() + " items");
+    protected Boolean doInBackground(Set<Long>... params) {
+        Set<Long> ids = params[0];
+        Log.i(TAG,"Updating " + ids.size() + " items");
         try {
-            HttpResponse resp = mApp.get(Request.to(Track.class.equals(mLoadModel) ? Endpoints.TRACKS : Endpoints.USERS)
-                    .add("linked_partitioning", "1").add("ids", TextUtils.join(",", itemsToUpdate.keySet())));
+            HttpResponse resp = mApi.get(Request.to(mEndpoint)
+                    .add("linked_partitioning", "1")
+                    .add("ids", TextUtils.join(",", ids)));
 
             if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 throw new IOException("Invalid response: " + resp.getStatusLine());
             }
 
             SoundCloudApplication.MODEL_MANAGER.writeCollectionFromStream(resp.getEntity().getContent(), ScResource.CacheUpdateMode.FULL);
-            publishProgress();
             return true;
-
         } catch (IOException e) {
             Log.w(TAG, e);
         }

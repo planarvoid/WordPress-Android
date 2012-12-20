@@ -3,7 +3,7 @@ package com.soundcloud.android.view;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.IScAdapter;
@@ -43,11 +43,6 @@ public class MyTracklistRow extends TrackInfoBar {
     protected View addContent() {
         return View.inflate(getContext(), R.layout.record_list_item_row, this);
     }
-
-    //    @Override
-//    protected int getRowResourceId() {
-//        return R.layout.record_list_item_row;
-//    }
 
     private Drawable getPrivateBgDrawable(){
           if (mPrivateBgDrawable == null) {

@@ -6,11 +6,12 @@ import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_R
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.RECORD;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.landing.News;
+import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.record.SoundRecorder;
+import com.soundcloud.android.tests.IntegrationTestHelper;
 import com.soundcloud.android.tests.SlowTest;
 
 import android.content.Intent;
@@ -67,8 +68,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.clickOnText(R.string.delete);
         solo.assertText(R.string.dialog_confirm_delete_recording_message);
         solo.clickOnOK();
-        solo.sleep(1000);
-        solo.assertActivityFinished();
+        assertState(IDLE_RECORD);
     }
 
     public void testRecordAndDelete() throws Exception {
@@ -76,7 +76,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.clickOnText(R.string.delete); // "Discard"
         solo.assertText(R.string.dialog_confirm_delete_recording_message); // "Are you sure you want to delete this recording?"
         solo.clickOnOK();
-        solo.assertActivityFinished();
+        assertState(IDLE_RECORD);
     }
 
     public void testRecordAndUpload() throws Exception {
@@ -153,6 +153,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         assertState(IDLE_PLAYBACK); // should be old recording
     }
 
+    @SlowTest
     public void testRecordAndRunningOutOfStorageSpace() throws Exception {
         if (!EMULATOR) return;
 
@@ -276,7 +277,8 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.enterTextId(R.id.what, title);
         solo.goBack();
 
-//XXX        solo.clickOnView(R.id.btn_you);
+        // doesn't exist any longer
+        //solo.clickOnView(R.id.action_bar_local_recordings);
 
         // delete wav file
         File wavFile = r.getFile();
@@ -299,8 +301,9 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     public void testShouldAutoSaveRecordingAndNavigateToYourSounds() throws Exception {
         record(RECORDING_TIME);
         solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
-//XXX        solo.clickOnView(R.id.btn_you);
-        solo.assertActivity(News.class);
+        solo.clickOnView(R.id.abs__home);
+        solo.clickOnText(IntegrationTestHelper.USERNAME);
+        solo.assertActivity(You.class);
     }
 
     public void testShouldOnlyDisplayedSavedLocallyMessageOnce() throws Exception {
@@ -328,6 +331,5 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         setActivity(reloadRecording(getActivity().getRecorder().getRecording()));
 
         record(RECORDING_TIME);
-
     }
 }

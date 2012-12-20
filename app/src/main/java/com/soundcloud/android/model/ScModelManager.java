@@ -2,7 +2,6 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.cache.UserCache;
 import com.soundcloud.android.model.act.Activities;
@@ -38,9 +37,9 @@ public class ScModelManager {
     private ContentResolver mResolver;
     private ObjectMapper mMapper;
 
-    // XXX should not be exposed
-    public static TrackCache TRACK_CACHE = new TrackCache();
-    public static UserCache USER_CACHE = new UserCache();
+    private TrackCache mTrackCache = new TrackCache();
+    private UserCache mUserCache = new UserCache();
+
     private Context mContext;
 
     public ScModelManager(Context c, ObjectMapper mapper) {
@@ -49,22 +48,12 @@ public class ScModelManager {
         mMapper = mapper;
     }
 
-    private User getLoggedInUser() {
-        User user = getUser(SoundCloudApplication.getUserId());
-        if (user != null){
-            return user;
-        } else {
-            user = new User();
-            user.id = SoundCloudApplication.getUserId();
-            return (User) cache(user);
-        }
-
-    }
-
-    public Activity getActivityFromCursor(Cursor cursor){
-        Activity a = Activity.Type.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE))).fromCursor(cursor);
+    public Activity getActivityFromCursor(Cursor cursor) {
+        Activity a = Activity.Type
+                .fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE)))
+                .fromCursor(cursor);
         if (a != null) {
-            a.setCachedTrack(getTrackFromCursor(cursor, DBHelper.ActivityView.TRACK_ID));
+            a.setCachedTrack(getTrackFromCursor(cursor, DBHelper.ActivityView.SOUND_ID));
             a.setCachedUser(getUserFromActivityCursor(cursor));
         }
         return a;
@@ -80,11 +69,13 @@ public class ScModelManager {
         return activities;
     }
 
-    public Activities getActivitiesFromJson(InputStream is) throws IOException {
+    public @Nullable Activities getActivitiesFromJson(InputStream is) throws IOException {
         Activities activities = mMapper.readValue(is, Activities.class);
+        if (activities == null) return null;
+
         for (Activity a : activities) {
-            a.setCachedTrack(SoundCloudApplication.MODEL_MANAGER.cache(a.getTrack(), ScResource.CacheUpdateMode.MINI));
-            a.setCachedUser(SoundCloudApplication.MODEL_MANAGER.cache(a.getUser(), ScResource.CacheUpdateMode.MINI));
+            a.setCachedTrack(cache(a.getTrack(), ScResource.CacheUpdateMode.MINI));
+            a.setCachedUser(cache(a.getUser(), ScResource.CacheUpdateMode.MINI));
         }
         return activities;
     }
@@ -96,9 +87,7 @@ public class ScModelManager {
      * @return the Resource Collection
      * @throws IOException
      */
-    public
-    @NotNull
-    <T extends ScResource> CollectionHolder<T> getCollectionFromStream(InputStream is) throws IOException {
+    public @NotNull <T extends ScResource> CollectionHolder<T> getCollectionFromStream(InputStream is) throws IOException {
 
         List<ScResource> items = new ArrayList<ScResource>();
         CollectionHolder holder = mMapper.readValue(is, ScResource.ScResourceHolder.class);
@@ -123,29 +112,32 @@ public class ScModelManager {
     }
 
     public Track getTrackFromCursor(Cursor cursor){
-        return getTrackFromCursor(cursor, DBHelper.Tracks._ID);
+        return getTrackFromCursor(cursor, DBHelper.Sounds._ID);
     }
 
 
     public Track getTrackFromCursor(Cursor cursor, String idCol) {
         final long id = cursor.getLong(cursor.getColumnIndex(idCol));
-        Track track = TRACK_CACHE.get(id);
+        Track track = mTrackCache.get(id);
 
         // assumes track cache has always
         if (track == null) {
             track = new Track(cursor);
-
-            final long user_id = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
-            User user = USER_CACHE.get(user_id);
-
-            if (user == null) {
-                user = User.fromTrackView(cursor);
-                USER_CACHE.put(user);
-            }
-            track.user = user;
-            TRACK_CACHE.put(track);
+            mTrackCache.put(track);
         }
+        track.user = getCachedUserFromCursor(cursor,DBHelper.SoundView.USER_ID);
         return track;
+    }
+
+    private User getCachedUserFromCursor(Cursor cursor, String col) {
+        final long user_id = cursor.getLong(cursor.getColumnIndex(col));
+        User user = mUserCache.get(user_id);
+
+        if (user == null) {
+            user = User.fromTrackView(cursor);
+            mUserCache.put(user);
+        }
+        return user;
     }
 
     public <T extends ScModel> CollectionHolder<T> loadLocalContent(ContentResolver resolver, Class<T> resourceType, Uri localUri) {
@@ -157,6 +149,13 @@ public class ScModelManager {
                     items.add(getTrackFromCursor(itemsCursor));
                 } else if (User.class.equals(resourceType)) {
                     items.add(getUserFromCursor(itemsCursor));
+                } else if (Friend.class.equals(resourceType)) {
+                    items.add(new Friend(getUserFromCursor(itemsCursor)));
+                } else if (SoundAssociation.class.equals(resourceType)) {
+                    SoundAssociation soundAssociation = new SoundAssociation(itemsCursor);
+                    soundAssociation.track = getTrackFromCursor(itemsCursor, DBHelper.SoundAssociationView._ID);
+                    soundAssociation.user = getCachedUserFromCursor(itemsCursor, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID);
+                    items.add(soundAssociation);
                 } else {
                     throw new IllegalArgumentException("NOT HANDLED YET " + resourceType);
                 }
@@ -170,20 +169,20 @@ public class ScModelManager {
 
     public User getUserFromCursor(Cursor itemsCursor) {
         final long id = itemsCursor.getLong(itemsCursor.getColumnIndex(DBHelper.Users._ID));
-        User user = USER_CACHE.get(id);
+        User user = mUserCache.get(id);
         if (user == null) {
             user = new User(itemsCursor);
-            USER_CACHE.put(user);
+            mUserCache.put(user);
         }
         return user;
     }
 
     public User getUserFromActivityCursor(Cursor itemsCursor) {
         final long id = itemsCursor.getLong(itemsCursor.getColumnIndex(DBHelper.ActivityView.USER_ID));
-        User user = USER_CACHE.get(id);
+        User user = mUserCache.get(id);
         if (user == null) {
             user = User.fromActivityView(itemsCursor);
-            USER_CACHE.put(user);
+            mUserCache.put(user);
         }
         return user;
     }
@@ -191,10 +190,10 @@ public class ScModelManager {
     public @Nullable Track getTrack(long id) {
         if (id < 0) return null;
 
-        Track t = TRACK_CACHE.get(id);
+        Track t = mTrackCache.get(id);
         if (t == null) {
             t = getTrack(Content.TRACK.forId(id));
-            if (t != null) TRACK_CACHE.put(t);
+            if (t != null) mTrackCache.put(t);
         }
         return t;
     }
@@ -214,10 +213,10 @@ public class ScModelManager {
     public @Nullable User getUser(long id) {
         if (id < 0) return null;
 
-        User u = USER_CACHE.get(id);
+        User u = mUserCache.get(id);
         if (u == null) {
             u = getUser(Content.USER.forId(id));
-            if (u != null) USER_CACHE.put(u);
+            if (u != null) mUserCache.put(u);
         }
         return u;
     }
@@ -234,21 +233,12 @@ public class ScModelManager {
         return u;
     }
 
-    public ScResource getCachedModel(Class<? extends ScResource> modelClass, long id) {
-        if (Track.class.equals(modelClass)) {
-            return getCachedTrack(id);
-        } else if (User.class.equals(modelClass)) {
-            return getCachedUser(id);
-        }
-        return null;
-    }
-
     public Track getCachedTrack(long id) {
-        return TRACK_CACHE.get(id);
+        return mTrackCache.get(id);
     }
 
     public User getCachedUser(long id) {
-        return USER_CACHE.get(id);
+        return mUserCache.get(id);
     }
 
     public ScResource cache(@Nullable ScResource resource) {
@@ -276,15 +266,15 @@ public class ScModelManager {
             track.user = cache(track.user, updateMode);
         }
 
-        if (TRACK_CACHE.containsKey(track.id)) {
+        if (mTrackCache.containsKey(track.id)) {
             if (updateMode.shouldUpdate()) {
-                return TRACK_CACHE.get(track.id).updateFrom(track, updateMode);
+                return mTrackCache.get(track.id).updateFrom(track, updateMode);
             } else {
-                return TRACK_CACHE.get(track.id);
+                return mTrackCache.get(track.id);
             }
 
         } else {
-            TRACK_CACHE.put(track);
+            mTrackCache.put(track);
             return track;
         }
     }
@@ -296,14 +286,14 @@ public class ScModelManager {
     public User cache(@Nullable User user, ScResource.CacheUpdateMode updateMode) {
         if (user == null) return null;
 
-        if (USER_CACHE.containsKey(user.id)) {
+        if (mUserCache.containsKey(user.id)) {
             if (updateMode.shouldUpdate()) {
-                return USER_CACHE.get(user.id).updateFrom(user, updateMode);
+                return mUserCache.get(user.id).updateFrom(user, updateMode);
             } else {
-                return USER_CACHE.get(user.id);
+                return mUserCache.get(user.id);
             }
         } else {
-            USER_CACHE.put(user);
+            mUserCache.put(user);
             return user;
         }
     }
@@ -348,19 +338,19 @@ public class ScModelManager {
         return user;
     }
 
-    private static List<ScResource> doBatchLookup(AndroidCloudAPI api, List<Long> ids, Content content) throws IOException {
+    private List<ScResource> doBatchLookup(AndroidCloudAPI api, List<Long> ids, String path) throws IOException {
         List<ScResource> resources = new ArrayList<ScResource>();
         int i = 0;
         while (i < ids.size()) {
             List<Long> batch = ids.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, ids.size()));
             InputStream is = validateResponse(
                     api.get(
-                            Request.to(content.remoteUri)
+                            Request.to(path)
                                     .add("linked_partitioning", "1")
                                     .add("limit", API_LOOKUP_BATCH_SIZE)
                                     .add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
 
-            resources.addAll(SoundCloudApplication.MODEL_MANAGER.getCollectionFromStream(is).collection);
+            resources.addAll(getCollectionFromStream(is).collection);
 
             i += API_LOOKUP_BATCH_SIZE;
         }
@@ -378,20 +368,13 @@ public class ScModelManager {
         return response;
     }
 
-    public int writeMissingCollectionItems(AndroidCloudAPI api,
-                                               List<Long> modelIds,
-                                               Content content,
-                                               boolean ignoreStored) throws IOException {
-        return writeMissingCollectionItems(api, modelIds, content, ignoreStored, -1);
-    }
-
     /**
      * @param modelIds     a list of model ids
      * @param ignoreStored if it should ignore stored ids
      * @return a list of models which are not stored in the database
      * @throws java.io.IOException
      */
-    public int writeMissingCollectionItems(AndroidCloudAPI api,
+    public int fetchMissingCollectionItems(AndroidCloudAPI api,
                                            List<Long> modelIds,
                                            Content content,
                                            boolean ignoreStored, int maxToFetch) throws IOException {
@@ -408,7 +391,10 @@ public class ScModelManager {
         List<Long> fetchIds = (maxToFetch > -1) ? new ArrayList<Long>(ids.subList(0, Math.min(ids.size(), maxToFetch)))
                     : ids;
 
-        return SoundCloudDB.bulkInsertModels(mResolver, doBatchLookup(api, fetchIds, Track.class.equals(content.modelType) ? Content.TRACKS : Content.USERS));
+        return SoundCloudDB.bulkInsertModels(mResolver, doBatchLookup(api, fetchIds,
+                // XXX this has to be abstracted more. Hesitant to do so until the api is more final
+                Track.class.equals(content.modelType) || SoundAssociation.class.equals(content.modelType)
+                        ? Content.TRACKS.remoteUri : Content.USERS.remoteUri));
     }
 
     /**
@@ -451,6 +437,7 @@ public class ScModelManager {
         return writeCollection(items, null, -1l, updateMode);
     }
 
+
     public <T extends ScResource> int writeCollection(List<T> items, Uri localUri, long userId, ScResource.CacheUpdateMode updateMode) {
         if (items.isEmpty()) return 0;
 
@@ -468,10 +455,24 @@ public class ScModelManager {
 
     public List<Long> getLocalIds(Content content, long userId, int startIndex, int limit) {
         return SoundCloudDB.idCursorToList(mResolver.query(
-                SoundCloudDB.addPagingParams(Content.COLLECTION_ITEMS.uri, startIndex, limit),
+                SoundCloudDB.addPagingParams(Content.COLLECTION_ITEMS.uri, startIndex, limit).build(),
                 new String[]{DBHelper.CollectionItems.ITEM_ID},
                 DBHelper.CollectionItems.COLLECTION_TYPE + " = ? AND " + DBHelper.CollectionItems.USER_ID + " = ?",
                 new String[]{String.valueOf(content.collectionType), String.valueOf(userId)},
                 DBHelper.CollectionItems.SORT_ORDER));
+    }
+
+    public void clear() {
+        mTrackCache.clear();
+        mUserCache.clear();
+    }
+
+    public int writeCollection(CollectionHolder<? extends ScResource> models,
+                               ScResource.CacheUpdateMode mode) {
+        if (models.isEmpty()) return 0;
+        for (ScResource m : models) {
+            cache(m, mode);
+        }
+        return models.insert(mResolver);
     }
 }

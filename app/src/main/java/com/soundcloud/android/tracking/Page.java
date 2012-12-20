@@ -70,6 +70,7 @@ public enum Page implements Event {
     Sounds_share            ("user_permalink::track_permalink::share", Level2.Sounds),
     Sounds_info__main       ("user_permalink::track_permalink::info_main", Level2.Sounds),
     Sounds_info__people_like("user_permalink::track_permalink::info_people_like", Level2.Sounds),
+    Sounds_info__people_repost("user_permalink::track_permalink::info_people_repost", Level2.Sounds),
     Sounds_info__comment    ("user_permalink::track_permalink::info_comment", Level2.Sounds),
 
     UNKNOWN(null, null);
@@ -128,7 +129,7 @@ public enum Page implements Event {
     }
 
     private static String expandVariables(String template, Track track) {
-        if (template.contains(track_permalink)) {
+        if (template.contains(track_permalink) && track.permalink != null) {
             template = template.replace(track_permalink, track.permalink);
         }
         if (track.user != null) {

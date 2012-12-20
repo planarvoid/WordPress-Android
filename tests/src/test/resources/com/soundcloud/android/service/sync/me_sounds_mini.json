@@ -1,0 +1,855 @@
+{
+  "collection": [
+      {
+        "kind": "stream_item",
+        "type": "playlist_repost",
+        "created_at": "2012/11/23 14:12:57 +0000",
+        "track": null,
+        "playlist": {
+          "id": 2524386,
+          "permalink": "fall-into-fall",
+          "title": "Fall into Fall",
+          "user_id": 4128493,
+          "kind": "playlist",
+          "uri": "https://api.soundcloud.com/playlists/2524386",
+          "permalink_url": "http://soundcloud.com/natalie/sets/fall-into-fall",
+          "artwork_url": "https://i1.sndcdn.com/artworks-000030967176-bd26uu-large.jpg?d8c2b3b",
+          "track_count": 43
+        }
+      },
+      {
+        "kind": "stream_item",
+        "type": "playlist",
+        "created_at": "2012/11/23 14:03:17 +0000",
+        "track": null,
+        "playlist": {
+          "id": 2800646,
+          "permalink": "test-test",
+          "title": "test-test",
+          "user_id": 18173653,
+          "kind": "playlist",
+          "uri": "https://api.soundcloud.com/playlists/2800646",
+          "permalink_url": "http://soundcloud.com/android-testing/sets/test-test",
+          "track_count": 1
+        }
+      },
+
+      {
+        "kind": "stream_item",
+        "type": "track_repost",
+        "created_at": "2012/11/23 14:02:46 +0000",
+        "track": {
+          "id": 56143158,
+          "permalink": "sing-a-long-time-at-london",
+          "title": "sing-a-long time at London 2012 Live Site - Hyde Park",
+          "user_id": 19277547,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/56143158",
+          "user_uri": "https://api.soundcloud.com/users/19277547",
+          "permalink_url": "http://soundcloud.com/joncrooke/sing-a-long-time-at-london",
+          "stream_url": "https://api.soundcloud.com/tracks/56143158/stream",
+          "artwork_url": null
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 13:45:53 +0000",
+        "track": {
+          "id": 68536090,
+          "permalink": "a-trimmed-test-upload-566",
+          "title": "A trimmed test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68536090",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-trimmed-test-upload-566",
+          "stream_url": "https://api.soundcloud.com/tracks/68536090/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 13:45:08 +0000",
+        "track": {
+          "id": 68536039,
+          "permalink": "a-faded-trimmed-test-467",
+          "title": "A faded + trimmed test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68536039",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-faded-trimmed-test-467",
+          "stream_url": "https://api.soundcloud.com/tracks/68536039/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 13:44:17 +0000",
+        "track": {
+          "id": 68535981,
+          "permalink": "a-faded-test-upload-627",
+          "title": "A faded test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68535981",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-faded-test-upload-627",
+          "stream_url": "https://api.soundcloud.com/tracks/68535981/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 13:40:47 +0000",
+        "track": {
+          "id": 68535701,
+          "permalink": "an-appended-raw-sound-639",
+          "title": "An appended raw sound",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68535701",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/an-appended-raw-sound-639",
+          "stream_url": "https://api.soundcloud.com/tracks/68535701/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 13:39:07 +0000",
+        "track": {
+          "id": 68535556,
+          "permalink": "a-test-upload-at-model-sdk-636",
+          "title": "A test upload at Model sdk",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68535556",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-test-upload-at-model-sdk-636",
+          "stream_url": "https://api.soundcloud.com/tracks/68535556/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 13:37:40 +0000",
+        "track": {
+          "id": 68535439,
+          "permalink": "a-raw-test-upload-643",
+          "title": "A raw test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68535439",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-raw-test-upload-643",
+          "stream_url": "https://api.soundcloud.com/tracks/68535439/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 13:36:46 +0000",
+        "track": {
+          "id": 68535354,
+          "permalink": "a-test-upload-650",
+          "title": "A test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68535354",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-test-upload-650",
+          "stream_url": "https://api.soundcloud.com/tracks/68535354/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 13:30:23 +0000",
+        "track": {
+          "id": 68534879,
+          "permalink": "an-appended-sound-653",
+          "title": "An appended sound",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68534879",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/an-appended-sound-653",
+          "stream_url": "https://api.soundcloud.com/tracks/68534879/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 11:33:13 +0000",
+        "track": {
+          "id": 68525797,
+          "permalink": "a-trimmed-test-upload-565",
+          "title": "A trimmed test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68525797",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-trimmed-test-upload-565",
+          "stream_url": "https://api.soundcloud.com/tracks/68525797/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 11:32:22 +0000",
+        "track": {
+          "id": 68525746,
+          "permalink": "a-faded-trimmed-test-466",
+          "title": "A faded + trimmed test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68525746",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-faded-trimmed-test-466",
+          "stream_url": "https://api.soundcloud.com/tracks/68525746/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 11:31:16 +0000",
+        "track": {
+          "id": 68525700,
+          "permalink": "a-faded-test-upload-626",
+          "title": "A faded test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68525700",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-faded-test-upload-626",
+          "stream_url": "https://api.soundcloud.com/tracks/68525700/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 11:30:32 +0000",
+        "track": {
+          "id": 68525645,
+          "permalink": "an-edit-test-upload-451",
+          "title": "An edit test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68525645",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/an-edit-test-upload-451",
+          "stream_url": "https://api.soundcloud.com/tracks/68525645/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 11:27:23 +0000",
+        "track": {
+          "id": 68525472,
+          "permalink": "an-appended-raw-sound-638",
+          "title": "An appended raw sound",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68525472",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/an-appended-raw-sound-638",
+          "stream_url": "https://api.soundcloud.com/tracks/68525472/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 11:25:51 +0000",
+        "track": {
+          "id": 68525371,
+          "permalink": "a-test-upload-at-model-sdk-635",
+          "title": "A test upload at Model sdk",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68525371",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-test-upload-at-model-sdk-635",
+          "stream_url": "https://api.soundcloud.com/tracks/68525371/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 11:24:26 +0000",
+        "track": {
+          "id": 68525285,
+          "permalink": "a-raw-test-upload-642",
+          "title": "A raw test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68525285",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-raw-test-upload-642",
+          "stream_url": "https://api.soundcloud.com/tracks/68525285/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 11:23:51 +0000",
+        "track": {
+          "id": 68525250,
+          "permalink": "a-test-upload-649",
+          "title": "A test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68525250",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-test-upload-649",
+          "stream_url": "https://api.soundcloud.com/tracks/68525250/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 11:20:16 +0000",
+        "track": {
+          "id": 68525041,
+          "permalink": "an-appended-sound-652",
+          "title": "An appended sound",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68525041",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/an-appended-sound-652",
+          "stream_url": "https://api.soundcloud.com/tracks/68525041/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:35:41 +0000",
+        "track": {
+          "id": 68522229,
+          "permalink": "a-trimmed-test-upload-564",
+          "title": "A trimmed test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68522229",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-trimmed-test-upload-564",
+          "stream_url": "https://api.soundcloud.com/tracks/68522229/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:34:57 +0000",
+        "track": {
+          "id": 68522182,
+          "permalink": "a-faded-trimmed-test-465",
+          "title": "A faded + trimmed test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68522182",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-faded-trimmed-test-465",
+          "stream_url": "https://api.soundcloud.com/tracks/68522182/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:34:12 +0000",
+        "track": {
+          "id": 68522138,
+          "permalink": "a-faded-test-upload-625",
+          "title": "A faded test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68522138",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-faded-test-upload-625",
+          "stream_url": "https://api.soundcloud.com/tracks/68522138/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:33:30 +0000",
+        "track": {
+          "id": 68522096,
+          "permalink": "an-edit-test-upload-450",
+          "title": "An edit test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68522096",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/an-edit-test-upload-450",
+          "stream_url": "https://api.soundcloud.com/tracks/68522096/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:30:20 +0000",
+        "track": {
+          "id": 68521894,
+          "permalink": "an-appended-raw-sound-637",
+          "title": "An appended raw sound",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68521894",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/an-appended-raw-sound-637",
+          "stream_url": "https://api.soundcloud.com/tracks/68521894/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:28:44 +0000",
+        "track": {
+          "id": 68521804,
+          "permalink": "a-test-upload-at-model-sdk-634",
+          "title": "A test upload at Model sdk",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68521804",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-test-upload-at-model-sdk-634",
+          "stream_url": "https://api.soundcloud.com/tracks/68521804/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:27:17 +0000",
+        "track": {
+          "id": 68521723,
+          "permalink": "a-raw-test-upload-641",
+          "title": "A raw test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68521723",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-raw-test-upload-641",
+          "stream_url": "https://api.soundcloud.com/tracks/68521723/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:26:36 +0000",
+        "track": {
+          "id": 68521679,
+          "permalink": "a-test-upload-648",
+          "title": "A test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68521679",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-test-upload-648",
+          "stream_url": "https://api.soundcloud.com/tracks/68521679/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:23:00 +0000",
+        "track": {
+          "id": 68521453,
+          "permalink": "an-appended-sound-651",
+          "title": "An appended sound",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68521453",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/an-appended-sound-651",
+          "stream_url": "https://api.soundcloud.com/tracks/68521453/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:11:58 +0000",
+        "track": {
+          "id": 68520789,
+          "permalink": "a-trimmed-test-upload-563",
+          "title": "A trimmed test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68520789",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-trimmed-test-upload-563",
+          "stream_url": "https://api.soundcloud.com/tracks/68520789/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:11:13 +0000",
+        "track": {
+          "id": 68520756,
+          "permalink": "a-faded-trimmed-test-464",
+          "title": "A faded + trimmed test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68520756",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-faded-trimmed-test-464",
+          "stream_url": "https://api.soundcloud.com/tracks/68520756/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:10:23 +0000",
+        "track": {
+          "id": 68520696,
+          "permalink": "a-faded-test-upload-624",
+          "title": "A faded test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68520696",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-faded-test-upload-624",
+          "stream_url": "https://api.soundcloud.com/tracks/68520696/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:09:39 +0000",
+        "track": {
+          "id": 68520641,
+          "permalink": "an-edit-test-upload-449",
+          "title": "An edit test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68520641",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/an-edit-test-upload-449",
+          "stream_url": "https://api.soundcloud.com/tracks/68520641/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:06:26 +0000",
+        "track": {
+          "id": 68520439,
+          "permalink": "an-appended-raw-sound-636",
+          "title": "An appended raw sound",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68520439",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/an-appended-raw-sound-636",
+          "stream_url": "https://api.soundcloud.com/tracks/68520439/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:04:55 +0000",
+        "track": {
+          "id": 68520364,
+          "permalink": "a-test-upload-at-model-sdk-633",
+          "title": "A test upload at Model sdk",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68520364",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-test-upload-at-model-sdk-633",
+          "stream_url": "https://api.soundcloud.com/tracks/68520364/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:03:28 +0000",
+        "track": {
+          "id": 68520270,
+          "permalink": "a-raw-test-upload-640",
+          "title": "A raw test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68520270",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-raw-test-upload-640",
+          "stream_url": "https://api.soundcloud.com/tracks/68520270/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 10:02:47 +0000",
+        "track": {
+          "id": 68520222,
+          "permalink": "a-test-upload-647",
+          "title": "A test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68520222",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-test-upload-647",
+          "stream_url": "https://api.soundcloud.com/tracks/68520222/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 09:56:15 +0000",
+        "track": {
+          "id": 68519796,
+          "permalink": "an-appended-sound-650",
+          "title": "An appended sound",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68519796",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/an-appended-sound-650",
+          "stream_url": "https://api.soundcloud.com/tracks/68519796/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 01:02:46 +0000",
+        "track": {
+          "id": 68484400,
+          "permalink": "a-trimmed-test-upload-562",
+          "title": "A trimmed test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68484400",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-trimmed-test-upload-562",
+          "stream_url": "https://api.soundcloud.com/tracks/68484400/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 01:01:00 +0000",
+        "track": {
+          "id": 68484269,
+          "permalink": "a-faded-trimmed-test-463",
+          "title": "A faded + trimmed test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68484269",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-faded-trimmed-test-463",
+          "stream_url": "https://api.soundcloud.com/tracks/68484269/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 00:59:55 +0000",
+        "track": {
+          "id": 68484151,
+          "permalink": "a-faded-test-upload-623",
+          "title": "A faded test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68484151",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-faded-test-upload-623",
+          "stream_url": "https://api.soundcloud.com/tracks/68484151/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 00:58:40 +0000",
+        "track": {
+          "id": 68484037,
+          "permalink": "an-edit-test-upload-448",
+          "title": "An edit test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68484037",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/an-edit-test-upload-448",
+          "stream_url": "https://api.soundcloud.com/tracks/68484037/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 00:55:31 +0000",
+        "track": {
+          "id": 68483791,
+          "permalink": "an-appended-raw-sound-635",
+          "title": "An appended raw sound",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68483791",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/an-appended-raw-sound-635",
+          "stream_url": "https://api.soundcloud.com/tracks/68483791/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 00:53:55 +0000",
+        "track": {
+          "id": 68483657,
+          "permalink": "a-test-upload-at-model-sdk-632",
+          "title": "A test upload at Model sdk",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68483657",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-test-upload-at-model-sdk-632",
+          "stream_url": "https://api.soundcloud.com/tracks/68483657/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 00:52:27 +0000",
+        "track": {
+          "id": 68483543,
+          "permalink": "a-raw-test-upload-639",
+          "title": "A raw test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68483543",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-raw-test-upload-639",
+          "stream_url": "https://api.soundcloud.com/tracks/68483543/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 00:51:42 +0000",
+        "track": {
+          "id": 68483485,
+          "permalink": "a-test-upload-646",
+          "title": "A test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68483485",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-test-upload-646",
+          "stream_url": "https://api.soundcloud.com/tracks/68483485/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 00:45:20 +0000",
+        "track": {
+          "id": 68483020,
+          "permalink": "an-appended-sound-649",
+          "title": "An appended sound",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68483020",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/an-appended-sound-649",
+          "stream_url": "https://api.soundcloud.com/tracks/68483020/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 00:25:54 +0000",
+        "track": {
+          "id": 68481514,
+          "permalink": "a-trimmed-test-upload-561",
+          "title": "A trimmed test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68481514",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-trimmed-test-upload-561",
+          "stream_url": "https://api.soundcloud.com/tracks/68481514/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 00:25:07 +0000",
+        "track": {
+          "id": 68481463,
+          "permalink": "a-faded-trimmed-test-462",
+          "title": "A faded + trimmed test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68481463",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-faded-trimmed-test-462",
+          "stream_url": "https://api.soundcloud.com/tracks/68481463/stream"
+        },
+        "playlist": null
+      },
+      {
+        "kind": "stream_item",
+        "type": "track",
+        "created_at": "2012/11/23 00:24:12 +0000",
+        "track": {
+          "id": 68481375,
+          "permalink": "a-faded-test-upload-622",
+          "title": "A faded test upload",
+          "user_id": 18173653,
+          "kind": "track",
+          "uri": "https://api.soundcloud.com/tracks/68481375",
+          "user_uri": "https://api.soundcloud.com/users/18173653",
+          "permalink_url": "http://soundcloud.com/android-testing/a-faded-test-upload-622",
+          "stream_url": "https://api.soundcloud.com/tracks/68481375/stream"
+        },
+        "playlist": null
+      }
+  ]
+}

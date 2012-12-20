@@ -1,5 +1,12 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.model.act.Activity;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.service.sync.ApiSyncer;
+import com.soundcloud.android.service.sync.SyncConfig;
+
+import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.ContentObserver;
@@ -7,12 +14,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.text.TextUtils;
-
-import com.soundcloud.android.model.act.Activity;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.service.sync.ApiSyncer;
-import com.soundcloud.android.service.sync.SyncConfig;
 
 /**
  * Represents the state of a local collection sync, including last sync and size.
@@ -26,7 +27,7 @@ public class LocalCollection {
     public long last_sync_success = -1;
     /** timestamp of last sync attempt */
     public long last_sync_attempt = -1;
-    /** see {@link SyncState}, for display/UI purposes ({@link com.soundcloud.android.adapter.RemoteCollectionAdapter}) */
+    /** see {@link SyncState}, for display/UI purposes ({@link com.soundcloud.android.fragment.ScListFragment}) */
     public int sync_state = -1;
     /** collection size */
     public int size = -1;
@@ -37,6 +38,7 @@ public class LocalCollection {
     private ContentObserver mChangeObserver;
 
     private OnChangeListener mChangeListener;
+
 
     public boolean hasSyncedBefore() {
         return last_sync_success > 0;
@@ -170,6 +172,7 @@ public class LocalCollection {
                 ", last_sync_attempt=" + last_sync_attempt +
                 ", last_sync_success=" + last_sync_success +
                 ", sync_state='" + sync_state + '\'' +
+                ", extra=" + extra +
                 ", size=" + size +
                 '}';
     }
@@ -195,7 +198,7 @@ public class LocalCollection {
     public boolean updateSyncState(int newSyncState, ContentResolver resolver) {
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.SYNC_STATE, newSyncState);
-        if (newSyncState == SyncState.SYNCING) {
+        if (newSyncState == SyncState.SYNCING || newSyncState == SyncState.PENDING) {
             cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT,System.currentTimeMillis());
         }
         return (resolver.update(Content.COLLECTIONS.forId(id), cv, null,null) == 1);
@@ -229,14 +232,18 @@ public class LocalCollection {
     }
 
     public static boolean forceToStale(Uri uri, ContentResolver resolver) {
-        return LocalCollection.fromContentUri(uri,resolver, true).updateLastSyncSuccessTime(0, resolver);
+        LocalCollection lc = LocalCollection.fromContentUri(uri, resolver, true);
+        ContentValues cv = lc.buildContentValues();
+        cv.put(DBHelper.Collections.LAST_SYNC, 0);
+        cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT, 0);
+        return resolver.update(Content.COLLECTIONS.uri, cv, "uri = ?", new String[]{uri.toString()}) == 1;
     }
 
     public boolean shouldAutoRefresh() {
-        // only auto refresh once every hour at most, that we won't hammer their phone or the api if there are errors
-        if (last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) return false;
-
         Content c = Content.byUri(uri);
+
+        // only auto refresh once every 30 mins at most, that we won't hammer their phone or the api if there are errors
+        if (last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) return false;
 
         // do not auto refresh users when the list opens, because users are always changing
         if (User.class.equals(c.modelType)) return last_sync_success <= 0;
@@ -270,11 +277,22 @@ public class LocalCollection {
 
         @Override
         public void onChange(boolean selfChange) {
-            Cursor c = mContentResolver.query(Content.COLLECTIONS.uri, null, "_id = ?", new String[]{String.valueOf(id)}, null);
-            if (c != null && c.moveToFirst()) {
-                setFromCursor(c);
+            LocalCollectionQueryHandler handler = new LocalCollectionQueryHandler(mContentResolver);
+            handler.startQuery(0, null, Content.COLLECTIONS.uri, null, "_id = ?", new String[]{String.valueOf(id)}, null);
+        }
+    }
+
+    private class LocalCollectionQueryHandler extends AsyncQueryHandler {
+        public LocalCollectionQueryHandler(ContentResolver resolver) {
+            super(resolver);
+        }
+
+        @Override
+        protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
+            if (cursor != null && cursor.moveToFirst()) {
+                setFromCursor(cursor);
             }
-            if (c != null) c.close();
+            if (cursor != null) cursor.close();
             if (mChangeListener != null) mChangeListener.onLocalCollectionChanged();
         }
     }

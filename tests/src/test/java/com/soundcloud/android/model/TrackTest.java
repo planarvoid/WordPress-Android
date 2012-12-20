@@ -28,6 +28,13 @@ public class TrackTest {
     }
 
     @Test
+    public void shouldHandleMultiWordTags() throws Exception {
+        Track t = new Track();
+        t.tag_list = "\"multiword tags\" \"in the api\" suck bigtime";
+        expect(t.humanTags()).toContainInOrder("multiword tags", "in the api", "suck", "bigtime");
+    }
+
+    @Test
     public void shouldGenerateTrackInfo() throws Exception {
         Track t = new Track();
         t.description = "Cool track";
@@ -95,7 +102,7 @@ public class TrackTest {
         t.id = 1000;
         ContentValues v = t.buildContentValues();
         expect(v).not.toBeNull();
-        expect(v.getAsLong(DBHelper.Tracks._ID)).toEqual(1000L);
+        expect(v.getAsLong(DBHelper.Sounds._ID)).toEqual(1000L);
     }
 
     @Test
@@ -103,16 +110,16 @@ public class TrackTest {
         Track t = new Track();
         t.id = 1000;
         ContentValues v = t.buildContentValues();
-        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).toBeNull();
+        expect(v.get(DBHelper.Sounds.LAST_UPDATED)).toBeNull();
         t.created_at = new Date(System.currentTimeMillis());
         v = t.buildContentValues();
-        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).toBeNull();
+        expect(v.get(DBHelper.Sounds.LAST_UPDATED)).toBeNull();
         t.duration = 1000;
         v = t.buildContentValues();
-        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).toBeNull();
+        expect(v.get(DBHelper.Sounds.LAST_UPDATED)).toBeNull();
         t.state = Track.State.FINISHED;
         v = t.buildContentValues();
-        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).not.toBeNull();
+        expect(v.get(DBHelper.Sounds.LAST_UPDATED)).not.toBeNull();
     }
 
     @Test
@@ -268,6 +275,14 @@ public class TrackTest {
         compareTracks(t, t2);
     }
 
+    @Test
+    public void shouldGetWaveformDataURL() throws Exception {
+        Track t = new Track();
+        expect(t.getWaveformDataURL()).toBeNull();
+        t.waveform_url = "http://waveforms.soundcloud.com/bypOn0pnRvFf_m.png";
+        expect(t.getWaveformDataURL().toString()).toEqual("http://wis.sndcdn.com/bypOn0pnRvFf_m.png");
+    }
+
     private void compareTracks(Track t, Track t2) {
         expect(t2.id).toEqual(t.id);
         expect(t2.title).toEqual(t.title);
@@ -287,7 +302,7 @@ public class TrackTest {
         expect(t2.playback_count).toEqual(t.playback_count);
         expect(t2.download_count).toEqual(t.download_count);
         expect(t2.comment_count).toEqual(t.comment_count);
-        expect(t2.favoritings_count).toEqual(t.favoritings_count);
+        expect(t2.likes_count).toEqual(t.likes_count);
         expect(t2.shared_to_count).toEqual(t.shared_to_count);
         expect(t2.user_id).toEqual(t.user_id);
         expect(t2.commentable).toEqual(t.commentable);

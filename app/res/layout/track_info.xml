@@ -5,72 +5,79 @@
     <ScrollView android:layout_width="fill_parent"
                 android:id="@+id/info_view"
                 android:layout_height="fill_parent">
-        <RelativeLayout android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/info_holder">
-            <TextView android:id="@+id/likers_txt"
-                      android:layout_width="fill_parent"
-                      android:layout_height="60dip"
-                      android:drawableRight="@drawable/arrow_states"
-                      android:drawableLeft="@drawable/ic_info_likes_states"
-                      android:drawablePadding="15dip"
-                      android:paddingLeft="12dip"
-                      android:paddingRight="12dip"
-                      style="@style/txt_list_main"
-                      android:background="@drawable/list_selector_background"
-                      android:gravity="left|center_vertical"/>
-            <View android:layout_width="fill_parent"
-                  android:layout_height="1px"
-                  android:layout_below="@+id/likers_txt"
-                  android:layout_alignWithParentIfMissing="true"
-                  android:background="?android:attr/listDivider"
-                  android:id="@+id/likers_hr"/>
-            <TextView android:id="@+id/commenters_txt"
-                      android:layout_width="fill_parent"
-                      android:layout_below="@+id/likers_hr"
-                      android:layout_height="60dip"
-                      android:drawableRight="@drawable/arrow_states"
-                      android:drawableLeft="@drawable/ic_info_comments_states"
-                      android:drawablePadding="15dip"
-                      android:paddingLeft="12dip"
-                      android:paddingRight="12dip"
-                      style="@style/txt_list_main"
-                      android:background="@drawable/list_selector_background"
-                      android:gravity="left|center_vertical"/>
-            <View android:layout_width="fill_parent"
-                  android:layout_height="1px"
-                  android:layout_below="@+id/commenters_txt"
-                  android:layout_alignWithParentIfMissing="true"
-                  android:background="?android:attr/listDivider"
-                  android:id="@+id/commenters_hr"/>
+        <LinearLayout android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:id="@+id/info_holder"
+                      android:orientation="vertical">
+            <TableLayout style="@style/Player.TrackInfo.Table"
+                         android:id="@+id/details_table">
+                <TableRow style="@style/Player.TrackInfo.Row"
+                          android:id="@+id/likers_row">
+                    <ImageView style="@style/Player.TrackInfo.Icon"
+                               android:src="@drawable/ic_info_likes_states" />
+
+                    <TextView style="@style/Player.TrackInfo.Label"
+                              android:id="@+id/likers_txt"/>
+                </TableRow>
+
+                <TableRow style="@style/Player.TrackInfo.SeparatorRow"
+                          android:id="@+id/likers_divider">
+                    <View style="@style/Player.TrackInfo.SeparatorView"/>
+                </TableRow>
+
+                <TableRow style="@style/Player.TrackInfo.Row"
+                          android:id="@+id/reposters_row">
+                    <ImageView style="@style/Player.TrackInfo.Icon"
+                               android:src="@drawable/ic_info_repost_states" />
+
+                    <TextView style="@style/Player.TrackInfo.Label"
+                              android:id="@+id/reposters_txt"/>
+                </TableRow>
+
+                <TableRow style="@style/Player.TrackInfo.SeparatorRow"
+                          android:id="@+id/reposters_divider">
+                    <View style="@style/Player.TrackInfo.SeparatorView"/>
+                </TableRow>
+
+                <TableRow style="@style/Player.TrackInfo.Row"
+                          android:id="@+id/comments_row">
+                    <ImageView style="@style/Player.TrackInfo.Icon"
+                               android:src="@drawable/ic_info_comments_states" />
+
+                    <TextView style="@style/Player.TrackInfo.Label"
+                              android:id="@+id/commenters_txt"/>
+                </TableRow>
+
+                <TableRow style="@style/Player.TrackInfo.SeparatorRow"
+                          android:id="@+id/comments_divider">
+                    <View style="@style/Player.TrackInfo.SeparatorView"/>
+                </TableRow>
+            </TableLayout>
+
             <com.soundcloud.android.view.FlowLayout android:id="@+id/tags_holder"
                                                     android:layout_marginTop="10dip"
-                                                    android:layout_below="@id/commenters_hr"
-                                                    android:layout_alignWithParentIfMissing="true"
                                                     android:layout_height="wrap_content"
                                                     android:layout_width="fill_parent"
-                                                    android:padding="5dip"/>
+                                                    android:paddingTop="5dip"
+                                                    android:paddingBottom="5dip"
+                                                    android:paddingLeft="@dimen/list_item_padding_left"
+                                                    android:paddingRight="@dimen/list_item_padding_right"
+                                                    />
+
+            <ViewStub android:id="@+id/stub_loading"
+                          android:inflatedId="@+id/loading_layout"
+                          android:layout="@layout/track_info_loading_layout"
+                          android:layout_width="fill_parent"
+                          android:layout_height="wrap_content"/>
+
             <TextView android:id="@+id/txtInfo"
-                      android:layout_height="wrap_content"
-                      style="@style/txt_player_track_info"
-                      android:padding="3dip"
-                      android:linksClickable="true"
-                      android:layout_below="@id/tags_holder"
-                      android:layout_width="fill_parent"/>
-            <ViewStub android:id="@+id/stub_comments_list"
-                      android:inflatedId="@+id/comments_list"
-                      android:layout="@layout/info_comments_list"
-                      android:layout_below="@+id/txtInfo"
                       android:layout_width="fill_parent"
-                      android:layout_height="wrap_content"/>
-        </RelativeLayout>
+                      android:layout_height="wrap_content"
+                      style="@style/txt_player_track_info"/>
+        </LinearLayout>
+
     </ScrollView>
-    <ViewStub android:id="@+id/stub_loading"
-              android:inflatedId="@+id/loading_layout"
-              android:layout="@layout/track_info_loading_layout"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
-            />
+
     <View android:layout_width="fill_parent"
           android:layout_alignParentTop="true"
           android:layout_height="5dip"

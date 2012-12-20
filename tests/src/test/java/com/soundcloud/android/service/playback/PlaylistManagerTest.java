@@ -1,8 +1,8 @@
 package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
@@ -34,7 +34,6 @@ public class PlaylistManagerTest {
     public void before() {
         resolver = Robolectric.application.getContentResolver();
         pm = new PlayQueueManager(Robolectric.application, USER_ID);
-
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
     }
 
@@ -188,6 +187,25 @@ public class PlaylistManagerTest {
     }
 
     @Test
+    public void shouldSaveAndRestoreFavoritesAsPlaylistTwice() throws Exception {
+        insertTracksAsUri(Content.ME_LIKE.uri);
+        pm.loadUri(Content.ME_LIKES.uri, 1, 10853436l);
+        expect(pm.getCurrentTrack().id).toEqual(10853436l);
+        pm.saveQueue(1000l);
+        expect(pm.reloadQueue()).toEqual(1000l);
+        expect(pm.getCurrentTrackId()).toEqual(10853436l);
+        expect(pm.getPosition()).toEqual(0);
+
+        // test overwrite
+        expect(pm.next()).toBeTrue();
+        expect(pm.getCurrentTrackId()).toEqual(10696200l);
+        pm.saveQueue(2000l);
+        expect(pm.reloadQueue()).toEqual(2000l);
+        expect(pm.getCurrentTrackId()).toEqual(10696200l);
+        expect(pm.getPosition()).toEqual(1);
+    }
+
+    @Test
     public void shouldSaveAndRestoreFavoritesAsPlaylistWithMovedTrack() throws Exception {
         insertTracksAsUri(Content.ME_LIKE.uri);
         pm.loadUri(Content.ME_LIKES.uri, 1, 10696200l);
@@ -273,20 +291,14 @@ public class PlaylistManagerTest {
     @Test
     public void shouldSetSingleTrack() throws Exception {
         List<Track> tracks = createTracks(1, true, 0);
-        pm.setTrack(tracks.get(0));
+        pm.setTrack(tracks.get(0), true);
         expect(pm.length()).toEqual(1);
         expect(pm.getCurrentTrack()).toBe(tracks.get(0));
     }
 
     private void insertTracksAsUri(Uri uri) throws IOException {
-        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(getClass().getResourceAsStream("tracks.json"), TrackHolder.class);
-
-        for (Track t: tracks){
-            SoundCloudApplication.MODEL_MANAGER.cache(t, ScResource.CacheUpdateMode.FULL);
-        }
-
+        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/service/playback/tracks.json");
         expect(SoundCloudApplication.MODEL_MANAGER.writeCollection(tracks.collection, uri, USER_ID, ScResource.CacheUpdateMode.FULL)).toEqual(4);
-
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(3);
     }

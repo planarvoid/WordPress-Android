@@ -4,16 +4,13 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.PlayInfo;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
-import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -30,11 +27,12 @@ public abstract class TrackInfoCollection extends ScActivity implements   FetchT
 
         mTrack = Track.fromIntent(getIntent(), getContentResolver());
         mTrackInfoBar = ((TrackInfoBar) findViewById(R.id.track_info_bar));
-        mTrackInfoBar.display(mTrack, true, -1, true, getCurrentUserId());
+        mTrackInfoBar.display(mTrack, -1, true, true, true);
         mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PlayUtils.playTrack(TrackInfoCollection.this, PlayInfo.forTracks(mTrack));
+                // if it comes from a mention, might not have a user
+                if (mTrack.user != null) PlayUtils.playTrack(TrackInfoCollection.this, PlayInfo.forTracks(mTrack));
             }
         });
 
@@ -48,11 +46,18 @@ public abstract class TrackInfoCollection extends ScActivity implements   FetchT
         mTrack.refreshInfoAsync(getApp(),this);
     }
 
+    //xxx hack
+    @Override
+    public void setContentView(View layout) {
+        super.setContentView(layout);
+        layout.setBackgroundColor(Color.WHITE);
+    }
+
     protected abstract Uri getContentUri();
 
     @Override
     public void onSuccess(Track track, String action) {
-        ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(track, true, -1, false, getCurrentUserId());
+        ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(track, -1, true, false, true);
     }
 
     @Override

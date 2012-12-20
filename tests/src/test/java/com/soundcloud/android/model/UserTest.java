@@ -2,9 +2,9 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -69,6 +69,16 @@ public class UserTest {
     }
 
     @Test
+    public void shouldGetWebsiteTitle() throws Exception {
+        User u = new User();
+        expect(u.getWebSiteTitle()).toBeNull();
+        u.website = "http://foo.com";
+        expect(u.getWebSiteTitle()).toEqual("foo.com");
+        u.website_title = "Foo";
+        expect(u.getWebSiteTitle()).toEqual("Foo");
+    }
+
+    @Test
     public void shouldBeParcelable() throws Exception {
         User user = new User();
         user.id = 1;
@@ -122,13 +132,8 @@ public class UserTest {
 
     @Test
     public void shouldDeserializeUser() throws Exception {
-        ScResource u = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("user.json"),
-                ScResource.class);
+        User u = TestHelper.readJson(User.class, "/com/soundcloud/android/model/user.json");
 
-        System.out.print(u);
-
-        /*
         expect(u.id).not.toBeNull();
         expect(u.username).not.toBeNull();
         expect(u.uri).not.toBeNull();
@@ -145,7 +150,6 @@ public class UserTest {
         expect(u.followers_count).not.toBeNull();
         expect(u.followings_count).not.toBeNull();
         expect(u.public_likes_count).not.toBeNull();
-        expect(u.private_tracks_count).not.toBeNull();  */
-
+        expect(u.private_tracks_count).not.toBeNull();
     }
 }

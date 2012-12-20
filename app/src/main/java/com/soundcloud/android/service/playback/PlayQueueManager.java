@@ -9,6 +9,7 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,6 +22,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -138,20 +140,21 @@ public class PlayQueueManager {
         }
     }
 
-    public void setTrack(long toBePlayed) {
+    public void setTrackById(long toBePlayed) {
         Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(toBePlayed);
         if (t != null) {
-            setTrack(t);
+            setTrack(t, true);
         }
     }
 
-    public void setTrack(Track toBePlayed) {
+    public void setTrack(Track toBePlayed, boolean saveQueue) {
         SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScResource.CacheUpdateMode.NONE);
         mPlayQueue = new Track[] { toBePlayed };
         mPlayQueueUri = new PlayQueueUri();
         mPlayPos = 0;
-        saveQueue(0, true);
+
         broadcastPlayQueueChanged();
+        if (saveQueue) saveQueue(0, true);
     }
 
     public void loadUri(Uri uri, int position, long initialTrackId) {
@@ -173,7 +176,7 @@ public class PlayQueueManager {
      */
     public void loadUri(Uri uri, int position, @Nullable Track initialTrack) {
         if (initialTrack != null) {
-            setTrack(initialTrack);
+            setTrack(initialTrack, false);
         } else {
             // no track yet, load async
             mPlayQueue = new Track[0];
@@ -187,15 +190,23 @@ public class PlayQueueManager {
     }
 
     private AsyncTask loadCursor(final Uri uri, final int position) {
-        return new AsyncTask<Uri,Void,Cursor>() {
+        return new ParallelAsyncTask<Uri,Void,Cursor>() {
             @Override protected Cursor doInBackground(Uri... params) {
-                Cursor cursor = mContext.getContentResolver().query(params[0], null, null, null, null);
+                Cursor cursor = null;
+                try {
+                    cursor = mContext.getContentResolver().query(params[0], null, null, null, null);
+                } catch (IllegalArgumentException e) {
+                    // in case we load a depracated URI, just don't load the playlist
+                    Log.e(PlayQueueManager.class.getSimpleName(),"Tried to load an invalid uri " + uri);
+                }
                 if (cursor != null) {
                     if (position >= 0 && position < cursor.getCount()) {
                         cursor.moveToPosition(position);
                     }
                 }
                 return cursor;
+
+
             }
             @Override protected void onPostExecute(Cursor cursor) {
                 // make sure this cursor is valid and still wanted
@@ -207,7 +218,7 @@ public class PlayQueueManager {
                     mTrackCursor = cursor;
                     final Track t = getTrackAt(position);
                     // adjust if the track has moved positions
-                    if (t != null && t.id != playingId && mPlayQueueUri.isCollectionUri()) {
+                    if (t != null && t.id != playingId && Content.match(uri).isCollectionItem()) {
                         mPlayPos = getPlayQueuePositionFromUri(mContext.getContentResolver(), uri, playingId);
                     } else {
                         mPlayPos = position;
@@ -244,7 +255,7 @@ public class PlayQueueManager {
     private void persistPlayQueue() {
         if (mUserId < 0) return;
 
-        new AsyncTask<Void, Void, Void>() {
+        new ParallelAsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
                 List<Track> tracks = new ArrayList<Track>();

@@ -3,23 +3,18 @@ package com.soundcloud.android.service.sync;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.task.ParallelAsyncTask;
 
 import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SyncResult;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 public class ApiSyncService extends Service {
     public static final String LOG_TAG = ApiSyncer.class.getSimpleName();
@@ -41,8 +36,6 @@ public class ApiSyncService extends Service {
     private int mActiveTaskCount;
 
     /* package */ final List<SyncIntent> mSyncIntents = new ArrayList<SyncIntent>();
-
-
     /* package */ final LinkedList<CollectionSyncRequest> mPendingRequests = new LinkedList<CollectionSyncRequest>();
     /* package */ final List<CollectionSyncRequest> mRunningRequests = new ArrayList<CollectionSyncRequest>();
 
@@ -58,6 +51,7 @@ public class ApiSyncService extends Service {
 
     @Override
     public void onDestroy() {
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "onDestroy()");
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.SYNC_STATE,LocalCollection.SyncState.IDLE);
         getContentResolver().update(Content.COLLECTIONS.uri, cv, null, null);
@@ -78,7 +72,6 @@ public class ApiSyncService extends Service {
                     } else {
                         mPendingRequests.add(request);
                     }
-
                     request.onQueued();
                 } else if (syncIntent.isUIRequest && !mPendingRequests.getFirst().equals(request)) {
                     // move the original object up in the queue, since it has already been initialized with onQueued()
@@ -118,36 +111,7 @@ public class ApiSyncService extends Service {
         }
     }
 
-
-    private class ApiTask extends AsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> {
-
-        public final android.os.AsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> executeOnThreadPool(
-                CollectionSyncRequest... params) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                // The execute() method uses a thread pool
-                return execute(params);
-            } else {
-                // The execute() method uses a single thread,
-                // so call executeOnExecutor() instead.
-                try {
-                    Method method = android.os.AsyncTask.class.getMethod("executeOnExecutor",
-                            Executor.class, Object[].class);
-                    Field field = android.os.AsyncTask.class.getField("THREAD_POOL_EXECUTOR");
-                    Object executor = field.get(null);
-                    method.invoke(this, executor, params);
-                } catch (NoSuchMethodException e) {
-                    throw new RuntimeException("Unexpected NoSuchMethodException", e);
-                } catch (NoSuchFieldException e) {
-                    throw new RuntimeException("Unexpected NoSuchFieldException", e);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Unexpected IllegalAccessException", e);
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException("Unexpected InvocationTargetException", e);
-                }
-                return this;
-            }
-        }
-
+    private class ApiTask extends ParallelAsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> {
         @Override
         protected void onPreExecute() {
             mActiveTaskCount++;

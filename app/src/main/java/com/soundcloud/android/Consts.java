@@ -1,8 +1,10 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -20,7 +22,8 @@ public final class Consts {
             "Android/data/com.soundcloud.android/files");
 
     // dot file to have it excluded from media scanning - also use .nomedia
-    public static final File EXTERNAL_CACHE_DIRECTORY = new File(FILES_PATH,  ".cache");
+    public static final File EXTERNAL_CACHE_DIRECTORY = new File(FILES_PATH,  ".lrucache");
+    public static final File OLD_EXTERNAL_CACHE_DIRECTORY = new File(FILES_PATH,  ".cache");
     public static final File EXTERNAL_STREAM_DIRECTORY = new File(FILES_PATH, "stream");
 
     @Deprecated
@@ -33,9 +36,6 @@ public final class Consts {
     public static final int COLLECTION_PAGE_SIZE      = 50;
     public static final int MAX_COMMENTS_TO_LOAD      = 50;
 
-    // adapter loading constants
-    public static final int ROW_APPEND_BUFFER = 6;
-    public static final int ITEM_TYPE_LOADING = -1;
     public static final String SECRET_CODE_ACTION = "android.provider.Telephony.SECRET_CODE";
     public static final String AUDIO_BECOMING_NOISY = "android.media.AUDIO_BECOMING_NOISY";
 
@@ -47,6 +47,13 @@ public final class Consts {
         int PICK_VENUE          = 9003;
         int MAKE_CONNECTION     = 9004;
         int IMAGE_CROP          = 9005;
+
+        int SIGNUP_VIA_FACEBOOK     = 8001;
+        int RECOVER_CODE            = 8002;
+    }
+
+    public static interface Keys {
+        String WAS_SIGNUP = "wasSignup";
     }
 
     public static interface SdkSwitches {
@@ -73,12 +80,8 @@ public final class Consts {
     }
 
     public interface OptionsMenu {
-        int SETTINGS = 200;
-        int VIEW_CURRENT_TRACK = 201;
+        // TODO: still used in location picker
         int REFRESH = 202;
-        int STREAM = 204;
-        int FRIEND_FINDER = 205;
-        int FILTER = 206;
     }
 
     public enum GraphicSize {
@@ -115,14 +118,14 @@ public final class Consts {
             return getListItemGraphicSize(c).formatUri(uri);
         }
 
-        public static Consts.GraphicSize getListItemGraphicSize(Context c) {
+        public static GraphicSize getListItemGraphicSize(Context c) {
             if (ImageUtils.isScreenXL(c)) {
-                return Consts.GraphicSize.LARGE;
+                return GraphicSize.LARGE;
             } else {
                 if (c.getResources().getDisplayMetrics().density > 1) {
-                    return Consts.GraphicSize.LARGE;
+                    return GraphicSize.LARGE;
                 } else {
-                    return Consts.GraphicSize.BADGE;
+                    return GraphicSize.BADGE;
                 }
             }
         }
@@ -131,7 +134,7 @@ public final class Consts {
             return getSearchSuggestionsListItemGraphicSize(c).formatUri(uri);
         }
 
-        public static Consts.GraphicSize getSearchSuggestionsListItemGraphicSize(Context c) {
+        public static GraphicSize getSearchSuggestionsListItemGraphicSize(Context c) {
             if (ImageUtils.isScreenXL(c)) {
                 return GraphicSize.T67;
             } else {
@@ -147,19 +150,32 @@ public final class Consts {
             return getPlayerGraphicSize(c).formatUri(uri);
         }
 
-        public static Consts.GraphicSize getPlayerGraphicSize(Context c) {
+        public static GraphicSize getPlayerGraphicSize(Context c) {
             // for now, just return T500. logic will come with more screen support
             return GraphicSize.T500;
         }
 
         public String formatUri(String uri) {
             if (TextUtils.isEmpty(uri)) return null;
-            else if (this == Consts.GraphicSize.LARGE) return uri;
-            else return uri.replace(Consts.GraphicSize.LARGE.key, key);
+            for (GraphicSize size : GraphicSize.values()) {
+                if (uri.contains("-" + size.key) && this != size) {
+                    return uri.replace("-" + size.key, "-" + key);
+                }
+            }
+            Uri u = Uri.parse(uri);
+            if (u.getPath().equals("/resolve/image")) {
+                String size = u.getQueryParameter("size");
+                if (size == null) {
+                    return u.buildUpon().appendQueryParameter("size", key).toString();
+                } else if (!size.equals(key)) {
+                    return uri.replace(size, key);
+                }
+            }
+            return uri;
         }
 
-        public static Consts.GraphicSize getMinimumSizeFor(int width, int height, boolean fillDimensions) {
-            Consts.GraphicSize valid = null;
+        public static GraphicSize getMinimumSizeFor(int width, int height, boolean fillDimensions) {
+            GraphicSize valid = null;
             for (GraphicSize gs : values()) {
                 if (fillDimensions){
                     if (gs.width >= width && gs.height >= height) {
@@ -181,27 +197,27 @@ public final class Consts {
 
     }
 
+    public interface GeneralIntents {
+        String ACTIVITIES_UNSEEN_CHANGED = Activities.class.getSimpleName() + ".unseen_changed";
+    }
+
     // these need to be unique across app
     public interface Notifications {
-        int RECORD_NOTIFY_ID    = 0;
-        int PLAYBACK_NOTIFY_ID  = 1;
-
-        int UPLOADING_NOTIFY_ID = 2;
-        int UPLOADED_NOTIFY_ID  = 3;
-
-        int DASHBOARD_NOTIFY_STREAM_ID = 4;
+        int RECORD_NOTIFY_ID               = 0;
+        int PLAYBACK_NOTIFY_ID             = 1;
+        int UPLOADING_NOTIFY_ID            = 2;
+        int DASHBOARD_NOTIFY_STREAM_ID     = 4;
         int DASHBOARD_NOTIFY_ACTIVITIES_ID = 5;
     }
 
     public interface ResourceStaleTimes {
-        long user = 86400000;       //24*60*60*1000 = 24hr
-        long track = 3600000l;      //60*60*1000 = 1hr
+        long user =    86400000;    //24*60*60*1000 = 24hr
+        long track =   3600000l;    //60*60*1000 = 1hr
         long activity = 600000l;    //30*60*1000 = 10 mins
     }
 
     public interface PrefKeys {
-        String EXCLUSIVE_ONLY_KEY                   = "incoming_exclusive_only";
-        String SC_PLAYQUEUE_URI = "sc_playlist_uri";
+        String SC_PLAYQUEUE_URI                     = "sc_playlist_uri";
         String STREAMING_WRITES_SINCE_CLEANUP       = "streamingWritesSinceCleanup";
         String C2DM_DEVICE_URL                      = "c2dm.device_url";
         String C2DM_REG_TO_DELETE                   = "c2dm.to_delete";
@@ -209,8 +225,8 @@ public final class Consts {
         String NOTIFICATIONS_FOLLOWERS              = "notificationsFollowers";
         String NOTIFICATIONS_WIFI_ONLY              = "notificationsWifiOnly";
         String NOTIFICATIONS_INCOMING               = "notificationsIncoming";
-        String NOTIFICATIONS_EXCLUSIVE              = "notificationsExclusive";
-        String NOTIFICATIONS_FAVORITINGS            = "notificationsFavoritings";
+        String NOTIFICATIONS_LIKES                  = "notificationsFavoritings";
+        String NOTIFICATIONS_REPOSTS                = "notificationsReposts";
         String NOTIFICATIONS_COMMENTS               = "notificationsComments";
         String NOTIFICATIONS_FREQUENCY              = "notificationsFrequency";
         String VERSION_KEY                          = "changeLogVersionCode";

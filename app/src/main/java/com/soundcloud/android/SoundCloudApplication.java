@@ -4,19 +4,21 @@ import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.android.imageloader.BitmapContentHandler;
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.PrefetchHandler;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.c2dm.C2DMReceiver;
-import com.soundcloud.android.cache.Connections;
+import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.imageloader.DownloadBitmapHandler;
+import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.PrefetchHandler;
+import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncConfig;
 import com.soundcloud.android.tracking.ATTracker;
 import com.soundcloud.android.tracking.Click;
@@ -37,6 +39,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
@@ -57,21 +60,18 @@ import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.ContentHandler;
-import java.net.ResponseCache;
 import java.net.URI;
 
 @ReportsCrashes(
-        formUri = "https://bugsense.appspot.com/api/acra?api_key=2dd07966",
+        formUri = "https://bugsense.appspot.com/api/acra?api_key=2fb93356",
         formKey= "",
         checkReportVersion = true,
         checkReportSender = true)
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener, Tracker {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) ||
-                                           "full_x86".equals(Build.PRODUCT);
+                                           "full_x86".equals(Build.PRODUCT)   || "sdk_x86".equals(Build.PRODUCT);
 
     public static final boolean DALVIK = Build.PRODUCT != null;
     public static boolean DEV_MODE, BETA_MODE;
@@ -83,8 +83,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     private User mLoggedInUser;
     protected Wrapper mCloudApi; /* protected for testing */
-
-    public Comment pendingComment;
 
     public static SoundCloudApplication instance;
 
@@ -100,9 +98,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             mTracker = new ATTracker(this);
         }
         instance = this;
-
         IOUtils.checkState(this);
-
         mImageLoader = createImageLoader();
         final Account account = getAccount();
 
@@ -112,8 +108,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         MODEL_MANAGER = new ScModelManager(this, mCloudApi.getMapper());
 
         if (account != null) {
-            Connections.initialize(this, "connections-"+getCurrentUserId());
-
             if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
                 enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
             }
@@ -129,12 +123,17 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                             .commit();
                 }
             });
+            // delete old cache dir
+            AndroidUtils.doOnce(this, "delete.old.cache.dir", new Runnable() {
+                @Override public void run() {
+                    IOUtils.deleteDir(Consts.OLD_EXTERNAL_CACHE_DIRECTORY);
+                }
+            });
 
             C2DMReceiver.register(this, getLoggedInUser());
+            ContentStats.init(this);
         }
-
 //        setupStrictMode();
-
         FacebookSSO.extendAccessTokenIfNeeded(this);
     }
 
@@ -187,29 +186,16 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         User.clearLoggedInUserFromStorage(this);
         C2DMReceiver.unregister(this);
         FollowStatus.set(null);
-        Connections.set(null);
+        ConnectionsCache.set(null);
         mLoggedInUser = null;
         mCloudApi.invalidateToken();
     }
 
     protected ImageLoader createImageLoader() {
-        final File cacheDir = IOUtils.getCacheDir(this);
-        ResponseCache cache = FileCache.installFileCache(cacheDir, FileCache.IMAGE_CACHE_AUTO);
-        ContentHandler bitmapHandler = new BitmapContentHandler();
-        ContentHandler prefetchHandler = new PrefetchHandler();
-        if (cache instanceof FileCache) {
-            // workaround various SDK bugs by wrapping the handler
-            bitmapHandler = FileCache.capture(bitmapHandler, null);
-            prefetchHandler = FileCache.capture(prefetchHandler, null);
-
-            ((FileCache)cache).trim(); // ICS has auto trimming
-        }
-        return new ImageLoader(ImageLoader.DEFAULT_TASK_LIMIT,
-                null, /* streamFactory */
-                bitmapHandler,
-                prefetchHandler,
-                ImageLoader.DEFAULT_CACHE_SIZE,
-                null  /* handler */);
+        FileCache.installFileCache(IOUtils.getCacheDir(this));
+        return new ImageLoader(new DownloadBitmapHandler(),
+                new PrefetchHandler(),
+                ImageLoader.DEFAULT_CACHE_SIZE, ImageLoader.DEFAULT_TASK_LIMIT);
     }
 
     @Override
@@ -230,10 +216,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-    public AccountManagerFuture<Bundle> addAccount(Activity activity, AccountManagerCallback<Bundle> callback) {
+    public AccountManagerFuture<Bundle> addAccount(Activity activity) {
         return getAccountManager().addAccount(
                 getString(R.string.account_type),
-                Token.ACCESS_TOKEN, null, null, activity, callback, null);
+                Token.ACCESS_TOKEN, null, null, activity, null, null);
     }
 
     public boolean addUserAccount(User user, Token token, SignupVia via) {
@@ -242,6 +228,14 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             mLoggedInUser = user;
             // move this when we can't guarantee we will only have 1 account active at a time
             enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
+
+            // sync shortcuts so suggest works properly
+            Intent intent = new Intent(this, ApiSyncService.class)
+                    .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                    .setData(Content.ME_SHORTCUT.uri);
+
+            startService(intent);
+
             return true;
         } else {
             return false;
@@ -517,7 +511,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return ACRA.getErrorReporter().handleSilentException(e);
     }
 
-    public static SoundCloudApplication fromContext(Context c){
+    public static SoundCloudApplication fromContext(@NotNull Context c){
         if (c.getApplicationContext() instanceof  SoundCloudApplication) {
             return ((SoundCloudApplication) c.getApplicationContext());
         } else {
@@ -528,6 +522,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static long getUserIdFromContext(Context c){
         SoundCloudApplication app = fromContext(c);
         return app == null ? -1 : app.getCurrentUserId();
+    }
+
+    @Override @TargetApi(14)
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        /*if (level >= TRIM_MEMORY_RUNNING_CRITICAL) ImageLoader.get(this).onLowMemory(); */
     }
 
     @TargetApi(9)

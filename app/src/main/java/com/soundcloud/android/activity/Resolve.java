@@ -8,36 +8,45 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.ResolveFetchTask;
+import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.widget.Toast;
+import android.view.View;
 
 public class Resolve extends Activity implements FetchModelTask.FetchModelListener<ScResource> {
-
     @Nullable
     private ResolveFetchTask mResolveTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.resolve);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         Intent intent = getIntent();
         Uri data = intent.getData();
-        if (data == null || (!Intent.ACTION_VIEW.equals(intent.getAction()) && !FacebookSSO.handleFacebookView(this, intent))) {
-            finish(); // nothing to do
-        } else {
+
+        final boolean shouldResolve = data != null &&
+                (Intent.ACTION_VIEW.equals(intent.getAction()) || FacebookSSO.handleFacebookView(this, intent));
+
+        if (shouldResolve) {
+            findViewById(R.id.progress).setVisibility(View.VISIBLE);
             mResolveTask = new ResolveFetchTask(getApp());
             mResolveTask.setListener(this);
             mResolveTask.execute(data);
+
+        } else {
+            finish();
         }
     }
-
 
     private SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
@@ -45,21 +54,18 @@ public class Resolve extends Activity implements FetchModelTask.FetchModelListen
 
     protected void onTrackLoaded(Track track, @Nullable String action) {
         mResolveTask = null;
-        startService(track.getPlayIntent());
-        startActivity(new Intent(this, ScPlayer.class));
+        startActivity(track.getPlayIntent());
     }
 
-    protected void onUserLoaded(User u, @Nullable String action) {
+    protected void onUserLoaded(User user, @Nullable String action) {
         mResolveTask = null;
-        startActivity(new Intent(this, UserBrowser.class)
-            .putExtra("user", u)
-            .putExtra("updateInfo", false));
+        startActivity(user.getViewIntent());
     }
 
     @Override
     public void onError(long modelId) {
         mResolveTask = null;
-        Toast.makeText(this, R.string.error_loading_url, Toast.LENGTH_LONG).show();
+        AndroidUtils.showToast(this, R.string.error_loading_url);
         finish();
     }
 

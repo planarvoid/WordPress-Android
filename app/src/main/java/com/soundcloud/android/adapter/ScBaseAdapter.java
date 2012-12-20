@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -17,20 +18,21 @@ import com.soundcloud.android.task.collection.UpdateCollectionTask;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.adapter.LazyRow;
 import com.soundcloud.android.view.quickaction.QuickAction;
+import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.v4.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter implements IScAdapter {
@@ -38,10 +40,11 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     protected Content mContent;
     protected Uri mContentUri;
     @NotNull protected List<T> mData = new ArrayList<T>();
-    protected int mPage = 0;
-    protected Map<Long, Drawable> mIconAnimations = new HashMap<Long, Drawable>();
-    protected Set<Long> mLoadingIcons = new HashSet<Long>();
     protected boolean mIsLoadingData;
+    protected int mPage;
+
+    private DrawableCache mIconAnimations = new DrawableCache(32);
+    private Set<Long> mLoadingIcons = new HashSet<Long>();
     private View mProgressView;
 
     @SuppressWarnings("unchecked")
@@ -101,9 +104,11 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     @Override
     public long getItemId(int position) {
+        if (position >= mData.size()) return AdapterView.INVALID_ROW_ID;
+
         Object o = getItem(position);
-        if (o instanceof ScResource && ((ScResource) o).id != -1) {
-            return ((ScResource) o).id;
+        if (o instanceof ScModel && ((ScModel) o).getListItemId() != -1) {
+            return ((ScModel) o).getListItemId();
         }
         return position;
     }
@@ -133,28 +138,44 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         mPage = 0;
     }
 
-    public void onDestroy(){}
+    // not used?
+    public void onDestroy() {
+    }
 
-
-    public Drawable getDrawableFromId(Long id){
+    public Drawable getDrawableFromId(long id) {
         return mIconAnimations.get(id);
     }
 
-    public void assignDrawableToId(Long id, Drawable drawable){
+    public void assignDrawableToId(long id, Drawable drawable) {
         mIconAnimations.put(id, drawable);
     }
 
-    public Boolean getIconNotReady(Long id){
+    public boolean getIconNotReady(long id) {
         return mLoadingIcons.contains(id);
     }
 
-    public void setIconNotReady(Long id){
+    public void setIconNotReady(long id) {
         mLoadingIcons.add(id);
     }
 
-    public void onEndOfList(){
+    private class DrawableCache extends LruCache<Long, Drawable> {
 
+        /**
+         * @param maxSize for caches that do not override {@link #sizeOf}, this is
+         *                the maximum number of entries in the cache. For all other caches,
+         *                this is the maximum sum of the sizes of the entries in this cache.
+         */
+        public DrawableCache(int maxSize) {
+            super(maxSize);
+        }
+
+        @Override
+        protected void entryRemoved(boolean evicted, Long key, Drawable oldValue, Drawable newValue) {
+            super.entryRemoved(evicted, key, oldValue, newValue);
+            mLoadingIcons.remove(key);
+        }
     }
+
 
     // needed?
     @Override
@@ -172,7 +193,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     }
 
     protected void clearIcons(){
-        mIconAnimations.clear();
+        mIconAnimations.evictAll();
         mLoadingIcons.clear();
     }
 
@@ -208,9 +229,20 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
                 onSuccessfulRefresh();
             }
             mPage++;
-
             addItems(data.newItems);
-            checkForStaleItems();
+
+            /*
+            if (IOUtils.isWifiConnected(mContext)){
+                // prefetch sound artwork
+                for (ScModel model : data.newItems){
+                    if (model instanceof Playable){
+                        final String artworkUrl = Consts.GraphicSize.formatUriForList(mContext, ((Playable) model).getTrack().getArtwork());
+                        if (!TextUtils.isEmpty(artworkUrl)) ImageLoader.get(mContext).prefetch(artworkUrl);
+                    }
+                }
+            }
+            */
+            checkForStaleItems(mData);
         }
         setIsLoadingData(false);
     }
@@ -219,36 +251,36 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         clearData();
     }
 
-    protected void checkForStaleItems() {
-        if (!(IOUtils.isWifiConnected(mContext)) || isEmpty()) return;
-
-        Map<Long, Track> trackUpdates = new HashMap<Long, Track>();
-        Map<Long, User> userUpdates = new HashMap<Long, User>();
-        for (ScModel newItem : mData) {
+    protected void checkForStaleItems(List<? extends ScModel> items) {
+        if (items.isEmpty() || !IOUtils.isWifiConnected(mContext)) return;
+        Set<Long> trackUpdates = new HashSet<Long>();
+        Set<Long> userUpdates = new HashSet<Long>();
+        for (ScModel newItem : items) {
 
             if (newItem instanceof Refreshable) {
-                ScResource resource = ((Refreshable) newItem).getRefreshableResource();
-                if (resource != null) {
-                    if (((Refreshable) newItem).isStale()) {
-                        if (resource instanceof Track) {
-                            trackUpdates.put(resource.id, (Track) resource);
-                        } else if (resource instanceof User) {
-                            userUpdates.put(resource.id, (User) resource);
-                        }
+                Refreshable refreshable = (Refreshable) newItem;
+                if (refreshable.isStale()) {
+
+                    ScResource resource = refreshable.getRefreshableResource();
+                    if (resource instanceof Track) {
+                        trackUpdates.add(resource.id);
+                    } else if (resource instanceof User) {
+                        userUpdates.add(resource.id);
                     }
                 }
             }
         }
-        if (trackUpdates.size() > 0) {
-            UpdateCollectionTask updateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(mContext), Track.class);
-            updateCollectionTask.setAdapter(this);
-            updateCollectionTask.execute(trackUpdates);
+        final AndroidCloudAPI api = SoundCloudApplication.fromContext(mContext);
+        if (!trackUpdates.isEmpty()) {
+            UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.TRACKS);
+            task.setAdapter(this);
+            task.executeOnThreadPool(trackUpdates);
         }
 
-        if (userUpdates.size() > 0) {
-            UpdateCollectionTask updateCollectionTask = new UpdateCollectionTask(SoundCloudApplication.fromContext(mContext), User.class);
-            updateCollectionTask.setAdapter(this);
-            updateCollectionTask.execute(userUpdates);
+        if (!userUpdates.isEmpty()) {
+            UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.USERS);
+            task.setAdapter(this);
+            task.executeOnThreadPool(userUpdates);
         }
     }
 
@@ -258,5 +290,4 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         int IGNORE = 0;
         int LEAVING = 1;
     }
-
 }

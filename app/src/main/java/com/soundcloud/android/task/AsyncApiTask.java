@@ -40,6 +40,10 @@ public abstract class AsyncApiTask<Params, Progress, Result>
         Log.w(TAG, s);
     }
 
+    public List<String> getErrors() {
+        return new ArrayList<String>(mErrors);
+    }
+
     protected void extractErrors(HttpResponse resp) throws IOException {
         mErrors.addAll(parseError(mApi.getMapper().reader(), resp.getEntity().getContent()));
     }

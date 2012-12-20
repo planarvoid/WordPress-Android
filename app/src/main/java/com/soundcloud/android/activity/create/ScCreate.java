@@ -489,7 +489,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         if (newState != null) mCurrentState = newState;
         switch (mCurrentState) {
             case GENERATING_WAVEFORM:
-                getSupportActionBar().setTitle(R.string.rec_title_generating_waveform);
+                setTitle(R.string.rec_title_generating_waveform);
                 hideView(mPlayButton, mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mEditButton, mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mButtonBar, mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
@@ -517,7 +517,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             case IDLE_RECORD:
                 configureRecordButton(false);
 
-                getSupportActionBar().setTitle(R.string.rec_title_idle_rec);
+                setTitle(R.string.rec_title_idle_rec);
                 setPlayButtonDrawable(false);
 
                 hideView(mPlayButton, animate && mLastState != CreateState.IDLE_RECORD, View.GONE);
@@ -538,7 +538,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 break;
 
             case RECORD:
-                getSupportActionBar().setTitle(R.string.rec_title_recording);
+                setTitle(R.string.rec_title_recording);
                 hideView(mPlayButton, mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mEditButton, mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mButtonBar, mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
@@ -558,7 +558,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
             case IDLE_PLAYBACK:
                 configureRecordButton(true);
-                getSupportActionBar().setTitle(R.string.rec_title_idle_play);
+                setTitle(R.string.rec_title_idle_play);
                 mPlayButton.setVisibility(View.GONE); // just to fool the animation
                 showView(mPlayButton, (mLastState == CreateState.RECORD || mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
                 showView(mEditButton, (mLastState == CreateState.RECORD || mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
@@ -581,7 +581,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 break;
 
             case PLAYBACK:
-                getSupportActionBar().setTitle(R.string.rec_title_playing);
+                setTitle(R.string.rec_title_playing);
                 showView(mActionButton, false);
                 showView(mPlayButton,false);
                 showView(mEditButton,false);
@@ -600,7 +600,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
             case EDIT:
             case EDIT_PLAYBACK:
-                getSupportActionBar().setTitle(R.string.rec_title_editing);
+                setTitle(R.string.rec_title_editing);
                 showView(mButtonBar, false);
                 hideSavedMessage();
 
@@ -952,8 +952,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         track(Click.Record_Pause_Delete, mTxtRecordMessage.getCurrentSuggestionKey());
-                                        mRecorder.reset(true);
-                                        finish();
+                                        reset(true);
                                     }
                                 })
                         .setNegativeButton(android.R.string.no, null)
@@ -972,39 +971,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         .create();
             default:
                 return null;
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        MenuItem followItem = menu.findItem(R.id.action_bar_local_recordings);
-        switch (mCurrentState) {
-            case GENERATING_WAVEFORM:
-            case IDLE_RECORD:
-            case RECORD:
-                followItem.setIcon(R.drawable.ic_rec_you_dark);
-                break;
-            default:
-                followItem.setIcon(R.drawable.ic_rec_you);
-                break;
-        }
-        return true;
-    }
-
-
-    @Override
-    protected int getMenuResourceId() {
-        return R.menu.sc_create;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_bar_local_recordings:
-                startActivity(new Intent(this, UserBrowser.class).putExtra(UserBrowser.Tab.EXTRA,UserBrowser.Tab.tracks));
-            default:
-                return super.onOptionsItemSelected(item);
         }
     }
 

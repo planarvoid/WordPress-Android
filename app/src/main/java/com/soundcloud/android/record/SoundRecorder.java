@@ -501,17 +501,21 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
     public boolean toggleFade() {
-        assert mPlaybackStream != null;
-        final boolean enabled = !mPlaybackStream.isFading();
-        mPlaybackStream.setFading(enabled);
-        return enabled;
+        if (mPlaybackStream != null){
+            final boolean enabled = !mPlaybackStream.isFading();
+            mPlaybackStream.setFading(enabled);
+            return enabled;
+        }
+        return false;
     }
 
     public boolean toggleOptimize() {
-        assert mPlaybackStream != null;
-        final boolean enabled = !mPlaybackStream.isOptimized();
-        mPlaybackStream.setOptimize(enabled);
-        return enabled;
+        if (mPlaybackStream != null) {
+            final boolean enabled = !mPlaybackStream.isOptimized();
+            mPlaybackStream.setOptimize(enabled);
+            return enabled;
+        }
+        return false;
     }
 
     public boolean isOptimized() {
@@ -552,7 +556,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             previewQueue.add(preview);
         }
 
-        private void playLoop(PlaybackStream playbackStream) throws IOException {
+        private void playLoop(@NotNull PlaybackStream playbackStream) throws IOException {
             mAudioTrack.setPlaybackRate(mConfig.sampleRate);
             playbackStream.initializePlayback();
             mState = SoundRecorder.State.PLAYING;
@@ -628,12 +632,14 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                                 previewTrim(mPlaybackStream);
                                 break;
                             case SEEKING:
-                                assert mPlaybackStream != null;
+                                if (mPlaybackStream == null) break;
                                 mPlaybackStream.setCurrentPosition(mSeekToPos);
                                 mSeekToPos = -1;
 
                             //noinspection fallthrough
-                            default: playLoop(mPlaybackStream);
+                            default:
+                                if (mPlaybackStream == null) break;
+                                playLoop(mPlaybackStream);
                         }
                     } while (!isInterrupted() && mState == SoundRecorder.State.SEEKING ||
                             (mState == SoundRecorder.State.TRIMMING && !previewQueue.isEmpty()));

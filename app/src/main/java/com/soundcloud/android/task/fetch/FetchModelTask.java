@@ -4,30 +4,29 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.ContentResolver;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.util.Log;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask<Request, Void, Model> {
+public abstract class FetchModelTask<Model extends ScResource> extends ParallelAsyncTask<Request, Void, Model> {
     private AndroidCloudAPI mApi;
     private Set<WeakReference<FetchModelListener<Model>>> mListenerWeakReferences;
     private long mModelId;
     private Class<? extends Model> mModel;
-    private boolean mFinished;
 
     public String action;
+    private boolean mError;
 
     public FetchModelTask(AndroidCloudAPI api, Class<? extends Model> model, long modelId) {
         mApi = api;
@@ -45,12 +44,12 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
 
     @Override
     protected void onPostExecute(Model result) {
-        mFinished = true;
+        mError = result == null;
         if (mListenerWeakReferences != null) {
             for (WeakReference<FetchModelListener<Model>> listenerRef : mListenerWeakReferences) {
                 final FetchModelListener<Model> listener = listenerRef.get();
                 if (listener != null) {
-                    if (result != null) {
+                    if (!mError) {
                         listener.onSuccess(result, action);
                     } else {
                         listener.onError(mModelId);
@@ -60,6 +59,7 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
         }
     }
 
+    @Nullable
     public Model resolve(Request request) {
         try {
             HttpResponse resp = mApi.get(request);
@@ -83,9 +83,12 @@ public abstract class FetchModelTask<Model extends ScResource> extends AsyncTask
         }
     }
 
+    public boolean wasError(){
+        return mError;
+    }
 
     @Override
-    public Model doInBackground(Request... request) {
+    protected Model doInBackground(Request... request) {
         if (request == null || request.length == 0) throw new IllegalArgumentException("need path to executeAppendTask");
         return resolve(request[0]);
     }

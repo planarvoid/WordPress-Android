@@ -1,0 +1,79 @@
+{
+  "collection": [
+   {
+         "created_at": "2012/03/14 11:34:41 +0000",
+         "comment": {
+           "created_at": "2012/03/14 11:34:41 +0000",
+           "id": 47190249,
+           "uri": "https://api.soundcloud.com/comments/47190249",
+           "user": {
+             "id": 5696093,
+             "avatar_url": "https://i1.sndcdn.com/avatars-000004517744-en4zyf-large.jpg?04ad178",
+             "uri": "https://api.soundcloud.com/users/5696093",
+             "permalink_url": "http://soundcloud.com/liraz-axelrad",
+             "kind": "user",
+             "permalink": "liraz-axelrad",
+             "username": "Liraz Axelrad"
+           },
+           "body": "Even more interesting",
+           "track": {
+             "id": 39722328,
+             "uri": "https://api.soundcloud.com/tracks/39722328",
+             "permalink_url": "http://soundcloud.com/soundcloud-android/transaction-and-services-nfc",
+             "artwork_url": "https://i1.sndcdn.com/artworks-000019924877-kskpwr-large.jpg?04ad178",
+             "user_uri": "https://api.soundcloud.com/users/5687414",
+             "user_id": 5687414,
+             "stream_url": "https://api.soundcloud.com/tracks/39722328/stream",
+             "kind": "track",
+             "permalink": "transaction-and-services-nfc",
+             "title": "Transaction and Services: Nfc by Hauke Meyn at droidcon"
+           },
+           "user_id": 5696093,
+           "timestamp": 1136845,
+           "kind": "comment",
+           "track_id": 39722328
+         },
+         "tags": "own, affiliated",
+         "type": "comment",
+         "uuid": "b035de80-6dc9-11e1-84dc-e1bbf59e9e64"
+    },
+    {
+         "created_at": "2012/03/14 11:34:02 +0000",
+         "comment": {
+           "created_at": "2012/03/14 11:34:02 +0000",
+           "id": 47190198,
+           "uri": "https://api.soundcloud.com/comments/47190198",
+           "user": {
+             "id": 5696093,
+             "avatar_url": "https://i1.sndcdn.com/avatars-000004517744-en4zyf-large.jpg?04ad178",
+             "uri": "https://api.soundcloud.com/users/5696093",
+             "permalink_url": "http://soundcloud.com/liraz-axelrad",
+             "kind": "user",
+             "permalink": "liraz-axelrad",
+             "username": "Liraz Axelrad"
+           },
+           "body": "Interesting!",
+           "track": {
+             "id": 39722328,
+             "uri": "https://api.soundcloud.com/tracks/39722328",
+             "permalink_url": "http://soundcloud.com/soundcloud-android/transaction-and-services-nfc",
+             "artwork_url": "https://i1.sndcdn.com/artworks-000019924877-kskpwr-large.jpg?04ad178",
+             "user_uri": "https://api.soundcloud.com/users/5687414",
+             "user_id": 5687414,
+             "stream_url": "https://api.soundcloud.com/tracks/39722328/stream",
+             "kind": "track",
+             "permalink": "transaction-and-services-nfc",
+             "title": "Transaction and Services: Nfc by Hauke Meyn at droidcon"
+           },
+           "user_id": 5696093,
+           "timestamp": 227530,
+           "kind": "comment",
+           "track_id": 39722328
+         },
+         "tags": "own, affiliated",
+         "type": "comment",
+         "uuid": "98f6f100-6dc9-11e1-9eab-d0c6fe670759"
+       }
+  ],
+  "future_href": "https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738"
+}

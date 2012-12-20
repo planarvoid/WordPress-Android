@@ -11,4 +11,6 @@
 
     <dimen name="share_progress_icon_width">100px</dimen>
     <dimen name="share_progress_icon_height">100px</dimen>
+
+    <dimen name="slm_item_dashboard_counter_text_size">17px</dimen>
 </resources>

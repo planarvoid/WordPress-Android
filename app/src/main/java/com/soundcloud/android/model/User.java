@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.json.Views;
@@ -21,12 +23,14 @@ import org.jetbrains.annotations.Nullable;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.EnumSet;
 
@@ -34,6 +38,8 @@ import java.util.EnumSet;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Model
 public class User extends ScResource implements Refreshable {
+    public static final String EXTRA = "user";
+
     @Nullable @JsonView(Views.Mini.class) public String username;
     @Nullable @JsonView(Views.Mini.class) public String uri;
     @Nullable @JsonView(Views.Mini.class) public String avatar_url;
@@ -43,8 +49,6 @@ public class User extends ScResource implements Refreshable {
     @Nullable public String description;
     @Nullable public String city;
     @Nullable public String country;
-
-
 
     @Nullable public String plan;      // free|lite|solo|pro|pro plus
 
@@ -70,6 +74,37 @@ public class User extends ScResource implements Refreshable {
     @Nullable private Boolean primary_email_confirmed;
 
     public User() {
+    }
+
+    public User(long id) {
+        this.id = id;
+    }
+
+    public static User fromUri(Uri uri, ContentResolver resolver, boolean createDummy) {
+        long id = -1l;
+        try {
+            //check the cache first
+            id = Long.parseLong(uri.getLastPathSegment());
+            final User u = SoundCloudApplication.MODEL_MANAGER.getCachedUser(id);
+            if (u != null) return u;
+
+        } catch (NumberFormatException e) {
+            Log.e(UserBrowser.class.getSimpleName(), "Unexpected User uri: " + uri.toString());
+        }
+
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        try {
+            if (cursor != null && cursor.moveToFirst()) {
+                return SoundCloudApplication.MODEL_MANAGER.getUserFromCursor(cursor);
+            } else if (createDummy && id >= 0) {
+                return new User(id);
+            } else {
+                return null;
+            }
+
+        } finally {
+            if (cursor != null) cursor.close();
+        }
     }
 
     public User(Parcel in) {
@@ -105,6 +140,7 @@ public class User extends ScResource implements Refreshable {
     public User updateFromCursor(Cursor cursor) {
         id = cursor.getLong(cursor.getColumnIndex(Users._ID));
         permalink = cursor.getString(cursor.getColumnIndex(Users.PERMALINK));
+        permalink_url = cursor.getString(cursor.getColumnIndex(Users.PERMALINK_URL));
         username = cursor.getString(cursor.getColumnIndex(Users.USERNAME));
         track_count = cursor.getInt(cursor.getColumnIndex(Users.TRACK_COUNT));
         discogs_name = cursor.getString(cursor.getColumnIndex(Users.DISCOGS_NAME));
@@ -240,10 +276,10 @@ public class User extends ScResource implements Refreshable {
 
     public static User fromTrackView(Cursor cursor) {
         User u = new User();
-        u.id = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
-        u.username = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.USERNAME));
-        u.permalink = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.USER_PERMALINK));
-        u.avatar_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.USER_AVATAR_URL));
+        u.id = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
+        u.username = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.USERNAME));
+        u.permalink = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.USER_PERMALINK));
+        u.avatar_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.USER_AVATAR_URL));
         return u;
     }
 
@@ -257,28 +293,17 @@ public class User extends ScResource implements Refreshable {
         return primary_email_confirmed == null || primary_email_confirmed;
     }
 
+    public Intent getViewIntent() {
+        return new Intent(Actions.USER_BROWSER).putExtra(UserBrowser.EXTRA_USER, this);
+    }
 
     public static interface DataKeys {
         String USERNAME        = "currentUsername";
         String USER_ID         = "currentUserId";
         String USER_PERMALINK  = "currentUserPermalink";
         String SIGNUP          = "signup";
-
-        String LAST_INCOMING_SEEN = "last_incoming_sync_event_timestamp";
-        String LAST_OWN_SEEN      = "last_own_sync_event_timestamp";
-        String LAST_INCOMING_NOTIFIED_AT = "last_incoming_notified_at_timestamp";
-
-        String LAST_INCOMING_NOTIFIED_ITEM = "last_incoming_notified_timestamp";
-        String LAST_OWN_NOTIFIED_ITEM = "last_own_notified_timestamp";
-
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
         String SEEN_CREATE_AUTOSAVE           = "seenCreateAutoSave";
-
-    }
-
-    @Override
-    public long getRefreshableId() {
-        return id;
     }
 
     @Override
@@ -288,7 +313,7 @@ public class User extends ScResource implements Refreshable {
 
     public void refreshListAvatarUri(Context context) {
         final String iconUrl = avatar_url;
-        _list_avatar_uri = TextUtils.isEmpty(iconUrl) ? null : Consts.GraphicSize.formatUriForList(context, iconUrl);
+        _list_avatar_uri = shouldLoadIcon() ? Consts.GraphicSize.formatUriForList(context, iconUrl) : null;
     }
 
     public String getListAvatarUri(Context context){
@@ -343,7 +368,7 @@ public class User extends ScResource implements Refreshable {
         final ContentResolver resolver = context.getContentResolver();
         // TODO move to model
         for (Content c : EnumSet.of(
-                Content.ME_TRACKS,
+                Content.ME_SOUNDS,
                 Content.ME_LIKES,
                 Content.ME_FOLLOWINGS,
                 Content.ME_FOLLOWERS)) {
@@ -367,7 +392,7 @@ public class User extends ScResource implements Refreshable {
     }
 
     @Override @JsonIgnore
-    public Track getTrack() {
+    public Track getSound() {
         return null;
     }
 
@@ -375,6 +400,18 @@ public class User extends ScResource implements Refreshable {
     public int describeContents() {
         return 0;
     }
+
+    public @Nullable String getWebSiteTitle() {
+        if (!TextUtils.isEmpty(website_title)) {
+            return website_title;
+        } else if (!TextUtils.isEmpty(website)) {
+            return website.replace("http://www.", "")
+                          .replace("http://", "");
+        } else {
+            return null;
+        }
+    }
+
 
     @Override
     public void writeToParcel(Parcel out, int flags) {

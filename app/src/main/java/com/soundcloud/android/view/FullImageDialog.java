@@ -1,11 +1,12 @@
 package com.soundcloud.android.view;
 
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.MotionEventUtils;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.os.Handler;
 import android.view.MotionEvent;
@@ -16,18 +17,17 @@ import android.widget.ProgressBar;
 import java.lang.ref.WeakReference;
 
 public class FullImageDialog extends Dialog {
-
-    private WeakReference<ScActivity> mActivityRef;
+    private WeakReference<Activity> mActivityRef;
     private Handler mHandler = new Handler();
 
-    public FullImageDialog(ScActivity context, final String imageUri) {
+    public FullImageDialog(Activity context, final String imageUri) {
         super(context, R.style.Theme_FullImageDialog);
 
         setCancelable(true);
         setCanceledOnTouchOutside(true);
         setContentView(R.layout.full_image_dialog);
 
-        mActivityRef = new WeakReference<ScActivity>(context);
+        mActivityRef = new WeakReference<Activity>(context);
 
         final ImageView image = (ImageView) this.findViewById(R.id.image);
         final ProgressBar progress = (ProgressBar) this.findViewById(R.id.progress);
@@ -36,9 +36,9 @@ public class FullImageDialog extends Dialog {
             @Override
             public void onImageLoaded(ImageView view, String url) {
                 if (!isShowing()) return;
-                ScActivity activity = mActivityRef.get();
-                if (activity != null) {
-                    activity.safeShowDialog(new FullImageDialog(activity, imageUri));
+                Activity activity = mActivityRef.get();
+                if (activity != null && !activity.isFinishing()) {
+                    new FullImageDialog(activity, imageUri).show();
                 }
                 try {
                     dismiss();
@@ -64,9 +64,9 @@ public class FullImageDialog extends Dialog {
 
     private Runnable mImageError = new Runnable() {
         public void run() {
-            ScActivity activity = mActivityRef.get();
-            if (activity != null) {
-                activity.showToast(R.string.image_load_error);
+            Activity activity = mActivityRef.get();
+            if (activity != null && !activity.isFinishing()) {
+                AndroidUtils.showToast(activity, R.string.image_load_error);
             }
             try {
                 dismiss();

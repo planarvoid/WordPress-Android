@@ -12,7 +12,6 @@ public class News extends ScActivity implements ScLandingPage{
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        getSupportActionBar().setTitle(getString(R.string.side_menu_activity));
 
         if (state == null) {
             getSupportFragmentManager().beginTransaction()

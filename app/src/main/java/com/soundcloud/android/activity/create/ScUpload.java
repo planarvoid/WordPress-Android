@@ -2,6 +2,7 @@ package com.soundcloud.android.activity.create;
 
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -9,8 +10,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -59,7 +61,7 @@ public class ScUpload extends ScActivity {
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
-        getSupportActionBar().setTitle(R.string.share);
+        setTitle(R.string.share);
 
         final Intent intent = getIntent();
         if (intent != null && (mRecording = Recording.fromIntent(intent, getContentResolver(), getCurrentUserId())) != null) {
@@ -189,7 +191,7 @@ public class ScUpload extends ScActivity {
     protected void onResume() {
         super.onResume();
         if (!mRecording.isPrivateMessage()) {
-            mConnectionList.getAdapter().loadIfNecessary();
+            mConnectionList.getAdapter().loadIfNecessary(this);
         }
         track(getClass(), getApp().getLoggedInUser());
     }
@@ -296,7 +298,12 @@ public class ScUpload extends ScActivity {
 
             case Consts.RequestCodes.IMAGE_CROP: {
                 if (resultCode == RESULT_OK) {
-                    mRecordingMetadata.setImage(mRecording.generateImageFile(Recording.IMAGE_DIR));
+                    if (result.getExtras().containsKey("error")) {
+                        handleSilentException("error cropping image", (Exception) result.getSerializableExtra("error"));
+                        Toast.makeText(this,R.string.crop_image_error, Toast.LENGTH_SHORT).show();
+                    } else {
+                        mRecordingMetadata.setImage(mRecording.generateImageFile(Recording.IMAGE_DIR));
+                    }
                 }
                 break;
             }
@@ -330,7 +337,11 @@ public class ScUpload extends ScActivity {
                     toast.show();
 
                     if (success) {
-                        mConnectionList.getAdapter().load();
+                        // this should reload the services and the list should auto refresh
+                        // from the content observer
+                        startService(new Intent(this, ApiSyncService.class)
+                                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                                        .setData(Content.ME_CONNECTIONS.uri));
                     }
                 }
         }

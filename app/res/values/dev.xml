@@ -54,8 +54,8 @@
     </string-array>
 
     <string-array name="dev_alarmClock_uri_values">
-        <item>content://com.soundcloud.android.provider.ScContentProvider/me/activities/tracks</item>
-        <item>content://com.soundcloud.android.provider.ScContentProvider/me/activities/tracks?random=1</item>
+        <item>content://com.soundcloud.android.provider.ScContentProvider/me/stream</item>
+        <item>content://com.soundcloud.android.provider.ScContentProvider/me/stream?random=1</item>
         <item>content://com.soundcloud.android.provider.ScContentProvider/me/likes</item>
         <item>content://com.soundcloud.android.provider.ScContentProvider/me/likes?random=1</item>
         <item>content://com.soundcloud.android.provider.ScContentProvider/tracks?random=1</item>

@@ -3,7 +3,7 @@ package com.soundcloud.android.view.quickaction;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.View;
-import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.IScAdapter;
@@ -100,12 +100,12 @@ public class QuickTrackMenu extends QuickAction {
 //                        shareIntent.setType("text/plain");
 //                        shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, track.title + " by " + track.user.username + " on #SoundCloud");
 //                        shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, track.permalink_url);
-//                        mContext.startActivity(Intent.createChooser(shareIntent, "Share: " + track.title));
+//                        mContext.getIntent(Intent.createChooser(shareIntent, "Share: " + track.title));
 //                        break;
 //                    case 4:
 //                        Intent intent = new Intent(mContext, UserBrowser.class);
 //                        intent.putExtra("user", track.user);
-//                        mContext.startActivity(intent);
+//                        mContext.getIntent(intent);
 //
 //                        break;
 //                }

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SharingNote;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -62,6 +63,11 @@ public class TrackSharingActivity extends Activity implements Playable {
 
     @JsonIgnore @Override
     public void setCachedUser(User user) {
+    }
+
+    @Override
+    public ScResource getRefreshableResource() {
+        return track;
     }
 
 

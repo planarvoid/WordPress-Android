@@ -8,9 +8,8 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Transformation;
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BitmapCallback;
+import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader.BitmapCallback;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
@@ -30,8 +29,8 @@ public class PlayerAvatarBar extends View {
 
     private long mDuration;
 
-    private List<Comment> mCurrentComments;
-    private Comment mCurrentComment;
+    private @Nullable List<Comment> mCurrentComments;
+    private @Nullable Comment mCurrentComment;
 
     private Matrix mBgMatrix;
     private Matrix mActiveMatrix;
@@ -48,12 +47,13 @@ public class PlayerAvatarBar extends View {
 
     private Thread mAvatarRefreshThread;
 
-    private Bitmap mCanvasBmp;
+    private @Nullable Bitmap mCanvasBmp;
     private Bitmap mNextCanvasBmp;
 
     private Bitmap mDefaultAvatar;
 
     private ImageLoader mBitmapLoader;
+    private Consts.GraphicSize mAvatarGraphicsSize;
 
     private Context mContext;
     private boolean mLandscape;
@@ -63,6 +63,14 @@ public class PlayerAvatarBar extends View {
 
         mContext = context;
         mBitmapLoader = ImageLoader.get(context.getApplicationContext());
+
+        if (ImageUtils.isScreenXL(mContext)) {
+            mAvatarGraphicsSize= Consts.GraphicSize.LARGE;
+        } else {
+            mAvatarGraphicsSize = mContext.getResources().getDisplayMetrics().density > 1 ?
+                    Consts.GraphicSize.BADGE :
+                    Consts.GraphicSize.SMALL;
+        }
 
         mImagePaint = new Paint();
         mImagePaint.setAntiAlias(false);
@@ -90,17 +98,6 @@ public class PlayerAvatarBar extends View {
             mTargetSize = Consts.GraphicSize.BADGE;
             mAvatarWidth = (int) (AVATAR_WIDTH * mDensity);
         }
-    }
-
-    public static Consts.GraphicSize getAvatarBarGraphicSize(Context c) {
-        if (ImageUtils.isScreenXL(c)) {
-            return Consts.GraphicSize.LARGE;
-        } else {
-            return c.getResources().getDisplayMetrics().density > 1 ?
-                    Consts.GraphicSize.BADGE :
-                    Consts.GraphicSize.SMALL;
-        }
-
     }
 
     public int getAvatarWidth(){
@@ -160,10 +157,10 @@ public class PlayerAvatarBar extends View {
     private void loadAvatar(final Comment c){
         if (c == null || !c.shouldLoadIcon()) return;
 
-        ImageUtils.getBitmapSubstitute(mContext, c.user.avatar_url, getAvatarBarGraphicSize(mContext), new BitmapCallback() {
+        ImageLoader.get(mContext).getBitmap(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new BitmapCallback() {
             @Override
-            public void onImageLoaded(Bitmap mBitmap, String uri) {
-                c.avatar = mBitmap;
+            public void onImageLoaded(Bitmap bitmap, String uri) {
+                c.avatar = bitmap;
                 if (c.topLevelComment) {
                     if (!mUIHandler.hasMessages(REFRESH_AVATARS)) {
                         Message msg = mUIHandler.obtainMessage(REFRESH_AVATARS);
@@ -217,31 +214,33 @@ public class PlayerAvatarBar extends View {
         public void run() {
             // XXX race condition with current comments
             final List<Comment> comments = mCurrentComments;
-            if (comments == null || getWidth() <= 0) return;
-
-            try {
-                mNextCanvasBmp = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-            } catch (OutOfMemoryError e){
-                // XXX really catch oom here?
-                Log.e(TAG,"Out of memory during avatar refresher bitmap creation");
-            }
-
-            if (mNextCanvasBmp != null && !mNextCanvasBmp.isRecycled()) {
-                Canvas canvas = new Canvas(mNextCanvasBmp);
-                for (Comment comment : comments){
-                    if (Thread.currentThread().isInterrupted()) break;
-                    if (comment.timestamp == 0) continue;
-                    drawCommentOnCanvas(comment, canvas, mLinePaint, mImagePaint, mBgMatrix);
+            final int width = getWidth();
+            final int height = getHeight();
+            if (comments != null && width > 0 && height > 0) {
+                try {
+                    mNextCanvasBmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                } catch (OutOfMemoryError e) {
+                    // XXX really catch oom here?
+                    Log.e(TAG, "Out of memory during avatar refresher bitmap creation");
                 }
 
-                if (Thread.currentThread().isInterrupted()) {
-                    mNextCanvasBmp.recycle();
-                } else {
-                    if (!mUIHandler.hasMessages(AVATARS_REFRESHED)) {
-                        Message msg = mUIHandler.obtainMessage(AVATARS_REFRESHED);
-                        PlayerAvatarBar.this.mUIHandler.sendMessageDelayed(msg, 200);
+                if (mNextCanvasBmp != null && !mNextCanvasBmp.isRecycled()) {
+                    Canvas canvas = new Canvas(mNextCanvasBmp);
+                    for (Comment comment : comments) {
+                        if (Thread.currentThread().isInterrupted()) break;
+                        if (comment.timestamp == 0) continue;
+                        drawCommentOnCanvas(comment, canvas, mLinePaint, mImagePaint, mBgMatrix);
                     }
 
+                    if (Thread.currentThread().isInterrupted()) {
+                        mNextCanvasBmp.recycle();
+                    } else {
+                        if (!mUIHandler.hasMessages(AVATARS_REFRESHED)) {
+                            Message msg = mUIHandler.obtainMessage(AVATARS_REFRESHED);
+                            PlayerAvatarBar.this.mUIHandler.sendMessageDelayed(msg, 200);
+                        }
+
+                    }
                 }
             }
         }
@@ -274,25 +273,26 @@ public class PlayerAvatarBar extends View {
     };
 
     private void drawCommentOnCanvas(Comment comment, Canvas canvas, Paint linePaint, Paint imagePaint, Matrix matrix){
-        if (canvas != null) {
-            if (!comment.shouldLoadIcon() || comment.avatar == null || comment.avatar.isRecycled()) {
-                if (mLandscape) {
-                    refreshDefaultAvatar();
-                    matrix.setScale(mDefaultAvatarScale, mDefaultAvatarScale);
-                    matrix.postTranslate(comment.xPos, 0);
-                    canvas.drawBitmap(mDefaultAvatar, matrix, imagePaint);
-                }
-                canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
+        if (canvas == null) return;
+        final Bitmap avatar = comment.avatar;
 
-                if (comment.avatar != null && comment.avatar.isRecycled()) loadAvatar(comment);
-
-            } else if (comment.avatar != null) {
-                final float drawScale = ((float) mAvatarWidth) / comment.avatar.getHeight();
-                matrix.setScale(drawScale, drawScale);
+        if (avatar == null || avatar.isRecycled() || !comment.shouldLoadIcon()) {
+            if (mLandscape) {
+                refreshDefaultAvatar();
+                matrix.setScale(mDefaultAvatarScale, mDefaultAvatarScale);
                 matrix.postTranslate(comment.xPos, 0);
-                canvas.drawBitmap(comment.avatar, matrix, imagePaint);
-                canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
+                canvas.drawBitmap(mDefaultAvatar, matrix, imagePaint);
             }
+            canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
+
+            if (avatar != null && avatar.isRecycled()) loadAvatar(comment);
+
+        } else {
+            final float drawScale = ((float) mAvatarWidth) / avatar.getHeight();
+            matrix.setScale(drawScale, drawScale);
+            matrix.postTranslate(comment.xPos, 0);
+            canvas.drawBitmap(avatar, matrix, imagePaint);
+            canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
         }
     }
 
@@ -312,15 +312,6 @@ public class PlayerAvatarBar extends View {
             drawCommentOnCanvas(mCurrentComment,canvas,mActiveLinePaint, mActiveImagePaint,mActiveMatrix);
             canvas.drawLine(mCurrentComment.xPos, 0, mCurrentComment.xPos, getHeight(), mActiveLinePaint);
         }
-    }
-
-    public float getCurrentTransformY(){
-        if (getAnimation() == null) return 0f;
-        Transformation t = new Transformation();
-        float[] values = new float[9];
-        getAnimation().getTransformation(getDrawingTime(), t);
-        t.getMatrix().getValues(values);
-        return values[5];
     }
 
     public void getHitRect(Rect outRect) {

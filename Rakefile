@@ -7,18 +7,24 @@ require 'csv'
 require 'json'
 require 'yaml'
 
-DEFAULT_LEVELS = %w(CloudPlaybackService AwesomePlayer NuHTTPDataSource HTTPStream NuCachedSource2
-               StreamProxy StreamLoader StreamStorage C2DMReceiver SyncAdapterService ScContentProvider
-               ApiSyncService UploadService SoundCloudApplication VorbisEncoder VorbisEncoderNative
-               VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener)
+DEFAULT_LEVELS = %w(
+   CloudPlaybackService AwesomePlayer NuHTTPDataSource HTTPStream NuCachedSource2 ImageLoader
+   StreamProxy StreamLoader StreamStorage C2DMReceiver SyncAdapterService ScContentProvider DBHelper
+   ApiSyncService ApiSyncer UploadService SoundCloudApplication VorbisEncoder VorbisEncoderNative
+   VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener
+)
+DISABLED_LEVELS = %w()
 
 # help methods to access pom data
 def pom() @pom ||= REXML::Document.new(File.read(File.dirname(__FILE__)+'/pom.xml')) end
 def current_version() pom.root.elements["version"].text end
+def update_version(new_version)
+  sh "mvn versions:set -DnewVersion=#{new_version} -DgenerateBackupPoms=false -DupdateMatchingVersions=false"
+end
 
 [:device, :emu].each do |t|
   def android_home
-    dir = %w(ANDROID_HOME ANDROID_SDK_ROOT ANDROID_SDK_HOME).map { |e| ENV[e] }.find { |d| File.directory?(d) }
+    dir = %w(ANDROID_HOME ANDROID_SDK_ROOT ANDROID_SDK_HOME).map { |e| ENV[e] }.compact.find { |d| File.directory?(d) }
     dir or raise "no android home defined"
   end
   def package() "com.soundcloud.android" end
@@ -76,8 +82,12 @@ def current_version() pom.root.elements["version"].text end
     namespace :logging do
       %w(verbose debug info warn error).each do |level|
         task level do
-          DEFAULT_LEVELS.each do |tag|
+          (DEFAULT_LEVELS - DISABLED_LEVELS).each do |tag|
             adb["shell setprop log.tag.#{tag} #{level.upcase}"]
+          end
+
+          DISABLED_LEVELS.each do |tag|
+            adb["shell setprop log.tag.#{tag} error"]
           end
           adb["shell setprop debug.assert 1"]
         end
@@ -86,7 +96,7 @@ def current_version() pom.root.elements["version"].text end
 
     desc "run lolcat with filtering"
     task :lolcat do
-      adb["lolcat -v time #{DEFAULT_LEVELS.join(' ')} *:S"]
+      adb["lolcat -v time #{(DEFAULT_LEVELS - DISABLED_LEVELS).join(' ')} *:S"]
     end
 
     desc "run integration tests"
@@ -144,6 +154,19 @@ namespace :release do
       sh "git tag -a #{versionName} -m #{versionName} && git push --tags && git push"
     end
   end
+
+  desc "builds the release version"
+  task :build do
+    sh "mvn clean install -DskipTests -Psign,soundcloud,release"
+  end
+
+  desc "sets the release version to the version specified in the manifest, creates bump commit"
+  task :bump do
+    raise "#{versionName}: Not a release version" if versionName.to_s =~ /-BETA(\d+)?\Z/
+    raise "Uncommitted changes in working tree" unless system("git diff --exit-code --quiet")
+    update_version(versionName)
+    sh "git commit -a -m 'Bumped to #{versionName}'"
+  end
 end
 
 namespace :beta do
@@ -165,32 +188,37 @@ namespace :beta do
     sh "curl -H 'X-HockeyAppToken: #{TOKEN}' https://rink.hockeyapp.net/api/2/apps"
   end
 
-  desc "build and upload beta"
+  desc "build and upload beta, then tag it"
   task :upload => [ BETA_APK, :verify ] do
     sh <<-END
       curl \
         -H "X-HockeyAppToken: #{TOKEN}" \
         -F "status=2" \
-        -F "notify=0" \
+        -F "notify=1" \
         -F "notes_type=1" \
         -F "notes=#{last_release_notes}" \
         -F "ipa=@#{BETA_APK}" \
         https://rink.hockeyapp.net/api/2/apps/#{APP_ID}/app_versions
     END
+    # undo changes caused by build
+    sh "git checkout app/AndroidManifest.xml"
+
+    Rake::Task['beta:tag'].invoke
   end
-  [ :push, :release, :publish ].each { |a| task a => :upload }
 
   desc "build beta"
   task :build do
-    version_code = get_last_published_version
-    if version_code.nil?
-      version_code = 0
+    with_beta do |version|
+      version_code = get_last_published_version
+      if version_code.nil?
+        version_code = 0
+      end
+      sh <<-END
+        mvn clean install -DskipTests -Psign,soundcloud,beta \
+          -Dandroid.manifest.versionCode=#{version_code+1} \
+          -Dandroid.manifest.debuggable=true
+      END
     end
-    sh <<-END
-      mvn clean install -DskipTests -Psign,soundcloud,beta \
-        -Dandroid.manifest.versionCode=#{version_code+1} \
-        -Dandroid.manifest.debuggable=true
-    END
   end
 
   desc "install beta on device"
@@ -214,9 +242,15 @@ namespace :beta do
 
   desc "tag the current beta"
   task :tag do
+    with_beta do |version|
+      sh "git tag -a #{version} -m #{version} && git push --tags && git push"
+    end
+  end
+
+  def with_beta(&block)
     version = current_version.gsub(/-SNAPSHOT\Z/, '')
     if version.to_s =~ /-BETA(\d+)?\Z/
-      sh "git tag -a #{version} -m #{version} && git push --tags && git push"
+      block.call(version)
     else
       raise "#{version}: not a beta version"
     end
@@ -231,10 +265,8 @@ namespace :beta do
 
     current_beta = $1.to_i
     new_version = version.gsub(/BETA#{current_beta}\Z/, "BETA#{current_beta+1}")
-    sh <<-END
-      mvn --batch-mode release:update-versions -DdevelopmentVersion=#{new_version} &&
-      git commit -a -m 'Bumped to #{new_version}'
-    END
+    update_version(new_version)
+    sh "git commit -a -m 'Bumped to #{new_version}'"
   end
 end
 
@@ -301,4 +333,15 @@ def last_release_notes
      changes << l.gsub(/\s*\*/, ' *') if (l =~ /s*\*/)
   end
   changes.join("\n")
+end
+
+desc "run lint"
+task :lint do
+  result = "app/target/lint-result.html"
+  rm_f result
+  lint_ok = system("#{android_home}/tools/lint --config app/lint.xml --exitcode --html #{result} app")
+  if File.exists?(result) && RUBY_PLATFORM =~ /darwin/
+    sh "open #{result}"
+  end
+  raise "Lint failure" unless lint_ok
 end

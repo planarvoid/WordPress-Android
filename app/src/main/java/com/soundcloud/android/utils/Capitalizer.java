@@ -4,6 +4,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 public class Capitalizer implements TextWatcher {
     private TextView text;
     public Capitalizer(TextView text) {
@@ -12,7 +14,7 @@ public class Capitalizer implements TextWatcher {
 
     public void afterTextChanged(Editable s) {
         if (s.length() == 1
-        && !s.toString().toUpperCase().equals(s.toString())) {
+        && !s.toString().toUpperCase(Locale.getDefault()).equals(s.toString())) {
             text.setTextKeepState(s.toString().toUpperCase());
         }
     }

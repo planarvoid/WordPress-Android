@@ -13,6 +13,7 @@ import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.res.RobolectricPackageManager;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
+import com.xtremelabs.robolectric.util.SQLiteMap;
 import org.junit.runners.model.InitializationError;
 import org.mockito.MockitoAnnotations;
 
@@ -21,6 +22,12 @@ import android.content.ContentProvider;
 import java.io.File;
 import java.lang.reflect.Method;
 
+/**
+ * In order to use a file-based test database, annotate your test classes with
+ * <code>
+ *     \@DatabaseConfig.UsingDatabaseMap(DefaultTestRunner.FileDatabaseMap.class)
+ * </code>.
+ */
 public class DefaultTestRunner extends RobolectricTestRunner {
     public static TestApplication application;
 
@@ -44,7 +51,6 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         ShadowApplication shadowApplication = shadowOf(application);
         shadowApplication.setPackageName(robolectricConfig.getPackageName());
         shadowApplication.setPackageManager(new RobolectricPackageManager(application, robolectricConfig));
-//        TestHelper.setSdkVersion(Build.VERSION_CODES.ECLAIR_MR1);
         application.onCreate();
         // delegate content provider methods
         ContentProvider provider = new ScContentProvider();
@@ -60,9 +66,9 @@ public class DefaultTestRunner extends RobolectricTestRunner {
 
     @Override
     protected void resetStaticState() {
-        SoundCloudApplication.MODEL_MANAGER.TRACK_CACHE.clear();
-        SoundCloudApplication.MODEL_MANAGER.USER_CACHE.clear();
-
+        if (SoundCloudApplication.MODEL_MANAGER != null) {
+            SoundCloudApplication.MODEL_MANAGER.clear();
+        }
         ShadowVorbisEncoder.reset();
         ShadowNativeAmplitudeAnalyzer.reset();
     }
@@ -76,5 +82,12 @@ public class DefaultTestRunner extends RobolectricTestRunner {
     protected void bindShadowClasses() {
         Robolectric.bindShadowClass(ShadowVorbisEncoder.class);
         Robolectric.bindShadowClass(ShadowNativeAmplitudeAnalyzer.class);
+    }
+
+    public static class FileDatabaseMap extends SQLiteMap {
+        @Override
+        public String getConnectionString() {
+            return "jdbc:sqlite:tests-" + System.currentTimeMillis() +".sqlite";
+        }
     }
 }

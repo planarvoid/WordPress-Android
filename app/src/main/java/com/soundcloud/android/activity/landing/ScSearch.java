@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.ScSearchFragment;
 import com.soundcloud.android.model.Search;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.view.ClearText;
@@ -14,7 +15,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.speech.RecognizerIntent;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 import android.view.View;
@@ -38,14 +38,13 @@ public class ScSearch extends ScActivity {
     private ScSearchFragment mSearchFragment;
     private Search pendingSearch;
 
-    public static final String EXTRA_SEARCH_TYPE = "search_type";
-    public static final String EXTRA_QUERY = "query";
+    private static final String EXTRA_SEARCH_TYPE = "search_type";
 
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
 
-        getSupportActionBar().setTitle(getString(R.string.title_search));
+        setTitle(getString(R.string.title_search));
 
         setContentView(R.layout.sc_search);
 
@@ -58,32 +57,12 @@ public class ScSearch extends ScActivity {
 
         mTxtQuery = (ClearText) findViewById(R.id.txt_query);
 
-
         mTxtQuery.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 return !isFinishing() && actionId == EditorInfo.IME_ACTION_SEARCH && perform(getSearch());
             }
         });
-
-        // Disable button if no recognition service is present
-        PackageManager pm = getPackageManager();
-        List<ResolveInfo> activities = pm.queryIntentActivities(
-                new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
-        if (activities.size() == 0) {
-            mTxtQuery.setDefaultDrawableClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                    intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "What do you want to find?");
-                    startActivityForResult(intent, VOICE_RECOGNITION_REQUEST_CODE);
-                }
-            });
-        } else {
-            //use alternative drawable, disable button
-        }
 
         Object[] previousState = getLastCustomNonConfigurationInstance();
         if (previousState != null) {
@@ -105,13 +84,22 @@ public class ScSearch extends ScActivity {
 
     private void handleIntent() {
         final Intent intent = getIntent();
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction()) ||
+            "android.media.action.MEDIA_PLAY_FROM_SEARCH".equals(intent.getAction())) {
+
             String query = intent.getStringExtra(SearchManager.QUERY);
             pendingSearch = new Search(query, intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
+        } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null) {
+            Content c = Content.match(intent.getData());
+            if (c == Content.SEARCH_ITEM){
+                pendingSearch = new Search(intent.getData().getLastPathSegment(), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
+            } else {
+                // probably came through quick search box, resolve intent through normal system
+                startActivity(new Intent(Intent.ACTION_VIEW).setData(intent.getData()));
+            }
+
         }
     }
-
-
 
     @Override
     protected int getSelectedMenuId() {
@@ -167,19 +155,22 @@ public class ScSearch extends ScActivity {
                 break;
         }
 
-        mSearchFragment.setCurrentSearch(search);
+        if (mSearchFragment != null){
+            mSearchFragment.setCurrentSearch(search);
+            mCurrentSearch = search;
+        } else {
+            pendingSearch = search;
+        }
 
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (mgr != null) {
             mgr.hideSoftInputFromWindow(mTxtQuery.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
-
-        mCurrentSearch = search;
         return true;
     }
 
     @Override
-    protected int getMenuResourceId(){
+    public int getMenuResourceId(){
             return -1;
     }
 
@@ -199,18 +190,5 @@ public class ScSearch extends ScActivity {
         }
     }
 
-    /**
-     * Handle the results from the voice recognition activity.
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
-            ArrayList<String> matches = data.getStringArrayListExtra(
-                    RecognizerIntent.EXTRA_RESULTS);
-            if (matches.size() > 0) {
-                mTxtQuery.setText(matches.get(0));
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
+
 }

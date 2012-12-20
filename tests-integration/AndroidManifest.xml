@@ -45,5 +45,5 @@
 
     <instrumentation android:label="Tests"
                      android:targetPackage="com.soundcloud.android"
-                     android:name="android.test.InstrumentationTestRunner"/>
+                     android:name="com.soundcloud.android.tests.RandomizingRunner"/>
 </manifest>

@@ -7,22 +7,19 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.track.TracksByTag;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.DBHelper.Tracks;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.FlowLayout;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
@@ -38,21 +35,26 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.FloatMath;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import android.util.Log;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends PlayableResource implements Playable {
-    private static final String TAG = "Track";
+public class Track extends Sound implements Playable {
     public static final String EXTRA = "track";
+    public static final String EXTRA_ID = "track_id";
+
+    private static final String TAG = "Track";
+    private static final Pattern TAG_PATTERN = Pattern.compile("(\"([^\"]+)\")");
 
     // API fields
     @JsonView(Views.Full.class) @Nullable public State state;
@@ -62,16 +64,14 @@ public class Track extends PlayableResource implements Playable {
     @JsonView(Views.Full.class) public String video_url;
     @JsonView(Views.Full.class) public String track_type;
     @JsonView(Views.Full.class) public String key_signature;
-    @JsonView(Views.Full.class)
-    public float bpm;
+    @JsonView(Views.Full.class) public float bpm;
 
-    @JsonView(Views.Full.class) public int playback_count;
-    @JsonView(Views.Full.class) public int download_count;
-    @JsonView(Views.Full.class) public int comment_count;
-    @JsonView(Views.Full.class) public int favoritings_count;
-    @JsonView(Views.Full.class) public int reposts_count;
+    @JsonView(Views.Full.class) public int playback_count = NOT_SET;
+    @JsonView(Views.Full.class) public int download_count = NOT_SET;
+    @JsonView(Views.Full.class) public int comment_count  = NOT_SET;
+
     @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
-    public int shared_to_count;
+    public int shared_to_count = NOT_SET;
 
     @JsonView(Views.Full.class) public String original_format;
 
@@ -79,12 +79,8 @@ public class Track extends PlayableResource implements Playable {
     public String user_uri;
 
     @JsonView(Views.Full.class) public String waveform_url;
-
-
     @JsonView(Views.Mini.class) public String stream_url;
-
-    @JsonView(Views.Full.class) public int user_playback_count;
-
+    @JsonView(Views.Full.class) public int user_playback_count = NOT_SET;
 
     @JsonView(Views.Full.class)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
@@ -97,8 +93,7 @@ public class Track extends PlayableResource implements Playable {
 
     // only shown to owner of track
     @JsonView(Views.Full.class)
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
-    public int downloads_remaining;
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT) public int downloads_remaining;
 
     @JsonView(Views.Full.class)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
@@ -119,8 +114,13 @@ public class Track extends PlayableResource implements Playable {
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
         if (tag_list == null) return tags;
-        for (String t : tag_list.split("\\s")) {
-            if (t.indexOf(':') == -1 && t.indexOf('=') == -1) {
+        Matcher m = TAG_PATTERN.matcher(tag_list);
+        while (m.find()) {
+            tags.add(tag_list.substring(m.start(2), m.end(2)).trim());
+        }
+        String singlewords = m.replaceAll("");
+        for (String t : singlewords.split("\\s")) {
+            if (!TextUtils.isEmpty(t) && t.indexOf(':') == -1 && t.indexOf('=') == -1) {
                 tags.add(t);
             }
         }
@@ -132,6 +132,10 @@ public class Track extends PlayableResource implements Playable {
     }
 
     @Override @JsonIgnore
+    public Track getSound() {
+        return this;
+    }
+
     public Track getTrack() {
         return this;
     }
@@ -146,7 +150,10 @@ public class Track extends PlayableResource implements Playable {
         return user;
     }
 
-
+    @JsonIgnore
+    public boolean isWaitingOnState() {
+        return state == null;
+    }
 
     @JsonIgnore
     public boolean isStreamable() {
@@ -185,7 +192,7 @@ public class Track extends PlayableResource implements Playable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         Bundle b = super.getBundle();
-        b.putString("state", state.value());
+        b.putString("state", state != null ? state.value() : null);
         b.putBoolean("commentable", commentable);
         b.putParcelable("label", label);
         b.putString("isrc", isrc);
@@ -196,7 +203,6 @@ public class Track extends PlayableResource implements Playable {
         b.putInt("playback_count", playback_count);
         b.putInt("download_count", download_count);
         b.putInt("comment_count", comment_count);
-        b.putInt("favoritings_count", favoritings_count);
         b.putInt("reposts_count", reposts_count);
         b.putInt("shared_to_count", shared_to_count);
         b.putString("original_format", original_format);
@@ -226,14 +232,40 @@ public class Track extends PlayableResource implements Playable {
         dest.writeBundle(b);
     }
 
+    public static Track fromUri(Uri uri, ContentResolver resolver, boolean createDummy) {
+        long id = -1l;
+        try { // check the cache first
+            id = Long.parseLong(uri.getLastPathSegment());
+            final Track t = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(id);
+            if (t != null) return t;
+
+        } catch (NumberFormatException e) {
+            Log.e(UserBrowser.class.getSimpleName(), "Unexpected Track uri: " + uri.toString());
+        }
+
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        try {
+
+            if (cursor != null && cursor.moveToFirst()) {
+                return SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor);
+            } else if (createDummy && id >= 0) {
+                return SoundCloudApplication.MODEL_MANAGER.cache(new Track(id));
+            } else {
+                return null;
+            }
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+    }
+
     @JsonIgnoreProperties(ignoreUnknown=true)
     public static class CreatedWith implements Parcelable {
+
         @JsonView(Views.Full.class) public long id;
         @JsonView(Views.Full.class) public String name;
         @JsonView(Views.Full.class) public String uri;
         @JsonView(Views.Full.class) public String permalink_url;
         @JsonView(Views.Full.class) public String external_url;
-
         public CreatedWith() {
             super();
         }
@@ -264,10 +296,23 @@ public class Track extends PlayableResource implements Playable {
             dest.writeString(permalink_url);
             dest.writeString(external_url);
         }
-    }
 
+        public static final Parcelable.Creator<CreatedWith> CREATOR = new Parcelable.Creator<CreatedWith>() {
+            public CreatedWith createFromParcel(Parcel in) {
+                return new CreatedWith(in);
+            }
+            public CreatedWith[] newArray(int size) {
+                return new CreatedWith[size];
+            }
+        };
+
+    }
     public Track() {
         super();
+    }
+
+    public Track(long id) {
+        this.id = id;
     }
 
     public Track(Parcel in) {
@@ -285,7 +330,6 @@ public class Track extends PlayableResource implements Playable {
         playback_count = b.getInt("playback_count");
         download_count = b.getInt("download_count");
         comment_count = b.getInt("comment_count");
-        favoritings_count = b.getInt("favoritings_count");
         reposts_count = b.getInt("reposts_count");
         shared_to_count = b.getInt("shared_to_count");
         original_format = b.getString("original_format");
@@ -307,60 +351,50 @@ public class Track extends PlayableResource implements Playable {
         last_playback_error = b.getInt("last_playback_error");
     }
 
-    Track(Cursor cursor) {
-        final int trackIdIdx = cursor.getColumnIndex(DBHelper.ActivityView.TRACK_ID);
-        if (trackIdIdx == -1) {
-            id = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView._ID));
-        } else {
-            id = cursor.getLong(cursor.getColumnIndex(DBHelper.ActivityView.TRACK_ID));
-        }
-        permalink = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.PERMALINK));
-        duration = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DURATION));
-        state = State.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.STATE)));
-        created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.CREATED_AT)));
-        tag_list = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TAG_LIST));
-        track_type = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TRACK_TYPE));
-        title = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TITLE));
-        permalink_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.PERMALINK_URL));
-        artwork_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.ARTWORK_URL));
-        waveform_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.WAVEFORM_URL));
-        downloadable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOADABLE)) == 1;
-        download_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOAD_URL));
-        streamable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.STREAMABLE)) == 1;
-        stream_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.STREAM_URL));
-        sharing = Sharing.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.SHARING)));
-        playback_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.PLAYBACK_COUNT));
-        download_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOAD_COUNT));
-        comment_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENT_COUNT));
-        favoritings_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.FAVORITINGS_COUNT));
-        reposts_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.REPOSTS_COUNT));
-        shared_to_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.SHARED_TO_COUNT));
-        user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
-        commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENTABLE)) == 1;
+    public Track(Cursor cursor) {
+        super(cursor);
+        state = State.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.STATE)));
+        track_type = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.TRACK_TYPE));
 
-        final long lastUpdated = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.LAST_UPDATED));
-        if (lastUpdated > 0) {
-            last_updated = lastUpdated;
-        }
+        waveform_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.WAVEFORM_URL));
 
-        // gets joined in
-        final int favIdx = cursor.getColumnIndex(DBHelper.TrackView.USER_LIKE);
-        if (favIdx != -1) {
-            user_like = cursor.getInt(favIdx) == 1;
-        }
-        final int repostIdx = cursor.getColumnIndex(DBHelper.TrackView.USER_REPOST);
-        if (repostIdx != -1) {
-            user_repost = cursor.getInt(repostIdx) == 1;
-        }
+        download_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.DOWNLOAD_URL));
 
-        final int localPlayCountIdx = cursor.getColumnIndex(DBHelper.TrackView.USER_PLAY_COUNT);
+        stream_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.STREAM_URL));
+        playback_count = getIntOrNotSet(cursor, DBHelper.SoundView.PLAYBACK_COUNT);
+        download_count = getIntOrNotSet(cursor, DBHelper.SoundView.DOWNLOAD_COUNT);
+        comment_count = getIntOrNotSet(cursor, DBHelper.SoundView.COMMENT_COUNT);
+        shared_to_count = getIntOrNotSet(cursor, DBHelper.SoundView.SHARED_TO_COUNT);
+        commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.COMMENTABLE)) == 1;
+
+        final int localPlayCountIdx = cursor.getColumnIndex(DBHelper.SoundView.USER_PLAY_COUNT);
         if (localPlayCountIdx != -1) {
             local_user_playback_count = cursor.getInt(localPlayCountIdx);
         }
-        final int cachedIdx = cursor.getColumnIndex(DBHelper.TrackView.CACHED);
+        final int cachedIdx = cursor.getColumnIndex(DBHelper.SoundView.CACHED);
         if (cachedIdx != -1) {
             local_cached = cursor.getInt(cachedIdx) == 1;
         }
+    }
+
+    public ContentValues buildContentValues() {
+        ContentValues cv = super.buildContentValues();
+
+
+        if (stream_url != null) cv.put(DBHelper.Sounds.STREAM_URL, stream_url);
+        if (state != null) cv.put(DBHelper.Sounds.STATE, state.name);
+        if (track_type != null) cv.put(DBHelper.Sounds.TRACK_TYPE, track_type);
+        if (waveform_url != null) cv.put(DBHelper.Sounds.WAVEFORM_URL, waveform_url);
+        if (download_url != null) cv.put(DBHelper.Sounds.DOWNLOAD_URL, download_url);
+        if (playback_count != NOT_SET) cv.put(DBHelper.Sounds.PLAYBACK_COUNT, playback_count);
+        if (download_count != NOT_SET) cv.put(DBHelper.Sounds.DOWNLOAD_COUNT, download_count);
+        if (comment_count  != NOT_SET) cv.put(DBHelper.Sounds.COMMENT_COUNT, comment_count);
+        if (commentable) cv.put(DBHelper.Sounds.COMMENTABLE, commentable);
+        if (shared_to_count != NOT_SET) cv.put(DBHelper.Sounds.SHARED_TO_COUNT, shared_to_count);
+        if (isCompleteTrack()) {
+            cv.put(DBHelper.Sounds.LAST_UPDATED, System.currentTimeMillis());
+        }
+        return cv;
     }
 
     @Override
@@ -379,94 +413,18 @@ public class Track extends PlayableResource implements Playable {
         comments = t.comments;
     }
 
-    public ContentValues buildContentValues(){
-        ContentValues cv = super.buildContentValues();
-
-        cv.put(Tracks.PERMALINK, permalink);
-        // account for partial objects, don't overwrite local full objects
-        if (title != null) cv.put(Tracks.TITLE, title);
-        if (duration != 0) cv.put(Tracks.DURATION, duration);
-        if (stream_url != null) cv.put(Tracks.STREAM_URL, stream_url);
-        if (user_id != 0) {
-            cv.put(Tracks.USER_ID, user_id);
-        }  else if (user != null && user.isSaved()) {
-            cv.put(Tracks.USER_ID, user.id);
-        }
-
-        if (state != null) cv.put(Tracks.STATE, state.name);
-        if (created_at != null) cv.put(Tracks.CREATED_AT, created_at.getTime());
-        if (tag_list != null) cv.put(Tracks.TAG_LIST, tag_list);
-        if (track_type != null) cv.put(Tracks.TRACK_TYPE, track_type);
-        if (permalink_url != null) cv.put(Tracks.PERMALINK_URL, permalink_url);
-        if (artwork_url != null) cv.put(Tracks.ARTWORK_URL, artwork_url);
-        if (waveform_url != null) cv.put(Tracks.WAVEFORM_URL, waveform_url);
-        if (downloadable) cv.put(Tracks.DOWNLOADABLE, downloadable);
-        if (download_url != null) cv.put(Tracks.DOWNLOAD_URL, download_url);
-        if (streamable) cv.put(Tracks.STREAMABLE, streamable);
-        if (sharing != null) cv.put(Tracks.SHARING, sharing.value);
-        if (playback_count != -1) cv.put(Tracks.PLAYBACK_COUNT, playback_count);
-        if (download_count != -1) cv.put(Tracks.DOWNLOAD_COUNT, download_count);
-        if (comment_count != -1) cv.put(Tracks.COMMENT_COUNT, comment_count);
-        if (commentable) cv.put(Tracks.COMMENTABLE, commentable);
-        if (favoritings_count != -1) cv.put(Tracks.FAVORITINGS_COUNT, favoritings_count);
-        if (reposts_count != -1) cv.put(Tracks.REPOSTS_COUNT, reposts_count);
-        if (shared_to_count != -1) cv.put(Tracks.SHARED_TO_COUNT, shared_to_count);
-        if (isCompleteTrack()) {
-            cv.put(Tracks.LAST_UPDATED, System.currentTimeMillis());
-        }
-        return cv;
-    }
-
     private boolean isCompleteTrack(){
         return state != null && created_at != null && duration > 0;
     }
 
-    public void fillTags(ViewGroup view, final Context context){
-        TextView txt;
-        FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(10, 10);
-
-        final LayoutInflater inflater = LayoutInflater.from(context);
-
-        if (!TextUtils.isEmpty(genre)) {
-            txt = ((TextView) inflater.inflate(R.layout.genre_text, null));
-            txt.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(context, TracksByTag.class);
-                        intent.putExtra("genre", genre);
-                        context.startActivity(intent);
-                    }
-                });
-            txt.setText(genre);
-            view.addView(txt, flowLP);
-        }
-        for (final String t : humanTags()) {
-            if (!TextUtils.isEmpty(t)) {
-                txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
-                txt.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(context, TracksByTag.class);
-                        intent.putExtra("tag", t);
-                        context.startActivity(intent);
-                    }
-                });
-                txt.setText(t);
-                view.addView(txt, flowLP);
-            }
-        }
-    }
-
     // TODO, THIS SUCKS
     public FetchModelTask<Track> refreshInfoAsync(AndroidCloudAPI api, FetchModelTask.FetchModelListener<Track> listener) {
-        if (load_info_task == null){
-            if (AndroidUtils.isTaskFinished(load_info_task)) {
-                load_info_task = new FetchTrackTask(api, id);
-            }
-            load_info_task.addListener(listener);
-            if (AndroidUtils.isTaskPending(load_info_task)) {
-                load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, id));
-            }
+        if (load_info_task == null && AndroidUtils.isTaskFinished(load_info_task)) {
+            load_info_task = new FetchTrackTask(api, id);
+        }
+        load_info_task.addListener(listener);
+        if (AndroidUtils.isTaskPending(load_info_task)) {
+            load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, id));
         }
         return load_info_task;
     }
@@ -529,7 +487,7 @@ public class Track extends PlayableResource implements Playable {
 
             sb.append("Licensed under a Creative Commons License ");
             sb.append('(').append("<a href='").append(getCCLink(cc)).append("'>")
-               .append(cc.toUpperCase())
+               .append(cc.toUpperCase(Locale.US))
                .append("</a>")
                .append(')');
         } else if ("no-rights-reserved".equals(license)) {
@@ -563,6 +521,7 @@ public class Track extends PlayableResource implements Playable {
                 "id="+id+
                 ", title='" + title + "'" +
                 ", permalink_url='" + permalink_url + "'" +
+                ", artwork_url='" + artwork_url + "'" +
                 ", duration=" + duration +
                 ", state=" + state +
                 ", user=" + user +
@@ -577,9 +536,21 @@ public class Track extends PlayableResource implements Playable {
         return user == null ? null : user.avatar_url;
     }
 
-    @Override
-    public long getRefreshableId() {
-        return id;
+    public @Nullable URL getWaveformDataURL() {
+        if (TextUtils.isEmpty(waveform_url)) {
+            return null;
+        } else {
+            try {
+                Uri waveform = Uri.parse(waveform_url);
+                return new URL("http://wis.sndcdn.com/"+waveform.getLastPathSegment());
+            } catch (MalformedURLException e) {
+                return null;
+            }
+        }
+    }
+
+    public boolean hasWaveform() {
+        return !TextUtils.isEmpty(waveform_url);
     }
 
     @Override
@@ -588,14 +559,15 @@ public class Track extends PlayableResource implements Playable {
     }
 
     @Override
-    public boolean isStale(){
+    public boolean isStale() {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.track;
     }
 
-    public Intent getShareIntent() {
+    public @Nullable Intent getShareIntent() {
         if (sharing == null || !sharing.isPublic()) return null;
 
         Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_SUBJECT,
                 title +
@@ -606,7 +578,7 @@ public class Track extends PlayableResource implements Playable {
     }
 
     public Intent getPlayIntent() {
-        return new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(EXTRA, this);
+        return new Intent(Actions.PLAY).putExtra(EXTRA, this);
     }
 
     public void setUpdated() {
@@ -614,37 +586,16 @@ public class Track extends PlayableResource implements Playable {
     }
 
     public Track updateFrom(Track updatedItem, CacheUpdateMode cacheUpdateMode) {
-
-        id = updatedItem.id;
-        title = updatedItem.title;
-        permalink = updatedItem.permalink;
+        super.updateFrom(updatedItem,cacheUpdateMode);
         stream_url = updatedItem.stream_url;
-        user_id = updatedItem.user_id;
-        uri = updatedItem.uri;
-
         if (cacheUpdateMode == CacheUpdateMode.FULL){
-            duration = updatedItem.duration;
             commentable = updatedItem.commentable;
             state = updatedItem.state;
-            sharing = updatedItem.sharing;
-            streamable = updatedItem.streamable;
-            artwork_url = updatedItem.artwork_url;
             waveform_url = updatedItem.waveform_url;
-            user = updatedItem.user;
             playback_count = updatedItem.playback_count;
             comment_count = updatedItem.comment_count;
-            favoritings_count = updatedItem.favoritings_count;
-            reposts_count = updatedItem.reposts_count;
-            user_like = updatedItem.user_like;
             shared_to_count = updatedItem.shared_to_count;
-            created_at = updatedItem.created_at;
-            //user_repost = updatedItem.user_repost; THIS DOES NOT COME FROM THE API, ONLY UPDATE FROM DB
-
-            // these will get refreshed
-            mElapsedTime = null;
-            mArtworkUri = null;
         }
-
         return this;
     }
 
@@ -661,19 +612,13 @@ public class Track extends PlayableResource implements Playable {
         if (intent == null) throw new IllegalArgumentException("intent is null");
         Track t = intent.getParcelableExtra(EXTRA);
         if (t == null) {
-            t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra("track_id", 0));
+            t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(EXTRA_ID, 0));
             if (t == null) {
                 throw new IllegalArgumentException("Could not obtain track from intent "+intent);
             }
         }
         return t;
     }
-
-    public static Uri getClientUri(long id) {
-        return Uri.parse("soundcloud:tracks:"+id);
-    }
-
-
 
     public static enum State {
         UNDEFINED(""),
@@ -683,10 +628,10 @@ public class Track extends PlayableResource implements Playable {
         PROCESSING("processing");
 
         private final String name;
+
         private State(String name){
             this.name = name;
         }
-
         @JsonValue
         public String value() {
             return name;
@@ -708,8 +653,20 @@ public class Track extends PlayableResource implements Playable {
         }
 
         public boolean isFailed()     { return FAILED == this; }
+
         public boolean isProcessing() { return PROCESSING == this; }
         public boolean isFinished()   { return FINISHED == this; }
     }
+    @Override
+    public int getTypeId() {
+        return DB_TYPE_TRACK;
+    }
 
+    public boolean shouldLoadInfo(){
+        return load_info_task == null || load_info_task.wasError();
+    }
+
+    public boolean isLoadingInfo() {
+        return !AndroidUtils.isTaskFinished(load_info_task);
+    }
 }

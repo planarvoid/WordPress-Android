@@ -3,9 +3,11 @@ package com.soundcloud.android.activity.settings;
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.ActionBarController;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -13,6 +15,7 @@ import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.IOUtils;
+import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -25,14 +28,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceGroup;
 import android.util.Log;
 
 import java.io.File;
 
 @Tracking(page = Page.Settings_main)
-public class Settings extends PreferenceActivity {
+public class Settings extends SherlockPreferenceActivity implements ActionBarController.ActionBarOwner {
     private static final int DIALOG_CACHE_DELETING = 0;
     private static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
 
@@ -44,7 +46,6 @@ public class Settings extends PreferenceActivity {
     public static final String STREAM_CACHE_SIZE = "streamCacheSize";
     public static final String CLEAR_STREAM_CACHE = "clearStreamCache";
     public static final String WIRELESS = "wireless";
-    public static final String ABOUT = "about";
     public static final String EXTRAS = "extras";
     public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
     public static final String NOTIFICATION_SETTINGS = "notificationSettings";
@@ -54,6 +55,7 @@ public class Settings extends PreferenceActivity {
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+
         addPreferencesFromResource(R.xml.settings);
 
         PreferenceGroup extras = (PreferenceGroup) findPreference(EXTRAS);
@@ -184,15 +186,6 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
-
-        findPreference(ABOUT).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    public boolean onPreferenceClick(Preference preference) {
-                        startActivity(new Intent(Settings.this, About.class));
-                        return true;
-                    }
-                });
-
         if (!SoundCloudApplication.DEV_MODE) {
             getPreferenceScreen().removePreference(findPreference(DevSettings.PREF_KEY));
         } else {
@@ -267,18 +260,22 @@ public class Settings extends PreferenceActivity {
                 .setMessage(R.string.menu_clear_user_desc)
                 .setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
+                            public void onClick(final DialogInterface dialog, int whichButton) {
+                                final ProgressDialog progress = AndroidUtils.showProgress(a, R.string.settings_logging_out);
+
                                 app.track(Click.Log_out_box_ok);
                                 app.clearSoundCloudAccount(
                                         new Runnable() {
                                             @Override
                                             public void run() {
+                                                progress.dismiss();
                                                 a.finish();
                                             }
                                         },
                                         new Runnable() {
                                             @Override
                                             public void run() {
+                                                progress.dismiss();
                                                 new AlertDialog.Builder(a)
                                                         .setIcon(android.R.drawable.ic_dialog_alert)
                                                         .setMessage(R.string.settings_error_revoking_account_message)
@@ -297,5 +294,16 @@ public class Settings extends PreferenceActivity {
                     }
                 })
                 .create();
+    }
+
+    @NotNull
+    @Override
+    public Activity getActivity() {
+        return this;
+    }
+
+    @Override
+    public int getMenuResourceId() {
+        return R.menu.main;
     }
 }

@@ -16,7 +16,7 @@ Copyright (c) 2011, SoundCloud Ltd.
 Apache JAMES Mime4j
 Copyright 2004-2008 The Apache Software Foundation
 
-lib-for-android
+libs-for-android
 Copyright (C) 2010 Google Inc.
 
 android-change-log
@@ -33,6 +33,12 @@ Copyright 2012 Jake Wharton
 
 Android-ViewPagerIndicator
 Copyright 2012 Jake Wharton
+
+DiskLruCache
+Copyright 2012 Jake Wharton
+
+HttpResponseCache
+Copyright 2012 Craig Andrews
 
 HockeySDK-Android
 Copyright (c) 2011, 2012 HockeyApp, Bit Stadium GmbH.

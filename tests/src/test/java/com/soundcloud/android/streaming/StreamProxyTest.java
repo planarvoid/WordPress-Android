@@ -3,8 +3,7 @@ package com.soundcloud.android.streaming;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import org.acra.util.HttpRequest;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +40,7 @@ public class StreamProxyTest {
 
     @Test
     public void testReadRequest() throws Exception {
-        HttpGet req = StreamProxy.readRequest(getClass().getResourceAsStream("valid_request.txt"));
+        HttpUriRequest req = StreamProxy.readRequest(getClass().getResourceAsStream("valid_request.txt"));
         expect(req.getFirstHeader("A-Header").getValue()).toEqual("Some-Value");
         expect(req.getURI().toString()).toEqual("foo");
         expect(req.getFirstHeader("Host")).toBeNull();
@@ -49,7 +48,7 @@ public class StreamProxyTest {
 
     @Test
     public void testMalformedRequest() throws Exception {
-        HttpGet req = StreamProxy.readRequest(getClass().getResourceAsStream("malformed_request.txt"));
+        HttpUriRequest req = StreamProxy.readRequest(getClass().getResourceAsStream("malformed_request.txt"));
         expect(req.getURI().toString()).toEqual("foo");
     }
 

@@ -5,9 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
@@ -23,6 +21,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,7 +45,6 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = TrackSharingActivity.class, name = "track-sharing"),
         @JsonSubTypes.Type(value = CommentActivity.class, name = "comment")
 })
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class Activity extends ScModel implements Parcelable, Refreshable, Comparable<Activity> {
     @JsonProperty public String uuid;
@@ -82,6 +80,11 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         sharing_note.text = c.getString(c.getColumnIndex(DBHelper.ActivityView.SHARING_NOTE_TEXT));
     }
 
+    @Override
+    public long getListItemId() {
+        return toUUID().hashCode();
+    }
+
     public CharSequence getTimeSinceCreated(Context context) {
         if (_elapsedTime == null){
             refreshTimeSinceCreated(context);
@@ -104,9 +107,9 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     }
 
     public UUID toUUID() {
-        if (created_at == null) {
-            return null;
-        } else {
+        if (!TextUtils.isEmpty(uuid)){
+            return UUID.fromString(uuid);
+        } else if (created_at != null) {
             // snippet from http://wiki.apache.org/cassandra/FAQ#working_with_timeuuid_in_java
             final long origTime = created_at.getTime();
             final long time = origTime * 10000 + NUM_100NS_INTERVALS_SINCE_UUID_EPOCH;
@@ -115,12 +118,18 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
             final long timeHi  = time & 0xfff000000000000L;
             final long upperLong = (timeLow << 32) | (timeMid >> 16) | (1 << 12) | (timeHi >> 48) ;
             return new UUID(upperLong, 0xC000000000000000L);
+        } else {
+            return null;
         }
     }
 
     public String toGUID() {
-        final UUID uuid = toUUID();
-        return uuid != null ? toUUID().toString() : null;
+        if (!TextUtils.isEmpty(uuid)){
+            return uuid;
+        } else {
+            UUID gen = toUUID();
+            return gen == null ? null :gen.toString();
+        }
     }
 
     @Override
@@ -139,7 +148,7 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         }
 
         if (getUser() != null) cv.put(DBHelper.Activities.USER_ID, getUser().id);
-        if (getTrack() != null) cv.put(DBHelper.Activities.TRACK_ID, getTrack().id);
+        if (getTrack() != null) cv.put(DBHelper.Activities.SOUND_ID, getTrack().id);
 
         return cv;
     }
@@ -175,18 +184,14 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     }
 
     @Override
-    public long getRefreshableId() {
-        return id;
-    }
-
-    @Override
-    public ScResource getRefreshableResource() {
-        return null;
-    }
-
-    @Override
     public boolean isStale() {
-        return false;
+        final ScResource r = getRefreshableResource();
+        if (equals(r)) {
+            // no lookups possible on activity, though they would solve deletion problems
+            throw new IllegalArgumentException("Do not return the activity itself as the refreshable object");
+        } else {
+            return r instanceof Refreshable && ((Refreshable) r).isStale();
+        }
     }
 
     @Override
@@ -234,13 +239,6 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         return models;
     }
 
-//           TRACK("track", Track.class),
-//           TRACK_SHARING("track-sharing", TrackSharing.class),
-//           COMMENT("comment", Comment.class),
-//           FAVORITING("favoriting", Favoriting.class),
-//           PLAYLIST("playlist", Playlist.class);
-
-
     // todo : row types, upgrade DB
     public enum Type {
         TRACK("track", TrackActivity.class),
@@ -253,6 +251,8 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         PLAYLIST_SHARING("playlist-sharing", PlaylistSharingActivity.class),
         COMMENT("comment", CommentActivity.class),
         AFFILIATION("affiliation", AffiliationActivity.class);
+
+        public static final Type[] PLAYLIST_TYPES = new Type[] { PLAYLIST, PLAYLIST_LIKE, PLAYLIST_REPOST, PLAYLIST_SHARING };
 
         Type(String type, Class<? extends Activity> activityClass) {
             this.type = type;
@@ -283,6 +283,17 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         public String toString() {
             return type;
         }
+    }
+
+    public static String getDbPlaylistTypesForQuery() {
+        String types = "";
+        for (int i = 0; i < Activity.Type.PLAYLIST_TYPES.length; i++) {
+            types += "'" + Activity.Type.PLAYLIST_TYPES[i].type + "'";
+            if (i < Activity.Type.PLAYLIST_TYPES.length - 1) {
+                types += ",";
+            }
+        }
+        return types;
     }
 
     @Override

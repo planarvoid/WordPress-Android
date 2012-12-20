@@ -4,15 +4,19 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.provider.ScContentProvider.Parameter.CACHED;
 import static com.soundcloud.android.provider.ScContentProvider.Parameter.LIMIT;
 import static com.soundcloud.android.provider.ScContentProvider.Parameter.RANDOM;
+import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.Like;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Shortcut;
+import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackHolder;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -59,30 +63,68 @@ public class ScContentProviderTest {
     }
 
     @Test
-    public void shouldInsertQueryAndDeleteFavorites() throws Exception {
-        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("user_favorites.json"),
-                TrackHolder.class);
-        for (Track t : tracks) {
-            expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();
+    public void shouldInsertAndQueryLikes() throws Exception {
+        SoundAssociationHolder collection = readJson(SoundAssociationHolder.class,
+                "/com/soundcloud/android/service/sync/e1_likes.json");
+
+        collection.insert(resolver);
+        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(2); // actually 3, playlist filered
+
+        List<Like> likes = new ArrayList<Like>();
+        while (c.moveToNext()) {
+            Like like = new Like(c);
+            likes.add(like);
         }
 
-        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(15);
+        expect(likes.get(0).getTrack().title).toEqual("freddie evans at Excel Exhibition Centre");
+        expect(likes.get(1).getTrack().title).toEqual("sing-a-long time at London 2012 Live Site - Hyde Park");
+    }
 
-        resolver.delete(Content.ME_LIKES.uri, DBHelper.CollectionItems.ITEM_ID + " = ?",
-                new String[]{String.valueOf(tracks.get(0).id)});
+    @Test
+    public void shouldInsertQueryAndDeleteLikes() throws Exception {
+        SoundAssociationHolder collection = readJson(SoundAssociationHolder.class,
+                "/com/soundcloud/android/service/sync/e1_likes.json");
+
+        expect(collection.insert(resolver)).toEqual(4);
+
+        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(2);
+
+        List<Like> likes = new ArrayList<Like>();
+        while (c.moveToNext()) {
+            Like like = new Like(c);
+            likes.add(like);
+        }
+        expect(resolver.delete(Content.ME_LIKES.uri, DBHelper.CollectionItems.ITEM_ID + " = ?",
+                new String[]{String.valueOf(likes.get(0).getTrack().id)})).toEqual(1);
 
         c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(14);
+        expect(c.getCount()).toEqual(1);
+    }
+
+    @Test
+    public void shouldQuerySounds() throws Exception {
+        SoundAssociationHolder collection = readJson(SoundAssociationHolder.class,
+                "/com/soundcloud/android/provider/e1_sounds.json");
+
+        expect(collection.insert(resolver)).toEqual(51);
+        Cursor c = resolver.query(Content.ME_SOUNDS.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(50);
+
+        List<SoundAssociation> associations = new ArrayList<SoundAssociation>();
+        while (c.moveToNext()) {
+            associations.add(new SoundAssociation(c));
+        }
+        expect(associations).toNumber(50);
+
+        expect(associations.get(0).getTrack().title).toEqual("A trimmed test upload");
+        expect(associations.get(1).getTrack().title).toEqual("A faded + trimmed test upload");
     }
 
     @Test
     public void shouldCleanup() throws Exception {
-        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("user_favorites.json"),
-                TrackHolder.class);
+        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
@@ -92,9 +134,7 @@ public class ScContentProviderTest {
         expect(resolver.query(Content.TRACKS.uri, null, null, null, null).getCount()).toEqual(15);
         expect(resolver.query(Content.USERS.uri, null, null, null, null).getCount()).toEqual(14);
 
-        tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("tracks.json"),
-                TrackHolder.class);
+        tracks = readJson(TrackHolder.class, "/com/soundcloud/android/provider/tracks.json");
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
@@ -110,7 +150,6 @@ public class ScContentProviderTest {
         resolver.update(Content.USERS_CLEANUP.uri, null, null, null);
         expect(resolver.query(Content.USERS.uri, null, null, null, null).getCount()).toEqual(14);
     }
-
 
     @Test
     public void shouldIncludeUserPermalinkInTrackView() throws Exception {
@@ -134,62 +173,46 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldSupportAndroidGlobalSearch() throws Exception {
-        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("user_favorites.json"),
-                TrackHolder.class);
+        Shortcut[] shortcuts = readJson(Shortcut[].class, "/com/soundcloud/android/service/sync/all_shortcuts.json");
 
-        for (Track t : tracks) {
-            resolver.insert(Content.TRACKS.uri, t.buildContentValues());
-            resolver.insert(Content.USERS.uri, t.user.buildContentValues());
+        List<ContentValues> cvs = new ArrayList<ContentValues>();
+        for (Shortcut shortcut : shortcuts) {
+            ContentValues cv = shortcut.buildContentValues();
+            if (cv != null) cvs.add(cv);
         }
+        int inserted = resolver.bulkInsert(Content.ME_SHORTCUTS.uri, cvs.toArray(new ContentValues[cvs.size()]));
+        expect(inserted).toEqual(cvs.size());
+        expect(Content.ME_SHORTCUTS).toHaveCount(inserted);
+
 
         Cursor cursor = resolver.query(Content.ANDROID_SEARCH_SUGGEST.uri,
-                null, null, new String[] { "plaid"}, null);
+                null, null, new String[] { "blac" }, null);
 
-        expect(cursor.getCount()).toEqual(1);
+        expect(cursor.getCount()).toEqual(4);  // 2 followings + 2 likes
         expect(cursor.moveToFirst()).toBeTrue();
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)))
-                .toEqual("Plaid - missing (taken from new album Scintilli)");
 
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_2)))
-                .toEqual("Warp Records");
+        expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))).not.toEqual(0l);
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("The Black Dog");
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual("content://com.soundcloud.android.provider.ScContentProvider/users/950");
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1))).toMatch("content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/(\\d+)");
 
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID)))
-                .toEqual(SearchManager.SUGGEST_NEVER_MAKE_SHORTCUT);
+        expect(cursor.moveToNext()).toBeTrue();
+        expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))).not.toEqual(0l);
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("Blackest Ever Black");
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual("content://com.soundcloud.android.provider.ScContentProvider/users/804339");
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1))).toMatch("content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/(\\d+)");
 
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA)))
-                .toEqual("soundcloud:tracks:22365800");
+        expect(cursor.moveToNext()).toBeTrue();
+        expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))).not.toEqual(0l);
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("The Black Dog - Industrial Smokers Behind The Factory Wall");
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual("content://com.soundcloud.android.provider.ScContentProvider/tracks/25273712");
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1))).toMatch("content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/(\\d+)");
 
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1)))
-                .toEqual(Content.TRACK_ARTWORK.forId(22365800L).toString());
-
-        expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)))
-                .toEqual(22365800L);
-    }
-
-    @Test
-    public void shouldSuggestSoundsSortedByCreatedAt() throws Exception {
-
-        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("user_favorites.json"),
-                TrackHolder.class);
-
-        for (Track t : tracks) {
-            resolver.insert(Content.TRACKS.uri, t.buildContentValues());
-            resolver.insert(Content.USERS.uri, t.user.buildContentValues());
-        }
-
-        Cursor cursor = resolver.query(Content.ANDROID_SEARCH_SUGGEST.uri,
-                null, null, new String[] { "H" }, null);
-
-        expect(cursor.getCount()).toEqual(7);
-
-        expect(cursor.moveToFirst()).toBeTrue();
-        Track first = SoundCloudApplication.MODEL_MANAGER.getTrack(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)));
-        expect(cursor.moveToLast()).toBeTrue();
-        Track last = SoundCloudApplication.MODEL_MANAGER.getTrack(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)));
-
-        expect(first.created_at.after(last.created_at)).toBeTrue();
+        expect(cursor.moveToNext()).toBeTrue();
+        expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))).not.toEqual(0l);
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("CBLS 119 - Compost Black Label Sessions Radio hosted by SHOW-B & Thomas Herb");
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual("content://com.soundcloud.android.provider.ScContentProvider/tracks/24336214");
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1))).toMatch("content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/(\\d+)");
     }
 
     @Test
@@ -226,9 +249,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveATracksEndpointWithRandom() throws Exception {
-        CollectionHolder<Track> tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("user_favorites.json"),
-                TrackHolder.class);
+        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
@@ -239,22 +260,19 @@ public class ScContentProviderTest {
         List<Long> sorted = new ArrayList<Long>();
         List<Long> random = new ArrayList<Long>();
         while (c.moveToNext()) {
-            sorted.add(c.getLong(c.getColumnIndex(DBHelper.TrackView._ID)));
+            sorted.add(c.getLong(c.getColumnIndex(DBHelper.SoundView._ID)));
         }
         Cursor c2 = resolver.query(Content.TRACK.withQuery(RANDOM, "1"), null, null, null, null);
         expect(c2.getCount()).toEqual(15);
         while (c2.moveToNext()) {
-            random.add(c2.getLong(c2.getColumnIndex(DBHelper.TrackView._ID)));
+            random.add(c2.getLong(c2.getColumnIndex(DBHelper.SoundView._ID)));
         }
         expect(sorted).not.toEqual(random);
     }
 
     @Test
     public void shouldHaveATracksEndpointWhichReturnsOnlyCachedItems() throws Exception {
-        CollectionHolder<Track> tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("user_favorites.json"),
-                TrackHolder.class);
-
+        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
             expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();
@@ -270,7 +288,7 @@ public class ScContentProviderTest {
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
         expect(c.moveToNext()).toBeTrue();
-        expect(c.getLong(c.getColumnIndex(DBHelper.TrackView._ID))).toEqual(cachedId);
+        expect(c.getLong(c.getColumnIndex(DBHelper.SoundView._ID))).toEqual(cachedId);
     }
 
     @Test
@@ -292,14 +310,12 @@ public class ScContentProviderTest {
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
         expect(c.moveToNext()).toBeTrue();
-        expect(c.getLong(c.getColumnIndex(DBHelper.TrackView._ID))).toEqual(cachedId);
+        expect(c.getLong(c.getColumnIndex(DBHelper.SoundView._ID))).toEqual(cachedId);
     }
 
     @Test
     public void shouldHaveFavoriteEndpointWhichReturnsRandomItems() throws Exception {
-        TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
-                getClass().getResourceAsStream("user_favorites.json"),
-                TrackHolder.class);
+        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
 
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
@@ -314,7 +330,7 @@ public class ScContentProviderTest {
         long[] result = new long[sorted.length];
         int i = 0;
         while(c.moveToNext()) {
-            result[i++] = c.getLong(c.getColumnIndex(DBHelper.TrackView._ID));
+            result[i++] = c.getLong(c.getColumnIndex(DBHelper.SoundView._ID));
         }
         expect(Arrays.equals(result, sorted)).toBeFalse();
     }
@@ -340,7 +356,7 @@ public class ScContentProviderTest {
         long[] result = new long[sorted.length];
         int i=0;
         while (c.moveToNext()) {
-            result[i++] = c.getLong(c.getColumnIndex(DBHelper.ActivityView.TRACK_ID));
+            result[i++] = c.getLong(c.getColumnIndex(DBHelper.ActivityView.SOUND_ID));
         }
         expect(Arrays.equals(result, sorted)).toBeFalse();
     }
@@ -363,7 +379,7 @@ public class ScContentProviderTest {
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
         expect(c.moveToNext()).toBeTrue();
-        expect(c.getLong(c.getColumnIndex(DBHelper.ActivityView.TRACK_ID))).toEqual(cachedId);
+        expect(c.getLong(c.getColumnIndex(DBHelper.ActivityView.SOUND_ID))).toEqual(cachedId);
     }
 
 
@@ -405,5 +421,60 @@ public class ScContentProviderTest {
         resolver.delete(Content.RECORDINGS.uri, null, null);
         Cursor cursor = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
         expect(cursor.getCount()).toEqual(0);
+    }
+
+    @Test
+    public void shouldBulkInsertSuggestions() throws Exception {
+        Shortcut[] shortcuts = readJson(Shortcut[].class, "/com/soundcloud/android/service/sync/all_shortcuts.json");
+
+        List<ContentValues> cvs = new ArrayList<ContentValues>();
+        for (Shortcut shortcut : shortcuts) {
+            ContentValues cv = shortcut.buildContentValues();
+            if (cv != null) cvs.add(cv);
+        }
+
+        int inserted = resolver.bulkInsert(Content.ME_SHORTCUTS.uri, cvs.toArray(new ContentValues[cvs.size()]));
+        expect(inserted).toEqual(cvs.size());
+        expect(Content.ME_SHORTCUTS).toHaveCount(inserted);
+
+        // reinsert same batch, make sure no dups
+        inserted = resolver.bulkInsert(Content.ME_SHORTCUTS.uri, cvs.toArray(new ContentValues[cvs.size()]));
+        expect(inserted).toEqual(cvs.size());
+        expect(Content.ME_SHORTCUTS).toHaveCount(inserted);
+
+        expect(Content.USERS).toHaveCount(318);
+        expect(Content.TRACKS).toHaveCount(143);
+
+        User u = User.fromUri(Content.USER.forId(9), resolver, false);
+        expect(u).not.toBeNull();
+        expect(u.username).toEqual("Katharina");
+        expect(u.avatar_url).toEqual("https://i1.sndcdn.com/avatars-000013690441-hohfv1-tiny.jpg?2479809");
+        expect(u.permalink_url).toEqual("http://soundcloud.com/katharina");
+
+        Track t = Track.fromUri(Content.TRACK.forId(64629168), resolver, false);
+        expect(t).not.toBeNull();
+        expect(t.title).toEqual("Halls - Roses For The Dead (Max Cooper remix)");
+        expect(t.artwork_url).toEqual("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809");
+        expect(t.permalink_url).toEqual("http://soundcloud.com/no-pain-in-pop/halls-roses-for-the-dead-max");
+    }
+
+    @Test
+    public void shouldStoreAndFetchShortcut() throws Exception {
+        Shortcut c = new Shortcut();
+        c.kind = "like";
+        c.id = 12;
+        c.title = "Something";
+        c.permalink_url = "http://soundcloud.com/foo";
+        c.artwork_url   = "http://soundcloud.com/foo/artwork";
+
+
+        Uri uri = resolver.insert(Content.ME_SHORTCUTS.uri, c.buildContentValues());
+        expect(uri).not.toBeNull();
+
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        expect(cursor.getCount()).toEqual(1);
+        expect(cursor.moveToFirst()).toBeTrue();
+
+        expect(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))).toEqual("http://soundcloud.com/foo/artwork");
     }
 }

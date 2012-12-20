@@ -2,9 +2,7 @@ package com.soundcloud.android.task.fetch;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.task.ResolveTask;
 import com.soundcloud.api.Request;
 
@@ -15,7 +13,6 @@ import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
     private static final String TAG = ResolveFetchTask.class.getSimpleName();
@@ -31,11 +28,11 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
         final Uri uri = fixUri(params[0]);
         ScResource resource = resolveLocally(uri);
         if (resource != null) {
-            Log.d(TAG, "resolved uri "+uri+" locally");
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "resolved uri "+uri+" locally");
             return resource;
         }
 
-        Log.d(TAG, "resolving uri "+uri+" remotely");
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "resolving uri "+uri+" remotely");
         Uri resolvedUri = new ResolveTask(mApi).resolve(uri);
 
         if (resolvedUri != null) {
@@ -64,8 +61,6 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
 
     @Override
     protected void onPostExecute(ScResource resource) {
-        Log.d(TAG, "onPostExecute("+ resource +")");
-
         resource = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(resource, ScResource.CacheUpdateMode.FULL);
 
         FetchModelTask.FetchModelListener<ScResource> listener = getListener();

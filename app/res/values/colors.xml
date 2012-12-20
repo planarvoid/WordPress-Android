@@ -6,6 +6,10 @@
     <color name="listTxtSecondary">#FF777777</color>
     <color name="listTxtRecSecondary">#FFcccccc</color>
     <color name="listTxtCreatedAt">#FFc9c9c9</color>
+    <color name="listTxtTrackUser">#FF828282</color>
+
+    <color name="statsColor">#FF828282</color>
+    <color name="statsColorPressed">#88FFFFFF</color>
 
     <color name="listTxtDarkValue">#FFFFFFFF</color>
     <color name="listTxtDarkValuePressed">#88FFFFFF</color>
@@ -21,10 +25,10 @@
 
     <color name="portraitPlayerCommentLine">#FFEF5002</color>
 
-    <color name="playerControlBackground">#FFE2E2E2</color>
+    <color name="playerControlBackground">#FFF2F2F2</color>
     <color name="playerControlBackgroundDark">#FFc8c8c8</color>
 
-    <color name="playerControlAlphaBackground">#AAE2E2E2</color>
+    <color name="playerControlAlphaBackground">#AAF2F2F2</color>
 
     <color name="commentGray">#ff9c9c9c</color>
 
@@ -72,6 +76,9 @@
     <color name="black">#ff000000</color>
     <color name="transparent">#00000000</color>
 
+    <color name="tour_overlay">#CC000000</color>
+    <color name="signup_separator">#999999</color>
+
     <!-- For settings framework -->
     <color name="darker_gray">#aaa</color>
 
@@ -95,5 +102,9 @@
 
     <color name="main_menu_bg">#FF222222</color>
 
+    <color name="search_suggestion_text_color">#CCCCCC</color>
+    <color name="track_info_separator">#FFE5E5E5</color>
+
+    <color name="txt_description_color">#FF666666</color>
 
 </resources>
