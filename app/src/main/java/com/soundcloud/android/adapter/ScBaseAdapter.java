@@ -6,6 +6,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.Creation;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
@@ -198,6 +199,15 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     }
 
     public void onResume() {
+        refreshCreationStamps();
+    }
+
+    public void refreshCreationStamps() {
+        for (ScModel resource : mData){
+            if (resource instanceof Creation){
+                ((Creation) resource).refreshTimeSinceCreated(mContext);
+            }
+        }
     }
 
     public boolean shouldRequestNextPage(int firstVisibleItem, int visibleItemCount, int totalItemCount) {
