@@ -20,8 +20,8 @@ public class AddCommentTaskTest {
         Comment c = new Comment();
         c.track_id = 100;
         Robolectric.addHttpResponseRule("/tracks/100/comments", new TestHttpResponse(201, "OK"));
-        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);
-        expect(task.execute(c).get()).not.toBeNull();
+        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application, c);
+        expect(task.execute().get()).not.toBeNull();
     }
 
     @Test
@@ -29,11 +29,11 @@ public class AddCommentTaskTest {
         Comment c = new Comment();
         c.track_id = 100;
         Robolectric.addHttpResponseRule("/tracks/100/comments", new TestHttpResponse(201, "OK"));
-        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);
-        expect(task.execute(c).get()).not.toBeNull();
+        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application, c);
+        expect(task.execute().get()).not.toBeNull();
 
         expect(DefaultTestRunner.application.broadcasts.size()).toEqual(1);
-        expect(DefaultTestRunner.application.broadcasts.get(0).getAction()).toEqual(Sound.ACTION_COMMENT_ADDED);
+        expect(DefaultTestRunner.application.broadcasts.get(0).getAction()).toEqual(Sound.COMMENTS_UPDATED);
     }
 
     @Test
@@ -41,8 +41,8 @@ public class AddCommentTaskTest {
         Comment c = new Comment();
         c.track_id = 100;
         Robolectric.addHttpResponseRule("/tracks/100/comments", new TestHttpResponse(400, "FAILZ"));
-        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);
-        expect(task.execute(c).get()).toBeNull();
+        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application, c);
+        expect(task.execute().get()).toBeNull();
     }
 
     @Test
@@ -51,15 +51,15 @@ public class AddCommentTaskTest {
         c.track = new Track();
         c.track.id = 100;
         Robolectric.addHttpResponseRule("/tracks/100/comments", new TestHttpResponse(201, "OK"));
-        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);
-        expect(task.execute(c).get()).not.toBeNull();
+        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application, c);
+        expect(task.execute().get()).not.toBeNull();
     }
 
     @Test
     public void shouldFailWithoutTrackId() throws Exception {
         Comment c = new Comment();
-        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);
-        expect(task.execute(c).get()).toBeNull();
+        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application, c);
+        expect(task.execute().get()).toBeNull();
     }
 
     @Test
@@ -70,8 +70,8 @@ public class AddCommentTaskTest {
         SoundCloudApplication.MODEL_MANAGER.cache(c.track);
 
         Robolectric.addHttpResponseRule("/tracks/100/comments", new TestHttpResponse(201, "OK"));
-        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);
-        expect(task.execute(c).get()).not.toBeNull();
+        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application, c);
+        expect(task.execute().get()).not.toBeNull();
         expect(c.track.comments).toContainExactly(c);
     }
 }
