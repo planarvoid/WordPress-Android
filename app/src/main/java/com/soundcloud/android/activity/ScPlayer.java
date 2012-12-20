@@ -325,7 +325,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         f.addAction(Sound.ACTION_TRACK_ASSOCIATION_CHANGED);
         f.addAction(Sound.ACTION_SOUND_INFO_UPDATED);
         f.addAction(Sound.ACTION_SOUND_INFO_ERROR);
-        f.addAction(Sound.ACTION_COMMENT_ADDED);
+        f.addAction(Sound.COMMENTS_UPDATED);
         registerReceiver(mStatusListener, new IntentFilter(f));
     }
 

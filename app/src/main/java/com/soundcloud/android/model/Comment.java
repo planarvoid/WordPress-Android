@@ -155,6 +155,7 @@ public class Comment extends ScResource {
                                 long replyToId,
                                 String replyToUsername){
         Comment comment = new Comment();
+        comment.track_id = track.id;
         comment.track = track;
         comment.user = user;
         comment.user_id = user.id;
