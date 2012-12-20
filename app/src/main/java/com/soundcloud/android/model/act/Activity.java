@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.model.Creation;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
@@ -46,7 +47,7 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = CommentActivity.class, name = "comment")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class Activity extends ScModel implements Parcelable, Refreshable, Comparable<Activity> {
+public abstract class Activity extends ScModel implements Parcelable, Refreshable, Comparable<Activity>, Creation {
     @JsonProperty public String uuid;
     @JsonProperty public Date created_at;
     @JsonProperty public String tags;
