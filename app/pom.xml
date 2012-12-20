@@ -16,10 +16,6 @@
         <version>2.4.4-BETA1</version>
     </parent>
 
-    <artifactId>soundcloud-android</artifactId>
-    <packaging>apk</packaging>
-    <name>SoundCloud for Android</name>
-
     <build>
         <plugins>
             <plugin>
