@@ -61,19 +61,19 @@ public class AddCommentTask extends AsyncTask<Void, String, Comment> {
         Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(mComment.track_id);
         // udpate the cached track comments list
         if (t != null) {
-            if (added != null) {
-                if (t.comments == null) {
-                    t.comments = new ArrayList<Comment>();
-                } else {
-                    // remove the dummy comment, as we now have the real one
-                    Comment toRemove = null;
-                    for (Comment c : t.comments) {
-                        if (mComment == c) { //instance check
-                            toRemove = c;
-                        }
+            if (t.comments != null) {
+                // remove the dummy comment, as we now have the real one
+                Comment toRemove = null;
+                for (Comment c : t.comments) {
+                    if (mComment == c) { //instance check
+                        toRemove = c;
                     }
-                    if (toRemove != null) t.comments.remove(toRemove);
                 }
+                if (toRemove != null) t.comments.remove(toRemove);
+            }
+
+            if (added != null) {
+                if (t.comments == null) t.comments = new ArrayList<Comment>();
                 t.comments.add(added);
             } else {
                 t.comment_count--;
