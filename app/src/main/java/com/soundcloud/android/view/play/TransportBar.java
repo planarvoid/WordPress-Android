@@ -25,6 +25,7 @@ public class TransportBar extends LinearLayout{
 
     public TransportBar(Context context, AttributeSet attrs) {
         super(context, attrs);
+        setStaticTransformationsEnabled(true);
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.transport_bar, this);
@@ -61,13 +62,11 @@ public class TransportBar extends LinearLayout{
 
     public void setPreviousEnabled(boolean b) {
         mPrevEnabled = b;
-        setStaticTransformationsEnabled(b);
         mPrevHolder.invalidate();
     }
 
     public void setNextEnabled(boolean b) {
         mNextEnabled = b;
-        setStaticTransformationsEnabled(b);
         mNextHolder.invalidate();
     }
 
