@@ -381,7 +381,7 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
                 if (token != null) {
                     new FetchUserTask(app) {
                         @Override
-                        protected void onPostExecute(User user) {
+                        protected void onPostExecute(@Nullable User user) {
                             // need to create user account as soon as possible, so the executeRefreshTask logic in
                             // SoundCloudApplication works properly
                             final boolean success = user != null && app.addUserAccount(user, app.getToken(), SignupVia.API);
