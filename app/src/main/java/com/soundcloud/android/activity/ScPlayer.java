@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.service.playback.CloudPlaybackService.getPlaylistManager;
 
+import android.util.Log;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -541,7 +542,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
         mTrackPager.configureFromService(this, playQueueManager, queuePosition);
         final long queueLength = playQueueManager == null ? 1 :playQueueManager.length();
-        mTransportBar.setNavEnabled(queueLength > 1);
+
         setPlaybackState();
     }
 
@@ -578,5 +579,15 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         }
 
         mTransportBar.setPlaybackState(showPlayState);
+
+        final PlayQueueManager playQueueManager = getPlaylistManager();
+
+        if (playQueueManager != null) {
+            int pos    = playQueueManager.getPosition();
+            int length = playQueueManager.length();
+
+            mTransportBar.setPreviousEnabled(pos > 0);
+            mTransportBar.setNextEnabled(pos < (length - 1));
+        }
     }
 }

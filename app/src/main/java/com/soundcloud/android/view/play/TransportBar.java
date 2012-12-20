@@ -21,8 +21,11 @@ public class TransportBar extends LinearLayout{
     private RelativeLayout mPrevHolder;
     private RelativeLayout mNextHolder;
 
+    private boolean mPrevEnabled, mNextEnabled;
+
     public TransportBar(Context context, AttributeSet attrs) {
         super(context, attrs);
+        setStaticTransformationsEnabled(true);
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.transport_bar, this);
@@ -57,16 +60,20 @@ public class TransportBar extends LinearLayout{
         mPrevButton.setOnClickListener(listener);
     }
 
-    public void setNavEnabled(boolean b) {
-        setStaticTransformationsEnabled(!b);
+    public void setPreviousEnabled(boolean b) {
+        mPrevEnabled = b;
         mPrevHolder.invalidate();
+    }
+
+    public void setNextEnabled(boolean b) {
+        mNextEnabled = b;
         mNextHolder.invalidate();
     }
 
     @Override
     protected boolean getChildStaticTransformation(View child, Transformation t) {
         boolean ret = super.getChildStaticTransformation(child, t);
-        if (child == mPrevHolder || child == mNextHolder){
+        if (child == mPrevHolder && !mPrevEnabled || child == mNextHolder && !mNextEnabled){
             t.setAlpha(0.5f);
             return true;
         }
