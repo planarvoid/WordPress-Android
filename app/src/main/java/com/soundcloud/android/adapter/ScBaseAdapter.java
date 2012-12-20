@@ -43,8 +43,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     protected boolean mIsLoadingData;
     protected int mPage;
 
-    private DrawableCache mIconAnimations = new DrawableCache(32);
-    private Set<Long> mLoadingIcons = new HashSet<Long>();
     private View mProgressView;
 
     @SuppressWarnings("unchecked")
@@ -133,7 +131,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     protected abstract LazyRow createRow(int position);
 
     public void clearData() {
-        clearIcons();
         mData.clear();
         mPage = 0;
     }
@@ -141,41 +138,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     // not used?
     public void onDestroy() {
     }
-
-    public Drawable getDrawableFromId(long id) {
-        return mIconAnimations.get(id);
-    }
-
-    public void assignDrawableToId(long id, Drawable drawable) {
-        mIconAnimations.put(id, drawable);
-    }
-
-    public boolean getIconNotReady(long id) {
-        return mLoadingIcons.contains(id);
-    }
-
-    public void setIconNotReady(long id) {
-        mLoadingIcons.add(id);
-    }
-
-    private class DrawableCache extends LruCache<Long, Drawable> {
-
-        /**
-         * @param maxSize for caches that do not override {@link #sizeOf}, this is
-         *                the maximum number of entries in the cache. For all other caches,
-         *                this is the maximum sum of the sizes of the entries in this cache.
-         */
-        public DrawableCache(int maxSize) {
-            super(maxSize);
-        }
-
-        @Override
-        protected void entryRemoved(boolean evicted, Long key, Drawable oldValue, Drawable newValue) {
-            super.entryRemoved(evicted, key, oldValue, newValue);
-            mLoadingIcons.remove(key);
-        }
-    }
-
 
     // needed?
     @Override
@@ -192,10 +154,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         return getCount() == 0;
     }
 
-    protected void clearIcons(){
-        mIconAnimations.evictAll();
-        mLoadingIcons.clear();
-    }
 
     public void onResume() {
     }
