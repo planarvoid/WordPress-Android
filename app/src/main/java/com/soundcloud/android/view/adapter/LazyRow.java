@@ -36,7 +36,7 @@ public abstract class LazyRow extends FrameLayout {
         super(context, attributeSet);
         mAdapter = adapter;
 
-        if (mIconOptions == null) mIconOptions = new ImageLoader.Options();
+        if (mIconOptions == null) mIconOptions = ImageLoader.Options.listFadeIn();
         mImageLoader = ImageLoader.get(context);
 
         addContent();
@@ -56,43 +56,10 @@ public abstract class LazyRow extends FrameLayout {
 
     /** update the views with the data corresponding to selection index */
     public void display(int position) {
-        final long id = mAdapter.getItemId(position);
         final String iconUri = getIconRemoteUri();
         if (ImageUtils.checkIconShouldLoad(iconUri)) {
-            Drawable drawable = mAdapter.getDrawableFromId(id);
-            if (drawable != null) {
-                // we have already made a drawable for this item
-                mIcon.setImageDrawable(drawable);
-            } else {
-                // no drawable yet, check for a bitmap
-                final Bitmap bmp = mImageLoader.getBitmap(iconUri, null, ImageLoader.Options.dontLoadRemote());
-                if (bmp != null) {
-                    // we have a bitmap, check to see if this was previously empty (should be animated in)
-                    if (mAdapter.getIconNotReady(id)) {
-                        TransitionDrawable tDrawable = (TransitionDrawable) (drawable = new TransitionDrawable(
-                                new Drawable[]{getResources().getDrawable(getDefaultArtworkResId()), new BitmapDrawable(bmp)}));
-                        tDrawable.setCrossFadeEnabled(true);
-                        tDrawable.setCallback(new android.graphics.drawable.Drawable.Callback() {
-                            @Override public void invalidateDrawable(Drawable drawable) { mIcon.invalidate();}
-                            @Override public void scheduleDrawable(Drawable drawable, Runnable runnable, long l) { }
-                            @Override public void unscheduleDrawable(Drawable drawable, Runnable runnable) { }
-                        });
-                        tDrawable.startTransition(300);
-                    } else {
-                        drawable = new BitmapDrawable(bmp);
-                    }
-                    mAdapter.assignDrawableToId(id, drawable);
-                    mIcon.setImageDrawable(drawable);
-
-                } else if (!mAdapter.getIconNotReady(id)) {
-                    // mark it as not ready and tell the imageloader to load it (it will notify the adapter when done)
-                    mAdapter.setIconNotReady(id);
-                    mImageLoader.bind((BaseAdapter) mAdapter, mIcon, iconUri, mIconOptions);
-                    mIcon.setImageResource(getDefaultArtworkResId());
-                } else {
-                    // already loading, just make sure we aren't displaying an old one
-                    mIcon.setImageResource(getDefaultArtworkResId());
-                }
+            if (mImageLoader.bind(mIcon,iconUri,null,mIconOptions) != ImageLoader.BindResult.OK){
+                mIcon.setImageResource(getDefaultArtworkResId());
             }
         } else {
             mImageLoader.unbind(mIcon);
