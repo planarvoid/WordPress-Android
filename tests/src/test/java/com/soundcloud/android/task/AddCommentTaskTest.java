@@ -7,6 +7,7 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.Test;
@@ -19,7 +20,9 @@ public class AddCommentTaskTest {
     public void shouldPostComment() throws Exception {
         Comment c = new Comment();
         c.track_id = 100;
-        Robolectric.addHttpResponseRule("/tracks/100/comments", new TestHttpResponse(201, "OK"));
+        Robolectric.getFakeHttpLayer().addHttpResponseRule("/tracks/100/comments",
+                        new TestHttpResponse(201, TestHelper.resourceAsBytes(getClass(), "comment.json")));
+
         AddCommentTask task = new AddCommentTask(DefaultTestRunner.application, c);
         expect(task.execute().get()).not.toBeNull();
     }
@@ -28,7 +31,9 @@ public class AddCommentTaskTest {
     public void shouldSendBroadcastAfterPost() throws Exception {
         Comment c = new Comment();
         c.track_id = 100;
-        Robolectric.addHttpResponseRule("/tracks/100/comments", new TestHttpResponse(201, "OK"));
+        SoundCloudApplication.MODEL_MANAGER.cache(new Track(100l));
+        Robolectric.getFakeHttpLayer().addHttpResponseRule("/tracks/100/comments",
+                                new TestHttpResponse(201, TestHelper.resourceAsBytes(getClass(), "comment.json")));
         AddCommentTask task = new AddCommentTask(DefaultTestRunner.application, c);
         expect(task.execute().get()).not.toBeNull();
 
@@ -50,7 +55,8 @@ public class AddCommentTaskTest {
         Comment c = new Comment();
         c.track = new Track();
         c.track.id = 100;
-        Robolectric.addHttpResponseRule("/tracks/100/comments", new TestHttpResponse(201, "OK"));
+        Robolectric.getFakeHttpLayer().addHttpResponseRule("/tracks/100/comments",
+                new TestHttpResponse(201, TestHelper.resourceAsBytes(getClass(), "comment.json")));
         AddCommentTask task = new AddCommentTask(DefaultTestRunner.application, c);
         expect(task.execute().get()).not.toBeNull();
     }
@@ -69,9 +75,10 @@ public class AddCommentTaskTest {
         c.track.id = 100;
         SoundCloudApplication.MODEL_MANAGER.cache(c.track);
 
-        Robolectric.addHttpResponseRule("/tracks/100/comments", new TestHttpResponse(201, "OK"));
+        Robolectric.getFakeHttpLayer().addHttpResponseRule("/tracks/100/comments",
+                new TestHttpResponse(201, TestHelper.resourceAsBytes(getClass(), "comment.json")));
         AddCommentTask task = new AddCommentTask(DefaultTestRunner.application, c);
         expect(task.execute().get()).not.toBeNull();
-        expect(c.track.comments).toContainExactly(c);
+        expect(c.track.comments.size()).toBe(1);
     }
 }
