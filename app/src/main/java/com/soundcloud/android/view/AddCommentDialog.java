@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.task.AddCommentTask;
 import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.MotionEventUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 
@@ -24,6 +25,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -123,25 +125,34 @@ public class AddCommentDialog extends Dialog {
 
     private boolean done(final Comment comment) {
         final String text = mInput.getText().toString();
+
+        if (!IOUtils.isConnected(mActivity)){
+            Toast.makeText(mActivity,R.string.add_comment_no_connection,Toast.LENGTH_LONG).show();
+            return false;
+        }
+
         if (!TextUtils.isEmpty(text))  {
             ((InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
                     .hideSoftInputFromWindow(mInput.getApplicationWindowToken(), 0);
             comment.body = text;
 
-            new AddCommentTask(mActivity.getApp()).execute(comment);
+            final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(comment.track_id);
+            if (track != null) {
+                if (track.comments == null) track.comments = new ArrayList<Comment>();
+                // add dummy comment
+                track.comments.add(comment);
+                track.comment_count = Math.max(1, track.comment_count + 1); //take care of -1
+            }
+
+            if (mActivity instanceof ScPlayer) {
+                ((ScPlayer) mActivity).onNewComment(comment);
+            }
+
+            new AddCommentTask(mActivity.getApp(), comment).execute();
 
             // cannot simply dismiss, or state will be saved
             mActivity.removeDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
 
-            final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(comment.track_id);
-            if (track != null) {
-                if (track.comments == null) track.comments = new ArrayList<Comment>();
-                track.comments.add(comment);
-            }
-
-            if (mActivity instanceof ScPlayer) {
-                ((ScPlayer)mActivity).onNewComment(comment);
-            }
             return true;
         } else return false;
     }

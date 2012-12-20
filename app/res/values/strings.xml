@@ -120,5 +120,6 @@
     <string name="no_internet_connection">Oops, we aren\'t able to connect to the internet</string>
     <string name="no_info_available">No information available</string>
     <string name="crop_image_error">There was an error cropping your image.</string>
+    <string name="add_comment_no_connection">Unable to add comment. Please check your data connection and try again.</string>
 
 </resources>
