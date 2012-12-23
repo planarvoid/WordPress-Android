@@ -7,7 +7,9 @@ import org.jetbrains.annotations.Nullable;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -223,7 +225,7 @@ public class ImageLoader {
             if (error != null) {
                 return BindResult.ERROR;
             } else {
-                return queueRequest(url, new ImageViewCallback(view, callback), options);
+                return queueRequest(url, new ImageViewCallback(view, callback, options), options);
             }
         }
     }
@@ -600,14 +602,16 @@ public class ImageLoader {
     public final class ImageViewCallback implements ImageCallback {
         private final WeakReference<ImageView> mImageView;
         private final Callback mCallback;
+        private final Options mOptions;
 
         private String mUrl;
         private Bitmap mBitmap;
         private ImageError mError;
 
-        public ImageViewCallback(ImageView imageView, Callback callback) {
+        public ImageViewCallback(ImageView imageView, Callback callback, Options options) {
             mImageView = new WeakReference<ImageView>(imageView);
             mCallback = callback;
+            mOptions = options;
         }
 
         public boolean unwanted() {
@@ -623,7 +627,7 @@ public class ImageLoader {
         }
 
         public void send() {
-            ImageView imageView = mImageView.get();
+            final ImageView imageView = mImageView.get();
             if (imageView == null) return;
             String binding = mImageViewBinding.get(imageView);
             if (!TextUtils.equals(binding, mUrl)) {
@@ -640,7 +644,28 @@ public class ImageLoader {
             }
 
             if (mBitmap != null) {
-                imageView.setImageBitmap(mBitmap);
+                if (mOptions.fadeAfterLoad){
+                    final Drawable from = imageView.getDrawable();
+                    TransitionDrawable tDrawable = new TransitionDrawable(
+                            new Drawable[]{
+                                    from == null ? new BitmapDrawable() : from,
+                                    new BitmapDrawable(mBitmap)
+                            });
+                    tDrawable.setCrossFadeEnabled(true);
+                    tDrawable.setCallback(new android.graphics.drawable.Drawable.Callback() {
+                        @Override public void scheduleDrawable(Drawable drawable, Runnable runnable, long l) {}
+                        @Override public void unscheduleDrawable(Drawable drawable, Runnable runnable) {}
+                        @Override
+                        public void invalidateDrawable(Drawable drawable) {
+                            imageView.invalidate();
+                        }
+                    });
+                    tDrawable.startTransition(200);
+                    imageView.setImageDrawable(tDrawable);
+                } else {
+                    imageView.setImageBitmap(mBitmap);
+                }
+
                 if (mCallback != null) {
                     mCallback.onImageLoaded(imageView, mUrl);
                 }
@@ -720,6 +745,8 @@ public class ImageLoader {
         public boolean loadBitmap = true;
         public boolean loadRemotelyIfNecessary = true;
         public boolean postAtFront;
+        public boolean fadeAfterLoad;
+
 
         public int decodeInSampleSize = 1;
         public WeakReference<Bitmap> temporaryBitmapRef;
@@ -733,6 +760,13 @@ public class ImageLoader {
         public static Options postAtFront() {
             Options options = new Options();
             options.postAtFront = true;
+            return options;
+        }
+
+        public static Options listFadeIn() {
+            Options options = new Options();
+            options.postAtFront = true;
+            options.fadeAfterLoad = true;
             return options;
         }
     }
