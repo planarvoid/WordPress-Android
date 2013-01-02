@@ -43,7 +43,7 @@ public final class FileCache  {
                             if (cacheDir.exists() || cacheDir.mkdirs()) {
                                 HttpResponseCache.install(cacheDir, size);
                             }
-                        } catch (IOException e) {
+                        } catch (Exception e) { // IOException or Illegal Argument (bug in LRU cache cleanup)
                             Log.w(TAG, "error installing cache", e);
                         }
                     }
