@@ -40,7 +40,9 @@ public final class FileCache  {
                     @Override
                     public void run() {
                         try {
-                            HttpResponseCache.install(cacheDir, size);
+                            if (cacheDir.exists() || cacheDir.mkdirs()) {
+                                HttpResponseCache.install(cacheDir, size);
+                            }
                         } catch (IOException e) {
                             Log.w(TAG, "error installing cache", e);
                         }
