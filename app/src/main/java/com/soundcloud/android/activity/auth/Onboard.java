@@ -199,7 +199,7 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
 
         TourLayout.load(this, mTourPages);
 
-        View splash = findViewById(R.id.splash);
+        final View splash = findViewById(R.id.splash);
         showView(splash, false);
 
         mTourPages[0].setLoadHandler(new Handler() {
