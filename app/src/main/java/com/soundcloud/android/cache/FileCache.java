@@ -1,6 +1,7 @@
 package com.soundcloud.android.cache;
 
 import com.integralblue.httpresponsecache.HttpResponseCache;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.os.AsyncTask;
@@ -43,8 +44,12 @@ public final class FileCache  {
                             if (cacheDir.exists() || cacheDir.mkdirs()) {
                                 HttpResponseCache.install(cacheDir, size);
                             }
-                        } catch (Exception e) { // IOException or Illegal Argument (bug in LRU cache cleanup)
+                        } catch (IOException e) {
                             Log.w(TAG, "error installing cache", e);
+                        } catch (IllegalArgumentException e) {
+                            Log.w(TAG, "error installing cache", e);
+                            SoundCloudApplication.handleSilentException("Error installing cache, SD Avail: "
+                                    + IOUtils.isSDCardAvailable(), e);
                         }
                     }
                 }.start();
