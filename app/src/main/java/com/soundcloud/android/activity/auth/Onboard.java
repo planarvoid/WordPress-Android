@@ -238,8 +238,8 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
         outState.putSerializable(BUNDLE_STATE, getState());
         outState.putParcelable(BUNDLE_USER,    mUser);
 
-        if (mLogin         != null) outState.putBundle(BUNDLE_LOGIN, mLogin.getStateBundle());
-        if (mSignUp        != null) outState.putBundle(BUNDLE_SIGN_UP, mSignUp.getStateBundle());
+        if (mLogin       != null) outState.putBundle(BUNDLE_LOGIN, mLogin.getStateBundle());
+        if (mSignUp      != null) outState.putBundle(BUNDLE_SIGN_UP, mSignUp.getStateBundle());
         if (mUserDetails != null) outState.putBundle(BUNDLE_SIGN_UP_DETAILS, mUserDetails.getStateBundle());
     }
 
@@ -249,8 +249,8 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
 
         mUser = savedInstanceState.getParcelable(BUNDLE_USER);
 
-        mLoginBundle         = savedInstanceState.getBundle(BUNDLE_LOGIN);
-        mSignUpBundle        = savedInstanceState.getBundle(BUNDLE_SIGN_UP);
+        mLoginBundle       = savedInstanceState.getBundle(BUNDLE_LOGIN);
+        mSignUpBundle      = savedInstanceState.getBundle(BUNDLE_SIGN_UP);
         mUserDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
 
         final StartState state = (StartState) savedInstanceState.getSerializable(BUNDLE_STATE);
