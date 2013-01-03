@@ -10,13 +10,12 @@ import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
 import android.os.AsyncTask;
 
 import java.io.IOException;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
@@ -48,20 +47,19 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
                     Comment created  = app.getMapper().readValue(response.getEntity().getContent(), Comment.class);
                     publishProgress(comment, created);
                     return created;
-                } //  fall-through
+                } // else fall-through
             } catch (IOException e) {
                 exception = e;
             }
         }
+        publishProgress(comment, null);
         return null;
     }
 
-
-
     @Override
     protected void onProgressUpdate(Comment... comments) {
-        final Comment comment   = comments[0];
-        final Comment added     = comments[1];
+        final Comment comment          = comments[0];
+        final @Nullable Comment added  = comments[1];
 
         Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(comment.track_id);
         // udpate the cached track comments list
@@ -82,8 +80,7 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
                 t.comments.add(added);
             } else {
                 t.comment_count--;
-                // error adding comment
-                if (exception instanceof UnknownHostException || exception instanceof SocketException) {
+                if (exception != null) {
                     app.sendBroadcast(new Intent(Actions.CONNECTION_ERROR));
                 }
             }
