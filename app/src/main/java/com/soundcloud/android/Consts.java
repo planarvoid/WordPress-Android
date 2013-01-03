@@ -221,7 +221,6 @@ public final class Consts {
         String STREAMING_WRITES_SINCE_CLEANUP       = "streamingWritesSinceCleanup";
         String C2DM_DEVICE_URL                      = "c2dm.device_url";
         String C2DM_REG_TO_DELETE                   = "c2dm.to_delete";
-        String LAST_SYNC_CLEANUP                    = "lastSyncCleanup";
         String NOTIFICATIONS_FOLLOWERS              = "notificationsFollowers";
         String NOTIFICATIONS_WIFI_ONLY              = "notificationsWifiOnly";
         String NOTIFICATIONS_INCOMING               = "notificationsIncoming";
