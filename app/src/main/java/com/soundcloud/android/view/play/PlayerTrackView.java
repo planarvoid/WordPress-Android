@@ -265,7 +265,16 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     private void setTrackStats(ToggleButton button, int count, boolean checked) {
-        final String countString = count < 0 ? "\u2014" : String.valueOf(count);
+        final String countString;
+
+        if (count < 0) {
+            countString = "\u2014";
+        } else if (count == 0) {
+            countString = "";
+        } else {
+            countString = String.valueOf(count);
+        }
+
         button.setTextOff(countString);
         button.setTextOn(countString);
         button.setChecked(checked);
