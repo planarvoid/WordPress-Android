@@ -152,6 +152,22 @@ public class ScContentProviderTest {
     }
 
     @Test
+    public void shouldCleanupSoundStream() throws Exception {
+        Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_stream.json"));
+        expect(a.insert(Content.ME_SOUND_STREAM, resolver)).toBe(50);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(46); // 4 playlists, otherwise 50
+        expect(resolver.update(Uri.parse(Content.SOUND_STREAM_CLEANUP.uri.toString() + "?limit=10"), null, null, null)).toBe(40);
+    }
+
+    @Test
+    public void shouldCleanupActivities() throws Exception {
+        Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities.json"));
+        expect(a.insert(Content.ME_ACTIVITIES, resolver)).toBe(17);
+        expect(Content.ME_ACTIVITIES).toHaveCount(17);
+        expect(resolver.update(Uri.parse(Content.ACTIVITIES_CLEANUP.uri.toString() + "?limit=5"), null, null, null)).toBe(12);
+    }
+
+    @Test
     public void shouldIncludeUserPermalinkInTrackView() throws Exception {
         Activities activities = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(
                 ApiSyncServiceTest.class.getResourceAsStream("e1_stream_1.json"));
