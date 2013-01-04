@@ -25,7 +25,7 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
     public static final String ACTION_TRACK_ASSOCIATION_CHANGED     = "com.soundcloud.android.sound.association_changed";
     public static final String ACTION_SOUND_INFO_UPDATED            = "com.soundcloud.android.sound.info_updated";
     public static final String ACTION_SOUND_INFO_ERROR              = "com.soundcloud.android.sound.info_error";
-    public static final String ACTION_COMMENT_ADDED                 = "com.soundcloud.android.sound.commentadded";
+    public static final String COMMENTS_UPDATED                     = "com.soundcloud.android.sound.commentsupdated";
 
     public abstract Date getCreatedAt();
     public abstract String getArtwork();

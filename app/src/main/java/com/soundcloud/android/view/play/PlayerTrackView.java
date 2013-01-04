@@ -278,6 +278,7 @@ public class PlayerTrackView extends LinearLayout implements
         button.setTextOff(countString);
         button.setTextOn(countString);
         button.setChecked(checked);
+        button.invalidate();
     }
 
     private void refreshComments() {
@@ -674,6 +675,11 @@ public class PlayerTrackView extends LinearLayout implements
                 setTrackStats(mToggleLike, mTrack.likes_count, mTrack.user_like);
             }
 
+        } else if (Sound.COMMENTS_UPDATED.equals(action)) {
+            if (mTrack != null && mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
+                onCommentsChanged();
+            }
+
         } else if (Sound.ACTION_SOUND_INFO_UPDATED.equals(action)) {
             Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1));
             if (t != null) {
@@ -723,9 +729,14 @@ public class PlayerTrackView extends LinearLayout implements
 
     public void onNewComment(Comment comment) {
         if (comment.track_id == mTrack.id) {
-            if (mTrack.comments != null) mWaveformController.setComments(mTrack.comments, false, true);
+            onCommentsChanged();
             mWaveformController.showNewComment(comment);
         }
+    }
+
+    private void onCommentsChanged() {
+        setTrackStats(mToggleComment, mTrack.comment_count, mIsCommenting);
+        if (mTrack.comments != null) mWaveformController.setComments(mTrack.comments, false, true);
     }
 
 
