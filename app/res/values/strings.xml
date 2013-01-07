@@ -128,4 +128,28 @@
     <string name="accessibility_infix_reposted">reposted</string>
     <string name="accessibility_infix_liked">liked</string>
     <string name="accessibility_infix_commented">commented on</string>
+    <string name="accessibility_infix_reposted_by">reposted by</string>
+
+    <plurals name="accessibility_stats_comments">
+        <item quantity="one">1 Comment</item>
+        <item quantity="other">%d Comments</item>
+    </plurals>
+
+    <plurals name="accessibility_stats_plays">
+        <item quantity="one">1 Play</item>
+        <item quantity="other">%d Plays</item>
+    </plurals>
+
+    <plurals name="accessibility_stats_likes">
+        <item quantity="one">1 Like</item>
+        <item quantity="other">%d Likes</item>
+    </plurals>
+
+    <plurals name="accessibility_stats_reposts">
+        <item quantity="one">1 Repost</item>
+        <item quantity="other">%d Reposts</item>
+    </plurals>
+
+    <string name="accessibility_stats_user_liked">Liked by you</string>
+    <string name="accessibility_stats_user_reposted">Reposted by you</string>
 </resources>
