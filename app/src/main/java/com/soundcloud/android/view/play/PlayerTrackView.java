@@ -312,8 +312,11 @@ public class PlayerTrackView extends LinearLayout implements
         if (accessibilityManager.isEnabled()) {
             final StringBuilder builder = new StringBuilder();
             builder.append(getContext().getResources().getString(actionStringID));
-            builder.append(", ");
-            builder.append(getContext().getResources().getQuantityString(descriptionPluralID, count, count));
+
+            if (count >= 0) {
+                builder.append(", ");
+                builder.append(getContext().getResources().getQuantityString(descriptionPluralID, count, count));
+            }
 
             if (checked) {
                 builder.append(", ");
