@@ -368,9 +368,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     public void onSignUp(final String email, final String password) {
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
         final Bundle param = new Bundle();
-        param.putString("username", email);
-        param.putString("password", password);
-
+        param.putString(USERNAME_EXTRA, email);
+        param.putString(PASSWORD_EXTRA, password);
 
         new SignupTask(app) {
             ProgressDialog progress;
@@ -383,11 +382,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
             @Override
             protected void onPostExecute(final User user) {
-                if (!isFinishing()) {
-                    try {
-                        progress.dismiss();
-                    } catch (IllegalArgumentException ignored) {}
-                }
+
+                dismissDialog(progress);
 
                 if (user != null) {
                     writeNewSignupToLog();
@@ -402,15 +398,15 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                                     mUser = user;
                                     setState(StartState.SIGN_UP_DETAILS);
                                 } else {
-                                    presentError(getString(R.string.authentication_error_title), getFirstError());
+                                    showError(getString(R.string.authentication_error_title), getFirstError());
                                 }
                             }
                         }.execute(param);
                     } else {
-                        presentError(R.string.authentication_signup_error_title, R.string.authentication_signup_error_message);
+                        showError(getString(R.string.authentication_signup_error_title), getString(R.string.authentication_signup_error_message));
                     }
                 } else {
-                    presentError(getString(R.string.authentication_error_title), getFirstError());
+                    showError(getString(R.string.authentication_error_title), getFirstError());
                 }
             }
         }.execute(email, password);
@@ -449,7 +445,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                     if (user != null) {
                         onAuthenticated(SignupVia.API, user);
                     } else {
-                        presentError(getString(R.string.authentication_error_title), getFirstError());
+                        showError(getString(R.string.authentication_error_title), getFirstError());
                     }
                 }
             }
@@ -604,24 +600,6 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         Object tag = view.getTag();
 
         return "foreground".equals(tag) || "parallax".equals(tag);
-    }
-
-    protected void presentError(int titleId, int messageId) {
-        presentError(getResources().getString(titleId), getResources().getString(messageId));
-    }
-
-    protected void presentError(@Nullable String title, @Nullable String message) {
-        if (!isFinishing()) {
-            new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .show();
-        }
     }
 
     private void onFacebookLogin() {

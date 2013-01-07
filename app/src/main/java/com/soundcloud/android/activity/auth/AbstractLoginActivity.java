@@ -76,39 +76,43 @@ public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+token+")");
 
                 if (token != null) {
-                    //TODO: pull this out, too many levels of indentation make me a saaaad panda.
-                    new FetchUserTask(app) {
-                        @Override
-                        protected void onPostExecute(User user) {
-                            dismissDialog(progress);
-
-                            if (user != null) {
-                                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
-
-                                // for logins, we don't track via
-                                SignupVia via = SignupVia.NONE;
-
-                                // need to create user account as soon as possible, so the executeRefreshTask logic in
-                                // SoundCloudApplication works properly
-                                boolean accountCreated = app.addUserAccountAndEnableSync(user, app.getToken(), via);
-                                if (accountCreated) {
-                                    // success path
-                                    onAuthenticated(via, user);
-                                } else {
-                                    AndroidUtils.showToast(AbstractLoginActivity.this, R.string.error_creating_account);
-                                }
-                            } else {
-                                // TODO: means we got a 404 on the user, needs to be more expressive...
-                                showError(null);
-                            }
-                        }
-                    }.execute(Request.to(Endpoints.MY_DETAILS));
+                    fetchUser(token, progress);
                 } else { // no tokens obtained
                     dismissDialog(progress);
                     showError(mException);
                 }
             }
         }.execute(data);
+    }
+
+    private void fetchUser(final Token token, final ProgressDialog progress) {
+        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+        new FetchUserTask(app) {
+            @Override
+            protected void onPostExecute(User user) {
+                dismissDialog(progress);
+
+                if (user != null) {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
+
+                    // for normal logins, we don't track via; for FB logins or signups, it'll be stored in the token.
+                    SignupVia via = token.getSignup() != null ? SignupVia.fromString(token.getSignup()) : SignupVia.NONE;
+
+                    // need to create user account as soon as possible, so the executeRefreshTask logic in
+                    // SoundCloudApplication works properly
+                    boolean accountCreated = app.addUserAccountAndEnableSync(user, app.getToken(), via);
+                    if (accountCreated) {
+                        // success path
+                        onAuthenticated(via, user);
+                    } else {
+                        AndroidUtils.showToast(AbstractLoginActivity.this, R.string.error_creating_account);
+                    }
+                } else {
+                    // TODO: means we got a 404 on the user, needs to be more expressive...
+                    showError(null);
+                }
+            }
+        }.execute(Request.to(Endpoints.MY_DETAILS));
     }
 
     protected void onAuthenticated(@NotNull SignupVia via, @NotNull User user) {
@@ -151,10 +155,23 @@ public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity
     protected void showError(@Nullable IOException e) {
         if (!isFinishing()) {
             final boolean tokenError = e instanceof CloudAPI.InvalidTokenException;
+            if (tokenError) {
+                showError(getString(R.string.authentication_error_title),
+                        getString(R.string.authentication_login_error_password_message));
+            } else {
+                showError(getString(R.string.authentication_error_no_connection_title),
+                        getString(R.string.authentication_error_no_connection_message));
+            }
+        }
+    }
+
+    //TODO: use dialog fragments or managed dialogs (onCreateDialog)
+    protected void showError(String title, String message) {
+        if (!isFinishing()) {
             new AlertDialog.Builder(AbstractLoginActivity.this)
                     .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setTitle(tokenError ? R.string.authentication_error_title : R.string.authentication_error_no_connection_title)
-                    .setMessage(tokenError ? R.string.authentication_login_error_password_message : R.string.authentication_error_no_connection_message)
+                    .setTitle(title)
+                    .setMessage(message)
                     .setPositiveButton(android.R.string.ok, null)
                     .create()
                     .show();
