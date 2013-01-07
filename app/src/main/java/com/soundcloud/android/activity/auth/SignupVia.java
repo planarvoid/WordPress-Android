@@ -7,7 +7,7 @@ public enum SignupVia {
     API("api"),
     FACEBOOK_SSO("facebook:access-token"),
     FACEBOOK_WEBFLOW("facebook:web-flow"),
-    NONE("none");
+    NONE("none"); //TODO: this means log-in; should be renamed to something more expressive
 
     public static final String EXTRA = "signed_up";
 

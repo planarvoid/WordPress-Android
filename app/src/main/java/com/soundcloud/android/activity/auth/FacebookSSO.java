@@ -90,7 +90,11 @@ public class FacebookSSO extends AbstractLoginActivity {
                     Log.d(TAG, "got token: "+token);
                 }
                 token.store(this);
-                loginExtensionGrantype(CloudAPI.FACEBOOK_GRANT_TYPE+token.accessToken);
+
+                Bundle bundle = new Bundle();
+                bundle.putString(EXTENSION_GRANT_TYPE_EXTRA, CloudAPI.FACEBOOK_GRANT_TYPE + token.accessToken);
+                login(bundle);
+
             } catch (SSOException e) {
                 Log.w(TAG, "error getting Facebook token", e);
 

@@ -356,94 +356,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Override
     public void onLogin(String email, String password) {
-        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
-        final Bundle param = new Bundle();
-        param.putString(AbstractLoginActivity.USERNAME_EXTRA, email);
-        param.putString(AbstractLoginActivity.PASSWORD_EXTRA, password);
-        param.putStringArray(AbstractLoginActivity.SCOPES_EXTRA, AbstractLoginActivity.SCOPES_TO_REQUEST);// default to non-expiring scope
-
-        new GetTokensTask(app) {
-            ProgressDialog progress;
-
-            @Override
-            protected void onPreExecute() {
-                if (!isFinishing()) {
-                    progress = AndroidUtils.showProgress(Onboard.this,
-                                                         R.string.authentication_login_progress_message);
-                }
-            }
-
-            @Override
-            protected void onPostExecute(final Token token) {
-                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+token+")");
-
-                if (token != null) {
-                    new FetchUserTask(app) {
-                        @Override
-                        protected void onPostExecute(@Nullable User user) {
-                            // need to create user account as soon as possible, so the executeRefreshTask logic in
-                            // SoundCloudApplication works properly
-                            final boolean success = user != null && app.addUserAccountAndEnableSync(user, app.getToken(), SignupVia.API);
-
-                            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
-
-                            try {
-                                progress.dismiss();
-                            } catch (IllegalArgumentException ignored) {}
-                            if (user != null && success) {
-                                onAuthenticated(SignupVia.NONE, user);
-                            } else { // user request failed
-                                presentError(R.string.authentication_error_title,
-                                             R.string.authentication_login_error_password_message);
-                            }
-                        }
-                    }.execute(Request.to(Endpoints.MY_DETAILS));
-                } else { // no tokens obtained
-                    try {
-                        progress.dismiss();
-                    } catch (IllegalArgumentException ignored) {}
-
-                    presentError(R.string.authentication_error_title,
-                                 R.string.authentication_login_error_password_message);
-                }
-            }
-        }.execute(param);
-    }
-
-    private void onAuthenticated(@NotNull SignupVia via, @NotNull User user) {
-        final Bundle result = new Bundle();
-        result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
-        result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
-        result.putBoolean(Consts.Keys.WAS_SIGNUP, via != SignupVia.NONE);
-        super.setAccountAuthenticatorResult(result);
-
-        SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
-
-        if (via != SignupVia.NONE) {
-            // user has signed up, schedule sync of user data to possibly refresh image data
-            // which gets processed asynchronously by the backend and is only available after signup has happened
-            final Context context = getApplicationContext();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    context.startService(new Intent(context, ApiSyncService.class).setData(Content.ME.uri));
-                }
-            }, 30 * 1000);
-        }
-
-        sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
-                .putExtra(User.EXTRA, user)
-                .putExtra(SignupVia.EXTRA, via.name));
-
-        if (result.getBoolean(Consts.Keys.WAS_SIGNUP)) {
-            startActivity(new Intent(this, SuggestedUsers.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .putExtra(Consts.Keys.WAS_SIGNUP, true));
-        } else {
-            startActivity(new Intent(this, Home.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-        }
-        finish();
+        login(email, password);
     }
 
     @Override
@@ -762,25 +675,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             }
 
             case Consts.RequestCodes.SIGNUP_VIA_FACEBOOK: {
-                if (resultCode != RESULT_OK || intent == null ) break;
-                SoundCloudApplication app = (SoundCloudApplication) getApplication();
-                final String error = intent.getStringExtra("error");
-                if (error == null) {
-                    final User user = intent.getParcelableExtra("user");
-                    final Token token = (Token) intent.getSerializableExtra("token");
-                    SignupVia via = SignupVia.fromIntent(intent);
-
-                    // API signup will already have created the account
-                    if (app.addUserAccountAndEnableSync(user, token, via)) {
-                        final Bundle result = new Bundle();
-                        result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
-                        result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
-                        onAuthenticated(via, user);
-
-                    } else {
-                        AndroidUtils.showToast(this, R.string.error_creating_account);
-                    }
-                } else {
+                if (intent != null && intent.hasExtra("error")) {
+                    final String error = intent.getStringExtra("error");
                     AndroidUtils.showToast(this, error);
                 }
                 break;
