@@ -20,16 +20,25 @@ public class ReturnData<T extends ScModel> {
     public ReturnData(CollectionHolder<T> newItems,
                       CollectionParams<T> params,
                       String nextHref,
-                      int responseCode,
                       boolean keepGoing,
                       boolean success) {
 
         this(params);
         this.newItems = newItems;
         this.nextHref = nextHref;
-        this.responseCode = responseCode;
         this.keepGoing = keepGoing;
         this.success = success;
+    }
+
+    public ReturnData(CollectionHolder<T> newItems,
+                      CollectionParams<T> params,
+                      String nextHref,
+                      int responseCode,
+                      boolean keepGoing,
+                      boolean success) {
+
+        this(newItems, params, nextHref, keepGoing, success);
+        this.responseCode = responseCode;
     }
 
     @Override
