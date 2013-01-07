@@ -65,7 +65,7 @@ import java.io.ObjectOutputStream;
 
 public class Onboard extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
     protected enum StartState {
-        LOADING, TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS
+        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS
     }
 
     private static final String BUNDLE_STATE           = "BUNDLE_STATE";
@@ -82,8 +82,6 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
     public static final int THROTTLE_AFTER_ATTEMPT = 5;
 
     private StartState mState = StartState.TOUR;
-
-    private View mSplash;
 
     @Nullable private User mUser;
 
@@ -109,7 +107,6 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
         mTourBottomBar = findViewById(R.id.tour_bottom_bar);
         mTourLogo      = findViewById(R.id.tour_logo);
         mViewPager     = (ViewPager) findViewById(R.id.tour_view);
-        mSplash        = findViewById(R.id.splash);
 
         mTourPages = new TourLayout[]{
             new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1),
@@ -198,17 +195,20 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
             UpdateManager.register(this, getString(R.string.hockey_app_id));
         }
 
-        setState(StartState.LOADING);
+        setState(StartState.TOUR);
+
         TourLayout.load(this, mTourPages);
 
-        TourLayout first = mTourPages[0];
-        first.setLoadHandler(new Handler() {
+        final View splash = findViewById(R.id.splash);
+        showView(splash, false);
+
+        mTourPages[0].setLoadHandler(new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case TourLayout.IMAGE_LOADED:
                     case TourLayout.IMAGE_ERROR:
-                        setState(StartState.TOUR);
+                        hideView(splash, true);
                         break;
                 }
             }
@@ -238,8 +238,8 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
         outState.putSerializable(BUNDLE_STATE, getState());
         outState.putParcelable(BUNDLE_USER,    mUser);
 
-        if (mLogin         != null) outState.putBundle(BUNDLE_LOGIN, mLogin.getStateBundle());
-        if (mSignUp        != null) outState.putBundle(BUNDLE_SIGN_UP, mSignUp.getStateBundle());
+        if (mLogin       != null) outState.putBundle(BUNDLE_LOGIN, mLogin.getStateBundle());
+        if (mSignUp      != null) outState.putBundle(BUNDLE_SIGN_UP, mSignUp.getStateBundle());
         if (mUserDetails != null) outState.putBundle(BUNDLE_SIGN_UP_DETAILS, mUserDetails.getStateBundle());
     }
 
@@ -249,12 +249,12 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
 
         mUser = savedInstanceState.getParcelable(BUNDLE_USER);
 
-        mLoginBundle         = savedInstanceState.getBundle(BUNDLE_LOGIN);
-        mSignUpBundle        = savedInstanceState.getBundle(BUNDLE_SIGN_UP);
+        mLoginBundle       = savedInstanceState.getBundle(BUNDLE_LOGIN);
+        mSignUpBundle      = savedInstanceState.getBundle(BUNDLE_SIGN_UP);
         mUserDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
 
         final StartState state = (StartState) savedInstanceState.getSerializable(BUNDLE_STATE);
-        setState(state == StartState.TOUR ? StartState.LOADING : state, false);
+        setState(state, false);
     }
 
 
@@ -381,10 +381,10 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
                 if (token != null) {
                     new FetchUserTask(app) {
                         @Override
-                        protected void onPostExecute(User user) {
+                        protected void onPostExecute(@Nullable User user) {
                             // need to create user account as soon as possible, so the executeRefreshTask logic in
                             // SoundCloudApplication works properly
-                            final boolean success = app.addUserAccount(user, app.getToken(), SignupVia.API);
+                            final boolean success = user != null && app.addUserAccount(user, app.getToken(), SignupVia.API);
 
                             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
 
@@ -562,7 +562,6 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
                 onSkipDetails();
                 return;
 
-            case LOADING:
             case TOUR:
                 super.onBackPressed();
                 return;
@@ -581,17 +580,11 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
         mState = state;
 
         switch (mState) {
-            case LOADING:
-                hideForegroundViews(false);
-                hideView(mViewPager, false);
-                return;
-
             case TOUR:
                 showForegroundViews(false);
 
                 showView(mViewPager, false);
 
-                hideView(mSplash, true);
                 hideView(getLogin(), animated);
                 hideView(getSignUp(), animated);
                 hideView(getUserDetails(), animated);
