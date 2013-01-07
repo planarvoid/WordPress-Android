@@ -125,4 +125,6 @@
     <string name="accessibility_menu">Open menu</string>
     <string name="accessibility_action_bar_waveform">Show currently playing track</string>
     <string name="accessibility_exit_search">Leave search mode</string>
+    <string name="accessibility_infix_reposted">reposted</string>
+    <string name="accessibility_infix_liked">liked</string>
 </resources>
