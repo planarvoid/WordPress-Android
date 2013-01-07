@@ -150,6 +150,7 @@
         <item quantity="other">%d Reposts</item>
     </plurals>
 
+    <string name="accessibility_search">Search SoundCloud</string>
     <string name="accessibility_stats_user_liked">Liked by you</string>
     <string name="accessibility_stats_user_reposted">Reposted by you</string>
     <string name="accessibility_like_action">Like</string>
