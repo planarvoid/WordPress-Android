@@ -148,7 +148,7 @@ public class AddCommentDialog extends Dialog {
                 ((ScPlayer) mActivity).onNewComment(comment);
             }
 
-            new AddCommentTask(mActivity.getApp(), comment).execute();
+            new AddCommentTask(mActivity.getApp()).execute(comment);
 
             // cannot simply dismiss, or state will be saved
             mActivity.removeDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);

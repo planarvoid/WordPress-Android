@@ -1227,14 +1227,15 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
                     // normal play, unless first start (autopause=true)
                     } else {
-                        setVolume(0);
-
                         // sometimes paused for buffering happens right after prepare, so check buffering on a delay
                         mPlayerHandler.sendEmptyMessageDelayed(CHECK_BUFFERING,500);
 
                         //  FADE_IN will call play()
                         if (!mAutoPause && mFocus.requestMusicFocus(CloudPlaybackService.this, IAudioManager.FOCUS_GAIN)) {
-                            mPlayerHandler.sendEmptyMessage(FADE_IN);
+                            mPlayerHandler.removeMessages(FADE_OUT);
+                            mPlayerHandler.removeMessages(FADE_IN);
+                            setVolume(1.0f);
+                            play();
                         }
                     }
                 } else {

@@ -8,6 +8,7 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.provider.SoundCloudDB;
+import org.apache.http.HttpStatus;
 
 import android.content.ContentResolver;
 import android.util.Log;
@@ -41,6 +42,6 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
         }
 
         CollectionHolder<T> newItems = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver, params.loadModel, params.getPagedUri());
-        return new ReturnData<T>(newItems, params, null, -1, keepGoing, true);
+        return new ReturnData<T>(newItems, params, null, keepGoing, true);
     }
 }

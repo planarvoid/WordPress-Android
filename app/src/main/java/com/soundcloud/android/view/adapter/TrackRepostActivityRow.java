@@ -12,6 +12,8 @@ import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
 import android.view.View;
 
+import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
+
 public class TrackRepostActivityRow extends ActivityRow {
 
     public TrackRepostActivityRow(Context context, ScBaseAdapter adapter) {
@@ -28,5 +30,19 @@ public class TrackRepostActivityRow extends ActivityRow {
     @Override
     protected boolean fillParcelable(Parcelable p) {
         return mActivity.getUser() != null;
+    }
+
+    @Override
+    public CharSequence getContentDescription() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(mActivity.getUser().getDisplayName());
+        builder.append(" ");
+        builder.append(getContext().getResources().getString(R.string.accessibility_infix_reposted));
+        builder.append(" ");
+        builder.append(mActivity.getTrack().title);
+        builder.append(". ");
+        builder.append(getTimeElapsed(getContext().getResources(), mActivity.created_at.getTime(), true));
+
+        return builder.toString();
     }
 }
