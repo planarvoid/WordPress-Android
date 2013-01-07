@@ -61,12 +61,16 @@ public class ApiSyncer {
     }
 
     public Result syncContent(Uri uri, String action) throws IOException {
+        final long userId = SoundCloudApplication.getUserIdFromContext(mContext);
         Content c = Content.match(uri);
         Result result = new Result(uri);
-        if (c.remoteUri != null) {
+
+        if (userId <= 0){
+            Log.w(TAG, "Invalid user id, skipping sync ");
+        } else if (c.remoteUri != null) {
             switch (c) {
                 case ME:
-                    result = syncMe(c);
+                    result = syncMe(c, userId);
                     if (result.success) {
                         mResolver.notifyChange(Content.ME.uri, null);
                     }
@@ -93,7 +97,7 @@ public class ApiSyncer {
                 case ME_FOLLOWERS:
                 case ME_REPOSTS:
                 case ME_FRIENDS:
-                    result = syncContent(c, SoundCloudApplication.getUserIdFromContext(mContext));
+                    result = syncContent(c, userId);
                     result.success = true;
                     break;
 
@@ -316,9 +320,9 @@ public class ApiSyncer {
         return itemDeletions;
     }
 
-    private Result syncMe(Content c) throws IOException {
+    private Result syncMe(Content c, long userId) throws IOException {
         Result result = new Result(c.uri);
-        User user = new FetchUserTask(mApi, SoundCloudApplication.getUserIdFromContext(mContext)).resolve(c.request());
+        User user = new FetchUserTask(mApi, userId).resolve(c.request());
         result.synced_at = System.currentTimeMillis();
         if (user != null) {
             SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
