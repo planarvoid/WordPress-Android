@@ -194,13 +194,11 @@ public class SyncAdapterService extends Service {
                     Log.d(TAG, "skipping collection sync, no wifi");
                 }
 
-                if (SoundCloudApplication.DALVIK) {
-                    final List<Uri> dueForSync = SyncCleanups.getCleanupsDueForSync(app, manual);
-                    if (Log.isLoggable(TAG, Log.DEBUG)) {
-                        Log.d(TAG, "cleanups due for sync:" + dueForSync);
-                    }
-                    urisToSync.addAll(dueForSync);
+                final List<Uri> dueForSync = SyncCleanups.getCleanupsDueForSync(app, manual);
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "cleanups due for sync:" + dueForSync);
                 }
+                urisToSync.addAll(dueForSync);
 
                 if (SyncConfig.shouldSync(app, Consts.PrefKeys.LAST_USER_SYNC, SyncConfig.CLEANUP_DELAY) || manual) {
                     urisToSync.add(Content.ME.uri);
