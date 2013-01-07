@@ -126,15 +126,14 @@ public class ApiSyncer {
             switch (c) {
                 case TRACK_CLEANUP:
                 case USERS_CLEANUP:
+                case SOUND_STREAM_CLEANUP:
+                case ACTIVITIES_CLEANUP:
                     result = new Result(c.uri);
                     result.success = true;
-                    if (mResolver.update(c.uri, null, null, null) > 0) {
+                    if (mResolver.update(uri, null, null, null) > 0) {
                         result.change = Result.CHANGED;
                     }
-                    PreferenceManager.getDefaultSharedPreferences(mContext)
-                            .edit()
-                            .putLong(Consts.PrefKeys.LAST_SYNC_CLEANUP, System.currentTimeMillis())
-                            .commit();
+                    result.setSyncData(System.currentTimeMillis(),-1,null);
                     break;
                 default:
                     Log.w(TAG, "no remote URI defined for " + c);
