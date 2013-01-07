@@ -384,7 +384,7 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
                         protected void onPostExecute(@Nullable User user) {
                             // need to create user account as soon as possible, so the executeRefreshTask logic in
                             // SoundCloudApplication works properly
-                            final boolean success = user != null && app.addUserAccount(user, app.getToken(), SignupVia.API);
+                            final boolean success = user != null && app.addUserAccountAndEnableSync(user, app.getToken(), SignupVia.API);
 
                             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
 
@@ -482,7 +482,7 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
 
                     // need to create user account as soon as possible, so the executeRefreshTask logic in
                     // SoundCloudApplication works properly
-                    final boolean success = app.addUserAccount(user, app.getToken(), SignupVia.API);
+                    final boolean success = app.addUserAccountAndEnableSync(user, app.getToken(), SignupVia.API);
                     if (success) {
                         new GetTokensTask(mApi) {
                             @Override protected void onPostExecute(Token token) {
@@ -772,7 +772,7 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
                     SignupVia via = SignupVia.fromIntent(intent);
 
                     // API signup will already have created the account
-                    if (app.addUserAccount(user, token, via)) {
+                    if (app.addUserAccountAndEnableSync(user, token, via)) {
                         final Bundle result = new Bundle();
                         result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
                         result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
