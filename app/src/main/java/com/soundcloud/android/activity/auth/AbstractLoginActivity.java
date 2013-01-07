@@ -2,6 +2,7 @@ package com.soundcloud.android.activity.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.accounts.AccountAuthenticatorActivity;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -25,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
-public abstract class AbstractLoginActivity extends Activity {
+public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity {
     public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING };
     public static final String SCOPES_EXTRA = "scopes";
 
@@ -33,14 +34,6 @@ public abstract class AbstractLoginActivity extends Activity {
     public static final String EXTENSION_GRANT_TYPE_EXTRA = "extensionGrantType";
     public static final String USERNAME_EXTRA = "username";
     public static final String PASSWORD_EXTRA = "password";
-
-    @Override
-    protected void onCreate(Bundle bundle) {
-        super.onCreate(bundle);
-        build();
-    }
-
-    protected abstract void build();
 
     protected void login(String username, String password) {
         final Bundle param = new Bundle();

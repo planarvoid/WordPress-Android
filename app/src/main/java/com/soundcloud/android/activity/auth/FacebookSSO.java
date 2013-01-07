@@ -69,11 +69,6 @@ public class FacebookSSO extends AbstractLoginActivity {
     public static final String ACCESS_DENIED_EXCEPTION = "OAuthAccessDeniedException";
 
     @Override
-    protected void build() {
-        // no UI
-    }
-
-    @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         Intent auth = getAuthIntent(this, DEFAULT_PERMISSIONS);
