@@ -127,4 +127,5 @@
     <string name="accessibility_exit_search">Leave search mode</string>
     <string name="accessibility_infix_reposted">reposted</string>
     <string name="accessibility_infix_liked">liked</string>
+    <string name="accessibility_infix_commented">commented on</string>
 </resources>
