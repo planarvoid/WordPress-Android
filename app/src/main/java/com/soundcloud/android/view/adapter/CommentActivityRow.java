@@ -18,6 +18,8 @@ import android.text.style.StyleSpan;
 
 import java.util.Date;
 
+import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
+
 public class CommentActivityRow extends ActivityRow {
     private Comment mComment;
 
@@ -69,5 +71,21 @@ public class CommentActivityRow extends ActivityRow {
         builder.append(": ");
         builder.setSpan(new StyleSpan(Typeface.BOLD), 1, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         builder.append("\"").append(mComment.body).append("\"");
+    }
+
+    @Override
+    public CharSequence getContentDescription() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(mActivity.getUser().getDisplayName());
+        builder.append(" ");
+        builder.append(getContext().getResources().getString(R.string.accessibility_infix_commented));
+        builder.append(" ");
+        builder.append(mActivity.getTrack().title);
+        builder.append(": ");
+        builder.append(mComment.body);
+        builder.append(". ");
+        builder.append(getTimeElapsed(getContext().getResources(), mActivity.created_at.getTime(), true));
+
+        return builder.toString();
     }
 }

@@ -20,6 +20,8 @@ import android.view.View;
 
 import java.util.Date;
 
+import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
+
 public class AffiliationActivityRow extends ActivityRow {
 
     public AffiliationActivityRow(Context context, ScBaseAdapter adapter) {
@@ -53,4 +55,14 @@ public class AffiliationActivityRow extends ActivityRow {
         return mSpanBuilder;
     }
 
+    @Override
+    public CharSequence getContentDescription() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(mActivity.getUser().getDisplayName());
+        builder.append(getContext().getResources().getString(R.string.started_following_you));
+        builder.append(". ");
+        builder.append(getTimeElapsed(getContext().getResources(), mActivity.created_at.getTime(), true));
+
+        return builder.toString();
+    }
 }

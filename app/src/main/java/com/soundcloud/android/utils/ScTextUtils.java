@@ -152,8 +152,12 @@ public class ScTextUtils {
             return r.getQuantityString(longerText ? R.plurals.elapsed_years_ago : R.plurals.elapsed_years, (int) (elapsedSeconds / 31536000), (int) (elapsedSeconds / 31536000));
     }
 
-    public static String getTimeElapsed(Resources r, long timestamp){
-        return getTimeString(r, Math.max(0, (System.currentTimeMillis() - timestamp)/1000), false);
+    public static String getTimeElapsed(Resources r, long timestamp) {
+        return getTimeElapsed(r, timestamp, false);
+    }
+
+    public static String getTimeElapsed(Resources r, long timestamp, boolean longerText) {
+        return getTimeString(r, Math.max(0, (System.currentTimeMillis() - timestamp)/1000), longerText);
     }
 
     public static boolean isEmail(CharSequence string) {
