@@ -122,4 +122,7 @@
     <string name="crop_image_error">There was an error cropping your image.</string>
     <string name="add_comment_no_connection">Unable to add comment. Please check your data connection and try again.</string>
 
+    <string name="accessibility_menu">Open menu</string>
+    <string name="accessibility_action_bar_waveform">Show currently playing track</string>
+    <string name="accessibility_exit_search">Leave search mode</string>
 </resources>

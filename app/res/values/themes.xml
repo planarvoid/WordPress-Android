@@ -152,6 +152,7 @@
 
         <item name="android:windowBackground">@android:color/transparent</item>
 
+
     </style>
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->
     <style name="next_DropDownItem" parent="@style/Widget.Sherlock.Light.DropDownItem.Spinner">
@@ -224,4 +225,5 @@
     </style>
 
 
+    <string name="accessibility_search">Search SoundCloud</string>
 </resources>
