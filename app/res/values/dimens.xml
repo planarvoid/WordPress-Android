@@ -39,7 +39,6 @@
     <dimen name="player_time_height">18dip</dimen>
     <dimen name="player_portrait_wave_height">100dp</dimen>
     <dimen name="player_portrait_half_wave_height">50dip</dimen>
-    <dimen name="player_portrait_waveform_margin_bottom">-50dip</dimen>
     <dimen name="player_transport_height">60dp</dimen>
     <!-- end of can't change one of these without change them all -->
 
