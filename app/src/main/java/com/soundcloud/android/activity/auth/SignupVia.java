@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
 import android.content.Intent;
+import android.os.Bundle;
 
 public enum SignupVia {
     API("api"),
@@ -17,7 +18,11 @@ public enum SignupVia {
     }
 
     public static SignupVia fromIntent(Intent intent) {
-        return fromString(intent.getStringExtra(EXTRA));
+        return fromBundle(intent.getExtras());
+    }
+
+    public static SignupVia fromBundle(Bundle bundle) {
+        return fromString(bundle.getString(EXTRA));
     }
 
     public static SignupVia fromString(String s) {
