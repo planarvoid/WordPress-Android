@@ -27,6 +27,9 @@ public class SyncConfig {
     public static int[] TRACK_BACKOFF_MULTIPLIERS = new int[]{1, 2, 4, 8, 12, 18, 24, 48, 72, 96};
     public static int[] USER_BACKOFF_MULTIPLIERS  = new int[]{1, 2, 3};
 
+    public static final int DEFAULT_STREAM_ITEMS_TO_KEEP     = 200;
+    public static final int DEFAULT_ACTIVITY_ITEMS_TO_KEEP   = 200;
+
 
     public static boolean isNotificationsWifiOnlyEnabled(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_WIFI_ONLY, false);
@@ -80,6 +83,8 @@ public class SyncConfig {
     public static boolean shouldSyncCollections(Context c) {
         return !isSyncWifiOnlyEnabled(c) || IOUtils.isWifiConnected(c);
     }
+
+
 
     public static boolean shouldSync(Context context, String prefKey, long max) {
         final long lastAction = PreferenceManager.getDefaultSharedPreferences(context).getLong(

@@ -341,8 +341,6 @@ public class ScContentProvider extends ContentProvider {
             case ME_SHORTCUTS:
             case ME_CONNECTIONS:
                 qb.setTables(content.table.name);
-
-
                 break;
 
             case UNKNOWN:
@@ -652,9 +650,36 @@ public class ScContentProvider extends ContentProvider {
                 }
                 return 0;
 
+            case SOUND_STREAM_CLEANUP:
+                String limit = uri.getQueryParameter(Parameter.LIMIT);
+                long start = System.currentTimeMillis();
+                count = cleanupActivities(Content.ME_SOUND_STREAM, db, limit);
+                log("SoundStream cleanup done: deleted " + count + " stream items in " + (System.currentTimeMillis() - start) + " ms");
+                getContext().getContentResolver().notifyChange(Content.ME_SOUND_STREAM.uri, null, false);
+                return count;
+
+            case ACTIVITIES_CLEANUP:
+                limit = uri.getQueryParameter(Parameter.LIMIT);
+                start = System.currentTimeMillis();
+                count = cleanupActivities(Content.ME_ACTIVITIES, db, limit);
+                log("Activities cleanup done: deleted " + count + " activities in " + (System.currentTimeMillis() - start) + " ms");
+                getContext().getContentResolver().notifyChange(Content.ME_ACTIVITIES.uri, null, false);
+                return count;
+
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
+    }
+
+    private int cleanupActivities(Content content, SQLiteDatabase db, String limit) {
+        int count;
+        String where = DBHelper.ActivityView.CONTENT_ID + "=" + content.id + " AND _id NOT IN ("
+                + "SELECT _id FROM " + Table.ACTIVITY_VIEW.name + " WHERE "
+                + DBHelper.ActivityView.CONTENT_ID + "=" + content.id
+                + " LIMIT " + (limit == null ? 200 : limit) + ")";
+
+        count = db.delete(Table.ACTIVITIES.name, where, null);
+        return count;
     }
 
     @Override
