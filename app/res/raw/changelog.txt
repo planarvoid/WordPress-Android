@@ -6,6 +6,7 @@ $ 53
     * Disabling transport bars and list beginning / end
     * Comment count increases when comment is added
     * refreshing list timestamps after loaded
+    * respecting pauses during buffering and seeking
     - basic accessibility support
     - fixed waveform rendering
 
