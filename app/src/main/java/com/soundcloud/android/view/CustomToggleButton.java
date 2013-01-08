@@ -31,14 +31,20 @@ public class CustomToggleButton extends ToggleButton {
             final int width  = CustomToggleButton.this.getWidth();
             final int height = CustomToggleButton.this.getHeight();
 
+            final int textWidth = (int) paint.measureText(text);
+
             if (mBackground != null) {
                 mBackground.setBounds(getBounds());
                 mBackground.draw(canvas);
             }
 
             int requiredWidth = 0;
-            requiredWidth += paint.measureText(text);
-            requiredWidth += icon != null ? icon.getIntrinsicWidth() + padding : 0;
+            requiredWidth += textWidth;
+            requiredWidth += icon != null ? icon.getIntrinsicWidth() : 0;
+
+            if (icon != null && textWidth > 0) {
+                requiredWidth += padding;
+            }
 
             int x = (width - requiredWidth) / 2;
             if (icon != null) {

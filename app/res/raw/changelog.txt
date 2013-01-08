@@ -6,6 +6,8 @@ $ 53
     * Disabling transport bars and list beginning / end
     * Comment count increases when comment is added
     * refreshing list timestamps after loaded
+    - basic accessibility support
+    - fixed waveform rendering
 
 $ 52
   % v 2.4.3

@@ -7,6 +7,8 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
 
+import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
+
 public class LikeActivityRow extends ActivityRow {
 
     public LikeActivityRow(Context activity, ScBaseAdapter adapter) {
@@ -24,6 +26,20 @@ public class LikeActivityRow extends ActivityRow {
                 getResources().getDrawable(pressed ? R.drawable.activity_like_white_50 : R.drawable.activity_like);
         drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
         return drawable;
+    }
+
+    @Override
+    public CharSequence getContentDescription() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(mActivity.getUser().getDisplayName());
+        builder.append(" ");
+        builder.append(getContext().getResources().getString(R.string.accessibility_infix_liked));
+        builder.append(" ");
+        builder.append(mActivity.getTrack().title);
+        builder.append(". ");
+        builder.append(getTimeElapsed(getContext().getResources(), mActivity.created_at.getTime(), true));
+
+        return builder.toString();
     }
 }
 
