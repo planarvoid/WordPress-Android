@@ -19,6 +19,7 @@ public class LoginTest extends ActivityTestCase<Onboard> {
     public void setUp() throws Exception {
         IntegrationTestHelper.logOut(getInstrumentation());
         super.setUp();
+        solo.sleep(500);
     }
 
     public void testLogin() throws Exception {
@@ -37,12 +38,12 @@ public class LoginTest extends ActivityTestCase<Onboard> {
     }
 
     @FlakyTest
-    public void testLoginWithFacebookWebFlow() throws Exception {
+    public void testLoginWithFacebookWebFlow() throws Throwable {
         if (FacebookSSO.isSupported(getInstrumentation().getTargetContext())) {
             log("Facebook SSO is available, not testing WebFlow");
             return;
         }
-        solo.clickOnText("Facebook");
+        solo.performClick(this, R.id.facebook_btn);
         solo.assertDialogClosed();
         WebView webView = solo.assertActivity(FacebookWebFlow.class).getWebView();
         assertNotNull(webView);
@@ -76,7 +77,7 @@ public class LoginTest extends ActivityTestCase<Onboard> {
     }
 
     @FlakyTest
-    public void testRecoverPassword() throws Exception {
+    public void testRecoverPassword() throws Throwable {
         solo.clickOnButtonResId(R.string.btn_login);
         solo.clickOnView(R.id.txt_i_forgot_my_password);
         solo.assertActivity(Recover.class);

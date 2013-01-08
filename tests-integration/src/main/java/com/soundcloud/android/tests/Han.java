@@ -10,6 +10,7 @@ import com.soundcloud.android.R;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.test.InstrumentationTestCase;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -61,7 +62,6 @@ public class Han extends Solo {
     public void clickLongOnView(int resId) {
         clickLongOnView(getCurrentActivity().findViewById(resId));
     }
-
 
     public void clickOnMenuItem(int resId) {
         clickOnMenuItem(getString(resId));
@@ -117,6 +117,19 @@ public class Han extends Solo {
     public void clickOnButtonResId(int resId) {
         super.clickOnButton(getString(resId));
     }
+
+    public void performClick(InstrumentationTestCase test, int resId) throws Throwable {
+        final View view = getView(resId);
+        assertNotNull("view is null", view);
+        test.runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                view.performClick();
+            }
+        });
+        sleep(500);
+    }
+
 
     public String getString(int resId, Object... args) {
         return getCurrentActivity().getString(resId, args);
