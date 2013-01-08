@@ -339,7 +339,7 @@ public class ScContentProviderTest {
     public void shouldHaveStreamEndpointWhichReturnsRandomItems() throws Exception {
         // TODO: find easier way to populate stream
         ApiSyncService svc = new ApiSyncService();
-        TestHelper.addCannedResponses(ApiSyncServiceTest.class,  "e1_stream_2_oldest.json");
+        TestHelper.addPendingHttpResponse(ApiSyncServiceTest.class, "e1_stream_2_oldest.json");
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
         expect(Content.ME_SOUND_STREAM).toHaveCount(26);
 
@@ -365,7 +365,7 @@ public class ScContentProviderTest {
     public void shouldHaveStreamEndpointWhichOnlyReturnsCachedItems() throws Exception {
         // TODO: find easier way to populate stream
         ApiSyncService svc = new ApiSyncService();
-        TestHelper.addCannedResponses(ApiSyncServiceTest.class,  "e1_stream_2_oldest.json");
+        TestHelper.addPendingHttpResponse(ApiSyncServiceTest.class, "e1_stream_2_oldest.json");
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
         expect(Content.ME_SOUND_STREAM).toHaveCount(26);
 

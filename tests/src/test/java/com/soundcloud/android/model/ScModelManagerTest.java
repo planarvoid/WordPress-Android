@@ -2,7 +2,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.toTime;
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.addCannedResponses;
+import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.act.Activities;
@@ -404,7 +404,7 @@ public class ScModelManagerTest {
 
     @Test
     public void shouldWriteMissingCollectionItems() throws Exception {
-        addCannedResponses(getClass(), "5_users.json");
+        addPendingHttpResponse(getClass(), "5_users.json");
 
         List<ScResource> users = new ArrayList<ScResource>();
         for (int i = 0; i < 2; i++){
