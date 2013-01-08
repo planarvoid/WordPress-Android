@@ -170,6 +170,10 @@ public class WaveformController extends TouchLayout {
                 startSmoothProgress();
             }
         }
+        if (!isPlaying) {
+            mWaitingForSeekComplete = false;
+            onBufferingStop();
+        }
     }
 
     public void startSmoothProgress(){
