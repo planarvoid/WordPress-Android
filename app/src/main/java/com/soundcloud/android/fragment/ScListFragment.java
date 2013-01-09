@@ -50,6 +50,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.ContactsContract;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -300,13 +301,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 final boolean nothingChanged = resultData != null && !resultData.getBoolean(mContentUri.toString());
                 if (nothingChanged && !isRefreshing()) {
                     doneRefreshing();
+                    allowInitialEmptyView();
 
-                    // first time user with no account data. this will force the empty screen that was held back earlier
-                    final ScBaseAdapter adapter = getListAdapter();
-                    if (!waitingOnInitialSync() && adapter != null && adapter.getItemCount() == 0) {
-                        mKeepGoing = true;
-                        append(false);
-                    }
                 } else if (!nothingChanged) {
                     // something was changed by the sync, if we aren't refreshing already, do it
                     if (!isRefreshTaskActive()) {
@@ -315,6 +311,18 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 }
                 break;
             }
+        }
+    }
+
+    /**
+     * This will allow the empty screen to be shown, in case
+     * {@link this#waitingOnInitialSync())} was true earlier, suppressing it.
+     */
+    private void allowInitialEmptyView() {
+        final ScBaseAdapter adapter = getListAdapter();
+        if (!waitingOnInitialSync() && adapter != null && adapter.getItemCount() == 0 && mKeepGoing == false) {
+            mKeepGoing = true;
+            append(false);
         }
     }
 
@@ -570,13 +578,19 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (isSyncable() && mLocalCollection != null) {
             setListLastUpdated();
 
-            if (mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
-                refresh(false);
-                // this is to show the user something at the initial load
-                if (!mLocalCollection.hasSyncedBefore() && mListView != null) {
-                    mListView.setRefreshing();
+            if (mLocalCollection.shouldAutoRefresh()) {
+                if (!isRefreshing()) {
+                    refresh(false);
+                    // this is to show the user something at the initial load
+                    if (!mLocalCollection.hasSyncedBefore() && mListView != null) {
+                        mListView.setRefreshing();
+                    }
                 }
+            } else {
+                allowInitialEmptyView();
             }
+
+
         }
     }
 
