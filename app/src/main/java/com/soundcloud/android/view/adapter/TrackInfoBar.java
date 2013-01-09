@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
@@ -116,7 +117,7 @@ public class TrackInfoBar extends LazyRow {
         mPlayable = p;
         mShouldLoadIcon = shouldLoadIcon;
 
-        final Track track = mPlayable.getTrack();
+        final Playable track = mPlayable.getTrack();
         if (track == null) return;
 
         final Context context = getContext();
@@ -168,18 +169,11 @@ public class TrackInfoBar extends LazyRow {
             mPrivateIndicator.setVisibility(View.VISIBLE);
         }
 
-        if (showFullStats) {
-            mStatsView.updateWithTrack(track);
-        } else {
-            mStatsView.setPlays(track.playback_count);
-            mStatsView.setLikes(0);
-            mStatsView.setReposts(0);
-            mStatsView.setComments(0);
-        }
-
+        mStatsView.updateWithPlayable(track, showFullStats);
         setTitle(false);
 
-        if (track.isProcessing()) {
+        // TODO: should go into a separate track specific InfoBar view at some point
+        if (track instanceof Track && ((Track) track).isProcessing()) {
             if (findViewById(R.id.processing_progress) != null){
                 findViewById(R.id.processing_progress).setVisibility(View.VISIBLE);
             } else {
@@ -296,7 +290,7 @@ public class TrackInfoBar extends LazyRow {
 
     @Override
     public CharSequence getContentDescription() {
-        Track track = mPlayable.getTrack();
+        Playable track = mPlayable.getTrack();
 
         StringBuilder builder = new StringBuilder();
         builder.append(track.getUser().getDisplayName());

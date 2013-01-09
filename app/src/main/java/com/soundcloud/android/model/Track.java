@@ -70,9 +70,6 @@ public class Track extends Playable implements PlayableHolder {
     @JsonView(Views.Full.class) public int download_count = NOT_SET;
     @JsonView(Views.Full.class) public int comment_count  = NOT_SET;
 
-    @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
-    public int shared_to_count = NOT_SET;
-
     @JsonView(Views.Full.class) public String original_format;
 
     @JsonView(Views.Mini.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
@@ -156,6 +153,7 @@ public class Track extends Playable implements PlayableHolder {
     }
 
     @JsonIgnore
+    @Override
     public boolean isStreamable() {
         return !TextUtils.isEmpty(stream_url) && (state == null || state.isStreamable());
     }
@@ -170,10 +168,6 @@ public class Track extends Playable implements PlayableHolder {
 
     public boolean isFailed() {
         return state != null && state.isFailed();
-    }
-
-    public boolean isPublic() {
-        return sharing == null || sharing.isPublic();
     }
 
     public String getArtwork() {
@@ -526,14 +520,6 @@ public class Track extends Playable implements PlayableHolder {
                 ", state=" + state +
                 ", user=" + user +
                 '}';
-    }
-
-    public boolean hasAvatar() {
-        return user != null && !TextUtils.isEmpty(user.avatar_url);
-    }
-
-    public String getAvatarUrl() {
-        return user == null ? null : user.avatar_url;
     }
 
     public @Nullable URL getWaveformDataURL() {

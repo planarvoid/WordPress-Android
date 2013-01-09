@@ -8,6 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.ImageUtils;
@@ -53,18 +54,18 @@ public class QuickTrackMenu extends QuickAction {
         addActionItem(mProfileActionItem);
     }
 
-    public void show(View anchor, final Track track) {
+    public void show(View anchor, final Playable playable) {
 
-        if (track == null) return;
+        if (playable == null) return;
 
-        mPlayActionItem.setVisibility(track.isStreamable() ? View.VISIBLE : View.GONE);
-        mPlayActionItem.setIcon(CloudPlaybackService.isTrackPlaying(track.id) ? getPauseDrawable() : getPlayDrawable());
+        mPlayActionItem.setVisibility(playable.isStreamable() ? View.VISIBLE : View.GONE);
+        mPlayActionItem.setIcon(CloudPlaybackService.isTrackPlaying(playable.id) ? getPauseDrawable() : getPlayDrawable());
 
-        mShareActionItem.setVisibility(track.isPublic() ? View.VISIBLE : View.GONE);
-        mLikeActionItem.setIcon(track.user_like ? getLikedDrawable() : getLikeDrawable());
+        mShareActionItem.setVisibility(playable.isPublic() ? View.VISIBLE : View.GONE);
+        mLikeActionItem.setIcon(playable.user_like ? getLikedDrawable() : getLikeDrawable());
 
-        if (!track.hasAvatar() ||
-                ImageUtils.loadImageSubstitute(mContext, mProfileActionItem.getIconView(), track.user.avatar_url,
+        if (!playable.hasAvatar() ||
+                ImageUtils.loadImageSubstitute(mContext, mProfileActionItem.getIconView(), playable.user.avatar_url,
                         Consts.GraphicSize.getListItemGraphicSize(mContext), null, null) != ImageLoader.BindResult.OK) {
             mProfileActionItem.getIconView().setImageDrawable(mContext.getResources().getDrawable(R.drawable.avatar_badge));
 

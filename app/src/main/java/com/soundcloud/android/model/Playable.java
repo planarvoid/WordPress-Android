@@ -3,6 +3,7 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
@@ -66,6 +67,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
 
     @JsonView(Views.Full.class) public int likes_count = NOT_SET;
     @JsonView(Views.Full.class) public int reposts_count = NOT_SET;
+    @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
+    public int shared_to_count = NOT_SET;
     @JsonView(Views.Full.class) public String tag_list;
     @JsonView(Views.Full.class) public Sharing sharing;  //  public | private
 
@@ -114,7 +117,6 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         }
 
     }
-
 
     public CharSequence getTimeSinceCreated(Context context) {
         if (mElapsedTime == null) refreshTimeSinceCreated(context);
@@ -297,4 +299,24 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
     }
 
     public abstract int getTypeId();
+
+    public boolean isStreamable() {
+        return streamable;
+    }
+
+    public boolean isPublic() {
+        return sharing == null || sharing.isPublic();
+    }
+
+    public boolean hasAvatar() {
+        return user != null && !TextUtils.isEmpty(user.avatar_url);
+    }
+
+    public String getAvatarUrl() {
+        return user == null ? null : user.avatar_url;
+    }
+
+    public int getSharedToCount() {
+        return shared_to_count;
+    }
 }
