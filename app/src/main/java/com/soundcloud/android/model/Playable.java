@@ -77,43 +77,43 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
 
     public Playable(Cursor cursor) {
 
-            final int trackIdIdx = cursor.getColumnIndex(DBHelper.ActivityView.SOUND_ID);
-            if (trackIdIdx == -1) {
-                id = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView._ID));
-            } else {
-                id = cursor.getLong(cursor.getColumnIndex(DBHelper.ActivityView.SOUND_ID));
-            }
-            permalink = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.PERMALINK));
-            duration = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.DURATION));
-
-            created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.CREATED_AT)));
-            tag_list = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.TAG_LIST));
-            title = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.TITLE));
-            permalink_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.PERMALINK_URL));
-            artwork_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.ARTWORK_URL));
-            downloadable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.DOWNLOADABLE)) == 1;
-            streamable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.STREAMABLE)) == 1;
-            sharing = Sharing.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.SHARING)));
-            likes_count = getIntOrNotSet(cursor, DBHelper.SoundView.LIKES_COUNT);
-            reposts_count = getIntOrNotSet(cursor, DBHelper.SoundView.REPOSTS_COUNT);
-            user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
-
-            final long lastUpdated = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.LAST_UPDATED));
-            if (lastUpdated > 0) {
-                last_updated = lastUpdated;
-            }
-
-            // gets joined in
-            final int favIdx = cursor.getColumnIndex(DBHelper.SoundView.USER_LIKE);
-            if (favIdx != -1) {
-                user_like = cursor.getInt(favIdx) == 1;
-            }
-            final int repostIdx = cursor.getColumnIndex(DBHelper.SoundView.USER_REPOST);
-            if (repostIdx != -1) {
-                user_repost = cursor.getInt(repostIdx) == 1;
-            }
-
+        final int trackIdIdx = cursor.getColumnIndex(DBHelper.ActivityView.SOUND_ID);
+        if (trackIdIdx == -1) {
+            id = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView._ID));
+        } else {
+            id = cursor.getLong(cursor.getColumnIndex(DBHelper.ActivityView.SOUND_ID));
         }
+        permalink = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.PERMALINK));
+        duration = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.DURATION));
+
+        created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.CREATED_AT)));
+        tag_list = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.TAG_LIST));
+        title = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.TITLE));
+        permalink_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.PERMALINK_URL));
+        artwork_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.ARTWORK_URL));
+        downloadable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.DOWNLOADABLE)) == 1;
+        streamable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.STREAMABLE)) == 1;
+        sharing = Sharing.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.SHARING)));
+        likes_count = getIntOrNotSet(cursor, DBHelper.SoundView.LIKES_COUNT);
+        reposts_count = getIntOrNotSet(cursor, DBHelper.SoundView.REPOSTS_COUNT);
+        user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
+
+        final long lastUpdated = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.LAST_UPDATED));
+        if (lastUpdated > 0) {
+            last_updated = lastUpdated;
+        }
+
+        // gets joined in
+        final int favIdx = cursor.getColumnIndex(DBHelper.SoundView.USER_LIKE);
+        if (favIdx != -1) {
+            user_like = cursor.getInt(favIdx) == 1;
+        }
+        final int repostIdx = cursor.getColumnIndex(DBHelper.SoundView.USER_REPOST);
+        if (repostIdx != -1) {
+            user_repost = cursor.getInt(repostIdx) == 1;
+        }
+
+    }
 
 
     public CharSequence getTimeSinceCreated(Context context) {
