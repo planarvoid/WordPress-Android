@@ -603,17 +603,20 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
         if (!state.isSupposedToBePlaying()) return;
         track(Media.fromTrack(currentTrack), Media.Action.Pause);
+        safePause();
+        notifyChange(PLAYSTATE_CHANGED);
+    }
 
+    private void safePause() {
         if (mMediaPlayer != null) {
-            if (state.isPausable() && mMediaPlayer.isPlaying()) {
-                mMediaPlayer.pause();
+            if (state.isPausable()) {
+                if (mMediaPlayer.isPlaying()) mMediaPlayer.pause();
                 gotoIdleState(PAUSED);
             } else {
                 // get into a determined state
                 stop();
             }
         }
-        notifyChange(PLAYSTATE_CHANGED);
     }
 
     /* package */ void stop() {
@@ -757,6 +760,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
      */
     /* package */
     public long getProgress() {
+
         if (currentTrack != null && mResumeTrackId == currentTrack.id) {
             return mResumeTime; // either -1 or a valid resume time
         } else if (mWaitingForSeek && mSeekPos > 0) {
@@ -970,7 +974,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 stop();
             } else if (LOAD_TRACK_INFO.equals(action)) {
                 final Track t = Track.fromIntent(intent,getContentResolver());
-                t.refreshInfoAsync(getApp(),mInfoListener);
+                t.refreshInfoAsync(getApp(), mInfoListener);
 
             } else if (PLAYQUEUE_CHANGED.equals(action)) {
                 if (state == EMPTY_PLAYLIST) {
@@ -1131,8 +1135,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     } else if (Log.isLoggable(TAG, Log.DEBUG)) {
                         Log.d(TAG, "Not clearing seek, waiting for seek to finish");
                     }
-
-                    state = PLAYING;
+                    if (!state.isSupposedToBePlaying()){
+                        safePause();
+                    } else {
+                        // still playing back, set proper state after buffering state
+                        state = PLAYING;
+                    }
                     notifyChange(BUFFERING_COMPLETE);
                     break;
                 default:
@@ -1148,6 +1156,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 if (Log.isLoggable(TAG, Log.DEBUG) && mLoadPercent != percent) {
                     Log.d(TAG, "onBufferingUpdate("+percent+")");
                 }
+
                 mLoadPercent = percent;
             }
         }
@@ -1172,6 +1181,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
                 mWaitingForSeek = false;
                 notifyChange(SEEK_COMPLETE);
+
+                // respect pauses during seeks
+                if (!state.isSupposedToBePlaying()) safePause();
             }
         }
     };

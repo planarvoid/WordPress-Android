@@ -541,7 +541,11 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         final PlayQueueManager playQueueManager = getPlaylistManager();
 
         mTrackPager.configureFromService(this, playQueueManager, queuePosition);
-        final long queueLength = playQueueManager == null ? 1 :playQueueManager.length();
+        // set buffering state of current track
+        if (mPlaybackService != null && mPlaybackService.isBuffering()){
+            final PlayerTrackView playerTrackView = getTrackViewById(CloudPlaybackService.getCurrentTrackId());
+            if (playerTrackView != null) playerTrackView.onBuffering();
+        }
 
         setPlaybackState();
     }
