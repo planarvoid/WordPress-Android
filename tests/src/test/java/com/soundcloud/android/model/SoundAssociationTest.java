@@ -39,23 +39,23 @@ public class SoundAssociationTest {
         final ScModelManager manager = DefaultTestRunner.application.MODEL_MANAGER;
 
         SoundAssociationHolder sounds  = AndroidCloudAPI.Mapper.readValue(
-                        getClass().getResourceAsStream("sounds.json"),
+                        getClass().getResourceAsStream("sounds_with_sets.json"),
                         SoundAssociationHolder.class);
 
         expect(sounds).not.toBeNull();
 
-        expect(sounds.size()).toEqual(38);
+        expect(sounds.size()).toEqual(41);
 
         expect(manager.writeCollection(sounds,
-                ScResource.CacheUpdateMode.NONE)).toEqual(41); // 38 tracks and 3 diff users
+                ScResource.CacheUpdateMode.NONE)).toEqual(44); // 38 tracks, 3 sets and 3 diff users
 
         expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
-                Content.ME_SOUNDS.uri,0,50).size()).toEqual(38);
+                Content.ME_SOUNDS.uri,0,50).size()).toEqual(41);
 
         CollectionHolder<SoundAssociation> newItems = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(
                 DefaultTestRunner.application.getContentResolver(), SoundAssociation.class, Content.ME_SOUNDS.uri);
 
-        expect(newItems.size()).toEqual(38);
+        expect(newItems.size()).toEqual(41);
     }
 
     @Test

@@ -40,6 +40,14 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
         return tracks;
     }
 
+    public Set<Playlist> getPlaylists() {
+        Set<Playlist> playlists = new HashSet<Playlist>();
+        for (SoundAssociation a : this) {
+            if (a.getPlaylist() != null) playlists.add(a.getPlaylist());
+        }
+        return playlists;
+    }
+
     /**
      * Delete any items from the content resolver that do not appear in this collection, for syncing
      * TODO PLAYLISTS. This will not pull playlists, therefore they will not get deleted (yet)
@@ -89,6 +97,7 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
     public int insert(ContentResolver resolver) {
         List<ContentValues> tracks = new ArrayList<ContentValues>();
         List<ContentValues> users = new ArrayList<ContentValues>();
+        List<ContentValues> playlists = new ArrayList<ContentValues>();
         List<ContentValues> items = new ArrayList<ContentValues>();
 
         for (SoundAssociation a : this) {
@@ -100,10 +109,16 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
         for (Track t : getTracks()) {
             tracks.add(t.buildContentValues());
         }
+        for (Playlist p : getPlaylists()) {
+            playlists.add(p.buildContentValues());
+        }
 
         int inserted = 0;
         if (!tracks.isEmpty()) {
             inserted += resolver.bulkInsert(Content.TRACKS.uri, tracks.toArray(new ContentValues[tracks.size()]));
+        }
+        if (!playlists.isEmpty()) {
+            inserted += resolver.bulkInsert(Content.PLAYLISTS.uri, playlists.toArray(new ContentValues[playlists.size()]));
         }
         if (!users.isEmpty())  {
             inserted += resolver.bulkInsert(Content.USERS.uri, users.toArray(new ContentValues[users.size()]));
