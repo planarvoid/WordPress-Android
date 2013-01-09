@@ -211,18 +211,26 @@ public class PlayQueueManager {
             @Override protected void onPostExecute(Cursor cursor) {
                 // make sure this cursor is valid and still wanted
                 if (cursor != null) {
+
                     long playingId = getCurrentTrackId();
                     final int size = cursor.getCount();
                     mPlayQueue = new Track[size];
                     if (mTrackCursor != null && !mTrackCursor.isClosed()) mTrackCursor.close();
                     mTrackCursor = cursor;
                     final Track t = getTrackAt(position);
+
                     // adjust if the track has moved positions
-                    if (t != null && t.id != playingId && Content.match(uri).isCollectionItem()) {
-                        mPlayPos = getPlayQueuePositionFromUri(mContext.getContentResolver(), uri, playingId);
-                    } else {
-                        mPlayPos = position;
+                    int adjustedPosition = -1;
+                    if (t != null && t.id != playingId) {
+                        if (Content.match(uri).isCollectionItem()){
+                            adjustedPosition = getPlayQueuePositionFromUri(mContext.getContentResolver(), uri, playingId);
+                        } else {
+                            // this will adjust for deletions that haven't been fixed in the source list
+                            while (adjustedPosition >= 0 && getTrackIdAt(adjustedPosition) != playingId) adjustedPosition--;
+                        }
                     }
+                    mPlayPos = adjustedPosition == -1 ? position : adjustedPosition;
+
 
                     // adjust to within bounds
                     mPlayPos = Math.max(0, Math.min(mPlayPos, mPlayQueue.length-1));
