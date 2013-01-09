@@ -26,7 +26,7 @@ public abstract class FetchModelTask<Model extends ScResource> extends ParallelA
     private Class<? extends Model> mModel;
 
     public String action;
-    private boolean mError;
+    private boolean mError; //TODO: why not keep the Exception instead of just a bool?
 
     public FetchModelTask(AndroidCloudAPI api, Class<? extends Model> model, long modelId) {
         mApi = api;
@@ -59,6 +59,8 @@ public abstract class FetchModelTask<Model extends ScResource> extends ParallelA
         }
     }
 
+    //TODO (Matthias:) This method returns null in 4 different, unrelated cases, which makes it hard to properly deal
+    // with API errors on the UI. We need to address this.
     @Nullable
     public Model resolve(Request request) {
         try {

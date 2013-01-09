@@ -15,7 +15,7 @@ import java.util.Arrays;
 public class RecoverPasswordTaskTest {
     @Test
     public void shouldRequestPasswordReset() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "signup_token.json");
+        TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
         Robolectric.addPendingHttpResponse(202, "");
 
         RecoverPasswordTask task = new RecoverPasswordTask(DefaultTestRunner.application);
@@ -25,7 +25,7 @@ public class RecoverPasswordTaskTest {
 
     @Test
     public void shouldReturnFalseIfInvalidStatusIsReturned() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "signup_token.json");
+        TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
         Robolectric.addPendingHttpResponse(404, "{\"error\":\"Unknown Email Address\"}");
 
         RecoverPasswordTask task = new RecoverPasswordTask(DefaultTestRunner.application);

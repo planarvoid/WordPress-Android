@@ -19,7 +19,7 @@ public class FoursquareVenueTaskTest {
 
     @Test
     public void taskShouldReturnVenues() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "foursquare_venues.json");
+        TestHelper.addPendingHttpResponse(getClass(), "foursquare_venues.json");
 
         FoursquareVenueTask task = new FoursquareVenueTask();
         Location loc = new Location("mock");

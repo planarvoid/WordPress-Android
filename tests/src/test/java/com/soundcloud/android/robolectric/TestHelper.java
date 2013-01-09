@@ -40,8 +40,7 @@ public class TestHelper {
     }
 
 
-    // TODO: rename to addPendingHttpResponse
-    public static void addCannedResponses(Class klazz, String... resources) throws IOException {
+    public static void addPendingHttpResponse(Class klazz, String... resources) throws IOException {
         for (String r : resources) {
             Robolectric.getFakeHttpLayer().addPendingHttpResponse(
                     new TestHttpResponse(200, resourceAsBytes(klazz, r)));
