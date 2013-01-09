@@ -4,7 +4,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.PlayableAdapter;
 import com.soundcloud.android.model.PlayInfo;
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -55,7 +55,7 @@ public final class PlayUtils {
     public static Track getTrackFromIntent(Intent intent){
         if (intent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferCache,false)){
             final int position = intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition,-1);
-            final List<Playable> list = CloudPlaybackService.playlistXfer;
+            final List<PlayableHolder> list = CloudPlaybackService.playlistXfer;
             if (list != null && position > -1 && position < list.size()){
                 return list.get(position).getTrack();
             }
@@ -68,19 +68,19 @@ public final class PlayUtils {
     }
 
     public static void playFromAdapter(Context c, PlayableAdapter adapter, List<? extends ScModel> data, int position) {
-        if (position > data.size() || !(data.get(position) instanceof Playable)) {
+        if (position > data.size() || !(data.get(position) instanceof PlayableHolder)) {
             throw new AssertionError("Invalid item " + position);
         }
 
         PlayInfo info = new PlayInfo();
         info.uri = adapter.getPlayableUri();
 
-        List<Playable> playables = new ArrayList<Playable>(data.size());
+        List<PlayableHolder> playables = new ArrayList<PlayableHolder>(data.size());
 
         int adjustedPosition = position;
         for (int i = 0; i < data.size(); i++) {
-            if (data.get(i) instanceof Playable) {
-                playables.add((Playable) data.get(i));
+            if (data.get(i) instanceof PlayableHolder) {
+                playables.add((PlayableHolder) data.get(i));
             } else if (i < position) {
                 adjustedPosition--;
             }

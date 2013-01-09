@@ -3,12 +3,11 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.service.playback.CloudPlaybackService.getPlaylistManager;
 
-import android.util.Log;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Sound;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -322,10 +321,10 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
         f.addAction(CloudPlaybackService.SEEKING);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
-        f.addAction(Sound.ACTION_TRACK_ASSOCIATION_CHANGED);
-        f.addAction(Sound.ACTION_SOUND_INFO_UPDATED);
-        f.addAction(Sound.ACTION_SOUND_INFO_ERROR);
-        f.addAction(Sound.COMMENTS_UPDATED);
+        f.addAction(Playable.ACTION_TRACK_ASSOCIATION_CHANGED);
+        f.addAction(Playable.ACTION_SOUND_INFO_UPDATED);
+        f.addAction(Playable.ACTION_SOUND_INFO_ERROR);
+        f.addAction(Playable.COMMENTS_UPDATED);
         registerReceiver(mStatusListener, new IntentFilter(f));
     }
 

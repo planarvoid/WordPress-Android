@@ -9,14 +9,13 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.imageloader.ImageLoader;
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.StatsView;
 import com.soundcloud.android.view.quickaction.QuickTrackMenu;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +37,7 @@ import android.widget.TextView;
 public class TrackInfoBar extends LazyRow {
     public static final ImageLoader.Options ICON_OPTIONS = ImageLoader.Options.postAtFront();
 
-    private Playable mPlayable;
+    private PlayableHolder mPlayable;
 
     private TextView mUser;
     private TextView mReposter;
@@ -113,7 +112,7 @@ public class TrackInfoBar extends LazyRow {
      * @param keepHeight keep the height of the view, even if there are no stats
      * @param showFullStats show full stats, or just play count (for player only)
      */
-    public void display(Playable p, long playingId, boolean shouldLoadIcon, boolean keepHeight, boolean showFullStats) {
+    public void display(PlayableHolder p, long playingId, boolean shouldLoadIcon, boolean keepHeight, boolean showFullStats) {
         mPlayable = p;
         mShouldLoadIcon = shouldLoadIcon;
 
@@ -229,10 +228,10 @@ public class TrackInfoBar extends LazyRow {
 
     @Override
     public void display(int position, Parcelable p) {
-        if (!(p instanceof Playable)) throw new IllegalArgumentException("Not a valid track " + p);
+        if (!(p instanceof PlayableHolder)) throw new IllegalArgumentException("Not a valid track " + p);
 
         // have to set the playable here for list icon loading purposes, it gets set again above for non-lists
-        mPlayable = (Playable) p;
+        mPlayable = (PlayableHolder) p;
 
         super.display(position);
 

@@ -15,7 +15,6 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -104,7 +103,7 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     }
 
     @Override
-    public Sound getSound() {
+    public Playable getSound() {
         return null;
     }
 

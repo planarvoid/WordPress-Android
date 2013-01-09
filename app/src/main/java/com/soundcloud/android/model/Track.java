@@ -49,7 +49,7 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends Sound implements Playable {
+public class Track extends Playable implements PlayableHolder {
     public static final String EXTRA = "track";
     public static final String EXTRA_ID = "track_id";
 

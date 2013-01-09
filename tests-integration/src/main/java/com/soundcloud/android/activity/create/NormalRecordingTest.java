@@ -192,7 +192,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         record(RECORDING_TIME);
 
-        uploadSound("An appended sound", null, true);
+        uploadSound("An appended playable", null, true);
 
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
@@ -208,7 +208,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.sleep(1000);
         record(RECORDING_TIME);
 
-        uploadSound("An appended raw sound", null, true);
+        uploadSound("An appended raw playable", null, true);
 
         assertSoundEncoded(RECORDING_TIME * 3 * 4);
         assertSoundUploaded();

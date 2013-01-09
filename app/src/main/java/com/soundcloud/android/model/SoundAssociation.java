@@ -19,7 +19,7 @@ import java.util.Date;
 /**
  * Maps to stream item on backend
  */
-public class SoundAssociation extends ScResource implements Playable, Refreshable {
+public class SoundAssociation extends ScResource implements PlayableHolder, Refreshable {
 
     private CharSequence _elapsedTime;
 
@@ -120,7 +120,7 @@ public class SoundAssociation extends ScResource implements Playable, Refreshabl
     }
 
     @Override
-    public Sound getSound() {
+    public Playable getSound() {
         return track != null ? track : playlist;
     }
 

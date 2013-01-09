@@ -6,12 +6,12 @@ import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Friend;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Shortcut;
-import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -29,7 +29,6 @@ import android.util.SparseArray;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public enum Content  {
     ME("me", Endpoints.MY_DETAILS, 100, User.class, -1, Table.USERS),
@@ -64,7 +63,7 @@ public enum Content  {
     SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 190, User.class, SUGGESTED_USER, null),
 
 
-    SOUNDS("sounds", null, 200, Sound.class, -1, Table.SOUNDS),
+    SOUNDS("sounds", null, 200, Playable.class, -1, Table.SOUNDS),
 
     TRACKS("tracks", Endpoints.TRACKS, 201, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.SOUNDS),
     TRACK("tracks/#", Endpoints.TRACK_DETAILS, 202, Track.class, -1, Table.SOUNDS),
@@ -86,7 +85,7 @@ public enum Content  {
     USER_COMMENTS("users/#/comments", null, 307, Comment.class, -1, null),
     USER_GROUPS("users/#/groups", null, 308, null, -1, null),
     USER_PLAYLISTS("users/#/playlists", null, 309, null, -1, null),
-    USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Sound.class, REPOST, null),
+    USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Playable.class, REPOST, null),
     USER_LOOKUP("users/*", Endpoints.USERS, 350, User.class, -1, Table.USERS),
 
     COMMENTS("comments", null, 400, Comment.class, -1, Table.COMMENTS),

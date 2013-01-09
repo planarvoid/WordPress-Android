@@ -69,7 +69,7 @@ public class ScUpload extends ScActivity {
             mRecordingMetadata.setRecording(mRecording, false);
 
             if (mRecording.external_upload) {
-                // 3rd party upload, disable "record another sound button"
+                // 3rd party upload, disable "record another playable button"
                 ((ViewGroup) findViewById(R.id.share_user_layout)).addView(
                         new ShareUserHeader(this, getApp().getLoggedInUser()));
             }

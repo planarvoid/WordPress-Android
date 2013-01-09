@@ -3,10 +3,10 @@ package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.AddAssociationTask;
 import com.soundcloud.android.task.AssociatedSoundTask;
@@ -27,39 +27,39 @@ public class AssociationManager {
         mModelManager = SoundCloudApplication.MODEL_MANAGER;
     }
 
-    void setLike(@Nullable Sound sound, boolean like) {
-        if (sound == null) return;
-        onLikeStatusSet(sound, like);
-        AssociatedSoundTask task = like ? new AddAssociationTask(getApp(), sound) : new RemoveAssociationTask(getApp(), sound);
+    void setLike(@Nullable Playable playable, boolean like) {
+        if (playable == null) return;
+        onLikeStatusSet(playable, like);
+        AssociatedSoundTask task = like ? new AddAssociationTask(getApp(), playable) : new RemoveAssociationTask(getApp(), playable);
         task.setOnAssociatedListener(likeListener);
         task.execute(Endpoints.MY_FAVORITE);
     }
 
-    void setRepost(@Nullable Sound sound, boolean repost) {
-        if (sound == null) return;
-        onRepostStatusSet(sound, repost);
-        AssociatedSoundTask task = repost ? new AddAssociationTask(getApp(), sound) : new RemoveAssociationTask(getApp(), sound);
+    void setRepost(@Nullable Playable playable, boolean repost) {
+        if (playable == null) return;
+        onRepostStatusSet(playable, repost);
+        AssociatedSoundTask task = repost ? new AddAssociationTask(getApp(), playable) : new RemoveAssociationTask(getApp(), playable);
         task.setOnAssociatedListener(repostListener);
         task.execute(TempEndpoints.e1.MY_REPOST);
     }
 
-    private void onLikeStatusSet(Sound sound, boolean isLike) {
-        sound.user_like = isLike;
-        onAssociationChanged(sound);
+    private void onLikeStatusSet(Playable playable, boolean isLike) {
+        playable.user_like = isLike;
+        onAssociationChanged(playable);
     }
 
-    private void onRepostStatusSet(Sound sound, boolean isRepost) {
-        sound.user_repost = isRepost;
-        onAssociationChanged(sound);
+    private void onRepostStatusSet(Playable playable, boolean isRepost) {
+        playable.user_repost = isRepost;
+        onAssociationChanged(playable);
     }
 
-    private void onAssociationChanged(Sound sound) {
-        mModelManager.cache(sound, ScResource.CacheUpdateMode.NONE);
+    private void onAssociationChanged(Playable playable) {
+        mModelManager.cache(playable, ScResource.CacheUpdateMode.NONE);
 
-        Intent intent = new Intent(Sound.ACTION_TRACK_ASSOCIATION_CHANGED)
-                .putExtra(CloudPlaybackService.BroadcastExtras.id, sound.id)
-                .putExtra(CloudPlaybackService.BroadcastExtras.isRepost, sound.user_repost)
-                .putExtra(CloudPlaybackService.BroadcastExtras.isLike, sound.user_like)
+        Intent intent = new Intent(Playable.ACTION_TRACK_ASSOCIATION_CHANGED)
+                .putExtra(CloudPlaybackService.BroadcastExtras.id, playable.id)
+                .putExtra(CloudPlaybackService.BroadcastExtras.isRepost, playable.user_repost)
+                .putExtra(CloudPlaybackService.BroadcastExtras.isLike, playable.user_like)
                 .putExtra(CloudPlaybackService.BroadcastExtras.isSupposedToBePlaying, CloudPlaybackService.getState().isSupposedToBePlaying());
 
         mContext.sendBroadcast(intent);
@@ -72,43 +72,43 @@ public class AssociationManager {
 
     private final AssociatedSoundTask.AssociatedListener likeListener = new AssociatedSoundTask.AssociatedListener() {
         @Override
-        public void onNewStatus(Sound sound, boolean isAssociated) {
-            sound = (Sound) SoundCloudApplication.MODEL_MANAGER.cache(sound, ScResource.CacheUpdateMode.NONE);
-            if (sound.likes_count > ScModel.NOT_SET) {
+        public void onNewStatus(Playable playable, boolean isAssociated) {
+            playable = (Playable) SoundCloudApplication.MODEL_MANAGER.cache(playable, ScResource.CacheUpdateMode.NONE);
+            if (playable.likes_count > ScModel.NOT_SET) {
                 if (isAssociated) {
-                    sound.likes_count += 1;
+                    playable.likes_count += 1;
                 } else {
-                    sound.likes_count -= 1;
+                    playable.likes_count -= 1;
                 }
             }
-            onLikeStatusSet(sound, isAssociated);
-            updateLocalState(sound, Content.ME_LIKES.uri, isAssociated);
+            onLikeStatusSet(playable, isAssociated);
+            updateLocalState(playable, Content.ME_LIKES.uri, isAssociated);
         }
     };
 
     private final AssociatedSoundTask.AssociatedListener repostListener = new AssociatedSoundTask.AssociatedListener() {
         @Override
-        public void onNewStatus(Sound sound, boolean isAssociated) {
-            sound = (Sound) SoundCloudApplication.MODEL_MANAGER.cache(sound, ScResource.CacheUpdateMode.NONE);
-            if (sound.reposts_count > ScModel.NOT_SET) {
+        public void onNewStatus(Playable playable, boolean isAssociated) {
+            playable = (Playable) SoundCloudApplication.MODEL_MANAGER.cache(playable, ScResource.CacheUpdateMode.NONE);
+            if (playable.reposts_count > ScModel.NOT_SET) {
                 if (isAssociated){
-                    sound.reposts_count += 1;
+                    playable.reposts_count += 1;
                 } else {
-                    sound.reposts_count -= 1;
+                    playable.reposts_count -= 1;
                 }
             }
-            onRepostStatusSet(sound, isAssociated);
-            updateLocalState(sound, Content.ME_REPOSTS.uri, isAssociated);
+            onRepostStatusSet(playable, isAssociated);
+            updateLocalState(playable, Content.ME_REPOSTS.uri, isAssociated);
         }
     };
 
-    private void updateLocalState(Sound sound, Uri uri, boolean isAssociated) {
+    private void updateLocalState(Playable playable, Uri uri, boolean isAssociated) {
         if (isAssociated) {
-            mContext.getContentResolver().insert(uri, sound.buildContentValues());
+            mContext.getContentResolver().insert(uri, playable.buildContentValues());
         } else {
             // TODO: this won't work for playlists
             mContext.getContentResolver().delete(uri, "item_id = ?", new String[]{
-                String.valueOf(sound.id),
+                String.valueOf(playable.id),
             });
         }
     }

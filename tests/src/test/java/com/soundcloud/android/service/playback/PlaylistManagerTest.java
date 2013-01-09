@@ -4,7 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackHolder;
@@ -241,7 +241,7 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldSkipUnstreamableTrackNext() throws Exception {
-        ArrayList<Playable> playables = new ArrayList<Playable>();
+        ArrayList<PlayableHolder> playables = new ArrayList<PlayableHolder>();
         playables.addAll(createTracks(1, true, 0));
         playables.addAll(createTracks(1, false, 1));
 
@@ -258,7 +258,7 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldSkipUnstreamableTrackPrev() throws Exception {
-        ArrayList<Playable> playables = new ArrayList<Playable>();
+        ArrayList<PlayableHolder> playables = new ArrayList<PlayableHolder>();
         playables.addAll(createTracks(1, false, 0));
         playables.addAll(createTracks(1, true, 1));
 

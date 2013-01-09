@@ -12,8 +12,8 @@ import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.streaming.StreamItem;
@@ -53,7 +53,7 @@ import java.util.List;
 
 public class CloudPlaybackService extends Service implements IAudioManager.MusicFocusable, Tracker {
     public static final String TAG = "CloudPlaybackService";
-    public @Nullable static List<Playable> playlistXfer;
+    public @Nullable static List<PlayableHolder> playlistXfer;
 
     private static @Nullable Track currentTrack;
     public  static @Nullable Track getCurrentTrack()  { return currentTrack; }
@@ -448,7 +448,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         public void onSuccess(Track track, String action) {
             track.setUpdated();
             track = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(track, ScResource.CacheUpdateMode.FULL);
-            sendBroadcast(new Intent(Sound.ACTION_SOUND_INFO_UPDATED)
+            sendBroadcast(new Intent(Playable.ACTION_SOUND_INFO_UPDATED)
                                         .putExtra(CloudPlaybackService.BroadcastExtras.id, track.id));
 
             if (track.equals(currentTrack) && (!isPlaying() && state.isSupposedToBePlaying())){
@@ -463,7 +463,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
         @Override
         public void onError(long trackId) {
-            sendBroadcast(new Intent(Sound.ACTION_SOUND_INFO_ERROR)
+            sendBroadcast(new Intent(Playable.ACTION_SOUND_INFO_ERROR)
                                                     .putExtra(CloudPlaybackService.BroadcastExtras.id, trackId));
             onUnstreamableTrack(trackId);
         }

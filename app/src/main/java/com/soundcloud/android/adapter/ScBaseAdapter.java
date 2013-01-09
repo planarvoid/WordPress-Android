@@ -201,10 +201,10 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
             /*
             if (IOUtils.isWifiConnected(mContext)){
-                // prefetch sound artwork
+                // prefetch playable artwork
                 for (ScModel model : data.newItems){
-                    if (model instanceof Playable){
-                        final String artworkUrl = Consts.GraphicSize.formatUriForList(mContext, ((Playable) model).getTrack().getArtwork());
+                    if (model instanceof PlayableHolder){
+                        final String artworkUrl = Consts.GraphicSize.formatUriForList(mContext, ((PlayableHolder) model).getTrack().getArtwork());
                         if (!TextUtils.isEmpty(artworkUrl)) ImageLoader.get(mContext).prefetch(artworkUrl);
                     }
                 }

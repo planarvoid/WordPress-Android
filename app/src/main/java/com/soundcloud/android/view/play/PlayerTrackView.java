@@ -5,7 +5,6 @@ import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
 import android.content.Context;
-import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.*;
 import com.soundcloud.android.Consts;
@@ -15,8 +14,8 @@ import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.LoadCommentsTask;
@@ -713,7 +712,7 @@ public class PlayerTrackView extends LinearLayout implements
                 mWaveformController.setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
             }
 
-        } else if (Sound.ACTION_TRACK_ASSOCIATION_CHANGED.equals(action)) {
+        } else if (Playable.ACTION_TRACK_ASSOCIATION_CHANGED.equals(action)) {
             if (mTrack != null && mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
                 mTrack.user_like = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false);
                 mTrack.user_repost = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isRepost, false);
@@ -721,12 +720,12 @@ public class PlayerTrackView extends LinearLayout implements
                 setReposts(mTrack.reposts_count, mTrack.user_repost);
             }
 
-        } else if (Sound.COMMENTS_UPDATED.equals(action)) {
+        } else if (Playable.COMMENTS_UPDATED.equals(action)) {
             if (mTrack != null && mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
                 onCommentsChanged();
             }
 
-        } else if (Sound.ACTION_SOUND_INFO_UPDATED.equals(action)) {
+        } else if (Playable.ACTION_SOUND_INFO_UPDATED.equals(action)) {
             Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1));
             if (t != null) {
                 setTrack(t, mQueuePosition, true, mOnScreen);
@@ -735,7 +734,7 @@ public class PlayerTrackView extends LinearLayout implements
                 }
             }
 
-        } else if (Sound.ACTION_SOUND_INFO_ERROR.equals(action)) {
+        } else if (Playable.ACTION_SOUND_INFO_ERROR.equals(action)) {
             if (mTrackDetailsView != null) {
                 mTrackDetailsView.fillTrackDetails(mTrack);
             }

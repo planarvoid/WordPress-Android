@@ -61,7 +61,7 @@ public abstract class ScResource extends ScModel {
 
     public abstract User getUser();
 
-    public abstract Sound getSound();
+    public abstract Playable getSound();
 
     public static class ScResourceHolder extends CollectionHolder<ScResource> {
     }

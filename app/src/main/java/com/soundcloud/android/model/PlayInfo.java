@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PlayInfo {
-    public List<Playable> playables;
+    public List<PlayableHolder> playables;
     public int position;
     public Uri uri;
 
@@ -16,7 +16,7 @@ public class PlayInfo {
 
     public static PlayInfo forTracks(Track... t) {
         PlayInfo info = new PlayInfo();
-        info.playables = Arrays.<Playable>asList(t);
+        info.playables = Arrays.<PlayableHolder>asList(t);
         return info;
     }
 }

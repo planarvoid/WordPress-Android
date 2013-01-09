@@ -54,7 +54,7 @@ public class SearchTest {
     @Test
     public void shouldClearHistory() throws Exception {
         for (int i=0; i<5; i++) {
-            Search.forSounds("sound"+i).insert(resolver);
+            Search.forSounds("playable"+i).insert(resolver);
         }
 
         expect(Content.SEARCHES_ITEM).toHaveCount(5);

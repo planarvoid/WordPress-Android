@@ -1,11 +1,8 @@
 package com.soundcloud.android.provider;
 
-import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Sound;
-import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.IOUtils;
@@ -106,7 +103,7 @@ public class SoundCloudDB {
         if (models == null) return 0;
 
         Set<User> usersToInsert = new HashSet<User>();
-        Set<Sound> soundsToInsert = new HashSet<Sound>();
+        Set<Playable> soundsToInsert = new HashSet<Playable>();
 
         ContentValues[] bulkValues = uri == null ? null : new ContentValues[models.size()];
 
@@ -115,9 +112,9 @@ public class SoundCloudDB {
 
             ScResource r = models.get(i);
             if (r != null) {
-                Sound sound = r.getSound();
-                if (sound != null) {
-                    soundsToInsert.add(sound);
+                Playable playable = r.getSound();
+                if (playable != null) {
+                    soundsToInsert.add(playable);
                 }
 
                 User user = r.getUser();
@@ -149,7 +146,7 @@ public class SoundCloudDB {
 
         ContentValues[] soundsCv = new ContentValues[soundsToInsert.size()];
         ContentValues[] usersCv = new ContentValues[usersToInsert.size()];
-        Sound[] _soundssToInsert = soundsToInsert.toArray(new Sound[soundsToInsert.size()]);
+        Playable[] _soundssToInsert = soundsToInsert.toArray(new Playable[soundsToInsert.size()]);
         User[] _usersToInsert = usersToInsert.toArray(new User[usersToInsert.size()]);
 
         for (int i=0; i< _soundssToInsert.length; i++) {

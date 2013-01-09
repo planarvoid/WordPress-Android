@@ -3,8 +3,7 @@ package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
@@ -238,7 +237,7 @@ public class PlayQueueManager {
         mContext.sendBroadcast(intent);
     }
 
-    public void setPlayQueue(final List<? extends Playable> playQueue, int playPos) {
+    public void setPlayQueue(final List<? extends PlayableHolder> playQueue, int playPos) {
         mPlayQueue = new Track[playQueue == null ? 0 : playQueue.size()];
         if (playQueue != null) {
             for (int i=0; i<playQueue.size(); i++) {

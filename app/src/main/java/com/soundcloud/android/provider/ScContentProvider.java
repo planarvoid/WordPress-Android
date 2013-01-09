@@ -4,7 +4,7 @@ import static com.soundcloud.android.Consts.GraphicSize;
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Sound;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -360,7 +360,7 @@ public class ScContentProvider extends ContentProvider {
 
     private void appendSoundType(SCQueryBuilder qb, Content content) {
         qb.appendWhere(" " + DBHelper.SoundView._TYPE + " = '" +
-                (content.modelType == Track.class ? Sound.DB_TYPE_TRACK : Sound.DB_TYPE_PLAYLIST)
+                (content.modelType == Track.class ? Playable.DB_TYPE_TRACK : Playable.DB_TYPE_PLAYLIST)
                 + "'");
     }
 
