@@ -226,6 +226,7 @@ public class PlayQueueManager {
                             adjustedPosition = getPlayQueuePositionFromUri(mContext.getContentResolver(), uri, playingId);
                         } else {
                             // this will adjust for deletions that haven't been fixed in the source list
+                            adjustedPosition = position;
                             while (adjustedPosition >= 0 && getTrackIdAt(adjustedPosition) != playingId) adjustedPosition--;
                         }
                     }
