@@ -5,7 +5,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -41,11 +43,13 @@ public class EmptyListView extends RelativeLayout {
     private ActionListener mImageActionListener;
     protected int mMode;
 
-    public interface Mode {
-        int WAITING_FOR_DATA = 1;
-        int IDLE = 2;
-        int ERROR = 3;
+    public interface Status extends HttpStatus {
+        int WAITING = -1;
+        int ERROR = SC_BAD_REQUEST; //generic error
+        int OK = SC_OK; //generic OK
     }
+
+
 
     public EmptyListView(final Context context, final Intent... intents) {
         super(context);
@@ -79,32 +83,43 @@ public class EmptyListView extends RelativeLayout {
         mProgressBar = (ProgressBar) findViewById(R.id.list_loading);
     }
 
-    public boolean setMode(int mode) {
-        if (mMode != mode) {
-            mMode = mode;
-            switch (mode) {
-                case Mode.WAITING_FOR_DATA:
-                    mProgressBar.setVisibility(View.VISIBLE);
-                    if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
-                    if (mError != null) mError.setVisibility(View.GONE);
-                    return true;
+    /**
+     * Configure display based on response code
+     * @param code
+     * @return whether the code was handled here
+     */
+    public boolean setStatus(int code) {
+        if (mMode != code) {
+            mMode = code;
 
-                case Mode.IDLE:
-                    mProgressBar.setVisibility(View.GONE);
-                    showEmptyLayout();
-                    return true;
+            if (code == Status.WAITING) {
+                // don't show empty screen, show progress
+                mProgressBar.setVisibility(View.VISIBLE);
+                if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
+                if (mError != null) mError.setVisibility(View.GONE);
+                return true;
 
-                case Mode.ERROR:
-                    mProgressBar.setVisibility(View.GONE);
-                    showError();
-                    return true;
+            } else if (IOUtils.isStatusCodeOk(code)) {
+                // at rest, no error
+                mProgressBar.setVisibility(View.GONE);
+                showEmptyLayout();
+                return true;
+
+            } else if (IOUtils.isStatusCodeError(code)) {
+                // server or client error,
+                mProgressBar.setVisibility(View.GONE);
+                showError(code);
+                return true;
+
+            } else {
+                return false; // handled elsewhere
             }
-            return false;
+
         }
         return true;
     }
 
-    private void showError(){
+    private void showError(int responseCode){
         if (mError == null) {
             mError = (LinearLayout) View.inflate(getContext(), R.layout.empty_list_error, null);
             mEmptyViewHolder.addView(mError);
@@ -112,6 +127,15 @@ public class EmptyListView extends RelativeLayout {
             mError.setVisibility(View.VISIBLE);
         }
         if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
+
+        final TextView errorTextView = (TextView) mError.findViewById(R.id.txt_message);
+        if (responseCode == HttpStatus.SC_SERVICE_UNAVAILABLE){
+            errorTextView.setText(R.string.error_soundcloud_is_down);
+        } else if (IOUtils.isStatusCodeServerError(responseCode)){
+            errorTextView.setText(R.string.error_soundcloud_server_problems);
+        } else {
+            errorTextView.setText(R.string.no_internet_connection);
+        }
     }
 
     protected void showEmptyLayout() {

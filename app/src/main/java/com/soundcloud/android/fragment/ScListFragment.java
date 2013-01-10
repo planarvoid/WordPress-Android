@@ -4,7 +4,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -21,6 +20,7 @@ import com.soundcloud.android.adapter.SoundAssociationAdapter;
 import com.soundcloud.android.adapter.TrackAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
@@ -82,7 +82,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private CollectionTask mAppendTask;
     protected String mNextHref;
 
-    private int mEmptyMode;
+    protected int mStatusCode;
 
     public static ScListFragment newInstance(Content content) {
         return newInstance(content.uri);
@@ -275,7 +275,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     public void setEmptyCollection(EmptyListView emptyCollection){
         mEmptyListView = emptyCollection;
-        mEmptyListView.setMode(mEmptyMode);
+        mEmptyListView.setStatus(mStatusCode);
         if (getView() != null && getListView() != null) {
             getListView().setEmptyView(emptyCollection);
         }
@@ -298,15 +298,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             case ApiSyncService.STATUS_SYNC_ERROR: {
 
                 final boolean nothingChanged = resultData != null && !resultData.getBoolean(mContentUri.toString());
-                if (nothingChanged && !isRefreshing()) {
+                if (nothingChanged && !isRefreshTaskActive()) {
                     doneRefreshing();
+                    checkAllowInitalAppend();
 
-                    // first time user with no account data. this will force the empty screen that was held back earlier
-                    final ScBaseAdapter adapter = getListAdapter();
-                    if (!waitingOnInitialSync() && adapter != null && adapter.getItemCount() == 0) {
-                        mKeepGoing = true;
-                        append(false);
-                    }
                 } else if (!nothingChanged) {
                     // something was changed by the sync, if we aren't refreshing already, do it
                     if (!isRefreshTaskActive()) {
@@ -315,6 +310,18 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 }
                 break;
             }
+        }
+    }
+
+    /**
+     * This will allow the empty screen to be shown, in case
+     * {@link this#waitingOnInitialSync())} was true earlier, suppressing it.
+     */
+    private void checkAllowInitalAppend() {
+        final ScBaseAdapter adapter = getListAdapter();
+        if (!mKeepGoing && !waitingOnInitialSync() && adapter != null && adapter.getItemCount() == 0) {
+            mKeepGoing = true;
+            append(false);
         }
     }
 
@@ -345,7 +352,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mKeepGoing = data.keepGoing;
 
         adapter.handleTaskReturnData(data);
-        configureEmptyView(handleResponseCode(data.responseCode));
+        configureEmptyView(data.responseCode);
 
         final boolean notRefreshing = (data.wasRefresh || !isRefreshing()) && !waitingOnInitialSync();
         if (notRefreshing) {
@@ -433,15 +440,14 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     protected void configureEmptyView() {
-        configureEmptyView(true);
+        configureEmptyView(EmptyListView.Status.OK);
     }
 
-    private void configureEmptyView(boolean responseOk) {
+    protected void configureEmptyView(int statusCode) {
         final boolean wait = canAppend() || isRefreshing() || waitingOnInitialSync();
+        mStatusCode = wait ? EmptyListView.Status.WAITING : statusCode;
         if (mEmptyListView != null) {
-            int emptyMode = wait ? EmptyListView.Mode.WAITING_FOR_DATA :
-                    (responseOk ? EmptyListView.Mode.IDLE : EmptyListView.Mode.ERROR);
-            mEmptyListView.setMode(emptyMode);
+            mEmptyListView.setStatus(mStatusCode);
         }
     }
 
@@ -569,13 +575,16 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private void refreshSyncData() {
         if (isSyncable() && mLocalCollection != null) {
             setListLastUpdated();
-
-            if (mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
-                refresh(false);
-                // this is to show the user something at the initial load
-                if (!mLocalCollection.hasSyncedBefore() && mListView != null) {
-                    mListView.setRefreshing();
+            if (mLocalCollection.shouldAutoRefresh()) {
+                if (!isRefreshing()) {
+                    refresh(false);
+                    // this is to show the user something at the initial load
+                    if (!mLocalCollection.hasSyncedBefore() && mListView != null) {
+                        mListView.setRefreshing();
+                    }
                 }
+            } else {
+                checkAllowInitalAppend();
             }
         }
     }

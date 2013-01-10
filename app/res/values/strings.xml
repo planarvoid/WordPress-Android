@@ -124,6 +124,8 @@
 
     <string name="error_server_problems_title">Server Error</string>
     <string name="error_server_problems_message">There was a problem processing your request. Please try again later.</string>
+    <string name="error_soundcloud_is_down">SoundCloud seems to be having server problems. We\'re working on it!</string>
+    <string name="error_soundcloud_server_problems">SoundCloud had trouble processing your request.</string>
 
     <string name="accessibility_menu">Open menu</string>
     <string name="accessibility_action_bar_waveform">Show currently playing track</string>
