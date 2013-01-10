@@ -133,7 +133,7 @@ public class Track extends Playable implements PlayableHolder {
         return this;
     }
 
-    public Track getTrack() {
+    public Track getPlayable() {
         return this;
     }
 

@@ -11,7 +11,7 @@ public class PlayInfo {
     public Uri uri;
 
     public Track getTrack() {
-        return playables.get(Math.max(0,Math.min(playables.size() -1 ,position))).getTrack();
+        return playables.get(Math.max(0,Math.min(playables.size() -1 ,position))).getPlayable();
     }
 
     public static PlayInfo forTracks(Track... t) {

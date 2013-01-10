@@ -29,7 +29,7 @@ public class TrackRepostActivity extends Activity implements PlayableHolder {
     }
 
     @Override
-    public Track getTrack() {
+    public Track getPlayable() {
         return track;
     }
 

@@ -78,9 +78,9 @@ public class ActivitiesTest {
     public void testGetUniqueTracks() throws Exception {
         Activities activities = new Activities();
         expect(activities.getUniqueTracks().size()).toEqual(0);
-        Activity e1 = new TrackActivity() { public Track getTrack() { return new Track() { { id = 1; } }; } };
-        Activity e2 = new TrackActivity() { public Track getTrack() { return new Track() { { id = 1; } }; } };
-        Activity e3 = new TrackActivity() { public Track getTrack() { return new Track() { { id = 3; } }; } };
+        Activity e1 = new TrackActivity() { public Track getPlayable() { return new Track() { { id = 1; } }; } };
+        Activity e2 = new TrackActivity() { public Track getPlayable() { return new Track() { { id = 1; } }; } };
+        Activity e3 = new TrackActivity() { public Track getPlayable() { return new Track() { { id = 3; } }; } };
         activities = new Activities(e1, e2, e3);
         expect(activities.getUniqueTracks().size()).toEqual(2);
     }
@@ -257,10 +257,10 @@ public class ActivitiesTest {
         expect(trackActivity.getType()).toEqual(Activity.Type.TRACK);
         expect(trackActivity.getUser().id).toEqual(1948213l);
         expect(trackActivity.getUser().username).toEqual("Playback Media");
-        expect(trackActivity.getTrack().id).toEqual(61145768l);
-        expect(trackActivity.getTrack().title).toEqual("Total Waxer");
-        expect(trackActivity.getTrack().genre).toEqual("Podcast");
-        expect(trackActivity.getTrack().waveform_url).toEqual("https://w1.sndcdn.com/DsoyShDam62m_m.png");
+        expect(trackActivity.getPlayable().id).toEqual(61145768l);
+        expect(trackActivity.getPlayable().title).toEqual("Total Waxer");
+        expect(trackActivity.getPlayable().genre).toEqual("Podcast");
+        expect(trackActivity.getPlayable().waveform_url).toEqual("https://w1.sndcdn.com/DsoyShDam62m_m.png");
         expect(trackActivity.sharing_note.text).toEqual("this is a sharing note");
         expect(trackActivity.sharing_note.getDateString()).toEqual("2012/09/25 19:09:40 +0000");
 
@@ -271,10 +271,10 @@ public class ActivitiesTest {
         expect(trackSharingActivity.getType()).toEqual(Activity.Type.TRACK_SHARING);
         expect(trackSharingActivity.getUser().id).toEqual(5833426l);
         expect(trackSharingActivity.getUser().username).toEqual("Stop Out Records");
-        expect(trackSharingActivity.getTrack().id).toEqual(61132541l);
-        expect(trackSharingActivity.getTrack().title).toEqual("Wendyhouse - Hold Me Down (Feat. FRANKi)");
-        expect(trackSharingActivity.getTrack().original_format).toEqual("mp3");
-        expect(trackSharingActivity.getTrack().artwork_url).toEqual("https://i1.sndcdn.com/artworks-000030981203-eerjjh-large.jpg?04ad178");
+        expect(trackSharingActivity.getPlayable().id).toEqual(61132541l);
+        expect(trackSharingActivity.getPlayable().title).toEqual("Wendyhouse - Hold Me Down (Feat. FRANKi)");
+        expect(trackSharingActivity.getPlayable().original_format).toEqual("mp3");
+        expect(trackSharingActivity.getPlayable().artwork_url).toEqual("https://i1.sndcdn.com/artworks-000030981203-eerjjh-large.jpg?04ad178");
         expect(trackSharingActivity.sharing_note.text).toEqual("this is a sharing note");
 
         AffiliationActivity affiliationActivity = (AffiliationActivity) activities.get(2);
@@ -293,12 +293,12 @@ public class ActivitiesTest {
         expect(trackLikeActivity.getType()).toEqual(Activity.Type.TRACK_LIKE);
         expect(trackLikeActivity.getUser().permalink).toEqual("designatedave");
         expect(trackLikeActivity.getUser().username).toEqual("D∃SIGNATED∀VΞ");
-        expect(trackLikeActivity.getTrack().tag_list).toEqual("foursquare:venue=4d8990f6eb6d60fc6c8818ca geo:lat=52.50126117 geo:lon=13.34753747 soundcloud:source=android-record");
-        expect(trackLikeActivity.getTrack().label_name).toBeNull();
-        expect(trackLikeActivity.getTrack().license).toEqual("all-rights-reserved");
-        expect(trackLikeActivity.getTrack().permalink).toEqual("android-to-the-big-screen");
-        expect(trackLikeActivity.getTrack().getUser().id).toEqual(5687414l);
-        expect(trackLikeActivity.getTrack().getUser().permalink).toEqual("soundcloud-android");
+        expect(trackLikeActivity.getPlayable().tag_list).toEqual("foursquare:venue=4d8990f6eb6d60fc6c8818ca geo:lat=52.50126117 geo:lon=13.34753747 soundcloud:source=android-record");
+        expect(trackLikeActivity.getPlayable().label_name).toBeNull();
+        expect(trackLikeActivity.getPlayable().license).toEqual("all-rights-reserved");
+        expect(trackLikeActivity.getPlayable().permalink).toEqual("android-to-the-big-screen");
+        expect(trackLikeActivity.getPlayable().getUser().id).toEqual(5687414l);
+        expect(trackLikeActivity.getPlayable().getUser().permalink).toEqual("soundcloud-android");
 
         CommentActivity commentActivity = (CommentActivity) activities.get(4);
         expect(commentActivity.getDateString()).toEqual("2012/07/04 11:34:41 +0000");

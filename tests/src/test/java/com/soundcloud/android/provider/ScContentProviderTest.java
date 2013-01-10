@@ -77,8 +77,8 @@ public class ScContentProviderTest {
             likes.add(like);
         }
 
-        expect(likes.get(0).getTrack().title).toEqual("freddie evans at Excel Exhibition Centre");
-        expect(likes.get(1).getTrack().title).toEqual("sing-a-long time at London 2012 Live Site - Hyde Park");
+        expect(likes.get(0).getPlayable().title).toEqual("freddie evans at Excel Exhibition Centre");
+        expect(likes.get(1).getPlayable().title).toEqual("sing-a-long time at London 2012 Live Site - Hyde Park");
     }
 
     @Test
@@ -97,7 +97,7 @@ public class ScContentProviderTest {
             likes.add(like);
         }
         expect(resolver.delete(Content.ME_LIKES.uri, DBHelper.CollectionItems.ITEM_ID + " = ?",
-                new String[]{String.valueOf(likes.get(0).getTrack().id)})).toEqual(1);
+                new String[]{String.valueOf(likes.get(0).getPlayable().id)})).toEqual(1);
 
         c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
@@ -118,8 +118,8 @@ public class ScContentProviderTest {
         }
         expect(associations).toNumber(50);
 
-        expect(associations.get(0).getTrack().title).toEqual("A trimmed test upload");
-        expect(associations.get(1).getTrack().title).toEqual("A faded + trimmed test upload");
+        expect(associations.get(0).getPlayable().title).toEqual("A trimmed test upload");
+        expect(associations.get(1).getPlayable().title).toEqual("A faded + trimmed test upload");
     }
 
     @Test

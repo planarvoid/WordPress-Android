@@ -103,7 +103,7 @@ public class Playlist extends Playable {
 
 
     @Override
-    public Track getTrack() {
+    public Track getPlayable() {
         return null;
     }
 

@@ -46,7 +46,7 @@ public class AssociationManagerTest {
         TODO: fix state bug
 
         modelManager.clear();
-        expect(modelManager.getTrack(t.id).user_like).toBeTrue();
+        expect(modelManager.getPlayable(t.id).user_like).toBeTrue();
 
         */
     }
@@ -80,7 +80,7 @@ public class AssociationManagerTest {
         TODO fix state bug
 
         modelManager.clear();
-        expect(modelManager.getTrack(t.id).user_like).toBeFalse();
+        expect(modelManager.getPlayable(t.id).user_like).toBeFalse();
 
         */
     }
@@ -101,7 +101,7 @@ public class AssociationManagerTest {
         TODO fix state bug
 
         modelManager.clear();
-        expect(modelManager.getTrack(t.id).user_repost).toBeTrue();
+        expect(modelManager.getPlayable(t.id).user_repost).toBeTrue();
         */
     }
 
@@ -124,7 +124,7 @@ public class AssociationManagerTest {
         TODO FIX state bug
 
         modelManager.clear();
-        expect(modelManager.getTrack(t.id).user_repost).toBeFalse();
+        expect(modelManager.getPlayable(t.id).user_repost).toBeFalse();
 
         */
     }

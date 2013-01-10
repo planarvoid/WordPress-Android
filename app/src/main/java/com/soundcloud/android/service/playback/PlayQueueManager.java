@@ -241,7 +241,7 @@ public class PlayQueueManager {
         mPlayQueue = new Track[playQueue == null ? 0 : playQueue.size()];
         if (playQueue != null) {
             for (int i=0; i<playQueue.size(); i++) {
-                mPlayQueue[i] = playQueue.get(i).getTrack();
+                mPlayQueue[i] = playQueue.get(i).getPlayable();
             }
         }
         mPlayQueueUri = new PlayQueueUri();

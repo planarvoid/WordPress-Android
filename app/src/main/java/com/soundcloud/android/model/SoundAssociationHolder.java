@@ -35,7 +35,7 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
     public Set<Track> getTracks() {
         Set<Track> tracks = new HashSet<Track>();
         for (SoundAssociation a : this)  {
-            if (a.getTrack() != null) tracks.add(a.getTrack());
+            if (a.getPlayable() != null) tracks.add(a.getPlayable());
         }
         return tracks;
     }

@@ -139,7 +139,7 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     }
 
     @Override @Nullable
-    public Track getTrack() {
+    public Track getPlayable() {
         return track;
     }
 
