@@ -82,7 +82,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private CollectionTask mAppendTask;
     protected String mNextHref;
 
-    private int mEmptyMode;
+    protected int mStatusCode;
 
     public static ScListFragment newInstance(Content content) {
         return newInstance(content.uri);
@@ -275,7 +275,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     public void setEmptyCollection(EmptyListView emptyCollection){
         mEmptyListView = emptyCollection;
-        mEmptyListView.setMode(mEmptyMode);
+        mEmptyListView.setStatus(mStatusCode);
         if (getView() != null && getListView() != null) {
             getListView().setEmptyView(emptyCollection);
         }
@@ -352,7 +352,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mKeepGoing = data.keepGoing;
 
         adapter.handleTaskReturnData(data);
-        configureEmptyView(handleResponseCode(data.responseCode));
+        configureEmptyView(data.responseCode);
 
         final boolean notRefreshing = (data.wasRefresh || !isRefreshing()) && !waitingOnInitialSync();
         if (notRefreshing) {
@@ -440,15 +440,14 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     protected void configureEmptyView() {
-        configureEmptyView(true);
+        configureEmptyView(EmptyListView.Status.OK);
     }
 
-    private void configureEmptyView(boolean responseOk) {
+    protected void configureEmptyView(int statusCode) {
         final boolean wait = canAppend() || isRefreshing() || waitingOnInitialSync();
+        mStatusCode = wait ? EmptyListView.Status.WAITING : statusCode;
         if (mEmptyListView != null) {
-            int emptyMode = wait ? EmptyListView.Mode.WAITING_FOR_DATA :
-                    (responseOk ? EmptyListView.Mode.IDLE : EmptyListView.Mode.ERROR);
-            mEmptyListView.setMode(emptyMode);
+            mEmptyListView.setStatus(mStatusCode);
         }
     }
 

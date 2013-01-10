@@ -106,13 +106,13 @@ public class UserDetailsFragment extends Fragment {
                 mEmptyInfoView = new EmptyListView(getActivity());
             }
             if (!mAllowEmpty) {
-                mEmptyInfoView.setMode(EmptyListView.Mode.WAITING_FOR_DATA);
+                mEmptyInfoView.setStatus(EmptyListView.Status.WAITING);
             } else {
                 if (mInfoError) {
-                    mEmptyInfoView.setMode(EmptyListView.Mode.ERROR);
+                    mEmptyInfoView.setStatus(EmptyListView.Status.ERROR);
 
                 } else {
-                    mEmptyInfoView.setMode(EmptyListView.Mode.IDLE);
+                    mEmptyInfoView.setStatus(EmptyListView.Status.OK);
                     if (mUserId == SoundCloudApplication.getUserId()) {
                         if (getActivity() != null) {
                             mEmptyInfoView.setMessageText(R.string.info_empty_you_message)
