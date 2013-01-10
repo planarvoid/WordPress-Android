@@ -298,7 +298,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             case ApiSyncService.STATUS_SYNC_ERROR: {
 
                 final boolean nothingChanged = resultData != null && !resultData.getBoolean(mContentUri.toString());
-                if (nothingChanged && !isRefreshing()) {
+                if (nothingChanged && !isRefreshTaskActive()) {
                     doneRefreshing();
                     checkAllowInitalAppend();
 
