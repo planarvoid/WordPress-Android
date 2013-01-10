@@ -38,7 +38,7 @@ import android.widget.TextView;
 public class TrackInfoBar extends LazyRow {
     public static final ImageLoader.Options ICON_OPTIONS = ImageLoader.Options.postAtFront();
 
-    private PlayableHolder mPlayable;
+    private PlayableHolder mPlayableHolder;
 
     private TextView mUser;
     private TextView mReposter;
@@ -96,8 +96,8 @@ public class TrackInfoBar extends LazyRow {
                 mIcon.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (mPlayable != null && mPlayable.getTrack() != null){
-                            quickTrackMenu.show(mIcon, mPlayable.getTrack());
+                        if (mPlayableHolder != null && mPlayableHolder.getPlayable() != null){
+                            quickTrackMenu.show(mIcon, mPlayableHolder.getPlayable());
                         }
                     }
                 });
@@ -114,24 +114,24 @@ public class TrackInfoBar extends LazyRow {
      * @param showFullStats show full stats, or just play count (for player only)
      */
     public void display(PlayableHolder p, long playingId, boolean shouldLoadIcon, boolean keepHeight, boolean showFullStats) {
-        mPlayable = p;
+        mPlayableHolder = p;
         mShouldLoadIcon = shouldLoadIcon;
 
-        final Playable track = mPlayable.getTrack();
-        if (track == null) return;
+        final Playable playable = mPlayableHolder.getPlayable();
+        if (playable == null) return;
 
         final Context context = getContext();
 
-        mUser.setText(track.user != null ? track.user.username : "");
+        mUser.setText(playable.user != null ? playable.user.username : "");
         mCreatedAt.setText(p.getTimeSinceCreated(context));
         mReposter.setVisibility(View.GONE);
 
-        if (mPlayable instanceof TrackRepostActivity) {
-            mReposter.setText(((TrackRepostActivity) mPlayable).user.username);
+        if (mPlayableHolder instanceof TrackRepostActivity) {
+            mReposter.setText(((TrackRepostActivity) mPlayableHolder).user.username);
             mReposter.setVisibility(View.VISIBLE);
-        } else if (mPlayable instanceof SoundAssociation) {
+        } else if (mPlayableHolder instanceof SoundAssociation) {
 
-            SoundAssociation sa = (SoundAssociation) mPlayable;
+            SoundAssociation sa = (SoundAssociation) mPlayableHolder;
 
             if (sa.associationType == ScContentProvider.CollectionItemTypes.REPOST) {
                 mReposter.setVisibility(View.VISIBLE);
@@ -149,31 +149,31 @@ public class TrackInfoBar extends LazyRow {
             }
         }
 
-        if (track.isPublic()) {
+        if (playable.isPublic()) {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
-            if (track.shared_to_count <= 0) {
+            if (playable.shared_to_count <= 0) {
                 mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
                 mPrivateIndicator.setText(R.string.tracklist_item_shared_count_unavailable);
-            } else if (track.shared_to_count == 1){
+            } else if (playable.shared_to_count == 1){
                 mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
-                mPrivateIndicator.setText(track.user_id == SoundCloudApplication.getUserId() ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
+                mPrivateIndicator.setText(playable.user_id == SoundCloudApplication.getUserId() ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
             } else {
-                if (track.shared_to_count < 8){
+                if (playable.shared_to_count < 8){
                     mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
                 } else {
                     mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_gray_states);
                 }
-                mPrivateIndicator.setText(context.getString(R.string.tracklist_item_shared_with_x_people, track.shared_to_count));
+                mPrivateIndicator.setText(context.getString(R.string.tracklist_item_shared_with_x_people, playable.shared_to_count));
             }
             mPrivateIndicator.setVisibility(View.VISIBLE);
         }
 
-        mStatsView.updateWithPlayable(track, showFullStats);
+        mStatsView.updateWithPlayable(playable, showFullStats);
         setTitle(false);
 
         // TODO: should go into a separate track specific InfoBar view at some point
-        if (track instanceof Track && ((Track) track).isProcessing()) {
+        if (playable instanceof Track && ((Track) playable).isProcessing()) {
             if (findViewById(R.id.processing_progress) != null){
                 findViewById(R.id.processing_progress).setVisibility(View.VISIBLE);
             } else {
@@ -187,19 +187,19 @@ public class TrackInfoBar extends LazyRow {
     }
 
     private void setTitle(boolean pressed) {
-        if (mPlayable == null) return;
+        if (mPlayableHolder == null) return;
 
-        if (mAdapter != null && mPlayable.getTrack().id == CloudPlaybackService.getCurrentTrackId()) {
+        if (mAdapter != null && mPlayableHolder.getPlayable().id == CloudPlaybackService.getCurrentTrackId()) {
             if (mSpanBuilder == null) mSpanBuilder = new SpannableStringBuilder();
             mSpanBuilder.clear();
             mSpanBuilder.append("  ");
             mSpanBuilder.setSpan(new ImageSpan(getContext(), pressed ?
                     R.drawable.list_playing_white_50 : R.drawable.list_playing, ImageSpan.ALIGN_BASELINE),
                     0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            mSpanBuilder.append(mPlayable.getTrack().title);
+            mSpanBuilder.append(mPlayableHolder.getPlayable().title);
             mTitle.setText(mSpanBuilder);
         } else {
-            mTitle.setText(mPlayable.getTrack().title);
+            mTitle.setText(mPlayableHolder.getPlayable().title);
         }
     }
 
@@ -212,7 +212,7 @@ public class TrackInfoBar extends LazyRow {
     /** List specific functions **/
     @Override
     public String getIconRemoteUri() {
-        return mPlayable.getTrack() == null ? null : mPlayable.getTrack().getListArtworkUrl(getContext());
+        return mPlayableHolder.getPlayable() == null ? null : mPlayableHolder.getPlayable().getListArtworkUrl(getContext());
     }
 
     @Override
@@ -225,17 +225,17 @@ public class TrackInfoBar extends LazyRow {
         if (!(p instanceof PlayableHolder)) throw new IllegalArgumentException("Not a valid track " + p);
 
         // have to set the playable here for list icon loading purposes, it gets set again above for non-lists
-        mPlayable = (PlayableHolder) p;
+        mPlayableHolder = (PlayableHolder) p;
 
         super.display(position);
 
-        if (mPlayable.getTrack().isStreamable()) {
+        if (mPlayableHolder.getPlayable().isStreamable()) {
             setStaticTransformationsEnabled(false);
         } else {
             setStaticTransformationsEnabled(true);
         }
 
-        display(mPlayable, CloudPlaybackService.getCurrentTrackId(), false, false, true);
+        display(mPlayableHolder, CloudPlaybackService.getCurrentTrackId(), false, false, true);
     }
 
     @Override
@@ -259,7 +259,7 @@ public class TrackInfoBar extends LazyRow {
     }
 
     private void loadIcon() {
-        final String iconUrl = mPlayable.getTrack() == null ? null : Consts.GraphicSize.formatUriForList(getContext(), mPlayable.getTrack().getArtwork());
+        final String iconUrl = mPlayableHolder.getPlayable() == null ? null : Consts.GraphicSize.formatUriForList(getContext(), mPlayableHolder.getPlayable().getArtwork());
         if (TextUtils.isEmpty(iconUrl)) {
             mCurrentIconBindResult = ImageLoader.BindResult.OK;
             ImageLoader.get(getContext()).unbind(mIcon); // no artwork
@@ -290,16 +290,16 @@ public class TrackInfoBar extends LazyRow {
 
     @Override
     public CharSequence getContentDescription() {
-        Playable track = mPlayable.getTrack();
+        Playable playable = mPlayableHolder.getPlayable();
 
         StringBuilder builder = new StringBuilder();
-        builder.append(track.getUser().getDisplayName());
+        builder.append(playable.getUser().getDisplayName());
         builder.append(": ");
-        builder.append(track.title);
+        builder.append(playable.title);
         builder.append(", ");
 
-        if (mPlayable instanceof TrackRepostActivity) {
-            TrackRepostActivity repost = (TrackRepostActivity)mPlayable;
+        if (mPlayableHolder instanceof TrackRepostActivity) {
+            TrackRepostActivity repost = (TrackRepostActivity) mPlayableHolder;
 
             builder.append(getContext().getResources().getString(R.string.accessibility_infix_reposted_by));
             builder.append(" ");
@@ -309,46 +309,50 @@ public class TrackInfoBar extends LazyRow {
             builder.append(getTimeElapsed(getContext().getResources(), repost.created_at.getTime(), true));
             builder.append(", ");
         } else {
-            builder.append(getTimeElapsed(getContext().getResources(), track.created_at.getTime(), true));
+            builder.append(getTimeElapsed(getContext().getResources(), playable.created_at.getTime(), true));
             builder.append(", ");
         }
 
 
-        if (track.playback_count > 0) {
+        // TODO: get rid of the instanceof stuff and have a track specific subclass
+        int playCount = 0;
+        if (playable instanceof Track && (playCount = ((Track) playable).playback_count) > 0) {
             builder.append(getContext().getResources().getQuantityString(R.plurals.accessibility_stats_plays,
-                                                                         track.playback_count,
-                                                                         track.playback_count));
+                                                                         playCount,
+                                                                         playCount));
             builder.append(", ");
         }
 
-        if (track.likes_count > 0) {
+        if (playable.likes_count > 0) {
             builder.append(getContext().getResources().getQuantityString(R.plurals.accessibility_stats_likes,
-                                                                         track.likes_count,
-                                                                         track.likes_count));
+                                                                         playable.likes_count,
+                                                                         playable.likes_count));
             builder.append(", ");
         }
 
-        if (track.user_like) {
+        if (playable.user_like) {
             builder.append(getContext().getResources().getString(R.string.accessibility_stats_user_liked));
             builder.append(", ");
         }
 
-        if (track.reposts_count > 0) {
+        if (playable.reposts_count > 0) {
             builder.append(getContext().getResources().getQuantityString(R.plurals.accessibility_stats_reposts,
-                                                                         track.reposts_count,
-                                                                         track.reposts_count));
+                                                                         playable.reposts_count,
+                                                                         playable.reposts_count));
             builder.append(", ");
         }
 
-        if (track.user_repost) {
+        if (playable.user_repost) {
             builder.append(getContext().getResources().getString(R.string.accessibility_stats_user_reposted));
             builder.append(", ");
         }
 
-        if (track.comment_count > 0) {
+        // TODO: get rid of the instanceof stuff and have a track specific subclass
+        int commentCount = 0;
+        if (playable instanceof Track && (commentCount = ((Track) playable).comment_count) > 0) {
             builder.append(getContext().getResources().getQuantityString(R.plurals.accessibility_stats_comments,
-                                                                         track.comment_count,
-                                                                         track.comment_count));
+                                                                         commentCount,
+                                                                         commentCount));
         }
 
         return builder.toString();
