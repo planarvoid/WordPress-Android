@@ -4,7 +4,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -21,6 +20,7 @@ import com.soundcloud.android.adapter.SoundAssociationAdapter;
 import com.soundcloud.android.adapter.TrackAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
@@ -298,15 +298,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             case ApiSyncService.STATUS_SYNC_ERROR: {
 
                 final boolean nothingChanged = resultData != null && !resultData.getBoolean(mContentUri.toString());
-                if (nothingChanged && !isRefreshing()) {
+                if (nothingChanged && !isRefreshTaskActive()) {
                     doneRefreshing();
+                    checkAllowInitalAppend();
 
-                    // first time user with no account data. this will force the empty screen that was held back earlier
-                    final ScBaseAdapter adapter = getListAdapter();
-                    if (!waitingOnInitialSync() && adapter != null && adapter.getItemCount() == 0) {
-                        mKeepGoing = true;
-                        append(false);
-                    }
                 } else if (!nothingChanged) {
                     // something was changed by the sync, if we aren't refreshing already, do it
                     if (!isRefreshTaskActive()) {
@@ -315,6 +310,18 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 }
                 break;
             }
+        }
+    }
+
+    /**
+     * This will allow the empty screen to be shown, in case
+     * {@link this#waitingOnInitialSync())} was true earlier, suppressing it.
+     */
+    private void checkAllowInitalAppend() {
+        final ScBaseAdapter adapter = getListAdapter();
+        if (!mKeepGoing && !waitingOnInitialSync() && adapter != null && adapter.getItemCount() == 0) {
+            mKeepGoing = true;
+            append(false);
         }
     }
 
@@ -569,13 +576,16 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private void refreshSyncData() {
         if (isSyncable() && mLocalCollection != null) {
             setListLastUpdated();
-
-            if (mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
-                refresh(false);
-                // this is to show the user something at the initial load
-                if (!mLocalCollection.hasSyncedBefore() && mListView != null) {
-                    mListView.setRefreshing();
+            if (mLocalCollection.shouldAutoRefresh()) {
+                if (!isRefreshing()) {
+                    refresh(false);
+                    // this is to show the user something at the initial load
+                    if (!mLocalCollection.hasSyncedBefore() && mListView != null) {
+                        mListView.setRefreshing();
+                    }
                 }
+            } else {
+                checkAllowInitalAppend();
             }
         }
     }
