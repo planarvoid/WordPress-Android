@@ -2,6 +2,7 @@ package com.soundcloud.android.model.act;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
@@ -29,7 +30,12 @@ public class TrackActivity extends Activity implements PlayableHolder {
     }
 
     @Override
-    public Track getPlayable() {
+    public Playable getPlayable() {
+        return track;
+    }
+
+    @Override
+    public Track getTrack() {
         return track;
     }
 

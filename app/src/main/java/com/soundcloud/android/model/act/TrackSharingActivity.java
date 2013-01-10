@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
@@ -36,7 +37,12 @@ public class TrackSharingActivity extends Activity implements PlayableHolder {
     }
 
     @Override
-    public Track getPlayable() {
+    public Playable getPlayable() {
+        return track;
+    }
+
+    @Override
+    public Track getTrack() {
         return track;
     }
 
