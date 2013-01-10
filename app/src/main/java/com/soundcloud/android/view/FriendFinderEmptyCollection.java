@@ -7,9 +7,9 @@ import android.view.View;
 
 public class FriendFinderEmptyCollection extends EmptyListView {
 
-    public interface FriendFinderMode {
-        int NO_CONNECTIONS   = 100;
-        int CONNECTION_ERROR = 101;
+    public interface Status extends EmptyListView.Status {
+        int NO_CONNECTIONS   = 1000;
+        int CONNECTION_ERROR = 1001;
     }
 
     public FriendFinderEmptyCollection(Context context) {
@@ -17,31 +17,31 @@ public class FriendFinderEmptyCollection extends EmptyListView {
     }
 
     @Override
-    public boolean setMode(int mode) {
+    public boolean setStatus(int mode) {
 
         if (mMode != mode) {
             mMode = mode;
             switch (mode) {
-                case FriendFinderMode.NO_CONNECTIONS:
+                case Status.NO_CONNECTIONS:
                     mProgressBar.setVisibility(View.GONE);
                     showEmptyLayout();
                     setMessageText(R.string.list_empty_friend_finder_no_connections);
                     mBtnAction.setVisibility(View.VISIBLE);
                     return true;
 
-                case FriendFinderMode.CONNECTION_ERROR:
+                case Status.CONNECTION_ERROR:
                     mProgressBar.setVisibility(View.GONE);
                     showEmptyLayout();
                     setMessageText(R.string.list_empty_friend_finder_error);
                     mBtnAction.setVisibility(View.GONE);
                     return true;
 
-                case Mode.WAITING_FOR_DATA:
+                case Status.WAITING:
                     mProgressBar.setVisibility(View.VISIBLE);
                     if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
                     return true;
 
-                case Mode.IDLE:
+                default:
                     mProgressBar.setVisibility(View.GONE);
                     showEmptyLayout();
                     setMessageText(R.string.list_empty_friend_finder);
