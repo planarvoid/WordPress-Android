@@ -25,7 +25,8 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
 
     @Override
     protected ScResource doInBackground(Uri... params) {
-        final Uri uri = fixUri(params[0]);
+        final Uri uri = fixClickTrackingUrl(fixUri(params[0]));
+
         ScResource resource = resolveLocally(uri);
         if (resource != null) {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "resolved uri "+uri+" locally");
@@ -79,6 +80,16 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
 
     private FetchModelTask.FetchModelListener<ScResource> getListener() {
         return mListener == null ? null : mListener.get();
+    }
+
+    static Uri fixClickTrackingUrl(Uri data) {
+        if ("soundcloud.com".equals(data.getHost()) && data.getPath().startsWith("/-/t/click")) {
+            String url = data.getQueryParameter("url");
+            if (!TextUtils.isEmpty(url)) {
+                return Uri.parse(url);
+            }
+        }
+        return data;
     }
 
     //only handle the first 3 path segments (resource only for now, actions to be implemented later)

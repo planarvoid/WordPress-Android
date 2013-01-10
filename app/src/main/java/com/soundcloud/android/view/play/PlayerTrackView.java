@@ -4,6 +4,10 @@ import static com.soundcloud.android.imageloader.ImageLoader.Options;
 import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
+import android.content.Context;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityManager;
+import android.widget.*;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -37,14 +41,6 @@ import android.view.ViewConfiguration;
 import android.view.ViewStub;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.ToggleButton;
-import android.widget.ViewFlipper;
 
 import java.lang.ref.SoftReference;
 import java.util.List;
@@ -233,9 +229,10 @@ public class PlayerTrackView extends LinearLayout implements
             mDuration = mTrack.duration;
         }
 
-        setTrackStats(mToggleComment, mTrack.comment_count, mIsCommenting);
-        setTrackStats(mToggleRepost, mTrack.reposts_count, mTrack.user_repost);
-        setTrackStats(mToggleLike, mTrack.likes_count, mTrack.user_like);
+
+        setLikes(mTrack.likes_count, mTrack.user_like);
+        setReposts(mTrack.reposts_count, mTrack.user_repost);
+        setCommments(mTrack.comment_count, mIsCommenting);
 
         mShareButton.setVisibility(mTrack.isPublic() ? View.VISIBLE : View.GONE);
 
@@ -264,20 +261,70 @@ public class PlayerTrackView extends LinearLayout implements
         }
     }
 
-    private void setTrackStats(ToggleButton button, int count, boolean checked) {
-        final String countString;
+    private void setLikes(int count, boolean userLiked) {
+        updateButton(mToggleLike,
+                     R.string.accessibility_like_action,
+                     R.plurals.accessibility_stats_likes,
+                     count,
+                     userLiked,
+                     R.string.accessibility_stats_user_liked);
+    }
 
+    private void setReposts(int count, boolean userReposted) {
+        updateButton(mToggleRepost,
+                     R.string.accessibility_repost_action,
+                     R.plurals.accessibility_stats_reposts,
+                     count,
+                     userReposted,
+                     R.string.accessibility_stats_user_reposted);
+    }
+
+    private void setCommments(int count, boolean userCommented) {
+        updateButton(mToggleComment,
+                     R.string.accessibility_comment_action,
+                     R.plurals.accessibility_stats_comments,
+                     count,
+                     userCommented,
+                     R.string.accessibility_stats_user_commented);
+    }
+
+    private String labelForCount(int count) {
         if (count < 0) {
-            countString = "\u2014";
+            return "\u2014";
         } else if (count == 0) {
-            countString = "";
+            return "";
         } else {
-            countString = String.valueOf(count);
+            return String.valueOf(count);
         }
+    }
 
-        button.setTextOff(countString);
-        button.setTextOn(countString);
+    private void updateButton(ToggleButton button, int actionStringID, int descriptionPluralID, int count) {
+        updateButton(button, actionStringID, descriptionPluralID, count, false, 0);
+    }
+
+    private void updateButton(ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked, int checkedStringId) {
+        button.setTextOn(labelForCount(count));
+        button.setTextOff(labelForCount(count));
         button.setChecked(checked);
+        button.invalidate();
+
+        AccessibilityManager accessibilityManager = (AccessibilityManager) getContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
+        if (accessibilityManager.isEnabled()) {
+            final StringBuilder builder = new StringBuilder();
+            builder.append(getContext().getResources().getString(actionStringID));
+
+            if (count >= 0) {
+                builder.append(", ");
+                builder.append(getContext().getResources().getQuantityString(descriptionPluralID, count, count));
+            }
+
+            if (checked) {
+                builder.append(", ");
+                builder.append(getContext().getResources().getString(checkedStringId));
+            }
+
+            button.setContentDescription(builder.toString());
+        }
     }
 
     private void refreshComments() {
@@ -670,8 +717,13 @@ public class PlayerTrackView extends LinearLayout implements
             if (mTrack != null && mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
                 mTrack.user_like = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false);
                 mTrack.user_repost = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isRepost, false);
-                setTrackStats(mToggleRepost, mTrack.reposts_count, mTrack.user_repost);
-                setTrackStats(mToggleLike, mTrack.likes_count, mTrack.user_like);
+                setLikes(mTrack.likes_count, mTrack.user_like);
+                setReposts(mTrack.reposts_count, mTrack.user_repost);
+            }
+
+        } else if (Sound.COMMENTS_UPDATED.equals(action)) {
+            if (mTrack != null && mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
+                onCommentsChanged();
             }
 
         } else if (Sound.ACTION_SOUND_INFO_UPDATED.equals(action)) {
@@ -723,9 +775,14 @@ public class PlayerTrackView extends LinearLayout implements
 
     public void onNewComment(Comment comment) {
         if (comment.track_id == mTrack.id) {
-            if (mTrack.comments != null) mWaveformController.setComments(mTrack.comments, false, true);
+            onCommentsChanged();
             mWaveformController.showNewComment(comment);
         }
+    }
+
+    private void onCommentsChanged() {
+        setCommments(mTrack.comment_count, mIsCommenting);
+        if (mTrack.comments != null) mWaveformController.setComments(mTrack.comments, false, true);
     }
 
 

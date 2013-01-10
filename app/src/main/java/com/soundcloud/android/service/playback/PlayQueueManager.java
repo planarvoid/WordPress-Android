@@ -229,7 +229,7 @@ public class PlayQueueManager {
                     broadcastPlayQueueChanged();
                 }
             }
-        }.execute(uri);
+        }.executeOnThreadPool(uri);
     }
 
     private void broadcastPlayQueueChanged() {
@@ -265,7 +265,7 @@ public class PlayQueueManager {
                         mUserId, ScResource.CacheUpdateMode.NONE);
                 return null;
             }
-        }.execute((Void[]) null);
+        }.executeOnThreadPool((Void[]) null);
     }
 
     public Uri getUri() {

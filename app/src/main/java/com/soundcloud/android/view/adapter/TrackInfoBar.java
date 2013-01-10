@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.adapter;
 
 import static com.soundcloud.android.utils.AndroidUtils.setTextShadowForGrayBg;
+import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -292,5 +293,71 @@ public class TrackInfoBar extends LazyRow {
         setTextShadowForGrayBg(mTitle);
         setTextShadowForGrayBg(mUser);
         setTextShadowForGrayBg(mCreatedAt);
+    }
+
+    @Override
+    public CharSequence getContentDescription() {
+        Track track = mPlayable.getTrack();
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(track.getUser().getDisplayName());
+        builder.append(": ");
+        builder.append(track.title);
+        builder.append(", ");
+
+        if (mPlayable instanceof TrackRepostActivity) {
+            TrackRepostActivity repost = (TrackRepostActivity)mPlayable;
+
+            builder.append(getContext().getResources().getString(R.string.accessibility_infix_reposted_by));
+            builder.append(" ");
+            builder.append(repost.getUser().getDisplayName());
+
+            builder.append(", ");
+            builder.append(getTimeElapsed(getContext().getResources(), repost.created_at.getTime(), true));
+            builder.append(", ");
+        } else {
+            builder.append(getTimeElapsed(getContext().getResources(), track.created_at.getTime(), true));
+            builder.append(", ");
+        }
+
+
+        if (track.playback_count > 0) {
+            builder.append(getContext().getResources().getQuantityString(R.plurals.accessibility_stats_plays,
+                                                                         track.playback_count,
+                                                                         track.playback_count));
+            builder.append(", ");
+        }
+
+        if (track.likes_count > 0) {
+            builder.append(getContext().getResources().getQuantityString(R.plurals.accessibility_stats_likes,
+                                                                         track.likes_count,
+                                                                         track.likes_count));
+            builder.append(", ");
+        }
+
+        if (track.user_like) {
+            builder.append(getContext().getResources().getString(R.string.accessibility_stats_user_liked));
+            builder.append(", ");
+        }
+
+        if (track.reposts_count > 0) {
+            builder.append(getContext().getResources().getQuantityString(R.plurals.accessibility_stats_reposts,
+                                                                         track.reposts_count,
+                                                                         track.reposts_count));
+            builder.append(", ");
+        }
+
+        if (track.user_repost) {
+            builder.append(getContext().getResources().getString(R.string.accessibility_stats_user_reposted));
+            builder.append(", ");
+        }
+
+        if (track.comment_count > 0) {
+            builder.append(getContext().getResources().getQuantityString(R.plurals.accessibility_stats_comments,
+                                                                         track.comment_count,
+                                                                         track.comment_count));
+        }
+
+        return builder.toString();
     }
 }

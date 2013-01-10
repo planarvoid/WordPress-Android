@@ -3,9 +3,14 @@ $ 53
   _ 2012-12-20
   ! ??
     * Optimized image loading in lists
+    * Fixed some error messaging
     * Disabling transport bars and list beginning / end
     * Comment count increases when comment is added
     * refreshing list timestamps after loaded
+    * respecting pauses during buffering and seeking
+    - basic accessibility support
+    - fixed waveform rendering
+    - fixed empty list states in my collection
 
 $ 52
   % v 2.4.3

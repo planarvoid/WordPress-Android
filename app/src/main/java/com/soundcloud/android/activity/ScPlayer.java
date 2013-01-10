@@ -325,7 +325,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         f.addAction(Sound.ACTION_TRACK_ASSOCIATION_CHANGED);
         f.addAction(Sound.ACTION_SOUND_INFO_UPDATED);
         f.addAction(Sound.ACTION_SOUND_INFO_ERROR);
-        f.addAction(Sound.ACTION_COMMENT_ADDED);
+        f.addAction(Sound.COMMENTS_UPDATED);
         registerReceiver(mStatusListener, new IntentFilter(f));
     }
 
@@ -541,7 +541,11 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         final PlayQueueManager playQueueManager = getPlaylistManager();
 
         mTrackPager.configureFromService(this, playQueueManager, queuePosition);
-        final long queueLength = playQueueManager == null ? 1 :playQueueManager.length();
+        // set buffering state of current track
+        if (mPlaybackService != null && mPlaybackService.isBuffering()){
+            final PlayerTrackView playerTrackView = getTrackViewById(CloudPlaybackService.getCurrentTrackId());
+            if (playerTrackView != null) playerTrackView.onBuffering();
+        }
 
         setPlaybackState();
     }
