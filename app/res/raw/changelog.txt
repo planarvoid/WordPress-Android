@@ -10,6 +10,7 @@ $ 53
     * respecting pauses during buffering and seeking
     * fixed some empty screens not showing up
     * fixed some endless loading conditions
+    - Pull-to-Refresh upgraded to 2.1.1
     - basic accessibility support
     - fixed waveform rendering
     - fixed empty list states in my collection
