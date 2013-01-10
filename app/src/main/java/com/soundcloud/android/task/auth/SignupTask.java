@@ -34,7 +34,8 @@ public class SignupTask extends AsyncApiTask<String, Void, User> {
                     Params.User.TERMS_OF_USE, "1"
             ).usingToken(signup));
 
-            switch (resp.getStatusLine().getStatusCode()) {
+            int statusCode = resp.getStatusLine().getStatusCode();
+            switch (statusCode) {
                 case SC_CREATED:
                     return mApi.getMapper().readValue(resp.getEntity().getContent(), User.class);
                 case SC_UNPROCESSABLE_ENTITY:
@@ -48,6 +49,10 @@ public class SignupTask extends AsyncApiTask<String, Void, User> {
                         mErrors.add(mApi.getContext().getString(R.string.signup_scope_revoked));
                     }
                     break;
+                default:
+                    if (statusCode >= 500) {
+                        mErrors.add(mApi.getContext().getString(R.string.error_server_problems_message));
+                    }
             }
             warn("invalid response", resp);
             return null;

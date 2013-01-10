@@ -398,15 +398,16 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                                     mUser = user;
                                     setState(StartState.SIGN_UP_DETAILS);
                                 } else {
-                                    showError(getString(R.string.authentication_error_title), getFirstError());
+                                    showError(mException);
                                 }
                             }
                         }.execute(param);
                     } else {
-                        showError(getString(R.string.authentication_signup_error_title), getString(R.string.authentication_signup_error_message));
+                        showError(getString(R.string.authentication_signup_error_message));
                     }
                 } else {
-                    showError(getString(R.string.authentication_error_title), getFirstError());
+                    final String firstError = getFirstError();
+                    showError(firstError != null ? firstError : getString(R.string.authentication_error_no_connection_message));
                 }
             }
         }.execute(email, password);
@@ -445,7 +446,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                     if (user != null) {
                         onAuthenticated(SignupVia.API, user);
                     } else {
-                        showError(getString(R.string.authentication_error_title), getFirstError());
+                        showError(getFirstError());
                     }
                 }
             }
