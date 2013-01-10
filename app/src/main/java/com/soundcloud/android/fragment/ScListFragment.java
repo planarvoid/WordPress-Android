@@ -82,7 +82,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private CollectionTask mAppendTask;
     protected String mNextHref;
 
-    private int mLastEmptyCode;
+    protected int mStatusCode;
 
     public static ScListFragment newInstance(Content content) {
         return newInstance(content.uri);
@@ -275,7 +275,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     public void setEmptyCollection(EmptyListView emptyCollection){
         mEmptyListView = emptyCollection;
-        mEmptyListView.setStatus(mLastEmptyCode);
+        mEmptyListView.setStatus(mStatusCode);
         if (getView() != null && getListView() != null) {
             getListView().setEmptyView(emptyCollection);
         }
@@ -436,11 +436,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         configureEmptyView(EmptyListView.Status.OK);
     }
 
-    private void configureEmptyView(int statusCode) {
+    protected void configureEmptyView(int statusCode) {
         final boolean wait = canAppend() || isRefreshing() || waitingOnInitialSync();
-        mLastEmptyCode = wait ? EmptyListView.Status.WAITING : statusCode;
+        mStatusCode = wait ? EmptyListView.Status.WAITING : statusCode;
         if (mEmptyListView != null) {
-            mEmptyListView.setStatus(mLastEmptyCode);
+            mEmptyListView.setStatus(mStatusCode);
         }
     }
 

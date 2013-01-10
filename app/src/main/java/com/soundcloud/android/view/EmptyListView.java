@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
@@ -43,9 +44,9 @@ public class EmptyListView extends RelativeLayout {
     protected int mMode;
 
     public interface Status extends HttpStatus {
-        public static final int WAITING = -1;
-        public static final int ERROR = SC_BAD_REQUEST; //generic error
-        public static final int OK = SC_OK; //generic OK
+        int WAITING = -1;
+        int ERROR = SC_BAD_REQUEST; //generic error
+        int OK = SC_OK; //generic OK
     }
 
 
@@ -98,13 +99,13 @@ public class EmptyListView extends RelativeLayout {
                 if (mError != null) mError.setVisibility(View.GONE);
                 return true;
 
-            } else if (code < 400) {
+            } else if (IOUtils.isStatusCodeOk(code)) {
                 // at rest, no error
                 mProgressBar.setVisibility(View.GONE);
                 showEmptyLayout();
                 return true;
 
-            } else if (code < 600) {
+            } else if (IOUtils.isStatusCodeError(code)) {
                 // server or client error,
                 mProgressBar.setVisibility(View.GONE);
                 showError(code);
@@ -130,7 +131,7 @@ public class EmptyListView extends RelativeLayout {
         final TextView errorTextView = (TextView) mError.findViewById(R.id.txt_message);
         if (responseCode == HttpStatus.SC_SERVICE_UNAVAILABLE){
             errorTextView.setText(R.string.error_soundcloud_is_down);
-        } else if (responseCode > 500){
+        } else if (IOUtils.isStatusCodeServerError(responseCode)){
             errorTextView.setText(R.string.error_soundcloud_server_problems);
         } else {
             errorTextView.setText(R.string.no_internet_connection);

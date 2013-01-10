@@ -1,16 +1,12 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.fragment.FriendFinderFragment;
 
 import android.content.Context;
 import android.view.View;
 
 public class FriendFinderEmptyCollection extends EmptyListView {
-
-    public interface Status extends EmptyListView.Status {
-        int NO_CONNECTIONS   = 1000;
-        int CONNECTION_ERROR = 1001;
-    }
 
     public FriendFinderEmptyCollection(Context context) {
         super(context);
@@ -22,14 +18,14 @@ public class FriendFinderEmptyCollection extends EmptyListView {
         if (mMode != mode) {
             mMode = mode;
             switch (mode) {
-                case Status.NO_CONNECTIONS:
+                case FriendFinderFragment.Status.NO_CONNECTIONS:
                     mProgressBar.setVisibility(View.GONE);
                     showEmptyLayout();
                     setMessageText(R.string.list_empty_friend_finder_no_connections);
                     mBtnAction.setVisibility(View.VISIBLE);
                     return true;
 
-                case Status.CONNECTION_ERROR:
+                case FriendFinderFragment.Status.CONNECTION_ERROR:
                     mProgressBar.setVisibility(View.GONE);
                     showEmptyLayout();
                     setMessageText(R.string.list_empty_friend_finder_error);

@@ -5,13 +5,14 @@ import static com.soundcloud.android.utils.AndroidUtils.showToast;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.auth.Connect;
 import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.create.NewConnectionTask;
 import com.soundcloud.android.view.EmptyListView;
-import com.soundcloud.android.view.FriendFinderEmptyCollection;
+import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -28,15 +29,15 @@ import java.util.Set;
 
 public class FriendFinderFragment extends ScListFragment implements ConnectionsCache.Listener {
     private Set<Connection> mConnections;
-    private int mCurrentState;
+    private int mCurrentStatus;
     private @Nullable
     AsyncTask<Connection.Service, Void, Uri> mConnectionTask;
 
-    public interface States {
-        int LOADING          = 0;
-        int NO_FB_CONNECTION = 1;
-        int FB_CONNECTION    = 2;
-        int CONNECTION_ERROR = 3;
+    // the usual list fragment statuses, plus 2 special ones for connections
+    public interface Status extends EmptyListView.Status {
+        int FB_CONNECTION = HttpStatus.SC_OK;
+        int NO_CONNECTIONS = 1000;
+        int CONNECTION_ERROR = 1001;
     }
 
     public static FriendFinderFragment newInstance() {
@@ -72,7 +73,7 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
                 @Override
                 public void onAction() {
                     if (isTaskFinished(mConnectionTask)) {
-                        setState(States.LOADING, false);
+                        setStatus(Status.WAITING, false);
                         mConnectionTask = loadFacebookConnections();
                     }
                 }
@@ -85,8 +86,8 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
         return v;
     }
 
-    public void setState(int state, boolean reset) {
-        mCurrentState = state;
+    public void setStatus(int status, boolean reset) {
+        mCurrentStatus = status;
         configureEmptyView();
 
         final BaseAdapter listAdapter = getListAdapter();
@@ -108,54 +109,60 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
     @Override
     protected void configureEmptyView() {
         if (mEmptyListView != null) {
-            switch (mCurrentState) {
-                case States.LOADING:
-                    mEmptyListView.setStatus(EmptyListView.Status.WAITING);
+            switch (mCurrentStatus) {
+                case Status.WAITING:
+                case Status.CONNECTION_ERROR:
+                case Status.NO_CONNECTIONS:
+                    mEmptyListView.setStatus(mCurrentStatus);
                     break;
 
-                case States.CONNECTION_ERROR:
-                    mEmptyListView.setStatus(FriendFinderEmptyCollection.Status.CONNECTION_ERROR);
-                    break;
-
-                case States.NO_FB_CONNECTION:
-                    mEmptyListView.setStatus(FriendFinderEmptyCollection.Status.NO_CONNECTIONS);
-                    break;
-
-                case States.FB_CONNECTION:
+                case Status.FB_CONNECTION:
                     super.configureEmptyView();
                     break;
             }
         }
     }
 
+    @Override
+    protected void configureEmptyView(int statusCode) {
+        if (mCurrentStatus == Status.FB_CONNECTION){
+            super.configureEmptyView(statusCode);
+        }
+    }
+
     private AsyncTask<Connection.Service, Void, Uri> loadFacebookConnections() {
-        return new NewConnectionTask(getScActivity().getApp()) {
-            @Override
-            protected void onPostExecute(Uri uri) {
-                if (uri != null) {
-                    getActivity().startActivityForResult(
-                            (new Intent(getActivity(), Connect.class))
-                                    .putExtra("service", Connection.Service.Facebook.name())
-                                    .setData(uri),
-                            Consts.RequestCodes.MAKE_CONNECTION);
-                } else {
-                    showToast(getActivity(), R.string.new_connection_error);
-                    setState(States.NO_FB_CONNECTION, false);
+        final ScActivity scActivity = getScActivity();
+        if (scActivity != null) {
+            return new NewConnectionTask(scActivity.getApp()) {
+                @Override
+                protected void onPostExecute(Uri uri) {
+                    if (uri != null) {
+                        getActivity().startActivityForResult(
+                                (new Intent(getActivity(), Connect.class))
+                                        .putExtra("service", Connection.Service.Facebook.name())
+                                        .setData(uri),
+                                Consts.RequestCodes.MAKE_CONNECTION);
+                    } else {
+                        showToast(getActivity(), R.string.new_connection_error);
+                        setStatus(FriendFinderFragment.Status.NO_CONNECTIONS, false);
+                    }
                 }
-            }
-        }.execute(Connection.Service.Facebook);
+            }.execute(Connection.Service.Facebook);
+        } else {
+            return null;
+        }
     }
 
     private void onConnections(Set<Connection> connections, boolean refresh) {
         mConnections = connections;
 
         if (connections == null) {
-            setState(States.CONNECTION_ERROR, refresh);
+            setStatus(Status.CONNECTION_ERROR, refresh);
         } else {
             if (Connection.checkConnectionListForService(connections, Connection.Service.Facebook)) {
-                setState(States.FB_CONNECTION, refresh);
+                setStatus(Status.FB_CONNECTION, refresh);
             } else {
-                setState(States.NO_FB_CONNECTION, refresh);
+                setStatus(Status.NO_CONNECTIONS, refresh);
             }
         }
     }
@@ -166,7 +173,7 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
         final ConnectionsCache connectionsCache = ConnectionsCache.get(context);
         mConnections = connectionsCache.getConnections();
         if (mConnections == null){
-            setState(States.LOADING, false);
+            setStatus(Status.WAITING, false);
         } else {
             onConnections(mConnections, true);
         }
