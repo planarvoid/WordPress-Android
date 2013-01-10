@@ -1,13 +1,19 @@
 $ 53
   % v current
-  _ 2013-01-07
-  ! Maintenance
-    * basic accessibility support
-    * fixed waveform rendering
+  _ 2013-10-01
+  ! ??
+    * fixed some endless loading conditions
+    * fixed some empty screens not showing up
+    * fixed some error messaging
+    * respecting pauses during buffering and seeking
+    * Pull-to-Refresh upgraded to 2.1.1
     - Optimized image loading in lists
     - Disabling transport bars and list beginning / end
     - Comment count increases when comment is added
     - refreshing list timestamps after loaded
+    - basic accessibility support
+    - fixed waveform rendering
+    - fixed empty list states in my collection
 
 $ 52
   % v 2.4.3
@@ -44,29 +50,6 @@ $ 49
     * Highly Improved Search
     * Listen to and create Reposts
     * New Sign Up experience
-    - Follow button toggling fix
-    - More UI upgrades
-    - Added dashboard counters
-    - Upgraded pull to refresh listview
-    - Faster transition to player activity
-    - minor UI fixes
-    - Even more Search Styling
-    - Parallax in start page tour
-    - Fancificated login overlay
-    - Fixed a recurring search crash
-    - Remote search suggestions added
-    - fixed reposts layout
-    - Added affiliations and reposts to activities list
-    - assorted bug fixes
-    - Menu styling and optimizations
-    - Added Friend Finder back
-    - Added You shortcuts back
-    - Fixed notification handling
-    - Fixed left trim handle dragging in Record Edit screen
-    - Fixed url resolving
-    - various UI improvements
-    - New UI
-    - Extra media button handling
 
 $ 48
   % v 2.3.2

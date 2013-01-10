@@ -24,7 +24,6 @@ import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.HandlerThread;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -47,14 +46,14 @@ public class PollerTest {
 
     @Test
     public void testPollUploadedSuccess() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "track_finished.json");
+        TestHelper.addPendingHttpResponse(getClass(), "track_finished.json");
         addProcessingTrackAndRunPoll(TRACK_ID);
         expectLocalTracksStreamable(TRACK_ID);
     }
 
     @Test
     public void testPollUploadedProcessSuccess() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "track_processing.json", "track_finished.json");
+        TestHelper.addPendingHttpResponse(getClass(), "track_processing.json", "track_finished.json");
         addProcessingTrackAndRunPoll(TRACK_ID);
         expectLocalTracksStreamable(TRACK_ID);
 
@@ -68,14 +67,14 @@ public class PollerTest {
     @Test
     public void testPollUploaded400Success() throws Exception {
         Robolectric.addPendingHttpResponse(400, "failed");
-        TestHelper.addCannedResponses(getClass(), "track_finished.json");
+        TestHelper.addPendingHttpResponse(getClass(), "track_finished.json");
         addProcessingTrackAndRunPoll(TRACK_ID);
         expectLocalTracksStreamable(TRACK_ID);
     }
 
     @Test
     public void testPollUploadedFailure() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "track_failed.json");
+        TestHelper.addPendingHttpResponse(getClass(), "track_failed.json");
         addProcessingTrackAndRunPoll(TRACK_ID);
         expectLocalTracksNotStreamable(TRACK_ID);
 

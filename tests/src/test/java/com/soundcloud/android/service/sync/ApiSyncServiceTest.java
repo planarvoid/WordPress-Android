@@ -228,7 +228,7 @@ public class ApiSyncServiceTest {
     }
 
     private void serviceAction(ApiSyncService svc, String action, Content content, String... fixtures) throws IOException {
-        TestHelper.addCannedResponses(SyncAdapterServiceTest.class, fixtures);
+        TestHelper.addPendingHttpResponse(SyncAdapterServiceTest.class, fixtures);
         svc.onStart(new Intent(action, content.uri), 1);
     }
 }

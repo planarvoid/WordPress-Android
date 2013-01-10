@@ -26,7 +26,11 @@ import android.webkit.WebViewClient;
 public class FacebookWebFlow extends AbstractLoginActivity {
     private WebView mWebview;
 
-    protected void build() {
+    //FIXME: way too long, break this method up
+    @Override
+    protected void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
+
         setContentView(R.layout.facebook);
 
         mWebview = (WebView) findViewById(R.id.webview);

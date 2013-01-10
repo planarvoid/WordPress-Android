@@ -66,11 +66,13 @@ public class ScListView extends PullToRefreshListView implements PullToRefreshBa
 
     @Override
     public void onConfigureHeader() {
-        if (mLastUpdated > 0) {
-            setLastUpdatedLabel(getResources().getString(R.string.pull_to_refresh_last_updated,
-                    ScTextUtils.getElapsedTimeString(getResources(), mLastUpdated, true)));
-        } else {
-            setLastUpdatedLabel("");
+        if (!isRefreshing()) {
+            if (mLastUpdated > 0) {
+                setLastUpdatedLabel(getResources().getString(R.string.pull_to_refresh_last_updated,
+                        ScTextUtils.getElapsedTimeString(getResources(), mLastUpdated, true)));
+            } else {
+                setLastUpdatedLabel("");
+            }
         }
     }
 }

@@ -222,7 +222,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 Token.ACCESS_TOKEN, null, null, activity, null, null);
     }
 
-    public boolean addUserAccount(User user, Token token, SignupVia via) {
+    /**
+     * @see #addAccount(android.content.Context, com.soundcloud.android.model.User, com.soundcloud.api.Token,
+     * com.soundcloud.android.activity.auth.SignupVia)
+     */
+    public boolean addUserAccountAndEnableSync(User user, Token token, SignupVia via) {
         Account account = addAccount(this, user, token, via);
         if (account != null) {
             mLoggedInUser = user;
@@ -242,6 +246,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
+    /**
+     * Adds the given user as a SoundCloud account to the device's list of accounts. Idempotent, will be a no op if
+     * already called.
+     *
+     * @return the new account, or null if account already existed or adding it failed
+     */
     public static Account addAccount(Context context, User user, Token token, SignupVia via) {
         final String type = context.getString(R.string.account_type);
         final Account account = new Account(user.username, type);

@@ -31,7 +31,6 @@ import net.hockeyapp.android.UpdateManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -63,7 +62,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class Onboard extends AccountAuthenticatorActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
+public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
     protected enum StartState {
         TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS
     }
@@ -357,94 +356,7 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
 
     @Override
     public void onLogin(String email, String password) {
-        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
-        final Bundle param = new Bundle();
-        param.putString(AbstractLoginActivity.USERNAME_EXTRA, email);
-        param.putString(AbstractLoginActivity.PASSWORD_EXTRA, password);
-        param.putStringArray(AbstractLoginActivity.SCOPES_EXTRA, AbstractLoginActivity.SCOPES_TO_REQUEST);// default to non-expiring scope
-
-        new GetTokensTask(app) {
-            ProgressDialog progress;
-
-            @Override
-            protected void onPreExecute() {
-                if (!isFinishing()) {
-                    progress = AndroidUtils.showProgress(Onboard.this,
-                                                         R.string.authentication_login_progress_message);
-                }
-            }
-
-            @Override
-            protected void onPostExecute(final Token token) {
-                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+token+")");
-
-                if (token != null) {
-                    new FetchUserTask(app) {
-                        @Override
-                        protected void onPostExecute(@Nullable User user) {
-                            // need to create user account as soon as possible, so the executeRefreshTask logic in
-                            // SoundCloudApplication works properly
-                            final boolean success = user != null && app.addUserAccount(user, app.getToken(), SignupVia.API);
-
-                            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
-
-                            try {
-                                progress.dismiss();
-                            } catch (IllegalArgumentException ignored) {}
-                            if (user != null && success) {
-                                onAuthenticated(SignupVia.NONE, user);
-                            } else { // user request failed
-                                presentError(R.string.authentication_error_title,
-                                             R.string.authentication_login_error_password_message);
-                            }
-                        }
-                    }.execute(Request.to(Endpoints.MY_DETAILS));
-                } else { // no tokens obtained
-                    try {
-                        progress.dismiss();
-                    } catch (IllegalArgumentException ignored) {}
-
-                    presentError(R.string.authentication_error_title,
-                                 R.string.authentication_login_error_password_message);
-                }
-            }
-        }.execute(param);
-    }
-
-    private void onAuthenticated(@NotNull SignupVia via, @NotNull User user) {
-        final Bundle result = new Bundle();
-        result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
-        result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
-        result.putBoolean(Consts.Keys.WAS_SIGNUP, via != SignupVia.NONE);
-        super.setAccountAuthenticatorResult(result);
-
-        SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
-
-        if (via != SignupVia.NONE) {
-            // user has signed up, schedule sync of user data to possibly refresh image data
-            // which gets processed asynchronously by the backend and is only available after signup has happened
-            final Context context = getApplicationContext();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    context.startService(new Intent(context, ApiSyncService.class).setData(Content.ME.uri));
-                }
-            }, 30 * 1000);
-        }
-
-        sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
-                .putExtra(User.EXTRA, user)
-                .putExtra(SignupVia.EXTRA, via.name));
-
-        if (result.getBoolean(Consts.Keys.WAS_SIGNUP)) {
-            startActivity(new Intent(this, SuggestedUsers.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .putExtra(Consts.Keys.WAS_SIGNUP, true));
-        } else {
-            startActivity(new Intent(this, Home.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-        }
-        finish();
+        login(email, password);
     }
 
     @Override
@@ -456,9 +368,8 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
     public void onSignUp(final String email, final String password) {
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
         final Bundle param = new Bundle();
-        param.putString("username", email);
-        param.putString("password", password);
-
+        param.putString(USERNAME_EXTRA, email);
+        param.putString(PASSWORD_EXTRA, password);
 
         new SignupTask(app) {
             ProgressDialog progress;
@@ -471,18 +382,15 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
 
             @Override
             protected void onPostExecute(final User user) {
-                if (!isFinishing()) {
-                    try {
-                        progress.dismiss();
-                    } catch (IllegalArgumentException ignored) {}
-                }
+
+                dismissDialog(progress);
 
                 if (user != null) {
                     writeNewSignupToLog();
 
                     // need to create user account as soon as possible, so the executeRefreshTask logic in
                     // SoundCloudApplication works properly
-                    final boolean success = app.addUserAccount(user, app.getToken(), SignupVia.API);
+                    final boolean success = app.addUserAccountAndEnableSync(user, app.getToken(), SignupVia.API);
                     if (success) {
                         new GetTokensTask(mApi) {
                             @Override protected void onPostExecute(Token token) {
@@ -490,15 +398,16 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
                                     mUser = user;
                                     setState(StartState.SIGN_UP_DETAILS);
                                 } else {
-                                    presentError(getString(R.string.authentication_error_title), getFirstError());
+                                    showError(mException);
                                 }
                             }
                         }.execute(param);
                     } else {
-                        presentError(R.string.authentication_signup_error_title, R.string.authentication_signup_error_message);
+                        showError(getString(R.string.authentication_signup_error_message));
                     }
                 } else {
-                    presentError(getString(R.string.authentication_error_title), getFirstError());
+                    final String firstError = getFirstError();
+                    showError(firstError != null ? firstError : getString(R.string.authentication_error_no_connection_message));
                 }
             }
         }.execute(email, password);
@@ -537,7 +446,7 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
                     if (user != null) {
                         onAuthenticated(SignupVia.API, user);
                     } else {
-                        presentError(getString(R.string.authentication_error_title), getFirstError());
+                        showError(getFirstError());
                     }
                 }
             }
@@ -694,24 +603,6 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
         return "foreground".equals(tag) || "parallax".equals(tag);
     }
 
-    protected void presentError(int titleId, int messageId) {
-        presentError(getResources().getString(titleId), getResources().getString(messageId));
-    }
-
-    protected void presentError(@Nullable String title, @Nullable String message) {
-        if (!isFinishing()) {
-            new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .show();
-        }
-    }
-
     private void onFacebookLogin() {
         SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
@@ -763,25 +654,8 @@ public class Onboard extends AccountAuthenticatorActivity implements Login.Login
             }
 
             case Consts.RequestCodes.SIGNUP_VIA_FACEBOOK: {
-                if (resultCode != RESULT_OK || intent == null ) break;
-                SoundCloudApplication app = (SoundCloudApplication) getApplication();
-                final String error = intent.getStringExtra("error");
-                if (error == null) {
-                    final User user = intent.getParcelableExtra("user");
-                    final Token token = (Token) intent.getSerializableExtra("token");
-                    SignupVia via = SignupVia.fromIntent(intent);
-
-                    // API signup will already have created the account
-                    if (app.addUserAccount(user, token, via)) {
-                        final Bundle result = new Bundle();
-                        result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
-                        result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
-                        onAuthenticated(via, user);
-
-                    } else {
-                        AndroidUtils.showToast(this, R.string.error_creating_account);
-                    }
-                } else {
+                if (intent != null && intent.hasExtra("error")) {
+                    final String error = intent.getStringExtra("error");
                     AndroidUtils.showToast(this, error);
                 }
                 break;

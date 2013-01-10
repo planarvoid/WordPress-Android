@@ -2,18 +2,29 @@ package com.soundcloud.android.activity.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.accounts.AccountAuthenticatorActivity;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.landing.Home;
+import com.soundcloud.android.activity.landing.SuggestedUsers;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.auth.GetTokensTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -21,11 +32,12 @@ import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
-public abstract class AbstractLoginActivity extends Activity {
+public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity {
     public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING };
     public static final String SCOPES_EXTRA = "scopes";
 
@@ -34,14 +46,6 @@ public abstract class AbstractLoginActivity extends Activity {
     public static final String USERNAME_EXTRA = "username";
     public static final String PASSWORD_EXTRA = "password";
 
-    @Override
-    protected void onCreate(Bundle bundle) {
-        super.onCreate(bundle);
-        build();
-    }
-
-    protected abstract void build();
-
     protected void login(String username, String password) {
         final Bundle param = new Bundle();
         param.putString(USERNAME_EXTRA, username);
@@ -49,15 +53,8 @@ public abstract class AbstractLoginActivity extends Activity {
         login(param);
     }
 
-
-    protected void loginExtensionGrantype(String grantType) {
-        final Bundle param = new Bundle();
-        param.putString(EXTENSION_GRANT_TYPE_EXTRA, grantType);
-        login(param);
-    }
-
     protected void login(final Bundle data) {
-        if (data.getString(SCOPES_EXTRA) == null) {
+        if (!data.containsKey(SCOPES_EXTRA)) {
             // default to non-expiring scope
             data.putStringArray(SCOPES_EXTRA, SCOPES_TO_REQUEST);
         }
@@ -79,24 +76,7 @@ public abstract class AbstractLoginActivity extends Activity {
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+token+")");
 
                 if (token != null) {
-                    new FetchUserTask(app) {
-                        @Override
-                        protected void onPostExecute(User user) {
-                            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
-
-                            if (user != null) {
-                                dismissDialog(progress);
-                                setResult(RESULT_OK,
-                                        new Intent().putExtra(SignupVia.EXTRA, token.getSignup())
-                                                .putExtra("user", user)
-                                                .putExtra("token", token)
-                                                .putExtras(data));
-                                finish();
-                            } else { // user request failed
-                                showError(null);
-                            }
-                        }
-                    }.execute(Request.to(Endpoints.MY_DETAILS));
+                    fetchUser(token, progress);
                 } else { // no tokens obtained
                     dismissDialog(progress);
                     showError(mException);
@@ -105,30 +85,110 @@ public abstract class AbstractLoginActivity extends Activity {
         }.execute(data);
     }
 
+    private void fetchUser(final Token token, final ProgressDialog progress) {
+        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+        new FetchUserTask(app) {
+            @Override
+            protected void onPostExecute(User user) {
+                dismissDialog(progress);
+
+                if (user != null) {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
+
+                    // for normal logins, we don't track via; for FB logins or signups, it'll be stored in the token.
+                    SignupVia via = token.getSignup() != null ? SignupVia.fromString(token.getSignup()) : SignupVia.NONE;
+
+                    // need to create user account as soon as possible, so the executeRefreshTask logic in
+                    // SoundCloudApplication works properly
+                    boolean accountCreated = app.addUserAccountAndEnableSync(user, app.getToken(), via);
+                    if (accountCreated) {
+                        // success path
+                        onAuthenticated(via, user);
+                    } else {
+                        AndroidUtils.showToast(AbstractLoginActivity.this, R.string.error_creating_account);
+                    }
+                } else {
+                    // TODO: means we got a 404 on the user, needs to be more expressive...
+                    showError();
+                }
+            }
+        }.execute(Request.to(Endpoints.MY_DETAILS));
+    }
+
+    protected void onAuthenticated(@NotNull SignupVia via, @NotNull User user) {
+        final Bundle result = new Bundle();
+        result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
+        result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
+        result.putBoolean(Consts.Keys.WAS_SIGNUP, via != SignupVia.NONE);
+        super.setAccountAuthenticatorResult(result);
+
+        SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
+
+        if (via != SignupVia.NONE) {
+            // user has signed up, schedule sync of user data to possibly refresh image data
+            // which gets processed asynchronously by the backend and is only available after signup has happened
+            final Context context = getApplicationContext();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    context.startService(new Intent(context, ApiSyncService.class).setData(Content.ME.uri));
+                }
+            }, 30 * 1000);
+        }
+
+        sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
+                .putExtra(User.EXTRA, user)
+                .putExtra(SignupVia.EXTRA, via.name));
+
+        if (result.getBoolean(Consts.Keys.WAS_SIGNUP)) {
+            startActivity(new Intent(this, SuggestedUsers.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    .putExtra(Consts.Keys.WAS_SIGNUP, true));
+        } else {
+            startActivity(new Intent(this, Home.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        }
+        finish();
+    }
+
+    //TODO: use dialog fragments or managed dialogs (onCreateDialog)
     protected void showError(@Nullable IOException e) {
         if (!isFinishing()) {
-            final boolean tokenError = e instanceof CloudAPI.InvalidTokenException;
+            if (e instanceof CloudAPI.InvalidTokenException) {
+                showError(getString(R.string.authentication_login_error_password_message));
+            } else if (e instanceof CloudAPI.ApiResponseException && ((CloudAPI.ApiResponseException) e).getStatusCode() >= 400) {
+                showError(getString(R.string.error_server_problems_message));
+            } else {
+                showError();
+            }
+        }
+    }
+
+    protected void showError() {
+        showError(getString(R.string.authentication_error_no_connection_message));
+    }
+
+    //TODO: use dialog fragments or managed dialogs (onCreateDialog)
+    protected void showError(String message) {
+        if (!isFinishing()) {
             new AlertDialog.Builder(AbstractLoginActivity.this)
                     .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setTitle(tokenError ? R.string.authentication_error_title : R.string.authentication_error_no_connection_title)
-                    .setMessage(tokenError ? R.string.authentication_login_error_password_message : R.string.authentication_error_no_connection_message)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // finish();
-                        }
-                    })
+                    .setTitle(getString(R.string.authentication_error_title))
+                    .setMessage(message)
+                    .setPositiveButton(android.R.string.ok, null)
                     .create()
                     .show();
         }
     }
 
+    //TODO: use dialog fragments or managed dialogs (onCreateDialog)
     protected void showDialog(Dialog d) {
         if (!isFinishing()) {
             d.show();
         }
     }
 
+    //TODO: use dialog fragments or managed dialogs (onCreateDialog)
     protected void dismissDialog(Dialog d) {
         if (!isFinishing() && d != null) {
             try {

@@ -18,7 +18,7 @@ import java.util.Arrays;
 public class AddUserInfoTaskTest  {
     @Test
     public void shouldWorkWithNullFile() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "me.json");
+        TestHelper.addPendingHttpResponse(getClass(), "me.json");
 
         AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application);
         User user = new User();
@@ -28,7 +28,7 @@ public class AddUserInfoTaskTest  {
 
     @Test
     public void shouldWorkWithNonexistentFile() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "me.json");
+        TestHelper.addPendingHttpResponse(getClass(), "me.json");
         AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application);
         User user = new User();
         User result = task.doInBackground(Pair.create(user, new File("/tmp/bla")));
@@ -37,7 +37,7 @@ public class AddUserInfoTaskTest  {
 
     @Test
     public void shouldWorkWithFile() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "me.json");
+        TestHelper.addPendingHttpResponse(getClass(), "me.json");
         AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application);
         User user = new User();
         File tmp = File.createTempFile("test", "tmp");
