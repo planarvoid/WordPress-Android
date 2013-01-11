@@ -3,7 +3,6 @@ package com.soundcloud.android.activity;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -16,6 +15,7 @@ import com.soundcloud.android.activity.landing.ScLandingPage;
 import com.soundcloud.android.activity.landing.SuggestedUsers;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
@@ -36,8 +36,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -53,7 +51,7 @@ import android.widget.FrameLayout;
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class ScActivity extends SherlockFragmentActivity implements Tracker,RootView.OnMenuStateListener, ImageLoader.LoadBlocker, ActionBarController.ActionBarOwner {
+public abstract class ScActivity extends SherlockFragmentActivity implements Tracker, RootView.OnMenuStateListener, ImageLoader.LoadBlocker, ActionBarController.ActionBarOwner {
     protected static final int CONNECTIVITY_MSG = 0;
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
@@ -62,7 +60,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private Boolean mIsConnected;
     private boolean mIsForeground;
 
-    @Nullable private ActionBarController mActionBarController;
+    @Nullable
+    private ActionBarController mActionBarController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +114,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             }
         });
 
-        if (getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             mActionBarController = new ActionBarController(this, mRootView);
         }
 
@@ -173,7 +172,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     static void startNavActivity(Context c, Class activity, Bundle rootViewState) {
         Intent i = getNavIntent(c, activity, rootViewState);
-        if (ScLandingPage.class.isAssignableFrom(activity)){
+        if (ScLandingPage.class.isAssignableFrom(activity)) {
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         }
         c.startActivity(getNavIntent(c, activity, rootViewState));
@@ -203,6 +202,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         connectivityListener.startListening(this);
         IntentFilter f = new IntentFilter();
         f.addAction(Consts.GeneralIntents.ACTIVITIES_UNSEEN_CHANGED);
+        f.addAction(Consts.GeneralIntents.UNAUTHORIZED);
         registerReceiver(mGeneralIntentListener, new IntentFilter(f));
     }
 
@@ -259,7 +259,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         return (SoundCloudApplication) getApplication();
     }
 
-    public boolean isForeground(){
+    public boolean isForeground() {
         return mIsForeground;
     }
 
@@ -368,7 +368,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         return true;
     }
 
-    public int getMenuResourceId(){
+    public int getMenuResourceId() {
         return R.menu.main;
     }
 
@@ -471,12 +471,14 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     private final BroadcastReceiver mGeneralIntentListener = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if (action.equals(Consts.GeneralIntents.ACTIVITIES_UNSEEN_CHANGED)) {
-                    mRootView.getMenu().refresh();
-                }
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(Consts.GeneralIntents.ACTIVITIES_UNSEEN_CHANGED)) {
+                mRootView.getMenu().refresh();
+            } else if (action.equals(Consts.GeneralIntents.UNAUTHORIZED)) {
+                safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
             }
+        }
     };
 }
