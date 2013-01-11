@@ -199,6 +199,7 @@ public final class Consts {
 
     public interface GeneralIntents {
         String ACTIVITIES_UNSEEN_CHANGED = Activities.class.getSimpleName() + ".unseen_changed";
+        String UNAUTHORIZED = SoundCloudApplication.class.getSimpleName() + ".unauthorized";
     }
 
     // these need to be unique across app

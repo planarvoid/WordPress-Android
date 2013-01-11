@@ -354,6 +354,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         adapter.handleTaskReturnData(data);
         configureEmptyView(data.responseCode);
 
+
         final boolean notRefreshing = (data.wasRefresh || !isRefreshing()) && !waitingOnInitialSync();
         if (notRefreshing) {
             doneRefreshing();
@@ -363,6 +364,15 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             // this can happen if we manually filter out the entire collection (e.g. all playlists)
             append(true);
         }
+
+        // show unauthorized dialog if applicable
+        if (data.responseCode == HttpStatus.SC_UNAUTHORIZED) {
+            final FragmentActivity activity = getActivity();
+            if (activity != null) {
+                activity.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
+            }
+        }
+
     }
 
     @Override
@@ -592,25 +602,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private void clearRefreshTask() {
         if (mRefreshTask != null && !AndroidUtils.isTaskFinished(mRefreshTask)) mRefreshTask.cancel(true);
         mRefreshTask = null;
-    }
-
-    private boolean handleResponseCode(int responseCode) {
-        switch (responseCode) {
-            case HttpStatus.SC_CONTINUE: // do nothing
-            case HttpStatus.SC_OK: // do nothing
-            case HttpStatus.SC_NOT_MODIFIED:
-                return true;
-
-            case HttpStatus.SC_UNAUTHORIZED:
-                final FragmentActivity activity = getActivity();
-                if (activity != null && !activity.isFinishing()) {
-                    activity.showDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
-                }
-                //noinspection fallthrough
-            default:
-                Log.w(TAG, "unexpected responseCode " + responseCode);
-                return false;
-        }
     }
 
     private final Handler connHandler = new Handler() {
