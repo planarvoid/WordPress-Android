@@ -1,6 +1,5 @@
 package com.soundcloud.android.fragment;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -52,7 +51,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
