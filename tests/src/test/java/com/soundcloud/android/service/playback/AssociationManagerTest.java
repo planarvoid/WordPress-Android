@@ -53,6 +53,18 @@ public class AssociationManagerTest {
     }
 
     @Test
+    public void shouldAddLikeLikeAlreadyLiked() throws Exception {
+        Track t = createTrack();
+        modelManager.write(t);
+
+        addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
+
+        associationManager.setLike(t, true);
+        expect(modelManager.getTrack(t.id).user_like).toBeTrue();
+        expect(modelManager.getTrack(t.id).likes_count).toEqual(5);
+    }
+
+    @Test
     public void shouldNotChangeLikeStateWhenAddLikeApiCallFails() throws Exception {
         Track t = createTrack();
         modelManager.write(t);
