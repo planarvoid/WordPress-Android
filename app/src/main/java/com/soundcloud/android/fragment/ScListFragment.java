@@ -348,10 +348,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         }
 
         mKeepGoing = data.keepGoing;
-
         adapter.handleTaskReturnData(data);
         configureEmptyView(data.responseCode);
-
 
         final boolean notRefreshing = (data.wasRefresh || !isRefreshing()) && !waitingOnInitialSync();
         if (notRefreshing) {
