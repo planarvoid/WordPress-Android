@@ -51,6 +51,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,6 +66,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                                                             AbsListView.OnScrollListener,
                                                             ImageLoader.LoadBlocker {
     private static final int CONNECTIVITY_MSG = 0;
+    public static final String TAG = ScListFragment.class.getSimpleName();
 
     @Nullable private ScListView mListView;
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
@@ -296,6 +298,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             case ApiSyncService.STATUS_SYNC_ERROR: {
 
                 final boolean nothingChanged = resultData != null && !resultData.getBoolean(mContentUri.toString());
+                log("Returned from sync. Change: " + !nothingChanged);
                 if (nothingChanged && !isRefreshTaskActive()) {
                     doneRefreshing();
                     checkAllowInitalAppend();
@@ -303,7 +306,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 } else if (!nothingChanged) {
                     // something was changed by the sync, if we aren't refreshing already, do it
                     if (!isRefreshTaskActive()) {
+                        log("Something changed, Refreshing....");
                         executeRefreshTask();
+                    } else {
+                        log("Something changed, Already Refreshing, skipping refresh.");
                     }
                 }
                 break;
@@ -316,6 +322,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
      * {@link this#waitingOnInitialSync())} was true earlier, suppressing it.
      */
     private void checkAllowInitalAppend() {
+        log("Should allow initial appending: [waitingOnInitialSync:" + waitingOnInitialSync() + ",mKeepGoing:" + mKeepGoing + "]"  );
         final ScBaseAdapter adapter = getListAdapter();
         if (!mKeepGoing && !waitingOnInitialSync() && adapter != null && adapter.getItemCount() == 0) {
             mKeepGoing = true;
@@ -325,6 +332,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     @Override
     public void onLocalCollectionChanged() {
+        log("Local collection changed " + mLocalCollection);
         // do not autorefresh me_followings based on observing because this would refresh everytime you use the in list toggles
         if (mContent != Content.ME_FOLLOWINGS) refreshSyncData();
     }
@@ -405,10 +413,13 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     protected boolean canAppend() {
+        log("Can Append [mKeepGoing: " + mKeepGoing + ", waitingOnInitialSync: "+waitingOnInitialSync()+"]");
         return mKeepGoing && !waitingOnInitialSync();
     }
 
     protected void refresh(final boolean userRefresh) {
+        log("Refresh [userRefresh: " + userRefresh + "]");
+
         // this needs to happen regardless of context/adapter availability, it will setup a pending sync if needed
         if (isSyncable()) {
             requestSync();
@@ -451,6 +462,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     protected void configureEmptyView(int statusCode) {
         final boolean wait = canAppend() || isRefreshing() || waitingOnInitialSync();
+        log("Configure empty view [waiting:" + wait + "]");
         mStatusCode = wait ? EmptyListView.Status.WAITING : statusCode;
         if (mEmptyListView != null) {
             mEmptyListView.setStatus(mStatusCode);
@@ -493,13 +505,16 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
 
     private void requestSync() {
+
         if (getActivity() != null && mContent != null) {
+            log("Requesting Sync");
             Intent intent = new Intent(getActivity(), ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                     .setData(mContent.uri);
             getActivity().startService(intent);
         } else {
+            log("Bypassing sync request, no context");
             mPendingSync = true;
         }
     }
@@ -552,10 +567,14 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     private void onContentChanged() {
         final ScBaseAdapter listAdapter = getListAdapter();
-        if (listAdapter instanceof ActivityAdapter && ((ActivityAdapter) listAdapter).isExpired(mLocalCollection)) {
+        if (listAdapter instanceof ActivityAdapter && !((ActivityAdapter) listAdapter).isExpired(mLocalCollection)) {
+            log("Activity content has changed, no newer items, skipping refresh");
+        } else {
+            log("Content changed, adding newer items.");
             executeRefreshTask();
         }
     }
+
 
     private CollectionTask buildTask(Context context) {
         return new CollectionTask(SoundCloudApplication.fromContext(context), this);
@@ -582,6 +601,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (isSyncable() && mLocalCollection != null) {
             setListLastUpdated();
             if (mLocalCollection.shouldAutoRefresh()) {
+                log("Auto refreshing content");
                 if (!isRefreshing()) {
                     refresh(false);
                     // this is to show the user something at the initial load
@@ -590,6 +610,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                     }
                 }
             } else {
+                log("Skipping auto refresh");
                 checkAllowInitalAppend();
             }
         }
@@ -669,4 +690,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             }
         }
     };
+
+    private static void log(String msg){
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, msg);
+    }
 }
