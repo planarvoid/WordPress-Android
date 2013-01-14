@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.service.playback.CloudPlaybackService.getPlaylistManager;
 
+import android.util.Log;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -324,7 +325,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         f.addAction(Sound.ACTION_TRACK_ASSOCIATION_CHANGED);
         f.addAction(Sound.ACTION_SOUND_INFO_UPDATED);
         f.addAction(Sound.ACTION_SOUND_INFO_ERROR);
-        f.addAction(Sound.ACTION_COMMENT_ADDED);
+        f.addAction(Sound.COMMENTS_UPDATED);
         registerReceiver(mStatusListener, new IntentFilter(f));
     }
 
@@ -540,8 +541,12 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         final PlayQueueManager playQueueManager = getPlaylistManager();
 
         mTrackPager.configureFromService(this, playQueueManager, queuePosition);
-        final long queueLength = playQueueManager == null ? 1 :playQueueManager.length();
-        mTransportBar.setNavEnabled(queueLength > 1);
+        // set buffering state of current track
+        if (mPlaybackService != null && mPlaybackService.isBuffering()){
+            final PlayerTrackView playerTrackView = getTrackViewById(CloudPlaybackService.getCurrentTrackId());
+            if (playerTrackView != null) playerTrackView.onBuffering();
+        }
+
         setPlaybackState();
     }
 
@@ -578,5 +583,15 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         }
 
         mTransportBar.setPlaybackState(showPlayState);
+
+        final PlayQueueManager playQueueManager = getPlaylistManager();
+
+        if (playQueueManager != null) {
+            int pos    = playQueueManager.getPosition();
+            int length = playQueueManager.length();
+
+            mTransportBar.setPreviousEnabled(pos > 0);
+            mTransportBar.setNextEnabled(pos < (length - 1));
+        }
     }
 }

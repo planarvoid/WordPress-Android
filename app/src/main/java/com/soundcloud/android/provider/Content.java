@@ -124,7 +124,8 @@ public enum Content  {
     PLAY_QUEUE("play_queue", null, 2000, null, -1, Table.PLAY_QUEUE),
     PLAY_QUEUE_ITEM("play_queue/#", null, 2001, null, -1, Table.PLAY_QUEUE),
 
-
+    SOUND_STREAM_CLEANUP("cleanup/soundstream", null, 9996, null, -1, null),
+    ACTIVITIES_CLEANUP("cleanup/activities", null, 9997, null, -1, null),
     TRACK_CLEANUP("cleanup/tracks", null, 9998, null, -1, null),
     USERS_CLEANUP("cleanup/users", null, 9999, null, -1, null),
 

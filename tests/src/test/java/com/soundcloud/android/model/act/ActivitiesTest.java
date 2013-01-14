@@ -187,7 +187,7 @@ public class ActivitiesTest {
 
     @Test
     public void shouldFetchEmptyFromApi() throws Exception {
-        TestHelper.addCannedResponses(ApiSyncServiceTest.class,
+        TestHelper.addPendingHttpResponse(ApiSyncServiceTest.class,
                 "activities_empty.json");
 
         Activities a = Activities.fetchRecent(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), 100);
@@ -199,7 +199,7 @@ public class ActivitiesTest {
 
     @Test
     public void shouldFetchFromApi() throws Exception {
-        TestHelper.addCannedResponses(ApiSyncServiceTest.class,
+        TestHelper.addPendingHttpResponse(ApiSyncServiceTest.class,
                 "e1_stream_1.json",
                 "e1_stream_2.json",
                 "activities_empty.json");
@@ -212,7 +212,7 @@ public class ActivitiesTest {
 
     @Test
     public void shouldStopFetchingAfterMax() throws Exception {
-        TestHelper.addCannedResponses(ApiSyncServiceTest.class,
+        TestHelper.addPendingHttpResponse(ApiSyncServiceTest.class,
                 "e1_stream_1.json");
 
         Activities a = Activities.fetchRecent(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), 20);

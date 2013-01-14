@@ -18,7 +18,7 @@ import java.util.Arrays;
 public class SignupTaskTest {
     @Test
     public void shouldReturnUser() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "signup_token.json");
+        TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
         Robolectric.addPendingHttpResponse(201, TestHelper.resourceAsString(getClass(), "me.json"));
         SignupTask task = new SignupTask(DefaultTestRunner.application);
         User u = task.doInBackground("email", "password");
@@ -28,7 +28,7 @@ public class SignupTaskTest {
 
     @Test
     public void shouldProcessErrorsDuringSignup() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "signup_token.json");
+        TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
         Robolectric.addPendingHttpResponse(422, "{\"errors\":{\"error\":[\"Email has already been taken\",\"Email is already taken.\"]}}");
         SignupTask task = new SignupTask(DefaultTestRunner.application);
         expect(task.doInBackground("email", "password")).toBeNull();
@@ -37,7 +37,7 @@ public class SignupTaskTest {
 
     @Test
     public void shouldProcessBadErrorResponse() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "signup_token.json");
+        TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
         Robolectric.addPendingHttpResponse(422, "ada");
         SignupTask task = new SignupTask(DefaultTestRunner.application);
         expect(task.doInBackground("email", "password")).toBeNull();
@@ -46,7 +46,7 @@ public class SignupTaskTest {
 
     @Test
     public void shouldHandleRevokedSignupScope() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "signup_token_blank_scope.json");
+        TestHelper.addPendingHttpResponse(getClass(), "signup_token_blank_scope.json");
         SignupTask task = new SignupTask(DefaultTestRunner.application);
         expect(task.doInBackground("email", "password")).toBeNull();
         expect(task.getErrors()).toContain(DefaultTestRunner.application.getString(R.string.signup_scope_revoked));
@@ -56,7 +56,7 @@ public class SignupTaskTest {
     public void shouldHandleErrorCodeFromTokenController() throws Exception {
         // we get a token which has signup scope, but still returns forbidden on token request
 
-        TestHelper.addCannedResponses(getClass(), ("signup_token.json"));
+        TestHelper.addPendingHttpResponse(getClass(), ("signup_token.json"));
         Robolectric.addPendingHttpResponse(403, "",
             new BasicHeader("WWW-Authenticate", "OAuth realm=\"SoundCloud\", error=\"insufficient_scope\""));
 

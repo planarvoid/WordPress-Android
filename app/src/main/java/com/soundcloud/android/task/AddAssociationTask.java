@@ -19,6 +19,7 @@ public class AddAssociationTask extends AssociatedSoundTask {
 
     @Override
     protected boolean isAssociated(int responseCode){
-        return (responseCode == 200 /* if was already associated */ || responseCode == 201 /* new association */);
+        mChanged = responseCode == 201;
+        return (responseCode == 200 /* if was already associated */ || mChanged /* new association */);
     }
 }

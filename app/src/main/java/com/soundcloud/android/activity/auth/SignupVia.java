@@ -1,12 +1,13 @@
 package com.soundcloud.android.activity.auth;
 
 import android.content.Intent;
+import android.os.Bundle;
 
 public enum SignupVia {
     API("api"),
     FACEBOOK_SSO("facebook:access-token"),
     FACEBOOK_WEBFLOW("facebook:web-flow"),
-    NONE("none");
+    NONE("none"); //TODO: this means log-in; should be renamed to something more expressive
 
     public static final String EXTRA = "signed_up";
 
@@ -17,7 +18,11 @@ public enum SignupVia {
     }
 
     public static SignupVia fromIntent(Intent intent) {
-        return fromString(intent.getStringExtra(EXTRA));
+        return fromBundle(intent.getExtras());
+    }
+
+    public static SignupVia fromBundle(Bundle bundle) {
+        return fromString(bundle.getString(EXTRA));
     }
 
     public static SignupVia fromString(String s) {

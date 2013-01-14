@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="2.4.3"
+      android:versionName="2.4.4"
       android:installLocation="auto"
-      android:versionCode="52">
+      android:versionCode="53">
 
     <supports-screens android:anyDensity="true" />
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16"/>
@@ -68,6 +68,14 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="http" android:host="soundcloud.com"/>
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http" android:host="m.soundcloud.com"/>
+            </intent-filter>
+
 
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>

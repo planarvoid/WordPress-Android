@@ -13,7 +13,6 @@ import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.record.RecordAppWidgetProvider;
 import com.soundcloud.android.service.record.SoundRecorderService;
@@ -141,8 +140,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         mContext = context;
         mConfig = config;
         mState = State.IDLE;
-        final int recBufferSize = config.getRecordMinBufferSize() * 4;
-        mAudioRecord = config.createAudioRecord(recBufferSize);
+        mAudioRecord = config.createAudioRecord();
         mAudioRecord.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
             @Override public void onMarkerReached(AudioRecord audioRecord) { }
             @Override public void onPeriodicNotification(AudioRecord audioRecord) {
@@ -171,9 +169,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         mBroadcastManager = LocalBroadcastManager.getInstance(context);
         mRemainingTimeCalculator = config.createCalculator();
 
-        mRecBuffer = BufferUtils.allocateAudioBuffer(recBufferSize);
         valuesPerSecond = (int) (PIXELS_PER_SECOND * context.getResources().getDisplayMetrics().density);
         mRecBufferReadSize = (int) config.validBytePosition((long) (mConfig.bytesPerSecond / valuesPerSecond));
+        mRecBuffer = BufferUtils.allocateAudioBuffer(mRecBufferReadSize);
 
         // small reads for performance, but no larger than our audiotrack buffer size
         mPlayBufferReadSize = playbackBufferSize < MAX_PLAYBACK_READ_SIZE ? playbackBufferSize : MAX_PLAYBACK_READ_SIZE;

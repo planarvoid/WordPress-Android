@@ -14,9 +14,7 @@ import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 
-import android.accounts.Account;
 import android.content.SyncResult;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 /**
@@ -93,13 +91,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
                 .edit()
                 .putBoolean(Consts.PrefKeys.NOTIFICATIONS_WIFI_ONLY, true)
                 .commit();
-
-        boolean hasSynced = SyncAdapterService.performSync(DefaultTestRunner.application,
-                new Account("foo", "bar"),
-                new Bundle(),
-                new SyncResult(),
-                null);
-
-        expect(hasSynced).toBeFalse();
+        SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, null);
+        expect(result.notifications).toBeEmpty();
     }
 }

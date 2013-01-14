@@ -58,7 +58,7 @@ public class FriendFinder extends ScActivity implements ScLandingPage {
                                 .setData(Content.ME_CONNECTIONS.uri));
 
                         if (mFragment != null) {
-                            mFragment.setState(FriendFinderFragment.States.LOADING, false);
+                            mFragment.setStatus(FriendFinderFragment.Status.WAITING, false);
                         }
 
                         return;

@@ -28,7 +28,7 @@ public class LocationPickerTest {
 
     @Test
     public void shouldSetNameAndLocationAfterUserEntersText() throws Exception {
-        TestHelper.addCannedResponses(FoursquareVenueTaskTest.class, "foursquare_venues.json");
+        TestHelper.addPendingHttpResponse(FoursquareVenueTaskTest.class, "foursquare_venues.json");
 
         LocationPicker lp = new LocationPicker();
         Location loc = new Location(LocationManager.PASSIVE_PROVIDER);
@@ -54,7 +54,7 @@ public class LocationPickerTest {
     @Test
     public void shouldSetFoursquareInformationAfterUserPicksVenue() throws Exception {
 
-        TestHelper.addCannedResponses(FoursquareVenueTaskTest.class, "foursquare_venues.json");
+        TestHelper.addPendingHttpResponse(FoursquareVenueTaskTest.class, "foursquare_venues.json");
         LocationPicker lp = new LocationPicker();
         lp.setIntent(new Intent().putExtra(LocationPicker.EXTRA_LOCATION,
                 new Location(LocationManager.PASSIVE_PROVIDER)));
@@ -74,7 +74,7 @@ public class LocationPickerTest {
 
     @Test
     public void shouldAutomaticallyLoadVenuesIfLocationKnown() throws Exception {
-        TestHelper.addCannedResponses(FoursquareVenueTaskTest.class, "foursquare_venues.json");
+        TestHelper.addPendingHttpResponse(FoursquareVenueTaskTest.class, "foursquare_venues.json");
         LocationPicker lp = new LocationPicker();
         lp.setIntent(new Intent().putExtra(LocationPicker.EXTRA_LOCATION,
                 new Location(LocationManager.PASSIVE_PROVIDER)));

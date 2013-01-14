@@ -5,13 +5,16 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +34,7 @@ public class EmptyListView extends RelativeLayout {
     private TextView mTxtMessage;
     private TextView mTxtLink;
     @Nullable private ImageView mImage;
-    @Nullable private LinearLayout mError;
+    @Nullable private View mErrorView;
     protected Button mBtnAction;
 
     private int     mMessageResource, mLinkResource, mImageResource, mActionTextResource;
@@ -41,11 +44,14 @@ public class EmptyListView extends RelativeLayout {
     private ActionListener mImageActionListener;
     protected int mMode;
 
-    public interface Mode {
-        int WAITING_FOR_DATA = 1;
-        int IDLE = 2;
-        int ERROR = 3;
+    public interface Status extends HttpStatus {
+        int WAITING = -1;
+        int ERROR = -2; //generic error
+        int CONNECTION_ERROR = -3;
+        int OK = SC_OK; //generic OK
     }
+
+
 
     public EmptyListView(final Context context, final Intent... intents) {
         super(context);
@@ -79,39 +85,66 @@ public class EmptyListView extends RelativeLayout {
         mProgressBar = (ProgressBar) findViewById(R.id.list_loading);
     }
 
-    public boolean setMode(int mode) {
-        if (mMode != mode) {
-            mMode = mode;
-            switch (mode) {
-                case Mode.WAITING_FOR_DATA:
-                    mProgressBar.setVisibility(View.VISIBLE);
-                    if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
-                    if (mError != null) mError.setVisibility(View.GONE);
-                    return true;
+    /**
+     * Configure display based on response code
+     * @param code
+     * @return whether the code was handled here
+     */
+    public boolean setStatus(int code) {
+        if (mMode != code) {
+            mMode = code;
 
-                case Mode.IDLE:
-                    mProgressBar.setVisibility(View.GONE);
-                    showEmptyLayout();
-                    return true;
+            if (code == Status.WAITING) {
+                // don't show empty screen, show progress
+                mProgressBar.setVisibility(View.VISIBLE);
+                if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
+                if (mErrorView != null) mErrorView.setVisibility(View.GONE);
+                return true;
 
-                case Mode.ERROR:
-                    mProgressBar.setVisibility(View.GONE);
-                    showError();
-                    return true;
+            } else if (IOUtils.isStatusCodeOk(code))  {
+                // at rest, no error
+                mProgressBar.setVisibility(View.GONE);
+                showEmptyLayout();
+                return true;
+
+            } else {
+                // error,
+                mProgressBar.setVisibility(View.GONE);
+                showError(code);
+                return true;
+
             }
-            return false;
+
         }
         return true;
     }
 
-    private void showError(){
-        if (mError == null) {
-            mError = (LinearLayout) View.inflate(getContext(), R.layout.empty_list_error, null);
-            mEmptyViewHolder.addView(mError);
+    private void showError(int responseCode){
+        if (mErrorView == null) {
+            mErrorView = View.inflate(getContext(), R.layout.empty_list_error, null);
+            mEmptyViewHolder.addView(mErrorView);
         } else {
-            mError.setVisibility(View.VISIBLE);
+            mErrorView.setVisibility(View.VISIBLE);
         }
         if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
+
+
+        final TextView errorTextView = (TextView) mErrorView.findViewById(R.id.txt_message);
+        if (responseCode == HttpStatus.SC_SERVICE_UNAVAILABLE) {
+            errorTextView.setText(R.string.error_soundcloud_is_down);
+
+        } else if (IOUtils.isStatusCodeError(responseCode)) {
+            errorTextView.setText(R.string.error_soundcloud_server_problems);
+
+        } else if (responseCode == Status.CONNECTION_ERROR) {
+            errorTextView.setText(R.string.no_internet_connection);
+
+        } else if (responseCode == Status.ERROR) {
+            errorTextView.setText("");
+        } else {
+            errorTextView.setText("");
+            Log.w(SoundCloudApplication.TAG,"Unhandled response code: " + responseCode);
+        }
     }
 
     protected void showEmptyLayout() {
@@ -163,7 +196,7 @@ public class EmptyListView extends RelativeLayout {
         }
 
 
-        if (mError != null) mError.setVisibility(View.GONE);
+        if (mErrorView != null) mErrorView.setVisibility(View.GONE);
     }
 
     protected int getEmptyViewLayoutId() {

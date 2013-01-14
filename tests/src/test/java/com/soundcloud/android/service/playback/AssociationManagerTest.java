@@ -36,10 +36,11 @@ public class AssociationManagerTest {
         Track t = createTrack();
         modelManager.write(t);
 
-        addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
+        addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(201, "OK"));
 
         associationManager.setLike(t, true);
         expect(modelManager.getTrack(t.id).user_like).toBeTrue();
+        expect(modelManager.getTrack(t.id).likes_count).toEqual(6);
         // clear out state
 
         /*
@@ -52,6 +53,18 @@ public class AssociationManagerTest {
     }
 
     @Test
+    public void shouldAddLikeLikeAlreadyLiked() throws Exception {
+        Track t = createTrack();
+        modelManager.write(t);
+
+        addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
+
+        associationManager.setLike(t, true);
+        expect(modelManager.getTrack(t.id).user_like).toBeTrue();
+        expect(modelManager.getTrack(t.id).likes_count).toEqual(5);
+    }
+
+    @Test
     public void shouldNotChangeLikeStateWhenAddLikeApiCallFails() throws Exception {
         Track t = createTrack();
         modelManager.write(t);
@@ -60,6 +73,7 @@ public class AssociationManagerTest {
 
         associationManager.setLike(t, true);
         expect(modelManager.getTrack(t.id).user_like).toBeFalse();
+        expect(modelManager.getTrack(t.id).likes_count).toEqual(5);
     }
 
     @Test
@@ -72,6 +86,7 @@ public class AssociationManagerTest {
 
         associationManager.setLike(t, false);
         expect(modelManager.getTrack(t.id).user_like).toBeFalse();
+        expect(modelManager.getTrack(t.id).likes_count).toEqual(4);
 
         // clear out state
 
@@ -90,10 +105,11 @@ public class AssociationManagerTest {
         Track t = createTrack();
         modelManager.write(t);
 
-        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_REPOST, t.id).toUrl(), new TestHttpResponse(200, "OK"));
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_REPOST, t.id).toUrl(), new TestHttpResponse(201, "OK"));
         associationManager.setRepost(t, true);
         expect(t.user_repost).toBeTrue();
         expect(modelManager.getTrack(t.id).user_repost).toBeTrue();
+        expect(modelManager.getTrack(t.id).reposts_count).toEqual(6);
 
         // clear out cached state, read from db
 
@@ -110,14 +126,16 @@ public class AssociationManagerTest {
         Track t = createTrack();
         modelManager.write(t);
 
-        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_REPOST, t.id).toUrl(), new TestHttpResponse(200, "OK"));
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_REPOST, t.id).toUrl(), new TestHttpResponse(201, "OK"));
         associationManager.setRepost(t, true);
         expect(modelManager.getTrack(t.id).user_repost).toBeTrue();
+        expect(modelManager.getTrack(t.id).reposts_count).toEqual(6);
 
         addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_REPOST, t.id).toUrl(), new TestHttpResponse(200, "OK"));
         associationManager.setRepost(t, false);
         expect(t.user_repost).toBeFalse();
         expect(modelManager.getTrack(t.id).user_repost).toBeFalse();
+        expect(modelManager.getTrack(t.id).reposts_count).toEqual(5);
 
         // clear out cached state, read from db
         /*
@@ -139,6 +157,7 @@ public class AssociationManagerTest {
 
         associationManager.setLike(t, false);
         expect(t.user_like).toBeTrue();
+        expect(modelManager.getTrack(t.id).likes_count).toEqual(5);
 
         expect(modelManager.getTrack(t.id)).toBe(t);
     }
@@ -151,6 +170,7 @@ public class AssociationManagerTest {
         Track t = new Track();
         t.id = 200L;
         t.user = u1;
+        t.likes_count = t.reposts_count = 5;
         return t;
     }
 }

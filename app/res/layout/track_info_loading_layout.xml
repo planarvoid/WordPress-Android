@@ -12,7 +12,9 @@
             android:layout_margin="20dp"
             android:gravity="center_vertical"
             android:minHeight="30dip"
+            android:minWidth="30dip"
             android:maxHeight="30dip"
+            android:maxWidth="30dip"
             android:layout_centerInParent="true"/>
 
 </RelativeLayout>

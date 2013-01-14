@@ -143,7 +143,7 @@ public abstract class SyncAdapterServiceTestBase {
     }
 
     protected void addCannedActivities(String... resources) throws IOException {
-        TestHelper.addCannedResponses(SyncAdapterServiceTest.class, resources);
+        TestHelper.addPendingHttpResponse(SyncAdapterServiceTest.class, resources);
     }
 
     protected void addResourceResponse(String url, String resource) throws IOException {

@@ -41,7 +41,7 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncMe() throws Exception {
-        addCannedResponses(getClass(), "me.json");
+        addPendingHttpResponse(getClass(), "me.json");
         expect(Content.ME).toBeEmpty();
         Result result = sync(Content.ME.uri);
         expect(result.success).toBeTrue();
@@ -190,7 +190,7 @@ public class ApiSyncerTest {
     @Test
     public void shouldSyncMyShortcuts() throws Exception {
 
-        TestHelper.addCannedResponses(getClass(), "all_shortcuts.json");
+        TestHelper.addPendingHttpResponse(getClass(), "all_shortcuts.json");
         sync(Content.ME_SHORTCUTS.uri);
         expect(Content.ME_SHORTCUTS).toHaveCount(461);
 
@@ -201,26 +201,26 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncConnections() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "connections.json");
+        TestHelper.addPendingHttpResponse(getClass(), "connections.json");
         expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
         expect(Content.ME_CONNECTIONS).toHaveCount(4);
 
-        TestHelper.addCannedResponses(getClass(), "connections.json");
+        TestHelper.addPendingHttpResponse(getClass(), "connections.json");
         expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.UNCHANGED);
         expect(Content.ME_CONNECTIONS).toHaveCount(4);
 
-        TestHelper.addCannedResponses(getClass(), "connections_add.json");
+        TestHelper.addPendingHttpResponse(getClass(), "connections_add.json");
         expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
         expect(Content.ME_CONNECTIONS).toHaveCount(6);
 
-        TestHelper.addCannedResponses(getClass(), "connections_delete.json");
+        TestHelper.addPendingHttpResponse(getClass(), "connections_delete.json");
         expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
         expect(Content.ME_CONNECTIONS).toHaveCount(3);
     }
 
     @Test
     public void shouldDoTrackLookup() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "tracks.json");
+        TestHelper.addPendingHttpResponse(getClass(), "tracks.json");
         Result result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));
         expect(result.success).toBe(true);
         expect(result.synced_at).toBeGreaterThan(0l);
@@ -230,7 +230,7 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldDoUserLookup() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "users.json");
+        TestHelper.addPendingHttpResponse(getClass(), "users.json");
         Result result = sync(Content.USER_LOOKUP.forQuery("308291,792584,1255758"));
         expect(result.success).toBe(true);
         expect(result.synced_at).toBeGreaterThan(0l);
@@ -240,7 +240,7 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSetSyncResultData() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "e1_activities_1_oldest.json");
+        TestHelper.addPendingHttpResponse(getClass(), "e1_activities_1_oldest.json");
         Result result = sync(Content.ME_ACTIVITIES.uri);
         expect(result.change).toEqual(Result.CHANGED);
         expect(result.new_size).toEqual(7);
@@ -356,7 +356,7 @@ public class ApiSyncerTest {
     }
 
     private Result sync(Uri uri,  String... fixtures) throws IOException {
-        addCannedResponses(getClass(), fixtures);
+        addPendingHttpResponse(getClass(), fixtures);
         ApiSyncer syncer = new ApiSyncer(Robolectric.application);
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
     }
