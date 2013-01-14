@@ -1,8 +1,11 @@
 $ 53
   % v current
-  _ 2012-12-20
+  _ 2013-01-14
   ! ??
-    * Bugfixes
+    * Improved accessibility support
+    * Fixed waveform rendering
+    * Resolved various smaller issues
+    - Bugfixes
     - fixed some endless loading conditions
     - fixed some empty screens not showing up
     - Optimized image loading in lists
