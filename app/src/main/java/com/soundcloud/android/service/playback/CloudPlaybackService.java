@@ -53,7 +53,7 @@ import java.util.List;
 
 public class CloudPlaybackService extends Service implements IAudioManager.MusicFocusable, Tracker {
     public static final String TAG = "CloudPlaybackService";
-    public @Nullable static List<PlayableHolder> playlistXfer;
+    public @Nullable static List<Track> playlistXfer;
 
     private static @Nullable Track currentTrack;
     public  static @Nullable Track getCurrentTrack()  { return currentTrack; }

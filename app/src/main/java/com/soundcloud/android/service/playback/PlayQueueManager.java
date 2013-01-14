@@ -3,6 +3,7 @@ package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -198,11 +199,6 @@ public class PlayQueueManager {
                     // in case we load a depracated URI, just don't load the playlist
                     Log.e(PlayQueueManager.class.getSimpleName(),"Tried to load an invalid uri " + uri);
                 }
-                if (cursor != null) {
-                    if (position >= 0 && position < cursor.getCount()) {
-                        cursor.moveToPosition(position);
-                    }
-                }
                 return cursor;
 
 
@@ -212,8 +208,18 @@ public class PlayQueueManager {
                 if (cursor != null) {
                     long playingId = getCurrentTrackId();
                     final int size = cursor.getCount();
-                    mPlayQueue = new Track[size];
+
+                    // TODO, don't filter out playlists
+                    List<Track> tempQueue = new ArrayList<Track>();
+
+                    while (cursor.moveToNext()) {
+                        if (cursor.getInt(cursor.getColumnIndex(DBHelper.Sounds._TYPE)) == Playable.DB_TYPE_TRACK){
+                            tempQueue.add(new Track(cursor));
+                        }
+                    }
                     if (mTrackCursor != null && !mTrackCursor.isClosed()) mTrackCursor.close();
+
+                    mPlayQueue = tempQueue.toArray(new Track[tempQueue.size()]);
                     mTrackCursor = cursor;
                     final Track t = getTrackAt(position);
                     // adjust if the track has moved positions
@@ -241,7 +247,10 @@ public class PlayQueueManager {
         mPlayQueue = new Track[playQueue == null ? 0 : playQueue.size()];
         if (playQueue != null) {
             for (int i=0; i<playQueue.size(); i++) {
-                mPlayQueue[i] = playQueue.get(i).getPlayable();
+                // TODO, don't filter out playlists
+                if (playQueue.get(i).getPlayable() instanceof Track){
+                    mPlayQueue[i] = (Track) playQueue.get(i).getPlayable();
+                }
             }
         }
         mPlayQueueUri = new PlayQueueUri();

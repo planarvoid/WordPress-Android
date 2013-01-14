@@ -78,9 +78,9 @@ public class ActivitiesTest {
     public void testGetUniqueTracks() throws Exception {
         Activities activities = new Activities();
         expect(activities.getUniqueTracks().size()).toEqual(0);
-        Activity e1 = new TrackActivity() { public Track getPlayable() { return new Track() { { id = 1; } }; } };
-        Activity e2 = new TrackActivity() { public Track getPlayable() { return new Track() { { id = 1; } }; } };
-        Activity e3 = new TrackActivity() { public Track getPlayable() { return new Track() { { id = 3; } }; } };
+        Activity e1 = new TrackActivity() { public Track getTrack() { return new Track() { { id = 1; } }; } };
+        Activity e2 = new TrackActivity() { public Track getTrack() { return new Track() { { id = 1; } }; } };
+        Activity e3 = new TrackActivity() { public Track getTrack() { return new Track() { { id = 3; } }; } };
         activities = new Activities(e1, e2, e3);
         expect(activities.getUniqueTracks().size()).toEqual(2);
     }
@@ -260,7 +260,6 @@ public class ActivitiesTest {
         expect(trackActivity.getPlayable().id).toEqual(61145768l);
         expect(trackActivity.getPlayable().title).toEqual("Total Waxer");
         expect(trackActivity.getPlayable().genre).toEqual("Podcast");
-        expect(trackActivity.getPlayable().waveform_url).toEqual("https://w1.sndcdn.com/DsoyShDam62m_m.png");
         expect(trackActivity.sharing_note.text).toEqual("this is a sharing note");
         expect(trackActivity.sharing_note.getDateString()).toEqual("2012/09/25 19:09:40 +0000");
 
@@ -273,7 +272,6 @@ public class ActivitiesTest {
         expect(trackSharingActivity.getUser().username).toEqual("Stop Out Records");
         expect(trackSharingActivity.getPlayable().id).toEqual(61132541l);
         expect(trackSharingActivity.getPlayable().title).toEqual("Wendyhouse - Hold Me Down (Feat. FRANKi)");
-        expect(trackSharingActivity.getPlayable().original_format).toEqual("mp3");
         expect(trackSharingActivity.getPlayable().artwork_url).toEqual("https://i1.sndcdn.com/artworks-000030981203-eerjjh-large.jpg?04ad178");
         expect(trackSharingActivity.sharing_note.text).toEqual("this is a sharing note");
 

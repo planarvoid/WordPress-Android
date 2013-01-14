@@ -140,7 +140,7 @@ public class ApiSyncerTest {
         expect(result.synced_at).toBeGreaterThan(0l);
 
         expect(Content.TRACKS).toHaveCount(48);
-        expect(Content.ME_SOUNDS).toHaveCount(48);
+        expect(Content.ME_SOUNDS).toHaveCount(50);
     }
 
     @Test
@@ -151,8 +151,8 @@ public class ApiSyncerTest {
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
-        expect(Content.TRACKS).toHaveCount(2);    // 2 sounds + 1 playlist
-        expect(Content.ME_LIKES).toHaveCount(2);  // ditto
+        expect(Content.TRACKS).toHaveCount(2);
+        expect(Content.ME_LIKES).toHaveCount(3);
     }
 
     @Test
@@ -170,8 +170,8 @@ public class ApiSyncerTest {
         expect(result.synced_at).toBeGreaterThan(0l);
 
         expect(Content.TRACKS).toHaveCount(49);
-        expect(Content.ME_SOUNDS).toHaveCount(48);
-        expect(Content.ME_LIKES).toHaveCount(2);
+        expect(Content.ME_SOUNDS).toHaveCount(50);
+        expect(Content.ME_LIKES).toHaveCount(3);
     }
 
     @Test

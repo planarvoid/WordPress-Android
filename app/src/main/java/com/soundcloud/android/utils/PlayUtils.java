@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class PlayUtils {
+
+    // TODO, Playlists...
+
     private PlayUtils() {}
 
     public static void playTrack(Context c, PlayInfo info) {
@@ -34,7 +37,7 @@ public final class PlayUtils {
                         .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                         .setData(info.uri);
             } else {
-                CloudPlaybackService.playlistXfer = info.playables;
+                CloudPlaybackService.playlistXfer = info.tracks;
                 intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                         .putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true);
             }
@@ -55,7 +58,7 @@ public final class PlayUtils {
     public static Track getTrackFromIntent(Intent intent){
         if (intent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferCache,false)){
             final int position = intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition,-1);
-            final List<PlayableHolder> list = CloudPlaybackService.playlistXfer;
+            final List<Track> list = CloudPlaybackService.playlistXfer;
             if (list != null && position > -1 && position < list.size()){
                 return list.get(position).getPlayable();
             }
@@ -75,19 +78,19 @@ public final class PlayUtils {
         PlayInfo info = new PlayInfo();
         info.uri = adapter.getPlayableUri();
 
-        List<PlayableHolder> playables = new ArrayList<PlayableHolder>(data.size());
+        List<Track> tracks = new ArrayList<Track>(data.size());
 
         int adjustedPosition = position;
         for (int i = 0; i < data.size(); i++) {
-            if (data.get(i) instanceof PlayableHolder) {
-                playables.add((PlayableHolder) data.get(i));
+            if (data.get(i) instanceof Track) {
+                tracks.add((Track) data.get(i));
             } else if (i < position) {
                 adjustedPosition--;
             }
         }
 
         info.position = adjustedPosition;
-        info.playables = playables;
+        info.tracks = tracks;
         playTrack(c, info);
     }
 }

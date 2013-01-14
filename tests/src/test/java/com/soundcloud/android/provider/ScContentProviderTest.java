@@ -69,7 +69,7 @@ public class ScContentProviderTest {
 
         collection.insert(resolver);
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(2); // actually 3, playlist filered
+        expect(c.getCount()).toEqual(3);
 
         List<Like> likes = new ArrayList<Like>();
         while (c.moveToNext()) {
@@ -77,8 +77,8 @@ public class ScContentProviderTest {
             likes.add(like);
         }
 
-        expect(likes.get(0).getPlayable().title).toEqual("freddie evans at Excel Exhibition Centre");
-        expect(likes.get(1).getPlayable().title).toEqual("sing-a-long time at London 2012 Live Site - Hyde Park");
+        expect(likes.get(0).getPlayable().title).toEqual("LOL");
+        expect(likes.get(1).getPlayable().title).toEqual("freddie evans at Excel Exhibition Centre");
     }
 
     @Test
@@ -86,10 +86,10 @@ public class ScContentProviderTest {
         SoundAssociationHolder collection = readJson(SoundAssociationHolder.class,
                 "/com/soundcloud/android/service/sync/e1_likes.json");
 
-        expect(collection.insert(resolver)).toEqual(4);
+        expect(collection.insert(resolver)).toEqual(5);
 
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(2);
+        expect(c.getCount()).toEqual(3);
 
         List<Like> likes = new ArrayList<Like>();
         while (c.moveToNext()) {
@@ -100,7 +100,7 @@ public class ScContentProviderTest {
                 new String[]{String.valueOf(likes.get(0).getPlayable().id)})).toEqual(1);
 
         c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(1);
+        expect(c.getCount()).toEqual(2);
     }
 
     @Test
