@@ -250,4 +250,12 @@
 
     <string name="no_internet_connection">Oops, no son capaces de conectarse a Internet</string>
     <string name="no_info_available">No hay información disponible</string>
+
+    <string name="crop_image_error">Se ha producido un error recortar la imagen.</string>
+    <string name="add_comment_no_connection">No se puede agregar comentario. Por favor, compruebe su conexión de datos y vuelva a intentarlo.</string>
+
+    <string name="error_server_problems_title">Error del servidor</string>
+    <string name="error_server_problems_message">Hubo un problema al procesar tu solicitud. Por favor, inténtelo de nuevo más tarde.</string>
+    <string name="error_soundcloud_is_down">SoundCloud parece estar teniendo problemas con el servidor. Estamos trabajando en ello!</string>
+    <string name="error_soundcloud_server_problems">SoundCloud tenido problemas para procesar su solicitud.</string>
 </resources>
