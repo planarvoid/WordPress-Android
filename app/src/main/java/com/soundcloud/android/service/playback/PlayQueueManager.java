@@ -3,7 +3,6 @@ package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -25,12 +24,10 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class PlayQueueManager {
-    private Track[] mPlayQueue = new Track[0];
-    private Cursor mTrackCursor;
+    private List<PlayQueueItem> mPlayQueue = new ArrayList<PlayQueueItem>();
     private PlayQueueUri mPlayQueueUri = new PlayQueueUri();
 
     private int mPlayPos;
@@ -38,17 +35,33 @@ public class PlayQueueManager {
 
     private long mUserId;
 
+    public static class PlayQueueItem {
+
+        public Track track;
+
+        public int position;
+        public boolean manuallyAdded;
+        public PlayQueueItem(Track track, boolean manuallyAdded) {
+            this.track = track;
+            this.manuallyAdded = manuallyAdded;
+        }
+        public PlayQueueItem setPosition(int position){
+            this.position = position;
+            return this;
+        }
+
+    }
+
     public PlayQueueManager(Context context, long userId) {
         mContext = context;
         mUserId = userId;
     }
-
     public int length() {
-        return mPlayQueue.length;
+        return mPlayQueue.size();
     }
 
     public boolean isEmpty() {
-        return mPlayQueue.length == 0;
+        return mPlayQueue.size() == 0;
     }
 
     public int getPosition() {
@@ -56,7 +69,7 @@ public class PlayQueueManager {
     }
 
     public boolean setPosition(int playPos) {
-        if (playPos < mPlayQueue.length) {
+        if (playPos < mPlayQueue.size()) {
             mPlayPos = playPos;
             return true;
         } else {
@@ -74,14 +87,16 @@ public class PlayQueueManager {
     }
 
     public Track getTrackAt(int pos) {
-        if (pos >= 0 && pos < mPlayQueue.length) {
-            if (mPlayQueue[pos] == null) {
-                if (mTrackCursor != null && !mTrackCursor.isClosed() && mTrackCursor.moveToPosition(pos)){
-                    mPlayQueue[pos] = SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(mTrackCursor);
-                }
-            }
-            return mPlayQueue[pos];
+        if (pos >= 0 && pos < mPlayQueue.size()) {
+            return mPlayQueue.get(pos).track;
+        } else {
+            return null;
+        }
+    }
 
+    public PlayQueueItem getItemAt(int pos) {
+        if (pos >= 0 && pos < mPlayQueue.size()) {
+            return mPlayQueue.get(pos).setPosition(pos);
         } else {
             return null;
         }
@@ -104,15 +119,14 @@ public class PlayQueueManager {
                 return true;
             }
         }
-
         return false;
     }
 
     public Boolean next() {
-        if (mPlayPos < mPlayQueue.length - 1) {
+        if (mPlayPos < mPlayQueue.size() - 1) {
             int newPos = mPlayPos + 1;
             Track newTrack = getTrackAt(newPos);
-            while (newPos < mPlayQueue.length - 1 && (newTrack == null || !newTrack.isStreamable())) {
+            while (newPos < mPlayQueue.size() - 1 && (newTrack == null || !newTrack.isStreamable())) {
                 newTrack = getTrackAt(++newPos);
             }
             if (newTrack != null && newTrack.isStreamable()) {
@@ -149,7 +163,8 @@ public class PlayQueueManager {
 
     public void setTrack(Track toBePlayed, boolean saveQueue) {
         SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScResource.CacheUpdateMode.NONE);
-        mPlayQueue = new Track[] { toBePlayed };
+        mPlayQueue.clear();
+        mPlayQueue.add(new PlayQueueItem(toBePlayed, false));
         mPlayQueueUri = new PlayQueueUri();
         mPlayPos = 0;
 
@@ -169,17 +184,24 @@ public class PlayQueueManager {
         loadUri(uri, position, t);
     }
 
-    /**
-     * @param uri the playqueue uri to load
-     * @param position position within playqueue
-     * @param initialTrack first track of this playqueue, load rest asynchronously.
-     */
     public void loadUri(Uri uri, int position, @Nullable Track initialTrack) {
-        if (initialTrack != null) {
-            setTrack(initialTrack, false);
+        List<PlayableHolder> initialQueue = new ArrayList<PlayableHolder>();
+        if (initialTrack != null) initialQueue.add(initialTrack);
+        loadUri(uri, position, initialQueue, 0);
+    }
+
+    /**
+     * @param uri               the playqueue uri to load
+     * @param position          position within playqueue
+     * @param initialPlayQueue  initial queue, load full uri asynchronously.
+     * @param initialPlayPos    initial play position for initial queue.
+     */
+    public void loadUri(Uri uri, int position, List<? extends PlayableHolder> initialPlayQueue, int initialPlayPos) {
+        if (initialPlayQueue != null) {
+            setPlayQueue(initialPlayQueue, initialPlayPos);
         } else {
             // no track yet, load async
-            mPlayQueue = new Track[0];
+            mPlayQueue.clear();
             mPlayPos = 0;
         }
         mPlayQueueUri = new PlayQueueUri(uri);
@@ -190,8 +212,8 @@ public class PlayQueueManager {
     }
 
     private AsyncTask loadCursor(final Uri uri, final int position) {
-        return new ParallelAsyncTask<Uri,Void,Cursor>() {
-            @Override protected Cursor doInBackground(Uri... params) {
+        return new ParallelAsyncTask<Uri,Void,List<PlayQueueItem>>() {
+            @Override protected List<PlayQueueItem> doInBackground(Uri... params) {
                 Cursor cursor = null;
                 try {
                     cursor = mContext.getContentResolver().query(params[0], null, null, null, null);
@@ -199,29 +221,25 @@ public class PlayQueueManager {
                     // in case we load a depracated URI, just don't load the playlist
                     Log.e(PlayQueueManager.class.getSimpleName(),"Tried to load an invalid uri " + uri);
                 }
-                return cursor;
+                ArrayList<PlayQueueItem> newQueue = null;
+                if (cursor != null) {
+                    newQueue = new ArrayList<PlayQueueItem>();
+                    if (cursor.moveToFirst()){
+                        do {
+                            newQueue.add(new PlayQueueItem(SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor),false));
+                        } while (cursor.moveToNext());
+                    }
+                    cursor.close();
+                }
+                return newQueue;
 
 
             }
-            @Override protected void onPostExecute(Cursor cursor) {
+            @Override protected void onPostExecute(List<PlayQueueItem> newQueue) {
                 // make sure this cursor is valid and still wanted
-                if (cursor != null) {
-
+                if (newQueue != null){
                     long playingId = getCurrentTrackId();
-                    final int size = cursor.getCount();
-
-                    // TODO, don't filter out playlists
-                    List<Track> tempQueue = new ArrayList<Track>();
-
-                    while (cursor.moveToNext()) {
-                        if (cursor.getInt(cursor.getColumnIndex(DBHelper.Sounds._TYPE)) == Playable.DB_TYPE_TRACK){
-                            tempQueue.add(new Track(cursor));
-                        }
-                    }
-                    if (mTrackCursor != null && !mTrackCursor.isClosed()) mTrackCursor.close();
-
-                    mPlayQueue = tempQueue.toArray(new Track[tempQueue.size()]);
-                    mTrackCursor = cursor;
+                    mPlayQueue = newQueue;
                     final Track t = getTrackAt(position);
 
                     // adjust if the track has moved positions
@@ -239,7 +257,7 @@ public class PlayQueueManager {
 
 
                     // adjust to within bounds
-                    mPlayPos = Math.max(0, Math.min(mPlayPos, mPlayQueue.length-1));
+                    mPlayPos = Math.max(0, Math.min(mPlayPos, mPlayQueue.size()-1));
                     broadcastPlayQueueChanged();
                 }
             }
@@ -253,17 +271,16 @@ public class PlayQueueManager {
     }
 
     public void setPlayQueue(final List<? extends PlayableHolder> playQueue, int playPos) {
-        mPlayQueue = new Track[playQueue == null ? 0 : playQueue.size()];
+        mPlayQueue.clear();
         if (playQueue != null) {
-            for (int i=0; i<playQueue.size(); i++) {
-                // TODO, don't filter out playlists
-                if (playQueue.get(i).getPlayable() instanceof Track){
-                    mPlayQueue[i] = (Track) playQueue.get(i).getPlayable();
+            for (PlayableHolder playable : playQueue) {
+                if (playable.getPlayable() instanceof Track){
+                    mPlayQueue.add(new PlayQueueItem((Track) playable.getPlayable(), false));
                 }
             }
         }
         mPlayQueueUri = new PlayQueueUri();
-        mPlayPos = Math.max(0, Math.min(mPlayQueue.length, playPos));
+        mPlayPos = Math.max(0, Math.min(mPlayQueue.size(), playPos));
         // TODO, only do this on exit???
         saveQueue(0, true);
         broadcastPlayQueueChanged();
@@ -275,8 +292,10 @@ public class PlayQueueManager {
         new ParallelAsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                List<Track> tracks = new ArrayList<Track>();
-                Collections.addAll(tracks, mPlayQueue);
+                final List<Track> tracks = new ArrayList<Track>();
+                for (PlayQueueItem item : mPlayQueue){
+                    tracks.add(item.track);
+                }
                 mContext.getContentResolver().delete(Content.PLAY_QUEUE.uri, null, null);
                 SoundCloudApplication.MODEL_MANAGER.writeCollection(tracks, Content.PLAY_QUEUE.uri,
                         mUserId, ScResource.CacheUpdateMode.NONE);
@@ -290,7 +309,7 @@ public class PlayQueueManager {
     }
 
     public void clear() {
-        mPlayQueue = new Track[0];
+        mPlayQueue.clear();
     }
 
     public void saveQueue(long seekPos) {
@@ -366,6 +385,6 @@ public class PlayQueueManager {
     }
 
     public void onDestroy() {
-        if (mTrackCursor != null && !mTrackCursor.isClosed()) mTrackCursor.close();
+        // nop
     }
 }
