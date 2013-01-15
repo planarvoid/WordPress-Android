@@ -6,6 +6,7 @@ public final class TestConsts {
     private TestConsts() {}
 
     public static final Uri CHE_FLUTE_URI = Uri.parse("http://soundcloud.com/steveangello/steve-angello-che-flute");
+    public static final Uri CHE_FLUTE_M_URI = Uri.parse("http://m.soundcloud.com/steveangello/steve-angello-che-flute");
     public static final Uri CHE_FLUTE_SC_URI = Uri.parse("soundcloud:tracks:274334");
 
     public static final Uri STEVE_ANGELLO_URI = Uri.parse("http://soundcloud.com/steveangello");

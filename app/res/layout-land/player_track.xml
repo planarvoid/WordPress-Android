@@ -21,7 +21,9 @@
                           android:layout_alignBottom="@id/track_info_bar"/>
         </RelativeLayout>
         <View android:layout_height="fill_parent"
-              android:layout_margin="10dp"
+              android:layout_marginTop="10dp"
+              android:layout_marginBottom="10dp"
+              android:layout_marginRight="10dp"
               android:layout_width="2dip"
               android:background="@drawable/player_track_vert_separator_bg"/>
 

@@ -288,22 +288,22 @@ public class UserBrowser extends ScActivity implements
                         .setActionText(R.string.list_empty_user_sounds_action)
                         .setImage(R.drawable.empty_rec);
 
-            case USER_TRACKS:
+            case USER_SOUNDS:
                 return new EmptyListView(this).setMessageText(getString(R.string.empty_user_tracks_text,
-                        mUser.username == null ? getString(R.string.this_user)
+                        mUser == null || mUser.username == null ? getString(R.string.this_user)
                                 : mUser.username));
 
             case ME_LIKES:
                 return new EmptyListView(this,
-                            new Intent(Actions.WHO_TO_FOLLOW),
-                            new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101"))
-                        ).setMessageText(R.string.list_empty_user_likes_message)
+                        new Intent(Actions.WHO_TO_FOLLOW),
+                        new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101"))
+                ).setMessageText(R.string.list_empty_user_likes_message)
                         .setActionText(R.string.list_empty_user_likes_action)
                         .setImage(R.drawable.empty_like);
 
             case USER_LIKES:
                 return new EmptyListView(this).setMessageText(getString(R.string.empty_user_likes_text,
-                        mUser.username == null ? getString(R.string.this_user)
+                        mUser == null || mUser.username == null ? getString(R.string.this_user)
                                 : mUser.username));
 
             case ME_FOLLOWERS:
@@ -323,7 +323,7 @@ public class UserBrowser extends ScActivity implements
             case USER_FOLLOWERS:
                 return new EmptyListView(this)
                         .setMessageText(getString(R.string.empty_user_followers_text,
-                                mUser.username == null ? getString(R.string.this_user)
+                                mUser == null || mUser.username == null ? getString(R.string.this_user)
                                         : mUser.username));
 
             case ME_FOLLOWINGS:
@@ -334,7 +334,7 @@ public class UserBrowser extends ScActivity implements
 
             case USER_FOLLOWINGS:
                 return new EmptyListView(this).setMessageText(getString(R.string.empty_user_followings_text,
-                        mUser.username == null ? getString(R.string.this_user)
+                        mUser == null || mUser.username == null ? getString(R.string.this_user)
                                 : mUser.username));
             default:
                 return new EmptyListView(this);

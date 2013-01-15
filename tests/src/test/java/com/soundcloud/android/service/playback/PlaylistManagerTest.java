@@ -113,6 +113,17 @@ public class PlaylistManagerTest {
     }
 
     @Test
+    public void shouldAddItemsFromUriWithIncorrectPosition() throws Exception {
+        List<Track> tracks = createTracks(10, true, 0);
+        pm.loadUri(Content.TRACKS.uri, 7, 5L); // out of range
+
+        expect(pm.length()).toEqual(tracks.size());
+        Track track = pm.getCurrentTrack();
+        expect(track).not.toBeNull();
+        expect(track.title).toEqual("track #5");
+    }
+
+    @Test
     public void shouldAddItemsFromUriWithNegativePosition() throws Exception {
         List<Track> tracks = createTracks(3, true, 0);
         pm.loadUri(Content.TRACKS.uri, -10, null); // out of range

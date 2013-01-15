@@ -13,6 +13,7 @@ import java.io.IOException;
 public abstract class AssociatedSoundTask extends AsyncTask<String, String, Boolean> {
     protected AndroidCloudAPI mApi;
     private AssociatedListener mAssociatedListener;
+    protected boolean mChanged;
 
     protected Playable playable;
 
@@ -43,11 +44,11 @@ public abstract class AssociatedSoundTask extends AsyncTask<String, String, Bool
     @Override
     protected void onPostExecute(Boolean associated) {
         if (mAssociatedListener != null) {
-            mAssociatedListener.onNewStatus(playable, associated);
+            mAssociatedListener.onNewStatus(playable, associated, mChanged);
         }
     }
 
     public interface AssociatedListener {
-        void onNewStatus(Playable playable, boolean isAssociated);
+        void onNewStatus(Playable playable, boolean isAssociated, boolean changed);
     }
 }

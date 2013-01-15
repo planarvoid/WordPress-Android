@@ -1,47 +1,43 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.fragment.FriendFinderFragment;
 
 import android.content.Context;
 import android.view.View;
 
 public class FriendFinderEmptyCollection extends EmptyListView {
 
-    public interface FriendFinderMode {
-        int NO_CONNECTIONS   = 100;
-        int CONNECTION_ERROR = 101;
-    }
-
     public FriendFinderEmptyCollection(Context context) {
         super(context);
     }
 
     @Override
-    public boolean setMode(int mode) {
+    public boolean setStatus(int mode) {
 
         if (mMode != mode) {
             mMode = mode;
             switch (mode) {
-                case FriendFinderMode.NO_CONNECTIONS:
+                case FriendFinderFragment.Status.NO_CONNECTIONS:
                     mProgressBar.setVisibility(View.GONE);
                     showEmptyLayout();
                     setMessageText(R.string.list_empty_friend_finder_no_connections);
                     mBtnAction.setVisibility(View.VISIBLE);
                     return true;
 
-                case FriendFinderMode.CONNECTION_ERROR:
+                case FriendFinderFragment.Status.CONNECTION_ERROR:
                     mProgressBar.setVisibility(View.GONE);
                     showEmptyLayout();
                     setMessageText(R.string.list_empty_friend_finder_error);
                     mBtnAction.setVisibility(View.GONE);
                     return true;
 
-                case Mode.WAITING_FOR_DATA:
+                case Status.WAITING:
                     mProgressBar.setVisibility(View.VISIBLE);
                     if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
                     return true;
 
-                case Mode.IDLE:
+                default:
                     mProgressBar.setVisibility(View.GONE);
                     showEmptyLayout();
                     setMessageText(R.string.list_empty_friend_finder);

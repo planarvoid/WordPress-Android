@@ -19,6 +19,7 @@ public class RemoveAssociationTask extends AssociatedSoundTask {
 
     @Override
     protected boolean isAssociated(int responseCode) {
-        return !((responseCode >= 200 && responseCode < 300) || responseCode == 404);
+        mChanged = responseCode >= 200 && responseCode < 300;
+        return !(mChanged || responseCode == 404);
     }
 }

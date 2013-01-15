@@ -109,7 +109,7 @@ public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity
                     }
                 } else {
                     // TODO: means we got a 404 on the user, needs to be more expressive...
-                    showError(null);
+                    showError();
                 }
             }
         }.execute(Request.to(Endpoints.MY_DETAILS));
@@ -154,23 +154,26 @@ public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity
     //TODO: use dialog fragments or managed dialogs (onCreateDialog)
     protected void showError(@Nullable IOException e) {
         if (!isFinishing()) {
-            final boolean tokenError = e instanceof CloudAPI.InvalidTokenException;
-            if (tokenError) {
-                showError(getString(R.string.authentication_error_title),
-                        getString(R.string.authentication_login_error_password_message));
+            if (e instanceof CloudAPI.InvalidTokenException) {
+                showError(getString(R.string.authentication_login_error_password_message));
+            } else if (e instanceof CloudAPI.ApiResponseException && ((CloudAPI.ApiResponseException) e).getStatusCode() >= 400) {
+                showError(getString(R.string.error_server_problems_message));
             } else {
-                showError(getString(R.string.authentication_error_no_connection_title),
-                        getString(R.string.authentication_error_no_connection_message));
+                showError();
             }
         }
     }
 
+    protected void showError() {
+        showError(getString(R.string.authentication_error_no_connection_message));
+    }
+
     //TODO: use dialog fragments or managed dialogs (onCreateDialog)
-    protected void showError(String title, String message) {
+    protected void showError(String message) {
         if (!isFinishing()) {
             new AlertDialog.Builder(AbstractLoginActivity.this)
                     .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setTitle(title)
+                    .setTitle(getString(R.string.authentication_error_title))
                     .setMessage(message)
                     .setPositiveButton(android.R.string.ok, null)
                     .create()

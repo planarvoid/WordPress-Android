@@ -1,10 +1,12 @@
 package com.soundcloud.android.service.sync;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.api.CloudAPI;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
@@ -65,6 +67,7 @@ import java.io.IOException;
             Log.e(ApiSyncService.LOG_TAG, "Problem while syncing", e);
             localCollection.updateSyncState(LocalCollection.SyncState.IDLE, context.getContentResolver());
             result = ApiSyncer.Result.fromAuthException(contentUri);
+            context.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
         } catch (IOException e) {
             Log.e(ApiSyncService.LOG_TAG, "Problem while syncing", e);
             localCollection.updateSyncState(LocalCollection.SyncState.IDLE, context.getContentResolver());
