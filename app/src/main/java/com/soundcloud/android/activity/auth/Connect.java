@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.create.NewConnectionTask;
 
@@ -12,6 +13,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
@@ -72,7 +74,17 @@ public class Connect extends ScActivity {
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                if (!isFinishing() && progress.isShowing()) progress.dismiss();
+                if (!isFinishing() && progress.isShowing()) {
+                    /*
+                     this often throws an IllegalArgumentException even with the check,
+                     probably because we are calling this in response to the webview lifecycle.
+                      */
+                    try {
+                        progress.dismiss();
+                    } catch (IllegalArgumentException e){
+                        Log.e(SoundCloudApplication.TAG,"Error dismissing dialog: ", e);
+                    }
+                }
             }
 
             @Override
