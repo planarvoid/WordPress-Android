@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
+import android.util.Pair;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DBHelper";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION  = 19;
+    public static final int DATABASE_VERSION  = 20;
     private static final String DATABASE_NAME = "SoundCloud";
 
     public DBHelper(Context context) {
@@ -91,6 +92,9 @@ public class DBHelper extends SQLiteOpenHelper {
                             break;
                         case 19:
                             success = upgradeTo19(db, oldVersion);
+                            break;
+                        case 20:
+                            success = upgradeTo20(db, oldVersion);
                             break;
 
                         default:
@@ -347,6 +351,7 @@ public class DBHelper extends SQLiteOpenHelper {
             ",Sounds." + Sounds.LIKES_COUNT + " as " + SoundView.LIKES_COUNT +
             ",Sounds." + Sounds.REPOSTS_COUNT + " as " + SoundView.REPOSTS_COUNT +
             ",Sounds." + Sounds.SHARED_TO_COUNT + " as " + SoundView.SHARED_TO_COUNT +
+            ",Sounds." + Sounds.TRACKS_URI + " as " + SoundView.TRACKS_URI +
             ",Users." + Users._ID + " as " + SoundView.USER_ID +
             ",Users." + Users.USERNAME + " as " + SoundView.USERNAME +
             ",Users." + Users.PERMALINK + " as " + SoundView.USER_PERMALINK +
@@ -700,6 +705,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String LIKES_COUNT = Sounds.LIKES_COUNT;
         public static final String REPOSTS_COUNT = Sounds.REPOSTS_COUNT;
         public static final String SHARED_TO_COUNT = Sounds.SHARED_TO_COUNT;
+        public static final String TRACKS_URI = Sounds.TRACKS_URI;
 
         public static final String USER_ID         = "sound_user_id";
         public static final String USERNAME        = "sound_user_username";
@@ -969,7 +975,29 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
+    // Schema used in sets
+    private static boolean upgradeTo20(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.SOUND_VIEW.recreate(db);
+            Table.SOUND_ASSOCIATION_VIEW.recreate(db);
+            return true;
+        } catch (SQLException e) {
+            SoundCloudApplication.handleSilentException("error during upgrade20 " +
+                    "(from " + oldVersion + ")", e);
+        }
+        return false;
+    }
+
     public static String getWhereInClause(String column, List<Long> idSet){
+        StringBuilder sb = new StringBuilder(column + " IN (?");
+        for (int i = 1; i < idSet.size(); i++) {
+            sb.append(",?");
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+
+    public static String getWhereInClause(String column, TypeIdList idSet) {
         StringBuilder sb = new StringBuilder(column + " IN (?");
         for (int i = 1; i < idSet.size(); i++) {
             sb.append(",?");
