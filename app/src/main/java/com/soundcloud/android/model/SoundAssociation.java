@@ -22,8 +22,6 @@ import java.util.Date;
 public class SoundAssociation extends ScResource implements PlayableHolder, Refreshable {
 
     private CharSequence _elapsedTime;
-
-
     enum Type {
         TRACK("track", ScContentProvider.CollectionItemTypes.TRACK),
         TRACK_REPOST("track_repost", ScContentProvider.CollectionItemTypes.REPOST),
@@ -50,30 +48,42 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     public @Nullable User user;
 
     @SuppressWarnings("UnusedDeclaration") //for deserialization
-    public SoundAssociation() {
-    }
+    public SoundAssociation() { }
 
     public SoundAssociation(Cursor cursor) {
+        setDefaultsFromCursor(cursor);
+        if (Playable.isTrackCursor(cursor)) {
+            track = new Track(cursor);
+        } else {
+            playlist = new Playlist(cursor);
+        }
+    }
+
+    public SoundAssociation(Cursor cursor, Track track) {
+        setDefaultsFromCursor(cursor);
+        this.track = track;
+    }
+
+    public SoundAssociation(Cursor cursor, Playlist playlist) {
+        setDefaultsFromCursor(cursor);
+        this.playlist = playlist;
+    }
+
+    private void setDefaultsFromCursor(Cursor cursor){
         associationType = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE));
         created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP)));
-
-        switch (associationType) {
-            case ScContentProvider.CollectionItemTypes.REPOST:
-            case ScContentProvider.CollectionItemTypes.TRACK:
-            case ScContentProvider.CollectionItemTypes.LIKE:
-                track = new Track(cursor);
-        }
     }
 
     @Override
     public long getListItemId() {
-        return getSound().id << 32 + associationType;
+        return getPlayable().id << 32 + associationType;
     }
 
     @Override
     public ScResource getRefreshableResource() {
         return track; // TODO, playlist
     }
+
 
     @Override
     public boolean isStale() {
@@ -92,7 +102,7 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     @Override
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.CollectionItems.ITEM_ID, getSound().id);
+        cv.put(DBHelper.CollectionItems.ITEM_ID, getPlayable().id);
         cv.put(DBHelper.CollectionItems.USER_ID, SoundCloudApplication.getUserId());
         cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, associationType);
         cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, getResourceType());
@@ -120,7 +130,7 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     }
 
     @Override
-    public Playable getSound() {
+    public Playable getPlayable() {
         return track != null ? track : playlist;
     }
 
@@ -138,8 +148,8 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
         this.type = type;
     }
 
-    @Override @Nullable
-    public Track getPlayable() {
+    @Nullable
+    public Track getTrack() {
         return track;
     }
 

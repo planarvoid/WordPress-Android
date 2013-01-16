@@ -103,7 +103,7 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     }
 
     @Override
-    public Playable getSound() {
+    public Playable getPlayable() {
         return null;
     }
 

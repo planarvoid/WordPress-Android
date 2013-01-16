@@ -5,9 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.*;
@@ -318,5 +320,13 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
 
     public int getSharedToCount() {
         return shared_to_count;
+    }
+
+    public String getLookupEndpointFromType(int type) {
+        return type == DB_TYPE_TRACK ? Endpoints.TRACKS : TempEndpoints.PLAYLISTS;
+    }
+
+    public static boolean isTrackCursor(Cursor cursor){
+        return cursor.getInt(cursor.getColumnIndex(DBHelper.Sounds._TYPE)) == DB_TYPE_TRACK;
     }
 }

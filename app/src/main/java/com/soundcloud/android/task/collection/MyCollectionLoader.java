@@ -6,15 +6,13 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.provider.SoundCloudDB;
-import org.apache.http.HttpStatus;
+import com.soundcloud.android.provider.TypeIdList;
 
 import android.content.ContentResolver;
 import android.util.Log;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Loads collection from local storage. Model objects which are not in the database yet will
@@ -29,13 +27,12 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
     public ReturnData<T> load(AndroidCloudAPI api, CollectionParams<T> params) {
 
         ContentResolver resolver = api.getContext().getContentResolver();
+        TypeIdList typeIdsList = SoundCloudDB.getStoredTypeIds(resolver,params.contentUri, params.startIndex, params.maxToLoad);
 
-        List<Long> idList = SoundCloudDB.getStoredIds(resolver,params.contentUri, params.startIndex, params.maxToLoad);
-        boolean keepGoing = idList.size() > 0;
+        boolean keepGoing = typeIdsList.size() > 0;
         // if we already have all the data, this is a NOP
         try {
-            SoundCloudApplication.MODEL_MANAGER.fetchMissingCollectionItems(api, idList, params.getContent(), false, -1);
-
+            SoundCloudApplication.MODEL_MANAGER.fetchMissingCollectionItems(api, typeIdsList, params.getContent(), false, -1);
         } catch (IOException e) {
             Log.e(TAG, "error", e);
             keepGoing = false;

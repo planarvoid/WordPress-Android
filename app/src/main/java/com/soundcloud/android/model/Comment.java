@@ -129,7 +129,7 @@ public class Comment extends ScResource {
     }
 
     @Override @JsonIgnore
-    public Track getSound() {
+    public Track getPlayable() {
         return track;
     }
 

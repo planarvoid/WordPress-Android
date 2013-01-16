@@ -3,6 +3,8 @@ package com.soundcloud.android;
 @Deprecated
 public interface TempEndpoints {
 
+    String PLAYLISTS         = "/playlists";
+
     public interface e1 {
         String MY_STREAM         = "/e1/me/stream";
         String MY_ACTIVITIES     = "/e1/me/activities";

@@ -20,7 +20,7 @@ public class Friend extends ScResource implements Refreshable {
     }
 
     @Override
-    public Track getSound() {
+    public Track getPlayable() {
         return null;
     }
 

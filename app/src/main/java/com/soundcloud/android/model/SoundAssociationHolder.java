@@ -35,7 +35,7 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
     public Set<Track> getTracks() {
         Set<Track> tracks = new HashSet<Track>();
         for (SoundAssociation a : this)  {
-            if (a.getPlayable() != null) tracks.add(a.getPlayable());
+            if (a.getTrack() != null) tracks.add(a.getTrack());
         }
         return tracks;
     }
@@ -67,7 +67,7 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
                 final int resourceType = c.getInt(1);
 
                 for (SoundAssociation a : this) {
-                    if (a.getSound().id == id && a.getResourceType() == resourceType) {
+                    if (a.getPlayable().id == id && a.getResourceType() == resourceType) {
                         found = true;
                         break;
                     }

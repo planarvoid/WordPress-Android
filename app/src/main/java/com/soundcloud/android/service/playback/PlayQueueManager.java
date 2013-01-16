@@ -36,11 +36,11 @@ public class PlayQueueManager {
     private long mUserId;
 
     public static class PlayQueueItem {
-
-        public Track track;
-
+        public final Track track;
         public int position;
-        public boolean manuallyAdded;
+        public final boolean manuallyAdded;
+
+
         public PlayQueueItem(Track track, boolean manuallyAdded) {
             this.track = track;
             this.manuallyAdded = manuallyAdded;

@@ -129,11 +129,6 @@ public class Track extends Playable implements PlayableHolder {
     }
 
     @Override @JsonIgnore
-    public Track getSound() {
-        return this;
-    }
-
-    @Override
     public Track getPlayable() {
         return this;
     }

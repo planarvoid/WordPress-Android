@@ -7,6 +7,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -31,6 +32,11 @@ public class Playlist extends Playable {
         playlist_type = b.getString("playlist_type");
         tracks_uri = b.getString("tracks_uri");
         tracks = b.getParcelableArrayList("tracks");
+    }
+
+    public Playlist(Cursor cursor) {
+        super(cursor);
+        tracks_uri = cursor.getString(cursor.getColumnIndex(DBHelper.Sounds.TRACKS_URI));
     }
 
     @Override
@@ -77,8 +83,8 @@ public class Playlist extends Playable {
     }
 
     @Override @JsonIgnore
-    public Track getSound() {
-        return null;
+    public Playable getPlayable() {
+        return this;
     }
 
     @Override
@@ -101,11 +107,6 @@ public class Playlist extends Playable {
         return false;
     }
 
-
-    @Override
-    public Track getPlayable() {
-        return null;
-    }
 
     @Override
     public int getTypeId() {

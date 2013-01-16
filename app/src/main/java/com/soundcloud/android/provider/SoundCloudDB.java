@@ -2,6 +2,7 @@ package com.soundcloud.android.provider;
 
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -13,16 +14,20 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class SoundCloudDB {
     private static final String TAG = "SoundCloudDB";
+    public static final int RESOLVER_BATCH_SIZE = 100;
 
     public static Uri insertTrack(ContentResolver resolver, Track track) {
         Uri uri = resolver.insert(Content.TRACKS.uri, track.buildContentValues());
@@ -112,7 +117,7 @@ public class SoundCloudDB {
 
             ScResource r = models.get(i);
             if (r != null) {
-                Playable playable = r.getSound();
+                Playable playable = r.getPlayable();
                 if (playable != null) {
                     soundsToInsert.add(playable);
                 }
@@ -157,7 +162,7 @@ public class SoundCloudDB {
         }
 
         int tracksInserted = resolver.bulkInsert(Content.SOUNDS.uri, soundsCv);
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, tracksInserted + " tracks bulk inserted");
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, tracksInserted + " sounds bulk inserted");
 
         int usersInserted = resolver.bulkInsert(Content.USERS.uri, usersCv);
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, usersInserted + " users bulk inserted");
@@ -225,21 +230,13 @@ public class SoundCloudDB {
         }
     }
 
-    public static List<Long> getStoredIds(ContentResolver resolver, Uri uri, int offset, int limit) {
-        return idCursorToList(resolver.query(SoundCloudDB.addPagingParams(uri, offset, limit)
-                .appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY, "1").build(),
-                null, null, null, null));
-    }
-
-    public static @NotNull
-    List<Long> idCursorToList(Cursor c) {
-        List<Long> ids = new ArrayList<Long>();
-        if (c != null && c.moveToFirst()) {
-            do {
-                ids.add(c.getLong(0));
-            } while (c.moveToNext());
+    public static @NotNull List<Long> idCursorToList(Cursor c) {
+        if (c == null) return Collections.emptyList();
+        List<Long> ids = new ArrayList<Long>(c.getCount());
+        while (c.moveToNext()) {
+            ids.add(c.getLong(0));
         }
-        if (c != null) c.close();
+        c.close();
         return ids;
     }
 
@@ -254,4 +251,65 @@ public class SoundCloudDB {
         return b;
 
     }
+
+    /**
+     * @return a list of all ids for which objects are store in the database
+     */
+    public static List<Long> getStoredIdsBatched(ContentResolver resolver, List<Long> ids, Content content) {
+        int i = 0;
+        List<Long> storedIds = new ArrayList<Long>();
+        while (i < ids.size()) {
+            List<Long> batch = ids.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, ids.size()));
+            storedIds.addAll(idCursorToList(
+                    resolver.query(content.uri, new String[]{BaseColumns._ID},
+                            DBHelper.getWhereInClause(BaseColumns._ID, batch) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0"
+                            , ScModelManager.longListToStringArr(batch), null)
+            ));
+            i += RESOLVER_BATCH_SIZE;
+        }
+        return storedIds;
+    }
+
+    public static List<Long> getStoredIds(ContentResolver resolver, Uri uri, int offset, int limit) {
+        return idCursorToList(resolver.query(SoundCloudDB.addPagingParams(uri, offset, limit)
+                .appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY, "1").build(),
+                null, null, null, null));
+    }
+
+    /**
+     * Get stored resource items based on type + id.
+     *
+     * @param resolver
+     * @param typeIds the type + id pairs to lookup
+     * @param content the content point to query
+     * @return A set containing resource items that were in the database
+     */
+    public static Set<TypeId> getStoredTypeIdsBatched(ContentResolver resolver, TypeIdList typeIds, Content content) {
+
+        Set<TypeId> storedIds = new HashSet<TypeId>(typeIds.size());
+        Map<Integer, ArrayList<Long>> lookupIds = typeIds.getIdsByType();
+
+        for (Integer type : lookupIds.keySet()){
+            int i = 0;
+            while (i < lookupIds.get(type).size()) {
+                List<Long> batch = lookupIds.get(type).subList(i, Math.min(i + RESOLVER_BATCH_SIZE, lookupIds.get(type).size()));
+                storedIds.addAll(new TypeIdList(
+                        resolver.query(content.uri, new String[]{DBHelper.ResourceTable._TYPE, BaseColumns._ID},
+                                DBHelper.getWhereInClause(BaseColumns._ID, batch)
+                                        + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0"
+                                        + " AND " + DBHelper.ResourceTable._TYPE + " = " + type
+                                , ScModelManager.longListToStringArr(batch), null)
+                ));
+                i += RESOLVER_BATCH_SIZE;
+            }
+        }
+        return storedIds;
+    }
+
+    public static TypeIdList getStoredTypeIds(ContentResolver resolver, Uri uri, int offset, int limit) {
+        return new TypeIdList(resolver.query(SoundCloudDB.addPagingParams(uri, offset, limit)
+                .appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY, "1").build(),
+                null, null, null, null));
+    }
+
 }

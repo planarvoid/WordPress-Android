@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.cache.PlaylistCache;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.cache.UserCache;
 import com.soundcloud.android.model.act.Activities;
@@ -9,6 +10,8 @@ import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.provider.TypeId;
+import com.soundcloud.android.provider.TypeIdList;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -21,17 +24,18 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.BaseColumns;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ScModelManager {
 
-    public static final int RESOLVER_BATCH_SIZE = 100;
     private static final int API_LOOKUP_BATCH_SIZE = 200;
 
     private ContentResolver mResolver;
@@ -39,6 +43,7 @@ public class ScModelManager {
 
     private TrackCache mTrackCache = new TrackCache();
     private UserCache mUserCache = new UserCache();
+    private PlaylistCache mPlaylistCache = new PlaylistCache();
 
     private Context mContext;
 
@@ -129,6 +134,19 @@ public class ScModelManager {
         return track;
     }
 
+    public Playlist getPlaylistFromCursor(Cursor cursor, String idCol) {
+        final long id = cursor.getLong(cursor.getColumnIndex(idCol));
+        Playlist playlist = mPlaylistCache.get(id);
+
+        // assumes track cache has always
+        if (playlist == null) {
+            playlist = new Playlist(cursor);
+            mPlaylistCache.put(playlist);
+        }
+        playlist.user = getCachedUserFromCursor(cursor, DBHelper.SoundView.USER_ID);
+        return playlist;
+    }
+
     private User getCachedUserFromCursor(Cursor cursor, String col) {
         final long user_id = cursor.getLong(cursor.getColumnIndex(col));
         User user = mUserCache.get(user_id);
@@ -152,8 +170,12 @@ public class ScModelManager {
                 } else if (Friend.class.equals(resourceType)) {
                     items.add(new Friend(getUserFromCursor(itemsCursor)));
                 } else if (SoundAssociation.class.equals(resourceType)) {
-                    SoundAssociation soundAssociation = new SoundAssociation(itemsCursor);
-                    soundAssociation.track = getTrackFromCursor(itemsCursor, DBHelper.SoundAssociationView._ID);
+                    SoundAssociation soundAssociation;
+                    if (Playable.isTrackCursor(itemsCursor)){
+                        soundAssociation = new SoundAssociation(itemsCursor, getTrackFromCursor(itemsCursor, DBHelper.SoundAssociationView._ID));
+                    } else {
+                        soundAssociation = new SoundAssociation(itemsCursor, getPlaylistFromCursor(itemsCursor, DBHelper.SoundAssociationView._ID));
+                    }
                     soundAssociation.user = getCachedUserFromCursor(itemsCursor, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID);
                     items.add(soundAssociation);
                 } else {
@@ -357,6 +379,46 @@ public class ScModelManager {
         return resources;
     }
 
+    private List<ScResource> doBatchLookup(AndroidCloudAPI api, TypeIdList ids, Content content) throws IOException {
+        List<ScResource> resources = new ArrayList<ScResource>();
+        int i = 0;
+
+        Map<Integer, ArrayList<Long>> lookupIds = ids.getIdsByType();
+
+        for (Integer type : lookupIds.keySet()) {
+
+            // this is way too specific. should eventually be abstracted more, but it has no home right now
+            String remoteUri = null;
+            if (Track.class.equals(content.modelType)) {
+                remoteUri = Content.TRACKS.remoteUri;
+            } else if (User.class.equals(content.modelType)) {
+                remoteUri = Content.USERS.remoteUri;
+            } else if (SoundAssociation.class.equals(content.modelType)) {
+                remoteUri = type == Playable.DB_TYPE_TRACK ? Content.TRACKS.remoteUri : Content.PLAYLISTS.remoteUri;
+            }
+
+            if (remoteUri == null){
+                Log.e("asdf","NULL");
+            }
+
+            while (i < lookupIds.get(type).size()) {
+                List<Long> batch = lookupIds.get(type).subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, ids.size()));
+                InputStream is = validateResponse(
+                        api.get(
+                                Request.to(remoteUri)
+                                        .add("linked_partitioning", "1")
+                                        .add("limit", API_LOOKUP_BATCH_SIZE)
+                                        .add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
+
+                resources.addAll(getCollectionFromStream(is).collection);
+
+                i += API_LOOKUP_BATCH_SIZE;
+            }
+        }
+        return resources;
+
+    }
+
     public static HttpResponse validateResponse(HttpResponse response) throws IOException {
         final int code = response.getStatusLine().getStatusCode();
         if (code == HttpStatus.SC_UNAUTHORIZED) {
@@ -385,7 +447,7 @@ public class ScModelManager {
         List<Long> ids = new ArrayList<Long>(modelIds);
 
         if (!ignoreStored) {
-            ids.removeAll(getStoredIds(mResolver, modelIds, content));
+            ids.removeAll(SoundCloudDB.getStoredIdsBatched(mResolver, modelIds, content));
         }
 
         List<Long> fetchIds = (maxToFetch > -1) ? new ArrayList<Long>(ids.subList(0, Math.min(ids.size(), maxToFetch)))
@@ -397,22 +459,27 @@ public class ScModelManager {
                         ? Content.TRACKS.remoteUri : Content.USERS.remoteUri));
     }
 
-    /**
-     * @return a list of all ids for which objects are store in the database
-     */
-    private static List<Long> getStoredIds(ContentResolver resolver, List<Long> ids, Content content) {
-        int i = 0;
-        List<Long> storedIds = new ArrayList<Long>();
-        while (i < ids.size()) {
-            List<Long> batch = ids.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, ids.size()));
-            storedIds.addAll(SoundCloudDB.idCursorToList(
-                    resolver.query(content.uri, new String[]{BaseColumns._ID},
-                            DBHelper.getWhereInClause(BaseColumns._ID, batch) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0"
-                            , longListToStringArr(batch), null)
-            ));
-            i += RESOLVER_BATCH_SIZE;
+    public int fetchMissingCollectionItems(AndroidCloudAPI api,
+                                           TypeIdList modelTypeIds,
+                                               Content content,
+                                               boolean ignoreStored, int maxToFetch) throws IOException {
+        if (modelTypeIds == null || modelTypeIds.isEmpty()) {
+            return 0;
         }
-        return storedIds;
+
+        // copy so we don't modify the original
+        TypeIdList typeIds = new TypeIdList(modelTypeIds);
+
+        if (!ignoreStored) {
+            final Set<TypeId> storedTypeIdsBatched = SoundCloudDB.getStoredTypeIdsBatched(mResolver, modelTypeIds, content);
+            typeIds.removeAll(storedTypeIdsBatched);
+        }
+
+        TypeIdList fetchTypeIds = (maxToFetch > -1) ? new TypeIdList(typeIds.subList(0, Math.min(typeIds.size(), maxToFetch)))
+                : typeIds;
+
+        // XXX this has to be abstracted more. Hesitant to do so until the api is more final
+        return SoundCloudDB.bulkInsertModels(mResolver, doBatchLookup(api, fetchTypeIds, content));
     }
 
     public static String[] longListToStringArr(List<Long> deletions) {

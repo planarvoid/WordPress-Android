@@ -311,9 +311,9 @@ public class ApiSyncer {
             log("Need to remove " + itemDeletions.size() + " items");
             int i = 0;
             while (i < itemDeletions.size()) {
-                List<Long> batch = itemDeletions.subList(i, Math.min(i + ScModelManager.RESOLVER_BATCH_SIZE, itemDeletions.size()));
+                List<Long> batch = itemDeletions.subList(i, Math.min(i + SoundCloudDB.RESOLVER_BATCH_SIZE, itemDeletions.size()));
                 mResolver.delete(content.uri, DBHelper.getWhereInClause(DBHelper.CollectionItems.ITEM_ID, batch), ScModelManager.longListToStringArr(batch));
-                i += ScModelManager.RESOLVER_BATCH_SIZE;
+                i += SoundCloudDB.RESOLVER_BATCH_SIZE;
             }
         }
         return itemDeletions;

@@ -392,7 +392,7 @@ public class User extends ScResource implements Refreshable {
     }
 
     @Override @JsonIgnore
-    public Track getSound() {
+    public Track getPlayable() {
         return null;
     }
 

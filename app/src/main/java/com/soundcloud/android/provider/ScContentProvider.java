@@ -44,11 +44,12 @@ public class ScContentProvider extends ContentProvider {
     public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
 
     public static interface Parameter {
-        String RANDOM   = "random";
-        String CACHED   = "cached";
-        String LIMIT    = "limit";
-        String OFFSET   = "offset";
-        String IDS_ONLY = "idsOnly";
+        String RANDOM           = "random";
+        String CACHED           = "cached";
+        String LIMIT            = "limit";
+        String OFFSET           = "offset";
+        String IDS_ONLY         = "idsOnly";
+        String TYPE_IDS_ONLY    = "typeIdsOnly";
     }
 
     private DBHelper dbHelper;
@@ -107,8 +108,8 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_SOUNDS :
                 qb.setTables(soundAssociationJoin);
-                if ("1".equals(uri.getQueryParameter(Parameter.IDS_ONLY))) {
-                    _columns = new String[]{DBHelper.SoundAssociationView._ID};
+                if ("1".equals(uri.getQueryParameter(Parameter.TYPE_IDS_ONLY))) {
+                    _columns = new String[]{DBHelper.SoundAssociationView._TYPE, DBHelper.SoundAssociationView._ID};
                 } else if (_columns == null) _columns = formatWithUser(fullSoundAssociationColumns, userId);
 
                 makeSoundAssociationSelection(qb, String.valueOf(userId),
@@ -121,8 +122,8 @@ public class ScContentProvider extends ContentProvider {
             case ME_LIKES:
             case ME_REPOSTS:
                 qb.setTables(soundAssociationJoin);
-                if ("1".equals(uri.getQueryParameter(Parameter.IDS_ONLY))) {
-                    _columns = new String[]{DBHelper.CollectionItems.ITEM_ID};
+                if ("1".equals(uri.getQueryParameter(Parameter.TYPE_IDS_ONLY))) {
+                    _columns = new String[]{DBHelper.SoundAssociationView._TYPE, DBHelper.SoundAssociationView._ID};
                 } else if (_columns == null) _columns = formatWithUser(fullSoundAssociationColumns, userId);
 
                 makeSoundAssociationSelection(qb, String.valueOf(userId),
