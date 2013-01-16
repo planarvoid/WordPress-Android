@@ -6,6 +6,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -22,7 +23,7 @@ import java.util.Date;
 public class PlaylistTest {
     @Test
     public void shouldDeserializePlaylist() throws Exception {
-        Playlist p = AndroidCloudAPI.Mapper.readValue(
+        Playlist p = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("e1_playlist.json"),
                 Playlist.class);
 
@@ -35,7 +36,7 @@ public class PlaylistTest {
 
     @Test
     public void shouldParcelAndUnparcelCorrectly() throws Exception {
-        Playlist playlist = AndroidCloudAPI.Mapper.readValue(
+        Playlist playlist = AndroidCloudAPI.Wrapper.buildObjectMapper().readValue(
                 getClass().getResourceAsStream("e1_playlist.json"),
                 Playlist.class);
 

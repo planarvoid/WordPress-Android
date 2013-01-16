@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -18,7 +19,7 @@ public class SoundAssociationTest {
     @Test
     public void shouldParcelAndUnparcelCorrectly() throws Exception {
 
-        SoundAssociation soundItem = AndroidCloudAPI.Mapper.readValue(
+        SoundAssociation soundItem = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("sound_item.json"),
                 SoundAssociation.class);
 
@@ -38,7 +39,7 @@ public class SoundAssociationTest {
         DefaultTestRunner.application.setCurrentUserId(100L);
         final ScModelManager manager = DefaultTestRunner.application.MODEL_MANAGER;
 
-        SoundAssociationHolder sounds  = AndroidCloudAPI.Mapper.readValue(
+        SoundAssociationHolder sounds  = TestHelper.getObjectMapper().readValue(
                         getClass().getResourceAsStream("sounds.json"),
                         SoundAssociationHolder.class);
 

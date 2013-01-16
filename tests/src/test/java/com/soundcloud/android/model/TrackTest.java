@@ -6,6 +6,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -243,7 +244,7 @@ public class TrackTest {
         DefaultTestRunner.application.setCurrentUserId(100L);
         final ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
 
-        Track t = AndroidCloudAPI.Mapper.readValue(
+        Track t = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("track.json"),
                 Track.class);
 
@@ -264,7 +265,7 @@ public class TrackTest {
 
     @Test
     public void shouldParcelAndUnparcelCorrectly() throws Exception {
-        Track t = AndroidCloudAPI.Mapper.readValue(
+        Track t = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("track.json"),
                 Track.class);
 
