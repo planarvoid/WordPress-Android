@@ -70,7 +70,9 @@ public interface AndroidCloudAPI extends CloudAPI {
         private String userAgent;
 
         public static Wrapper create(Context context, @Nullable Token initialToken) {
-            return new Wrapper(context, context.getString(R.string.client_id), getClientSecret(true), REDIRECT_URI, initialToken);
+            ObjectMapper objectMapper = buildObjectMapper();
+            String clientId = context.getString(R.string.client_id);
+            return new Wrapper(context, objectMapper, clientId, getClientSecret(true), REDIRECT_URI, initialToken);
         }
 
         public static ObjectMapper buildObjectMapper() {
@@ -98,13 +100,13 @@ public interface AndroidCloudAPI extends CloudAPI {
             return ScTextUtils.deobfuscate(production ? prod2 : sandbox);
         }
 
-        public Wrapper(Context context, String clientId, String clientSecret, URI redirectUri, Token token) {
+        public Wrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret, URI redirectUri, Token token) {
             super(clientId, clientSecret, redirectUri, token);
             // context can be null in tests
             if (context == null) return;
 
             mContext = context;
-            mObjectMapper = buildObjectMapper();
+            mObjectMapper = mapper;
 
             userAgent = "SoundCloud Android ("+ AndroidUtils.getAppVersion(context, "unknown")+")";
             final IntentFilter filter = new IntentFilter();
