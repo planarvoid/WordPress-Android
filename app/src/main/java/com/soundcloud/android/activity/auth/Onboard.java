@@ -657,6 +657,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 if (intent != null && intent.hasExtra("error")) {
                     final String error = intent.getStringExtra("error");
                     AndroidUtils.showToast(this, error);
+                } else {
+                    finish();
                 }
                 break;
             }
