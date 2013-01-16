@@ -33,8 +33,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.net.URL;
-
 public class ActionBarController {
     @NotNull private ActionBarOwner mOwner;
     @NotNull private Activity mActivity;
