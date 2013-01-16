@@ -395,10 +395,8 @@ public class ScModelManager {
                 remoteUri = Content.USERS.remoteUri;
             } else if (SoundAssociation.class.equals(content.modelType)) {
                 remoteUri = type == Playable.DB_TYPE_TRACK ? Content.TRACKS.remoteUri : Content.PLAYLISTS.remoteUri;
-            }
-
-            if (remoteUri == null){
-                Log.e("asdf","NULL");
+            } else {
+                throw new IllegalArgumentException("Unexpected model type, not handled : " + content.modelType);
             }
 
             while (i < lookupIds.get(type).size()) {
