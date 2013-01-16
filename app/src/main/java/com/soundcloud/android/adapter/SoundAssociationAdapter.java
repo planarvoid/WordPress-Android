@@ -31,15 +31,4 @@ public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> imp
     public Uri getPlayableUri() {
         return null;
     }
-
-    @Override
-    public void addItems(CollectionHolder<SoundAssociation> newItems) {
-        // filter out playlists
-        for (Iterator<SoundAssociation> it = newItems.iterator(); it.hasNext();) {
-            if (it.next().playlist != null) {
-                it.remove();
-            }
-        }
-        super.addItems(newItems);
-    }
 }
