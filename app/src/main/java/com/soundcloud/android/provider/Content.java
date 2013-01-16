@@ -218,7 +218,7 @@ public enum Content  {
 
     public Uri forQuery(String query) {
         if (uri.toString().contains("*")) {
-            return Uri.parse(uri.toString().replace("*", String.valueOf(query)));
+            return Uri.parse(uri.toString().replace("*", Uri.encode(String.valueOf(query))));
         } else {
             return buildUpon().appendEncodedPath(String.valueOf(query)).build();
         }
