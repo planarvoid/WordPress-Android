@@ -542,6 +542,13 @@
         <item name="android:drawable">@drawable/progress_bar_land</item>
     </style>
 
+    <style name="ListItemContainer">
+        <item name="android:paddingLeft">@dimen/list_item_padding_left</item>
+        <item name="android:paddingTop">@dimen/list_item_padding_top</item>
+        <item name="android:paddingRight">@dimen/list_item_padding_right</item>
+        <item name="android:paddingBottom">@dimen/list_item_padding_bottom</item>
+    </style>
+
     <style name="Playlist">
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:background">@android:color/black</item>
