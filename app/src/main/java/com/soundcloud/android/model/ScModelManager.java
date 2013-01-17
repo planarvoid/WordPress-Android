@@ -400,7 +400,7 @@ public class ScModelManager {
             }
 
             while (i < lookupIds.get(type).size()) {
-                List<Long> batch = lookupIds.get(type).subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, ids.size()));
+                List<Long> batch = lookupIds.get(type).subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, lookupIds.get(type).size()));
                 InputStream is = validateResponse(
                         api.get(
                                 Request.to(remoteUri)
