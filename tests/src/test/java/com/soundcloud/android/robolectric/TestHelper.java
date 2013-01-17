@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.*;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.provider.Content;
@@ -32,11 +33,14 @@ import java.util.Set;
 public class TestHelper {
     private TestHelper() {}
 
+    public static ObjectMapper getObjectMapper() {
+        return AndroidCloudAPI.Wrapper.buildObjectMapper();
+    }
 
     public static <T> T readJson(Class<T> klazz, String path) throws IOException {
         InputStream is = TestHelper.class.getResourceAsStream(path);
         expect(is).not.toBeNull();
-        return AndroidCloudAPI.Mapper.readValue(is, klazz);
+        return getObjectMapper().readValue(is, klazz);
     }
 
 

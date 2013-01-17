@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              style="@style/side_menu_item">
+              style="@style/side_search_item">
 
     <ImageView android:id="@+id/icon"
                style="@style/side_menu_item_icon"

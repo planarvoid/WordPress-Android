@@ -9,6 +9,7 @@ import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -33,7 +34,7 @@ public class ScModelManagerTest {
     @Before
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
-        manager = new ScModelManager(Robolectric.application, AndroidCloudAPI.Mapper);
+        manager = new ScModelManager(Robolectric.application, TestHelper.getObjectMapper());
         resolver = Robolectric.application.getContentResolver();
     }
 

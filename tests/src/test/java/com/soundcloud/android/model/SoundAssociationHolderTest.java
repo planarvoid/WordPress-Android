@@ -6,6 +6,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +27,7 @@ public class SoundAssociationHolderTest {
 
     @Test
     public void shouldRemoveMissingSoundAssociationsMeSounds() throws Exception {
-        SoundAssociationHolder old = AndroidCloudAPI.Mapper.readValue(
+        SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("sounds.json"),
                 SoundAssociationHolder.class);
 
@@ -48,7 +49,7 @@ public class SoundAssociationHolderTest {
 
     @Test
     public void shouldRemoveMissingSoundAssociationsMeLikes() throws Exception {
-        SoundAssociationHolder old = AndroidCloudAPI.Mapper.readValue(
+        SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
                 ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
                 SoundAssociationHolder.class);
 
