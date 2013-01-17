@@ -133,10 +133,12 @@ public class DBHelper extends SQLiteOpenHelper {
             "_type INTEGER DEFAULT 0," +
             "last_updated INTEGER," +
             "permalink VARCHAR(255)," +
+            "original_content_size INTEGER," +
             "duration INTEGER," +
             "state VARCHAR(50)," +
             "created_at INTEGER," +
-            "tag_list VARCHAR(255)," +
+            "genre VARCHAR(100)," +
+            "tag_list VARCHAR(500)," +
             "track_type VARCHAR(255)," +
             "title VARCHAR(255)," +
             "permalink_url VARCHAR(255)," +
@@ -148,6 +150,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "stream_url VARCHAR(255)," +
             "streamable BOOLEAN DEFAULT 0, " +
             "sharing VARCHAR(255)," +
+            "purchase_url VARCHAR(255)," +
             "playback_count INTEGER DEFAULT -1," +
             "download_count INTEGER DEFAULT -1," +
             "comment_count INTEGER DEFAULT -1," +
@@ -156,6 +159,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "shared_to_count INTEGER DEFAULT -1," +
             "sharing_note_text VARCHAR(255),"+
             "tracks_uri VARCHAR(255),"+
+            "track_count INTEGER DEFAULT -1," +
             "playlist_type VARCHAR(255),"+
             "user_id INTEGER" +
             ");";
@@ -332,7 +336,9 @@ public class DBHelper extends SQLiteOpenHelper {
             ",Sounds." + Sounds.PERMALINK + " as " + SoundView.PERMALINK +
             ",Sounds." + Sounds.CREATED_AT + " as " + SoundView.CREATED_AT +
             ",Sounds." + Sounds.DURATION + " as " + SoundView.DURATION +
+            ",Sounds." + Sounds.ORIGINAL_CONTENT_SIZE + " as " + SoundView.ORIGINAL_CONTENT_SIZE +
             ",Sounds." + Sounds.STATE + " as " + SoundView.STATE +
+            ",Sounds." + Sounds.GENRE + " as " + SoundView.GENRE +
             ",Sounds." + Sounds.TAG_LIST + " as " + SoundView.TAG_LIST +
             ",Sounds." + Sounds.TRACK_TYPE + " as " + SoundView.TRACK_TYPE +
             ",Sounds." + Sounds.TITLE + " as " + SoundView.TITLE +
@@ -345,6 +351,7 @@ public class DBHelper extends SQLiteOpenHelper {
             ",Sounds." + Sounds.STREAMABLE + " as " + SoundView.STREAMABLE +
             ",Sounds." + Sounds.COMMENTABLE + " as " + SoundView.COMMENTABLE +
             ",Sounds." + Sounds.SHARING + " as " + SoundView.SHARING +
+            ",Sounds." + Sounds.PURCHASE_URL + " as " + SoundView.PURCHASE_URL +
             ",Sounds." + Sounds.PLAYBACK_COUNT + " as " + SoundView.PLAYBACK_COUNT +
             ",Sounds." + Sounds.DOWNLOAD_COUNT + " as " + SoundView.DOWNLOAD_COUNT +
             ",Sounds." + Sounds.COMMENT_COUNT + " as " + SoundView.COMMENT_COUNT +
@@ -352,6 +359,7 @@ public class DBHelper extends SQLiteOpenHelper {
             ",Sounds." + Sounds.REPOSTS_COUNT + " as " + SoundView.REPOSTS_COUNT +
             ",Sounds." + Sounds.SHARED_TO_COUNT + " as " + SoundView.SHARED_TO_COUNT +
             ",Sounds." + Sounds.TRACKS_URI + " as " + SoundView.TRACKS_URI +
+            ",Sounds." + Sounds.TRACK_COUNT + " as " + SoundView.TRACK_COUNT +
             ",Users." + Users._ID + " as " + SoundView.USER_ID +
             ",Users." + Users.USERNAME + " as " + SoundView.USERNAME +
             ",Users." + Users.PERMALINK + " as " + SoundView.USER_PERMALINK +
@@ -473,36 +481,40 @@ public class DBHelper extends SQLiteOpenHelper {
      * {@link DBHelper#DATABASE_CREATE_SOUNDS}
      */
     public static class Sounds extends ResourceTable  {
-        public static final String DURATION        = "duration";
-        public static final String TAG_LIST        = "tag_list";
-        public static final String TRACK_TYPE      = "track_type";
-        public static final String TITLE           = "title";
-        public static final String PERMALINK_URL   = "permalink_url";
-        public static final String ARTWORK_URL     = "artwork_url";
-        public static final String WAVEFORM_URL    = "waveform_url";
-        public static final String DOWNLOADABLE    = "downloadable";
-        public static final String DOWNLOAD_URL    = "download_url";
-        public static final String STREAM_URL      = "stream_url";
-        public static final String STREAMABLE      = "streamable";
-        public static final String COMMENTABLE     = "commentable";
-        public static final String SHARING         = "sharing";
-        public static final String PLAYBACK_COUNT  = "playback_count";
-        public static final String DOWNLOAD_COUNT  = "download_count";
-        public static final String COMMENT_COUNT   = "comment_count";
-        public static final String LIKES_COUNT     = "favoritings_count";
-        public static final String REPOSTS_COUNT   = "reposts_count";
-        public static final String SHARED_TO_COUNT = "shared_to_count";
-        public static final String USER_ID         = "user_id";
-        public static final String STATE           = "state";
-        public static final String TRACKS_URI      = "tracks_uri";
-        public static final String PLAYLIST_TYPE   = "playlist_type";
+        public static final String ORIGINAL_CONTENT_SIZE    = "original_content_size";
+        public static final String GENRE                    = "genre";
+        public static final String DURATION                 = "duration";
+        public static final String TAG_LIST                 = "tag_list";
+        public static final String TRACK_TYPE               = "track_type";
+        public static final String TITLE                    = "title";
+        public static final String PERMALINK_URL            = "permalink_url";
+        public static final String ARTWORK_URL              = "artwork_url";
+        public static final String WAVEFORM_URL             = "waveform_url";
+        public static final String DOWNLOADABLE             = "downloadable";
+        public static final String DOWNLOAD_URL             = "download_url";
+        public static final String STREAM_URL               = "stream_url";
+        public static final String STREAMABLE               = "streamable";
+        public static final String COMMENTABLE              = "commentable";
+        public static final String SHARING                  = "sharing";
+        public static final String PURCHASE_URL             = "purchase_url";
+        public static final String PLAYBACK_COUNT           = "playback_count";
+        public static final String DOWNLOAD_COUNT           = "download_count";
+        public static final String COMMENT_COUNT            = "comment_count";
+        public static final String LIKES_COUNT              = "favoritings_count";
+        public static final String REPOSTS_COUNT            = "reposts_count";
+        public static final String SHARED_TO_COUNT          = "shared_to_count";
+        public static final String USER_ID                  = "user_id";
+        public static final String STATE                    = "state";
+        public static final String TRACKS_URI               = "tracks_uri";
+        public static final String TRACK_COUNT              = "track_count";
+        public static final String PLAYLIST_TYPE            = "playlist_type";
 
         public static final String[] ALL_FIELDS = {
-                _ID, _TYPE, DURATION, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL, ARTWORK_URL,
-                WAVEFORM_URL, DOWNLOADABLE, DOWNLOAD_URL, STREAM_URL, STREAM_URL,
-                STREAMABLE, COMMENTABLE, SHARING, PLAYBACK_COUNT, DOWNLOAD_COUNT,
+                _ID, _TYPE, ORIGINAL_CONTENT_SIZE, DURATION, GENRE, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL,
+                ARTWORK_URL, WAVEFORM_URL, DOWNLOADABLE, DOWNLOAD_URL, STREAM_URL, STREAM_URL, STREAMABLE,
+                COMMENTABLE, SHARING, PURCHASE_URL, PLAYBACK_COUNT, DOWNLOAD_COUNT,
                 COMMENT_COUNT, LIKES_COUNT, REPOSTS_COUNT, SHARED_TO_COUNT,
-                USER_ID, STATE, CREATED_AT, PERMALINK, LAST_UPDATED, TRACKS_URI, PLAYLIST_TYPE
+                USER_ID, STATE, CREATED_AT, PERMALINK, LAST_UPDATED, TRACKS_URI, TRACK_COUNT, PLAYLIST_TYPE
         };
     }
 
@@ -686,7 +698,9 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String PERMALINK = Sounds.PERMALINK;
         public static final String CREATED_AT = Sounds.CREATED_AT;
         public static final String DURATION = Sounds.DURATION;
+        public static final String ORIGINAL_CONTENT_SIZE = Sounds.ORIGINAL_CONTENT_SIZE;
         public static final String STATE = Sounds.STATE;
+        public static final String GENRE = Sounds.GENRE;
         public static final String TAG_LIST = Sounds.TAG_LIST;
         public static final String TRACK_TYPE = Sounds.TRACK_TYPE;
         public static final String TITLE = Sounds.TITLE;
@@ -699,6 +713,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String STREAMABLE = Sounds.STREAMABLE;
         public static final String COMMENTABLE = Sounds.COMMENTABLE;
         public static final String SHARING = Sounds.SHARING;
+        public static final String PURCHASE_URL = Sounds.PURCHASE_URL;
         public static final String PLAYBACK_COUNT = Sounds.PLAYBACK_COUNT;
         public static final String DOWNLOAD_COUNT = Sounds.DOWNLOAD_COUNT;
         public static final String COMMENT_COUNT = Sounds.COMMENT_COUNT;
@@ -706,6 +721,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String REPOSTS_COUNT = Sounds.REPOSTS_COUNT;
         public static final String SHARED_TO_COUNT = Sounds.SHARED_TO_COUNT;
         public static final String TRACKS_URI = Sounds.TRACKS_URI;
+        public static final String TRACK_COUNT = Sounds.TRACK_COUNT;
 
         public static final String USER_ID         = "sound_user_id";
         public static final String USERNAME        = "sound_user_username";
@@ -975,11 +991,13 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    // Schema used in sets
+    // Schema used in sets, added extra fields to SoundView
     private static boolean upgradeTo20(SQLiteDatabase db, int oldVersion) {
         try {
+            Table.SOUNDS.alterColumns(db);
             Table.SOUND_VIEW.recreate(db);
             Table.SOUND_ASSOCIATION_VIEW.recreate(db);
+            Table.ACTIVITY_VIEW.recreate(db);
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade20 " +
