@@ -20,6 +20,7 @@ public class Playlist extends Playable {
     @JsonView(Views.Full.class) public String playlist_type;
     @JsonView(Views.Full.class) public String tracks_uri;
     @JsonView(Views.Full.class) public List<Track> tracks;
+    @JsonView(Views.Full.class) public int track_count;
 
     public Playlist() {
         super();
@@ -31,12 +32,14 @@ public class Playlist extends Playable {
 
         playlist_type = b.getString("playlist_type");
         tracks_uri = b.getString("tracks_uri");
+        track_count = b.getInt("track_count");
         tracks = b.getParcelableArrayList("tracks");
     }
 
     public Playlist(Cursor cursor) {
         super(cursor);
         tracks_uri = cursor.getString(cursor.getColumnIndex(DBHelper.Sounds.TRACKS_URI));
+        track_count = cursor.getInt(cursor.getColumnIndex(DBHelper.Sounds.TRACK_COUNT));
     }
 
     @Override
@@ -49,6 +52,7 @@ public class Playlist extends Playable {
         Bundle b = super.getBundle();
         b.putString("playlist_type", playlist_type);
         b.putString("tracks_uri", tracks_uri);
+        b.putInt("track_count", track_count);
         b.putParcelableArrayList("tracks", (ArrayList<Track>) tracks);
         dest.writeBundle(b);
     }
@@ -56,6 +60,7 @@ public class Playlist extends Playable {
     public Playlist updateFrom(Playlist updatedItem, CacheUpdateMode cacheUpdateMode) {
         super.updateFrom(updatedItem, cacheUpdateMode);
         tracks_uri = updatedItem.tracks_uri;
+        track_count = updatedItem.track_count;
         playlist_type = updatedItem.playlist_type;
         if (cacheUpdateMode == CacheUpdateMode.FULL) {
             tracks = updatedItem.tracks;
@@ -71,7 +76,7 @@ public class Playlist extends Playable {
                 ", permalink_url='" + permalink_url + "'" +
                 ", duration=" + duration +
                 ", user=" + user +
-                ", track_count=" + (tracks != null ? tracks.size() : "0") +
+                ", track_count=" + (track_count == -1 ? (tracks != null ? tracks.size() : "-1") : track_count) +
                 ", tracks_uri='" + tracks_uri + '\'' +
                 '}';
     }
@@ -79,6 +84,7 @@ public class Playlist extends Playable {
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
         cv.put(DBHelper.Sounds.TRACKS_URI, tracks_uri);
+        cv.put(DBHelper.Sounds.TRACK_COUNT, track_count);
         return cv;
     }
 
