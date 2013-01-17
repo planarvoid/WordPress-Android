@@ -11,8 +11,7 @@ import com.soundcloud.android.model.User;
 
 import android.database.Cursor;
 
-public class TrackRepostActivity extends Activity implements PlayableHolder {
-    @JsonProperty public Track track;
+public class TrackRepostActivity extends TrackActivity implements PlayableHolder {
     @JsonProperty public User user;
 
     // for deserialization
@@ -30,37 +29,12 @@ public class TrackRepostActivity extends Activity implements PlayableHolder {
     }
 
     @Override
-    public Playable getPlayable() {
-        return track;
-    }
-
-    @Override
-    public Track getTrack() {
-        return track;
-    }
-
-    @Override
     public User getUser() {
         return user;
     }
 
     @Override
-    public Playlist getPlaylist() {
-        return null;
-    }
-
-    @Override @JsonIgnore
-    public void setCachedTrack(Track track) {
-        this.track = track;
-    }
-
-    @Override @JsonIgnore
-    public void setCachedUser(User user) {
+    public void setUser(User user) {
         this.user = user;
-    }
-
-    @Override
-    public ScResource getRefreshableResource() {
-        return track;
     }
 }

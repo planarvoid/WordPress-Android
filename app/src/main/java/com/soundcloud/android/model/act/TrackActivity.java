@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 
 import android.database.Cursor;
+import android.os.Parcel;
 
 public class TrackActivity extends Activity implements PlayableHolder {
     @JsonProperty public Track track;
@@ -23,6 +24,10 @@ public class TrackActivity extends Activity implements PlayableHolder {
         super(c);
     }
 
+    public TrackActivity(Parcel in) {
+        super(in);
+        track = in.readParcelable(Track.class.getClassLoader());
+    }
 
     @Override
     public Type getType() {
@@ -50,12 +55,17 @@ public class TrackActivity extends Activity implements PlayableHolder {
     }
 
     @JsonIgnore @Override
-    public void setCachedTrack(Track track) {
+    public void setTrack(Track track) {
         this.track = track;
     }
 
+    @Override
+    public void setPlaylist(Playlist playlist) {
+        // nop
+    }
+
     @JsonIgnore @Override
-    public void setCachedUser(User user) {
+    public void setUser(User user) {
         // nop
     }
 

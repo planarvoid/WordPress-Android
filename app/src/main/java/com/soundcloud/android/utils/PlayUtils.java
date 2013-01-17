@@ -4,6 +4,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.PlayableAdapter;
 import com.soundcloud.android.model.PlayInfo;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
@@ -26,18 +27,18 @@ public final class PlayUtils {
     }
 
     public static void playTrack(Context c, PlayInfo info, boolean goToPlayer, boolean commentMode) {
-        final Track t = info.getTrack();
+        final Track t = info.initialTrack;
         Intent intent = new Intent();
         if (CloudPlaybackService.getCurrentTrackId() != t.id) {
             // changing tracks
             intent.putExtra(CloudPlaybackService.PlayExtras.trackId, t.id);
             if (info.uri != null) {
-                SoundCloudApplication.MODEL_MANAGER.cache(info.getTrack());
-                intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.getTrack().id)
+                SoundCloudApplication.MODEL_MANAGER.cache(info.initialTrack);
+                intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.initialTrack.id)
                         .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                         .setData(info.uri);
             } else {
-                CloudPlaybackService.playlistXfer = info.tracks;
+                CloudPlaybackService.playlistXfer = info.playables;
                 intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                         .putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true);
             }
@@ -58,9 +59,9 @@ public final class PlayUtils {
     public static Track getTrackFromIntent(Intent intent){
         if (intent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferCache,false)){
             final int position = intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition,-1);
-            final List<Track> list = CloudPlaybackService.playlistXfer;
-            if (list != null && position > -1 && position < list.size()){
-                return list.get(position).getPlayable();
+            final List<Playable> list = CloudPlaybackService.playlistXfer;
+            if (list != null && position > -1 && position < list.size() && list.get(position).getPlayable() instanceof Track){
+                return (Track) list.get(position).getPlayable();
             }
         } else if (intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l) > 0) {
             return SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l));
@@ -71,26 +72,28 @@ public final class PlayUtils {
     }
 
     public static void playFromAdapter(Context c, PlayableAdapter adapter, List<? extends ScModel> data, int position) {
-        if (position > data.size() || !(data.get(position) instanceof PlayableHolder)) {
-            throw new AssertionError("Invalid item " + position);
+        if (position > data.size() || !(data.get(position) instanceof PlayableHolder)
+                || !(((PlayableHolder) data.get(position)).getPlayable() instanceof Track)) {
+            throw new AssertionError("Invalid item " + position + ", this is not a track");
         }
 
         PlayInfo info = new PlayInfo();
+        info.initialTrack = (Track) ((PlayableHolder) data.get(position)).getPlayable();
         info.uri = adapter.getPlayableUri();
 
-        List<Track> tracks = new ArrayList<Track>(data.size());
+        List<Playable> playables = new ArrayList<Playable>(data.size());
 
         int adjustedPosition = position;
         for (int i = 0; i < data.size(); i++) {
-            if (data.get(i) instanceof Track) {
-                tracks.add((Track) data.get(i));
+            if (data.get(i) instanceof PlayableHolder) {
+                playables.add(((PlayableHolder) data.get(i)).getPlayable());
             } else if (i < position) {
                 adjustedPosition--;
             }
         }
 
         info.position = adjustedPosition;
-        info.tracks = tracks;
+        info.playables = playables;
         playTrack(c, info);
     }
 }

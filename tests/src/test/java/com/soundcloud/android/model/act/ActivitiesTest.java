@@ -102,7 +102,7 @@ public class ActivitiesTest {
     @Test
     public void testTracks() throws Exception {
         Activities tracks = getActivities().tracks();
-        expect(tracks.size()).toEqual(0);
+        expect(tracks.size()).toEqual(4); // includes the 4 track likes
     }
 
     @Test
@@ -412,20 +412,8 @@ public class ActivitiesTest {
 
         last = Activities.getLastActivity(Content.ME_SOUND_STREAM, resolver);
         expect(last).not.toBeNull();
-        expect(last.uuid).toEqual("b035de80-6dc9-11e1-84dc-e1bbf59e9e64");
+        expect(last.uuid).toEqual("75e9d700-0819-11e2-81bb-70dbfa89bdb9");
         expect(first.created_at.after(last.created_at)).toBeTrue();
-    }
-
-    @Test
-    public void shouldGetFirstNonPlaylistActivity() throws Exception {
-        Activities one_of_each = manager.getActivitiesFromJson(
-                getClass().getResourceAsStream("e1_stream_playlist_repost_first.json"));
-
-        expect(one_of_each.insert(Content.ME_SOUND_STREAM, resolver)).toBe(2);
-        Activity first = Activities.getFirstActivity(Content.ME_SOUND_STREAM, resolver);
-        expect(first).not.toBeNull();
-        expect(first.uuid).toEqual("734ad180-cab5-11e1-9570-52fa262dac01");
-        expect(first instanceof TrackLikeActivity).toBeTrue();
     }
 
     private Activity makeActivity(Track t){

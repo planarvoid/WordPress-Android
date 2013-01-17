@@ -62,10 +62,10 @@ public class ApiSyncerTest {
         expect(result.synced_at).toBeGreaterThan(0l);
 
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(112);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(120);
         expect(Content.TRACKS).toHaveCount(111);
         expect(Content.USERS).toHaveCount(28);
-        //expect(Content.PLAYLISTS).toHaveCount(8);
+        expect(Content.PLAYLISTS).toHaveCount(8);
 
         Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
@@ -317,7 +317,7 @@ public class ApiSyncerTest {
                 "e1_stream.json",
                 "e1_stream_oldest.json");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(112);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(120);
         expect(Content.ME_ACTIVITIES).toHaveCount(17);
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(137);
     }
@@ -326,7 +326,7 @@ public class ApiSyncerTest {
     public void shouldNotProduceDuplicatesWhenSyncing() throws Exception {
         sync(Content.ME_SOUND_STREAM.uri, "e1_stream_1_oldest.json");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(22);
     }
 

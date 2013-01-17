@@ -53,6 +53,16 @@ public class Playlist extends Playable {
         dest.writeBundle(b);
     }
 
+    public Playlist updateFrom(Playlist updatedItem, CacheUpdateMode cacheUpdateMode) {
+        super.updateFrom(updatedItem, cacheUpdateMode);
+        tracks_uri = updatedItem.tracks_uri;
+        playlist_type = updatedItem.playlist_type;
+        if (cacheUpdateMode == CacheUpdateMode.FULL) {
+            tracks = updatedItem.tracks;
+        }
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Playlist{" +

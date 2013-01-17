@@ -49,13 +49,18 @@ public class CommentActivity extends Activity {
 
 
     @Override @JsonIgnore
-    public void setCachedTrack(Track track) {
+    public void setTrack(Track track) {
         comment.track_id = track.id;
         comment.track = track;
     }
 
+    @Override
+    public void setPlaylist(Playlist playlist) {
+        // nop
+    }
+
     @Override @JsonIgnore
-    public void setCachedUser(User user) {
+    public void setUser(User user) {
         // nop
     }
 

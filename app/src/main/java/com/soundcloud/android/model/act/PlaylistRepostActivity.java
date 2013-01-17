@@ -1,6 +1,8 @@
 package com.soundcloud.android.model.act;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -8,8 +10,8 @@ import com.soundcloud.android.model.User;
 
 import android.database.Cursor;
 
-public class PlaylistRepostActivity extends Activity{
-    @JsonProperty public Playlist playlist;
+public class PlaylistRepostActivity extends PlaylistActivity implements PlayableHolder {
+    @JsonProperty public User user;
 
     // for deserialization
     public PlaylistRepostActivity() {
@@ -26,30 +28,12 @@ public class PlaylistRepostActivity extends Activity{
     }
 
     @Override
-    public Track getTrack() {
-        return null;
-    }
-
-    @Override
     public User getUser() {
-        return null;
+        return user;
     }
 
     @Override
-    public Playlist getPlaylist() {
-        return playlist;
-    }
-
-    @Override
-    public void setCachedTrack(Track track) {
-    }
-
-    @Override
-    public void setCachedUser(User user) {
-    }
-
-    @Override
-    public ScResource getRefreshableResource() {
-        return null; // TODO
+    public void setUser(User user) {
+        this.user = user;
     }
 }

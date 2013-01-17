@@ -11,9 +11,8 @@ import com.soundcloud.android.model.User;
 
 import android.database.Cursor;
 
-public class TrackLikeActivity extends Activity implements PlayableHolder {
+public class TrackLikeActivity extends TrackActivity implements PlayableHolder {
     @JsonProperty public User user;
-    @JsonProperty public Track track;
 
     // for deserialization
     public TrackLikeActivity() {
@@ -30,39 +29,12 @@ public class TrackLikeActivity extends Activity implements PlayableHolder {
     }
 
     @Override
-    public Playable getPlayable() {
-        return track;
-    }
-
-    @Override
-    public Track getTrack() {
-        return track;
-    }
-
-    @Override
     public User getUser() {
         return user;
     }
 
     @Override
-    public Playlist getPlaylist() {
-        return null;
-    }
-
-    @JsonIgnore
-    @Override
-    public void setCachedTrack(Track track) {
-        this.track = track;
-    }
-
-    @JsonIgnore
-    @Override
-    public void setCachedUser(User user) {
+    public void setUser(User user) {
         this.user = user;
-    }
-
-    @Override
-    public ScResource getRefreshableResource() {
-        return track;
     }
 }

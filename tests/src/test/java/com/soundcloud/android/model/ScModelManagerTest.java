@@ -350,10 +350,9 @@ public class ScModelManagerTest {
                 SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
         expect(a.insert(Content.ME_SOUND_STREAM, resolver)).toBe(22);
 
-        // 2 of these are playlists and are not returned for now
-        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
         expect(Activities.getSince(Content.ME_SOUND_STREAM,
-                                resolver, -1).size()).toEqual(20);
+                                resolver, -1).size()).toEqual(22);
     }
 
 
@@ -362,7 +361,7 @@ public class ScModelManagerTest {
         Activities a = manager.getActivitiesFromJson(
                 SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
         a.insert(Content.ME_SOUND_STREAM, resolver);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
         expect(
                 Activities.getSince(Content.ME_SOUND_STREAM,
@@ -376,7 +375,7 @@ public class ScModelManagerTest {
         Activities a = manager.getActivitiesFromJson(
                 SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
         a.insert(Content.ME_SOUND_STREAM, resolver);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
         expect(
                 Activities.getLastActivity(Content.ME_SOUND_STREAM,
@@ -390,7 +389,7 @@ public class ScModelManagerTest {
                 SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
 
         a.insert(Content.ME_SOUND_STREAM, resolver);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
         LocalCollection.insertLocalCollection(Content.ME_SOUND_STREAM.uri,
                 0, System.currentTimeMillis(), System.currentTimeMillis(), a.size(), a.future_href,

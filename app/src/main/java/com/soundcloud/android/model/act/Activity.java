@@ -203,17 +203,13 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         out.writeLong(sharing_note == null ? -1l : sharing_note.created_at.getTime());
     }
 
-    public abstract Type getType();
-
-    public abstract Track getTrack();
-
-    public abstract User getUser();
-
-    public abstract Playlist getPlaylist();
-
-    public abstract void setCachedTrack(Track track);
-
-    public abstract void setCachedUser(User user);
+    public abstract Type        getType();
+    public abstract Track       getTrack();
+    public abstract User        getUser();
+    public abstract Playlist    getPlaylist();
+    public abstract void        setTrack(Track track);
+    public abstract void        setPlaylist(Playlist playlist);
+    public abstract void        setUser(User user);
 
 
     public List<ScResource> getDependentModels() {

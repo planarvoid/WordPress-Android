@@ -69,11 +69,24 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
                 return (mContent == Content.ME_ACTIVITIES) ?
                         new TrackRepostActivityRow(mContext, this) : new TrackInfoBar(mContext, this);
 
+            case PLAYLIST:
+            case PLAYLIST_REPOST:
+            case PLAYLIST_SHARING:
+                // TODO, playlist view
+                return new TrackInfoBar(mContext, this);
+
             case COMMENT:
                 return new CommentActivityRow(mContext, this);
 
             case TRACK_LIKE:
                 return new LikeActivityRow(mContext, this);
+
+            /*
+            TODO
+            case PLAYLIST_LIKE:
+                return new LikeActivityRow(mContext, this);
+
+            */
 
             case AFFILIATION:
                 return new AffiliationActivityRow(mContext, this);

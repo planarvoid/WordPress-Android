@@ -5,12 +5,9 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.view.EmptyListView;
-import com.soundcloud.api.Http;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 

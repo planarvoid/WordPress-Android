@@ -301,8 +301,7 @@ public class ScContentProvider extends ContentProvider {
                 qb.setTables(Table.ACTIVITY_VIEW.name);
                 if (content != Content.ME_ALL_ACTIVITIES) {
                     // filter out playlist
-                    qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id + " AND " +
-                            DBHelper.ActivityView.TYPE + " NOT IN ( " + Activity.getDbPlaylistTypesForQuery() +" ) ");
+                    qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id + " ");
                 }
                 _sortOrder = makeActivitiesSort(uri, sortOrder);
                 break;
@@ -1070,6 +1069,7 @@ public class ScContentProvider extends ContentProvider {
         }
 
         public static AsyncTask<Long,Void,Void> removeTrack(final Context context) {
+            //TODO, delete tracks from playlist table
             return new AsyncTask<Long,Void,Void>(){
                 @Override
                 protected Void doInBackground(Long... params) {

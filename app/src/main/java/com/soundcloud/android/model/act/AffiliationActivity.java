@@ -42,12 +42,17 @@ public class AffiliationActivity extends Activity {
     }
 
     @Override @JsonIgnore
-    public void setCachedTrack(Track track) {
+    public void setTrack(Track track) {
+        // nop
+    }
+
+    @Override
+    public void setPlaylist(Playlist playlist) {
         // nop
     }
 
     @Override @JsonIgnore
-    public void setCachedUser(User user) {
+    public void setUser(User user) {
         this.user = user;
     }
 

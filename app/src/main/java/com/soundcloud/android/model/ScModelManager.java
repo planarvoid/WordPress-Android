@@ -25,7 +25,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,8 +57,9 @@ public class ScModelManager {
                 .fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE)))
                 .fromCursor(cursor);
         if (a != null) {
-            a.setCachedTrack(getTrackFromCursor(cursor, DBHelper.ActivityView.SOUND_ID));
-            a.setCachedUser(getUserFromActivityCursor(cursor));
+            a.setTrack(getTrackFromCursor(cursor, DBHelper.ActivityView.SOUND_ID));
+            a.setPlaylist(getPlaylistFromCursor(cursor, DBHelper.ActivityView.SOUND_ID));
+            a.setUser(getUserFromActivityCursor(cursor));
         }
         return a;
     }
@@ -79,8 +79,9 @@ public class ScModelManager {
         if (activities == null) return null;
 
         for (Activity a : activities) {
-            a.setCachedTrack(cache(a.getTrack(), ScResource.CacheUpdateMode.MINI));
-            a.setCachedUser(cache(a.getUser(), ScResource.CacheUpdateMode.MINI));
+            a.setPlaylist(cache(a.getPlaylist(),ScResource.CacheUpdateMode.MINI));
+            a.setTrack(cache(a.getTrack(), ScResource.CacheUpdateMode.MINI));
+            a.setUser(cache(a.getUser(), ScResource.CacheUpdateMode.MINI));
         }
         return activities;
     }
@@ -281,6 +282,10 @@ public class ScModelManager {
         return cache(track, ScResource.CacheUpdateMode.NONE);
     }
 
+    public Playlist cache(@Nullable Playlist playlist) {
+        return cache(playlist, ScResource.CacheUpdateMode.NONE);
+    }
+
     public Track cache(@Nullable Track track, ScResource.CacheUpdateMode updateMode) {
         if (track == null) return null;
 
@@ -298,6 +303,31 @@ public class ScModelManager {
         } else {
             mTrackCache.put(track);
             return track;
+        }
+    }
+
+    public Playlist cache(@Nullable Playlist playlist, ScResource.CacheUpdateMode updateMode){
+        if (playlist == null) return null;
+
+        if (playlist.user != null){
+            playlist.user = cache(playlist.user, updateMode);
+        }
+
+        if (playlist.tracks != null){
+            for (int i = 0; i < playlist.tracks.size(); i++){
+                playlist.tracks.set(i, cache(playlist.tracks.get(i),updateMode));
+            }
+        }
+
+        if (mPlaylistCache.containsKey(playlist.id)){
+            if (updateMode.shouldUpdate()){
+                return mPlaylistCache.get(playlist.id).updateFrom(playlist, updateMode);
+            } else {
+                return mPlaylistCache.get(playlist.id);
+            }
+        } else {
+            mPlaylistCache.put(playlist);
+            return playlist;
         }
     }
 
