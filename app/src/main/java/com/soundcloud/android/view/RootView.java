@@ -148,8 +148,7 @@ public class RootView extends ViewGroup {
 
         View.inflate(context, R.layout.root_view, this);
 
-        // TODO. GET A REAL ID
-        setId(101010101);
+        setId(R.id.root_view_id);
 
         mBlocker = findViewById(R.id.blocker);
         mBlocker.setVisibility(View.GONE);
