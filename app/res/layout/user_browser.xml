@@ -10,7 +10,6 @@
                   style="@style/ListItemContainer"
                   android:layout_height="wrap_content"
                   android:gravity="center_vertical"
-                  android:orientation="horizontal"
                   android:layout_width="fill_parent">
 
         <ImageView android:id="@+id/user_icon"
