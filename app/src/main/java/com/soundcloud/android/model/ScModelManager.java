@@ -7,6 +7,8 @@ import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.cache.UserCache;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
+import com.soundcloud.android.model.act.PlaylistActivity;
+import com.soundcloud.android.model.act.PlaylistRepostActivity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -23,6 +25,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,9 +56,12 @@ public class ScModelManager {
                 .fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE)))
                 .fromCursor(cursor);
         if (a != null) {
-            a.setTrack(getTrackFromCursor(cursor, DBHelper.ActivityView.SOUND_ID));
-            a.setPlaylist(getPlaylistFromCursor(cursor, DBHelper.ActivityView.SOUND_ID));
             a.setUser(getUserFromActivityCursor(cursor));
+            if (a.getType().isPlaylistActivity()){
+                a.setPlaylist(getPlaylistFromCursor(cursor, DBHelper.ActivityView.SOUND_ID));
+            } else {
+                a.setTrack(getTrackFromCursor(cursor, DBHelper.ActivityView.SOUND_ID));
+            }
         }
         return a;
     }

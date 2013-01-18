@@ -261,7 +261,8 @@ public class DBHelper extends SQLiteOpenHelper {
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "uuid VARCHAR(255)," +
             "user_id INTEGER," +
-            "track_id INTEGER," +
+            "sound_id INTEGER," +
+            "sound_type INTEGER," +
             "comment_id INTEGER," +
             "type String," +
             "tags VARCHAR(255)," +
@@ -269,7 +270,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "content_id INTEGER," +
             "sharing_note_text VARCHAR(255),"+
             "sharing_note_created_at INTEGER," +
-            "UNIQUE (created_at, type, content_id, track_id, user_id)" +
+            "UNIQUE (created_at, type, content_id, sound_id, user_id)" +
             ");";
 
     static final String DATABASE_CREATE_SEARCHES = "("+
@@ -419,7 +420,8 @@ public class DBHelper extends SQLiteOpenHelper {
             " LEFT JOIN Users ON(" +
             "   Activities." + Activities.USER_ID + " = " + "Users." + Users._ID + ")" +
             " LEFT JOIN SoundView ON(" +
-            "   Activities." + Activities.SOUND_ID + " = " + "SoundView." + SoundView._ID + ")" +
+            "   Activities." + Activities.SOUND_ID + " = " + "SoundView." + SoundView._ID + " AND " +
+            "   Activities." + Activities.SOUND_TYPE + " = " + "SoundView." + SoundView._TYPE + ")" +
             " LEFT JOIN Comments ON(" +
             "   Activities." + Activities.COMMENT_ID + " = " + "Comments." + Comments._ID + ")" +
             " ORDER BY " + ActivityView.CREATED_AT + " DESC"
@@ -634,19 +636,20 @@ public class DBHelper extends SQLiteOpenHelper {
      * {@link DBHelper#DATABASE_CREATE_ACTIVITIES}
      */
     public static class Activities implements BaseColumns {
-        public static final String UUID = "uuid";
-        public static final String TYPE = "type";
-        public static final String TAGS = "tags";
-        public static final String USER_ID = "user_id";
-        public static final String SOUND_ID = "track_id";
-        public static final String COMMENT_ID = "comment_id";
-        public static final String CREATED_AT  = "created_at";
-        public static final String CONTENT_ID  = "content_id";
-        public static final String SHARING_NOTE_TEXT = "sharing_note_text";
-        public static final String SHARING_NOTE_CREATED_AT = "sharing_note_created_at";
+        public static final String UUID                     = "uuid";
+        public static final String TYPE                     = "type";
+        public static final String TAGS                     = "tags";
+        public static final String USER_ID                  = "user_id";
+        public static final String SOUND_ID                 = "sound_id";
+        public static final String SOUND_TYPE               = "sound_type";
+        public static final String COMMENT_ID               = "comment_id";
+        public static final String CREATED_AT               = "created_at";
+        public static final String CONTENT_ID               = "content_id";
+        public static final String SHARING_NOTE_TEXT        = "sharing_note_text";
+        public static final String SHARING_NOTE_CREATED_AT  = "sharing_note_created_at";
 
         public static final String[] ALL_FIELDS = {
-                _ID, UUID, TYPE, TAGS, USER_ID, SOUND_ID, COMMENT_ID, CREATED_AT,
+                _ID, UUID, TYPE, TAGS, USER_ID, SOUND_ID, SOUND_TYPE, COMMENT_ID, CREATED_AT,
                 CONTENT_ID, SHARING_NOTE_TEXT, SHARING_NOTE_CREATED_AT
         };
     }
@@ -997,6 +1000,7 @@ public class DBHelper extends SQLiteOpenHelper {
             Table.SOUNDS.alterColumns(db);
             Table.SOUND_VIEW.recreate(db);
             Table.SOUND_ASSOCIATION_VIEW.recreate(db);
+            Table.ACTIVITIES.recreate(db);
             Table.ACTIVITY_VIEW.recreate(db);
             return true;
         } catch (SQLException e) {
