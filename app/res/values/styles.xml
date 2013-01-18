@@ -207,6 +207,13 @@
         <item name="android:shadowRadius">1</item>
     </style>
 
+    <style name="txt_list_playable_track_count">
+        <item name="android:textColor">@drawable/txt_list_main_dark_states</item>
+        <item name="android:textSize">@dimen/list_txt_main_size</item>
+        <item name="android:background">@drawable/bg_dark_round_rect</item>
+        <item name="android:gravity">center</item>
+    </style>
+
     <style name="txt_search" parent="android:Widget.TextView">
         <item name="android:textSize">@dimen/slm_item_text_size</item>
         <item name="android:paddingTop">@dimen/slm_search_item_text_padding</item>

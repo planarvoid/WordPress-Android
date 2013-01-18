@@ -46,15 +46,4 @@
               android:ellipsize="end"
               android:layout_alignParentRight="true"/>
 
-    <TextView android:id="@+id/playable_title"
-              style="@style/txt_list_main"
-              android:layout_alignLeft="@id/playable_user_holder"
-              android:layout_alignParentRight="true"
-              android:layout_width="0dp"
-              android:layout_height="wrap_content"
-              android:layout_below="@id/playable_user_holder"
-              android:maxLines="2"
-              android:ellipsize="marquee"
-              android:text="@string/track"/>
-
 </merge>
