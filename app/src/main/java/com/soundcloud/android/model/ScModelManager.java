@@ -10,8 +10,6 @@ import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.provider.TypeId;
-import com.soundcloud.android.provider.TypeIdList;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -30,8 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class ScModelManager {
 
@@ -409,44 +405,6 @@ public class ScModelManager {
         return resources;
     }
 
-    private List<ScResource> doBatchLookup(AndroidCloudAPI api, TypeIdList ids, Content content) throws IOException {
-        List<ScResource> resources = new ArrayList<ScResource>();
-        int i = 0;
-
-        Map<Integer, ArrayList<Long>> lookupIds = ids.getIdsByType();
-
-        for (Integer type : lookupIds.keySet()) {
-
-            // this is way too specific. should eventually be abstracted more, but it has no home right now
-            String remoteUri = null;
-            if (Track.class.equals(content.modelType)) {
-                remoteUri = Content.TRACKS.remoteUri;
-            } else if (User.class.equals(content.modelType)) {
-                remoteUri = Content.USERS.remoteUri;
-            } else if (SoundAssociation.class.equals(content.modelType)) {
-                remoteUri = type == Playable.DB_TYPE_TRACK ? Content.TRACKS.remoteUri : Content.PLAYLISTS.remoteUri;
-            } else {
-                throw new IllegalArgumentException("Unexpected model type, not handled : " + content.modelType);
-            }
-
-            while (i < lookupIds.get(type).size()) {
-                List<Long> batch = lookupIds.get(type).subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, lookupIds.get(type).size()));
-                InputStream is = validateResponse(
-                        api.get(
-                                Request.to(remoteUri)
-                                        .add("linked_partitioning", "1")
-                                        .add("limit", API_LOOKUP_BATCH_SIZE)
-                                        .add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
-
-                resources.addAll(getCollectionFromStream(is).collection);
-
-                i += API_LOOKUP_BATCH_SIZE;
-            }
-        }
-        return resources;
-
-    }
-
     public static HttpResponse validateResponse(HttpResponse response) throws IOException {
         final int code = response.getStatusLine().getStatusCode();
         if (code == HttpStatus.SC_UNAUTHORIZED) {
@@ -485,29 +443,6 @@ public class ScModelManager {
                 // XXX this has to be abstracted more. Hesitant to do so until the api is more final
                 Track.class.equals(content.modelType) || SoundAssociation.class.equals(content.modelType)
                         ? Content.TRACKS.remoteUri : Content.USERS.remoteUri));
-    }
-
-    public int fetchMissingCollectionItems(AndroidCloudAPI api,
-                                           TypeIdList modelTypeIds,
-                                               Content content,
-                                               boolean ignoreStored, int maxToFetch) throws IOException {
-        if (modelTypeIds == null || modelTypeIds.isEmpty()) {
-            return 0;
-        }
-
-        // copy so we don't modify the original
-        TypeIdList typeIds = new TypeIdList(modelTypeIds);
-
-        if (!ignoreStored) {
-            final Set<TypeId> storedTypeIdsBatched = SoundCloudDB.getStoredTypeIdsBatched(mResolver, modelTypeIds, content);
-            typeIds.removeAll(storedTypeIdsBatched);
-        }
-
-        TypeIdList fetchTypeIds = (maxToFetch > -1) ? new TypeIdList(typeIds.subList(0, Math.min(typeIds.size(), maxToFetch)))
-                : typeIds;
-
-        // XXX this has to be abstracted more. Hesitant to do so until the api is more final
-        return SoundCloudDB.bulkInsertModels(mResolver, doBatchLookup(api, fetchTypeIds, content));
     }
 
     public static String[] longListToStringArr(List<Long> deletions) {

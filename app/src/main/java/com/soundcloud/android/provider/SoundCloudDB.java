@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class SoundCloudDB {
@@ -275,41 +274,4 @@ public class SoundCloudDB {
                 .appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY, "1").build(),
                 null, null, null, null));
     }
-
-    /**
-     * Get stored resource items based on type + id.
-     *
-     * @param resolver
-     * @param typeIds the type + id pairs to lookup
-     * @param content the content point to query
-     * @return A set containing resource items that were in the database
-     */
-    public static Set<TypeId> getStoredTypeIdsBatched(ContentResolver resolver, TypeIdList typeIds, Content content) {
-
-        Set<TypeId> storedIds = new HashSet<TypeId>(typeIds.size());
-        Map<Integer, ArrayList<Long>> lookupIds = typeIds.getIdsByType();
-
-        for (Integer type : lookupIds.keySet()){
-            int i = 0;
-            while (i < lookupIds.get(type).size()) {
-                List<Long> batch = lookupIds.get(type).subList(i, Math.min(i + RESOLVER_BATCH_SIZE, lookupIds.get(type).size()));
-                storedIds.addAll(new TypeIdList(
-                        resolver.query(content.uri, new String[]{DBHelper.ResourceTable._TYPE, BaseColumns._ID},
-                                DBHelper.getWhereInClause(BaseColumns._ID, batch)
-                                        + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0"
-                                        + " AND " + DBHelper.ResourceTable._TYPE + " = " + type
-                                , ScModelManager.longListToStringArr(batch), null)
-                ));
-                i += RESOLVER_BATCH_SIZE;
-            }
-        }
-        return storedIds;
-    }
-
-    public static TypeIdList getStoredTypeIds(ContentResolver resolver, Uri uri, int offset, int limit) {
-        return new TypeIdList(resolver.query(SoundCloudDB.addPagingParams(uri, offset, limit)
-                .appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY, "1").build(),
-                null, null, null, null));
-    }
-
 }
