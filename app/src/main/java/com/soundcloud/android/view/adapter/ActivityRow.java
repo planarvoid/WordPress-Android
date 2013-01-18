@@ -42,10 +42,6 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
         mTitle = (TextView) findViewById(R.id.title);
         mUser = (TextView) findViewById(R.id.user);
         mCreatedAt = (TextView) findViewById(R.id.created_at);
-        init();
-    }
-
-    protected void init() {
         mIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

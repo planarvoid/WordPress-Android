@@ -28,11 +28,6 @@ public class CommentActivityRow extends ActivityRow {
     }
 
     @Override
-    protected void init() {
-        // do nothing
-    }
-
-    @Override
     protected Track getTrack() {
         return mComment.track;
     }
