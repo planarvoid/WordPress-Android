@@ -4,9 +4,6 @@ import static com.soundcloud.android.imageloader.ImageLoader.Options;
 import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
-import android.content.Context;
-import android.view.accessibility.AccessibilityManager;
-import android.widget.*;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -23,31 +20,35 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.adapter.TrackInfoBar;
+import com.soundcloud.android.view.adapter.PlayableBar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.os.Message;
-import android.text.Layout;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewStub;
+import android.view.accessibility.AccessibilityManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.ToggleButton;
+import android.widget.ViewFlipper;
 
 import java.lang.ref.SoftReference;
 import java.util.List;
 
 @SuppressWarnings("deprecation")
-public class PlayerTrackView extends LinearLayout implements
-        View.OnTouchListener,
-        LoadCommentsTask.LoadCommentsListener {
+public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.LoadCommentsListener {
 
     private ScPlayer mPlayer;
 
@@ -59,16 +60,9 @@ public class PlayerTrackView extends LinearLayout implements
     private WaveformController mWaveformController;
     private FrameLayout mUnplayableLayout;
 
-    private TrackInfoBar mTrackInfoBar;
+    private PlayableBar mTrackInfoBar;
     private @Nullable ViewFlipper mTrackFlipper;            // can be null in landscape mode
     private @Nullable PlayerTrackDetails mTrackDetailsView; // ditto
-
-    private boolean mDraggingLabel = false;
-    private int mInitialX  = -1;
-    private int mLastX     = -1;
-    private int mTextWidth = 0;
-    private int mViewWidth = 0;
-    private int mTouchSlop;
 
     private ImageLoader.BindResult mCurrentAvatarBindResult;
 
@@ -96,7 +90,7 @@ public class PlayerTrackView extends LinearLayout implements
 
         mPlayer = player;
 
-        mTrackInfoBar = (TrackInfoBar) findViewById(R.id.track_info_bar);
+        mTrackInfoBar = (PlayableBar) findViewById(R.id.track_info_bar);
         mTrackInfoBar.setEnabled(false);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
 
@@ -194,9 +188,6 @@ public class PlayerTrackView extends LinearLayout implements
         ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
         mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
         mWaveformController.setPlayerTrackView(this);
-
-        ((View) findViewById(R.id.track).getParent()).setOnTouchListener(this);
-        mTouchSlop = ViewConfiguration.get(mPlayer).getScaledTouchSlop();
     }
 
     public void setOnScreen(boolean onScreen){
@@ -220,7 +211,7 @@ public class PlayerTrackView extends LinearLayout implements
         if (changed && !mLandscape) updateArtwork(priority);
         mWaveformController.updateTrack(mTrack, queuePosition, priority);
 
-        mTrackInfoBar.display(mTrack, -1, false, true, false);
+        mTrackInfoBar.display(mTrack);
         if (mTrackDetailsView != null) mTrackDetailsView.fillTrackDetails(mTrack);
         updateAvatar(priority);
 
@@ -502,103 +493,6 @@ public class PlayerTrackView extends LinearLayout implements
             mToggleLike.setChecked(mTrack.user_like);
             mToggleRepost.setChecked(mTrack.user_repost);
         }
-    }
-
-    /**
-     * Handle text dragging for viewing of long track names
-     */
-    public boolean onTouch(View v, MotionEvent event) {
-        int action = event.getAction();
-        TextView tv = textViewForContainer(v);
-        if (tv == null) {
-            return false;
-        }
-        if (action == MotionEvent.ACTION_DOWN) {
-            mInitialX = mLastX = (int) event.getX();
-            mDraggingLabel = false;
-            return true;
-        } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-            if (mDraggingLabel) {
-                Message msg = mLabelScroller.obtainMessage(0, tv);
-                mLabelScroller.sendMessageDelayed(msg, 1000);
-            }
-        } else if (action == MotionEvent.ACTION_MOVE) {
-            if (mDraggingLabel) {
-                int scrollx = tv.getScrollX();
-                int x = (int) event.getX();
-                int delta = mLastX - x;
-                if (delta != 0) {
-                    mLastX = x;
-                    scrollx += delta;
-                    if (scrollx > mTextWidth) {
-                        // scrolled the text completely off the view to the left
-                        scrollx -= mTextWidth;
-                        scrollx -= mViewWidth;
-                    }
-                    if (scrollx < -mViewWidth) {
-                        // scrolled the text completely off the view to the right
-                        scrollx += mViewWidth;
-                        scrollx += mTextWidth;
-                    }
-                    tv.scrollTo(scrollx, 0);
-                }
-                return true;
-            }
-            int delta = mInitialX - (int) event.getX();
-            if (Math.abs(delta) > mTouchSlop) {
-                // start moving
-                mLabelScroller.removeMessages(0, tv);
-
-                // Only turn ellipsizing off when it's not already off, because it
-                // causes the scroll position to be reset to 0.
-                if (tv.getEllipsize() != null) {
-                    tv.setEllipsize(null);
-                }
-                Layout ll = tv.getLayout();
-                // layout might be null if the text just changed, or ellipsizing was just turned off
-                if (ll == null) {
-                    return false;
-                }
-                // get the non-ellipsized line width, to determine whether
-                // scrolling should even be allowed
-                mTextWidth = (int) tv.getLayout().getLineWidth(0);
-                mViewWidth = tv.getWidth();
-                if (mViewWidth > mTextWidth) {
-                    tv.setEllipsize(TextUtils.TruncateAt.END);
-                    v.cancelLongPress();
-                    return false;
-                }
-                mDraggingLabel = true;
-                tv.setHorizontalFadingEdgeEnabled(true);
-                v.cancelLongPress();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private final Handler mLabelScroller = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            TextView tv = (TextView) msg.obj;
-            int x = tv.getScrollX();
-            x = x * 3 / 4;
-            tv.scrollTo(x, 0);
-            if (x == 0) {
-                tv.setEllipsize(TextUtils.TruncateAt.END);
-            } else {
-                Message newmsg = obtainMessage(0, tv);
-                mLabelScroller.sendMessageDelayed(newmsg, 15);
-            }
-        }
-    };
-
-    private @Nullable TextView textViewForContainer(View v) {
-        View vv = v.findViewById(R.id.track);
-        if (vv != null) {
-            return (TextView) vv;
-        }
-        return null;
     }
 
     public void setCommentMode(boolean  isCommenting) {

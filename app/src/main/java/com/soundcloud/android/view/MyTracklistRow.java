@@ -9,7 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.adapter.TrackInfoBar;
+import com.soundcloud.android.view.adapter.PlayableRow;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -24,15 +24,15 @@ import android.widget.TextView;
 
 import java.io.IOException;
 
-public class MyTracklistRow extends TrackInfoBar {
+public class MyTracklistRow extends PlayableRow {
     private TextView mTitle;
     private TextView mCreatedAt;
     private TextView mPrivateIndicator;
     private Drawable mPrivateBgDrawable;
     private Drawable mVeryPrivateBgDrawable;
 
-    public MyTracklistRow(Context activity, IScAdapter adapter) {
-        super(activity, adapter);
+    public MyTracklistRow(Context activity) {
+        super(activity);
         mTitle = (TextView) findViewById(R.id.track);
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
         mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
@@ -67,8 +67,7 @@ public class MyTracklistRow extends TrackInfoBar {
     @Override
     public void display(int position, Parcelable p) {
         if (!(p instanceof Recording)) {
-            SoundCloudApplication.handleSilentException("item "+p+" at position " +position + " is not a recording, "+
-                    "adapter="+mAdapter, null);
+            SoundCloudApplication.handleSilentException("item "+p+" at position " +position + " is not a recording", null);
             return;
         }
 
@@ -101,6 +100,20 @@ public class MyTracklistRow extends TrackInfoBar {
         mCreatedAt.setTextColor(getContext().getResources().getColor(R.color.listTxtRecSecondary));
         mCreatedAt.setText(recording.getStatus(getContext().getResources()));
 
+        loadIcon(recording);
+
+        if (recording.isUploading()) {
+            if (findViewById(R.id.processing_progress) != null) {
+                findViewById(R.id.processing_progress).setVisibility(View.VISIBLE);
+            } else {
+                ((ViewStub) findViewById(R.id.processing_progress_stub)).inflate();
+            }
+        } else if (findViewById(R.id.processing_progress) != null) {
+            findViewById(R.id.processing_progress).setVisibility(View.GONE);
+        }
+    }
+
+    protected void loadIcon(Recording recording) {
         if (recording.artwork_path == null) {
             mImageLoader.unbind(mIcon);
         } else {
@@ -114,17 +127,7 @@ public class MyTracklistRow extends TrackInfoBar {
             } catch (IOException e) {
                 Log.w(TAG, "error", e);
             }
-            mImageLoader.bind((BaseAdapter) mAdapter, mIcon, recording.artwork_path.getAbsolutePath(), options);
-        }
-
-        if (recording.isUploading()) {
-            if (findViewById(R.id.processing_progress) != null) {
-                findViewById(R.id.processing_progress).setVisibility(View.VISIBLE);
-            } else {
-                ((ViewStub) findViewById(R.id.processing_progress_stub)).inflate();
-            }
-        } else if (findViewById(R.id.processing_progress) != null) {
-            findViewById(R.id.processing_progress).setVisibility(View.GONE);
+            mImageLoader.bind(mIcon, recording.artwork_path.getAbsolutePath(), null, options);
         }
     }
 }

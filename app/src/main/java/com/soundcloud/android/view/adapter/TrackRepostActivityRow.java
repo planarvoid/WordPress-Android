@@ -1,23 +1,17 @@
 package com.soundcloud.android.view.adapter;
 
+import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
+
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.ScBaseAdapter;
 
 import android.content.Context;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.style.StyleSpan;
-import android.view.View;
-
-import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 
 public class TrackRepostActivityRow extends ActivityRow {
 
-    public TrackRepostActivityRow(Context context, ScBaseAdapter adapter) {
-        super(context, adapter);
+    public TrackRepostActivityRow(Context context) {
+        super(context);
     }
 
     @Override

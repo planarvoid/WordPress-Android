@@ -7,17 +7,16 @@ import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.utils.PlayUtils;
-import com.soundcloud.android.view.adapter.TrackInfoBar;
+import com.soundcloud.android.view.adapter.PlayableBar;
 
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
 public abstract class TrackInfoCollection extends ScActivity implements   FetchTrackTask.FetchTrackListener {
     Track mTrack;
-    TrackInfoBar mTrackInfoBar;
+    PlayableBar mTrackInfoBar;
     //SectionedListView mListView;
 
     @Override
@@ -26,8 +25,8 @@ public abstract class TrackInfoCollection extends ScActivity implements   FetchT
         setContentView(R.layout.track_info_collection);
 
         mTrack = Track.fromIntent(getIntent(), getContentResolver());
-        mTrackInfoBar = ((TrackInfoBar) findViewById(R.id.track_info_bar));
-        mTrackInfoBar.display(mTrack, -1, true, true, true);
+        mTrackInfoBar = ((PlayableBar) findViewById(R.id.track_info_bar));
+        mTrackInfoBar.display(mTrack);
         mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,7 +56,7 @@ public abstract class TrackInfoCollection extends ScActivity implements   FetchT
 
     @Override
     public void onSuccess(Track track, String action) {
-        ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(track, -1, true, false, true);
+        ((PlayableBar) findViewById(R.id.track_info_bar)).display(track);
     }
 
     @Override

@@ -3,8 +3,8 @@ package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.PlayUtils;
-import com.soundcloud.android.view.adapter.LazyRow;
-import com.soundcloud.android.view.adapter.TrackInfoBar;
+import com.soundcloud.android.view.adapter.IconLayout;
+import com.soundcloud.android.view.adapter.PlayableRow;
 import com.soundcloud.android.view.quickaction.QuickAction;
 import com.soundcloud.android.view.quickaction.QuickTrackMenu;
 
@@ -20,8 +20,8 @@ public class TrackAdapter extends ScBaseAdapter<Track> implements PlayableAdapte
     }
 
     @Override
-    protected LazyRow createRow(int position) {
-        return new TrackInfoBar(mContext,this);
+    protected IconLayout createRow(int position) {
+        return new PlayableRow(mContext);
     }
 
     @Override

@@ -6,14 +6,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 style="@style/ListItemContainer">
-    <ImageView android:id="@+id/icon"
-               android:layout_alignParentLeft="true"
-               android:layout_alignParentTop="true"
-               android:layout_width="@dimen/list_icon_width"
-               android:layout_height="@dimen/list_icon_height"
-               android:layout_marginRight="@dimen/list_icon_margin_right"
-               android:background="@drawable/artwork_badge_onhold"
-               android:scaleType="centerCrop"/>
+    <ImageView style="@style/PlayableIcon"
+               android:background="@drawable/artwork_badge_onhold" />
     <ViewStub android:id="@+id/processing_progress_stub"
                   android:layout_alignLeft="@id/icon"
                   android:layout_alignRight="@id/icon"

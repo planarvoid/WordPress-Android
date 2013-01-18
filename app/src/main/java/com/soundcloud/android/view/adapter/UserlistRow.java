@@ -15,7 +15,6 @@ import com.soundcloud.android.tracking.EventAware;
 import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.view.adapter.LazyRow;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -24,15 +23,12 @@ import android.os.Message;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-public class UserlistRow extends LazyRow {
+public class UserlistRow extends IconLayout implements ListRow {
     private User mUser;
     private TextView mUsername;
     private TextView mTracks;
@@ -42,8 +38,8 @@ public class UserlistRow extends LazyRow {
     private ToggleButton mFollowBtn;
 
 
-    public UserlistRow(Context context, IScAdapter _adapter) {
-        super(context, _adapter);
+    public UserlistRow(Context context) {
+        super(context);
 
         mUsername = (TextView) findViewById(R.id.username);
         mTracks = (TextView) findViewById(R.id.tracks);
@@ -71,10 +67,6 @@ public class UserlistRow extends LazyRow {
 
     }
 
-    public UserlistRow(Context context) {
-        super(context,null);
-    }
-
     @Override
     protected View addContent() {
         return View.inflate(getContext(),R.layout.user_list_row, this);
@@ -92,7 +84,7 @@ public class UserlistRow extends LazyRow {
 
         mUser = p instanceof Friend ? ((Friend) p).user : (User) p;
 
-        super.display(position);
+        loadIcon();
         if (mUser != null) {
             mUsername.setText(mUser.username);
             setFollowingStatus(true);

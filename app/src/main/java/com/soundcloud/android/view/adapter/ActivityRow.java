@@ -12,7 +12,6 @@ import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.DrawableSpan;
 
@@ -21,14 +20,13 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
 import android.view.View;
 import android.widget.TextView;
 
 import java.util.Date;
 
-public abstract class ActivityRow extends LazyRow {
+public abstract class ActivityRow extends IconLayout implements ListRow {
     protected Activity mActivity;
 
     protected final TextView mUser;
@@ -38,8 +36,8 @@ public abstract class ActivityRow extends LazyRow {
     private Drawable mDrawable, mPressedDrawable;
     protected SpannableStringBuilder mSpanBuilder;
 
-    public ActivityRow(Context context, IScAdapter adapter) {
-        super(context, adapter);
+    public ActivityRow(Context context) {
+        super(context);
 
         mTitle = (TextView) findViewById(R.id.title);
         mUser = (TextView) findViewById(R.id.user);
@@ -107,9 +105,9 @@ public abstract class ActivityRow extends LazyRow {
     @Override
     public void display(int position, Parcelable p) {
         mActivity = (Activity) p;
-        boolean isNull = !fillParcelable(p);
-        super.display(position);
-        if (isNull) return;
+        if (!fillParcelable(p)) return;
+
+        loadIcon();
 
         mActivity = (Activity) p;
         mSpanBuilder = createSpan();

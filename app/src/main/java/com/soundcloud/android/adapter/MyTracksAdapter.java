@@ -11,8 +11,8 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.MyTracklistRow;
-import com.soundcloud.android.view.adapter.LazyRow;
-import com.soundcloud.android.view.adapter.TrackInfoBar;
+import com.soundcloud.android.view.adapter.IconLayout;
+import com.soundcloud.android.view.adapter.PlayableRow;
 
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -57,9 +57,9 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
     }
 
     @Override
-    protected LazyRow createRow(int position) {
+    protected IconLayout createRow(int position) {
         return getItemViewType(position) == TYPE_PENDING_RECORDING ?
-                new MyTracklistRow(mContext, this) : new TrackInfoBar(mContext,this);
+                new MyTracklistRow(mContext) : new PlayableRow(mContext);
     }
 
     @Override
