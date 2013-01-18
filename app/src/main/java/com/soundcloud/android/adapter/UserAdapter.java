@@ -3,7 +3,7 @@ package com.soundcloud.android.adapter;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.view.adapter.LazyRow;
+import com.soundcloud.android.view.adapter.IconLayout;
 import com.soundcloud.android.view.adapter.UserlistRow;
 
 import android.content.Context;
@@ -17,8 +17,8 @@ public class UserAdapter extends ScBaseAdapter<User> implements FollowStatus.Lis
     }
 
     @Override
-    protected LazyRow createRow(int position) {
-        return new UserlistRow(mContext, this);
+    protected IconLayout createRow(int position) {
+        return new UserlistRow(mContext);
     }
 
     @Override

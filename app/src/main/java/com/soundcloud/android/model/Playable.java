@@ -326,6 +326,10 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         return type == DB_TYPE_TRACK ? Endpoints.TRACKS : TempEndpoints.PLAYLISTS;
     }
 
+    public String getUsername() {
+        return user != null ? user.username : "";
+    }
+
     public static boolean isTrackCursor(Cursor cursor){
         return cursor.getInt(cursor.getColumnIndex(DBHelper.Sounds._TYPE)) == DB_TYPE_TRACK;
     }

@@ -1,15 +1,12 @@
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.utils.PlayUtils;
-import com.soundcloud.android.view.adapter.LazyRow;
-import com.soundcloud.android.view.adapter.TrackInfoBar;
+import com.soundcloud.android.view.adapter.IconLayout;
+import com.soundcloud.android.view.adapter.PlayableRow;
 
 import android.content.Context;
 import android.net.Uri;
-
-import java.util.Iterator;
 
 public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> implements PlayableAdapter {
     public SoundAssociationAdapter(Context context, Uri uri) {
@@ -17,8 +14,8 @@ public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> imp
     }
 
     @Override
-    protected LazyRow createRow(int position) {
-        return new TrackInfoBar(mContext,this);
+    protected IconLayout createRow(int position) {
+        return new PlayableRow(mContext);
     }
 
     @Override

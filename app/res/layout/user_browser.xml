@@ -7,13 +7,9 @@
               android:id="@+id/container">
 
     <RelativeLayout android:background="@color/playerControlBackground"
+                  style="@style/ListItemContainer"
                   android:layout_height="wrap_content"
-                  android:paddingTop="@dimen/list_item_padding_top"
-                  android:paddingLeft="@dimen/list_item_padding_left"
-                  android:paddingRight="@dimen/list_item_padding_right"
-                  android:paddingBottom="@dimen/list_item_padding_bottom"
                   android:gravity="center_vertical"
-                  android:orientation="horizontal"
                   android:layout_width="fill_parent">
 
         <ImageView android:id="@+id/user_icon"

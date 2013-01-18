@@ -23,8 +23,8 @@ import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 public class CommentActivityRow extends ActivityRow {
     private Comment mComment;
 
-    public CommentActivityRow(Context context, ScBaseAdapter adapter) {
-        super(context, adapter);
+    public CommentActivityRow(Context context) {
+        super(context);
     }
 
     @Override

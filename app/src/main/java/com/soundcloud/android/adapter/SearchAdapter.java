@@ -4,8 +4,8 @@ import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.PlayUtils;
-import com.soundcloud.android.view.adapter.LazyRow;
-import com.soundcloud.android.view.adapter.TrackInfoBar;
+import com.soundcloud.android.view.adapter.IconLayout;
+import com.soundcloud.android.view.adapter.PlayableRow;
 import com.soundcloud.android.view.adapter.UserlistRow;
 
 import android.content.Context;
@@ -35,13 +35,13 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> implements Playable
     }
 
     @Override
-    protected LazyRow createRow(int position) {
+    protected IconLayout createRow(int position) {
         int type = getItemViewType(position);
         switch (type) {
             case TYPE_TRACK:
-                return new TrackInfoBar(mContext, this);
+                return new PlayableRow(mContext);
             case TYPE_USER:
-                return new UserlistRow(mContext, this);
+                return new UserlistRow(mContext);
             default:
                 throw new IllegalArgumentException("no view for playlists yet");
         }

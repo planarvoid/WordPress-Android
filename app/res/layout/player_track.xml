@@ -5,7 +5,7 @@
     <RelativeLayout android:layout_width="fill_parent"
                     android:background="@color/playerControlBackground"
                     android:layout_height="wrap_content">
-        <com.soundcloud.android.view.adapter.TrackInfoBar
+        <com.soundcloud.android.view.adapter.PlayableBar
                 android:id="@+id/track_info_bar"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"/>

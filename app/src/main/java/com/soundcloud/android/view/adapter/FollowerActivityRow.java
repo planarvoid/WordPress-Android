@@ -1,13 +1,7 @@
 package com.soundcloud.android.view.adapter;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.ScBaseAdapter;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.act.CommentActivity;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -17,13 +11,11 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
 
-import java.util.Date;
-
 public class FollowerActivityRow extends ActivityRow {
     public User user;
 
-    public FollowerActivityRow(Context context, ScBaseAdapter adapter) {
-        super(context, adapter);
+    public FollowerActivityRow(Context context) {
+        super(context);
     }
 
     @Override

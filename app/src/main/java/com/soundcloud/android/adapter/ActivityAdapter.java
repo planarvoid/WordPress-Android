@@ -4,19 +4,19 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.track.TrackComments;
 import com.soundcloud.android.activity.track.TrackReposters;
+import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
-import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.adapter.AffiliationActivityRow;
 import com.soundcloud.android.view.adapter.CommentActivityRow;
-import com.soundcloud.android.view.adapter.LazyRow;
+import com.soundcloud.android.view.adapter.IconLayout;
 import com.soundcloud.android.view.adapter.LikeActivityRow;
-import com.soundcloud.android.view.adapter.TrackInfoBar;
+import com.soundcloud.android.view.adapter.PlayableRow;
 import com.soundcloud.android.view.adapter.TrackRepostActivityRow;
 
 import android.content.Context;
@@ -58,28 +58,28 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
     }
 
     @Override
-    protected LazyRow createRow(int position) {
+    protected IconLayout createRow(int position) {
         Activity.Type type = Activity.Type.values()[getItemViewType(position)];
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
-                return new TrackInfoBar(mContext, this);
+                return new PlayableRow(mContext);
 
             case TRACK_REPOST:
                 return (mContent == Content.ME_ACTIVITIES) ?
-                        new TrackRepostActivityRow(mContext, this) : new TrackInfoBar(mContext, this);
+                        new TrackRepostActivityRow(mContext) : new PlayableRow(mContext);
 
             case PLAYLIST:
             case PLAYLIST_REPOST:
             case PLAYLIST_SHARING:
                 // TODO, playlist view
-                return new TrackInfoBar(mContext, this);
+                return new PlayableRow(mContext);
 
             case COMMENT:
-                return new CommentActivityRow(mContext, this);
+                return new CommentActivityRow(mContext);
 
             case TRACK_LIKE:
-                return new LikeActivityRow(mContext, this);
+                return new LikeActivityRow(mContext);
 
             /*
             TODO
@@ -89,7 +89,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
             */
 
             case AFFILIATION:
-                return new AffiliationActivityRow(mContext, this);
+                return new AffiliationActivityRow(mContext);
 
 
             default:

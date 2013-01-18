@@ -17,15 +17,14 @@ import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.task.collection.ReturnData;
 import com.soundcloud.android.task.collection.UpdateCollectionTask;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.view.adapter.LazyRow;
+import com.soundcloud.android.view.adapter.IconLayout;
+import com.soundcloud.android.view.adapter.ListRow;
 import com.soundcloud.android.view.quickaction.QuickAction;
 import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.support.v4.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -119,17 +118,20 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
             return mProgressView;
         }
 
-        LazyRow rowView;
+        View rowView;
         if (row == null) {
             rowView = createRow(index);
-        }  else {
-            rowView = (LazyRow) row;
+        } else {
+            rowView = row;
         }
-        rowView.display(index, getItem(index));
+
+        if (rowView instanceof ListRow) {
+            ((ListRow) rowView).display(index, getItem(index));
+        }
         return rowView;
     }
 
-    protected abstract LazyRow createRow(int position);
+    protected abstract View createRow(int position);
 
     public void clearData() {
         mData.clear();
@@ -161,8 +163,8 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     }
 
     public void refreshCreationStamps() {
-        for (ScModel resource : mData){
-            if (resource instanceof Creation){
+        for (ScModel resource : mData) {
+            if (resource instanceof Creation) {
                 ((Creation) resource).refreshTimeSinceCreated(mContext);
             }
         }
@@ -171,7 +173,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     public boolean shouldRequestNextPage(int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
         // if loading, subtract the loading item from total count
-        boolean lastItemReached = ((mIsLoadingData? totalItemCount - 1 : totalItemCount) > 0)
+        boolean lastItemReached = ((mIsLoadingData ? totalItemCount - 1 : totalItemCount) > 0)
                 && (totalItemCount - visibleItemCount * 2 < firstVisibleItem);
 
         return !mIsLoadingData && lastItemReached;
@@ -254,7 +256,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     public abstract int handleListItemClick(int position, long id);
 
-    public interface ItemClickResults{
+    public interface ItemClickResults {
         int IGNORE = 0;
         int LEAVING = 1;
     }
