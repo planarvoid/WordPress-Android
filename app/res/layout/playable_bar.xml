@@ -22,7 +22,7 @@
 
     <TextView android:id="@+id/playable_title"
                   style="@style/txt_list_main"
-                  android:layout_alignLeft="@id/playable_user_holder"
+                  android:layout_alignLeft="@+id/playable_user_holder"
                   android:layout_toLeftOf="@+id/playable_track_count"
                   android:layout_alignWithParentIfMissing="true"
                   android:layout_width="0dp"
@@ -37,7 +37,7 @@
                       android:layout_marginTop="5dp"
                       android:layout_marginLeft="10dp"
                       android:layout_alignParentRight="true"
-                      android:layout_below="@id/playable_user_holder"
+                      android:layout_below="@+id/playable_user_holder"
                       android:visibility="gone"/>
 
     <TextView android:id="@+id/private_indicator"
