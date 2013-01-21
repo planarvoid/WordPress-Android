@@ -122,7 +122,7 @@
 
     <dimen name="stats_view_item_text_size">12sp</dimen>
 
-    <dimen name="list_playlist_track_count_bg_corner_radius">5dp</dimen>
-    <dimen name="list_playlist_track_count_dimension">30dp</dimen>
+    <dimen name="list_playlist_track_count_bg_corner_radius">3dp</dimen>
+    <dimen name="list_playlist_track_count_dimension">25dp</dimen>
 
 </resources>

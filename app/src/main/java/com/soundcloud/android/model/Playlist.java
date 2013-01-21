@@ -109,11 +109,6 @@ public class Playlist extends Playable {
     }
 
     @Override
-    public String getArtwork() {
-        return null;
-    }
-
-    @Override
     public ScResource getRefreshableResource() {
         return null;
     }

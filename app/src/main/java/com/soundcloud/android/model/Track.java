@@ -19,7 +19,6 @@ import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
@@ -164,14 +163,6 @@ public class Track extends Playable implements PlayableHolder {
 
     public boolean isFailed() {
         return state != null && state.isFailed();
-    }
-
-    public String getArtwork() {
-        if (shouldLoadIcon() || (user != null && user.shouldLoadIcon())) {
-            return TextUtils.isEmpty(artwork_url) ? user.avatar_url : artwork_url;
-        } else {
-            return null;
-        }
     }
 
     @Override
@@ -579,10 +570,6 @@ public class Track extends Playable implements PlayableHolder {
             shared_to_count = updatedItem.shared_to_count;
         }
         return this;
-    }
-
-    public boolean shouldLoadIcon() {
-        return ImageUtils.checkIconShouldLoad(artwork_url);
     }
 
     public String userTrackPermalink() {

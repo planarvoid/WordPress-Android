@@ -212,6 +212,12 @@
         <item name="android:textSize">@dimen/list_txt_main_size</item>
         <item name="android:background">@drawable/bg_dark_round_rect</item>
         <item name="android:gravity">center</item>
+        <item name="android:minWidth">@dimen/list_playlist_track_count_dimension</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/list_playlist_track_count_dimension</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingRight">5dp</item>
+        <item name="android:singleLine">true</item>
     </style>
 
     <style name="txt_search" parent="android:Widget.TextView">

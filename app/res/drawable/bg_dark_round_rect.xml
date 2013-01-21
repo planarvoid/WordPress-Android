@@ -24,7 +24,7 @@
                      android:topRightRadius="@dimen/list_playlist_track_count_bg_corner_radius"
                      android:bottomRightRadius="@dimen/list_playlist_track_count_bg_corner_radius"
                      android:bottomLeftRadius="@dimen/list_playlist_track_count_bg_corner_radius" />
-            <solid android:color="#AA555555"/>
+            <solid android:color="#FF898989"/>
         </shape>
     </item>
 </selector>

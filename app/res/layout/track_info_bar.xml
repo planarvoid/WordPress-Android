@@ -37,8 +37,6 @@
                       android:layout_marginTop="5dp"
                       android:layout_marginLeft="10dp"
                       android:layout_alignParentRight="true"
-                      android:layout_width="@dimen/list_playlist_track_count_dimension"
-                      android:layout_height="@dimen/list_playlist_track_count_dimension"
                       android:layout_below="@id/playable_user_holder"
                       android:visibility="gone"/>
 

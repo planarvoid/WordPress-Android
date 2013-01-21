@@ -8,11 +8,13 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.*;
+import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -30,7 +32,6 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
     public static final String COMMENTS_UPDATED                     = "com.soundcloud.android.playable.commentsupdated";
 
     public abstract Date getCreatedAt();
-    public abstract String getArtwork();
     public abstract boolean isStale();
 
     @JsonView(Views.Mini.class) public String title;
@@ -118,6 +119,18 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
             user_repost = cursor.getInt(repostIdx) == 1;
         }
 
+    }
+
+    public String getArtwork() {
+        if (shouldLoadIcon() || (user != null && user.shouldLoadIcon())) {
+            return TextUtils.isEmpty(artwork_url) ? user.avatar_url : artwork_url;
+        } else {
+            return null;
+        }
+    }
+
+    public boolean shouldLoadIcon() {
+        return ImageUtils.checkIconShouldLoad(artwork_url);
     }
 
     public CharSequence getTimeSinceCreated(Context context) {
