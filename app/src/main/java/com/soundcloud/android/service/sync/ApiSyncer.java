@@ -102,12 +102,14 @@ public class ApiSyncer {
                     break;
 
                 case TRACK_LOOKUP:
-                case TRACK:
                 case USER_LOOKUP:
+                    result = doLookupAndInsert(c,uri.getLastPathSegment());
+                    break;
+
+                case TRACK:
                 case USER:
-                    result = doLookupAndInsert(c, uri.getLastPathSegment());
-                    result.success = true;
-                    result.synced_at = System.currentTimeMillis();
+                case PLAYLIST:
+                    result = doResourceFetchAndInsert(uri);
                     break;
 
                 case ME_SHORTCUTS:
@@ -426,16 +428,33 @@ public class ApiSyncer {
 
         List<ScResource> resources = new ArrayList<ScResource>();
         InputStream is = validateResponse(
-                mApi.get(Request.to(Track.class.equals(content.modelType) ? Content.TRACKS.remoteUri : Content.USERS.remoteUri)
+                mApi.get(Request.to(content.remoteUri)
                         .add("linked_partitioning", "1")
                         .add("ids", ids))).getEntity().getContent();
-
         resources.addAll(SoundCloudApplication.MODEL_MANAGER.getCollectionFromStream(is).collection);
 
         final int inserted = SoundCloudDB.bulkInsertModels(mResolver, resources);
         log("inserted " +inserted + " resources");
         result.change = inserted > 0 ? Result.CHANGED : Result.UNCHANGED;
         result.success = true;
+        result.synced_at = System.currentTimeMillis();
+        return result;
+    }
+
+    private Result doResourceFetchAndInsert(Uri contentUri) throws IOException {
+        Result result = new Result(contentUri);
+        InputStream is = validateResponse(mApi.get(Content.match(contentUri).request(contentUri))).getEntity().getContent();
+
+        final Uri insertedUri = SoundCloudDB.insertResource(mResolver, SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is));
+        if (insertedUri != null){
+            log("inserted " + insertedUri.toString());
+            result.change = Result.CHANGED;
+            result.success = true;
+            result.synced_at = System.currentTimeMillis();
+        } else {
+            log("failed to insert to " + contentUri);
+            result.success = false;
+        }
         return result;
     }
 

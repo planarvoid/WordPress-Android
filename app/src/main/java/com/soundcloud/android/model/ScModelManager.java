@@ -137,6 +137,10 @@ public class ScModelManager {
         return track;
     }
 
+    public Playlist getPlaylistFromCursor(Cursor cursor) {
+        return getPlaylistFromCursor(cursor, DBHelper.Sounds._ID);
+    }
+
     public Playlist getPlaylistFromCursor(Cursor cursor, String idCol) {
         final long id = cursor.getLong(cursor.getColumnIndex(idCol));
         Playlist playlist = mPlaylistCache.get(id);
@@ -159,6 +163,22 @@ public class ScModelManager {
             mUserCache.put(user);
         }
         return user;
+    }
+
+    public Playlist loadPlaylistFromUri(ContentResolver resolver, long playlistId, boolean loadTracks) {
+        Cursor c = resolver.query(Content.PLAYLIST.forId(playlistId), null, null, null, null);
+        Playlist playlist = null;
+        if (c != null) {
+            if (c.moveToFirst()) playlist = getPlaylistFromCursor(c);
+            c.close();
+        }
+        if (playlist != null && loadTracks) playlist.tracks = loadPlaylistTracks(resolver, playlistId);
+
+        return playlist;
+    }
+
+    public List<Track> loadPlaylistTracks(ContentResolver resolver, long playlistId){
+        return loadLocalContent(resolver,Track.class,Content.PLAYLIST_TRACKS.forId(playlistId)).collection;
     }
 
     public <T extends ScModel> CollectionHolder<T> loadLocalContent(ContentResolver resolver, Class<T> resourceType, Uri localUri) {

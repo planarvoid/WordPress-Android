@@ -3,8 +3,10 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -19,7 +21,7 @@ import java.util.List;
 public class Playlist extends Playable {
     @JsonView(Views.Full.class) public String playlist_type;
     @JsonView(Views.Full.class) public String tracks_uri;
-    @JsonView(Views.Full.class) public List<Track> tracks;
+    @JsonView(Views.Full.class) @Nullable public List<Track> tracks;
     @JsonView(Views.Full.class) public int track_count;
 
     public Playlist() {
@@ -116,6 +118,31 @@ public class Playlist extends Playable {
     @Override
     public boolean isStale() {
         return false;
+    }
+
+    @Override
+    public BulkInsertMap getDependencyValuesMap() {
+        BulkInsertMap valuesMap = super.getDependencyValuesMap();
+        if (tracks != null) {
+            int i = 0;
+            for (Track t : tracks) {
+                valuesMap.add(t.getBulkInsertUri(),t.buildContentValues());
+                valuesMap.merge(t.getDependencyValuesMap());
+
+                // add to relationship table
+                ContentValues cv = new ContentValues();
+                cv.put(DBHelper.PlaylistTracks.TRACK_ID,t.id);
+                cv.put(DBHelper.PlaylistTracks.POSITION,i);
+                valuesMap.add(Content.PLAYLIST_TRACKS.forId(id), cv);
+                i++;
+            }
+        }
+        return valuesMap;
+    }
+
+    @Override
+    public Uri toUri() {
+        return Content.PLAYLISTS.forId(id);
     }
 
 

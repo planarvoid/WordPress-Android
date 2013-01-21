@@ -8,10 +8,12 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -343,6 +345,28 @@ public class ScModelManagerTest {
         items.add(t2);
         return items;
     }
+
+    @Test
+    public void shouldPersistPlaylistInDb() throws Exception {
+        Playlist p = manager.getModelFromStream(SyncAdapterServiceTest.class.getResourceAsStream("playlist.json"));
+        expect(p).not.toBeNull();
+        expect(p.user.username).toEqual("Natalie");
+        expect(p.tracks.size()).toEqual(41);
+
+        final Uri actualUri = SoundCloudDB.insertResource(resolver, p);
+        expect(actualUri)
+                .toEqual(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/playlists/2524386"));
+
+        Long id = Long.parseLong(actualUri.getLastPathSegment());
+        Playlist p2 = manager.loadPlaylistFromUri(resolver, id, true);
+        expect(p2).not.toBeNull();
+        expect(p2.user.username).toEqual("Natalie");
+        expect(p2.tracks.size()).toEqual(41);
+        expect(p.tracks).toEqual(p2.tracks);
+    }
+    /*
+    SELECT PlaylistTracksView.*, EXISTS (SELECT 1 FROM CollectionItems WHERE PlaylistTracksView._id = item_id AND collection_type = 1 AND user_id = 1) AS sound_user_like, EXISTS (SELECT 1 FROM CollectionItems WHERE PlaylistTracksView._id = item_id AND collection_type = 7 AND user_id = 1) AS sound_user_repost FROM PlaylistTracksView INNER JOIN CollectionItems ON (PlaylistTracksView._id = item_id AND PlaylistTracksView._type = resource_type) WHERE (playlist_id = 2524386)
+     */
 
 
     @Test

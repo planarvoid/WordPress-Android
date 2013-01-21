@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -160,6 +161,15 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
     public String getPlayerArtworkUri(Context context) {
         final String iconUrl = getArtwork();
         return TextUtils.isEmpty(iconUrl) ? null : Consts.GraphicSize.formatUriForPlayer(context, iconUrl);
+    }
+
+    @Override
+    public BulkInsertMap getDependencyValuesMap() {
+        BulkInsertMap valuesMap = super.getDependencyValuesMap();
+        if (user != null) {
+            valuesMap.add(user.getBulkInsertUri(), user.buildContentValues());
+        }
+        return valuesMap;
     }
 
     public Bundle getBundle() {

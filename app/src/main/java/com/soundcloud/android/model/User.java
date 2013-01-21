@@ -33,6 +33,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.EnumSet;
+import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -247,8 +248,9 @@ public class User extends ScResource implements Refreshable {
                 ']';
     }
 
+    @Override
     public Uri toUri() {
-        return Content.USERS.buildUpon().appendPath(String.valueOf(id)).build();
+        return Content.USERS.forId(id);
     }
 
 

@@ -20,13 +20,35 @@ import android.util.Log;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class SoundCloudDB {
     private static final String TAG = "SoundCloudDB";
     public static final int RESOLVER_BATCH_SIZE = 100;
+
+    public static @Nullable Uri insertResource(ContentResolver resolver, ScResource resource){
+        // insert dependencies
+        resource.getDependencyValuesMap().insert(resolver);
+
+        // insert parent resource
+        return resolver.insert(resource.toUri(), resource.buildContentValues());
+    }
+
+    public static Map<Uri, List<ContentValues>> getBulkInsertContentValuesMap(Set<ScResource> resources) {
+        Map<Uri, List<ContentValues>> values = new HashMap<Uri, List<ContentValues>>();
+        for (ScResource resource : resources) {
+            final Uri uri = resource.getBulkInsertUri();
+            if (values.get(uri) == null) {
+                values.put(uri, new ArrayList<ContentValues>());
+            }
+            values.get(uri).add(resource.buildContentValues());
+        }
+        return values;
+    }
 
     public static Uri insertTrack(ContentResolver resolver, Track track) {
         Uri uri = resolver.insert(Content.TRACKS.uri, track.buildContentValues());

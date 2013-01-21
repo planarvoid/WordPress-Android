@@ -3,6 +3,7 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.soundcloud.android.provider.BulkInsertMap;
 
 import android.net.Uri;
 
@@ -56,6 +57,18 @@ public abstract class ScResource extends ScModel {
     public boolean isSaved() {
         return id > NOT_SET;
     }
+
+    /**
+     * Add the dependencies of this object to the given list.
+     * Used for object persistence in DB.
+     * Warning, does not currently add itself, only its own members
+     */
+    @JsonIgnore
+    public BulkInsertMap getDependencyValuesMap(){
+        return new BulkInsertMap();
+    }
+
+    public abstract Uri toUri();
 
     public abstract Uri getBulkInsertUri();
 
