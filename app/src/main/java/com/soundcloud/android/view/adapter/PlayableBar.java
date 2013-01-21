@@ -47,7 +47,7 @@ public class PlayableBar extends IconLayout {
     }
 
     protected void setViewId() {
-        setId(R.id.track_info_bar);
+        setId(R.id.playable_bar);
     }
 
     @Override

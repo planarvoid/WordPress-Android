@@ -90,7 +90,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
         mPlayer = player;
 
-        mTrackInfoBar = (PlayableBar) findViewById(R.id.track_info_bar);
+        mTrackInfoBar = (PlayableBar) findViewById(R.id.playable_bar);
         mTrackInfoBar.setEnabled(false);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
 

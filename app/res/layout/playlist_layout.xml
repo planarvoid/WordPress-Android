@@ -12,7 +12,6 @@
                     style="@style/ListItemContainer">
 
         <com.soundcloud.android.view.adapter.PlayableBar
-                android:id="@+id/playable_bar"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"/>
 

@@ -25,7 +25,7 @@ public abstract class TrackInfoCollection extends ScActivity implements   FetchT
         setContentView(R.layout.track_info_collection);
 
         mTrack = Track.fromIntent(getIntent(), getContentResolver());
-        mTrackInfoBar = ((PlayableBar) findViewById(R.id.track_info_bar));
+        mTrackInfoBar = ((PlayableBar) findViewById(R.id.playable_bar));
         mTrackInfoBar.display(mTrack);
         mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,7 +56,7 @@ public abstract class TrackInfoCollection extends ScActivity implements   FetchT
 
     @Override
     public void onSuccess(Track track, String action) {
-        ((PlayableBar) findViewById(R.id.track_info_bar)).display(track);
+        ((PlayableBar) findViewById(R.id.playable_bar)).display(track);
     }
 
     @Override

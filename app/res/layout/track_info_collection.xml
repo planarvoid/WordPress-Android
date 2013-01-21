@@ -9,7 +9,7 @@
                  android:layout_height="wrap_content">
         <com.soundcloud.android.view.adapter.PlayableRow android:layout_width="fill_parent"
                                                   android:layout_height="wrap_content"
-                                                  android:id="@+id/track_info_bar"/>
+                                                  android:id="@id/playable_bar"/>
     </FrameLayout>
     <FrameLayout android:id="@+id/listHolder"
                  android:layout_width="fill_parent"

@@ -2,4 +2,5 @@
 <resources>
     <item name="root_view_id" type="id" />
     <item name="icon" type="id" />
+    <item name="playable_bar" type="id" />
 </resources>
