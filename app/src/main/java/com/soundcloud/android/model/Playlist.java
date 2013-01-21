@@ -93,31 +93,10 @@ public class Playlist extends Playable {
         return Content.PLAYLISTS.uri;
     }
 
-    @Override @JsonIgnore
-    public User getUser() {
-        return user;
-    }
-
-    @Override @JsonIgnore @NotNull
-    public Playable getPlayable() {
-        return this;
-    }
-
-    @Override
-    public Date getCreatedAt() {
-        return null;
-    }
-
     @Override
     public ScResource getRefreshableResource() {
         return null;
     }
-
-    @Override
-    public boolean isStale() {
-        return false;
-    }
-
 
     @Override
     public int getTypeId() {

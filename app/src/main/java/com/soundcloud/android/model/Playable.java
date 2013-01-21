@@ -31,9 +31,6 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
     public static final String ACTION_SOUND_INFO_ERROR              = "com.soundcloud.android.playable.info_error";
     public static final String COMMENTS_UPDATED                     = "com.soundcloud.android.playable.commentsupdated";
 
-    public abstract Date getCreatedAt();
-    public abstract boolean isStale();
-
     @JsonView(Views.Mini.class) public String title;
     @JsonView(Views.Mini.class) @Nullable public User user;
     @JsonView(Views.Mini.class) public String uri;
@@ -121,6 +118,21 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
 
     }
 
+    @Override
+    public boolean isStale() {
+        return false;
+    }
+
+    @Override @JsonIgnore
+    public User getUser() {
+        return user;
+    }
+
+    @Override @JsonIgnore
+    public Playable getPlayable() {
+        return this;
+    }
+
     public String getArtwork() {
         if (shouldLoadIcon()){
             return artwork_url;
@@ -141,9 +153,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
     }
 
     public void refreshTimeSinceCreated(Context context) {
-        final Date createdAt = getCreatedAt();
-        if (createdAt != null) {
-            mElapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), createdAt.getTime());
+        if (created_at != null) {
+            mElapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
         }
     }
 

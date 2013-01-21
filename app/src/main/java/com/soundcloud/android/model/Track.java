@@ -127,21 +127,6 @@ public class Track extends Playable implements PlayableHolder {
         return Content.TRACKS.forId(id);
     }
 
-    @Override @JsonIgnore
-    public Track getPlayable() {
-        return this;
-    }
-
-    @Override
-    public Date getCreatedAt() {
-        return created_at;
-    }
-
-    @Override @JsonIgnore
-    public User getUser() {
-        return user;
-    }
-
     @JsonIgnore
     public boolean isWaitingOnState() {
         return state == null;
