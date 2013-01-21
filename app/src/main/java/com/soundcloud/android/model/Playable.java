@@ -122,8 +122,10 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
     }
 
     public String getArtwork() {
-        if (shouldLoadIcon() || (user != null && user.shouldLoadIcon())) {
-            return TextUtils.isEmpty(artwork_url) ? user.avatar_url : artwork_url;
+        if (shouldLoadIcon()){
+            return artwork_url;
+        } else if (user != null && user.shouldLoadIcon()){
+            return user.avatar_url;
         } else {
             return null;
         }
