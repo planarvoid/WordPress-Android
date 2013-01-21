@@ -6,6 +6,7 @@ import static com.soundcloud.android.service.sync.ApiSyncer.Result;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -216,6 +217,26 @@ public class ApiSyncerTest {
         TestHelper.addPendingHttpResponse(getClass(), "connections_delete.json");
         expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
         expect(Content.ME_CONNECTIONS).toHaveCount(3);
+    }
+
+    @Test
+    public void shouldSyncAPlaylist() throws Exception {
+        TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
+        Result result = sync(Content.PLAYLIST.forId(2524386l));
+        expect(result.success).toBe(true);
+        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.change).toEqual(Result.CHANGED);
+        expect(Content.PLAYLIST).toHaveCount(1);
+
+        Playlist p = SoundCloudApplication.MODEL_MANAGER.loadPlaylistFromUri(resolver,2524386l,true);
+        expect(p.title).toEqual("fall into fall");
+        expect(p.track_count).toEqual(41);
+        expect(p.tracks).not.toBeNull();
+
+        final Track track = p.tracks.get(10);
+        expect(track.title).toEqual("Mozart Parties - Where Has Everybody Gone (Regal Safari Remix)");
+        expect(track.user).not.toBeNull();
+        expect(track.user.username).toEqual("Regal Safari");
     }
 
     @Test

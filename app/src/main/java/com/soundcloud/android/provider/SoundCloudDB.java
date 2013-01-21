@@ -20,77 +20,15 @@ import android.util.Log;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class SoundCloudDB {
     private static final String TAG = "SoundCloudDB";
     public static final int RESOLVER_BATCH_SIZE = 100;
-
-    public static Uri insertTrack(ContentResolver resolver, Track track) {
-        Uri uri = resolver.insert(Content.TRACKS.uri, track.buildContentValues());
-        if (uri != null && track.user != null) {
-            insertUser(resolver, track.user);
-        }
-        return uri;
-    }
-
-    public static Uri upsertTrack(ContentResolver resolver, Track track) {
-        if (!track.isSaved()) {
-            return insertTrack(resolver, track);
-        } else {
-            // XXX make more efficient
-            Cursor cursor = resolver.query(track.toUri(), null, null, null, null);
-            try {
-                if (cursor != null && cursor.getCount() > 0) {
-                    return updateTrack(resolver, track);
-                } else {
-                    return insertTrack(resolver, track);
-                }
-            } finally {
-                if (cursor != null) cursor.close();
-            }
-        }
-    }
-
-    private static Uri updateTrack(ContentResolver resolver, Track track) {
-        Uri uri = track.toUri();
-        resolver.update(uri, track.buildContentValues(), null, null);
-        if (track.user != null) {
-            upsertUser(resolver, track.user);
-        }
-        return uri;
-    }
-
-    public static @Nullable
-    Uri insertUser(ContentResolver resolver, User user) {
-        return resolver.insert(Content.USERS.uri, user.buildContentValues(getUserId(resolver) == user.id));
-    }
-
-    public static @Nullable Uri upsertUser(ContentResolver resolver, User user) {
-        if (!user.isSaved()) {
-            return insertUser(resolver, user);
-        } else {
-            // XXX make more efficient
-            Cursor cursor = resolver.query(user.toUri(), null, null, null, null);
-            try {
-                if (cursor != null && cursor.getCount() > 0) {
-                    return updateUser(resolver, user);
-                } else {
-                    return insertUser(resolver, user);
-                }
-            } finally {
-                if (cursor != null) cursor.close();
-            }
-        }
-    }
-
-    private static Uri updateUser(ContentResolver resolver, User user) {
-        Uri uri = user.toUri();
-        resolver.update(uri, user.buildContentValues(getUserId(resolver) == user.id), null, null);
-        return uri;
-    }
 
     public static int bulkInsertModels(ContentResolver resolver, List<? extends ScResource> models) {
         return bulkInsertModels(resolver, models, null, -1);
@@ -173,22 +111,6 @@ public class SoundCloudDB {
         return usersInserted + tracksInserted;
     }
 
-    public static @Nullable
-    Recording upsertRecording(ContentResolver resolver, Recording r, @Nullable ContentValues values) {
-        if (r.getRecipient() != null) {
-            upsertUser(resolver, r.getRecipient());
-        }
-        final ContentValues contentValues = values == null ? r.buildContentValues() : values;
-        if (!r.isSaved() || resolver.update(r.toUri(), contentValues, null, null) == 0) {
-            Uri uri = resolver.insert(Content.RECORDINGS.uri, contentValues);
-            if (uri != null) {
-                r.id = Long.parseLong(uri.getLastPathSegment());
-            }
-        }
-        return r;
-
-    }
-
     public static @Nullable Recording getRecordingByUri(ContentResolver resolver, Uri uri) {
         Cursor cursor = resolver.query(uri, null, null, null, null);
         Recording recording = null;
@@ -214,19 +136,6 @@ public class SoundCloudDB {
         if (cursor != null) cursor.close();
 
         return recording;
-    }
-
-    private static long getUserId(ContentResolver resolver) {
-        Cursor c = resolver.query(Content.ME_USERID.uri, null, null, null, null);
-        try {
-            if (c != null && c.moveToFirst()) {
-                return c.getLong(0);
-            } else {
-                return -1;
-            }
-        } finally {
-            if (c != null) c.close();
-        }
     }
 
     public static @NotNull List<Long> idCursorToList(Cursor c) {

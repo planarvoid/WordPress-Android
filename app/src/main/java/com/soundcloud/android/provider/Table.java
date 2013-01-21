@@ -37,7 +37,8 @@ public enum Table {
     // views
     SOUND_VIEW("SoundView", true, DBHelper.DATABASE_CREATE_SOUND_VIEW),
     ACTIVITY_VIEW("ActivityView", true, DBHelper.DATABASE_CREATE_ACTIVITY_VIEW),
-    SOUND_ASSOCIATION_VIEW("SoundAssociationView", true, DBHelper.DATABASE_CREATE_SOUND_ASSOCIATION_VIEW);
+    SOUND_ASSOCIATION_VIEW("SoundAssociationView", true, DBHelper.DATABASE_CREATE_SOUND_ASSOCIATION_VIEW),
+    PLAYLIST_TRACKS_VIEW("PlaylistTracksView", true, DBHelper.DATABASE_CREATE_PLAYLIST_TRACKS_VIEW);
 
 
     public final String name;

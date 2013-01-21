@@ -2,6 +2,7 @@ package com.soundcloud.android.provider;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Playable;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -10,7 +11,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
-import android.util.Pair;
 
 import java.util.List;
 
@@ -388,6 +388,21 @@ public class DBHelper extends SQLiteOpenHelper {
             "   " + Table.COLLECTION_ITEMS.name + "." + CollectionItems.ITEM_ID + " = " + "SoundView." + SoundView._ID +
             " AND " + Table.COLLECTION_ITEMS.name + "." + CollectionItems.RESOURCE_TYPE + " = " + "SoundView." + SoundView._TYPE + ")" +
             " ORDER BY " + SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC";
+
+    /**
+     * A view which aggregates playlist members from the sounds and playlist_tracks table
+     */
+    static final String DATABASE_CREATE_PLAYLIST_TRACKS_VIEW = "AS SELECT " +
+            "PlaylistTracks." + PlaylistTracks.PLAYLIST_ID + " as " + PlaylistTracksView.PLAYLIST_ID +
+            ", PlaylistTracks." + PlaylistTracks.POSITION + " as " + PlaylistTracksView.PLAYLIST_POSITION +
+
+            // track+user data
+            ", SoundView.*" +
+
+            " FROM PlaylistTracks" +
+            " INNER JOIN SoundView ON(" +
+            "  PlaylistTracks." + PlaylistTracks.TRACK_ID + " = " + "SoundView." + SoundView._ID +
+            " AND SoundView." + SoundView._TYPE + " = " + Playable.DB_TYPE_TRACK + ")";
 
     /** A view which combines activity data + tracks/users/comments */
     static final String DATABASE_CREATE_ACTIVITY_VIEW = "AS SELECT " +
@@ -767,6 +782,16 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String SOUND_ASSOCIATION_USER_ID   = "sound_association_user_id";
     }
 
+    public final static class PlaylistTracksView extends SoundView {
+        public static final String PLAYLIST_ID = PlaylistTracks.PLAYLIST_ID;
+        public static final String PLAYLIST_POSITION = "playlist_id";
+    }
+
+    public final static class PlaylistTracks implements BaseColumns {
+        public static final String PLAYLIST_ID = "playlist_id";
+        public static final String TRACK_ID = "track_id";
+        public static final String POSITION = "position";
+    }
 
     /**
      * @see <a href="http://developer.android.com/guide/topics/search/adding-custom-suggestions.html#SuggestionTable">
@@ -1002,6 +1027,7 @@ public class DBHelper extends SQLiteOpenHelper {
             Table.SOUND_ASSOCIATION_VIEW.recreate(db);
             Table.ACTIVITIES.recreate(db);
             Table.ACTIVITY_VIEW.recreate(db);
+            Table.PLAYLIST_TRACKS_VIEW.recreate(db);
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade20 " +

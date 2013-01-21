@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.Nullable;
@@ -20,6 +21,8 @@ import android.os.Parcel;
 
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /*
 "origin": {
@@ -73,6 +76,24 @@ public class Comment extends ScResource {
 
     public Comment() {
     }
+
+    @Override
+    public BulkInsertMap getDependencyValuesMap() {
+        BulkInsertMap valuesMap = super.getDependencyValuesMap();
+        if (user != null) {
+            valuesMap.add(user.getBulkInsertUri(), user.buildContentValues());
+        }
+        if (track != null) {
+            valuesMap.add(track.getBulkInsertUri(), track.buildContentValues());
+        }
+        return valuesMap;
+    }
+
+    @Override
+    public Uri toUri() {
+       return Content.COMMENTS.forId(id);
+    }
+
 
     @Override
     public Uri getBulkInsertUri() {

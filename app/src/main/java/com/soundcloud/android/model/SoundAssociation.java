@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -13,6 +14,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
+import android.util.Log;
 
 import java.util.Date;
 
@@ -136,6 +138,26 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
 
     public int getResourceType() {
         return playlist != null ? playlist.getTypeId() : track.getTypeId();
+    }
+
+    @Override
+    public BulkInsertMap getDependencyValuesMap() {
+        BulkInsertMap valuesMap = super.getDependencyValuesMap();
+        if (track != null)      valuesMap.merge(track.getDependencyValuesMap());
+        if (playlist != null)   valuesMap.merge(playlist.getDependencyValuesMap());
+        if (user != null)       valuesMap.merge(user.getDependencyValuesMap());;
+        return valuesMap;
+    }
+
+    /**
+     * SoundAssociations do not have ids and can not be inserted outside of
+     * {@link com.soundcloud.android.model.SoundAssociationHolder#insert}
+     * @return null
+     */
+    @Override
+    public Uri toUri() {
+        Log.e(SoundCloudApplication.TAG,"Unexpected call to toUri on a SoundAssociation");
+        return null;
     }
 
     @JsonProperty("type")

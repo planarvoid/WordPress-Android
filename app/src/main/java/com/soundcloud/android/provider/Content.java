@@ -76,7 +76,7 @@ public enum Content  {
     TRACK_LOOKUP("tracks/*", Endpoints.TRACKS, 2250, Track.class, -1, Table.SOUNDS),
 
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
-    USER("users/#", null, 302, User.class, -1, Table.USERS),
+    USER("users/#", Endpoints.USER_DETAILS, 302, User.class, -1, Table.USERS),
     @Deprecated USER_TRACKS("users/#/tracks", Endpoints.USER_TRACKS, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.SOUNDS),
     USER_SOUNDS("users/#/sounds", TempEndpoints.e1.USER_SOUNDS, 311, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
     USER_LIKES("users/#/likes", TempEndpoints.e1.USER_LIKES, 304, Track.class, LIKE, null),
@@ -92,7 +92,8 @@ public enum Content  {
     COMMENT("comments/#", null, 401, Comment.class, -1, Table.COMMENTS),
 
     PLAYLISTS("playlists", TempEndpoints.PLAYLISTS, 501, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
-    PLAYLIST("playlists/#", null, 502, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
+    PLAYLIST("playlists/#", TempEndpoints.PLAYLISTS, 502, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
+    PLAYLIST_TRACKS("playlists/#/tracks", TempEndpoints.PLAYLIST_TRACKS, 532, Track.class, -1, Table.PLAYLIST_TRACKS),
 
     // LOCAL URIS
     COLLECTIONS("collections", null, 1000, null, -1, Table.COLLECTIONS),

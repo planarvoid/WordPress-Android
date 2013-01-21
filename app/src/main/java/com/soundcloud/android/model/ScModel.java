@@ -16,7 +16,7 @@ public class ScModel implements Parcelable {
     public static final int NOT_SET = -1;
     @JsonView(Views.Mini.class) public long id = NOT_SET;
 
-    public @Nullable ContentValues buildContentValues() {
+    public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
         if (id != ScResource.NOT_SET) cv.put(BaseColumns._ID, id);
         return cv;
