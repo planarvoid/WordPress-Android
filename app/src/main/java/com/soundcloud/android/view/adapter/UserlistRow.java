@@ -21,6 +21,7 @@ import android.database.Cursor;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -68,7 +69,7 @@ public class UserlistRow extends IconLayout implements ListRow {
     }
 
     @Override
-    protected View addContent() {
+    protected View addContent(AttributeSet attributeSet) {
         return View.inflate(getContext(),R.layout.user_list_row, this);
     }
 

@@ -52,7 +52,7 @@ public abstract class IconLayout extends FrameLayout {
         if (mIconOptions == null) mIconOptions = ImageLoader.Options.listFadeIn();
         mImageLoader = ImageLoader.get(context);
 
-        addContent();
+        addContent(attributeSet);
 
         mIcon = (ImageView) findViewById(R.id.icon);
     }
@@ -61,7 +61,11 @@ public abstract class IconLayout extends FrameLayout {
         return SoundCloudApplication.getUserId();
     }
 
-    protected abstract View addContent();
+    protected abstract View addContent(AttributeSet attributeSet);
+
+    public ImageView getIcon() {
+        return mIcon;
+    }
 
     protected void loadIcon() {
         final String iconUri = getIconRemoteUri();

@@ -16,6 +16,7 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
@@ -40,7 +41,7 @@ public class MyTracklistRow extends PlayableRow {
     }
 
     @Override
-    protected View addContent() {
+    protected View addContent(AttributeSet attributeSet) {
         return View.inflate(getContext(), R.layout.record_list_item_row, this);
     }
 

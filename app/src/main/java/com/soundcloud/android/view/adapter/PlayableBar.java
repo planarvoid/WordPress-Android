@@ -14,6 +14,7 @@ import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
@@ -51,8 +52,12 @@ public class PlayableBar extends IconLayout {
     }
 
     @Override
-    protected View addContent() {
-        return View.inflate(getContext(), R.layout.playable_bar, this);
+    protected View addContent(AttributeSet attributeSet) {
+        TypedArray attrs = getContext().obtainStyledAttributes(attributeSet, R.styleable.PlayableBar, 0, 0);
+        final int layoutId = attrs.getResourceId(R.styleable.PlayableBar_android_layout, R.layout.playable_bar);
+        attrs.recycle();
+
+        return View.inflate(getContext(), layoutId, this);
     }
 
     /**

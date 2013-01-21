@@ -9,6 +9,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Parcelable;
+import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
 
@@ -27,7 +28,7 @@ public class CommentRow extends IconLayout implements ListRow {
     }
 
     @Override
-    protected View addContent() {
+    protected View addContent(AttributeSet attributeSet) {
         return View.inflate(getContext(), R.layout.activity_list_row, this);
     }
 

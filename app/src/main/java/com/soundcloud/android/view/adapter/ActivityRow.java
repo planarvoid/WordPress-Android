@@ -21,6 +21,7 @@ import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
+import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
 
@@ -87,7 +88,7 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
     }
 
     @Override
-    protected View addContent() {
+    protected View addContent(AttributeSet attributeSet) {
         return View.inflate(getContext(), R.layout.activity_list_row, this);
     }
 
