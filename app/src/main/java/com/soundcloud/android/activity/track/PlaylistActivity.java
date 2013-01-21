@@ -29,7 +29,7 @@ public class PlaylistActivity extends ScActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.playlist_layout);
+        setContentView(R.layout.playlist_activity);
 
         mPlaylist = getIntent().getParcelableExtra(PLAYLIST_EXTRA);
         mPlaylistBar = (PlayableBar) findViewById(R.id.playable_bar);
