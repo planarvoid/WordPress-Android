@@ -30,12 +30,14 @@ public class PlaylistActivity extends ScActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.playlist_layout);
+
+        mPlaylist = getIntent().getParcelableExtra(PLAYLIST_EXTRA);
         mPlaylistBar = (PlayableBar) findViewById(R.id.playable_bar);
+        mPlaylistBar.display(mPlaylist);
 
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.playlist_tracks_fragment, ScListFragment.newInstance(Content.ME_ACTIVITIES)).commit();
 
-        mPlaylist = getIntent().getParcelableExtra(PLAYLIST_EXTRA);
 
 
     }

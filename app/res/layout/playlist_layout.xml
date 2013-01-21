@@ -1,28 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
 
-    <!-- header view -->
-    <RelativeLayout android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="@style/ListItemContainer">
-
-        <com.soundcloud.android.view.adapter.PlayableBar
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"/>
-
-    </RelativeLayout>
-
+    <com.soundcloud.android.view.adapter.PlayableBar
+            android:layout="@layout/playlist_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
     <!-- list view (set items) -->
     <FrameLayout android:id="@+id/playlist_tracks_fragment"
                  android:layout_width="match_parent"
-                 android:layout_height="0px"
-                 android:layout_weight="1"/>
+                 android:layout_height="match_parent"
+                 android:layout_below="@id/playable_bar"
+                 android:layout_alignParentBottom="true"/>
 
 
-</LinearLayout>
+</RelativeLayout>

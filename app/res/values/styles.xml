@@ -562,6 +562,8 @@
         <item name="android:paddingBottom">@dimen/list_item_padding_bottom</item>
     </style>
 
+    <!-- Playable (tracks/playlists) styles -->
+
     <style name="PlayableIcon">
         <item name="android:id">@id/icon</item>
         <item name="android:layout_width">@dimen/list_icon_width</item>
@@ -573,6 +575,24 @@
         <item name="android:contentDescription"/>  <!-- TODO Need a string for this? -->
     </style>
 
+    <style name="PlayableIcon.Playlist">
+        <item name="android:layout_width">@dimen/playlist_page_icon_size</item>
+        <item name="android:layout_height">@dimen/playlist_page_icon_size</item>
+    </style>
+
+    <style name="PlayableTitle">
+        <item name="android:id">@+id/playable_title</item>
+        <item name="android:layout_alignLeft">@+id/playable_user_holder</item>
+        <item name="android:layout_toLeftOf">@+id/playable_track_count</item>
+        <item name="android:layout_alignWithParentIfMissing">true</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_below">@id/playable_user_holder</item>
+        <item name="android:textAppearance">@style/txt_list_main</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
     <style name="Playlist">
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:background">@android:color/black</item>
@@ -582,6 +602,7 @@
         <item name="android:layout_marginTop">60dip</item>
     </style>
 
+    <!-- END Playable styles -->
 
     <style name="FloatingPlayer">
         <item name="android:windowBackground">@android:color/transparent</item>
