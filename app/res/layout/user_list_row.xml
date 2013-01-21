@@ -75,12 +75,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="0dp">
         <ToggleButton
-                android:id="@id/toggle_btn_follow"
                 android:duplicateParentState="true"
                 android:layout_marginLeft="10dp"
                 android:layout_width="wrap_content"
-                android:textOn="@string/btn_following"
-                android:textOff="@string/btn_follow"
-                style="@style/UserListFollow"/>
+                style="@style/UserBrowser.ToggleButton.Follow"/>
     </RelativeLayout>
 </RelativeLayout>

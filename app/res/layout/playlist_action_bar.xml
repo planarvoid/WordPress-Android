@@ -4,25 +4,14 @@
               android:orientation="horizontal"
               android:gravity="center_vertical">
     <com.soundcloud.android.view.CustomToggleButton style="@style/PlayerAction.ToggleButton.Like"
-                                                    android:layout_marginLeft="10dp"
+                                                    android:layout_marginLeft="5dp"
                                                     android:layout_weight="1"
                                                     android:layout_width="0dp"/>
     <com.soundcloud.android.view.CustomToggleButton style="@style/PlayerAction.ToggleButton.Repost"
                                                     android:layout_marginLeft="5dp"
                                                     android:layout_weight="1"
                                                     android:layout_width="0dp"/>
-    <com.soundcloud.android.view.CustomToggleButton style="@style/PlayerAction.ToggleButton.Comment"
-                                                    android:layout_weight="1"
-                                                    android:layout_marginLeft="5dp"
-                                                    android:layout_width="0dp"/>
-    <View android:layout_width="2dp"
-          android:layout_marginLeft="10dp"
-          android:layout_marginRight="10dp"
-          android:layout_height="fill_parent"
-          android:background="@drawable/player_track_vert_separator_bg"/>
     <ImageButton android:id="@+id/btn_share"
-                 android:layout_marginRight="5dp"
+                 android:layout_marginLeft="5dp"
                  style="@style/PlayerAction.Button.Share"/>
-    <ToggleButton android:layout_marginRight="10dp"
-                  style="@style/PlayerAction.Button.Info"/>
 </LinearLayout>

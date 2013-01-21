@@ -602,6 +602,15 @@
         <item name="android:layout_marginTop">60dip</item>
     </style>
 
+    <style name="PlayerActionContainer">
+        <item name="android:id">@id/playable_action_bar_container</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:background">@color/playerControlBackground</item>
+    </style>
+
     <!-- END Playable styles -->
 
     <style name="FloatingPlayer">

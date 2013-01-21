@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/playerControlBackground"
                 style="@style/ListItemContainer">
 
     <ImageView style="@style/PlayableIcon.Playlist"
@@ -10,5 +11,11 @@
     <include layout="@layout/playable_metadata" />
 
     <TextView style="@style/PlayableTitle" />
+
+    <include layout="@layout/playlist_action_bar"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_toRightOf="@id/icon"
+             android:layout_below="@id/playable_title"/>
 
 </RelativeLayout>
