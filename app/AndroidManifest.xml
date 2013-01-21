@@ -285,6 +285,8 @@
         <activity android:name=".activity.track.TrackComments" />
         <activity android:name=".activity.track.TracksByTag" />
 
+        <activity android:name=".activity.track.PlaylistActivity" />
+
         <!-- settings -->
         <activity android:name=".activity.settings.Settings"
                   android:label="@string/title_settings"

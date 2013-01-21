@@ -2,10 +2,12 @@ package com.soundcloud.android.utils;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.track.PlaylistActivity;
 import com.soundcloud.android.adapter.PlayableAdapter;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -72,28 +74,37 @@ public final class PlayUtils {
     }
 
     public static void playFromAdapter(Context c, PlayableAdapter adapter, List<? extends ScModel> data, int position) {
-        if (position > data.size() || !(data.get(position) instanceof PlayableHolder)
-                || !(((PlayableHolder) data.get(position)).getPlayable() instanceof Track)) {
-            throw new AssertionError("Invalid item " + position + ", this is not a track");
+        if (position > data.size() || !(data.get(position) instanceof PlayableHolder)) {
+            throw new AssertionError("Invalid item " + position + ", must be a playable");
         }
 
-        PlayInfo info = new PlayInfo();
-        info.initialTrack = (Track) ((PlayableHolder) data.get(position)).getPlayable();
-        info.uri = adapter.getPlayableUri();
+        Playable playable = ((PlayableHolder) data.get(position)).getPlayable();
+        if (playable instanceof Track) {
+            PlayInfo info = new PlayInfo();
+            info.initialTrack = (Track) ((PlayableHolder) data.get(position)).getPlayable();
+            info.uri = adapter.getPlayableUri();
 
-        List<Playable> playables = new ArrayList<Playable>(data.size());
+            List<Playable> playables = new ArrayList<Playable>(data.size());
 
-        int adjustedPosition = position;
-        for (int i = 0; i < data.size(); i++) {
-            if (data.get(i) instanceof PlayableHolder) {
-                playables.add(((PlayableHolder) data.get(i)).getPlayable());
-            } else if (i < position) {
-                adjustedPosition--;
+            // Required for mixed adapters (e.g. mix of users and tracks, we only want playable items)
+            int adjustedPosition = position;
+            for (int i = 0; i < data.size(); i++) {
+                if (data.get(i) instanceof PlayableHolder) {
+                    playables.add(((PlayableHolder) data.get(i)).getPlayable());
+                } else if (i < position) {
+                    adjustedPosition--;
+                }
             }
-        }
 
-        info.position = adjustedPosition;
-        info.playables = playables;
-        playTrack(c, info);
+            info.position = adjustedPosition;
+            info.playables = playables;
+
+            playTrack(c, info);
+
+        } else if (playable instanceof Playlist) {
+            PlaylistActivity.start(c, (Playlist) playable);
+        } else {
+            throw new AssertionError("Unexpected playable type");
+        }
     }
 }

@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.Collections;
 
@@ -130,9 +131,14 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
+            case PLAYLIST:
+            case PLAYLIST_SHARING:
                 PlayUtils.playFromAdapter(mContext, this, mData, position);
                 return ItemClickResults.LEAVING;
 
+            case PLAYLIST_REPOST:
+                Toast.makeText(mContext, "TODO: Implement playlist reposts", Toast.LENGTH_SHORT).show();
+                return ItemClickResults.LEAVING;
             case TRACK_REPOST:
                 if (mContent == Content.ME_ACTIVITIES) {
                     // todo, scroll to specific repost

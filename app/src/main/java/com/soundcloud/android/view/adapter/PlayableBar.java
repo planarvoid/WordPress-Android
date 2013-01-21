@@ -52,7 +52,7 @@ public class PlayableBar extends IconLayout {
 
     @Override
     protected View addContent() {
-        return View.inflate(getContext(), R.layout.track_info_bar, this);
+        return View.inflate(getContext(), R.layout.playable_bar, this);
     }
 
     /**

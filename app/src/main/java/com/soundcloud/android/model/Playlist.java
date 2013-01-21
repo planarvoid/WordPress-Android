@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -14,12 +15,11 @@ import android.os.Parcel;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class Playlist extends Playable {
     @JsonView(Views.Full.class) public String playlist_type;
     @JsonView(Views.Full.class) public String tracks_uri;
-    @JsonView(Views.Full.class) public List<Track> tracks;
+    @JsonView(Views.Full.class) public ArrayList<Track> tracks;
     @JsonView(Views.Full.class) public int track_count;
 
     public Playlist() {
@@ -53,7 +53,7 @@ public class Playlist extends Playable {
         b.putString("playlist_type", playlist_type);
         b.putString("tracks_uri", tracks_uri);
         b.putInt("track_count", track_count);
-        b.putParcelableArrayList("tracks", (ArrayList<Track>) tracks);
+        b.putParcelableArrayList("tracks", tracks);
         dest.writeBundle(b);
     }
 
@@ -98,7 +98,7 @@ public class Playlist extends Playable {
         return user;
     }
 
-    @Override @JsonIgnore
+    @Override @JsonIgnore @NotNull
     public Playable getPlayable() {
         return this;
     }
@@ -128,4 +128,16 @@ public class Playlist extends Playable {
     public int getTypeId() {
         return DB_TYPE_PLAYLIST;
     }
+
+    public static final Creator<Playlist> CREATOR = new Creator<Playlist>() {
+        @Override
+        public Playlist createFromParcel(Parcel source) {
+            return new Playlist(source);
+        }
+
+        @Override
+        public Playlist[] newArray(int size) {
+            return new Playlist[size];
+        }
+    };
 }
