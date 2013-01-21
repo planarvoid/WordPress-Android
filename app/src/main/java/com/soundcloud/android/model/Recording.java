@@ -11,6 +11,7 @@ import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.audio.reader.WavReader;
+import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Recordings;
@@ -131,6 +132,18 @@ public class Recording extends ScResource implements Comparable<Recording> {
         return null;
     }
 
+    public Uri insert(ContentResolver contentResolver) {
+        return insert(contentResolver,true);
+    }
+
+    public Uri insert(ContentResolver contentResolver, boolean fullValues) {
+        // insert dependencies
+        getDependencyValuesMap().insert(contentResolver);
+
+        // insert parent resource
+        return contentResolver.insert(toUri(), fullValues ? buildContentValues() : buildBaseContentValues());
+    }
+
     public static interface Status {
         int NOT_YET_UPLOADED    = 0; // not yet uploaded, or canceled by user
         int UPLOADING           = 1; // currently uploading
@@ -199,6 +212,13 @@ public class Recording extends ScResource implements Comparable<Recording> {
 
     public File getAmplitudeFile() {
         return IOUtils.changeExtension(audio_path, AmplitudeData.EXTENSION);
+    }
+
+    @Override
+    public BulkInsertMap getDependencyValuesMap() {
+        final BulkInsertMap valuesMap = super.getDependencyValuesMap();
+        if (recipient != null) valuesMap.merge(recipient.getDependencyValuesMap());
+        return valuesMap;
     }
 
     /**

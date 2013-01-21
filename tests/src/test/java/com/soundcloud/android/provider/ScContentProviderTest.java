@@ -433,7 +433,7 @@ public class ScContentProviderTest {
     @Test
     public void shouldDeleteRecordings() throws Exception {
         Recording r = Recording.create();
-        expect(SoundCloudDB.upsertRecording(resolver, r, null)).not.toBeNull();
+        expect(r.insert(resolver)).not.toBeNull();
         resolver.delete(Content.RECORDINGS.uri, null, null);
         Cursor cursor = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
         expect(cursor.getCount()).toEqual(0);

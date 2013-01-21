@@ -378,8 +378,8 @@ public class ScModelManager {
         return mResolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
     }
 
-    public Uri write(Track track) {
-        return SoundCloudDB.upsertTrack(mResolver, track);
+    public Uri write(ScResource resource) {
+        return resource.insert(mResolver);
     }
 
     public ScResource cacheAndWrite(ScResource resource, ScResource.CacheUpdateMode mode) {
@@ -398,10 +398,6 @@ public class ScModelManager {
             write(track);
         }
         return track;
-    }
-
-    public Uri write(User user) {
-        return SoundCloudDB.upsertUser(mResolver, user);
     }
 
     public User cacheAndWrite(User user, ScResource.CacheUpdateMode mode) {

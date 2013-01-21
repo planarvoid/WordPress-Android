@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
+import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -474,7 +475,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     }
 
-    public @Nullable Recording  saveState() {
+    public @Nullable Recording saveState() {
+
         if (mRecording != null) {
 
             if (shouldEncodeWhileRecording()){
@@ -483,10 +485,14 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             }
 
             mRecording.setPlaybackStream(mPlaybackStream);
-            return SoundCloudDB.upsertRecording(mContext.getContentResolver(), mRecording, mRecording.buildBaseContentValues());
-        } else {
-            return null;
+            final Uri uri = mRecording.insert(mContext.getContentResolver(),false);
+            if (uri != null) {
+                mRecording.id = Long.parseLong(uri.getLastPathSegment());
+                return mRecording;
+            }
         }
+        return null;
+
     }
 
     // Used by the service to determine whether to show notifications or not

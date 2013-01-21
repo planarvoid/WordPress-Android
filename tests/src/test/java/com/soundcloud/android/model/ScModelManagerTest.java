@@ -353,7 +353,7 @@ public class ScModelManagerTest {
         expect(p.user.username).toEqual("Natalie");
         expect(p.tracks.size()).toEqual(41);
 
-        final Uri actualUri = SoundCloudDB.insertResource(resolver, p);
+        final Uri actualUri = p.insert(resolver);
         expect(actualUri)
                 .toEqual(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/playlists/2524386"));
 

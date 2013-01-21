@@ -445,7 +445,7 @@ public class ApiSyncer {
         Result result = new Result(contentUri);
         InputStream is = validateResponse(mApi.get(Content.match(contentUri).request(contentUri))).getEntity().getContent();
 
-        final Uri insertedUri = SoundCloudDB.insertResource(mResolver, SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is));
+        final Uri insertedUri = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is).insert(mResolver);
         if (insertedUri != null){
             log("inserted " + insertedUri.toString());
             result.change = Result.CHANGED;

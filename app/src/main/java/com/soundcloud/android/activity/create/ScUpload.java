@@ -209,7 +209,7 @@ public class ScUpload extends ScActivity {
     private void saveRecording() {
         mapToRecording(mRecording);
         if (mRecording != null) {
-            SoundCloudDB.upsertRecording(getContentResolver(), mRecording, null);
+            mRecording.insert(getContentResolver());
         }
     }
 

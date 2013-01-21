@@ -906,7 +906,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                     for (int i = 0; i < recordings.size(); i++) {
                                         if (checked[i]) {
                                             DeprecatedRecordingProfile.migrate(recordings.get(i)); // migrate deprecated format, otherwise this is harmless
-                                            SoundCloudDB.upsertRecording(getContentResolver(), recordings.get(i), null);
+                                            recordings.get(i).insert(getContentResolver());
                                         } else {
                                             recordings.get(i).delete(null);
                                         }

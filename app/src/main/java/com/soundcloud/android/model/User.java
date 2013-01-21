@@ -188,10 +188,6 @@ public class User extends ScResource implements Refreshable {
     };
 
     public ContentValues buildContentValues(){
-        return buildContentValues(false);
-    }
-
-    public ContentValues buildContentValues(boolean isCurrentUser){
         ContentValues cv = super.buildContentValues();
         // account for partial objects, don't overwrite local full objects
         if (username != null) cv.put(Users.USERNAME, username);
@@ -214,7 +210,7 @@ public class User extends ScResource implements Refreshable {
         if (private_tracks_count != NOT_SET) cv.put(Users.PRIVATE_TRACKS_COUNT, private_tracks_count);
         if (primary_email_confirmed != null) cv.put(Users.PRIMARY_EMAIL_CONFIRMED, primary_email_confirmed  ? 1 : 0);
 
-        if (isCurrentUser) {
+        if (id != -1 && id == SoundCloudApplication.getUserId()) {
             if (description != null) cv.put(Users.DESCRIPTION, description);
         }
         cv.put(Users.LAST_UPDATED, System.currentTimeMillis());
