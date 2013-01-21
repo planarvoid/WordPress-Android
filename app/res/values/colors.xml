@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="scOrange">#CCe36711</color>
+
     <color name="listTxtValue">#FF000000</color>
     <color name="listTxtValuePressed">#88FFFFFF</color>
     <color name="listTxtValueInactive">#FFa9a9a9</color>

@@ -10,11 +10,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
+    <View android:id="@+id/playlist_actionbar_separator"
+          android:background="@color/scOrange"
+          android:layout_below="@id/playable_bar"
+          android:layout_height="2dp"
+          android:layout_width="match_parent"/>
+
     <!-- list view (set items) -->
     <FrameLayout android:id="@+id/playlist_tracks_fragment"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"
-                 android:layout_below="@id/playable_bar"
+                 android:layout_below="@id/playlist_actionbar_separator"
                  android:layout_alignParentBottom="true"/>
 
 
