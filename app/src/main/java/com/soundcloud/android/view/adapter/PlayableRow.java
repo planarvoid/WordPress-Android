@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -33,6 +34,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
 
     protected TextView mPrivateIndicator;
     protected TextView mReposter;
+    protected TextView mTrackCount;
 
     // used to build the string for the title text
     private SpannableStringBuilder mSpanBuilder;
@@ -41,6 +43,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
         super(context, attributeSet);
         mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
         mReposter = (TextView) findViewById(R.id.playable_reposter);
+        mTrackCount = (TextView) findViewById(R.id.playable_track_count);
     }
 
     public PlayableRow(Context context) {
@@ -79,10 +82,16 @@ public class PlayableRow extends PlayableBar implements ListRow {
 
         // makes the row slightly transparent if not playable
         setStaticTransformationsEnabled(!playable.isStreamable());
+
+        if (playable instanceof Playlist && ((Playlist) playable).track_count >= 0){
+            mTrackCount.setText(String.valueOf(((Playlist) playable).track_count));
+            mTrackCount.setVisibility(View.VISIBLE);
+        } else {
+            mTrackCount.setVisibility(View.GONE);
+        }
     }
 
     private void setupProcessingIndicator(Playable playable) {
-        // TODO: should go into a separate track specific InfoBar view at some point
         if (playable instanceof Track && ((Track) playable).isProcessing()) {
             if (findViewById(R.id.processing_progress) != null){
                 findViewById(R.id.processing_progress).setVisibility(View.VISIBLE);

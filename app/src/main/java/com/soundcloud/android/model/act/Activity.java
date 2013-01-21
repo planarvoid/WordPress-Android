@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.Creation;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
@@ -26,6 +27,7 @@ import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -149,8 +151,14 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         }
 
         if (getUser() != null) cv.put(DBHelper.Activities.USER_ID, getUser().id);
-        if (getTrack() != null) cv.put(DBHelper.Activities.SOUND_ID, getTrack().id);
 
+        if (getType().isPlaylistActivity()) {
+            cv.put(DBHelper.Activities.SOUND_ID, getPlaylist().id);
+            cv.put(DBHelper.Activities.SOUND_TYPE, Playable.DB_TYPE_PLAYLIST);
+        } else if (getTrack() != null) {
+            cv.put(DBHelper.Activities.SOUND_ID, getTrack().id);
+            cv.put(DBHelper.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
+        }
         return cv;
     }
 
@@ -249,7 +257,7 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         COMMENT("comment", CommentActivity.class),
         AFFILIATION("affiliation", AffiliationActivity.class);
 
-        public static final Type[] PLAYLIST_TYPES = new Type[] { PLAYLIST, PLAYLIST_LIKE, PLAYLIST_REPOST, PLAYLIST_SHARING };
+        public static final EnumSet<Type> PLAYLIST_TYPES = EnumSet.of(PLAYLIST, PLAYLIST_LIKE, PLAYLIST_REPOST, PLAYLIST_SHARING);
 
         Type(String type, Class<? extends Activity> activityClass) {
             this.type = type;
@@ -280,15 +288,21 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         public String toString() {
             return type;
         }
+
+        public boolean isPlaylistActivity() {
+            return PLAYLIST_TYPES.contains(this);
+        }
     }
 
     public static String getDbPlaylistTypesForQuery() {
         String types = "";
-        for (int i = 0; i < Activity.Type.PLAYLIST_TYPES.length; i++) {
-            types += "'" + Activity.Type.PLAYLIST_TYPES[i].type + "'";
-            if (i < Activity.Type.PLAYLIST_TYPES.length - 1) {
+        int i = 0;
+        for (Type t : Activity.Type.PLAYLIST_TYPES) {
+            types += "'" + t.type + "'";
+            if (i < Activity.Type.PLAYLIST_TYPES.size() - 1) {
                 types += ",";
             }
+            i++;
         }
         return types;
     }
