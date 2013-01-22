@@ -26,21 +26,22 @@ public class AssociationManagerTest {
 
     @Before
     public void before() {
-        modelManager = SoundCloudApplication.MODEL_MANAGER; // new ScModelManager(Robolectric.application, AndroidCloudAPI.Mapper);
+        modelManager = SoundCloudApplication.MODEL_MANAGER;
         associationManager = new AssociationManager(Robolectric.application);
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
     }
 
     @Test
-    public void shouldAddLikeLikeSuccess() throws Exception {
+    public void shouldCreateNewLike() throws Exception {
         Track t = createTrack();
         modelManager.write(t);
 
         addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(201, "OK"));
 
+        int likesCount = modelManager.getTrack(t.id).likes_count;
         associationManager.setLike(t, true);
         expect(modelManager.getTrack(t.id).user_like).toBeTrue();
-        expect(modelManager.getTrack(t.id).likes_count).toEqual(6);
+        expect(modelManager.getTrack(t.id).likes_count).toEqual(likesCount + 1);
         // clear out state
 
         /*
@@ -53,27 +54,29 @@ public class AssociationManagerTest {
     }
 
     @Test
-    public void shouldAddLikeLikeAlreadyLiked() throws Exception {
+    public void shouldNotCreateLikeIfAlreadyLiked() throws Exception {
         Track t = createTrack();
         modelManager.write(t);
 
         addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
 
+        int likesCount = modelManager.getTrack(t.id).likes_count;
         associationManager.setLike(t, true);
         expect(modelManager.getTrack(t.id).user_like).toBeTrue();
-        expect(modelManager.getTrack(t.id).likes_count).toEqual(5);
+        expect(modelManager.getTrack(t.id).likes_count).toEqual(likesCount + 1);
     }
 
     @Test
-    public void shouldNotChangeLikeStateWhenAddLikeApiCallFails() throws Exception {
+    public void shouldNotChangeLikeCountWhenAddLikeApiCallFails() throws Exception {
         Track t = createTrack();
         modelManager.write(t);
 
         addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(404, "FAIL"));
 
+        int likesCount = modelManager.getTrack(t.id).likes_count;
         associationManager.setLike(t, true);
         expect(modelManager.getTrack(t.id).user_like).toBeFalse();
-        expect(modelManager.getTrack(t.id).likes_count).toEqual(5);
+        expect(modelManager.getTrack(t.id).likes_count).toEqual(likesCount);
     }
 
     @Test
@@ -84,9 +87,10 @@ public class AssociationManagerTest {
 
         addHttpResponseRule("DELETE", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
 
+        int likesCount = modelManager.getTrack(t.id).likes_count;
         associationManager.setLike(t, false);
         expect(modelManager.getTrack(t.id).user_like).toBeFalse();
-        expect(modelManager.getTrack(t.id).likes_count).toEqual(4);
+        expect(modelManager.getTrack(t.id).likes_count).toEqual(likesCount - 1);
 
         // clear out state
 
@@ -101,15 +105,17 @@ public class AssociationManagerTest {
     }
 
     @Test
-    public void shouldAddRepost() throws Exception {
+    public void shouldAddTrackRepost() throws Exception {
         Track t = createTrack();
         modelManager.write(t);
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.id).toUrl(), new TestHttpResponse(201, "OK"));
+
+        int repostsCount = modelManager.getTrack(t.id).reposts_count;
         associationManager.setRepost(t, true);
         expect(t.user_repost).toBeTrue();
         expect(modelManager.getTrack(t.id).user_repost).toBeTrue();
-        expect(modelManager.getTrack(t.id).reposts_count).toEqual(6);
+        expect(modelManager.getTrack(t.id).reposts_count).toEqual(repostsCount + 1);
 
         // clear out cached state, read from db
 
