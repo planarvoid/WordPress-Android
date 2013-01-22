@@ -273,6 +273,10 @@ public enum Content  {
         return match != -1 ? sMap.get(match) : UNKNOWN;
     }
 
+    public static Content match(String path) {
+        return match(Uri.parse("content://" + ScContentProvider.AUTHORITY + "/" + path));
+    }
+
     public static Content get(String s) {
         try {
             return Content.valueOf(s);
