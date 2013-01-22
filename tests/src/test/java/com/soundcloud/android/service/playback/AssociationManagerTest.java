@@ -3,13 +3,14 @@ package com.soundcloud.android.service.playback;
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
@@ -125,6 +126,21 @@ public class AssociationManagerTest {
         modelManager.clear();
         expect(modelManager.getPlayable(t.id).user_repost).toBeTrue();
         */
+    }
+
+    @Test
+    public void shouldAddPlaylistRepost() throws Exception {
+        Playlist p = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
+        modelManager.write(p);
+
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, p.id).toUrl(), new TestHttpResponse(201, "OK"));
+
+        int repostsCount = modelManager.getPlaylist(p.id).reposts_count;
+
+        associationManager.setRepost(p, true);
+        expect(p.user_repost).toBeTrue();
+        expect(modelManager.getPlaylist(p.id).user_repost).toBeTrue();
+        expect(modelManager.getPlaylist(p.id).reposts_count).toEqual(repostsCount + 1);
     }
 
     @Test

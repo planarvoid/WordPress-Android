@@ -308,6 +308,8 @@ public class ScModelManager {
     public ScResource cache(@Nullable ScResource resource, ScResource.CacheUpdateMode updateMode) {
         if (resource instanceof Track) {
             return cache((Track) resource, updateMode);
+        } else if (resource instanceof Playlist) {
+            return cache((Playlist) resource, updateMode);
         } else if (resource instanceof User) {
             return cache((User) resource, updateMode);
         } else {

@@ -5,7 +5,6 @@ import static com.soundcloud.android.model.ScModelManager.validateResponse;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
@@ -95,7 +94,7 @@ public class ApiSyncer {
                 case ME_TRACKS:
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
-                case ME_REPOSTS:
+                case ME_TRACK_REPOSTS:
                 case ME_FRIENDS:
                     result = syncContent(c, userId);
                     result.success = true;
