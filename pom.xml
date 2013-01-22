@@ -126,6 +126,6 @@
 
     <ciManagement>
         <system>jenkins</system>
-        <url>http://builder.soundcloud.com/view/Android/</url>
+        <url>http://builder.int.s-cloud.net/view/Android/</url>
     </ciManagement>
 </project>
