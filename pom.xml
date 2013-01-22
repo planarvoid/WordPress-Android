@@ -39,6 +39,22 @@
                 </configuration>
                 <extensions>true</extensions>
             </plugin>
+
+            <!-- use intellij's @NotNull bytecode instrumentation in maven as well -->
+            <plugin>
+                <groupId>com.electriccloud</groupId>
+                <artifactId>javac2-maven-plugin</artifactId>
+                <version>1.0.1</version>
+                <executions>
+                    <execution>
+                        <id>@NotNull Instrumentation</id>
+                        <goals>
+                            <goal>instrument</goal>
+                        </goals>
+                        <phase>process-classes</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
