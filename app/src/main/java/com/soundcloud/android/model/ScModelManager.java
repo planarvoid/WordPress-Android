@@ -7,8 +7,6 @@ import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.cache.UserCache;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
-import com.soundcloud.android.model.act.PlaylistActivity;
-import com.soundcloud.android.model.act.PlaylistRepostActivity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -25,7 +23,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -165,22 +162,6 @@ public class ScModelManager {
         return user;
     }
 
-    public Playlist loadPlaylistFromUri(ContentResolver resolver, long playlistId, boolean loadTracks) {
-        Cursor c = resolver.query(Content.PLAYLIST.forId(playlistId), null, null, null, null);
-        Playlist playlist = null;
-        if (c != null) {
-            if (c.moveToFirst()) playlist = getPlaylistFromCursor(c);
-            c.close();
-        }
-        if (playlist != null && loadTracks) playlist.tracks = loadPlaylistTracks(resolver, playlistId);
-
-        return playlist;
-    }
-
-    public List<Track> loadPlaylistTracks(ContentResolver resolver, long playlistId){
-        return loadLocalContent(resolver,Track.class,Content.PLAYLIST_TRACKS.forId(playlistId)).collection;
-    }
-
     public <T extends ScModel> CollectionHolder<T> loadLocalContent(ContentResolver resolver, Class<T> resourceType, Uri localUri) {
         Cursor itemsCursor = resolver.query(localUri, null, null, null, null);
         List<ScModel> items = new ArrayList<ScModel>();
@@ -276,6 +257,40 @@ public class ScModelManager {
             cursor.close();
         }
         return u;
+    }
+
+    public @Nullable Playlist getPlaylist(long id) {
+        if (id < 0) return null;
+
+        Playlist p = mPlaylistCache.get(id);
+        if (p == null) {
+            p = getPlaylist(Content.PLAYLIST.forId(id));
+            if (p != null) mPlaylistCache.put(p);
+        }
+        return p;
+    }
+
+    public @Nullable Playlist getPlaylist(Uri uri) {
+        Playlist p = null;
+        Cursor cursor = mResolver.query(uri, null, null, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                p = getPlaylistFromCursor(cursor);
+            }
+            cursor.close();
+        }
+        return p;
+    }
+
+    public @Nullable Playlist getPlaylistWithTracks(long playlistId) {
+        Playlist playlist = getPlaylist(Content.PLAYLIST.forId(playlistId));
+        if (playlist != null) playlist.tracks = loadPlaylistTracks(mResolver, playlistId);
+
+        return playlist;
+    }
+
+    public List<Track> loadPlaylistTracks(ContentResolver resolver, long playlistId){
+        return loadLocalContent(resolver,Track.class,Content.PLAYLIST_TRACKS.forId(playlistId)).collection;
     }
 
     public Track getCachedTrack(long id) {
