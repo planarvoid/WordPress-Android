@@ -105,7 +105,7 @@ public class AssociationManagerTest {
         Track t = createTrack();
         modelManager.write(t);
 
-        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_REPOST, t.id).toUrl(), new TestHttpResponse(201, "OK"));
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.id).toUrl(), new TestHttpResponse(201, "OK"));
         associationManager.setRepost(t, true);
         expect(t.user_repost).toBeTrue();
         expect(modelManager.getTrack(t.id).user_repost).toBeTrue();
@@ -126,12 +126,12 @@ public class AssociationManagerTest {
         Track t = createTrack();
         modelManager.write(t);
 
-        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_REPOST, t.id).toUrl(), new TestHttpResponse(201, "OK"));
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.id).toUrl(), new TestHttpResponse(201, "OK"));
         associationManager.setRepost(t, true);
         expect(modelManager.getTrack(t.id).user_repost).toBeTrue();
         expect(modelManager.getTrack(t.id).reposts_count).toEqual(6);
 
-        addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_REPOST, t.id).toUrl(), new TestHttpResponse(200, "OK"));
+        addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.id).toUrl(), new TestHttpResponse(200, "OK"));
         associationManager.setRepost(t, false);
         expect(t.user_repost).toBeFalse();
         expect(modelManager.getTrack(t.id).user_repost).toBeFalse();

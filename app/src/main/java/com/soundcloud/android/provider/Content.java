@@ -42,7 +42,7 @@ public enum Content  {
     ME_LIKE("me/likes/#", null, 108, Track.class, LIKE, null),
     ME_PLAYLISTS("me/playlists", null, 110, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
     ME_USERID("me/userid", null, 111, null, -1, null),
-    ME_REPOSTS("me/reposts", TempEndpoints.e1.MY_REPOSTS, 112, SoundAssociation.class, REPOST, Table.COLLECTION_ITEMS),
+    ME_REPOSTS("me/reposts", TempEndpoints.e1.MY_TRACK_REPOSTS, 112, SoundAssociation.class, REPOST, Table.COLLECTION_ITEMS),
     ME_REPOST("me/reposts/#",null, 113, Track.class, -1, null),
 
     ME_SHORTCUT("me/shortcuts/#", TempEndpoints.i1.MY_SHORTCUTS, 114, Shortcut.class, -1, Table.SUGGESTIONS),
