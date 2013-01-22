@@ -6,6 +6,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical">
     <ImageView style="@style/PlayableIcon"
+               android:id="@+id/icon"
                android:layout_alignParentLeft="true"
                android:layout_alignParentTop="true"
                android:layout_width="@dimen/activity_icon_width"

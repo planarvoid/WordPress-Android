@@ -6,11 +6,12 @@
                 style="@style/ListItemContainer">
 
     <ImageView style="@style/PlayableIcon.Playlist"
+               android:id="@+id/icon"
                android:src="@drawable/artwork_badge" />
 
     <include layout="@layout/playable_metadata" />
 
-    <TextView style="@style/PlayableTitle" />
+    <TextView android:id="@+id/playable_title" style="@style/PlayableTitle" />
 
     <include layout="@layout/playlist_action_bar"
              android:layout_width="wrap_content"

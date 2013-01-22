@@ -5,13 +5,16 @@
               android:paddingBottom="8dp"
               android:gravity="center_vertical">
         <com.soundcloud.android.view.CustomToggleButton style="@style/PlayerAction.ToggleButton.Like"
+                                                        android:id="@+id/toggle_like"
                                                         android:layout_alignParentLeft="true"
                                                         android:layout_width="wrap_content"/>
         <com.soundcloud.android.view.CustomToggleButton style="@style/PlayerAction.ToggleButton.Repost"
+                                                        android:id="@+id/toggle_repost"
                                                         android:layout_toRightOf="@id/toggle_like"
                                                         android:layout_marginLeft="5dp"
                                                         android:layout_width="wrap_content"/>
         <com.soundcloud.android.view.CustomToggleButton style="@style/PlayerAction.ToggleButton.Comment"
+                                                        android:id="@+id/toggle_comment"
                                                         android:layout_toRightOf="@id/toggle_repost"
                                                         android:layout_marginLeft="5dp"
                                                         android:layout_width="wrap_content"/>
@@ -23,10 +26,12 @@
           android:layout_alignBottom="@+id/btn_share"
           android:layout_height="0dp"
           android:background="@drawable/player_track_vert_separator_bg"/>
+
     <ImageButton android:id="@id/btn_share"
-                 android:layout_toLeftOf="@id/toggle_info"
+                 android:layout_toLeftOf="@+id/toggle_info"
                  android:layout_marginRight="5dp"
                  style="@style/PlayerAction.Button.Share"/>
     <ToggleButton android:layout_alignParentRight="true"
+                  android:id="@id/toggle_info"
                   style="@style/PlayerAction.Button.Info"/>
 </RelativeLayout>
