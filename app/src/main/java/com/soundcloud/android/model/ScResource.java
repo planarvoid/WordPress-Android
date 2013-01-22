@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.provider.BulkInsertMap;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
 import android.net.Uri;
@@ -60,22 +61,33 @@ public abstract class ScResource extends ScModel {
     }
 
     /**
-     * Add the dependencies of this object to the given list.
+     * Add resource's dependencies to the given map.
      * Used for object persistence in DB.
-     * Warning, does not currently add itself, only its own members
+     * @param destination
      */
     @JsonIgnore
-    public BulkInsertMap getDependencyValuesMap(){
-        return new BulkInsertMap();
+    public void putDependencyValues(@NotNull BulkInsertMap destination){
+        // no dependencies by default
     }
 
-
+    /**
+     * Put all necessary content values into the map, includeing the object itself
+     * @param destination
+     */
+    public void putFullContentValues(@NotNull BulkInsertMap destination){
+        putDependencyValues(destination);
+        destination.add(getBulkInsertUri(), buildContentValues());
+    }
 
     public Uri insert(ContentResolver contentResolver) {
-        // insert dependencies
-        getDependencyValuesMap().insert(contentResolver);
-        // insert resource
-        return contentResolver.insert(toUri(), buildContentValues());
+        insertDependencies(contentResolver);
+        return contentResolver.insert(toUri(),buildContentValues());
+    }
+
+    protected void insertDependencies(ContentResolver contentResolver) {
+        final BulkInsertMap dependencies = new BulkInsertMap();
+        putDependencyValues(dependencies);
+        dependencies.insert(contentResolver);
     }
 
     public abstract Uri toUri();

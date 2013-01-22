@@ -378,6 +378,11 @@ public class ScModelManager {
         return mResolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
     }
 
+    /**
+     * Write this resource to the database
+     * @param resource
+     * @return the number of resources written, including dependencies
+     */
     public Uri write(ScResource resource) {
         return resource.insert(mResolver);
     }

@@ -175,12 +175,10 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
     }
 
     @Override
-    public BulkInsertMap getDependencyValuesMap() {
-        BulkInsertMap valuesMap = super.getDependencyValuesMap();
+    public void putDependencyValues(BulkInsertMap destination) {
         if (user != null) {
-            valuesMap.add(user.getBulkInsertUri(), user.buildContentValues());
+            user.putFullContentValues(destination);
         }
-        return valuesMap;
     }
 
     public Bundle getBundle() {

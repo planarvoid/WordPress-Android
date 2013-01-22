@@ -141,12 +141,10 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     }
 
     @Override
-    public BulkInsertMap getDependencyValuesMap() {
-        BulkInsertMap valuesMap = super.getDependencyValuesMap();
-        if (track != null)      valuesMap.merge(track.getDependencyValuesMap());
-        if (playlist != null)   valuesMap.merge(playlist.getDependencyValuesMap());
-        if (user != null)       valuesMap.merge(user.getDependencyValuesMap());;
-        return valuesMap;
+    public void putDependencyValues(BulkInsertMap destination) {
+        if (track != null)      track.putFullContentValues(destination);
+        if (playlist != null)   playlist.putFullContentValues(destination);
+        if (user != null)       user.putFullContentValues(destination);
     }
 
     /**

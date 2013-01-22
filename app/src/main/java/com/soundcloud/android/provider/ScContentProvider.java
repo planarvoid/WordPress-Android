@@ -225,6 +225,9 @@ public class ScContentProvider extends ContentProvider {
                             getFullSoundColumns(Table.PLAYLIST_TRACKS_VIEW.name, Table.PLAYLIST_TRACKS_VIEW.id),
                             userId);
                 }
+                if (_sortOrder == null){
+                    _sortOrder = DBHelper.PlaylistTracksView.PLAYLIST_POSITION + " ASC";
+                }
                 break;
 
             case USERS:

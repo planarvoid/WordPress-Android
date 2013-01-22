@@ -21,8 +21,6 @@ import android.os.Parcel;
 
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /*
 "origin": {
@@ -78,15 +76,13 @@ public class Comment extends ScResource {
     }
 
     @Override
-    public BulkInsertMap getDependencyValuesMap() {
-        BulkInsertMap valuesMap = super.getDependencyValuesMap();
+    public void putDependencyValues(BulkInsertMap destination) {
         if (user != null) {
-            valuesMap.add(user.getBulkInsertUri(), user.buildContentValues());
+            user.putFullContentValues(destination);
         }
         if (track != null) {
-            valuesMap.add(track.getBulkInsertUri(), track.buildContentValues());
+            track.putFullContentValues(destination);
         }
-        return valuesMap;
     }
 
     @Override

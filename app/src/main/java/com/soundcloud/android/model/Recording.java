@@ -137,10 +137,8 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     public Uri insert(ContentResolver contentResolver, boolean fullValues) {
-        // insert dependencies
-        getDependencyValuesMap().insert(contentResolver);
-
-        // insert parent resource
+        insertDependencies(contentResolver);
+        // insert parent resource, with possible partial values
         return contentResolver.insert(toUri(), fullValues ? buildContentValues() : buildBaseContentValues());
     }
 
@@ -215,10 +213,8 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     @Override
-    public BulkInsertMap getDependencyValuesMap() {
-        final BulkInsertMap valuesMap = super.getDependencyValuesMap();
-        if (recipient != null) valuesMap.merge(recipient.getDependencyValuesMap());
-        return valuesMap;
+    public void putDependencyValues(BulkInsertMap destination) {
+        if (recipient != null) recipient.putDependencyValues(destination);
     }
 
     /**

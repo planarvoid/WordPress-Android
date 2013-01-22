@@ -285,7 +285,7 @@ public class ScModelManagerTest {
     @Test
     public void shouldBulkInsertWithCollections() throws Exception {
         List<Track> items = createTracks();
-        expect(manager.writeCollection(items, Content.ME_LIKES.uri, USER_ID, ScResource.CacheUpdateMode.MINI)).toEqual(4);
+        expect(manager.writeCollection(items, Content.ME_LIKES.uri, USER_ID, ScResource.CacheUpdateMode.MINI)).toEqual(6);
 
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(2);
@@ -362,12 +362,8 @@ public class ScModelManagerTest {
         expect(p2).not.toBeNull();
         expect(p2.user.username).toEqual("Natalie");
         expect(p2.tracks.size()).toEqual(41);
-        expect(p.tracks).toEqual(p2.tracks);
+        expect(p.tracks.get(0).id).toEqual(p2.tracks.get(0).id);
     }
-    /*
-    SELECT PlaylistTracksView.*, EXISTS (SELECT 1 FROM CollectionItems WHERE PlaylistTracksView._id = item_id AND collection_type = 1 AND user_id = 1) AS sound_user_like, EXISTS (SELECT 1 FROM CollectionItems WHERE PlaylistTracksView._id = item_id AND collection_type = 7 AND user_id = 1) AS sound_user_repost FROM PlaylistTracksView INNER JOIN CollectionItems ON (PlaylistTracksView._id = item_id AND PlaylistTracksView._type = resource_type) WHERE (playlist_id = 2524386)
-     */
-
 
     @Test
     public void shouldPersistActivitiesInDb() throws Exception {
