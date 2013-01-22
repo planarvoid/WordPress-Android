@@ -6,6 +6,7 @@
                     android:background="@color/playerControlBackground"
                     android:layout_height="wrap_content">
         <com.soundcloud.android.view.adapter.PlayableBar
+                android:id="@+id/playable_bar"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"/>
         <View android:id="@+id/track_info_clicker"

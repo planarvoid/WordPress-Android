@@ -5,6 +5,7 @@
                 style="@style/ListItemContainer">
 
     <ImageView style="@style/PlayableIcon"
+               android:id="@+id/icon"
                android:src="@drawable/artwork_badge" />
 
     <ViewStub android:id="@+id/processing_progress_stub"
@@ -20,7 +21,7 @@
 
     <include layout="@layout/playable_metadata" />
 
-    <TextView style="@style/PlayableTitle"/>
+    <TextView android:id="@+id/playable_title" style="@style/PlayableTitle"/>
 
     <TextView android:id="@+id/playable_track_count"
                       style="@style/txt_list_playable_track_count"
@@ -31,7 +32,7 @@
                       android:visibility="gone"/>
 
     <TextView android:id="@+id/private_indicator"
-              android:layout_below="@+id/playable_title"
+              android:layout_below="@id/playable_title"
               android:layout_toRightOf="@id/icon"
               android:layout_marginLeft="@dimen/list_text_margin_left"
               android:singleLine="true"
