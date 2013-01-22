@@ -63,7 +63,7 @@ public class AssociationManagerTest {
         int likesCount = modelManager.getTrack(t.id).likes_count;
         associationManager.setLike(t, true);
         expect(modelManager.getTrack(t.id).user_like).toBeTrue();
-        expect(modelManager.getTrack(t.id).likes_count).toEqual(likesCount + 1);
+        expect(modelManager.getTrack(t.id).likes_count).toEqual(likesCount);
     }
 
     @Test
