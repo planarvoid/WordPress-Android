@@ -98,6 +98,14 @@
         </repository>
     </repositories>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>soundcloud.internal.thirdparty.releases</id>
+            <name>SoundCloud Internal thirdparty</name>
+            <url>http://maven.int.s-cloud.net/content/repositories/thirdparty_releases</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <properties>
       <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
       <keystore.alias>beta-key</keystore.alias>
