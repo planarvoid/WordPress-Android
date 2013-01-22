@@ -19,44 +19,65 @@ import java.util.Collections;
 import java.util.List;
 
 public class SoundCloudDB {
-    private static final String TAG = "SoundCloudDB";
     public static final int RESOLVER_BATCH_SIZE = 100;
 
-    public static int bulkInsertModels(ContentResolver resolver, List<? extends ScResource> models) {
-        return bulkInsertModels(resolver, models, null, -1);
+    /**
+     * Inserts a list of resources into the database
+     * @param resolver
+     * @param resources
+     * @return
+     */
+    public static int bulkInsertResources(ContentResolver resolver, List<? extends ScResource> resources) {
+        if (resources == null) return 0;
+        BulkInsertMap map = new BulkInsertMap();
+        for (ScResource resource : resources) {
+            if (resource != null) resource.putFullContentValues(map);
+        }
+        return map.insert(resolver);
     }
 
-    public static int bulkInsertModels(ContentResolver resolver,
-                                       List<? extends ScResource> models,
-                                       @Nullable Uri collectionUri,
+    /**
+     * Inserts a list of resources and their corresponding dependencies to a given URI.
+     * Contains special handling based on Content requirements.
+     * @param resolver
+     * @param resources
+     * @param collectionUri
+     * @param ownerId
+     * @return the number of insertsions
+     */
+    public static int insertCollection(ContentResolver resolver,
+                                       @NotNull List<? extends ScResource> resources,
+                                       @NotNull Uri collectionUri,
                                        long ownerId) {
-        if (collectionUri != null && ownerId < 0) {
+        if (ownerId < 0) {
             throw new IllegalArgumentException("need valid ownerId for collection");
         }
 
-        if (models == null) return 0;
+        final Content match = Content.match(collectionUri);
         BulkInsertMap map = new BulkInsertMap();
-        for (int i=0; i < models.size(); i++) {
-            ScResource r = models.get(i);
+        for (int i=0; i < resources.size(); i++) {
+            ScResource r = resources.get(i);
             if (r != null) {
                 r.putFullContentValues(map);
                 long id = r.id;
-                if (collectionUri != null) {
-                    ContentValues contentValues = new ContentValues();
-                    contentValues.put(DBHelper.CollectionItems.USER_ID, ownerId);
-                    switch (Content.match(collectionUri)) {
-                        case PLAY_QUEUE:
-                            contentValues.put(DBHelper.PlayQueue.POSITION, i);
-                            contentValues.put(DBHelper.PlayQueue.TRACK_ID, id);
-                            break;
-
-                        default:
-                            contentValues.put(DBHelper.CollectionItems.POSITION, i);
-                            contentValues.put(DBHelper.CollectionItems.ITEM_ID, id);
-                            break;
-                    }
-                    map.add(collectionUri,contentValues);
+                ContentValues contentValues = new ContentValues();
+                switch (match) {
+                    case PLAY_QUEUE:
+                        contentValues.put(DBHelper.PlayQueue.POSITION, i);
+                        contentValues.put(DBHelper.PlayQueue.TRACK_ID, id);
+                        contentValues.put(DBHelper.CollectionItems.USER_ID, ownerId);
+                        break;
+                    case PLAYLIST_TRACKS:
+                        contentValues.put(DBHelper.PlaylistTracks.POSITION, i);
+                        contentValues.put(DBHelper.PlaylistTracks.TRACK_ID, id);
+                        break;
+                    default:
+                        contentValues.put(DBHelper.CollectionItems.POSITION, i);
+                        contentValues.put(DBHelper.CollectionItems.ITEM_ID, id);
+                        contentValues.put(DBHelper.CollectionItems.USER_ID, ownerId);
+                        break;
                 }
+                map.add(collectionUri,contentValues);
             }
         }
         return map.insert(resolver);

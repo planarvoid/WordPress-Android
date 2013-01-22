@@ -353,7 +353,7 @@ public class ScModelManagerTest {
         expect(p.user.username).toEqual("Natalie");
         expect(p.tracks.size()).toEqual(41);
 
-        final Uri actualUri = p.insert(resolver);
+        Uri actualUri = p.insert(resolver);
         expect(actualUri)
                 .toEqual(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/playlists/2524386"));
 
@@ -363,6 +363,15 @@ public class ScModelManagerTest {
         expect(p2.user.username).toEqual("Natalie");
         expect(p2.tracks.size()).toEqual(41);
         expect(p.tracks.get(0).id).toEqual(p2.tracks.get(0).id);
+
+        p2.tracks.remove(0);
+        expect(p2.insert(resolver)).not.toBeNull();
+
+        Playlist p3 = manager.loadPlaylistFromUri(resolver, id, true);
+        expect(p3).not.toBeNull();
+        expect(p3.tracks.size()).toEqual(40);
+        expect(p3.tracks.get(0).id).not.toEqual(p.tracks.get(0).id);
+
     }
 
     @Test

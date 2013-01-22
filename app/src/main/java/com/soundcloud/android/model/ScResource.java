@@ -4,10 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.provider.BulkInsertMap;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.net.Uri;
+
+import java.util.ArrayList;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -99,6 +104,21 @@ public abstract class ScResource extends ScModel {
     public abstract Playable getPlayable();
 
     public static class ScResourceHolder extends CollectionHolder<ScResource> {
+
+        /**
+         * Insert the collection resources using a given URI along with dependencies
+         * @param resolver
+         * @param contentUri
+         * @return the total resources inserted, including dependencies
+         */
+        public int insert(ContentResolver resolver, @NotNull Uri contentUri) {
+            BulkInsertMap map = new BulkInsertMap();
+            for (ScResource r : this) {
+                r.putDependencyValues(map);
+                map.add(contentUri, r.buildContentValues());
+            }
+            return map.insert(resolver);
+        }
     }
 
 }

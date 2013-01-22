@@ -8,6 +8,7 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.Nullable;
@@ -298,9 +299,7 @@ public class PlayQueueManager {
                 for (PlayQueueItem item : mPlayQueue){
                     tracks.add(item.track);
                 }
-                mContext.getContentResolver().delete(Content.PLAY_QUEUE.uri, null, null);
-                SoundCloudApplication.MODEL_MANAGER.writeCollection(tracks, Content.PLAY_QUEUE.uri,
-                        mUserId, ScResource.CacheUpdateMode.NONE);
+                SoundCloudDB.insertCollection(mContext.getContentResolver(), tracks, Content.PLAY_QUEUE.uri, mUserId);
                 return null;
             }
         }.executeOnThreadPool((Void[]) null);
