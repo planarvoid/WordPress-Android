@@ -92,7 +92,7 @@ public enum Content  {
     COMMENT("comments/#", null, 401, Comment.class, -1, Table.COMMENTS),
 
     PLAYLISTS("playlists", TempEndpoints.PLAYLISTS, 501, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
-    PLAYLIST("playlists/#", TempEndpoints.PLAYLISTS, 502, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
+    PLAYLIST("playlists/#", TempEndpoints.PLAYLIST_DETAILS, 502, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
     PLAYLIST_TRACKS("playlists/#/tracks", TempEndpoints.PLAYLIST_TRACKS, 532, Track.class, -1, Table.PLAYLIST_TRACKS),
 
     // LOCAL URIS
