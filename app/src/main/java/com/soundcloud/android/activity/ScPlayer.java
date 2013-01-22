@@ -15,6 +15,7 @@ import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.service.playback.State;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.PlayUtils;
+import com.soundcloud.android.view.PlayableActionButtonsController;
 import com.soundcloud.android.view.PlayerTrackPager;
 import com.soundcloud.android.view.play.PlayerTrackView;
 import com.soundcloud.android.view.play.TransportBar;
@@ -37,7 +38,8 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 
-public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPageListener {
+public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPageListener,
+        PlayableActionButtonsController.PlayableActions {
     public static final int REFRESH_DELAY = 1000;
 
     private static final String STATE_PAGER_QUEUE_POSITION = "pager_queue_position";
@@ -155,15 +157,17 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         return !(mPlaybackService == null || !mPlaybackService.isSeekable());
     }
 
-    public boolean toggleLike(Track track) {
-        if (track == null || mPlaybackService == null) return false;
-        mPlaybackService.setLikeStatus(track.id, !track.user_like);
+    @Override
+    public boolean toggleLike(Playable playable) {
+        if (playable == null || mPlaybackService == null) return false;
+        mPlaybackService.setLikeStatus(playable.id, !playable.user_like);
         return true;
     }
 
-    public boolean toggleRepost(Track track) {
-        if (track == null || mPlaybackService == null) return false;
-        mPlaybackService.setRepostStatus(track.id, !track.user_repost);
+    @Override
+    public boolean toggleRepost(Playable playable) {
+        if (playable == null || mPlaybackService == null) return false;
+        mPlaybackService.setRepostStatus(playable.id, !playable.user_repost);
         return true;
     }
 
