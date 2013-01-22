@@ -1,16 +1,17 @@
 package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackHolder;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.service.sync.ApiSyncerTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +19,6 @@ import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
-import android.net.Uri;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -190,65 +190,65 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldLoadFavoritesAsPlaylist() throws Exception {
-        insertTracksAsUri(Content.ME_LIKE.uri);
-        pm.loadUri(Content.ME_LIKES.uri, 1, 10696200l);
-        expect(pm.getCurrentTrack().id).toEqual(10696200l);
+        insertLikes();
+        pm.loadUri(Content.ME_LIKES.uri, 1, 56142962);
+        expect(pm.getCurrentTrack().id).toEqual(56142962l);
         expect(pm.next()).toBeTrue();
-        expect(pm.getCurrentTrack().id).toEqual(10602324l);
+        expect(pm.getCurrentTrack().id).toEqual(56143158l);
     }
 
     @Test
     public void shouldSaveAndRestoreFavoritesAsPlaylist() throws Exception {
-        insertTracksAsUri(Content.ME_LIKE.uri);
-        pm.loadUri(Content.ME_LIKES.uri, 1, 10853436l);
-        expect(pm.getCurrentTrack().id).toEqual(10853436l);
+        insertLikes();
+        pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
+        expect(pm.getCurrentTrack().id).toEqual(56142962l);
         pm.saveQueue(1000l);
         expect(pm.reloadQueue()).toEqual(1000l);
-        expect(pm.getCurrentTrackId()).toEqual(10853436l);
-        expect(pm.getPosition()).toEqual(0);
-    }
-
-    @Test
-    public void shouldSaveAndRestoreFavoritesAsPlaylistTwice() throws Exception {
-        insertTracksAsUri(Content.ME_LIKE.uri);
-        pm.loadUri(Content.ME_LIKES.uri, 1, 10853436l);
-        expect(pm.getCurrentTrack().id).toEqual(10853436l);
-        pm.saveQueue(1000l);
-        expect(pm.reloadQueue()).toEqual(1000l);
-        expect(pm.getCurrentTrackId()).toEqual(10853436l);
-        expect(pm.getPosition()).toEqual(0);
-
-        // test overwrite
-        expect(pm.next()).toBeTrue();
-        expect(pm.getCurrentTrackId()).toEqual(10696200l);
-        pm.saveQueue(2000l);
-        expect(pm.reloadQueue()).toEqual(2000l);
-        expect(pm.getCurrentTrackId()).toEqual(10696200l);
+        expect(pm.getCurrentTrackId()).toEqual(56142962l);
         expect(pm.getPosition()).toEqual(1);
     }
 
     @Test
+    public void shouldSaveAndRestoreFavoritesAsPlaylistTwice() throws Exception {
+        insertLikes();
+        pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
+        expect(pm.getCurrentTrack().id).toEqual(56142962l);
+        pm.saveQueue(1000l);
+        expect(pm.reloadQueue()).toEqual(1000l);
+        expect(pm.getCurrentTrackId()).toEqual(56142962l);
+        expect(pm.getPosition()).toEqual(1);
+
+        // test overwrite
+        expect(pm.next()).toBeTrue();
+        expect(pm.getCurrentTrackId()).toEqual(56143158l);
+        pm.saveQueue(2000l);
+        expect(pm.reloadQueue()).toEqual(2000l);
+        expect(pm.getCurrentTrackId()).toEqual(56143158l);
+        expect(pm.getPosition()).toEqual(2);
+    }
+
+    @Test
     public void shouldSaveAndRestoreFavoritesAsPlaylistWithMovedTrack() throws Exception {
-        insertTracksAsUri(Content.ME_LIKE.uri);
-        pm.loadUri(Content.ME_LIKES.uri, 1, 10696200l);
-        expect(pm.getCurrentTrack().id).toEqual(10696200l);
+        insertLikes();
+        pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
+        expect(pm.getCurrentTrack().id).toEqual(56142962l);
         expect(pm.next()).toBeTrue();
 
         pm.saveQueue(1000l);
 
         expect(pm.reloadQueue()).toEqual(1000l);
-        expect(pm.getCurrentTrackId()).toEqual(10602324l);
+        expect(pm.getCurrentTrackId()).toEqual(56143158l);
         expect(pm.getPosition()).toEqual(2);
     }
 
     @Test
     public void shouldSavePlaylistStateInUri() throws Exception {
-        insertTracksAsUri(Content.ME_LIKE.uri);
-        pm.loadUri(Content.ME_LIKES.uri, 1, 10696200l);
-        expect(pm.getCurrentTrack().id).toEqual(10696200l);
+        insertLikes();
+        pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
+        expect(pm.getCurrentTrack().id).toEqual(56142962l);
         expect(pm.next()).toBeTrue();
         expect(pm.getPlayQueueState(123L)).toEqual(
-          Content.ME_LIKES.uri + "?trackId=10602324&playlistPos=2&seekPos=123"
+          Content.ME_LIKES.uri + "?trackId=56143158&playlistPos=2&seekPos=123"
         );
     }
 
@@ -318,11 +318,16 @@ public class PlaylistManagerTest {
         expect(pm.getCurrentTrack()).toBe(tracks.get(0));
     }
 
-    private void insertTracksAsUri(Uri uri) throws IOException {
-        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/service/playback/tracks.json");
-        expect(SoundCloudApplication.MODEL_MANAGER.writeCollection(tracks.collection, uri, USER_ID, ScResource.CacheUpdateMode.FULL)).toEqual(4);
-        Cursor c = resolver.query(uri, null, null, null, null);
-        expect(c.getCount()).toEqual(3);
+    private void insertLikes() throws IOException {
+        SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
+                ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
+                SoundAssociationHolder.class);
+
+        expect(SoundCloudApplication.MODEL_MANAGER.writeCollection(old.collection,Content.ME_LIKES.uri,USER_ID,
+                ScResource.CacheUpdateMode.NONE)).toEqual(18); // 2 tracks, 1 playlist
+
+        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(3); // 2 tracks, 1 playlist
     }
 
     private List<Track> createTracks(int n, boolean streamable, int startPos) {
