@@ -30,13 +30,13 @@ public class SoundCloudDBTest {
     @Test
     public void shouldBulkInsert() throws Exception {
         List<ScResource> items = createParcelables();
-        expect(SoundCloudDB.bulkInsertModels(resolver, items)).toEqual(3);
+        expect(SoundCloudDB.bulkInsertResources(resolver, items)).toEqual(3);
     }
 
     @Test
     public void shouldBulkInsertWithCollections() throws Exception {
         List<ScResource> items = createParcelables();
-        expect(SoundCloudDB.bulkInsertModels(resolver, items, Content.ME_LIKES.uri, USER_ID)).toEqual(3);
+        expect(SoundCloudDB.insertCollection(resolver, items, Content.ME_LIKES.uri, USER_ID)).toEqual(6);
 
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
@@ -44,7 +44,7 @@ public class SoundCloudDBTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotBulkInsertWithoutOwnerId() throws Exception {
-        SoundCloudDB.bulkInsertModels(resolver, createParcelables(), Content.ME_LIKES.uri, -1);
+        SoundCloudDB.insertCollection(resolver, createParcelables(), Content.ME_LIKES.uri, -1);
     }
 
     private List<ScResource> createParcelables() {

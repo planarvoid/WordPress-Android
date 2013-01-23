@@ -120,7 +120,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_TRACKS:
             case ME_LIKES:
-            case ME_REPOSTS:
+            case ME_TRACK_REPOSTS:
                 qb.setTables(soundAssociationJoin);
                 if ("1".equals(uri.getQueryParameter(Parameter.TYPE_IDS_ONLY))) {
                     _columns = new String[]{DBHelper.SoundAssociationView._TYPE, DBHelper.SoundAssociationView._ID};
@@ -224,6 +224,9 @@ public class ScContentProvider extends ContentProvider {
                     _columns = formatWithUser(
                             getFullSoundColumns(Table.PLAYLIST_TRACKS_VIEW.name, Table.PLAYLIST_TRACKS_VIEW.id),
                             userId);
+                }
+                if (_sortOrder == null){
+                    _sortOrder = DBHelper.PlaylistTracksView.PLAYLIST_POSITION + " ASC";
                 }
                 break;
 
@@ -468,7 +471,7 @@ public class ScContentProvider extends ContentProvider {
                 }
 
             case ME_LIKES:
-            case ME_REPOSTS:
+            case ME_TRACK_REPOSTS:
                 id = Table.SOUNDS.upsertSingle(db, values);
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
@@ -532,6 +535,11 @@ public class ScContentProvider extends ContentProvider {
             case USER:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 break;
+            case PLAYLIST_TRACKS:
+                where = (!TextUtils.isEmpty(where) ? where + " AND " : "") + DBHelper.PlaylistTracks.PLAYLIST_ID + "=" + uri.getPathSegments().get(1);
+                break;
+
+
             case ME_ACTIVITIES:
             case ME_SOUND_STREAM:
                 where = DBHelper.Activities.CONTENT_ID+"= ?";
@@ -557,7 +565,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_LIKES:
             case ME_TRACKS:
-            case ME_REPOSTS:
+            case ME_TRACK_REPOSTS:
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
             case USER_TRACKS:
@@ -712,6 +720,7 @@ public class ScContentProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String[] extraCV = null;
         boolean recreateTable = false;
+        boolean deleteUri = false;
 
         final Content content = Content.match(uri);
         final Table table;
@@ -725,10 +734,12 @@ public class ScContentProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return values.length;
 
+            case PLAY_QUEUE:
+                recreateTable = true;
+                // fall through
             case COMMENTS:
             case ME_SOUND_STREAM:
             case ME_ACTIVITIES:
-            case PLAY_QUEUE:
                 table = content.table;
                 break;
 
@@ -740,7 +751,7 @@ public class ScContentProvider extends ContentProvider {
             case USER_TRACKS:
             case ME_LIKES:
             case USER_LIKES:
-            case ME_REPOSTS:
+            case ME_TRACK_REPOSTS:
             case USER_REPOSTS:
             case ME_FOLLOWERS:
             case USER_FOLLOWERS:
@@ -755,11 +766,10 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case PLAYLIST_TRACKS:
+                deleteUri = true; // clean out table first
                 table = Table.PLAYLIST_TRACKS;
                 extraCV = new String[]{DBHelper.PlaylistTracks.PLAYLIST_ID, uri.getPathSegments().get(1)};
                 break;
-
-
 
             case ME_SHORTCUTS:
                 recreateTable = true;
@@ -778,6 +788,10 @@ public class ScContentProvider extends ContentProvider {
 
             if (recreateTable) {
                 db.delete(table.name, null, null);
+            }
+
+            if (deleteUri){
+                delete(uri,null,null);
             }
 
             for (ContentValues v : values) {

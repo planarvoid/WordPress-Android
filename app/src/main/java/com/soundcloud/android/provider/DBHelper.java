@@ -150,6 +150,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "stream_url VARCHAR(255)," +
             "streamable BOOLEAN DEFAULT 0, " +
             "sharing VARCHAR(255)," +
+            "license VARCHAR(100)," +
             "purchase_url VARCHAR(255)," +
             "playback_count INTEGER DEFAULT -1," +
             "download_count INTEGER DEFAULT -1," +
@@ -352,6 +353,7 @@ public class DBHelper extends SQLiteOpenHelper {
             ",Sounds." + Sounds.STREAMABLE + " as " + SoundView.STREAMABLE +
             ",Sounds." + Sounds.COMMENTABLE + " as " + SoundView.COMMENTABLE +
             ",Sounds." + Sounds.SHARING + " as " + SoundView.SHARING +
+            ",Sounds." + Sounds.LICENSE + " as " + SoundView.LICENSE +
             ",Sounds." + Sounds.PURCHASE_URL + " as " + SoundView.PURCHASE_URL +
             ",Sounds." + Sounds.PLAYBACK_COUNT + " as " + SoundView.PLAYBACK_COUNT +
             ",Sounds." + Sounds.DOWNLOAD_COUNT + " as " + SoundView.DOWNLOAD_COUNT +
@@ -417,7 +419,6 @@ public class DBHelper extends SQLiteOpenHelper {
             ",Activities." + Activities.CONTENT_ID + " as " + ActivityView.CONTENT_ID +
             ",Activities." + Activities.SHARING_NOTE_TEXT + " as " + ActivityView.SHARING_NOTE_TEXT +
             ",Activities." + Activities.SHARING_NOTE_CREATED_AT + " as " + ActivityView.SHARING_NOTE_CREATED_AT +
-
 
             // activity user (who commented, favorited etc. on contained following)
             ",Users." + Users.USERNAME + " as " + ActivityView.USER_USERNAME +
@@ -513,6 +514,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String STREAMABLE               = "streamable";
         public static final String COMMENTABLE              = "commentable";
         public static final String SHARING                  = "sharing";
+        public static final String LICENSE                  = "license";
         public static final String PURCHASE_URL             = "purchase_url";
         public static final String PLAYBACK_COUNT           = "playback_count";
         public static final String DOWNLOAD_COUNT           = "download_count";
@@ -529,7 +531,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String[] ALL_FIELDS = {
                 _ID, _TYPE, ORIGINAL_CONTENT_SIZE, DURATION, GENRE, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL,
                 ARTWORK_URL, WAVEFORM_URL, DOWNLOADABLE, DOWNLOAD_URL, STREAM_URL, STREAM_URL, STREAMABLE,
-                COMMENTABLE, SHARING, PURCHASE_URL, PLAYBACK_COUNT, DOWNLOAD_COUNT,
+                COMMENTABLE, SHARING, LICENSE, PURCHASE_URL, PLAYBACK_COUNT, DOWNLOAD_COUNT,
                 COMMENT_COUNT, LIKES_COUNT, REPOSTS_COUNT, SHARED_TO_COUNT,
                 USER_ID, STATE, CREATED_AT, PERMALINK, LAST_UPDATED, TRACKS_URI, TRACK_COUNT, PLAYLIST_TYPE
         };
@@ -731,6 +733,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String STREAMABLE = Sounds.STREAMABLE;
         public static final String COMMENTABLE = Sounds.COMMENTABLE;
         public static final String SHARING = Sounds.SHARING;
+        public static final String LICENSE = Sounds.LICENSE;
         public static final String PURCHASE_URL = Sounds.PURCHASE_URL;
         public static final String PLAYBACK_COUNT = Sounds.PLAYBACK_COUNT;
         public static final String DOWNLOAD_COUNT = Sounds.DOWNLOAD_COUNT;
@@ -751,6 +754,18 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String USER_PLAY_COUNT = "sound_user_play_count";
 
         public static final String CACHED          = "sound_cached";
+
+        public static final String[] ALL_VIEW_FIELDS = {
+                USER_ID, USERNAME, USER_PERMALINK, USER_AVATAR_URL, USER_LIKE, USER_REPOST, USER_PLAY_COUNT, CACHED
+        };
+        public static final String[] ALL_FIELDS;
+        static {
+            ALL_FIELDS = new String[Sounds.ALL_FIELDS.length + ALL_VIEW_FIELDS.length];
+            System.arraycopy(Sounds.ALL_FIELDS, 0, ALL_FIELDS, 0, Sounds.ALL_FIELDS.length);
+
+            System.arraycopy(ALL_VIEW_FIELDS, 0, ALL_FIELDS, Sounds.ALL_FIELDS.length, ALL_VIEW_FIELDS.length);
+        }
+
     }
 
     public final static class ActivityView extends Activities {
@@ -770,9 +785,10 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String[] ALL_FIELDS;
         static {
             // sometimes java feels like C all over again
-            ALL_FIELDS = new String[Activities.ALL_FIELDS.length + ALL_VIEW_FIELDS.length];
+            ALL_FIELDS = new String[Activities.ALL_FIELDS.length + ALL_VIEW_FIELDS.length + SoundView.ALL_FIELDS.length];
             System.arraycopy(Activities.ALL_FIELDS, 0 , ALL_FIELDS, 0, Activities.ALL_FIELDS.length);
             System.arraycopy(ALL_VIEW_FIELDS, 0 , ALL_FIELDS, Activities.ALL_FIELDS.length, ALL_VIEW_FIELDS.length);
+            System.arraycopy(SoundView.ALL_FIELDS, 0 , ALL_FIELDS, Activities.ALL_FIELDS.length + ALL_VIEW_FIELDS.length, SoundView.ALL_FIELDS.length);
         }
     }
 
@@ -784,7 +800,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public final static class PlaylistTracksView extends SoundView {
         public static final String PLAYLIST_ID = PlaylistTracks.PLAYLIST_ID;
-        public static final String PLAYLIST_POSITION = "playlist_id";
+        public static final String PLAYLIST_POSITION = "playlist_position";
     }
 
     public final static class PlaylistTracks implements BaseColumns {

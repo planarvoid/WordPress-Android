@@ -1,9 +1,7 @@
 package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.provider.ScContentProvider.Parameter.CACHED;
-import static com.soundcloud.android.provider.ScContentProvider.Parameter.LIMIT;
-import static com.soundcloud.android.provider.ScContentProvider.Parameter.RANDOM;
+import static com.soundcloud.android.provider.ScContentProvider.Parameter.*;
 import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
 import com.soundcloud.android.SoundCloudApplication;

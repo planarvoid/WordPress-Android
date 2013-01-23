@@ -21,8 +21,6 @@ import android.os.Parcel;
 
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /*
 "origin": {
@@ -78,15 +76,13 @@ public class Comment extends ScResource {
     }
 
     @Override
-    public BulkInsertMap getDependencyValuesMap() {
-        BulkInsertMap valuesMap = super.getDependencyValuesMap();
+    public void putDependencyValues(BulkInsertMap destination) {
         if (user != null) {
-            valuesMap.add(user.getBulkInsertUri(), user.buildContentValues());
+            user.putFullContentValues(destination);
         }
         if (track != null) {
-            valuesMap.add(track.getBulkInsertUri(), track.buildContentValues());
+            track.putFullContentValues(destination);
         }
-        return valuesMap;
     }
 
     @Override
@@ -103,6 +99,7 @@ public class Comment extends ScResource {
     public Comment(Cursor c, boolean view) {
         if (view) {
             id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_ID));
+            track_id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.SOUND_ID));
             user_id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.USER_ID));
             user = User.fromActivityView(c);
             body = c.getString(c.getColumnIndex(DBHelper.ActivityView.COMMENT_BODY));
@@ -110,6 +107,7 @@ public class Comment extends ScResource {
             created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_CREATED_AT)));
         } else {
             id = c.getLong(c.getColumnIndex(DBHelper.Comments._ID));
+            track_id = c.getLong(c.getColumnIndex(DBHelper.Comments.TRACK_ID));
             user_id = c.getLong(c.getColumnIndex(DBHelper.Comments.USER_ID));
             body = c.getString(c.getColumnIndex(DBHelper.Comments.BODY));
             timestamp = c.getLong(c.getColumnIndex(DBHelper.Comments.TIMESTAMP));

@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.fragment.PlaylistTracksFragment;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.view.PlayableActionButtonsController;
@@ -11,6 +12,7 @@ import com.soundcloud.android.view.adapter.PlayableBar;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -45,8 +47,18 @@ public class PlaylistActivity extends ScActivity implements PlayableActionButton
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.playlist_tracks_fragment, ScListFragment.newInstance(Content.ME_ACTIVITIES)).commit();
 
+        if (savedInstanceState == null) {
+            setupTracklistFragment(Content.PLAYLIST_TRACKS.forId(mPlaylist.id));
+        }
+    }
 
+    private void setupTracklistFragment(Uri playlistTracksUri) {
+        PlaylistTracksFragment fragment = new PlaylistTracksFragment();
+        Bundle args = new Bundle();
+        args.putParcelable("contentUri", playlistTracksUri);
+        fragment.setArguments(args);
 
+        getSupportFragmentManager().beginTransaction().add(R.id.playlist_tracks_fragment, fragment).commit();
     }
 
     @Override

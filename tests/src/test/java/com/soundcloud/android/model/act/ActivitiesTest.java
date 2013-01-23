@@ -14,6 +14,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 @RunWith(DefaultTestRunner.class)
+@DatabaseConfig.UsingDatabaseMap(DefaultTestRunner.FileDatabaseMap.class)
 public class ActivitiesTest {
 
     public static final long USER_ID = 133201L;
@@ -242,7 +244,7 @@ public class ActivitiesTest {
         cv.put(DBHelper.Users.USERNAME, "Foo Bar");
         expect(resolver.insert(Content.USERS.uri, cv)).not.toBeNull();
 
-        Activities a = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_one_of_each_activity.json"));
+        Activities a = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_one_of_each_activity.json"), false);
         expect(a.insert(Content.ME_ACTIVITIES, resolver)).toBe(7);
 
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(7);
@@ -282,7 +284,6 @@ public class ActivitiesTest {
         expect(affiliationActivity.getType()).toEqual(Activity.Type.AFFILIATION);
         expect(affiliationActivity.getUser().id).toEqual(2746040l);
         expect(affiliationActivity.getUser().username).toEqual("Vicious Lobo");
-        expect(affiliationActivity.getUser().country).toEqual("United States");
 
         TrackLikeActivity trackLikeActivity = (TrackLikeActivity) activities.get(3);
         expect(trackLikeActivity.getDateString()).toEqual("2012/07/10 17:34:07 +0000");
@@ -312,7 +313,6 @@ public class ActivitiesTest {
     }
 
     @Test
-
     public void shouldRemoveTrackActivitiesOnTrackRemove() throws Exception {
 
         ContentValues cv = new ContentValues();

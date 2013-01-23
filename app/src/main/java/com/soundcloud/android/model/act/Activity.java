@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Creation;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
@@ -215,9 +216,7 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     public abstract Track       getTrack();
     public abstract User        getUser();
     public abstract Playlist    getPlaylist();
-    public abstract void        setTrack(Track track);
-    public abstract void        setPlaylist(Playlist playlist);
-    public abstract void        setUser(User user);
+    public abstract void        cacheDependencies();
 
 
     public List<ScResource> getDependentModels() {

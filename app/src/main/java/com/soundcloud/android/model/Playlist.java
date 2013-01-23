@@ -100,23 +100,21 @@ public class Playlist extends Playable {
     }
 
     @Override
-    public BulkInsertMap getDependencyValuesMap() {
-        BulkInsertMap valuesMap = super.getDependencyValuesMap();
+    public void putDependencyValues(BulkInsertMap destMap) {
+        super.putDependencyValues(destMap);
         if (tracks != null) {
             int i = 0;
             for (Track t : tracks) {
-                valuesMap.add(t.getBulkInsertUri(),t.buildContentValues());
-                valuesMap.merge(t.getDependencyValuesMap());
+                t.putFullContentValues(destMap);
 
                 // add to relationship table
                 ContentValues cv = new ContentValues();
                 cv.put(DBHelper.PlaylistTracks.TRACK_ID,t.id);
                 cv.put(DBHelper.PlaylistTracks.POSITION,i);
-                valuesMap.add(Content.PLAYLIST_TRACKS.forId(id), cv);
+                destMap.add(Content.PLAYLIST_TRACKS.forId(id), cv);
                 i++;
             }
         }
-        return valuesMap;
     }
 
     @Override

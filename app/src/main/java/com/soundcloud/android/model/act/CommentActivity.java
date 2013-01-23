@@ -2,6 +2,7 @@ package com.soundcloud.android.model.act;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
@@ -25,6 +26,8 @@ public class CommentActivity extends Activity {
     public CommentActivity(Cursor cursor) {
         super(cursor);
         comment = new Comment(cursor, true);
+        comment.track = SoundCloudApplication.MODEL_MANAGER.getTrack(comment.track_id);
+        comment.user = SoundCloudApplication.MODEL_MANAGER.getUser(comment.user_id);
     }
 
     @Override
@@ -47,21 +50,10 @@ public class CommentActivity extends Activity {
         return null;
     }
 
-
-    @Override @JsonIgnore
-    public void setTrack(Track track) {
-        comment.track_id = track.id;
-        comment.track = track;
-    }
-
     @Override
-    public void setPlaylist(Playlist playlist) {
-        // nop
-    }
-
-    @Override @JsonIgnore
-    public void setUser(User user) {
-        // nop
+    public void cacheDependencies() {
+        comment.user = SoundCloudApplication.MODEL_MANAGER.cache(comment.user, ScResource.CacheUpdateMode.MINI);
+        comment.track = SoundCloudApplication.MODEL_MANAGER.cache(comment.track, ScResource.CacheUpdateMode.MINI);
     }
 
     @Override

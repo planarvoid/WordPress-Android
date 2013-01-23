@@ -8,12 +8,10 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,7 +57,7 @@ public class ScModelManagerTest {
     // TODO, one instance of every user. deserialize post processing
     @Test
     public void testUniqueUserMultipleTracks() throws IOException {
-        CollectionHolder<ScResource> holder = manager.getCollectionFromStream(SyncAdapterServiceTest.class.getResourceAsStream("tracks.json"));
+        CollectionHolder<ScResource> holder = manager.getCollectionFromStream(SyncAdapterServiceTest.class.getResourceAsStream("tracks.json"), true);
         expect(holder.size()).toBe(3);
 
         Track t1 = (Track) holder.get(0);
@@ -285,7 +283,7 @@ public class ScModelManagerTest {
     @Test
     public void shouldBulkInsertWithCollections() throws Exception {
         List<Track> items = createTracks();
-        expect(manager.writeCollection(items, Content.ME_LIKES.uri, USER_ID, ScResource.CacheUpdateMode.MINI)).toEqual(4);
+        expect(manager.writeCollection(items, Content.ME_LIKES.uri, USER_ID, ScResource.CacheUpdateMode.MINI)).toEqual(6);
 
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(2);
@@ -353,21 +351,26 @@ public class ScModelManagerTest {
         expect(p.user.username).toEqual("Natalie");
         expect(p.tracks.size()).toEqual(41);
 
-        final Uri actualUri = p.insert(resolver);
+        Uri actualUri = p.insert(resolver);
         expect(actualUri)
                 .toEqual(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/playlists/2524386"));
 
         Long id = Long.parseLong(actualUri.getLastPathSegment());
-        Playlist p2 = manager.loadPlaylistFromUri(resolver, id, true);
+        Playlist p2 = manager.getPlaylistWithTracks(id);
         expect(p2).not.toBeNull();
         expect(p2.user.username).toEqual("Natalie");
         expect(p2.tracks.size()).toEqual(41);
-        expect(p.tracks).toEqual(p2.tracks);
-    }
-    /*
-    SELECT PlaylistTracksView.*, EXISTS (SELECT 1 FROM CollectionItems WHERE PlaylistTracksView._id = item_id AND collection_type = 1 AND user_id = 1) AS sound_user_like, EXISTS (SELECT 1 FROM CollectionItems WHERE PlaylistTracksView._id = item_id AND collection_type = 7 AND user_id = 1) AS sound_user_repost FROM PlaylistTracksView INNER JOIN CollectionItems ON (PlaylistTracksView._id = item_id AND PlaylistTracksView._type = resource_type) WHERE (playlist_id = 2524386)
-     */
+        expect(p.tracks.get(0).id).toEqual(p2.tracks.get(0).id);
 
+        p2.tracks.remove(0);
+        expect(p2.insert(resolver)).not.toBeNull();
+
+        Playlist p3 = manager.getPlaylistWithTracks(id);
+        expect(p3).not.toBeNull();
+        expect(p3.tracks.size()).toEqual(40);
+        expect(p3.tracks.get(0).id).not.toEqual(p.tracks.get(0).id);
+
+    }
 
     @Test
     public void shouldPersistActivitiesInDb() throws Exception {

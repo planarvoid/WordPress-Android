@@ -53,27 +53,16 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     public SoundAssociation() { }
 
     public SoundAssociation(Cursor cursor) {
-        setDefaultsFromCursor(cursor);
-        if (Playable.isTrackCursor(cursor)) {
-            track = new Track(cursor);
-        } else {
-            playlist = new Playlist(cursor);
-        }
-    }
-
-    public SoundAssociation(Cursor cursor, Track track) {
-        setDefaultsFromCursor(cursor);
-        this.track = track;
-    }
-
-    public SoundAssociation(Cursor cursor, Playlist playlist) {
-        setDefaultsFromCursor(cursor);
-        this.playlist = playlist;
-    }
-
-    private void setDefaultsFromCursor(Cursor cursor){
         associationType = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE));
         created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP)));
+        user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID);
+
+        if (Playable.isTrackCursor(cursor)){
+            track = SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor, DBHelper.SoundAssociationView._ID);
+        } else {
+            playlist = SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(cursor, DBHelper.SoundAssociationView._ID);
+        }
+
     }
 
     @Override
@@ -141,12 +130,10 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     }
 
     @Override
-    public BulkInsertMap getDependencyValuesMap() {
-        BulkInsertMap valuesMap = super.getDependencyValuesMap();
-        if (track != null)      valuesMap.merge(track.getDependencyValuesMap());
-        if (playlist != null)   valuesMap.merge(playlist.getDependencyValuesMap());
-        if (user != null)       valuesMap.merge(user.getDependencyValuesMap());;
-        return valuesMap;
+    public void putDependencyValues(BulkInsertMap destination) {
+        if (track != null)      track.putFullContentValues(destination);
+        if (playlist != null)   playlist.putFullContentValues(destination);
+        if (user != null)       user.putFullContentValues(destination);
     }
 
     /**
