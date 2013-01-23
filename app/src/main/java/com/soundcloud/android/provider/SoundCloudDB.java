@@ -1,11 +1,8 @@
 package com.soundcloud.android.provider;
 
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,100 +12,75 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class SoundCloudDB {
-    private static final String TAG = "SoundCloudDB";
     public static final int RESOLVER_BATCH_SIZE = 100;
 
-    public static int bulkInsertModels(ContentResolver resolver, List<? extends ScResource> models) {
-        return bulkInsertModels(resolver, models, null, -1);
+    /**
+     * Inserts a list of resources into the database
+     * @param resolver
+     * @param resources
+     * @return
+     */
+    public static int bulkInsertResources(ContentResolver resolver, List<? extends ScResource> resources) {
+        if (resources == null) return 0;
+        BulkInsertMap map = new BulkInsertMap();
+        for (ScResource resource : resources) {
+            if (resource != null) resource.putFullContentValues(map);
+        }
+        return map.insert(resolver);
     }
 
-    public static int bulkInsertModels(ContentResolver resolver,
-                                       List<? extends ScResource> models,
-                                       @Nullable Uri uri,
+    /**
+     * Inserts a list of resources and their corresponding dependencies to a given URI.
+     * Contains special handling based on Content requirements.
+     * @param resolver
+     * @param resources
+     * @param collectionUri
+     * @param ownerId
+     * @return the number of insertsions
+     */
+    public static int insertCollection(ContentResolver resolver,
+                                       @NotNull List<? extends ScResource> resources,
+                                       @NotNull Uri collectionUri,
                                        long ownerId) {
-        if (uri != null && ownerId < 0) {
+        if (ownerId < 0) {
             throw new IllegalArgumentException("need valid ownerId for collection");
         }
 
-        if (models == null) return 0;
-
-        Set<User> usersToInsert = new HashSet<User>();
-        Set<Playable> soundsToInsert = new HashSet<Playable>();
-
-        ContentValues[] bulkValues = uri == null ? null : new ContentValues[models.size()];
-
-        int index = 0;
-        for (int i=0; i <models.size(); i++) {
-
-            ScResource r = models.get(i);
+        final Content match = Content.match(collectionUri);
+        BulkInsertMap map = new BulkInsertMap();
+        for (int i=0; i < resources.size(); i++) {
+            ScResource r = resources.get(i);
             if (r != null) {
-                Playable playable = r.getPlayable();
-                if (playable != null) {
-                    soundsToInsert.add(playable);
-                }
-
-                User user = r.getUser();
-                if (user != null) {
-                    usersToInsert.add(user);
-                }
-
+                r.putFullContentValues(map);
                 long id = r.id;
-                if (uri != null) {
-                    ContentValues cv = new ContentValues();
-                    cv.put(DBHelper.CollectionItems.USER_ID, ownerId);
-                    switch (Content.match(uri)) {
-                        case PLAY_QUEUE:
-                            cv.put(DBHelper.PlayQueue.POSITION, i);
-                            cv.put(DBHelper.PlayQueue.TRACK_ID, id);
-                            break;
-
-                        default:
-                            cv.put(DBHelper.CollectionItems.POSITION, i);
-                            cv.put(DBHelper.CollectionItems.ITEM_ID, id);
-                            break;
-
-                    }
-                    bulkValues[index] = cv;
-                    index++;
+                ContentValues contentValues = new ContentValues();
+                switch (match) {
+                    case PLAY_QUEUE:
+                        contentValues.put(DBHelper.PlayQueue.POSITION, i);
+                        contentValues.put(DBHelper.PlayQueue.TRACK_ID, id);
+                        contentValues.put(DBHelper.CollectionItems.USER_ID, ownerId);
+                        break;
+                    case PLAYLIST_TRACKS:
+                        contentValues.put(DBHelper.PlaylistTracks.POSITION, i);
+                        contentValues.put(DBHelper.PlaylistTracks.TRACK_ID, id);
+                        break;
+                    default:
+                        contentValues.put(DBHelper.CollectionItems.POSITION, i);
+                        contentValues.put(DBHelper.CollectionItems.ITEM_ID, id);
+                        contentValues.put(DBHelper.CollectionItems.USER_ID, ownerId);
+                        break;
                 }
+                map.add(collectionUri,contentValues);
             }
         }
-
-        ContentValues[] soundsCv = new ContentValues[soundsToInsert.size()];
-        ContentValues[] usersCv = new ContentValues[usersToInsert.size()];
-        Playable[] _soundssToInsert = soundsToInsert.toArray(new Playable[soundsToInsert.size()]);
-        User[] _usersToInsert = usersToInsert.toArray(new User[usersToInsert.size()]);
-
-        for (int i=0; i< _soundssToInsert.length; i++) {
-            soundsCv[i] = _soundssToInsert[i].buildContentValues();
-        }
-        for (int i=0; i< _usersToInsert.length; i++) {
-            usersCv[i] = _usersToInsert[i].buildContentValues();
-        }
-
-        int tracksInserted = resolver.bulkInsert(Content.SOUNDS.uri, soundsCv);
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, tracksInserted + " sounds bulk inserted");
-
-        int usersInserted = resolver.bulkInsert(Content.USERS.uri, usersCv);
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, usersInserted + " users bulk inserted");
-
-        if (bulkValues != null) {
-            int itemsInserted = resolver.bulkInsert(uri, bulkValues);
-            if (Log.isLoggable(TAG, Log.DEBUG))Log.d(TAG, itemsInserted + " collection items bulk inserted");
-        }
-        return usersInserted + tracksInserted;
+        return map.insert(resolver);
     }
 
     public static @Nullable Recording getRecordingByUri(ContentResolver resolver, Uri uri) {
@@ -157,7 +129,6 @@ public class SoundCloudDB {
         }
         b.appendQueryParameter("limit", String.valueOf(limit));
         return b;
-
     }
 
     /**

@@ -1,14 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="root_view_id" type="id" />
-
-    <!-- playable view IDs -->
-    <item name="icon" type="id" />
-    <item name="playable_bar" type="id" />
-    <item name="playable_action_bar_container" type="id" />
-    <item name="toggle_like" type="id" />
-    <item name="toggle_repost" type="id" />
-    <item name="toggle_comment" type="id" />
-    <item name="toggle_info" type="id" />
-
 </resources>

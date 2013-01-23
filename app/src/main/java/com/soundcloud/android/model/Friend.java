@@ -1,6 +1,8 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.provider.BulkInsertMap;
+import org.jetbrains.annotations.NotNull;
 
 import android.net.Uri;
 import android.util.Log;
@@ -11,6 +13,11 @@ public class Friend extends ScResource implements Refreshable {
     public User user;
 
     public Friend() {
+    }
+
+    @Override
+    public void putDependencyValues(@NotNull BulkInsertMap destination) {
+        user.putFullContentValues(destination);
     }
 
     public Friend(User user) {

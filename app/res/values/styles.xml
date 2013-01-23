@@ -565,7 +565,6 @@
     <!-- Playable (tracks/playlists) styles -->
 
     <style name="PlayableIcon">
-        <item name="android:id">@id/icon</item>
         <item name="android:layout_width">@dimen/list_icon_width</item>
         <item name="android:layout_height">@dimen/list_icon_height</item>
         <item name="android:layout_marginRight">@dimen/list_icon_margin_right</item>
@@ -581,7 +580,6 @@
     </style>
 
     <style name="PlayableTitle">
-        <item name="android:id">@+id/playable_title</item>
         <item name="android:layout_alignLeft">@+id/playable_user_holder</item>
         <item name="android:layout_toLeftOf">@+id/playable_track_count</item>
         <item name="android:layout_alignWithParentIfMissing">true</item>
@@ -603,7 +601,6 @@
     </style>
 
     <style name="PlayerActionContainer">
-        <item name="android:id">@id/playable_action_bar_container</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingTop">8dp</item>

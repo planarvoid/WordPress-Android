@@ -7,8 +7,6 @@ import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.cache.UserCache;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
-import com.soundcloud.android.model.act.PlaylistActivity;
-import com.soundcloud.android.model.act.PlaylistRepostActivity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -25,7 +23,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -378,6 +375,11 @@ public class ScModelManager {
         return mResolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
     }
 
+    /**
+     * Write this resource to the database
+     * @param resource
+     * @return the number of resources written, including dependencies
+     */
     public Uri write(ScResource resource) {
         return resource.insert(mResolver);
     }
@@ -461,7 +463,7 @@ public class ScModelManager {
         List<Long> fetchIds = (maxToFetch > -1) ? new ArrayList<Long>(ids.subList(0, Math.min(ids.size(), maxToFetch)))
                     : ids;
 
-        return SoundCloudDB.bulkInsertModels(mResolver, doBatchLookup(api, fetchIds,
+        return SoundCloudDB.bulkInsertResources(mResolver, doBatchLookup(api, fetchIds,
                 // XXX this has to be abstracted more. Hesitant to do so until the api is more final
                 Track.class.equals(content.modelType) || SoundAssociation.class.equals(content.modelType)
                         ? Content.TRACKS.remoteUri : Content.USERS.remoteUri));
@@ -485,8 +487,11 @@ public class ScModelManager {
         return writeCollection(getCollectionFromStream(is).collection, uri, userId, updateMode);
     }
 
-    public Object writeCollection(List<ScResource> items, ScResource.CacheUpdateMode updateMode) {
-        return writeCollection(items, null, -1l, updateMode);
+    public <T extends ScResource> int writeCollection(List<T> items, ScResource.CacheUpdateMode updateMode) {
+        for (T item : items) {
+            cache(item, updateMode);
+        }
+        return SoundCloudDB.bulkInsertResources(mResolver,items);
     }
 
 
@@ -497,7 +502,7 @@ public class ScModelManager {
             cache(item, updateMode);
         }
 
-        return SoundCloudDB.bulkInsertModels(mResolver, items, localUri, userId);
+        return SoundCloudDB.insertCollection(mResolver, items, localUri, userId);
     }
 
     public List<Long> getLocalIds(Content content, long userId) {

@@ -784,7 +784,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public final static class PlaylistTracksView extends SoundView {
         public static final String PLAYLIST_ID = PlaylistTracks.PLAYLIST_ID;
-        public static final String PLAYLIST_POSITION = "playlist_id";
+        public static final String PLAYLIST_POSITION = "playlist_position";
     }
 
     public final static class PlaylistTracks implements BaseColumns {
