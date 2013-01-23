@@ -94,7 +94,7 @@ public class ApiSyncer {
                 case ME_TRACKS:
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
-                case ME_REPOSTS:
+                case ME_TRACK_REPOSTS:
                 case ME_FRIENDS:
                     result = syncContent(c, userId);
                     result.success = true;

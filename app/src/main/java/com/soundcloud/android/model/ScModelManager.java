@@ -162,22 +162,6 @@ public class ScModelManager {
         return user;
     }
 
-    public Playlist loadPlaylistFromUri(ContentResolver resolver, long playlistId, boolean loadTracks) {
-        Cursor c = resolver.query(Content.PLAYLIST.forId(playlistId), null, null, null, null);
-        Playlist playlist = null;
-        if (c != null) {
-            if (c.moveToFirst()) playlist = getPlaylistFromCursor(c);
-            c.close();
-        }
-        if (playlist != null && loadTracks) playlist.tracks = loadPlaylistTracks(resolver, playlistId);
-
-        return playlist;
-    }
-
-    public List<Track> loadPlaylistTracks(ContentResolver resolver, long playlistId){
-        return loadLocalContent(resolver,Track.class,Content.PLAYLIST_TRACKS.forId(playlistId)).collection;
-    }
-
     public <T extends ScModel> CollectionHolder<T> loadLocalContent(ContentResolver resolver, Class<T> resourceType, Uri localUri) {
         Cursor itemsCursor = resolver.query(localUri, null, null, null, null);
         List<ScModel> items = new ArrayList<ScModel>();
@@ -275,6 +259,40 @@ public class ScModelManager {
         return u;
     }
 
+    public @Nullable Playlist getPlaylist(long id) {
+        if (id < 0) return null;
+
+        Playlist p = mPlaylistCache.get(id);
+        if (p == null) {
+            p = getPlaylist(Content.PLAYLIST.forId(id));
+            if (p != null) mPlaylistCache.put(p);
+        }
+        return p;
+    }
+
+    public @Nullable Playlist getPlaylist(Uri uri) {
+        Playlist p = null;
+        Cursor cursor = mResolver.query(uri, null, null, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                p = getPlaylistFromCursor(cursor);
+            }
+            cursor.close();
+        }
+        return p;
+    }
+
+    public @Nullable Playlist getPlaylistWithTracks(long playlistId) {
+        Playlist playlist = getPlaylist(Content.PLAYLIST.forId(playlistId));
+        if (playlist != null) playlist.tracks = loadPlaylistTracks(mResolver, playlistId);
+
+        return playlist;
+    }
+
+    public List<Track> loadPlaylistTracks(ContentResolver resolver, long playlistId){
+        return loadLocalContent(resolver,Track.class,Content.PLAYLIST_TRACKS.forId(playlistId)).collection;
+    }
+
     public Track getCachedTrack(long id) {
         return mTrackCache.get(id);
     }
@@ -290,6 +308,8 @@ public class ScModelManager {
     public ScResource cache(@Nullable ScResource resource, ScResource.CacheUpdateMode updateMode) {
         if (resource instanceof Track) {
             return cache((Track) resource, updateMode);
+        } else if (resource instanceof Playlist) {
+            return cache((Playlist) resource, updateMode);
         } else if (resource instanceof User) {
             return cache((User) resource, updateMode);
         } else {

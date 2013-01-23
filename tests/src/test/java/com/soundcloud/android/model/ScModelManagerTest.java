@@ -8,12 +8,10 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -358,7 +356,7 @@ public class ScModelManagerTest {
                 .toEqual(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/playlists/2524386"));
 
         Long id = Long.parseLong(actualUri.getLastPathSegment());
-        Playlist p2 = manager.loadPlaylistFromUri(resolver, id, true);
+        Playlist p2 = manager.getPlaylistWithTracks(id);
         expect(p2).not.toBeNull();
         expect(p2.user.username).toEqual("Natalie");
         expect(p2.tracks.size()).toEqual(41);

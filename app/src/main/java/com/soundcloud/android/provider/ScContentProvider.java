@@ -120,7 +120,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_TRACKS:
             case ME_LIKES:
-            case ME_REPOSTS:
+            case ME_TRACK_REPOSTS:
                 qb.setTables(soundAssociationJoin);
                 if ("1".equals(uri.getQueryParameter(Parameter.TYPE_IDS_ONLY))) {
                     _columns = new String[]{DBHelper.SoundAssociationView._TYPE, DBHelper.SoundAssociationView._ID};
@@ -471,7 +471,7 @@ public class ScContentProvider extends ContentProvider {
                 }
 
             case ME_LIKES:
-            case ME_REPOSTS:
+            case ME_TRACK_REPOSTS:
                 id = Table.SOUNDS.upsertSingle(db, values);
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
@@ -565,7 +565,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_LIKES:
             case ME_TRACKS:
-            case ME_REPOSTS:
+            case ME_TRACK_REPOSTS:
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
             case USER_TRACKS:
@@ -751,7 +751,7 @@ public class ScContentProvider extends ContentProvider {
             case USER_TRACKS:
             case ME_LIKES:
             case USER_LIKES:
-            case ME_REPOSTS:
+            case ME_TRACK_REPOSTS:
             case USER_REPOSTS:
             case ME_FOLLOWERS:
             case USER_FOLLOWERS:

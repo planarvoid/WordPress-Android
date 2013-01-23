@@ -42,12 +42,16 @@ public enum Content  {
     ME_LIKE("me/likes/#", null, 108, Track.class, LIKE, null),
     ME_PLAYLISTS("me/playlists", null, 110, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
     ME_USERID("me/userid", null, 111, null, -1, null),
-    ME_REPOSTS("me/reposts", TempEndpoints.e1.MY_REPOSTS, 112, SoundAssociation.class, REPOST, Table.COLLECTION_ITEMS),
-    ME_REPOST("me/reposts/#",null, 113, Track.class, -1, null),
+    ME_TRACK_REPOSTS("me/reposts/tracks", TempEndpoints.e1.MY_TRACK_REPOSTS, 112, SoundAssociation.class, REPOST, Table.COLLECTION_ITEMS),
+    ME_TRACK_REPOST("me/reposts/tracks/#", TempEndpoints.e1.MY_TRACK_REPOST, 113, Track.class, -1, null),
 
     ME_SHORTCUT("me/shortcuts/#", TempEndpoints.i1.MY_SHORTCUTS, 114, Shortcut.class, -1, Table.SUGGESTIONS),
     ME_SHORTCUTS("me/shortcuts", TempEndpoints.i1.MY_SHORTCUTS, 115, Shortcut.class, -1, Table.SUGGESTIONS),
     ME_SHORTCUTS_ICON("me/shortcut_icon/#", null, 116, null, -1, Table.SUGGESTIONS),
+
+    ME_PLAYLIST_REPOSTS("me/reposts/playlists", TempEndpoints.e1.MY_PLAYLIST_REPOSTS, 117, SoundAssociation.class, REPOST, Table.COLLECTION_ITEMS),
+    ME_PLAYLIST_REPOST("me/reposts/playlists/#", TempEndpoints.e1.MY_PLAYLIST_REPOST, 118, Playlist.class, -1, null),
+    ME_REPOSTS("me/reposts", null, 119, null, REPOST, Table.COLLECTION_ITEMS),
 
     ME_CONNECTION("me/connections/#",Endpoints.MY_CONNECTIONS, 130, Connection.class, -1, Table.CONNECTIONS),
     ME_CONNECTIONS("me/connections",Endpoints.MY_CONNECTIONS, 131, Connection.class, -1, Table.CONNECTIONS),
@@ -271,6 +275,10 @@ public enum Content  {
         final int match = sMatcher.match(uri);
 
         return match != -1 ? sMap.get(match) : UNKNOWN;
+    }
+
+    public static Content match(String path) {
+        return match(Uri.parse("content://" + ScContentProvider.AUTHORITY + "/" + path));
     }
 
     public static Content get(String s) {

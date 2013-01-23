@@ -2,7 +2,6 @@ package com.soundcloud.android.service.playback;
 
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
@@ -40,7 +39,10 @@ public class AssociationManager {
         onRepostStatusSet(playable, repost);
         AssociatedSoundTask task = repost ? new AddAssociationTask(getApp(), playable) : new RemoveAssociationTask(getApp(), playable);
         task.setOnAssociatedListener(repostListener);
-        task.execute(TempEndpoints.e1.MY_REPOST);
+        // resolve the playable content URI to its API endpoint
+        String contentPath = playable.toUri().getPath();
+        Content repostContent = Content.match(Content.ME_REPOSTS.uriPath + contentPath);
+        task.execute(repostContent.remoteUri);
     }
 
     private void onLikeStatusSet(Playable playable, boolean isLike) {
@@ -98,7 +100,7 @@ public class AssociationManager {
                 }
             }
             onRepostStatusSet(playable, isAssociated);
-            updateLocalState(playable, Content.ME_REPOSTS.uri, isAssociated);
+            updateLocalState(playable, Content.ME_TRACK_REPOSTS.uri, isAssociated);
         }
     };
 
