@@ -6,6 +6,7 @@ import static com.soundcloud.android.service.sync.ApiSyncer.Result;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
@@ -237,6 +238,21 @@ public class ApiSyncerTest {
         expect(track.title).toEqual("Mozart Parties - Where Has Everybody Gone (Regal Safari Remix)");
         expect(track.user).not.toBeNull();
         expect(track.user.username).toEqual("Regal Safari");
+    }
+
+    @Test
+    public void shouldSyncPlaylistTracks() throws Exception {
+        TestHelper.addPendingHttpResponse(getClass(), "playlist_tracks.json");
+        final Uri localUri = Content.PLAYLIST_TRACKS.forId(2524386l);
+        Result result = sync(localUri);
+        expect(result.success).toBe(true);
+        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.change).toEqual(Result.CHANGED);
+        expect(Content.TRACKS).toHaveCount(41);
+
+        CollectionHolder<Track> trackHolder = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver,Track.class, localUri);
+        expect(trackHolder.collection.size()).toBe(41);
+        expect(trackHolder.collection.get(1).title).toEqual("Keaton Henson - All Things Must Pass");
     }
 
     @Test
