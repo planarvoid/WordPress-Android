@@ -6,7 +6,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.adapter.PlayableRow;
@@ -20,7 +19,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -63,7 +61,7 @@ public class MyTracklistRow extends PlayableRow {
 
      @Override
     public void display(Cursor cursor) {
-        display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor));
+        display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor));
     }
     @Override
     public void display(int position, Parcelable p) {

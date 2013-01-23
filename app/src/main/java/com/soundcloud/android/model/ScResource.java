@@ -4,15 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.provider.BulkInsertMap;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.net.Uri;
-
-import java.util.ArrayList;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,

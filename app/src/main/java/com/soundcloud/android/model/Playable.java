@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.BulkInsertMap;
@@ -118,6 +119,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         if (repostIdx != -1) {
             user_repost = cursor.getInt(repostIdx) == 1;
         }
+
+        user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor);
 
     }
 
@@ -267,7 +270,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
 
         // account for partial objects, don't overwrite local full objects
         if (title != null) cv.put(DBHelper.Sounds.TITLE, title);
-        if (duration != 0) cv.put(DBHelper.Sounds.DURATION, duration);
+        if (duration > 0) cv.put(DBHelper.Sounds.DURATION, duration);
         if (user_id != 0) {
             cv.put(DBHelper.Sounds.USER_ID, user_id);
         } else if (user != null && user.isSaved()) {

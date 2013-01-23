@@ -2,14 +2,14 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.cache.PlaylistCache;
-import com.soundcloud.android.cache.TrackCache;
-import com.soundcloud.android.cache.UserCache;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.cache.ModelCache;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -32,15 +32,18 @@ import java.util.List;
 public class ScModelManager {
 
     private static final int API_LOOKUP_BATCH_SIZE = 200;
+    public static final int DEFAULT_CACHE_CAPACITY = 100;
 
     private ContentResolver mResolver;
     private ObjectMapper mMapper;
 
-    private TrackCache mTrackCache = new TrackCache();
-    private UserCache mUserCache = new UserCache();
-    private PlaylistCache mPlaylistCache = new PlaylistCache();
+    private ModelCache<Track> mTrackCache = new ModelCache<Track>(DEFAULT_CACHE_CAPACITY * 4);
+    private ModelCache<User> mUserCache = new ModelCache<User>(DEFAULT_CACHE_CAPACITY * 2);
+    private ModelCache<Playlist> mPlaylistCache = new ModelCache<Playlist>(DEFAULT_CACHE_CAPACITY);
 
     private Context mContext;
+
+    private static boolean CACHE_AFTER_DESERIALIZATION = SoundCloudApplication.DALVIK;
 
     public ScModelManager(Context c, ObjectMapper mapper) {
         mContext = c;
@@ -49,18 +52,7 @@ public class ScModelManager {
     }
 
     public Activity getActivityFromCursor(Cursor cursor) {
-        Activity a = Activity.Type
-                .fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE)))
-                .fromCursor(cursor);
-        if (a != null) {
-            a.setUser(getUserFromActivityCursor(cursor));
-            if (a.getType().isPlaylistActivity()){
-                a.setPlaylist(getPlaylistFromCursor(cursor, DBHelper.ActivityView.SOUND_ID));
-            } else {
-                a.setTrack(getTrackFromCursor(cursor, DBHelper.ActivityView.SOUND_ID));
-            }
-        }
-        return a;
+        return Activity.Type.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE))).fromCursor(cursor);
     }
 
     public Activities getActivitiesFromCursor(Cursor cursor) {
@@ -74,14 +66,12 @@ public class ScModelManager {
     }
 
     public @Nullable Activities getActivitiesFromJson(InputStream is) throws IOException {
-        Activities activities = mMapper.readValue(is, Activities.class);
-        if (activities == null) return null;
+        return getActivitiesFromJson(is, CACHE_AFTER_DESERIALIZATION);
+    }
 
-        for (Activity a : activities) {
-            a.setPlaylist(cache(a.getPlaylist(),ScResource.CacheUpdateMode.MINI));
-            a.setTrack(cache(a.getTrack(), ScResource.CacheUpdateMode.MINI));
-            a.setUser(cache(a.getUser(), ScResource.CacheUpdateMode.MINI));
-        }
+    public @Nullable Activities getActivitiesFromJson(InputStream is, boolean cacheDependencies) throws IOException {
+        Activities activities = mMapper.readValue(is, Activities.class);
+        if (activities != null && cacheDependencies) for (Activity a : activities) a.cacheDependencies();
         return activities;
     }
 
@@ -93,11 +83,10 @@ public class ScModelManager {
      * @throws IOException
      */
     public @NotNull <T extends ScResource> CollectionHolder<T> getCollectionFromStream(InputStream is) throws IOException {
-
         List<ScResource> items = new ArrayList<ScResource>();
         CollectionHolder holder = mMapper.readValue(is, ScResource.ScResourceHolder.class);
         for (ScResource m : (ScResource.ScResourceHolder) holder) {
-            items.add(cache(m, ScResource.CacheUpdateMode.FULL));
+            items.add(CACHE_AFTER_DESERIALIZATION ? cache(m, ScResource.CacheUpdateMode.FULL) : m); // TODO, do not rely on Dalvik
         }
         holder.collection = items;
         holder.resolve(mContext);
@@ -116,12 +105,12 @@ public class ScModelManager {
         return (T) getModelFromStream(is, ScResource.class);
     }
 
-    public Track getTrackFromCursor(Cursor cursor){
-        return getTrackFromCursor(cursor, DBHelper.Sounds._ID);
+    public Track getCachedTrackFromCursor(Cursor cursor){
+        return getCachedTrackFromCursor(cursor, DBHelper.Sounds._ID);
     }
 
 
-    public Track getTrackFromCursor(Cursor cursor, String idCol) {
+    public Track getCachedTrackFromCursor(Cursor cursor, String idCol) {
         final long id = cursor.getLong(cursor.getColumnIndex(idCol));
         Track track = mTrackCache.get(id);
 
@@ -130,15 +119,14 @@ public class ScModelManager {
             track = new Track(cursor);
             mTrackCache.put(track);
         }
-        track.user = getCachedUserFromCursor(cursor,DBHelper.SoundView.USER_ID);
         return track;
     }
 
-    public Playlist getPlaylistFromCursor(Cursor cursor) {
-        return getPlaylistFromCursor(cursor, DBHelper.Sounds._ID);
+    public Playlist getCachedPlaylistFromCursor(Cursor cursor) {
+        return getCachedPlaylistFromCursor(cursor, DBHelper.Sounds._ID);
     }
 
-    public Playlist getPlaylistFromCursor(Cursor cursor, String idCol) {
+    public Playlist getCachedPlaylistFromCursor(Cursor cursor, String idCol) {
         final long id = cursor.getLong(cursor.getColumnIndex(idCol));
         Playlist playlist = mPlaylistCache.get(id);
 
@@ -147,11 +135,14 @@ public class ScModelManager {
             playlist = new Playlist(cursor);
             mPlaylistCache.put(playlist);
         }
-        playlist.user = getCachedUserFromCursor(cursor, DBHelper.SoundView.USER_ID);
         return playlist;
     }
 
-    private User getCachedUserFromCursor(Cursor cursor, String col) {
+    public User getCachedUserFromCursor(Cursor cursor) {
+        return getCachedUserFromCursor(cursor,DBHelper.SoundView.USER_ID);
+    }
+
+    public User getCachedUserFromCursor(Cursor cursor, String col) {
         final long user_id = cursor.getLong(cursor.getColumnIndex(col));
         User user = mUserCache.get(user_id);
 
@@ -168,20 +159,13 @@ public class ScModelManager {
         if (itemsCursor != null) {
             while (itemsCursor.moveToNext())
                 if (Track.class.equals(resourceType)) {
-                    items.add(getTrackFromCursor(itemsCursor));
+                    items.add(getCachedTrackFromCursor(itemsCursor));
                 } else if (User.class.equals(resourceType)) {
                     items.add(getUserFromCursor(itemsCursor));
                 } else if (Friend.class.equals(resourceType)) {
                     items.add(new Friend(getUserFromCursor(itemsCursor)));
                 } else if (SoundAssociation.class.equals(resourceType)) {
-                    SoundAssociation soundAssociation;
-                    if (Playable.isTrackCursor(itemsCursor)){
-                        soundAssociation = new SoundAssociation(itemsCursor, getTrackFromCursor(itemsCursor, DBHelper.SoundAssociationView._ID));
-                    } else {
-                        soundAssociation = new SoundAssociation(itemsCursor, getPlaylistFromCursor(itemsCursor, DBHelper.SoundAssociationView._ID));
-                    }
-                    soundAssociation.user = getCachedUserFromCursor(itemsCursor, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID);
-                    items.add(soundAssociation);
+                    items.add(new SoundAssociation(itemsCursor));
                 } else {
                     throw new IllegalArgumentException("NOT HANDLED YET " + resourceType);
                 }
@@ -213,77 +197,99 @@ public class ScModelManager {
         return user;
     }
 
+    public @Nullable Track getTrack(Uri uri) {
+        return (Track) getModel(uri);
+    }
+
+    public @Nullable User getUser(Uri uri) {
+            return (User) getModel(uri);
+    }
+
+    public @Nullable Playlist getPlaylist(Uri uri) {
+        return (Playlist) getModel(uri);
+    }
+
+    public @Nullable
+    ModelCache getCacheFromUri(Uri uri) {
+        switch (Content.match(uri)){
+            case TRACK:     return mTrackCache;
+            case USER:      return mUserCache;
+            case PLAYLIST:  return mPlaylistCache;
+        }
+        return null;
+    }
+
+    public @Nullable ScModel getModel(Uri uri) {
+        return getModel(uri, getCacheFromUri(uri));
+    }
+
+    /**
+     * Gets a resource from local storage, optionally from a cache if one is provided
+     * @param uri resource lookup uri {@link Content}
+     * @param cache optional cache to lookup object in and cache to
+     * @return the resource found, or null if no resource found
+     */
+    public @Nullable ScModel getModel(Uri uri, @Nullable ModelCache cache) {
+        ScModel resource = null;
+
+        if (cache != null) resource = cache.get(UriUtils.getLastSegmentAsLong(uri));
+
+        Content c = Content.match(uri);
+        if (resource == null) {
+            Cursor cursor = mResolver.query(uri, null, null, null, null);
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    try {
+                        resource = c.modelType.getConstructor(Cursor.class).newInstance(cursor);
+                    } catch (Exception e) {
+                        throw new AssertionError("Could not find constructor for resource. Uri: " + uri);
+                    }
+                }
+                cursor.close();
+            }
+            if (cache != null && resource != null) {
+                cache.put(resource);
+            }
+        }
+        return resource;
+    }
+
     public @Nullable Track getTrack(long id) {
         if (id < 0) return null;
 
         Track t = mTrackCache.get(id);
         if (t == null) {
-            t = getTrack(Content.TRACK.forId(id));
+            t = (Track) getModel(Content.TRACK.forId(id), null);
             if (t != null) mTrackCache.put(t);
         }
         return t;
     }
 
-    public @Nullable Track getTrack(Uri uri) {
-        Track t = null;
-        Cursor cursor = mResolver.query(uri, null, null, null, null);
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                t = getTrackFromCursor(cursor);
-            }
-            cursor.close();
-        }
-        return t;
-    }
-
     public @Nullable User getUser(long id) {
-        if (id < 0) return null;
+            if (id < 0) return null;
 
-        User u = mUserCache.get(id);
-        if (u == null) {
-            u = getUser(Content.USER.forId(id));
-            if (u != null) mUserCache.put(u);
-        }
-        return u;
-    }
-
-    public @Nullable User getUser(Uri uri) {
-        User u = null;
-        Cursor cursor = mResolver.query(uri, null, null, null, null);
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                u = getUserFromCursor(cursor);
+            User u = mUserCache.get(id);
+            if (u == null) {
+                u = (User) getModel(Content.USER.forId(id));
+                if (u != null) mUserCache.put(u);
             }
-            cursor.close();
+            return u;
         }
-        return u;
-    }
 
-    public @Nullable Playlist getPlaylist(long id) {
-        if (id < 0) return null;
 
-        Playlist p = mPlaylistCache.get(id);
-        if (p == null) {
-            p = getPlaylist(Content.PLAYLIST.forId(id));
-            if (p != null) mPlaylistCache.put(p);
-        }
-        return p;
-    }
+        public @Nullable Playlist getPlaylist(long id) {
+            if (id < 0) return null;
 
-    public @Nullable Playlist getPlaylist(Uri uri) {
-        Playlist p = null;
-        Cursor cursor = mResolver.query(uri, null, null, null, null);
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                p = getPlaylistFromCursor(cursor);
+            Playlist p = mPlaylistCache.get(id);
+            if (p == null) {
+                p = (Playlist) getModel(Content.PLAYLIST.forId(id));
+                if (p != null) mPlaylistCache.put(p);
             }
-            cursor.close();
+            return p;
         }
-        return p;
-    }
 
     public @Nullable Playlist getPlaylistWithTracks(long playlistId) {
-        Playlist playlist = getPlaylist(Content.PLAYLIST.forId(playlistId));
+        Playlist playlist = (Playlist) getModel(Content.PLAYLIST.forId(playlistId));
         if (playlist != null) playlist.tracks = loadPlaylistTracks(mResolver, playlistId);
 
         return playlist;
@@ -511,7 +517,7 @@ public class ScModelManager {
         for (T item : items) {
             cache(item, updateMode);
         }
-        return SoundCloudDB.bulkInsertResources(mResolver,items);
+        return SoundCloudDB.bulkInsertResources(mResolver, items);
     }
 
 

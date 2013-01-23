@@ -365,7 +365,7 @@ public class ScModelManagerTest {
         p2.tracks.remove(0);
         expect(p2.insert(resolver)).not.toBeNull();
 
-        Playlist p3 = manager.loadPlaylistFromUri(resolver, id, true);
+        Playlist p3 = manager.getPlaylistWithTracks(id);
         expect(p3).not.toBeNull();
         expect(p3.tracks.size()).toEqual(40);
         expect(p3.tracks.get(0).id).not.toEqual(p.tracks.get(0).id);
