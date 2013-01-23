@@ -81,6 +81,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static final String STOP_ACTION          = "com.soundcloud.android.playback.stop"; // from the notification
     public static final String ADD_LIKE_ACTION      = "com.soundcloud.android.favorite.add";
     public static final String REMOVE_LIKE_ACTION   = "com.soundcloud.android.favorite.remove";
+    public static final String ADD_REPOST_ACTION    = "com.soundcloud.android.repost.add";
+    public static final String REMOVE_REPOST_ACTION = "com.soundcloud.android.repost.remove";
     public static final String RELOAD_QUEUE         = "com.soundcloud.android.reloadqueue";
     public static final String LOAD_TRACK_INFO      = "com.soundcloud.android.loadTrackInfo";
 
