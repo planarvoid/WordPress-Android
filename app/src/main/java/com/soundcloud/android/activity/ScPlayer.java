@@ -160,7 +160,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     @Override
     public boolean toggleLike(Playable playable) {
         if (playable == null || mPlaybackService == null) return false;
-        mPlaybackService.setLikeStatus(playable.id, !playable.user_like);
+        mPlaybackService.setLikeStatus(playable.toUri(), !playable.user_like);
         return true;
     }
 

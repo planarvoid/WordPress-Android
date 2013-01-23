@@ -41,6 +41,7 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -123,6 +124,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private boolean mAutoPause = true;  // used when svc is first created and playlist is resumed on start
     private boolean mAutoAdvance = true;// automatically skip to next track
     /* package */ PlayQueueManager mPlayQueueManager;
+
+    // TODO: this doesn't really belong here. It's only used to PUT likes and reposts, and isn't playback specific.
     /* package */ AssociationManager mAssociationManager;
 
     private AudioManager mAudioManager;
@@ -736,9 +739,14 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    public void setLikeStatus(long id, boolean like) {
-        Track track = currentTrack != null && currentTrack.id == id ? currentTrack : SoundCloudApplication.MODEL_MANAGER.getTrack(id);
-        mAssociationManager.setLike(track, like);
+    public void setLikeStatus(Uri playableUri, boolean like) {
+        Playable playable;
+        if (currentTrack != null && currentTrack.toUri() == playableUri) {
+            playable = currentTrack;
+        } else {
+            playable = (Playable) SoundCloudApplication.MODEL_MANAGER.getModel(playableUri);
+        }
+        mAssociationManager.setLike(playable, like);
     }
 
     public void setRepostStatus(long id, boolean repost) {
@@ -958,9 +966,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                         new Intent(PLAYSTATE_CHANGED));
 
             } else if (ADD_LIKE_ACTION.equals(action)) {
-                setLikeStatus(intent.getLongExtra(EXTRA_TRACK_ID, -1), true);
+                setLikeStatus(intent.getData(), true);
             } else if (REMOVE_LIKE_ACTION.equals(action)) {
-                setLikeStatus(intent.getLongExtra(EXTRA_TRACK_ID, -1), false);
+                setLikeStatus(intent.getData(), false);
             } else if (PLAY_ACTION.equals(action)) {
                 handlePlayAction(intent);
             } else if (RESET_ALL.equals(action)) {
@@ -1300,4 +1308,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         getApp().track(klazz, args);
     }
 
+    void setAssociationManager(AssociationManager associationManager) {
+        this.mAssociationManager = associationManager;
+    }
 }
