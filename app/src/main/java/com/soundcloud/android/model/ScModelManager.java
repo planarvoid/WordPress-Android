@@ -82,11 +82,16 @@ public class ScModelManager {
      * @return the Resource Collection
      * @throws IOException
      */
+
     public @NotNull <T extends ScResource> CollectionHolder<T> getCollectionFromStream(InputStream is) throws IOException {
+        return getCollectionFromStream(is, CACHE_AFTER_DESERIALIZATION);
+    }
+
+    public <T extends ScResource> CollectionHolder<T> getCollectionFromStream(InputStream is, boolean cacheResults) throws IOException {
         List<ScResource> items = new ArrayList<ScResource>();
         CollectionHolder holder = mMapper.readValue(is, ScResource.ScResourceHolder.class);
         for (ScResource m : (ScResource.ScResourceHolder) holder) {
-            items.add(CACHE_AFTER_DESERIALIZATION ? cache(m, ScResource.CacheUpdateMode.FULL) : m); // TODO, do not rely on Dalvik
+            items.add(cacheResults ? cache(m, ScResource.CacheUpdateMode.FULL) : m); // TODO, do not rely on Dalvik
         }
         holder.collection = items;
         holder.resolve(mContext);
