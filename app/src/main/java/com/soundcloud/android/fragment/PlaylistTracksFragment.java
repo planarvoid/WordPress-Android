@@ -1,7 +1,11 @@
 package com.soundcloud.android.fragment;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.PlaylistTracksAdapter;
+import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -14,15 +18,28 @@ import android.support.v4.content.Loader;
 
 public class PlaylistTracksFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    public static final String PLAYLIST_URI = "playlistUri";
+
     private static final int PLAYER_LIST_LOADER = 0x01;
     private Uri mContentUri;
     private PlaylistTracksAdapter mAdapter;
+
+    public static PlaylistTracksFragment newInstance(Playlist mPlaylist) {
+        PlaylistTracksFragment playlistTracksFragment = new PlaylistTracksFragment();
+        Bundle args = new Bundle();
+        args.putParcelable("playlistUri", mPlaylist.toUri());
+        playlistTracksFragment.setArguments(args);
+        return playlistTracksFragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mContentUri = (Uri) getArguments().get("contentUri");
+        Uri playlistUri = (Uri) getArguments().get(PLAYLIST_URI);
+        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(playlistUri);
+
+        mContentUri = Content.PLAYLIST_TRACKS.forId(p.id);
         getLoaderManager().initLoader(PLAYER_LIST_LOADER, null, this);
         mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext(), null, true);
         setListAdapter(mAdapter);
