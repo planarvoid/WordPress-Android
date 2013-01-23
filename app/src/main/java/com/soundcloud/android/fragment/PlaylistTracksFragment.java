@@ -1,7 +1,9 @@
 package com.soundcloud.android.fragment;
 
 import com.soundcloud.android.adapter.PlaylistTracksAdapter;
+import com.soundcloud.android.service.sync.ApiSyncService;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,9 +26,14 @@ public class PlaylistTracksFragment extends ListFragment implements LoaderManage
         getLoaderManager().initLoader(PLAYER_LIST_LOADER, null, this);
         mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext(), null, true);
         setListAdapter(mAdapter);
+
+        // send sync intent. TODO, this should check whether a sync is necessary for this playlist
+        Intent intent = new Intent(getActivity(), ApiSyncService.class)
+                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                .setData(mContentUri);
+
+        getActivity().startService(intent);
     }
-
-
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {

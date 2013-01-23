@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.PlaylistTracksFragment;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.view.adapter.PlayableBar;
 
@@ -36,25 +37,15 @@ public class PlaylistActivity extends ScActivity {
         mPlaylistBar = (PlayableBar) findViewById(R.id.playable_bar);
         mPlaylistBar.display(mPlaylist);
 
-
         if (savedInstanceState == null){
-            final Uri playlistUri = mPlaylist.toUri();
-
-            setupTracklistFragment(playlistUri);
-
-            // send sync intent. TODO, this should check whether a sync is necessary for this playlist
-            Intent intent = new Intent(getActivity(), ApiSyncService.class)
-                    .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                    .setData(playlistUri);
-
-            startService(intent);
+            setupTracklistFragment(Content.PLAYLIST_TRACKS.forId(mPlaylist.id));
         }
     }
 
-    private void setupTracklistFragment(Uri playlistUri) {
+    private void setupTracklistFragment(Uri playlistTracksUri) {
         PlaylistTracksFragment fragment = new PlaylistTracksFragment();
         Bundle args = new Bundle();
-        args.putParcelable("contentUri", playlistUri.buildUpon().appendPath("tracks").build());
+        args.putParcelable("contentUri", playlistTracksUri);
         fragment.setArguments(args);
 
         getSupportFragmentManager().beginTransaction().add(R.id.playlist_tracks_fragment, fragment).commit();
