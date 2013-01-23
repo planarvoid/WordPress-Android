@@ -1,1 +1,1 @@
-script: mvn3 clean install -Dandroid.sdk.path=/usr/local/android-sdk-linux/ -Dandroid.ndk.path=/usr/local/android-ndk -Dandroid.test.skip=true && ANDROID_HOME=/usr/local/android-sdk-linux/ rake lint; source .jenkins-dropbox.sh && deploy_to_dropbox
+script: mvn3 clean install -Dandroid.sdk.path=/usr/local/android-sdk-linux/ -Dandroid.ndk.path=/usr/local/android-ndk -Dandroid.test.skip=true && ANDROID_HOME=/usr/local/android-sdk-linux/ rake lint; BUILD_RET_CODE=$?; source .jenkins-dropbox.sh; deploy_to_dropbox; return $BUILD_RET_CODE
