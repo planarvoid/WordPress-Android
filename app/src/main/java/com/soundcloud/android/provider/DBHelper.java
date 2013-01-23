@@ -754,6 +754,18 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String USER_PLAY_COUNT = "sound_user_play_count";
 
         public static final String CACHED          = "sound_cached";
+
+        public static final String[] ALL_VIEW_FIELDS = {
+                USER_ID, USERNAME, USER_PERMALINK, USER_AVATAR_URL, USER_LIKE, USER_REPOST, USER_PLAY_COUNT, CACHED
+        };
+        public static final String[] ALL_FIELDS;
+        static {
+            ALL_FIELDS = new String[Sounds.ALL_FIELDS.length + ALL_VIEW_FIELDS.length];
+            System.arraycopy(Sounds.ALL_FIELDS, 0, ALL_FIELDS, 0, Sounds.ALL_FIELDS.length);
+
+            System.arraycopy(ALL_VIEW_FIELDS, 0, ALL_FIELDS, Sounds.ALL_FIELDS.length, ALL_VIEW_FIELDS.length);
+        }
+
     }
 
     public final static class ActivityView extends Activities {
@@ -773,9 +785,10 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String[] ALL_FIELDS;
         static {
             // sometimes java feels like C all over again
-            ALL_FIELDS = new String[Activities.ALL_FIELDS.length + ALL_VIEW_FIELDS.length];
+            ALL_FIELDS = new String[Activities.ALL_FIELDS.length + ALL_VIEW_FIELDS.length + SoundView.ALL_FIELDS.length];
             System.arraycopy(Activities.ALL_FIELDS, 0 , ALL_FIELDS, 0, Activities.ALL_FIELDS.length);
             System.arraycopy(ALL_VIEW_FIELDS, 0 , ALL_FIELDS, Activities.ALL_FIELDS.length, ALL_VIEW_FIELDS.length);
+            System.arraycopy(SoundView.ALL_FIELDS, 0 , ALL_FIELDS, Activities.ALL_FIELDS.length + ALL_VIEW_FIELDS.length, SoundView.ALL_FIELDS.length);
         }
     }
 
