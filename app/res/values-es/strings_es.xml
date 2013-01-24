@@ -220,7 +220,6 @@
   <string name="error_loading_title">Error en la red</string>
   <string name="error_loading_user">Ocurrió un problema al cargar el usuario</string>
   <string name="error_recording_message">Ocurrió un error en la grabación.\n Puede que su dispositivo no soporte la configuración actual de grabación. Puede cambiar la configuración en los ajustes de la aplicación.</string>
-  <string name="error_resolving_url">Ocurrió un problema al resolver la URL</string>
   <string name="error_unauthorized_message">SoundCloud está experimentando problemas al autorizar a esta aplicación el uso de su cuenta. Si el problema continúa, por favor, cierre sesión desde el menú de ajustes para volver a autorizar.</string>
   <string name="error_unauthorized_title">No autorizado</string>
   <string name="facebook_authentication_error_no_connection_message">Por favor, inténtelo de nuevo en unos minutos o inicie sesión con su nombre de usuario y contraseña.</string>

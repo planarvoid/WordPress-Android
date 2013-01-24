@@ -25,22 +25,22 @@ public class ResolveFetchTaskTest {
 
     @Test
     public void shouldFixClickTrackingUri() throws Exception {
-        expect(ResolveFetchTask.fixClickTrackingUrl(
+        expect(ResolveFetchTask.extractClickTrackingRedirectUrl(
                 Uri.parse("http://soundcloud.com/-/t/click/postman-email-follower?url=http://soundcloud.com/angelika-ochmann")))
-                .toEqual("http://soundcloud.com/angelika-ochmann");
+                 .toEqual("http://soundcloud.com/angelika-ochmann");
 
 
-        expect(ResolveFetchTask.fixClickTrackingUrl(
+        expect(ResolveFetchTask.extractClickTrackingRedirectUrl(
                 Uri.parse("http://soundcloud.com/angelika-ochmann?url=foo")))
-                .toEqual("http://soundcloud.com/angelika-ochmann?url=foo");
+                 .toEqual("http://soundcloud.com/angelika-ochmann?url=foo");
 
-        expect(ResolveFetchTask.fixClickTrackingUrl(
+        expect(ResolveFetchTask.extractClickTrackingRedirectUrl(
                 Uri.parse("soundcloud:users:123")))
-                .toEqual("soundcloud:users:123");
+                 .toEqual("soundcloud:users:123");
 
 
-        expect(ResolveFetchTask.fixClickTrackingUrl(
+        expect(ResolveFetchTask.extractClickTrackingRedirectUrl(
                 Uri.parse("http://unrelated.com")))
-                .toEqual("http://unrelated.com");
+                 .toEqual("http://unrelated.com");
     }
 }

@@ -57,7 +57,7 @@
         </activity>
 
         <!-- activities -->
-        <activity android:name=".activity.Resolve"
+        <activity android:name=".activity.ResolveActivity"
                   android:noHistory="true"
                   android:theme="@style/Theme.Next.NoActionBar"
                   android:windowSoftInputMode="adjustPan">
@@ -314,8 +314,11 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity.WebViewActivity" android:theme="@style/Theme.Next.NoActionBar"/>
+
         <!-- hockey app -->
         <activity android:name="net.hockeyapp.android.UpdateActivity" />
+
 
         <!-- providers -->
         <provider android:name=".provider.ScContentProvider"

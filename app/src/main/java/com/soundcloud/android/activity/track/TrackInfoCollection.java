@@ -5,17 +5,16 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.task.fetch.FetchTrackTask;
+import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.adapter.TrackInfoBar;
 
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
-public abstract class TrackInfoCollection extends ScActivity implements   FetchTrackTask.FetchTrackListener {
+public abstract class TrackInfoCollection extends ScActivity implements FetchModelTask.Listener<Track> {
     Track mTrack;
     TrackInfoBar mTrackInfoBar;
     //SectionedListView mListView;
@@ -56,12 +55,12 @@ public abstract class TrackInfoCollection extends ScActivity implements   FetchT
     protected abstract Uri getContentUri();
 
     @Override
-    public void onSuccess(Track track, String action) {
+    public void onSuccess(Track track) {
         ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(track, -1, true, false, true);
     }
 
     @Override
-    public void onError(long trackId) {
+    public void onError(Object context) {
     }
 
     @Override
