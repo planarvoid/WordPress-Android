@@ -1,8 +1,10 @@
 $ 54
   % v current
-  _ 2013-01-16
-  ! ??
-  * Fixed track positioning when Stream reloads
+  _ 2013-01-24
+  ! Maintenance
+  * Fixed some Image Cropping issues
+  * Various other bug fixes
+  - Fixed track positioning when Stream reloads
 
 
 $ 53
