@@ -1,4 +1,4 @@
-package com.soundcloud.android.activity.preference;
+package com.soundcloud.android.view;
 
 import android.content.Context;
 import android.preference.DialogPreference;

@@ -219,7 +219,6 @@
   <string name="error_loading_title">Network error</string>
   <string name="error_loading_user">There was a problem loading that user</string>
   <string name="error_recording_message">There was an error during recording.\n Your device may not support the current record configuration. You can change configurations in the application settings.</string>
-  <string name="error_resolving_url">There was a problem resolving the url</string>
   <string name="error_unauthorized_message">Soundcloud is having a problem authorizing this application to use your account. If the problem persists, please log out from the settings menu to re-authorize.</string>
   <string name="error_unauthorized_title">Unauthorized</string>
   <string name="facebook_authentication_error_no_connection_message">Please try again shortly or log in using your SoundCloud username and password.</string>

@@ -18,7 +18,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.streaming.StreamItem;
 import com.soundcloud.android.streaming.StreamProxy;
-import com.soundcloud.android.task.fetch.FetchTrackTask;
+import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.tracking.Page;
@@ -443,9 +443,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    private FetchTrackTask.FetchTrackListener mInfoListener = new FetchTrackTask.FetchTrackListener() {
+    private FetchModelTask.Listener<Track> mInfoListener = new FetchModelTask.Listener<Track>() {
         @Override
-        public void onSuccess(Track track, String action) {
+        public void onSuccess(Track track) {
             track.setUpdated();
             track = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(track, ScResource.CacheUpdateMode.FULL);
             sendBroadcast(new Intent(Sound.ACTION_SOUND_INFO_UPDATED)
@@ -462,10 +462,11 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
 
         @Override
-        public void onError(long trackId) {
+        public void onError(Object context) {
+            long id = context instanceof Number ? ((Number)context).longValue() : -1;
             sendBroadcast(new Intent(Sound.ACTION_SOUND_INFO_ERROR)
-                                                    .putExtra(CloudPlaybackService.BroadcastExtras.id, trackId));
-            onUnstreamableTrack(trackId);
+                                .putExtra(CloudPlaybackService.BroadcastExtras.id, id));
+            onUnstreamableTrack(id);
         }
     };
 
@@ -486,8 +487,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             }
         }.start();
         startTrack(track);
-
-
     }
 
     private void startTrack(Track track) {

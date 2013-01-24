@@ -1,9 +1,19 @@
 package com.soundcloud.android.utils;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import android.net.Uri;
 import android.net.http.AndroidHttpClient;
+import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -63,5 +73,23 @@ public final class HttpUtils {
         } else if (client != null) {
             client.getConnectionManager().shutdown();
         }
+    }
+
+    public static @Nullable Uri getRedirectUri(@NotNull HttpClient client, @NotNull Uri target) {
+        try {
+            HttpGet get = new HttpGet(target.toString());
+            HttpResponse resp = client.execute(get);
+            if (HttpStatus.SC_MOVED_TEMPORARILY == resp.getStatusLine().getStatusCode()) {
+                Header location = resp.getFirstHeader("Location");
+                if (location != null && !TextUtils.isEmpty(location.getValue())) {
+                    return Uri.parse(location.getValue());
+                }
+            } else {
+                Log.w(TAG, "invalid status "+resp.getStatusLine());
+            }
+        } catch (IOException e) {
+            Log.w(TAG, e);
+        }
+        return null;
     }
 }
