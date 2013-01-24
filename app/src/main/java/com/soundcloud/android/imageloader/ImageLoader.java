@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
@@ -19,9 +20,11 @@ import android.util.Log;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.ContentHandler;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -447,6 +450,7 @@ public class ImageLoader {
                 if (mBitmap != null) {
                     // Keep a hard reference until the view has been notified.
                     return true;
+
                 }
 
                 URL url = new URL(null, mUrl);
@@ -474,6 +478,20 @@ public class ImageLoader {
                     }
                     mBitmap = null;
                     return false;
+                }
+
+            } catch (MalformedURLException e) {
+
+                if (new File(mUrl).exists()) {
+                    // used to load local images, as in a local recording image
+                    BitmapFactory.Options sampleOptions = new BitmapFactory.Options();
+                    sampleOptions.inSampleSize = mOptions.decodeInSampleSize;
+                    mBitmap = BitmapFactory.decodeFile(mUrl, sampleOptions);
+                    return true;
+
+                } else {
+                    mError = new ImageError(e);
+                    return true;
                 }
             } catch (IOException e) {
                 mError = new ImageError(e);
