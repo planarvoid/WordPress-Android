@@ -196,13 +196,13 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         commandFilter.addAction(PREVIOUS_ACTION);
         commandFilter.addAction(ADD_LIKE_ACTION);
         commandFilter.addAction(REMOVE_LIKE_ACTION);
+        commandFilter.addAction(ADD_REPOST_ACTION);
+        commandFilter.addAction(REMOVE_REPOST_ACTION);
         commandFilter.addAction(RESET_ALL);
         commandFilter.addAction(STOP_ACTION);
         commandFilter.addAction(PLAYQUEUE_CHANGED);
         commandFilter.addAction(RELOAD_QUEUE);
         commandFilter.addAction(LOAD_TRACK_INFO);
-
-
 
         registerReceiver(mIntentReceiver, commandFilter);
         registerReceiver(mNoisyReceiver, new IntentFilter(Consts.AUDIO_BECOMING_NOISY));
@@ -751,9 +751,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mAssociationManager.setLike(playable, like);
     }
 
-    public void setRepostStatus(long id, boolean repost) {
-        Track track = currentTrack != null && currentTrack.id == id ? currentTrack : SoundCloudApplication.MODEL_MANAGER.getTrack(id);
-        mAssociationManager.setRepost(track, repost);
+    public void setRepostStatus(Uri playableUri, boolean repost) {
+        Playable playable = (Playable) SoundCloudApplication.MODEL_MANAGER.getModel(playableUri);
+        mAssociationManager.setRepost(playable, repost);
     }
 
     /* package */ int getDuration() {
@@ -971,6 +971,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 setLikeStatus(intent.getData(), true);
             } else if (REMOVE_LIKE_ACTION.equals(action)) {
                 setLikeStatus(intent.getData(), false);
+            } else if (ADD_REPOST_ACTION.equals(action)) {
+                setRepostStatus(intent.getData(), true);
+            } else if (REMOVE_REPOST_ACTION.equals(action)) {
+                setRepostStatus(intent.getData(), false);
             } else if (PLAY_ACTION.equals(action)) {
                 handlePlayAction(intent);
             } else if (RESET_ALL.equals(action)) {

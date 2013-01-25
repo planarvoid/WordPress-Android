@@ -167,7 +167,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     @Override
     public boolean toggleRepost(Playable playable) {
         if (playable == null || mPlaybackService == null) return false;
-        mPlaybackService.setRepostStatus(playable.id, !playable.user_repost);
+        mPlaybackService.setRepostStatus(playable.toUri(), !playable.user_repost);
         return true;
     }
 

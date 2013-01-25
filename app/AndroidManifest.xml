@@ -349,6 +349,8 @@
 
                 <action android:name="com.soundcloud.android.favorite.add"/>
                 <action android:name="com.soundcloud.android.favorite.remove"/>
+                <action android:name="com.soundcloud.android.repost.add"/>
+                <action android:name="com.soundcloud.android.repost.remove"/>
             </intent-filter>
         </service>
 

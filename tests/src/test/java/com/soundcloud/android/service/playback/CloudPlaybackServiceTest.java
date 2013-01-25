@@ -79,4 +79,55 @@ public class CloudPlaybackServiceTest {
         verify(associationManager).setLike(isA(Playlist.class), eq(false));
     }
 
+    @Test
+    public void shouldAddRepostForTrackViaIntent() throws Exception {
+        Track track = TestHelper.readJson(Track.class, "/com/soundcloud/android/model/track.json");
+        SoundCloudApplication.MODEL_MANAGER.cache(track);
+
+        Intent intent = new Intent(CloudPlaybackService.ADD_REPOST_ACTION);
+        intent.setData(track.toUri());
+
+        service.sendBroadcast(intent);
+
+        verify(associationManager).setRepost(isA(Track.class), eq(true));
+    }
+
+    @Test
+    public void shouldRemoveRepostForTrackViaIntent() throws Exception {
+        Track track = TestHelper.readJson(Track.class, "/com/soundcloud/android/model/track.json");
+        SoundCloudApplication.MODEL_MANAGER.cache(track);
+
+        Intent intent = new Intent(CloudPlaybackService.REMOVE_REPOST_ACTION);
+        intent.setData(track.toUri());
+
+        service.sendBroadcast(intent);
+
+        verify(associationManager).setRepost(isA(Track.class), eq(false));
+    }
+
+    @Test
+    public void shouldAddRepostForPlaylistViaIntent() throws Exception {
+        Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
+        SoundCloudApplication.MODEL_MANAGER.cache(playlist);
+
+        Intent intent = new Intent(CloudPlaybackService.ADD_REPOST_ACTION);
+        intent.setData(playlist.toUri());
+
+        service.sendBroadcast(intent);
+
+        verify(associationManager).setRepost(isA(Playlist.class), eq(true));
+    }
+
+    @Test
+    public void shouldRemoveRepostForPlaylistViaIntent() throws Exception {
+        Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
+        SoundCloudApplication.MODEL_MANAGER.cache(playlist);
+
+        Intent intent = new Intent(CloudPlaybackService.REMOVE_REPOST_ACTION);
+        intent.setData(playlist.toUri());
+
+        service.sendBroadcast(intent);
+
+        verify(associationManager).setRepost(isA(Playlist.class), eq(false));
+    }
 }
