@@ -30,7 +30,7 @@ public class OptimisedImageView extends ImageView {
                  * Ignore the next requestLayout call if the new Drawable is the
                  * same size as the currently displayed one.
                  * */
-                mIgnoreNextRequestLayout = oldHeight == newDrawable.getIntrinsicHeight()
+                mIgnoreNextRequestLayout = newDrawable != null && oldHeight == newDrawable.getIntrinsicHeight()
                         && oldWidth == newDrawable.getIntrinsicWidth();
             }
         }
