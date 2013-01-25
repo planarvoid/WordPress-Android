@@ -17,7 +17,7 @@ public class OptimisedImageView extends ImageView {
 
     @Override
     public void setImageDrawable(final Drawable newDrawable) {
-        if (VERSION.SDK_INT < VERSION_CODES.ICE_CREAM_SANDWICH) {
+        if (newDrawable != null && VERSION.SDK_INT < VERSION_CODES.ICE_CREAM_SANDWICH) {
 
             // The currently set Drawable
             final Drawable oldDrawable = getDrawable();
@@ -30,7 +30,7 @@ public class OptimisedImageView extends ImageView {
                  * Ignore the next requestLayout call if the new Drawable is the
                  * same size as the currently displayed one.
                  * */
-                mIgnoreNextRequestLayout = newDrawable != null && oldHeight == newDrawable.getIntrinsicHeight()
+                mIgnoreNextRequestLayout = oldHeight == newDrawable.getIntrinsicHeight()
                         && oldWidth == newDrawable.getIntrinsicWidth();
             }
         }
