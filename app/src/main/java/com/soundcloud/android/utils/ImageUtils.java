@@ -1,6 +1,7 @@
 package com.soundcloud.android.utils;
 
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.imageloader.ImageLoader.Options;
 
 import com.soundcloud.android.Consts;
@@ -60,6 +61,20 @@ public final class ImageUtils {
         /* output ignored */ BitmapFactory.decodeStream(is, null, options);
         is.close();
         return options;
+    }
+
+    public static ImageLoader.Options getImageLoaderOptionsWithResizeSet(File imageFile,
+                                                                         int targetWidth,
+                                                                         int targetHeight,
+                                                                         boolean crop) {
+        ImageLoader.Options options = new ImageLoader.Options();
+        try {
+            options.decodeInSampleSize = ImageUtils.determineResizeOptions(imageFile, targetWidth, targetHeight, crop).inSampleSize;
+        } catch (IOException e) {
+            Log.w(TAG, "error", e);
+        }
+        return options;
+
     }
 
     public static BitmapFactory.Options determineResizeOptions(File imageFile,
@@ -167,7 +182,6 @@ public final class ImageUtils {
         Bitmap bitmap;
         try {
             BitmapFactory.Options opt = determineResizeOptions(imageFile, viewWidth, viewHeight, false);
-
             BitmapFactory.Options sampleOpt = new BitmapFactory.Options();
             sampleOpt.inSampleSize = opt.inSampleSize;
 
@@ -177,36 +191,48 @@ public final class ImageUtils {
                 return false;
             }
 
-            Matrix m = new Matrix();
-            float scale;
-            float dx = 0, dy = 0;
-
-            // assumes height and width are the same
-            if (bitmap.getWidth() > bitmap.getHeight()) {
-                scale = (float) viewHeight / (float) bitmap.getHeight();
-                dx = (viewWidth - bitmap.getWidth() * scale) * 0.5f;
-            } else {
-                scale = (float) viewWidth / (float) bitmap.getWidth();
-                dy = (viewHeight - bitmap.getHeight() * scale) * 0.5f;
-            }
-
-            m.setScale(scale, scale);
-            m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
-            int exifRotation = getExifRotation(imageFile);
-            if (exifRotation != 0) {
-                m.postRotate(exifRotation, viewWidth / 2, viewHeight / 2);
-            }
-
-            imageView.setScaleType(ImageView.ScaleType.MATRIX);
-            imageView.setImageMatrix(m);
-
-            imageView.setImageBitmap(bitmap);
-            imageView.setVisibility(View.VISIBLE);
+            setImage(bitmap,imageView,viewWidth,viewHeight,getExifRotation(imageFile));
             return true;
+
         } catch (IOException e) {
             Log.e(TAG, "error", e);
             return false;
         }
+    }
+
+    /**
+     * Set ImageView from Bitmap with a custom matrix that takes into account scaling and exif rotation
+     * @param bitmap source bitmap
+     * @param imageView imageview to set
+     * @param viewWidth imageview width, passed in as this call often occurs before measurement
+     * @param viewHeight imageview height
+     * @param exifRotation exif rotation to account for in the matrix
+     */
+    public static void setImage(Bitmap bitmap, ImageView imageView, int viewWidth, int viewHeight, int exifRotation) {
+        Matrix m = new Matrix();
+        float scale;
+        float dx = 0, dy = 0;
+
+        // assumes height and width are the same
+        if (bitmap.getWidth() > bitmap.getHeight()) {
+            scale = (float) viewHeight / (float) bitmap.getHeight();
+            dx = (viewWidth - bitmap.getWidth() * scale) * 0.5f;
+        } else {
+            scale = (float) viewWidth / (float) bitmap.getWidth();
+            dy = (viewHeight - bitmap.getHeight() * scale) * 0.5f;
+        }
+
+        m.setScale(scale, scale);
+        m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
+        if (exifRotation != 0) {
+            m.postRotate(exifRotation, viewWidth / 2, viewHeight / 2);
+        }
+
+        imageView.setScaleType(ImageView.ScaleType.MATRIX);
+        imageView.setImageMatrix(m);
+
+        imageView.setImageBitmap(bitmap);
+        imageView.setVisibility(View.VISIBLE);
     }
 
     public static boolean resizeImageFile(File inputFile, File outputFile, int width, int height) throws IOException {

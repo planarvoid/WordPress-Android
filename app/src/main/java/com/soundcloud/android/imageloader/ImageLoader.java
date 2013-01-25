@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
@@ -25,6 +26,7 @@ import java.net.ContentHandler;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,7 +57,7 @@ public class ImageLoader {
     private final LinkedList<ImageRequest> mRequests;
     private final Set<ImageRequest> mAllRequests = new HashSet<ImageRequest>();
 
-    private final @NotNull  ContentHandler mBitmapContentHandler;
+    private final @NotNull  BitmapContentHandler mBitmapContentHandler;
     private final @Nullable ContentHandler mPrefetchContentHandler;
     private final BitmapCache<String> mBitmaps;
     private final LruCache<String,ImageError> mErrors;
@@ -95,7 +97,7 @@ public class ImageLoader {
         this(null, null, DEFAULT_CACHE_SIZE, DEFAULT_TASK_LIMIT);
     }
 
-    public ImageLoader(@Nullable ContentHandler bitmapHandler,
+    public ImageLoader(@Nullable BitmapContentHandler bitmapHandler,
                        @Nullable ContentHandler prefetchHandler,
                        long cacheSize, int taskLimit) {
         if (taskLimit < 1) throw new IllegalArgumentException("Task limit must be positive");
@@ -447,12 +449,13 @@ public class ImageLoader {
                 if (mBitmap != null) {
                     // Keep a hard reference until the view has been notified.
                     return true;
+
                 }
 
                 URL url = new URL(null, mUrl);
                 if (mOptions.loadBitmap) {
                     try {
-                        mBitmap = loadImage(url);
+                        mBitmap = loadImage(url, mOptions);
                     } catch (OutOfMemoryError e) {
                         // The VM does not always free-up memory as it should,
                         // so manually invoke the garbage collector
@@ -460,12 +463,10 @@ public class ImageLoader {
                         onLowMemory();
 
                         System.gc();
-                        mBitmap = loadImage(url);
-                    }
-                    if (mBitmap == null) {
-                        throw new NullPointerException("ContentHandler returned null");
+                        mBitmap = loadImage(url, mOptions);
                     }
                     return true;
+
                 } else {
                     if (mPrefetchContentHandler != null) {
                         // Cache the URL without loading a Bitmap into memory.
@@ -475,6 +476,9 @@ public class ImageLoader {
                     mBitmap = null;
                     return false;
                 }
+
+
+
             } catch (IOException e) {
                 mError = new ImageError(e);
                 return true;
@@ -513,7 +517,7 @@ public class ImageLoader {
 
         private void handleCallbacks() {
             synchronized (mImageCallbacks) {
-                Set<ImageCallback> callbacks = new HashSet<ImageCallback>(mImageCallbacks);
+                Collection<ImageCallback> callbacks = new HashSet<ImageCallback>(mImageCallbacks);
 
                 for (ImageCallback cb : callbacks)  {
                     cb.setResult(mUrl, mBitmap, mError);
@@ -534,10 +538,10 @@ public class ImageLoader {
             return mUrl;
         }
 
-        private Bitmap loadImage(URL url) throws IOException {
+        private @NotNull Bitmap loadImage(URL url, Options options) throws IOException {
             // fallback - open connection and use whatever is provided by the system
             log("loading "+url+" for "+mImageCallbacks);
-            return (Bitmap) mBitmapContentHandler.getContent(url.openConnection());
+            return mBitmapContentHandler.getContent(url.openConnection(), options.getBitmapFactoryOptions());
         }
 
         @Override
@@ -750,6 +754,16 @@ public class ImageLoader {
 
         public int decodeInSampleSize = 1;
         public WeakReference<Bitmap> temporaryBitmapRef;
+
+        public @Nullable BitmapFactory.Options getBitmapFactoryOptions(){
+            if (decodeInSampleSize > 1){
+                BitmapFactory.Options bitmapFactoryOptions = new BitmapFactory.Options();
+                bitmapFactoryOptions.inSampleSize = decodeInSampleSize;
+                return bitmapFactoryOptions;
+            } else {
+                return null;
+            }
+        }
 
         public static Options dontLoadRemote() {
             Options options = new Options();
