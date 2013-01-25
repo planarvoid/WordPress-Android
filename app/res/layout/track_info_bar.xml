@@ -6,7 +6,7 @@
                 android:paddingLeft="@dimen/list_item_padding_left"
                 android:paddingRight="@dimen/list_item_padding_right"
                 android:paddingBottom="@dimen/list_item_padding_bottom">
-    <ImageView android:id="@+id/icon"
+    <com.soundcloud.android.view.OptimisedImageView android:id="@+id/icon"
                android:layout_width="@dimen/list_icon_width"
                android:layout_height="@dimen/list_icon_height"
                android:layout_marginRight="@dimen/list_icon_margin_right"

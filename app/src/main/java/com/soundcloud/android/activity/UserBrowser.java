@@ -57,7 +57,7 @@ import android.widget.ToggleButton;
 
 public class UserBrowser extends ScActivity implements
         FollowStatus.Listener,
-        EventAware, ActionBar.OnNavigationListener, FetchModelTask.FetchModelListener<User> {
+        EventAware, ActionBar.OnNavigationListener, FetchModelTask.Listener<User> {
 
     public static final String EXTRA_USER_ID = "userId";
     public static final String EXTRA_USER = "user";
@@ -385,7 +385,7 @@ public class UserBrowser extends ScActivity implements
 
     private void loadDetails() {
         if (mLoadUserTask == null && mUser != null) {
-            mLoadUserTask = new FetchUserTask(getApp(), mUser.id);
+            mLoadUserTask = new FetchUserTask(getApp());
             mLoadUserTask.addListener(this);
             mLoadUserTask.execute(Request.to(Endpoints.USER_DETAILS, mUser.id));
         }
@@ -428,7 +428,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     @Override
-    public void onSuccess(User user, String action) {
+    public void onSuccess(User user) {
 
         user.last_updated = System.currentTimeMillis();
         // update user locally and ensure 1 instance
@@ -439,7 +439,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     @Override
-    public void onError(long userId) {
+    public void onError(Object context) {
         mUserDetailsFragment.onError();
     }
 

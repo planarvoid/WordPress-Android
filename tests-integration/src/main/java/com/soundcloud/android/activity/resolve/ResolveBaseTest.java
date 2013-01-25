@@ -1,18 +1,17 @@
 package com.soundcloud.android.activity.resolve;
 
-import com.soundcloud.android.activity.Resolve;
-import com.soundcloud.android.activity.landing.News;
+import com.soundcloud.android.activity.ResolveActivity;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
 import android.content.Intent;
 import android.net.Uri;
 
-public abstract class ResolveBaseTest extends ActivityTestCase<Resolve> {
+public abstract class ResolveBaseTest extends ActivityTestCase<ResolveActivity> {
     protected static final int DEFAULT_WAIT = 30 * 1000;
 
     public ResolveBaseTest() {
-        super(Resolve.class);
+        super(ResolveActivity.class);
     }
 
     protected abstract Uri getUri();

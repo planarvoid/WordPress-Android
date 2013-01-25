@@ -17,7 +17,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
-public class Resolve extends Activity implements FetchModelTask.FetchModelListener<ScResource> {
+public class ResolveActivity extends Activity implements FetchModelTask.Listener<ScResource> {
     @Nullable
     private ResolveFetchTask mResolveTask;
 
@@ -42,7 +42,6 @@ public class Resolve extends Activity implements FetchModelTask.FetchModelListen
             mResolveTask = new ResolveFetchTask(getApp());
             mResolveTask.setListener(this);
             mResolveTask.execute(data);
-
         } else {
             finish();
         }
@@ -52,31 +51,40 @@ public class Resolve extends Activity implements FetchModelTask.FetchModelListen
         return (SoundCloudApplication) getApplication();
     }
 
-    protected void onTrackLoaded(Track track, @Nullable String action) {
-        mResolveTask = null;
+    private void onTrackLoaded(Track track, @Nullable String action) {
         startActivity(track.getPlayIntent());
     }
 
-    protected void onUserLoaded(User user, @Nullable String action) {
-        mResolveTask = null;
+    private void onUserLoaded(User user, @Nullable String action) {
         startActivity(user.getViewIntent());
     }
 
     @Override
-    public void onError(long modelId) {
+    public void onError(Object context) {
         mResolveTask = null;
-        AndroidUtils.showToast(this, R.string.error_loading_url);
+        if (context instanceof Uri) {
+            Uri unresolved = (Uri) context;
+            // resolved to a soundcloud.com url ?
+            if ("http".equals(unresolved.getScheme()) || "https".equals(unresolved.getScheme())) {
+                startActivity(new Intent(this, WebViewActivity.class).setData(unresolved));
+            } else {
+                AndroidUtils.showToast(this, R.string.error_loading_url);
+            }
+        } else {
+            AndroidUtils.showToast(this, R.string.error_loading_url);
+        }
         finish();
     }
 
     @Override
-    public void onSuccess(ScResource m, @Nullable String action) {
+    public void onSuccess(ScResource m) {
         mResolveTask = null;
         if (m instanceof Track) {
             onTrackLoaded((Track) m, null);
         } else if (m instanceof User) {
             onUserLoaded((User) m, null);
         }
+        finish();
     }
 }
 

@@ -8,6 +8,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +29,7 @@ public class ConnectionTest {
     public void shouldPersistConnections() throws Exception {
         DefaultTestRunner.application.setCurrentUserId(100L);
 
-        Connection[] connections = AndroidCloudAPI.Mapper
+        Connection[] connections = TestHelper.getObjectMapper()
                 .readValue(ApiSyncerTest.class.getResourceAsStream("connections.json"), Connection[].class);
         expect(connections).not.toBeNull();
         expect(connections.length).toEqual(4);

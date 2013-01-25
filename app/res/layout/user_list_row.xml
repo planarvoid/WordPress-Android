@@ -9,7 +9,7 @@
                 android:paddingRight="@dimen/list_item_padding_right"
                 android:paddingBottom="@dimen/list_item_padding_bottom">
 
-    <ImageView android:id="@+id/icon"
+    <com.soundcloud.android.view.OptimisedImageView android:id="@+id/icon"
                android:src="@drawable/avatar_badge"
                android:layout_width="@dimen/list_icon_width"
                android:layout_height="@dimen/list_icon_height"

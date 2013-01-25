@@ -225,12 +225,14 @@ public class PlayQueueManager {
                         if (Content.match(uri).isCollectionItem()){
                             adjustedPosition = getPlayQueuePositionFromUri(mContext.getContentResolver(), uri, playingId);
                         } else {
-                            // this will adjust for deletions that haven't been fixed in the source list
-                            adjustedPosition = position;
-                            while (adjustedPosition >= 0 && getTrackIdAt(adjustedPosition) != playingId) adjustedPosition--;
+                            /* adjust for deletions or new items. find the original track
+                             this is a really dumb sequential search. If there are duplicates in the list, it will probably
+                             find the wrong one. This should be more intelligent after refactoring for sets */
+                            adjustedPosition = 0;
+                            while (adjustedPosition < length() && getTrackIdAt(adjustedPosition) != playingId) adjustedPosition++;
                         }
                     }
-                    mPlayPos = adjustedPosition == -1 ? position : adjustedPosition;
+                    mPlayPos = adjustedPosition == -1 || adjustedPosition >= length() ? position : adjustedPosition;
 
 
                     // adjust to within bounds

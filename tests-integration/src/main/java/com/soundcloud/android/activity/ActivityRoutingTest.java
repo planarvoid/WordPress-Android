@@ -82,9 +82,9 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
     }
 
     public void testResolve() throws Exception {
-        assertActivityStarted(Resolve.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:users:1234"));
-        assertActivityStarted(Resolve.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:tracks:1234"));
-        assertActivityStarted(Resolve.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:sounds:1234"));
+        assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:users:1234"));
+        assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:tracks:1234"));
+        assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:sounds:1234"));
     }
 
     public void testAccountSettings() throws Exception {

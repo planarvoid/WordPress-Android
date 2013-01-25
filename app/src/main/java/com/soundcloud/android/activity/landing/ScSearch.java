@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
@@ -64,6 +65,15 @@ public class ScSearch extends ScActivity {
             }
         });
 
+        mTxtQuery.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                return !isFinishing() && ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) && perform(getSearch());
+            }
+        });
+
+
         Object[] previousState = getLastCustomNonConfigurationInstance();
         if (previousState != null) {
             restorePreviousState(previousState);
@@ -92,7 +102,7 @@ public class ScSearch extends ScActivity {
         } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null) {
             Content c = Content.match(intent.getData());
             if (c == Content.SEARCH_ITEM){
-                pendingSearch = new Search(intent.getData().getLastPathSegment(), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
+                pendingSearch = new Search(Uri.decode(intent.getData().getLastPathSegment()), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
             } else {
                 // probably came through quick search box, resolve intent through normal system
                 startActivity(new Intent(Intent.ACTION_VIEW).setData(intent.getData()));
