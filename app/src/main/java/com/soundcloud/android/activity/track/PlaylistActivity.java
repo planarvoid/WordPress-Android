@@ -44,9 +44,6 @@ public class PlaylistActivity extends ScActivity {
         mActionButtons = new PlayableActionButtonsController(mPlaylistBar);
         mActionButtons.update(mPlaylist);
 
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.playlist_tracks_fragment, ScListFragment.newInstance(Content.ME_ACTIVITIES)).commit();
-
         if (savedInstanceState == null) {
             setupTracklistFragment(Content.PLAYLIST_TRACKS.forId(mPlaylist.id));
         }
