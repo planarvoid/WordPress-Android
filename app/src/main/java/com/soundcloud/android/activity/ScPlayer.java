@@ -38,8 +38,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 
-public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPageListener,
-        PlayableActionButtonsController.PlayableActions {
+public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPageListener {
     public static final int REFRESH_DELAY = 1000;
 
     private static final String STATE_PAGER_QUEUE_POSITION = "pager_queue_position";
@@ -155,20 +154,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     public boolean isSeekable() {
         return !(mPlaybackService == null || !mPlaybackService.isSeekable());
-    }
-
-    @Override
-    public boolean toggleLike(Playable playable) {
-        if (playable == null || mPlaybackService == null) return false;
-        mPlaybackService.setLikeStatus(playable.toUri(), !playable.user_like);
-        return true;
-    }
-
-    @Override
-    public boolean toggleRepost(Playable playable) {
-        if (playable == null || mPlaybackService == null) return false;
-        mPlaybackService.setRepostStatus(playable.toUri(), !playable.user_repost);
-        return true;
     }
 
     public void onNewComment(Comment comment) {

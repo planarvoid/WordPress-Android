@@ -35,7 +35,7 @@ public class CloudPlaybackServiceTest {
         Intent intent = new Intent(CloudPlaybackService.ADD_LIKE_ACTION);
         intent.setData(track.toUri());
 
-        service.sendBroadcast(intent);
+        service.onStartCommand(intent, 0, 0);
 
         verify(associationManager).setLike(isA(Track.class), eq(true));
     }
@@ -48,7 +48,7 @@ public class CloudPlaybackServiceTest {
         Intent intent = new Intent(CloudPlaybackService.REMOVE_LIKE_ACTION);
         intent.setData(track.toUri());
 
-        service.sendBroadcast(intent);
+        service.onStartCommand(intent, 0, 0);
 
         verify(associationManager).setLike(isA(Track.class), eq(false));
     }
@@ -61,7 +61,7 @@ public class CloudPlaybackServiceTest {
         Intent intent = new Intent(CloudPlaybackService.ADD_LIKE_ACTION);
         intent.setData(playlist.toUri());
 
-        service.sendBroadcast(intent);
+        service.onStartCommand(intent, 0, 0);
 
         verify(associationManager).setLike(isA(Playlist.class), eq(true));
     }
@@ -74,7 +74,7 @@ public class CloudPlaybackServiceTest {
         Intent intent = new Intent(CloudPlaybackService.REMOVE_LIKE_ACTION);
         intent.setData(playlist.toUri());
 
-        service.sendBroadcast(intent);
+        service.onStartCommand(intent, 0, 0);
 
         verify(associationManager).setLike(isA(Playlist.class), eq(false));
     }
@@ -87,7 +87,7 @@ public class CloudPlaybackServiceTest {
         Intent intent = new Intent(CloudPlaybackService.ADD_REPOST_ACTION);
         intent.setData(track.toUri());
 
-        service.sendBroadcast(intent);
+        service.onStartCommand(intent, 0, 0);
 
         verify(associationManager).setRepost(isA(Track.class), eq(true));
     }
@@ -100,7 +100,7 @@ public class CloudPlaybackServiceTest {
         Intent intent = new Intent(CloudPlaybackService.REMOVE_REPOST_ACTION);
         intent.setData(track.toUri());
 
-        service.sendBroadcast(intent);
+        service.onStartCommand(intent, 0, 0);
 
         verify(associationManager).setRepost(isA(Track.class), eq(false));
     }
@@ -113,7 +113,7 @@ public class CloudPlaybackServiceTest {
         Intent intent = new Intent(CloudPlaybackService.ADD_REPOST_ACTION);
         intent.setData(playlist.toUri());
 
-        service.sendBroadcast(intent);
+        service.onStartCommand(intent, 0, 0);
 
         verify(associationManager).setRepost(isA(Playlist.class), eq(true));
     }
@@ -126,7 +126,7 @@ public class CloudPlaybackServiceTest {
         Intent intent = new Intent(CloudPlaybackService.REMOVE_REPOST_ACTION);
         intent.setData(playlist.toUri());
 
-        service.sendBroadcast(intent);
+        service.onStartCommand(intent, 0, 0);
 
         verify(associationManager).setRepost(isA(Playlist.class), eq(false));
     }

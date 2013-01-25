@@ -346,12 +346,17 @@
                 <action android:name="com.soundcloud.android.playback.stop"/>
                 <action android:name="com.soundcloud.android.reloadqueue"/>
                 <action android:name="com.soundcloud.android.loadTrackInfo"/>
-
-                <action android:name="com.soundcloud.android.favorite.add"/>
-                <action android:name="com.soundcloud.android.favorite.remove"/>
-                <action android:name="com.soundcloud.android.repost.add"/>
-                <action android:name="com.soundcloud.android.repost.remove"/>
             </intent-filter>
+
+          <intent-filter>
+            <action android:name="com.soundcloud.android.favorite.add"/>
+            <action android:name="com.soundcloud.android.favorite.remove"/>
+            <action android:name="com.soundcloud.android.repost.add"/>
+            <action android:name="com.soundcloud.android.repost.remove"/>
+            <data android:scheme="content"
+                  android:mimeType="vnd.soundcloud/track"
+                  android:host="com.soundcloud.android.provider.ScContentProvider"/>
+          </intent-filter>
         </service>
 
         <service android:name=".service.upload.UploadService" android:exported="false">

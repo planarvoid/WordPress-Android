@@ -16,7 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
 
-public class PlaylistActivity extends ScActivity implements PlayableActionButtonsController.PlayableActions {
+public class PlaylistActivity extends ScActivity {
 
     public static final String PLAYLIST_EXTRA = "com.soundcloud.android.playlist";
 
@@ -41,7 +41,7 @@ public class PlaylistActivity extends ScActivity implements PlayableActionButton
         mPlaylistBar = (PlayableBar) findViewById(R.id.playable_bar);
         mPlaylistBar.display(mPlaylist);
 
-        mActionButtons = new PlayableActionButtonsController(mPlaylistBar, this);
+        mActionButtons = new PlayableActionButtonsController(mPlaylistBar);
         mActionButtons.update(mPlaylist);
 
         getSupportFragmentManager().beginTransaction()
@@ -64,17 +64,5 @@ public class PlaylistActivity extends ScActivity implements PlayableActionButton
     @Override
     protected int getSelectedMenuId() {
         return 0;
-    }
-
-    @Override
-    public boolean toggleLike(Playable playable) {
-        Toast.makeText(this, "TODO", Toast.LENGTH_SHORT).show();
-        return false;
-    }
-
-    @Override
-    public boolean toggleRepost(Playable playable) {
-        Toast.makeText(this, "TODO", Toast.LENGTH_SHORT).show();
-        return false;
     }
 }

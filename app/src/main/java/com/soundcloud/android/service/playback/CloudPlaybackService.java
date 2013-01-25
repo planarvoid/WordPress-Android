@@ -194,10 +194,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         commandFilter.addAction(PAUSE_ACTION);
         commandFilter.addAction(NEXT_ACTION);
         commandFilter.addAction(PREVIOUS_ACTION);
-        commandFilter.addAction(ADD_LIKE_ACTION);
-        commandFilter.addAction(REMOVE_LIKE_ACTION);
-        commandFilter.addAction(ADD_REPOST_ACTION);
-        commandFilter.addAction(REMOVE_REPOST_ACTION);
         commandFilter.addAction(RESET_ALL);
         commandFilter.addAction(STOP_ACTION);
         commandFilter.addAction(PLAYQUEUE_CHANGED);

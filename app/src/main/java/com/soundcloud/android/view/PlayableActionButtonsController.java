@@ -1,7 +1,10 @@
 package com.soundcloud.android.view;
 
+import static com.soundcloud.android.service.playback.CloudPlaybackService.*;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
@@ -13,12 +16,6 @@ import android.widget.ToggleButton;
 
 public class PlayableActionButtonsController {
 
-    public interface PlayableActions {
-
-        boolean toggleLike(Playable playable);
-        boolean toggleRepost(Playable playable);
-    }
-
     private View mRootView;
 
     private ToggleButton mToggleLike;
@@ -26,11 +23,9 @@ public class PlayableActionButtonsController {
     private ImageButton mShareButton;
 
     private Playable mPlayable;
-    private PlayableActions mDelegate;
 
-    public PlayableActionButtonsController(View rootView, PlayableActions delegate) {
+    public PlayableActionButtonsController(View rootView) {
         mRootView = rootView;
-        mDelegate = delegate;
 
         mToggleLike = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         mToggleRepost = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
@@ -39,14 +34,20 @@ public class PlayableActionButtonsController {
         mToggleLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mDelegate.toggleLike(mPlayable);
+                String action = mToggleLike.isChecked() ? ADD_LIKE_ACTION : REMOVE_LIKE_ACTION;
+                Intent intent = new Intent(action);
+                intent.setData(mPlayable.toUri());
+                view.getContext().startService(intent);
             }
         });
 
         mToggleRepost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mDelegate.toggleRepost(mPlayable);
+                String action = mToggleRepost.isChecked() ? ADD_REPOST_ACTION : REMOVE_REPOST_ACTION;
+                Intent intent = new Intent(action);
+                intent.setData(mPlayable.toUri());
+                view.getContext().startService(intent);
             }
         });
 

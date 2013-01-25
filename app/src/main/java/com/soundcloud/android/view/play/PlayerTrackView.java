@@ -153,7 +153,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             });
         }
 
-        mActionButtons = new PlayableActionButtonsController(this, mPlayer);
+        mActionButtons = new PlayableActionButtonsController(this);
 
         ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
         mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
