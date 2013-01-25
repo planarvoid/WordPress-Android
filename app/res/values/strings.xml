@@ -155,7 +155,7 @@
         <item quantity="other">%d Reposts</item>
     </plurals>
 
-    <string name="accessibility_search">Search SoundCloud</string>
+  <string name="accessibility_search">Search SoundCloud</string>
     <string name="accessibility_stats_user_liked">Liked by you</string>
     <string name="accessibility_stats_user_reposted">Reposted by you</string>
     <string name="accessibility_like_action">Like</string>
@@ -165,4 +165,12 @@
     <string name="accessibility_next_track">Next track</string>
     <string name="accessibility_toggle_playback">Toggle playback</string>
     <string name="accessibility_previous_track">Previous Track</string>
+
+    <string name="playlist_info_header_text">This set contains %1$s, total time: %2$s</string>
+
+    <plurals name="number_of_sounds">
+      <item quantity="one">one sound</item>
+      <item quantity="other">%d sounds</item>
+    </plurals>
+
 </resources>
