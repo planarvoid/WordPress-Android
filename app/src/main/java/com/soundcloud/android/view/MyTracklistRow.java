@@ -13,10 +13,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewStub;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MyTracklistRow extends TrackInfoBar {
@@ -114,21 +116,18 @@ public class MyTracklistRow extends TrackInfoBar {
         if (recording.artwork_path == null) {
             mImageLoader.unbind(mIcon);
         } else {
-
-            final Bitmap b = mImageLoader.getBitmap(
-                    recording.artwork_path.getAbsolutePath(),
-                    new ImageLoader.BitmapCallback() {
-                        @Override public void onImageLoaded(Bitmap bitmap, String url) {
-                            if (recording.artwork_path.getAbsolutePath().equals(url)) setImageBitmap(recording, bitmap);
+            // use getBitmap instead of bind here because we have to account for exif rotation on local images
+            final String fileUri = Uri.fromFile(recording.artwork_path).toString();
+            mImageLoader.getBitmap(
+                    fileUri,
+                    new ImageLoader.BitmapCallback(){
+                        @Override
+                        public void onImageLoaded(Bitmap bitmap, String url) {
+                            if (fileUri.equals(url)) setImageBitmap(recording, bitmap);
                         }
                     },
                     ImageUtils.getImageLoaderOptionsWithResizeSet(recording.artwork_path, mTargetIconDimension, mTargetIconDimension, false)
             );
-
-            if (b != null) {
-                setImageBitmap(recording, b);
-            }
-
         }
     }
 
