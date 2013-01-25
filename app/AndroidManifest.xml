@@ -221,7 +221,7 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:mimeType="vnd.soundcloud/track"/>
+                <data android:mimeType="vnd.soundcloud.playable/track"/>
             </intent-filter>
         </activity>
 
@@ -354,7 +354,8 @@
             <action android:name="com.soundcloud.android.repost.add"/>
             <action android:name="com.soundcloud.android.repost.remove"/>
             <data android:scheme="content"
-                  android:mimeType="vnd.soundcloud/track"
+                  android:mimeType="vnd.soundcloud.playable/*"
+                  android:pathPrefix=""
                   android:host="com.soundcloud.android.provider.ScContentProvider"/>
           </intent-filter>
         </service>
