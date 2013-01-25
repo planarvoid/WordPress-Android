@@ -2,10 +2,12 @@ $ 54
   % v current
   _ 2013-01-25
   ! Maintenance
+  * Image cropping bugs fixed
   * Resolving urls will now fall back to a webview
+  * Fixed track positioning when Stream updates
   * Various other bug fixes
   - Fixed some Image Cropping issues
-  - Fixed track positioning when Stream reloads
+
 
 
 $ 53
