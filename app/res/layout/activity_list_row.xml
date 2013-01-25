@@ -8,7 +8,7 @@
                 android:paddingRight="@dimen/list_item_padding_right"
                 android:paddingBottom="@dimen/list_item_padding_bottom"
                 android:gravity="center_vertical">
-    <ImageView android:id="@+id/icon"
+    <com.soundcloud.android.view.OptimisedImageView android:id="@+id/icon"
                android:layout_alignParentLeft="true"
                android:layout_alignParentTop="true"
                android:layout_width="@dimen/activity_icon_width"
