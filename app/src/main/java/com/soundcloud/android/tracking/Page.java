@@ -69,9 +69,10 @@ public enum Page implements Event {
     Sounds_add_comment      ("user_permalink::track_permalink::add_comment", Level2.Sounds),
     Sounds_share            ("user_permalink::track_permalink::share", Level2.Sounds),
     Sounds_info__main       ("user_permalink::track_permalink::info_main", Level2.Sounds),
-    Sounds_info__people_like("user_permalink::track_permalink::info_people_like", Level2.Sounds),
-    Sounds_info__people_repost("user_permalink::track_permalink::info_people_repost", Level2.Sounds),
-    Sounds_info__comment    ("user_permalink::track_permalink::info_comment", Level2.Sounds),
+    // TODO: these don't make sense anymore now that playlists enter the game. Need to re-spec/re-build tracking.
+    //Sounds_info__people_like("user_permalink::track_permalink::info_people_like", Level2.Sounds),
+    //Sounds_info__people_repost("user_permalink::track_permalink::info_people_repost", Level2.Sounds),
+    //Sounds_info__comment    ("user_permalink::track_permalink::info_comment", Level2.Sounds),
 
     UNKNOWN(null, null);
 

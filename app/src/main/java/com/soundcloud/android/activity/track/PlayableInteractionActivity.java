@@ -4,45 +4,42 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.PlayInfo;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.adapter.PlayableBar;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
-public abstract class TrackInfoCollection extends ScActivity implements   FetchTrackTask.FetchTrackListener {
-    Track mTrack;
-    PlayableBar mTrackInfoBar;
-    //SectionedListView mListView;
+public abstract class PlayableInteractionActivity extends ScActivity {
+
+    public static final String EXTRA_INTERACTION_TYPE = "com.soundcloud.android.activity_type";
+
+    protected Activity.Type mInteraction;
+    protected Playable mPlayable;
+    protected PlayableBar mPlayableInfoBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.track_info_collection);
 
-        mTrack = Track.fromIntent(getIntent(), getContentResolver());
-        mTrackInfoBar = ((PlayableBar) findViewById(R.id.playable_bar));
-        mTrackInfoBar.display(mTrack);
-        mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // if it comes from a mention, might not have a user
-                if (mTrack.user != null) PlayUtils.playTrack(TrackInfoCollection.this, PlayInfo.forTracks(mTrack));
-            }
-        });
+        mInteraction = Activity.Type.fromString(getIntent().getStringExtra(EXTRA_INTERACTION_TYPE));
+        mPlayable = getPlayableFromIntent(getIntent());
 
+        mPlayableInfoBar = ((PlayableBar) findViewById(R.id.playable_bar));
+        mPlayableInfoBar.display(mPlayable);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.listHolder, ScListFragment.newInstance(getContentUri())).commit();
         }
-
-
-        mTrack.refreshInfoAsync(getApp(),this);
     }
 
     //xxx hack
@@ -54,18 +51,16 @@ public abstract class TrackInfoCollection extends ScActivity implements   FetchT
 
     protected abstract Uri getContentUri();
 
-    @Override
-    public void onSuccess(Track track, String action) {
-        ((PlayableBar) findViewById(R.id.playable_bar)).display(track);
-    }
+    protected abstract Playable getPlayableFromIntent(Intent intent);
 
     @Override
-    public void onError(long trackId) {
+    protected int getSelectedMenuId() {
+        return -1;
     }
 
     @Override
     public void onDataConnectionChanged(boolean isConnected){
         super.onDataConnectionChanged(isConnected);
-        if (isConnected) mTrackInfoBar.onConnected();
+        if (isConnected) mPlayableInfoBar.onConnected();
     }
 }
