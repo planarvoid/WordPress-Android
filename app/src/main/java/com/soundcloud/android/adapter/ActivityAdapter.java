@@ -1,11 +1,14 @@
 package com.soundcloud.android.adapter;
 
+import static com.soundcloud.android.activity.track.PlayableInteractionActivity.EXTRA_INTERACTION_TYPE;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.activity.track.TrackComments;
-import com.soundcloud.android.activity.track.TrackReposters;
+import com.soundcloud.android.activity.track.PlaylistInteractionActivity;
+import com.soundcloud.android.activity.track.TrackInteractionActivity;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
@@ -23,7 +26,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.Collections;
 
@@ -136,23 +138,28 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
                 PlayUtils.playFromAdapter(mContext, this, mData, position);
                 return ItemClickResults.LEAVING;
 
-            case PLAYLIST_REPOST:
-                Toast.makeText(mContext, "TODO: Implement playlist reposts", Toast.LENGTH_SHORT).show();
-                return ItemClickResults.LEAVING;
+            case COMMENT:
+            case TRACK_LIKE:
             case TRACK_REPOST:
                 if (mContent == Content.ME_ACTIVITIES) {
                     // todo, scroll to specific repost
-                    mContext.startActivity(new Intent(mContext, TrackReposters.class)
-                        .putExtra(Track.EXTRA, getItem(position).getTrack()));
+                    mContext.startActivity(new Intent(mContext, TrackInteractionActivity.class)
+                            .putExtra(Track.EXTRA, getItem(position).getTrack())
+                            .putExtra(EXTRA_INTERACTION_TYPE, type.type));
                 } else {
                     PlayUtils.playFromAdapter(mContext, this, mData, position);
                 }
                 return ItemClickResults.LEAVING;
-
-            case COMMENT:
-                mContext.startActivity(new Intent(mContext, TrackComments.class)
-                        .putExtra(Track.EXTRA, getItem(position).getTrack()));
-                // todo, scroll to specific comment
+            case PLAYLIST_LIKE:
+            case PLAYLIST_REPOST:
+                if (mContent == Content.ME_ACTIVITIES) {
+                    // todo, scroll to specific repost
+                    mContext.startActivity(new Intent(mContext, PlaylistInteractionActivity.class)
+                            .putExtra(Playlist.EXTRA, getItem(position).getPlaylist())
+                            .putExtra(EXTRA_INTERACTION_TYPE, type.type));
+                } else {
+                    PlayUtils.playFromAdapter(mContext, this, mData, position);
+                }
                 return ItemClickResults.LEAVING;
 
             case AFFILIATION:
