@@ -158,7 +158,7 @@ abstract class DataTask extends StreamItemTask {
                     case HttpStatus.SC_OK:
                     case HttpStatus.SC_PARTIAL_CONTENT:
                         if (dst.remaining() < connection.getContentLength()) {
-                            throw new IOException(String.format("allocated buffer is too small (%d < %d)",
+                            throw new IOException(String.format(Locale.ENGLISH, "allocated buffer is too small (%d < %d)",
                                         dst.remaining(), connection.getContentLength()));
                         }
                         is = new BufferedInputStream(connection.getInputStream());
