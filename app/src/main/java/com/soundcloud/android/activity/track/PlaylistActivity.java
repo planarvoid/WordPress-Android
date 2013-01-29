@@ -15,12 +15,13 @@ import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
 public class PlaylistActivity extends ScActivity {
 
     public static final String PLAYLIST_EXTRA = "com.soundcloud.android.playlist";
 
-    private Playlist mPlaylist;
+    private Uri mPlaylistUri;
     private PlayableBar mPlaylistBar;
 
     public static void start(Context context, @NotNull Playlist playlist) {
@@ -34,28 +35,39 @@ public class PlaylistActivity extends ScActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.playlist_activity);
-        mPlaylist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(getIntent().getData());
+        mPlaylistUri = getIntent().getData();
         mPlaylistBar = (PlayableBar) findViewById(R.id.playable_bar);
 
-        final Uri playlistUri = getIntent().getData();
-        if (playlistUri != null && (mPlaylist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(mPlaylist.id)) != null) {
+        if (refreshPlaylistData() && savedInstanceState == null) setupTracksFragment();
+
+    }
+
+    private boolean refreshPlaylistData(){
+        Playlist mPlaylist;
+        if (mPlaylistUri != null && (mPlaylist = getPlaylist()) != null) {
             mPlaylistBar.display(mPlaylist);
-            if (savedInstanceState == null) setupTracksFragment();
+            return true;
 
         } else {
+            Log.e(SoundCloudApplication.TAG,"Playlist not found: " + mPlaylistUri.toString());
             finish();
+            return false;
         }
     }
 
+    private Playlist getPlaylist() {
+        return SoundCloudApplication.MODEL_MANAGER.getPlaylist(mPlaylistUri);
+    }
+
     private void setupTracksFragment() {
-        PlaylistTracksFragment fragment = PlaylistTracksFragment.newInstance(mPlaylist);
+        PlaylistTracksFragment fragment = PlaylistTracksFragment.newInstance(mPlaylistUri);
         getSupportFragmentManager().beginTransaction().add(R.id.playlist_tracks_fragment, fragment).commit();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        getContentResolver().registerContentObserver(mPlaylist.toUri(), false, mPlaylistObserver);
+        getContentResolver().registerContentObserver(mPlaylistUri, false, mPlaylistObserver);
     }
 
     @Override
@@ -77,7 +89,7 @@ public class PlaylistActivity extends ScActivity {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
-            getContentResolver().notifyChange(Content.PLAYLIST_TRACKS.forId(mPlaylist.id), null);
+            getContentResolver().notifyChange(Content.PLAYLIST_TRACKS.forId(getPlaylist().id), null);
         }
 
         @Override
