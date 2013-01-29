@@ -2,8 +2,6 @@ package com.soundcloud.android.activity.track;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.fragment.ScListFragment;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.fragment.PlaylistTracksFragment;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
@@ -14,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.widget.Toast;
 
 public class PlaylistActivity extends ScActivity {
 
