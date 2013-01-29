@@ -547,7 +547,7 @@ public class Track extends Playable implements PlayableHolder {
         return (user != null ? TextUtils.isEmpty(user.permalink) ? "" : user.permalink+"/" : "") + permalink;
     }
 
-    public static Track fromIntent(Intent intent, ContentResolver resolver) {
+    public static Track fromIntent(Intent intent) {
         if (intent == null) throw new IllegalArgumentException("intent is null");
         Track t = intent.getParcelableExtra(EXTRA);
         if (t == null) {

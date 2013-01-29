@@ -978,7 +978,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 mResumeTrackId = getCurrentTrackId();
                 stop();
             } else if (LOAD_TRACK_INFO.equals(action)) {
-                final Track t = Track.fromIntent(intent,getContentResolver());
+                final Track t = Track.fromIntent(intent);
                 t.refreshInfoAsync(getApp(), mInfoListener);
 
             } else if (PLAYQUEUE_CHANGED.equals(action)) {

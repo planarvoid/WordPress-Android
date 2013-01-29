@@ -1,6 +1,7 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
@@ -8,6 +9,7 @@ import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,10 +20,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Playlist extends Playable {
+
+    public static final String EXTRA = "com.soundcloud.android.playlist";
+    public static final String EXTRA_ID = "com.soundcloud.android.playlist_id";
+
     @JsonView(Views.Full.class) public String playlist_type;
     @JsonView(Views.Full.class) public String tracks_uri;
     @JsonView(Views.Full.class) @Nullable public List<Track> tracks;
     @JsonView(Views.Full.class) public int track_count;
+
+    public static Playlist fromIntent(Intent intent) {
+        Playlist playlist = intent.getParcelableExtra(EXTRA);
+        if (playlist == null) {
+            playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(intent.getLongExtra(EXTRA_ID, 0));
+            if (playlist == null) {
+                throw new IllegalArgumentException("Could not obtain playlist from intent " + intent);
+            }
+        }
+        return playlist;
+    }
 
     public Playlist() {
         super();

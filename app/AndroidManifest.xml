@@ -280,12 +280,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.track.TrackLikers" />
-        <activity android:name=".activity.track.TrackReposters" />
-        <activity android:name=".activity.track.TrackComments" />
+        <activity android:name=".activity.track.TrackInteractionActivity" />
         <activity android:name=".activity.track.TracksByTag" />
 
         <activity android:name=".activity.track.PlaylistActivity" />
+        <activity android:name=".activity.track.PlaylistInteractionActivity" />
 
         <!-- settings -->
         <activity android:name=".activity.settings.Settings"
