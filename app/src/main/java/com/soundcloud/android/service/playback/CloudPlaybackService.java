@@ -738,12 +738,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     public void setLikeStatus(Uri playableUri, boolean like) {
-        Playable playable;
-        if (currentTrack != null && currentTrack.toUri() == playableUri) {
-            playable = currentTrack;
-        } else {
-            playable = (Playable) SoundCloudApplication.MODEL_MANAGER.getModel(playableUri);
-        }
+        Playable playable = (Playable) SoundCloudApplication.MODEL_MANAGER.getModel(playableUri);
         mAssociationManager.setLike(playable, like);
     }
 
