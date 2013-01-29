@@ -227,7 +227,7 @@ public class PlayQueueManager {
                     newQueue = new ArrayList<PlayQueueItem>();
                     if (cursor.moveToFirst()){
                         do {
-                            newQueue.add(new PlayQueueItem(SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor),false));
+                            newQueue.add(new PlayQueueItem(SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor),false));
                         } while (cursor.moveToNext());
                     }
                     cursor.close();

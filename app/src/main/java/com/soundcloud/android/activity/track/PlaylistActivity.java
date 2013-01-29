@@ -7,6 +7,7 @@ import com.soundcloud.android.fragment.PlaylistTracksFragment;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.view.adapter.PlayableBar;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.content.Intent;
@@ -22,9 +23,9 @@ public class PlaylistActivity extends ScActivity {
     private Playlist mPlaylist;
     private PlayableBar mPlaylistBar;
 
-    public static void start(Context context, Playlist playlist) {
+    public static void start(Context context, @NotNull Playlist playlist) {
         Intent intent = new Intent(context, PlaylistActivity.class);
-        intent.putExtra(PLAYLIST_EXTRA, playlist);
+        intent.setData(playlist.toUri());
         context.startActivity(intent);
     }
 
@@ -33,7 +34,7 @@ public class PlaylistActivity extends ScActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.playlist_activity);
-        mPlaylist = getIntent().getParcelableExtra(PLAYLIST_EXTRA);
+        mPlaylist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(getIntent().getData());
         mPlaylistBar = (PlayableBar) findViewById(R.id.playable_bar);
 
         final Uri playlistUri = getIntent().getData();

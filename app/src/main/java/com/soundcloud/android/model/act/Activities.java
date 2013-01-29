@@ -344,15 +344,6 @@ public class Activities extends CollectionHolder<Activity> {
         return SoundCloudApplication.MODEL_MANAGER.getActivitiesFromCursor(c);
     }
 
-    public static Activities get(ContentResolver resolver, Uri uri) {
-        return get(resolver, uri, null, null, null, null);
-    }
-
-    public static Activities get(ContentResolver resolver, Uri uri, @Nullable String[] projection,
-                                 @Nullable String where, @Nullable String[] whereArgs, @Nullable String sort) {
-        return SoundCloudApplication.MODEL_MANAGER.getActivitiesFromCursor(resolver.query(uri, projection, where, whereArgs, sort));
-    }
-
     public static int getCountSince(ContentResolver contentResolver, long since, Content content){
         Cursor c = contentResolver.query(content.uri,
                     new String[]{"Count("+BaseColumns._ID+") as unseen"},

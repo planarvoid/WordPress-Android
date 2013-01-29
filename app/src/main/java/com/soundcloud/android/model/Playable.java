@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.BulkInsertMap;
@@ -98,6 +99,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         downloadable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.DOWNLOADABLE)) == 1;
         streamable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.STREAMABLE)) == 1;
         sharing = Sharing.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.SHARING)));
+        license = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.LICENSE));
+        genre = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.GENRE));
         likes_count = getIntOrNotSet(cursor, DBHelper.SoundView.LIKES_COUNT);
         reposts_count = getIntOrNotSet(cursor, DBHelper.SoundView.REPOSTS_COUNT);
         user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
@@ -116,6 +119,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         if (repostIdx != -1) {
             user_repost = cursor.getInt(repostIdx) == 1;
         }
+
+        user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor);
 
     }
 
@@ -265,7 +270,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
 
         // account for partial objects, don't overwrite local full objects
         if (title != null) cv.put(DBHelper.Sounds.TITLE, title);
-        if (duration != 0) cv.put(DBHelper.Sounds.DURATION, duration);
+        if (duration > 0) cv.put(DBHelper.Sounds.DURATION, duration);
         if (user_id != 0) {
             cv.put(DBHelper.Sounds.USER_ID, user_id);
         } else if (user != null && user.isSaved()) {
@@ -278,6 +283,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         if (downloadable) cv.put(DBHelper.Sounds.DOWNLOADABLE, downloadable);
         if (streamable) cv.put(DBHelper.Sounds.STREAMABLE, streamable);
         if (sharing != null) cv.put(DBHelper.Sounds.SHARING, sharing.value);
+        if (license != null) cv.put(DBHelper.Sounds.LICENSE, license);
+        if (genre != null) cv.put(DBHelper.Sounds.GENRE, genre);
         if (likes_count != -1) cv.put(DBHelper.Sounds.LIKES_COUNT, likes_count);
         if (reposts_count != -1) cv.put(DBHelper.Sounds.REPOSTS_COUNT, reposts_count);
         return cv;

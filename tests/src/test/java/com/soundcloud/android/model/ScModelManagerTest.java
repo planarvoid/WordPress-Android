@@ -57,7 +57,7 @@ public class ScModelManagerTest {
     // TODO, one instance of every user. deserialize post processing
     @Test
     public void testUniqueUserMultipleTracks() throws IOException {
-        CollectionHolder<ScResource> holder = manager.getCollectionFromStream(SyncAdapterServiceTest.class.getResourceAsStream("tracks.json"));
+        CollectionHolder<ScResource> holder = manager.getCollectionFromStream(SyncAdapterServiceTest.class.getResourceAsStream("tracks.json"), true);
         expect(holder.size()).toBe(3);
 
         Track t1 = (Track) holder.get(0);
@@ -365,7 +365,7 @@ public class ScModelManagerTest {
         p2.tracks.remove(0);
         expect(p2.insert(resolver)).not.toBeNull();
 
-        Playlist p3 = manager.loadPlaylistFromUri(resolver, id, true);
+        Playlist p3 = manager.getPlaylistWithTracks(id);
         expect(p3).not.toBeNull();
         expect(p3.tracks.size()).toEqual(40);
         expect(p3.tracks.get(0).id).not.toEqual(p.tracks.get(0).id);
