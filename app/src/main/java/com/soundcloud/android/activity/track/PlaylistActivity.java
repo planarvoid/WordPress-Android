@@ -48,8 +48,8 @@ public class PlaylistActivity extends ScActivity {
     private void setupPlaylistInfoHeader() {
         TextView infoText = (TextView) findViewById(R.id.playlist_info_header);
 
-        String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, mPlaylist.track_count, mPlaylist.track_count);
-        String duration = ScTextUtils.formatTimestamp(mPlaylist.duration);
+        final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, mPlaylist.track_count, mPlaylist.track_count);
+        final String duration = ScTextUtils.formatTimestamp(mPlaylist.duration);
         infoText.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
     }
 
