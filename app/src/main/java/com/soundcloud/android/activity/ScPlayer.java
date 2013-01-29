@@ -15,6 +15,7 @@ import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.service.playback.State;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.PlayUtils;
+import com.soundcloud.android.view.PlayableActionButtonsController;
 import com.soundcloud.android.view.PlayerTrackPager;
 import com.soundcloud.android.view.play.PlayerTrackView;
 import com.soundcloud.android.view.play.TransportBar;
@@ -153,18 +154,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     public boolean isSeekable() {
         return !(mPlaybackService == null || !mPlaybackService.isSeekable());
-    }
-
-    public boolean toggleLike(Track track) {
-        if (track == null || mPlaybackService == null) return false;
-        mPlaybackService.setLikeStatus(track.id, !track.user_like);
-        return true;
-    }
-
-    public boolean toggleRepost(Track track) {
-        if (track == null || mPlaybackService == null) return false;
-        mPlaybackService.setRepostStatus(track.id, !track.user_repost);
-        return true;
     }
 
     public void onNewComment(Comment comment) {

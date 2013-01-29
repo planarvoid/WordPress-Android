@@ -6,6 +6,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.PlaylistTracksFragment;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.view.PlayableActionButtonsController;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapter.PlayableBar;
 import org.jetbrains.annotations.NotNull;
@@ -18,11 +19,10 @@ import android.widget.TextView;
 
 public class PlaylistActivity extends ScActivity {
 
-    public static final String PLAYLIST_EXTRA = "com.soundcloud.android.playlist";
-
     private Playlist mPlaylist;
 
     private PlayableBar mPlaylistBar;
+    private PlayableActionButtonsController mActionButtons;
 
     public static void start(Context context, @NotNull Playlist playlist) {
         Intent intent = new Intent(context, PlaylistActivity.class);
@@ -40,11 +40,12 @@ public class PlaylistActivity extends ScActivity {
         mPlaylistBar = (PlayableBar) findViewById(R.id.playable_bar);
         mPlaylistBar.display(mPlaylist);
 
+        mActionButtons = new PlayableActionButtonsController(mPlaylistBar);
+        mActionButtons.update(mPlaylist);
+
         setupPlaylistInfoHeader();
 
-        if (savedInstanceState == null){
-            setupTracklistFragment(Content.PLAYLIST_TRACKS.forId(mPlaylist.id));
-        }
+        setupTracklistFragment(Content.PLAYLIST_TRACKS.forId(mPlaylist.id));
     }
 
     private void setupPlaylistInfoHeader() {

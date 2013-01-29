@@ -520,20 +520,6 @@ public class Track extends Playable implements PlayableHolder {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.track;
     }
 
-    public @Nullable Intent getShareIntent() {
-        if (sharing == null || !sharing.isPublic()) return null;
-
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_SUBJECT,
-                title +
-                (user != null ? " by " + user.username : "") + " on SoundCloud");
-        intent.putExtra(android.content.Intent.EXTRA_TEXT, permalink_url);
-
-        return intent;
-    }
-
     public Intent getPlayIntent() {
         return new Intent(Actions.PLAY).putExtra(EXTRA, this);
     }

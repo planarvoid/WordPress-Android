@@ -12,7 +12,6 @@ import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
@@ -28,6 +27,7 @@ import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.play.NotificationPlaybackRemoteViews;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Notification;
@@ -41,6 +41,7 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -78,8 +79,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static final String PREVIOUS_ACTION      = "com.soundcloud.android.playback.previous";
     public static final String RESET_ALL            = "com.soundcloud.android.playback.reset"; // used on logout
     public static final String STOP_ACTION          = "com.soundcloud.android.playback.stop"; // from the notification
-    public static final String ADD_LIKE_ACTION      = "com.soundcloud.android.favorite.add";
-    public static final String REMOVE_LIKE_ACTION   = "com.soundcloud.android.favorite.remove";
+    public static final String ADD_LIKE_ACTION      = "com.soundcloud.android.like.add";
+    public static final String REMOVE_LIKE_ACTION   = "com.soundcloud.android.like.remove";
+    public static final String ADD_REPOST_ACTION    = "com.soundcloud.android.repost.add";
+    public static final String REMOVE_REPOST_ACTION = "com.soundcloud.android.repost.remove";
     public static final String RELOAD_QUEUE         = "com.soundcloud.android.reloadqueue";
     public static final String LOAD_TRACK_INFO      = "com.soundcloud.android.loadTrackInfo";
 
@@ -123,6 +126,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private boolean mAutoPause = true;  // used when svc is first created and playlist is resumed on start
     private boolean mAutoAdvance = true;// automatically skip to next track
     /* package */ PlayQueueManager mPlayQueueManager;
+
+    // TODO: this doesn't really belong here. It's only used to PUT likes and reposts, and isn't playback specific.
     /* package */ AssociationManager mAssociationManager;
 
     private AudioManager mAudioManager;
@@ -189,15 +194,11 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         commandFilter.addAction(PAUSE_ACTION);
         commandFilter.addAction(NEXT_ACTION);
         commandFilter.addAction(PREVIOUS_ACTION);
-        commandFilter.addAction(ADD_LIKE_ACTION);
-        commandFilter.addAction(REMOVE_LIKE_ACTION);
         commandFilter.addAction(RESET_ALL);
         commandFilter.addAction(STOP_ACTION);
         commandFilter.addAction(PLAYQUEUE_CHANGED);
         commandFilter.addAction(RELOAD_QUEUE);
         commandFilter.addAction(LOAD_TRACK_INFO);
-
-
 
         registerReceiver(mIntentReceiver, commandFilter);
         registerReceiver(mNoisyReceiver, new IntentFilter(Consts.AUDIO_BECOMING_NOISY));
@@ -736,14 +737,14 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    public void setLikeStatus(long id, boolean like) {
-        Track track = currentTrack != null && currentTrack.id == id ? currentTrack : SoundCloudApplication.MODEL_MANAGER.getTrack(id);
-        mAssociationManager.setLike(track, like);
+    public void setLikeStatus(@NotNull Uri playableUri, boolean like) {
+        Playable playable = (Playable) SoundCloudApplication.MODEL_MANAGER.getModel(playableUri);
+        mAssociationManager.setLike(playable, like);
     }
 
-    public void setRepostStatus(long id, boolean repost) {
-        Track track = currentTrack != null && currentTrack.id == id ? currentTrack : SoundCloudApplication.MODEL_MANAGER.getTrack(id);
-        mAssociationManager.setRepost(track, repost);
+    public void setRepostStatus(@NotNull Uri playableUri, boolean repost) {
+        Playable playable = (Playable) SoundCloudApplication.MODEL_MANAGER.getModel(playableUri);
+        mAssociationManager.setRepost(playable, repost);
     }
 
     /* package */ int getDuration() {
@@ -958,9 +959,13 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                         new Intent(PLAYSTATE_CHANGED));
 
             } else if (ADD_LIKE_ACTION.equals(action)) {
-                setLikeStatus(intent.getLongExtra(EXTRA_TRACK_ID, -1), true);
+                setLikeStatus(intent.getData(), true);
             } else if (REMOVE_LIKE_ACTION.equals(action)) {
-                setLikeStatus(intent.getLongExtra(EXTRA_TRACK_ID, -1), false);
+                setLikeStatus(intent.getData(), false);
+            } else if (ADD_REPOST_ACTION.equals(action)) {
+                setRepostStatus(intent.getData(), true);
+            } else if (REMOVE_REPOST_ACTION.equals(action)) {
+                setRepostStatus(intent.getData(), false);
             } else if (PLAY_ACTION.equals(action)) {
                 handlePlayAction(intent);
             } else if (RESET_ALL.equals(action)) {
@@ -1300,4 +1305,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         getApp().track(klazz, args);
     }
 
+    void setAssociationManager(AssociationManager associationManager) {
+        this.mAssociationManager = associationManager;
+    }
 }
