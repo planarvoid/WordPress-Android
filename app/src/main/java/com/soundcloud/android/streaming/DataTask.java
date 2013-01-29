@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.Locale;
 
 abstract class DataTask extends StreamItemTask {
     static final String LOG_TAG = StreamLoader.LOG_TAG;
@@ -141,7 +142,7 @@ abstract class DataTask extends StreamItemTask {
         protected int getData(URL url, int start, int end, ByteBuffer dst) throws IOException {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("Range",
-                    String.format("bytes=%d-%d", start, end));
+                    String.format(Locale.ENGLISH, "bytes=%d-%d", start, end));
 
             connection.setReadTimeout(READ_TIMEOUT);
             connection.setConnectTimeout(CONNECTION_TIMEOUT);
