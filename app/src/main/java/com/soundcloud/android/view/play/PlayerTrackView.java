@@ -64,7 +64,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
     private ImageLoader.BindResult mCurrentAvatarBindResult;
 
-    private Track mTrack;
+    private @NotNull Track mTrack;
     private int mQueuePosition;
     private long mDuration;
     private final boolean mLandscape;
@@ -165,7 +165,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         mWaveformController.setOnScreen(onScreen);
     }
 
-    public void setTrack(Track track, int queuePosition, boolean forceUpdate, boolean priority) {
+    public void setTrack(@NotNull Track track, int queuePosition, boolean forceUpdate, boolean priority) {
         final boolean changed = mTrack != track;
         if (!(forceUpdate || changed)) return;
 

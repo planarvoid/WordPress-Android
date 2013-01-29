@@ -12,7 +12,6 @@ import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
@@ -28,6 +27,7 @@ import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.play.NotificationPlaybackRemoteViews;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Notification;
@@ -737,12 +737,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    public void setLikeStatus(Uri playableUri, boolean like) {
+    public void setLikeStatus(@NotNull Uri playableUri, boolean like) {
         Playable playable = (Playable) SoundCloudApplication.MODEL_MANAGER.getModel(playableUri);
         mAssociationManager.setLike(playable, like);
     }
 
-    public void setRepostStatus(Uri playableUri, boolean repost) {
+    public void setRepostStatus(@NotNull Uri playableUri, boolean repost) {
         Playable playable = (Playable) SoundCloudApplication.MODEL_MANAGER.getModel(playableUri);
         mAssociationManager.setRepost(playable, repost);
     }
