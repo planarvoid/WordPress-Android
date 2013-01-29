@@ -2,6 +2,7 @@ $ 55
   % v current
   _ 2013-01-29
   ! Maintenance
+  * Fixed language/local based IO problems
 
 
 $ 54

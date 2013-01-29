@@ -35,6 +35,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.concurrent.ExecutionException;
@@ -352,7 +353,7 @@ public class StreamProxy implements Runnable {
 
                     if (startByte != 0) {
                         headers.put("Content-Range",
-                                String.format("%d-%d/%d", startByte, length - 1, length));
+                                String.format(Locale.ENGLISH, "%d-%d/%d", startByte, length - 1, length));
                     }
                     ByteBuffer header = getHeader(startByte, headers);
                     channel.write(header);
