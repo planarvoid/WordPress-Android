@@ -1,5 +1,11 @@
-$ 54
+$ 55
   % v current
+  _ 2013-01-29
+  ! Maintenance
+
+
+$ 54
+  % v 2.4.5
   _ 2013-01-25
   ! Maintenance
   * Image cropping bugs fixed
