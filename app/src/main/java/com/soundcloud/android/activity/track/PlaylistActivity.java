@@ -92,19 +92,9 @@ public class PlaylistActivity extends ScActivity {
 
     private ContentObserver mPlaylistObserver = new ContentObserver(new Handler()) {
         @Override
-        public boolean deliverSelfNotifications() {
-            return super.deliverSelfNotifications();
-        }
-
-        @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
             getContentResolver().notifyChange(Content.PLAYLIST_TRACKS.forId(getPlaylist().id), null);
-        }
-
-        @Override
-        public void onChange(boolean selfChange, Uri uri) {
-            super.onChange(selfChange, uri);
         }
     };
 }
