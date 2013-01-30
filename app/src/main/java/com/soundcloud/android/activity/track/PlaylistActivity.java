@@ -38,6 +38,7 @@ public class PlaylistActivity extends ScActivity {
 
         mPlaylist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(getIntent().getData());
         mPlaylistBar = (PlayableBar) findViewById(R.id.playable_bar);
+        mPlaylistBar.addTextShadows();
         mPlaylistBar.display(mPlaylist);
 
         mActionButtons = new PlayableActionButtonsController(mPlaylistBar);
