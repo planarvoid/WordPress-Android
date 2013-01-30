@@ -922,7 +922,10 @@ public class ScContentProvider extends ContentProvider {
                 return "vnd.soundcloud/user";
 
             case TRACK:
-                return "vnd.soundcloud/track";
+                return "vnd.soundcloud.playable/track";
+
+            case PLAYLIST:
+                return "vnd.soundcloud.playable/playlist";
 
             case SEARCH_ITEM:
                 return "vnd.soundcloud/search_item";

@@ -6,6 +6,8 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.PlaylistTracksFragment;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.view.PlayableActionButtonsController;
 import com.soundcloud.android.view.adapter.PlayableBar;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,6 +18,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.TextView;
 
 public class PlaylistActivity extends ScActivity {
 
@@ -23,6 +26,7 @@ public class PlaylistActivity extends ScActivity {
 
     private Uri mPlaylistUri;
     private PlayableBar mPlaylistBar;
+    private PlayableActionButtonsController mActionButtons;
 
     public static void start(Context context, @NotNull Playlist playlist) {
         Intent intent = new Intent(context, PlaylistActivity.class);
@@ -37,6 +41,7 @@ public class PlaylistActivity extends ScActivity {
         setContentView(R.layout.playlist_activity);
         mPlaylistUri = getIntent().getData();
         mPlaylistBar = (PlayableBar) findViewById(R.id.playable_bar);
+        mActionButtons = new PlayableActionButtonsController(mPlaylistBar);
 
         if (refreshPlaylistData() && savedInstanceState == null) setupTracksFragment();
 
@@ -46,10 +51,17 @@ public class PlaylistActivity extends ScActivity {
         Playlist mPlaylist;
         if (mPlaylistUri != null && (mPlaylist = getPlaylist()) != null) {
             mPlaylistBar.display(mPlaylist);
+            mActionButtons.update(mPlaylist);
+
+            TextView infoText = (TextView) findViewById(R.id.playlist_info_header);
+            final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, mPlaylist.track_count, mPlaylist.track_count);
+            final String duration = ScTextUtils.formatTimestamp(mPlaylist.duration);
+            infoText.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
+
             return true;
 
         } else {
-            Log.e(SoundCloudApplication.TAG,"Playlist not found: " + mPlaylistUri.toString());
+            Log.e(SoundCloudApplication.TAG,"Playlist not found: " + (mPlaylistUri == null ? "null" : mPlaylistUri.toString()));
             finish();
             return false;
         }

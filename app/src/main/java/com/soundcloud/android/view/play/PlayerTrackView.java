@@ -20,11 +20,11 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.PlayableActionButtonsController;
 import com.soundcloud.android.view.adapter.PlayableBar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -32,11 +32,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
-import android.view.accessibility.AccessibilityManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -66,18 +64,17 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
     private ImageLoader.BindResult mCurrentAvatarBindResult;
 
-    private Track mTrack;
+    private @NotNull Track mTrack;
     private int mQueuePosition;
     private long mDuration;
     private final boolean mLandscape;
     private boolean mOnScreen;
     private boolean mIsCommenting;
 
-    private ToggleButton mToggleLike;
     private ToggleButton mToggleComment;
-    private ToggleButton mToggleRepost;
     private ToggleButton mToggleInfo;
-    private ImageButton mShareButton;
+
+    private PlayableActionButtonsController mActionButtons;
 
     private SoftReference<Drawable> mArtworkBgDrawable;
 
@@ -136,24 +133,8 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
         findViewById(R.id.private_indicator).setVisibility(View.GONE);
 
-        mToggleLike = (ToggleButton) findViewById(R.id.toggle_like);
-        mToggleLike.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mPlayer.toggleLike(mTrack);
-            }
-        });
-
-        mToggleRepost = (ToggleButton) findViewById(R.id.toggle_repost);
-        mToggleRepost.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mPlayer.toggleRepost(mTrack);
-            }
-        });
-
         mToggleComment = (ToggleButton) findViewById(R.id.toggle_comment);
-        mToggleComment.setOnClickListener(new OnClickListener() {
+        mToggleComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 setCommentMode(mToggleComment.isChecked(), true);
@@ -162,7 +143,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
         mToggleInfo = (ToggleButton) findViewById(R.id.toggle_info);
         if (mToggleInfo != null) {
-            mToggleInfo.setOnClickListener(new OnClickListener() {
+            mToggleInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (mTrackFlipper != null) {
@@ -172,18 +153,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             });
         }
 
-        mShareButton = (ImageButton) findViewById(R.id.btn_share);
-        mShareButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mTrack != null) {
-                    Intent shareIntent = mTrack.getShareIntent();
-                    if (shareIntent != null) {
-                        mPlayer.startActivity(shareIntent);
-                    }
-                }
-            }
-        });
+        mActionButtons = new PlayableActionButtonsController(this);
 
         ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
         mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
@@ -195,18 +165,12 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         mWaveformController.setOnScreen(onScreen);
     }
 
-    public void setTrack(@Nullable Track track, int queuePosition, boolean forceUpdate, boolean priority) {
-        mQueuePosition = queuePosition;
-
+    public void setTrack(@NotNull Track track, int queuePosition, boolean forceUpdate, boolean priority) {
         final boolean changed = mTrack != track;
         if (!(forceUpdate || changed)) return;
 
+        mQueuePosition = queuePosition;
         mTrack = track;
-        if (mTrack == null) {
-            mShareButton.setVisibility(View.GONE);
-            mWaveformController.clearTrackComments();
-            return;
-        }
 
         if (changed && !mLandscape) updateArtwork(priority);
         mWaveformController.updateTrack(mTrack, queuePosition, priority);
@@ -219,14 +183,8 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             mDuration = mTrack.duration;
         }
 
-
-        setLikes(mTrack.likes_count, mTrack.user_like);
-        setReposts(mTrack.reposts_count, mTrack.user_repost);
+        mActionButtons.update(track);
         setCommments(mTrack.comment_count, mIsCommenting);
-
-        mShareButton.setVisibility(mTrack.isPublic() ? View.VISIBLE : View.GONE);
-
-        setAssociationStatus();
 
         if ((mTrack.isWaitingOnState() || mTrack.isStreamable()) && mTrack.last_playback_error == -1) {
             hideUnplayable();
@@ -251,74 +209,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         }
     }
 
-    private void setLikes(int count, boolean userLiked) {
-        updateButton(mToggleLike,
-                     R.string.accessibility_like_action,
-                     R.plurals.accessibility_stats_likes,
-                     count,
-                     userLiked,
-                     R.string.accessibility_stats_user_liked);
-    }
-
-    private void setReposts(int count, boolean userReposted) {
-        updateButton(mToggleRepost,
-                     R.string.accessibility_repost_action,
-                     R.plurals.accessibility_stats_reposts,
-                     count,
-                     userReposted,
-                     R.string.accessibility_stats_user_reposted);
-    }
-
-    private void setCommments(int count, boolean userCommented) {
-        updateButton(mToggleComment,
-                     R.string.accessibility_comment_action,
-                     R.plurals.accessibility_stats_comments,
-                     count,
-                     userCommented,
-                     R.string.accessibility_stats_user_commented);
-    }
-
-    private String labelForCount(int count) {
-        if (count < 0) {
-            return "\u2014";
-        } else if (count == 0) {
-            return "";
-        } else {
-            return String.valueOf(count);
-        }
-    }
-
-    private void updateButton(ToggleButton button, int actionStringID, int descriptionPluralID, int count) {
-        updateButton(button, actionStringID, descriptionPluralID, count, false, 0);
-    }
-
-    private void updateButton(ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked, int checkedStringId) {
-        button.setTextOn(labelForCount(count));
-        button.setTextOff(labelForCount(count));
-        button.setChecked(checked);
-        button.invalidate();
-
-        AccessibilityManager accessibilityManager = (AccessibilityManager) getContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
-        if (accessibilityManager.isEnabled()) {
-            final StringBuilder builder = new StringBuilder();
-            builder.append(getContext().getResources().getString(actionStringID));
-
-            if (count >= 0) {
-                builder.append(", ");
-                builder.append(getContext().getResources().getQuantityString(descriptionPluralID, count, count));
-            }
-
-            if (checked) {
-                builder.append(", ");
-                builder.append(getContext().getResources().getString(checkedStringId));
-            }
-
-            button.setContentDescription(builder.toString());
-        }
-    }
-
     private void refreshComments() {
-        if (mTrack == null) return;
         if (AndroidUtils.isTaskFinished(mTrack.load_comments_task)) {
             mTrack.load_comments_task = new LoadCommentsTask(mPlayer.getApp());
         }
@@ -329,7 +220,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     }
 
     public void onCommentsLoaded(long track_id, List<Comment> comments){
-        if (mTrack != null && mTrack.id == track_id){
+        if (mTrack.id == track_id){
             mTrack.comments = comments;
             mWaveformController.setComments(mTrack.comments, true);
         }
@@ -437,9 +328,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         if (showDetails && trackFlipper.getDisplayedChild() == 0) {
             if (mIsCommenting) setCommentMode(false, true);
 
-            if (mTrack != null) {
-                mPlayer.track(Page.Sounds_info__main, mTrack);
-            }
+            mPlayer.track(Page.Sounds_info__main, mTrack);
             mWaveformController.closeComment(false);
             if (mTrackDetailsView == null) {
                 mTrackDetailsView = new PlayerTrackDetails(mPlayer);
@@ -448,21 +337,19 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
             // according to this logic, we will only load the info if we haven't yet or there was an error
             // there is currently no manual or stale refresh logic
-            if (mTrack != null) {
-                if (mTrack.shouldLoadInfo()) {
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!mPlayer.isFinishing()) {
-                                mPlayer.startService(new Intent(CloudPlaybackService.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrack.id));
-                            }
+            if (mTrack.shouldLoadInfo()) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!mPlayer.isFinishing()) {
+                            mPlayer.startService(new Intent(CloudPlaybackService.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrack.id));
                         }
-                    }, 400); //flipper animation time is 250, so this should be enough to allow the animation to end
+                    }
+                }, 400); //flipper animation time is 250, so this should be enough to allow the animation to end
 
-                    mTrackDetailsView.fillTrackDetails(mTrack, true);
-                } else {
-                    mTrackDetailsView.fillTrackDetails(mTrack);
-                }
+                mTrackDetailsView.fillTrackDetails(mTrack, true);
+            } else {
+                mTrackDetailsView.fillTrackDetails(mTrack);
             }
 
             trackFlipper.setInAnimation(AnimUtils.inFromRightAnimation(new AccelerateDecelerateInterpolator()));
@@ -485,13 +372,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
         if (mCurrentAvatarBindResult == ImageLoader.BindResult.ERROR) {
             updateAvatar(mOnScreen);
-        }
-    }
-
-    private void setAssociationStatus() {
-        if (mTrack != null){
-            mToggleLike.setChecked(mTrack.user_like);
-            mToggleRepost.setChecked(mTrack.user_repost);
         }
     }
 
@@ -592,7 +472,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     }
 
     public void handleIdBasedIntent(Intent intent) {
-        if (mTrack != null && mTrack.id == intent.getLongExtra("id", -1)) handleStatusIntent(intent);
+        if (mTrack.id == intent.getLongExtra("id", -1)) handleStatusIntent(intent);
     }
 
     public void handleStatusIntent(Intent intent) {
@@ -601,21 +481,20 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
             if (intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isSupposedToBePlaying, false)) {
                 hideUnplayable();
-                if (mTrack != null) mTrack.last_playback_error = -1;
+                mTrack.last_playback_error = -1;
             } else {
                 mWaveformController.setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
             }
 
         } else if (Playable.ACTION_TRACK_ASSOCIATION_CHANGED.equals(action)) {
-            if (mTrack != null && mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
+            if (mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
                 mTrack.user_like = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false);
                 mTrack.user_repost = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isRepost, false);
-                setLikes(mTrack.likes_count, mTrack.user_like);
-                setReposts(mTrack.reposts_count, mTrack.user_repost);
+                mActionButtons.update(mTrack);
             }
 
         } else if (Playable.COMMENTS_UPDATED.equals(action)) {
-            if (mTrack != null && mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
+            if (mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
                 onCommentsChanged();
             }
 
@@ -678,6 +557,14 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         if (mTrack.comments != null) mWaveformController.setComments(mTrack.comments, false, true);
     }
 
+    private void setCommments(int count, boolean userCommented) {
+        mActionButtons.update(mToggleComment,
+                R.string.accessibility_comment_action,
+                R.plurals.accessibility_stats_comments,
+                count,
+                userCommented,
+                R.string.accessibility_stats_user_commented);
+    }
 
     public void setProgress(long pos, int loadPercent, boolean showSmoothProgress) {
         if (pos >= 0 && mDuration > 0) {
@@ -713,7 +600,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     }
 
     public long getTrackId() {
-        return mTrack == null ? -1 : mTrack.id;
+        return mTrack.id;
     }
 
     public void clear() {
@@ -725,7 +612,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         mWaveformController.setOnScreen(false);
     }
 
-    @Nullable public Track getTrack() {
+    public Track getTrack() {
         return mTrack;
     }
 
