@@ -2,11 +2,19 @@ package com.soundcloud.android.fragment;
 
 import com.handmark.pulltorefresh.extras.listfragment.PullToRefreshListFragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.PlaylistTracksAdapter;
+import com.soundcloud.android.model.PlayInfo;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.utils.PlayUtils;
+import com.soundcloud.android.view.ScListView;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -15,6 +23,12 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlaylistTracksFragment extends PullToRefreshListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
         PullToRefreshBase.OnRefreshListener {
@@ -35,6 +49,11 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
     }
 
     @Override
+    protected PullToRefreshListView onCreatePullToRefreshListView(LayoutInflater inflater, Bundle savedInstanceState) {
+        return new ScListView(getActivity());
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -42,6 +61,17 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
         Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(mPlaylistUri);
         mContentUri = Content.PLAYLIST_TRACKS.forId(p.id);
         getLoaderManager().initLoader(PLAYER_LIST_LOADER, null, this);
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+
+        PlayInfo info = new PlayInfo();
+        info.initialTrack = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
+        info.uri = mContentUri;
+        info.position = position;
+        PlayUtils.playTrack(getActivity(), info);
     }
 
     @Override
