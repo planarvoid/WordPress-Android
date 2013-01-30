@@ -22,8 +22,6 @@ import android.widget.TextView;
 
 public class PlaylistActivity extends ScActivity {
 
-    public static final String PLAYLIST_EXTRA = "com.soundcloud.android.playlist";
-
     private Uri mPlaylistUri;
     private PlayableBar mPlaylistBar;
     private PlayableActionButtonsController mActionButtons;

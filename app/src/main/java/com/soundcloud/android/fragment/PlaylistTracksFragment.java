@@ -5,7 +5,6 @@ import com.soundcloud.android.adapter.PlaylistTracksAdapter;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.view.EmptyListView;
 
 import android.content.Intent;
 import android.database.Cursor;
