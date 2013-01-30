@@ -13,6 +13,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -32,8 +33,9 @@ public class PlayableBar extends IconLayout {
     protected TextView mTitle;
     protected TextView mUser;
     protected TextView mCreatedAt;
-    protected StatsView mStatsView;
-    protected TextView mPrivateIndicator;
+    // these two views don't exist for playlists
+    protected @Nullable StatsView mStatsView;
+    protected @Nullable TextView mPrivateIndicator;
 
     public PlayableBar(Context context) {
         this(context, null);
@@ -84,7 +86,9 @@ public class PlayableBar extends IconLayout {
             mStatsView.updateWithPlayable(playable, shouldShowFullStats());
         }
 
-        setupPrivateIndicator(playable);
+        if (mPrivateIndicator != null) {
+            setupPrivateIndicator(playable);
+        }
     }
 
     private void setupPrivateIndicator(Playable playable) {
