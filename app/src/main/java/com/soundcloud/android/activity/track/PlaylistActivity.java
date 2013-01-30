@@ -83,6 +83,7 @@ public class PlaylistActivity extends ScActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        getContentResolver().unregisterContentObserver(mPlaylistObserver);
     }
 
     @Override
