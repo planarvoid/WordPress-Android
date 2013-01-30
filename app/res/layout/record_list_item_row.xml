@@ -43,7 +43,7 @@
                   android:layout_marginRight="5dip"
                   android:paddingRight="0dip"
                   android:text=""/>
-        <TextView android:id="@+id/private_indicator"
+        <TextView android:id="@+id/playable_private_indicator"
                   android:singleLine="true"
                   android:ellipsize="none"
                   android:layout_marginTop="3dip"

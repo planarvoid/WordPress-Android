@@ -32,7 +32,6 @@ import android.widget.TextView;
  */
 public class PlayableRow extends PlayableBar implements ListRow {
 
-    protected TextView mPrivateIndicator;
     protected TextView mReposter;
     protected TextView mTrackCount;
 
@@ -41,7 +40,6 @@ public class PlayableRow extends PlayableBar implements ListRow {
 
     public PlayableRow(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
         mReposter = (TextView) findViewById(R.id.playable_reposter);
         mTrackCount = (TextView) findViewById(R.id.playable_track_count);
     }
@@ -77,7 +75,6 @@ public class PlayableRow extends PlayableBar implements ListRow {
 
         Playable playable = mPlayableHolder.getPlayable();
         setupReposter();
-        setupPrivateIndicator(playable);
         setupProcessingIndicator(playable);
 
         // makes the row slightly transparent if not playable
@@ -100,28 +97,6 @@ public class PlayableRow extends PlayableBar implements ListRow {
             }
         } else if (findViewById(R.id.processing_progress) != null) {
             findViewById(R.id.processing_progress).setVisibility(View.GONE);
-        }
-    }
-
-    private void setupPrivateIndicator(Playable playable) {
-        if (playable.isPublic()) {
-            mPrivateIndicator.setVisibility(View.GONE);
-        } else {
-            if (playable.shared_to_count <= 0) {
-                mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
-                mPrivateIndicator.setText(R.string.tracklist_item_shared_count_unavailable);
-            } else if (playable.shared_to_count == 1){
-                mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
-                mPrivateIndicator.setText(playable.user_id == SoundCloudApplication.getUserId() ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
-            } else {
-                if (playable.shared_to_count < 8){
-                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
-                } else {
-                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_gray_states);
-                }
-                mPrivateIndicator.setText(getContext().getString(R.string.tracklist_item_shared_with_x_people, playable.shared_to_count));
-            }
-            mPrivateIndicator.setVisibility(View.VISIBLE);
         }
     }
 

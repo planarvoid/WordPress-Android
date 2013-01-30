@@ -34,7 +34,7 @@ public class MyTracklistRow extends PlayableRow {
         super(activity);
         mTitle = (TextView) findViewById(R.id.track);
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
-        mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
+        mPrivateIndicator = (TextView) findViewById(R.id.playable_private_indicator);
 
     }
 
