@@ -131,7 +131,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
         if (mArtworkOverlay != null) mArtworkOverlay.setOnClickListener(closeCommentListener);
 
-        findViewById(R.id.private_indicator).setVisibility(View.GONE);
+        findViewById(R.id.playable_private_indicator).setVisibility(View.GONE);
 
         mToggleComment = (ToggleButton) findViewById(R.id.toggle_comment);
         mToggleComment.setOnClickListener(new View.OnClickListener() {

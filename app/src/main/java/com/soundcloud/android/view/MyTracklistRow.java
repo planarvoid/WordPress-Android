@@ -19,23 +19,19 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
-import android.widget.TextView;
 
 import java.io.IOException;
 
+// TODO: Ugly as FUCK. This class overrides practically everything from its super classes.
+// It doesn't even operate on a Playable. Could make nicer by wrapping the Recording in PlayableAdapter.
 public class MyTracklistRow extends PlayableRow {
-    private TextView mTitle;
-    private TextView mCreatedAt;
-    private TextView mPrivateIndicator;
     private Drawable mPrivateBgDrawable;
     private Drawable mVeryPrivateBgDrawable;
 
+    private Recording mRecording;
+
     public MyTracklistRow(Context activity) {
         super(activity);
-        mTitle = (TextView) findViewById(R.id.track);
-        mCreatedAt = (TextView) findViewById(R.id.track_created_at);
-        mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
-
     }
 
     @Override
@@ -59,7 +55,17 @@ public class MyTracklistRow extends PlayableRow {
         return mVeryPrivateBgDrawable;
     }
 
-     @Override
+    @Override
+    protected void setTitle() {
+        mTitle.setText(mRecording.sharingNote(getResources()));
+    }
+
+    @Override
+    public void setTitle(boolean pressed) {
+        setTitle();
+    }
+
+    @Override
     public void display(Cursor cursor) {
         display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor));
     }
@@ -70,19 +76,19 @@ public class MyTracklistRow extends PlayableRow {
             return;
         }
 
-        Recording recording = ((Recording) p);
+        mRecording = ((Recording) p);
 
-        mTitle.setText(recording.sharingNote(getResources()));
+        setTitle();
 
-        if (!recording.is_private) {
+        if (!mRecording.is_private) {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
-            if (!TextUtils.isEmpty(recording.getRecipientUsername())){
+            if (!TextUtils.isEmpty(mRecording.getRecipientUsername())){
                 mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
-                mPrivateIndicator.setText(recording.getRecipientUsername());
+                mPrivateIndicator.setText(mRecording.getRecipientUsername());
             } else {
-                final int sharedToCount = TextUtils.isEmpty(recording.shared_emails) ? 0
-                        : recording.shared_emails.split(",").length;
+                final int sharedToCount = TextUtils.isEmpty(mRecording.shared_emails) ? 0
+                        : mRecording.shared_emails.split(",").length;
                 if (sharedToCount < 8){
                     mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
                 } else {
@@ -97,11 +103,11 @@ public class MyTracklistRow extends PlayableRow {
         }
 
         mCreatedAt.setTextColor(getContext().getResources().getColor(R.color.listTxtRecSecondary));
-        mCreatedAt.setText(recording.getStatus(getContext().getResources()));
+        mCreatedAt.setText(mRecording.getStatus(getContext().getResources()));
 
-        loadIcon(recording);
+        loadIcon(mRecording);
 
-        if (recording.isUploading()) {
+        if (mRecording.isUploading()) {
             if (findViewById(R.id.processing_progress) != null) {
                 findViewById(R.id.processing_progress).setVisibility(View.VISIBLE);
             } else {

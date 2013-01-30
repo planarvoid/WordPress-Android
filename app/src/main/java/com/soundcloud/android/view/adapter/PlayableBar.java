@@ -5,6 +5,7 @@ import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
@@ -12,6 +13,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -31,7 +33,9 @@ public class PlayableBar extends IconLayout {
     protected TextView mTitle;
     protected TextView mUser;
     protected TextView mCreatedAt;
-    protected StatsView mStatsView;
+    // these two views don't exist for playlists
+    protected @Nullable StatsView mStatsView;
+    protected @Nullable TextView mPrivateIndicator;
 
     public PlayableBar(Context context) {
         this(context, null);
@@ -43,6 +47,7 @@ public class PlayableBar extends IconLayout {
         mUser = (TextView) findViewById(R.id.playable_user);
         mCreatedAt = (TextView) findViewById(R.id.playable_created_at);
         mStatsView = (StatsView) findViewById(R.id.stats);
+        mPrivateIndicator = (TextView) findViewById(R.id.playable_private_indicator);
 
         setViewId();
     }
@@ -79,6 +84,32 @@ public class PlayableBar extends IconLayout {
 
         if (mStatsView != null) {
             mStatsView.updateWithPlayable(playable, shouldShowFullStats());
+        }
+
+        if (mPrivateIndicator != null) {
+            setupPrivateIndicator(playable);
+        }
+    }
+
+    private void setupPrivateIndicator(Playable playable) {
+        if (playable.isPublic()) {
+            mPrivateIndicator.setVisibility(View.GONE);
+        } else {
+            if (playable.shared_to_count <= 0) {
+                mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
+                mPrivateIndicator.setText(R.string.tracklist_item_shared_count_unavailable);
+            } else if (playable.shared_to_count == 1){
+                mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
+                mPrivateIndicator.setText(playable.user_id == SoundCloudApplication.getUserId() ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
+            } else {
+                if (playable.shared_to_count < 8){
+                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
+                } else {
+                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_gray_states);
+                }
+                mPrivateIndicator.setText(getContext().getString(R.string.tracklist_item_shared_with_x_people, playable.shared_to_count));
+            }
+            mPrivateIndicator.setVisibility(View.VISIBLE);
         }
     }
 

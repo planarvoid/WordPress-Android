@@ -38,7 +38,10 @@ public class PlaylistActivity extends ScActivity {
 
         setContentView(R.layout.playlist_activity);
         mPlaylistUri = getIntent().getData();
+
         mPlaylistBar = (PlayableBar) findViewById(R.id.playable_bar);
+        mPlaylistBar.addTextShadows();
+
         mActionButtons = new PlayableActionButtonsController(mPlaylistBar);
 
         if (refreshPlaylistData() && savedInstanceState == null) setupTracksFragment();

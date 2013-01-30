@@ -460,6 +460,13 @@ public class ScContentProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
+            case RECORDING:
+                if (content.table.upsert(db, new ContentValues[] {values}) != -1) {
+                    getContext().getContentResolver().notifyChange(uri, null, false);
+                } else {
+                    log("Error inserting to uri " + uri.toString());
+                }
+                return uri;
             case RECORDINGS:
                 id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
                 if (id >= 0) {
