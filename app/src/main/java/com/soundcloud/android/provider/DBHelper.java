@@ -169,6 +169,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "playlist_id INTEGER, " +
             "track_id INTEGER," +
             "position INTEGER," +
+
             "PRIMARY KEY (track_id, position, playlist_id) ON CONFLICT IGNORE" +
             ");";
 

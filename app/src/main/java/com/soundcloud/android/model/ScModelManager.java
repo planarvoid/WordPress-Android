@@ -511,11 +511,7 @@ public class ScModelManager {
     }
 
     public int writeCollectionFromStream(InputStream is, ScResource.CacheUpdateMode updateMode) throws IOException {
-        return writeCollectionFromStream(is, null, -1, updateMode);
-    }
-
-    public int writeCollectionFromStream(InputStream is, Uri uri, long userId, ScResource.CacheUpdateMode updateMode) throws IOException {
-        return writeCollection(getCollectionFromStream(is).collection, uri, userId, updateMode);
+        return writeCollection(getCollectionFromStream(is).collection, updateMode);
     }
 
     public <T extends ScResource> int writeCollection(List<T> items, ScResource.CacheUpdateMode updateMode) {

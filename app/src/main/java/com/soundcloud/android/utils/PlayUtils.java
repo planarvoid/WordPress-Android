@@ -61,7 +61,7 @@ public final class PlayUtils {
     public static Track getTrackFromIntent(Intent intent){
         if (intent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferCache,false)){
             final int position = intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition,-1);
-            final List<Playable> list = CloudPlaybackService.playlistXfer;
+            final List<Track> list = CloudPlaybackService.playlistXfer;
             if (list != null && position > -1 && position < list.size() && list.get(position).getPlayable() instanceof Track){
                 return (Track) list.get(position).getPlayable();
             }
@@ -84,20 +84,20 @@ public final class PlayUtils {
             info.initialTrack = (Track) ((PlayableHolder) data.get(position)).getPlayable();
             info.uri = adapter.getPlayableUri();
 
-            List<Playable> playables = new ArrayList<Playable>(data.size());
+            List<Track> tracks = new ArrayList<Track>(data.size());
 
-            // Required for mixed adapters (e.g. mix of users and tracks, we only want playable items)
+            // Required for mixed adapters (e.g. mix of users and tracks, we only want tracks)
             int adjustedPosition = position;
             for (int i = 0; i < data.size(); i++) {
-                if (data.get(i) instanceof PlayableHolder) {
-                    playables.add(((PlayableHolder) data.get(i)).getPlayable());
+                if (data.get(i) instanceof PlayableHolder && ((PlayableHolder) data.get(i)).getPlayable() instanceof Track) {
+                    tracks.add((Track) ((PlayableHolder) data.get(i)).getPlayable());
                 } else if (i < position) {
                     adjustedPosition--;
                 }
             }
 
             info.position = adjustedPosition;
-            info.playables = playables;
+            info.playables = tracks;
 
             playTrack(c, info);
 
