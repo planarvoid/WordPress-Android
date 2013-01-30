@@ -9,6 +9,7 @@ import com.actionbarsherlock.widget.SearchView;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.track.PlaylistActivity;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -56,7 +57,6 @@ public class ActionBarController {
 
     private boolean mInSearchMode;
     private boolean mCloseSearchOnResume;
-    private View mBackToSet;
 
     public interface ActionBarOwner {
         @NotNull
@@ -373,6 +373,21 @@ public class ActionBarController {
                 } else {
                     getSearchView().setIconified(true);
                 }
+                return true;
+
+            case R.id.backToSet:
+                Intent intent = new Intent(mOwner.getActivity(), PlaylistActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
+                Uri uri = CloudPlaybackService.getUri();
+                if (Content.match(uri) == Content.PLAYLIST_TRACKS){
+                    intent.setData(Content.PLAYLIST.forId(Long.parseLong(uri.getPathSegments().get(uri.getPathSegments().size() - 2))));
+                } else if (Content.match(uri) == Content.PLAYLIST_TRACKS) {
+                    intent.setData(uri);
+                } else {
+                    return false;
+                }
+                mOwner.getActivity().startActivity(intent);
                 return true;
 
             default:
