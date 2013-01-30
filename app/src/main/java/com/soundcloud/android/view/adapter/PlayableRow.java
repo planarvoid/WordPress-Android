@@ -138,7 +138,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
         setTitle(isPressed());
     }
 
-    private void setTitle(boolean pressed) {
+    protected void setTitle(boolean pressed) {
         if (mPlayableHolder.getPlayable().id == CloudPlaybackService.getCurrentTrackId()) {
             if (mSpanBuilder == null) mSpanBuilder = new SpannableStringBuilder();
             mSpanBuilder.clear();
