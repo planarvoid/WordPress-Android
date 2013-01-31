@@ -57,6 +57,9 @@ public class SoundAssociationTest {
                 DefaultTestRunner.application.getContentResolver(), SoundAssociation.class, Content.ME_SOUNDS.uri);
 
         expect(newItems.size()).toEqual(41);
+
+        expect(Content.ME_PLAYLISTS).toHaveCount(3);
+
     }
 
     @Test

@@ -118,6 +118,16 @@ public class ScContentProvider extends ContentProvider {
 
                 break;
 
+            case ME_PLAYLISTS :
+                qb.setTables(soundAssociationJoin);
+                if (_columns == null) _columns = formatWithUser(fullSoundAssociationColumns, userId);
+
+                makeSoundAssociationSelection(qb, String.valueOf(userId),
+                        new int[]{CollectionItemTypes.TRACK, CollectionItemTypes.REPOST, CollectionItemTypes.PLAYLIST});
+                qb.appendWhere(" AND "+ DBHelper.SoundView._TYPE + "= " + Playable.DB_TYPE_PLAYLIST);
+                _sortOrder = makeCollectionSort(uri, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC");
+                break;
+
             case ME_TRACKS:
             case ME_LIKES:
             case ME_TRACK_REPOSTS:
