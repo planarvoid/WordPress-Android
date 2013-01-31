@@ -428,6 +428,13 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
+    <style name="btn_sc_transport_comment" parent="btn_sc_transport">
+        <item name="android:textOn"></item>
+        <item name="android:textOff"></item>
+        <item name="android:background">@drawable/ic_toggle_player_comment_states</item>
+        <item name="android:contentDescription">@string/accessibility_comment_action</item>
+    </style>
+
     <style name="btn_sc_widget">
         <item name="android:padding">0dip</item>
         <item name="android:layout_margin">0dip</item>
