@@ -173,4 +173,6 @@
         <item quantity="other">%d sounds</item>
     </plurals>
 
+    <string name="add_track_to_set">Add \'%s\' to</string>
+
 </resources>

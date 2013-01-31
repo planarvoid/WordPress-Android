@@ -9,6 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.dialog.MyPlaylistsDialogFragment;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
@@ -28,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -72,6 +74,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     private boolean mIsCommenting;
 
     private ToggleButton mToggleInfo;
+    private View mAddToSet;
 
     private PlayableActionButtonsController mActionButtons;
 
@@ -89,6 +92,15 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         mTrackInfoBar = (PlayableBar) findViewById(R.id.playable_bar);
         mTrackInfoBar.setEnabled(false);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
+
+        mAddToSet = findViewById(R.id.btn_addToSet);
+        mAddToSet.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MyPlaylistsDialogFragment.from(mTrack).show(
+                        mPlayer.getSupportFragmentManager(), "playlist_dialog");
+            }
+        });
 
         mTrackInfoBar.addTextShadows();
         mArtwork = (ImageView) findViewById(R.id.artwork);
