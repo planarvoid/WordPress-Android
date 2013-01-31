@@ -236,7 +236,8 @@ public class ScContentProvider extends ContentProvider {
                             userId);
                 }
                 if (_sortOrder == null){
-                    _sortOrder = DBHelper.PlaylistTracksView.PLAYLIST_POSITION + " ASC";
+                    _sortOrder = DBHelper.PlaylistTracksView.PLAYLIST_POSITION + " ASC, "
+                            + DBHelper.PlaylistTracksView.PLAYLIST_ADDED_AT + " DESC";
                 }
                 break;
 
@@ -456,6 +457,12 @@ public class ScContentProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
+            case PLAYLIST_TRACKS:
+                id = db.insert(content.table.name, null, values);
+                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                getContext().getContentResolver().notifyChange(result, null, false);
+                return result;
+
             case SEARCHES:
                 if (!values.containsKey(DBHelper.Searches.USER_ID)) {
                     values.put(DBHelper.Searches.USER_ID, userId);
@@ -464,6 +471,7 @@ public class ScContentProvider extends ContentProvider {
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
+
             case USERS:
                 id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
@@ -656,6 +664,7 @@ public class ScContentProvider extends ContentProvider {
                 return count;
 
             case TRACK_CLEANUP:
+                // TODO, Cleanup playlist tracks that haven't been pushed
                 long userId = SoundCloudApplication.getUserIdFromContext(getContext());
                 if (userId > 0){
                     where = "_id NOT IN ("
