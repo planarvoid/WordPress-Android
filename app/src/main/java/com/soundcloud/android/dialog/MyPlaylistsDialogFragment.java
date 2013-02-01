@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.view.ButtonBar;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -17,7 +18,10 @@ import android.os.Bundle;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.ContextThemeWrapper;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 
 public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
 
@@ -38,11 +42,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), android.R.style.Theme_Holo_Dialog));
-
-        builder.setTitle(
-                getString(R.string.add_track_to_set,getArguments().getString(KEY_TRACK_TITLE))
-        );
+        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.ScDialog));
 
         Cursor cursor = getActivity().getContentResolver().query(
                 Content.ME_PLAYLISTS.uri,
@@ -56,8 +56,8 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
                    if (columnIndex == cursor.getColumnIndex(DBHelper.PlaylistTracksView._ID)){
                        ImageView image = (ImageView) view;
                        image.setImageResource(cursor.getLong(columnIndex) == -1 ?
-                               R.drawable.ic_add_to_white :
-                               R.drawable.ic_user_tab_sounds);
+                               R.drawable.ic_new_set :
+                               R.drawable.ic_set);
 
                        return true;
 
@@ -75,13 +75,17 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
 
         adapter.setViewBinder(viewBinder);
 
-        builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                final long playlistId = adapter.getItemId(which);
+        final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_title_listview, null);
+        ((TextView) dialogView.findViewById(android.R.id.title)).setText(getString(R.string.add_track_to_set, getArguments().getString(KEY_TRACK_TITLE)));
+        ((ListView) dialogView.findViewById(android.R.id.list)).setAdapter(adapter);
 
-                if (playlistId == -1){
-                    CreateNewSetDialogFragment.from(getArguments().getLong(KEY_TRACK_ID)).show(getFragmentManager(),"create_new_set_dialog");
+        ((ListView) dialogView.findViewById(android.R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final long playlistId = adapter.getItemId(position);
+
+                if (playlistId == -1) {
+                    CreateNewSetDialogFragment.from(getArguments().getLong(KEY_TRACK_ID)).show(getFragmentManager(), "create_new_set_dialog");
                 } else {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID, playlistId);
@@ -91,17 +95,18 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
                     getActivity().getContentResolver().insert(Content.PLAYLIST_TRACKS.forId(playlistId), cv);
                 }
                 // we done
-                dialog.dismiss();
+                getDialog().dismiss();
             }
         });
 
-        builder.setNegativeButton(getString(R.string.cancel),
-                new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Cancel",new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
+
+        builder.setView(dialogView);
 
         return builder.create();
 
