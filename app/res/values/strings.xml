@@ -174,5 +174,6 @@
     </plurals>
 
     <string name="add_track_to_set">Add \'%s\' to</string>
+    <string name="create_new_set">Create new set</string>
 
 </resources>
