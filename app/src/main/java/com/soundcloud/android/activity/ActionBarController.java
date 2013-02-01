@@ -351,14 +351,17 @@ public class ActionBarController {
             if (menuResourceId > 0) mOwner.getSupportMenuInflater().inflate(menuResourceId, menu);
         }
 
-        boolean visible = false;
-        if ((mOwner.getActivity() instanceof ScPlayer)){
-            Uri uri = CloudPlaybackService.getUri();
-            if (uri != null && Content.match(uri) == Content.PLAYLIST_TRACKS) {
-                visible = true;
+        final MenuItem backToSetItem = menu.findItem(R.id.backToSet);
+        if (backToSetItem != null) {
+            boolean visible = false;
+            if ((mOwner.getActivity() instanceof ScPlayer)) {
+                Uri uri = CloudPlaybackService.getUri();
+                if (uri != null && Content.match(uri) == Content.PLAYLIST_TRACKS) {
+                    visible = true;
+                }
             }
+            backToSetItem.setVisible(visible);
         }
-        menu.findItem(R.id.backToSet).setVisible(visible);
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {

@@ -5,7 +5,7 @@
           android:showAsAction="always"
           android:title="@string/accessibility_action_bar_set"/>
     <item android:id="@+id/enter_search"
-          android:icon="@drawable/search_white"
+          android:icon="@drawable/ic_action_search"
           android:showAsAction="always"
           android:title="@string/accessibility_search"/>
 </menu>
