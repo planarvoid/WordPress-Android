@@ -13,7 +13,7 @@ import android.widget.EditText;
 
 public class CreateNewSetDialogFragment extends SherlockDialogFragment {
 
-    public static String KEY_TRACK_ID = "TRACK_ID";
+    public static final String KEY_TRACK_ID = "TRACK_ID";
 
     public static CreateNewSetDialogFragment from(long trackId) {
 

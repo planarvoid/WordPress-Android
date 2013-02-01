@@ -21,8 +21,8 @@ import android.widget.ImageView;
 
 public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
 
-    public static String KEY_TRACK_ID = "TRACK_ID";
-    public static String KEY_TRACK_TITLE = "TRACK_TITLE";
+    public static final String KEY_TRACK_ID = "TRACK_ID";
+    public static final String KEY_TRACK_TITLE = "TRACK_TITLE";
 
     public static MyPlaylistsDialogFragment from(Track track){
 
