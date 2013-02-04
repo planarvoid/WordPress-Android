@@ -3,9 +3,5 @@
     <item android:state_pressed="true" android:drawable="@drawable/action_bar_item_background_pressed"></item>
     <item android:state_selected="true" android:drawable="@drawable/action_bar_item_background_selected" />
     <item android:state_focused="true" android:drawable="@drawable/action_bar_item_background_selected" />
-    <item>
-        <bitmap android:src="@drawable/header_separator"
-                android:gravity="left|center_vertical"
-                android:tileMode="clamp"/>
-    </item>
+    <item android:drawable="@drawable/header_separator" />
 </selector>

@@ -66,6 +66,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static @Nullable PlayQueueManager getPlaylistManager() { return instance == null ? null : instance.getPlayQueueManager(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
     public static int getLoadingPercent() { return instance == null ? -1 : instance.loadPercent(); }
+    public static Uri getUri(){
+        if (instance == null) return null;
+        return instance.getPlayQueueManager().getUri();
+    }
 
     private static State state = STOPPED;
     public static State getState() { return state; }
@@ -1010,19 +1014,19 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         } else if (intent.hasExtra(EXTRA_TRACK_ID)) {
             mPlayQueueManager.setTrackById(intent.getLongExtra(EXTRA_TRACK_ID, -1l));
             openCurrent();
-        } else if (intent.getData() != null) {
-            mPlayQueueManager.loadUri(intent.getData(),
-                    intent.getIntExtra(PlayExtras.playPosition, 0),
-                    intent.getLongExtra(PlayExtras.trackId, -1)
-            );
-            openCurrent();
-        } else if (intent.getBooleanExtra(PlayExtras.playFromXferCache, false)) {
-            mPlayQueueManager.setPlayQueue(playlistXfer, intent.getIntExtra(PlayExtras.playPosition, 0));
-            playlistXfer = null;
-            openCurrent();
-        } else if (!mPlayQueueManager.isEmpty() || configureLastPlaylist()){
-            // random play intent, play whatever we had last
-            play();
+        } else {
+            final int position = intent.getIntExtra(PlayExtras.playPosition, 0);
+            if (intent.getData() != null) {
+                mPlayQueueManager.loadUri(intent.getData(), position, playlistXfer, position);
+                openCurrent();
+            } else if (intent.getBooleanExtra(PlayExtras.playFromXferCache, false)) {
+                mPlayQueueManager.setPlayQueue(playlistXfer, position);
+                playlistXfer = null;
+                openCurrent();
+            } else if (!mPlayQueueManager.isEmpty() || configureLastPlaylist()){
+                // random play intent, play whatever we had last
+                play();
+            }
         }
     }
 
