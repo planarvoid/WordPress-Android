@@ -29,6 +29,7 @@ public class PlaylistActivity extends ScActivity {
     public static void start(Context context, @NotNull Playlist playlist) {
         Intent intent = new Intent(context, PlaylistActivity.class);
         intent.setData(playlist.toUri());
+        SoundCloudApplication.MODEL_MANAGER.cache(playlist);
         context.startActivity(intent);
     }
 
