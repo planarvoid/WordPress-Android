@@ -176,6 +176,10 @@
     </plurals>
 
     <string name="add_track_to_set">Add \'%s\' to...</string>
+    <string name="creating_set">Creating set \'%s\'</string>
     <string name="create_new_set">Create new set</string>
+    <string name="error_creating_new_set">There was an error creating the set, please try again later.</string>
+    <string name="add_set_private">Private</string>
+    <string name="add_set_public">Public</string>
 
 </resources>

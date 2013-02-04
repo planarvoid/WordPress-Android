@@ -416,10 +416,12 @@ public class ScModelManager {
     }
 
     public ScResource cacheAndWrite(ScResource resource, ScResource.CacheUpdateMode mode) {
-        if (resource instanceof Track){
-            return cacheAndWrite(((Track) resource),mode);
-        } else if (resource instanceof User){
-            return cacheAndWrite(((User) resource),mode);
+        if (resource instanceof Track) {
+            return cacheAndWrite(((Track) resource), mode);
+        } else if (resource instanceof User) {
+            return cacheAndWrite(((User) resource), mode);
+        } else if (resource instanceof Playlist) {
+            return cacheAndWrite(((Playlist) resource), mode);
         }
         return resource;
     }
@@ -439,6 +441,14 @@ public class ScModelManager {
             write(user);
         }
         return user;
+    }
+
+    public Playlist cacheAndWrite(Playlist playlist, ScResource.CacheUpdateMode mode) {
+        if (playlist != null) {
+            playlist = cache(playlist, mode);
+            write(playlist);
+        }
+        return playlist;
     }
 
     private List<ScResource> doBatchLookup(AndroidCloudAPI api, List<Long> ids, String path) throws IOException {

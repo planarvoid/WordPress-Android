@@ -2,7 +2,6 @@ package com.soundcloud.android.dialog;
 
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Track;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -11,6 +10,7 @@ import android.os.Bundle;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 
 public class CreateNewSetDialogFragment extends SherlockDialogFragment {
@@ -32,12 +32,14 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), android.R.style.Theme_Holo_Dialog));
 
-        final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_title_textview, null);
+        final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_create_new_set, null);
         ((TextView) dialogView.findViewById(android.R.id.title)).setText(R.string.create_new_set);
 
         // Set an EditText view to get user input
         final EditText input = (EditText) dialogView.findViewById(android.R.id.edit);
         builder.setView(dialogView);
+
+        final Switch privacy = ((Switch) dialogView.findViewById(R.id.privacy_switch));
 
         builder.setNegativeButton(R.string.cancel,new DialogInterface.OnClickListener() {
             @Override
@@ -48,7 +50,8 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
         builder.setPositiveButton(R.string.done,new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //todo, add set logic
+                AddSetProgressDialog.from(getArguments().getLong(KEY_TRACK_ID), String.valueOf(input.getText()), !privacy.isChecked())
+                        .show(getFragmentManager(), "add_set_progress");
                 dialog.dismiss();
             }
         });
