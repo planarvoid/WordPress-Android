@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+import com.soundcloud.android.activity.ActionBarController;
 import com.soundcloud.android.cache.WaveformCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
@@ -26,7 +27,7 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.widget.ProgressBar;
 
-public class NowPlayingIndicator extends ProgressBar {
+public class NowPlayingIndicator extends ProgressBar implements ActionBarController.PlaybackIntentReceiver{
     private static final int REFRESH = 1;
 
     private static final int TOP_ORANGE       = 0xFFFF4400;
@@ -53,8 +54,6 @@ public class NowPlayingIndicator extends ProgressBar {
     private Paint mBottomGrey;
 
     private Rect mCanvasRect;
-
-    private boolean mListening;
 
     private int mAdjustedWidth;
     private WaveformController.WaveformState mWaveformState;
@@ -109,30 +108,10 @@ public class NowPlayingIndicator extends ProgressBar {
         setIndeterminate(false);
     }
 
-    void startListening() {
-        if (!mListening) {
-            mListening = true;
-            IntentFilter f = new IntentFilter();
-            f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
-            f.addAction(CloudPlaybackService.META_CHANGED);
-            f.addAction(CloudPlaybackService.SEEK_COMPLETE);
-            f.addAction(CloudPlaybackService.SEEKING);
-            getContext().registerReceiver(mStatusListener, new IntentFilter(f));
-        }
-    }
-
-    void stopListening(){
-        if (mListening){
-            getContext().unregisterReceiver(mStatusListener);
-        }
-        mListening = false;
-    }
-
     public void resume() {
         // Update the current track
         setCurrentTrack();
         startRefreshing();
-        startListening();
     }
 
     private void startRefreshing() {
@@ -200,7 +179,6 @@ public class NowPlayingIndicator extends ProgressBar {
 
     public void pause(){
         stopRefreshing();
-        stopListening();
     }
 
     public void destroy(){
@@ -334,5 +312,22 @@ public class NowPlayingIndicator extends ProgressBar {
         }
 
         return mask;
+    }
+
+    public void onReceive(Intent intent) {
+        String action = intent.getAction();
+        if (action.equals(CloudPlaybackService.META_CHANGED)) {
+            setCurrentTrack();
+
+        } else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
+            if (intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false)) {
+                startRefreshing();
+            } else {
+                stopRefreshing();
+            }
+
+        } else if (action.equals(CloudPlaybackService.SEEK_COMPLETE) || action.equals(CloudPlaybackService.SEEKING)) {
+            if (CloudPlaybackService.getState().isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
+        }
     }
 }

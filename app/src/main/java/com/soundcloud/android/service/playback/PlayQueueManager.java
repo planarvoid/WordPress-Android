@@ -205,8 +205,8 @@ public class PlayQueueManager {
             mPlayQueue.clear();
             mPlayPos = 0;
         }
-        mPlayQueueUri = new PlayQueueUri(uri);
 
+        mPlayQueueUri = new PlayQueueUri(uri);
         if (uri != null) {
             loadCursor(uri, position);
         }
