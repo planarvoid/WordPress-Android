@@ -170,7 +170,6 @@ public class Playlist extends Playable {
         @JsonView(Views.Full.class) String title;
         @JsonView(Views.Full.class) String sharing;
         @JsonView(Views.Full.class) List<ScModel> tracks;
-
         public ApiCreateObject(String title, long trackId, boolean isPrivate) {
             this.title = title;
             this.sharing =  isPrivate ? Params.Track.PRIVATE : Params.Track.PUBLIC;
@@ -186,15 +185,16 @@ public class Playlist extends Playable {
     @JsonRootName("playlist")
     public static class ApiUpdateObject {
         @JsonView(Views.Full.class) List<ScModel> tracks;
+
         public ApiUpdateObject(List<Track> tracks) {
             this.tracks = new ArrayList<ScModel>();
-            for (Track track : tracks) {
+            for (Track track : tracks){
                 this.tracks.add(new ScModel(track.id));
             }
         }
 
         public String toJson(ObjectMapper mapper) throws IOException {
-            return mapper.writeValueAsString(mapper);
+            return mapper.writeValueAsString(this);
         }
     }
 }
