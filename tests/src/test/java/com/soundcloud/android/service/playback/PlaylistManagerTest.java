@@ -202,10 +202,11 @@ public class PlaylistManagerTest {
         insertLikes();
         pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
         expect(pm.getCurrentTrack().id).toEqual(56142962l);
+        expect(pm.getPosition()).toEqual(0);
         pm.saveQueue(1000l);
         expect(pm.reloadQueue()).toEqual(1000l);
         expect(pm.getCurrentTrackId()).toEqual(56142962l);
-        expect(pm.getPosition()).toEqual(1);
+        expect(pm.getPosition()).toEqual(0);
     }
 
     @Test
@@ -216,7 +217,7 @@ public class PlaylistManagerTest {
         pm.saveQueue(1000l);
         expect(pm.reloadQueue()).toEqual(1000l);
         expect(pm.getCurrentTrackId()).toEqual(56142962l);
-        expect(pm.getPosition()).toEqual(1);
+        expect(pm.getPosition()).toEqual(0);
 
         // test overwrite
         expect(pm.next()).toBeTrue();
@@ -224,7 +225,7 @@ public class PlaylistManagerTest {
         pm.saveQueue(2000l);
         expect(pm.reloadQueue()).toEqual(2000l);
         expect(pm.getCurrentTrackId()).toEqual(56143158l);
-        expect(pm.getPosition()).toEqual(2);
+        expect(pm.getPosition()).toEqual(1);
     }
 
     @Test
@@ -238,7 +239,7 @@ public class PlaylistManagerTest {
 
         expect(pm.reloadQueue()).toEqual(1000l);
         expect(pm.getCurrentTrackId()).toEqual(56143158l);
-        expect(pm.getPosition()).toEqual(2);
+        expect(pm.getPosition()).toEqual(1);
     }
 
     @Test
@@ -248,7 +249,7 @@ public class PlaylistManagerTest {
         expect(pm.getCurrentTrack().id).toEqual(56142962l);
         expect(pm.next()).toBeTrue();
         expect(pm.getPlayQueueState(123L)).toEqual(
-          Content.ME_LIKES.uri + "?trackId=56143158&playlistPos=2&seekPos=123"
+          Content.ME_LIKES.uri + "?trackId=56143158&playlistPos=1&seekPos=123"
         );
     }
 
