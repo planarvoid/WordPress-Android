@@ -8,7 +8,7 @@
     <TextView android:id="@android:id/title"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              style="?android:attr/textAppearanceLargeInverse"
+              style="?android:attr/textAppearanceLarge"
               android:minHeight="@dimen/abs__alert_dialog_title_height"
               android:paddingLeft="16dip"
               android:paddingRight="16dip"
@@ -27,14 +27,12 @@
 
         <EditText android:id="@android:id/edit"
                   android:layout_margin="5dp"
-                  style="?android:attr/textAppearanceInverse"
-                  android:layout_weight="1"
-                  android:textCursorDrawable="@null"
-                  android:layout_width="0dp"
+                  style="?android:attr/textAppearance"
+                  android:layout_width="match_parent"
                   android:layout_height="wrap_content">
         </EditText>
         <CheckBox android:id="@+id/chk_private"
-                android:layout_margin="5dp"
+                android:layout_margin="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/add_set_private"/>
