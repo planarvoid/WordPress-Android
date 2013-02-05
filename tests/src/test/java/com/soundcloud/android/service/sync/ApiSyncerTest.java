@@ -153,7 +153,7 @@ public class ApiSyncerTest {
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
-        expect(Content.TRACKS).toHaveCount(2);
+        expect(Content.TRACKS).toHaveCount(4);
         expect(Content.ME_LIKES).toHaveCount(3);
     }
 
@@ -171,7 +171,7 @@ public class ApiSyncerTest {
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
-        expect(Content.TRACKS).toHaveCount(49);
+        expect(Content.TRACKS).toHaveCount(51);
         expect(Content.ME_SOUNDS).toHaveCount(50);
         expect(Content.ME_LIKES).toHaveCount(3);
     }

@@ -84,7 +84,7 @@ public class ScContentProviderTest {
         SoundAssociationHolder collection = readJson(SoundAssociationHolder.class,
                 "/com/soundcloud/android/service/sync/e1_likes.json");
 
-        expect(collection.insert(resolver)).toEqual(5);
+        expect(collection.insert(resolver)).toEqual(3);
 
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(3);
@@ -106,7 +106,7 @@ public class ScContentProviderTest {
         SoundAssociationHolder collection = readJson(SoundAssociationHolder.class,
                 "/com/soundcloud/android/provider/e1_sounds.json");
 
-        expect(collection.insert(resolver)).toEqual(51);
+        expect(collection.insert(resolver)).toEqual(50);
         Cursor c = resolver.query(Content.ME_SOUNDS.uri, null, null, null, null);
         expect(c.getCount()).toEqual(50);
 
