@@ -25,7 +25,7 @@ public class SoundAssociationTest {
 
         expect(soundItem.associationType).not.toBeNull();
         expect(soundItem.created_at).not.toBeNull();
-        expect(soundItem.track).not.toBeNull();
+        expect(soundItem.playable).not.toBeNull();
 
         Parcel p = Parcel.obtain();
         soundItem.writeToParcel(p, 0);
@@ -48,7 +48,7 @@ public class SoundAssociationTest {
         expect(sounds.size()).toEqual(41);
 
         expect(manager.writeCollection(sounds,
-                ScResource.CacheUpdateMode.NONE)).toEqual(44); // 38 tracks, 3 sets and 3 diff users
+                ScResource.CacheUpdateMode.NONE)).toEqual(41); // 38 tracks, 3 sets
 
         expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
                 Content.ME_SOUNDS.uri,0,50).size()).toEqual(41);
@@ -66,11 +66,11 @@ public class SoundAssociationTest {
     public void shouldProvideUniqueListItemId() throws Exception {
 
         SoundAssociation soundAssociation1 = new SoundAssociation();
-        soundAssociation1.track = new Track(123l);
+        soundAssociation1.playable = new Track(123l);
         soundAssociation1.setType(SoundAssociation.Type.TRACK.type);
 
         SoundAssociation soundAssociation2 = new SoundAssociation();
-        soundAssociation2.track = soundAssociation1.track;
+        soundAssociation2.playable = soundAssociation1.playable;
         soundAssociation2.setType(SoundAssociation.Type.TRACK_REPOST.type);
 
         expect(soundAssociation1.getListItemId()).not.toEqual(soundAssociation2.getListItemId());
@@ -81,6 +81,6 @@ public class SoundAssociationTest {
         expect(soundItem2.id).toEqual(soundItem.id);
         expect(soundItem2.created_at).toEqual(soundItem.created_at);
         expect(soundItem2.associationType).toEqual(soundItem.associationType);
-        expect(soundItem2.track).toEqual(soundItem.track);
+        expect(soundItem2.playable).toEqual(soundItem.playable);
     }
 }

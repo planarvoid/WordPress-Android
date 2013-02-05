@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 
@@ -22,30 +23,6 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
 
     public SoundAssociationHolder(List<SoundAssociation> collection) {
         super(collection);
-    }
-
-    public Set<User> getUsers() {
-        Set<User> users = new HashSet<User>();
-        for (SoundAssociation a : this)  {
-            if (a.getUser() != null) users.add(a.getUser());
-        }
-        return users;
-    }
-
-    public Set<Track> getTracks() {
-        Set<Track> tracks = new HashSet<Track>();
-        for (SoundAssociation a : this)  {
-            if (a.getTrack() != null) tracks.add(a.getTrack());
-        }
-        return tracks;
-    }
-
-    public Set<Playlist> getPlaylists() {
-        Set<Playlist> playlists = new HashSet<Playlist>();
-        for (SoundAssociation a : this) {
-            if (a.getPlaylist() != null) playlists.add(a.getPlaylist());
-        }
-        return playlists;
     }
 
     /**
@@ -95,35 +72,15 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
     }
 
     public int insert(ContentResolver resolver) {
-        List<ContentValues> tracks = new ArrayList<ContentValues>();
-        List<ContentValues> users = new ArrayList<ContentValues>();
-        List<ContentValues> playlists = new ArrayList<ContentValues>();
+
         List<ContentValues> items = new ArrayList<ContentValues>();
+        BulkInsertMap map = new BulkInsertMap();
 
-        for (SoundAssociation a : this) {
-            items.add(a.buildContentValues());
+        for (SoundAssociation soundAssociation : this) {
+            soundAssociation.putDependencyValues(map);
+            items.add(soundAssociation.buildContentValues());
         }
-        for (User u : getUsers()) {
-            users.add(u.buildContentValues());
-        }
-        for (Track t : getTracks()) {
-            tracks.add(t.buildContentValues());
-        }
-        for (Playlist p : getPlaylists()) {
-            playlists.add(p.buildContentValues());
-        }
-
-        int inserted = 0;
-        if (!tracks.isEmpty()) {
-            inserted += resolver.bulkInsert(Content.TRACKS.uri, tracks.toArray(new ContentValues[tracks.size()]));
-        }
-        if (!playlists.isEmpty()) {
-            inserted += resolver.bulkInsert(Content.PLAYLISTS.uri, playlists.toArray(new ContentValues[playlists.size()]));
-        }
-        if (!users.isEmpty())  {
-            inserted += resolver.bulkInsert(Content.USERS.uri, users.toArray(new ContentValues[users.size()]));
-        }
-        resolver.bulkInsert(Content.COLLECTION_ITEMS.uri, items.toArray(new ContentValues[items.size()]));
-        return inserted;
+        map.insert(resolver); // dependencies
+        return resolver.bulkInsert(Content.COLLECTION_ITEMS.uri, items.toArray(new ContentValues[items.size()]));
     }
 }
