@@ -448,7 +448,7 @@
     <style name="btn_sc_transport_comment" parent="btn_sc_transport">
         <item name="android:textOn">@null</item>
         <item name="android:textOff">@null</item>
-        <item name="android:background">@drawable/ic_toggle_player_comment_states</item>
+        <item name="android:background">@drawable/toggle_player_comment_states</item>
         <item name="android:contentDescription">@string/accessibility_comment_action</item>
     </style>
 
