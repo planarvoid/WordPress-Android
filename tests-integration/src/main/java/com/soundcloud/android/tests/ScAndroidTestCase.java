@@ -2,6 +2,7 @@ package com.soundcloud.android.tests;
 
 import com.soundcloud.android.utils.IOUtils;
 
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Environment;
@@ -19,8 +20,12 @@ import java.util.Locale;
 public abstract class ScAndroidTestCase extends AndroidTestCase {
 
     protected AssetManager testAssets() {
+        return testAssets(getContext());
+    }
+
+    public static AssetManager testAssets(Context context) {
         try {
-            return getContext()
+            return context
                     .getPackageManager()
                     .getResourcesForApplication("com.soundcloud.android.tests")
                     .getAssets();

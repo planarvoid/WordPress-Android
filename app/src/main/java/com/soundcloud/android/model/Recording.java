@@ -520,8 +520,10 @@ public class Recording extends ScResource implements Comparable<Recording> {
      */
     public void onUploaded(ContentResolver resolver) {
         upload_status = Status.UPLOADED;
-        if (!external_upload) IOUtils.deleteFile(getFile());
-        IOUtils.deleteFile(getEncodedFile());
+        if (!external_upload) {
+            IOUtils.deleteFile(getFile());
+            IOUtils.deleteFile(getEncodedFile());
+        }
         IOUtils.deleteFile(resized_artwork_path);
         updateStatus(resolver);
     }
