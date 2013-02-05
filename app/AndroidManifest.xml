@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="2.4.5-BETA1"
+      android:versionName="2.4.6-BETA1"
       android:installLocation="auto"
-      android:versionCode="54">
+      android:versionCode="55">
 
     <supports-screens android:anyDensity="true" />
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16"/>
@@ -32,7 +32,7 @@
     <uses-permission android:name="com.soundcloud.android.permission.C2D_MESSAGE" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
-    <application android:icon="@drawable/launcher"
+    <application android:icon="@drawable/ic_launcher"
                  android:logo="@drawable/empty"
                  android:label="@string/app_name"
                  android:theme="@style/Theme.Next"
@@ -57,7 +57,7 @@
         </activity>
 
         <!-- activities -->
-        <activity android:name=".activity.Resolve"
+        <activity android:name=".activity.ResolveActivity"
                   android:noHistory="true"
                   android:theme="@style/Theme.Next.NoActionBar"
                   android:windowSoftInputMode="adjustPan">
@@ -315,8 +315,11 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity.WebViewActivity" android:theme="@style/Theme.Next.NoActionBar"/>
+
         <!-- hockey app -->
         <activity android:name="net.hockeyapp.android.UpdateActivity" />
+
 
         <!-- providers -->
         <provider android:name=".provider.ScContentProvider"
