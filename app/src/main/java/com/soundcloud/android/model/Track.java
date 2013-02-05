@@ -383,7 +383,7 @@ public class Track extends Playable implements PlayableHolder {
     }
 
     // TODO, THIS SUCKS
-    public FetchModelTask<Track> refreshInfoAsync(AndroidCloudAPI api, FetchModelTask.FetchModelListener<Track> listener) {
+    public FetchModelTask<Track> refreshInfoAsync(AndroidCloudAPI api, FetchModelTask.Listener<Track> listener) {
         if (load_info_task == null && AndroidUtils.isTaskFinished(load_info_task)) {
             load_info_task = new FetchTrackTask(api, id);
         }

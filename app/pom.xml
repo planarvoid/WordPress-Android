@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.soundcloud.android</groupId>
         <artifactId>parent</artifactId>
-        <version>2.4.5-BETA1</version>
+        <version>2.4.6-BETA1</version>
     </parent>
 
     <artifactId>soundcloud-android</artifactId>
@@ -131,7 +131,7 @@
         <dependency>
             <groupId>com.soundcloud.android</groupId>
             <artifactId>cropimage</artifactId>
-            <version>1.1.4</version>
+            <version>1.1.5</version>
             <scope>compile</scope>
             <type>apklib</type>
         </dependency>

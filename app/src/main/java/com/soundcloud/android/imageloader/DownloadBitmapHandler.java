@@ -42,7 +42,7 @@ import java.net.URLConnection;
  * <p>
  * An {@link IOException} is thrown if there is a decoding exception.
  */
-public class DownloadBitmapHandler extends ContentHandler {
+public class DownloadBitmapHandler extends BitmapContentHandler {
     public static final int READ_TIMEOUT    = 10000;
     public static final int CONNECT_TIMEOUT = 3000;
     private static final int LOADTIME_WARN  = 10 * 1000; // flag requests taking longer than 10 sec
@@ -60,11 +60,20 @@ public class DownloadBitmapHandler extends ContentHandler {
 
     @Override @NotNull
     public Bitmap getContent(URLConnection connection) throws IOException {
-        return doGetContent((HttpURLConnection) connection, 0);
+        return getContent(connection, (BitmapFactory.Options) null);
+    }
+
+    @Override @NotNull
+    public Bitmap getContent(URLConnection connection, BitmapFactory.Options options) throws IOException {
+        if (connection instanceof HttpURLConnection) {
+            return doGetContent((HttpURLConnection) connection, options, 0);
+        } else {
+            return getBitmapFromInputStream(connection.getInputStream(), options);
+        }
     }
 
     @NotNull
-    private Bitmap doGetContent(HttpURLConnection connection, int redirects) throws IOException {
+    private Bitmap doGetContent(HttpURLConnection connection, BitmapFactory.Options options, int redirects) throws IOException {
         final long start = System.currentTimeMillis();
         final URL url = connection.getURL();
 
@@ -82,7 +91,7 @@ public class DownloadBitmapHandler extends ContentHandler {
                     if (redirects < MAX_REDIRECTS) {
                         String location = connection.getHeaderField("Location");
                         if (!TextUtils.isEmpty(location)) {
-                            return doGetContent((HttpURLConnection) new URL(location).openConnection(), redirects+1);
+                            return doGetContent((HttpURLConnection) new URL(location).openConnection(), options, redirects+1);
                         } else {
                             throw new IOException("redirect without location header");
                         }
@@ -93,13 +102,7 @@ public class DownloadBitmapHandler extends ContentHandler {
                 case 200:
                     Log.d(TAG, "loaded " + IOUtils.md5(url.toString()));
 
-                    InputStream input = new BlockingFilterInputStream(connection.getInputStream());
-                    Bitmap bitmap = BitmapFactory.decodeStream(input);
-                    if (bitmap == null) {
-                        throw new IOException("Image could not be decoded");
-                    } else {
-                        return bitmap;
-                    }
+                    return getBitmapFromInputStream(new BlockingFilterInputStream(connection.getInputStream()), options);
                 default:
                     throw new IOException("response code "+code+ " received");
             }
@@ -112,6 +115,15 @@ public class DownloadBitmapHandler extends ContentHandler {
             }
             // should only be needed for Keep-Alive which we're not using
             connection.disconnect();
+        }
+    }
+
+    private Bitmap getBitmapFromInputStream(InputStream input, BitmapFactory.Options options) throws IOException {
+        Bitmap bitmap = BitmapFactory.decodeStream(input, null, options);
+        if (bitmap == null) {
+            throw new IOException("Image could not be decoded");
+        } else {
+            return bitmap;
         }
     }
 

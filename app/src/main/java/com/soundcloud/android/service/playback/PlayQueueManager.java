@@ -3,6 +3,7 @@ package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -227,7 +228,10 @@ public class PlayQueueManager {
                     newQueue = new ArrayList<PlayQueueItem>();
                     if (cursor.moveToFirst()){
                         do {
-                            newQueue.add(new PlayQueueItem(SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor),false));
+                            // tracks only, no playlists allowed past here
+                            if (cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView._TYPE)) == Playable.DB_TYPE_TRACK) {
+                                newQueue.add(new PlayQueueItem(SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor), false));
+                            }
                         } while (cursor.moveToNext());
                     }
                     cursor.close();

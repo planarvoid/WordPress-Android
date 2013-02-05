@@ -19,6 +19,7 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.util.Locale;
 import java.util.Random;
 import java.util.regex.Pattern;
 
@@ -92,7 +93,7 @@ public class ScTextUtils {
     }
 
     public static String hexString(byte[] bytes) {
-        return String.format("%0" + (bytes.length << 1) + "x", new BigInteger(1, bytes));
+        return String.format(Locale.ENGLISH, "%0" + (bytes.length << 1) + "x", new BigInteger(1, bytes));
     }
 
     /**

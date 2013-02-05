@@ -4,10 +4,8 @@
                 android:background="@drawable/record_list_item_bg"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                style="@style/ListItemContainer">
-
-    <ImageView style="@style/PlayableIcon"
+                android:gravity="center_vertical">
+    <com.soundcloud.android.view.OptimisedImageView style="@style/PlayableIcon"
                android:id="@id/icon"
                android:background="@drawable/artwork_badge_onhold"/>
 

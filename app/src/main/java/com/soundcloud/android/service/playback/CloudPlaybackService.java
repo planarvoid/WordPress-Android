@@ -3,7 +3,6 @@ package com.soundcloud.android.service.playback;
 import static com.soundcloud.android.imageloader.ImageLoader.Options;
 import static com.soundcloud.android.service.playback.State.*;
 
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -11,13 +10,14 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.streaming.StreamItem;
 import com.soundcloud.android.streaming.StreamProxy;
-import com.soundcloud.android.task.fetch.FetchTrackTask;
+import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.tracking.Page;
@@ -448,9 +448,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    private FetchTrackTask.FetchTrackListener mInfoListener = new FetchTrackTask.FetchTrackListener() {
+    private FetchModelTask.Listener<Track> mInfoListener = new FetchModelTask.Listener<Track>() {
         @Override
-        public void onSuccess(Track track, String action) {
+        public void onSuccess(Track track) {
             track.setUpdated();
             track = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(track, ScResource.CacheUpdateMode.FULL);
             sendBroadcast(new Intent(Playable.ACTION_SOUND_INFO_UPDATED)
@@ -467,10 +467,11 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
 
         @Override
-        public void onError(long trackId) {
+        public void onError(Object context) {
+            long id = context instanceof Number ? ((Number)context).longValue() : -1;
             sendBroadcast(new Intent(Playable.ACTION_SOUND_INFO_ERROR)
-                                                    .putExtra(CloudPlaybackService.BroadcastExtras.id, trackId));
-            onUnstreamableTrack(trackId);
+                                .putExtra(CloudPlaybackService.BroadcastExtras.id, id));
+            onUnstreamableTrack(id);
         }
     };
 
@@ -491,8 +492,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             }
         }.start();
         startTrack(track);
-
-
     }
 
     private void startTrack(Track track) {

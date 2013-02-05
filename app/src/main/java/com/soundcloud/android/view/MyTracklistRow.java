@@ -1,18 +1,18 @@
 
 package com.soundcloud.android.view;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.adapter.PlayableRow;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -27,11 +27,13 @@ import java.io.IOException;
 public class MyTracklistRow extends PlayableRow {
     private Drawable mPrivateBgDrawable;
     private Drawable mVeryPrivateBgDrawable;
+    private final int mTargetIconDimension;
 
     private Recording mRecording;
 
     public MyTracklistRow(Context activity) {
         super(activity);
+        mTargetIconDimension = (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE);
     }
 
     @Override
@@ -130,9 +132,36 @@ public class MyTracklistRow extends PlayableRow {
                         (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE), false
                 ).inSampleSize;
             } catch (IOException e) {
-                Log.w(TAG, "error", e);
+                Log.w(SoundCloudApplication.TAG, "error", e);
             }
             mImageLoader.bind(mIcon, recording.artwork_path.getAbsolutePath(), null, options);
         }
+    }
+
+    private void setArtwork(final Recording recording) {
+
+        if (recording.artwork_path == null) {
+            mImageLoader.unbind(mIcon);
+        } else {
+            // use getBitmap instead of bind here because we have to account for exif rotation on local images
+            final String fileUri = Uri.fromFile(recording.artwork_path).toString();
+            mImageLoader.getBitmap(
+                    fileUri,
+                    new ImageLoader.BitmapCallback(){
+                        @Override
+                        public void onImageLoaded(Bitmap bitmap, String url) {
+                            if (fileUri.equals(url)) setImageBitmap(recording, bitmap);
+                        }
+                    },
+                    ImageUtils.getImageLoaderOptionsWithResizeSet(recording.artwork_path, mTargetIconDimension, mTargetIconDimension, false)
+            );
+        }
+    }
+
+    private void setImageBitmap(Recording recording, Bitmap b) {
+        ImageUtils.setImage(b, mIcon,
+                (int) getResources().getDimension(R.dimen.list_icon_width),
+                (int) getResources().getDimension(R.dimen.list_icon_height),
+                ImageUtils.getExifRotation(recording.artwork_path));
     }
 }

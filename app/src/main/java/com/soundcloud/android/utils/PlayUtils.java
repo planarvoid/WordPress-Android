@@ -34,13 +34,14 @@ public final class PlayUtils {
         if (CloudPlaybackService.getCurrentTrackId() != t.id) {
             // changing tracks
             intent.putExtra(CloudPlaybackService.PlayExtras.trackId, t.id);
+            CloudPlaybackService.playlistXfer = info.playables;
+
             if (info.uri != null) {
                 SoundCloudApplication.MODEL_MANAGER.cache(info.initialTrack);
                 intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.initialTrack.id)
                         .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                         .setData(info.uri);
             } else {
-                CloudPlaybackService.playlistXfer = info.playables;
                 intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                         .putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true);
             }

@@ -5,7 +5,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical">
-    <ImageView style="@style/PlayableIcon"
+    <com.soundcloud.android.view.OptimisedImageView style="@style/PlayableIcon"
                android:id="@+id/icon"
                android:layout_alignParentLeft="true"
                android:layout_alignParentTop="true"

@@ -327,7 +327,7 @@ public class ApiSyncer {
 
     private Result syncMe(Content c, long userId) throws IOException {
         Result result = new Result(c.uri);
-        User user = new FetchUserTask(mApi, userId).resolve(c.request());
+        User user = new FetchUserTask(mApi).resolve(c.request());
         result.synced_at = System.currentTimeMillis();
         if (user != null) {
             SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);

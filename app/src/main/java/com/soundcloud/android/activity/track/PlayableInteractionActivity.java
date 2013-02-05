@@ -3,12 +3,8 @@ package com.soundcloud.android.activity.track;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.ScListFragment;
-import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activity;
-import com.soundcloud.android.task.fetch.FetchTrackTask;
-import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.adapter.PlayableBar;
 
 import android.content.Intent;

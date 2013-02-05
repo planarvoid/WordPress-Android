@@ -65,6 +65,15 @@ public class ScSearch extends ScActivity {
             }
         });
 
+        mTxtQuery.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                return !isFinishing() && ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) && perform(getSearch());
+            }
+        });
+
+
         Object[] previousState = getLastCustomNonConfigurationInstance();
         if (previousState != null) {
             restorePreviousState(previousState);
