@@ -46,12 +46,18 @@ public class AddSetProgressDialog extends SherlockDialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        ProgressDialog.Builder builder = new ProgressDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.ScDialog));
+        ProgressDialog.Builder builder = new ProgressDialog.Builder(
+                new ContextThemeWrapper(getActivity(), R.style.ScDialog)
+        );
 
         final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_title_progress, null);
-        ((TextView) dialogView.findViewById(android.R.id.title)).setText(getString(R.string.creating_set, getArguments().getString(KEY_PLAYLIST_TITLE)));
-        ((ProgressBar) dialogView.findViewById(R.id.progress)).setIndeterminate(true);
+        final TextView title = (TextView) dialogView.findViewById(android.R.id.title);
+        final ProgressBar progressBar = (ProgressBar) dialogView.findViewById(R.id.progress);
+
+        title.setText(getString(R.string.creating_set, getArguments().getString(KEY_PLAYLIST_TITLE)));
+        progressBar.setIndeterminate(true);
         builder.setView(dialogView);
+
         return builder.create();
     }
 
