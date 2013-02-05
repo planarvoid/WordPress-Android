@@ -46,7 +46,7 @@
     </style>
 
     <style name="PlayerAction.Button.AddToSet">
-        <item name="android:src">@drawable/stats_share</item>
+        <item name="android:src">@drawable/ic_add_to_set</item>
         <item name="android:background">@drawable/btn_default_darker_states</item>
     </style>
 
