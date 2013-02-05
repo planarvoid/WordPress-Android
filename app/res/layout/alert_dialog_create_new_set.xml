@@ -19,7 +19,7 @@
           android:layout_height="2dip"
           android:background="@color/scDarkGray"/>
 
-    <LinearLayout android:orientation="horizontal"
+    <LinearLayout android:orientation="vertical"
                   android:layout_width="match_parent" android:layout_height="0dp"
                   android:layout_weight="1"
                   android:gravity="center_vertical"
@@ -33,12 +33,11 @@
                   android:layout_width="0dp"
                   android:layout_height="wrap_content">
         </EditText>
-        <Switch android:id="@+id/privacy_switch"
+        <CheckBox android:id="@+id/chk_private"
                 android:layout_margin="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textOff="@string/add_set_private"
-                android:textOn="@string/add_set_public"/>
+                android:text="@string/add_set_private"/>
 
     </LinearLayout>
 </LinearLayout>
