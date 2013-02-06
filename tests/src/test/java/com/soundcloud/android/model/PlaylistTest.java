@@ -20,7 +20,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class PlaylistTest {
@@ -69,8 +71,13 @@ public class PlaylistTest {
                 getClass().getResourceAsStream("e1_playlist.json"),
                 Playlist.class);
 
+        List<Long> toAdd = new ArrayList<Long>();
+        for (Track t : playlist.tracks){
+            toAdd.add(t.id);
+        }
+
         // update tracks mode
-        Playlist.ApiUpdateObject updateObject = new Playlist.ApiUpdateObject(playlist.tracks);
+        Playlist.ApiUpdateObject updateObject = new Playlist.ApiUpdateObject(toAdd);
         expect(updateObject.toJson(DefaultTestRunner.application.getMapper()))
                 .toEqual("{\"playlist\":{\"tracks\":[{\"id\":61363002},{\"id\":61363003},{\"id\":61363004},{\"id\":61363005},{\"id\":61363006},{\"id\":61363007},{\"id\":61363008},{\"id\":61363009},{\"id\":61363011},{\"id\":61363012},{\"id\":61363013},{\"id\":61363014},{\"id\":61363016},{\"id\":61363017}]}}");
     }

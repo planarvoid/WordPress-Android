@@ -5,9 +5,11 @@ import static com.soundcloud.android.model.ScModelManager.validateResponse;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
@@ -112,8 +114,11 @@ public class ApiSyncer {
 
                 case TRACK:
                 case USER:
-                case PLAYLIST:
                     result = doResourceFetchAndInsert(uri);
+                    break;
+
+                case PLAYLIST:
+                    result = syncPlaylist(uri);
                     break;
 
                 case ME_SHORTCUTS:
@@ -426,6 +431,51 @@ public class ApiSyncer {
             }
             return result;
         }
+
+    private Result syncPlaylist(Uri contentUri) throws IOException {
+        log("Syncing playlist " + contentUri);
+
+        Result result = new Result(contentUri);
+        InputStream is = validateResponse(mApi.get(Content.match(contentUri).request(contentUri))).getEntity().getContent();
+        Playlist p = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is);
+
+        Cursor c = mResolver.query(
+                Content.PLAYLIST_TRACKS.forId(p.id), new String[]{DBHelper.PlaylistTracksView._ID},
+                DBHelper.PlaylistTracksView.PLAYLIST_ADDED_AT + " IS NOT NULL", null,
+                DBHelper.PlaylistTracksView.PLAYLIST_ADDED_AT + " ASC");
+
+
+        if (c != null && c.getCount() > 0) {
+            List<Long> toAdd = new ArrayList<Long>(c.getCount());
+            for (Track t : p.tracks) {
+                toAdd.add(t.id);
+            }
+            while (c.moveToNext()) {
+                toAdd.add(c.getLong(0));
+            }
+
+            Playlist.ApiUpdateObject updateObject = new Playlist.ApiUpdateObject(toAdd);
+            final String content = mApi.getMapper().writeValueAsString(updateObject);
+            Log.i("asdf","pushing " + content);
+            log("Pushing new playlist content to api: " + content);
+
+            Request r = Content.PLAYLIST.request(contentUri).withContent(content, "application/json");
+            is.close();
+
+            is = validateResponse(mApi.put(r)).getEntity().getContent();
+            p = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is);
+        }
+
+        final Uri insertedUri = p.insert(mResolver);
+        if (insertedUri != null) {
+            log("inserted " + insertedUri.toString());
+            result.setSyncData(true, System.currentTimeMillis(), 1, Result.CHANGED);
+        } else {
+            log("failed to insert to " + contentUri);
+            result.success = false;
+        }
+        return result;
+    }
 
     /**
      * Fetch a single resource from the api and insert it into the content provider.

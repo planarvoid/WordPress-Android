@@ -2,19 +2,26 @@ package com.soundcloud.android.dialog;
 
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.view.ButtonBar;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.ContextThemeWrapper;
 import android.view.View;
@@ -87,12 +94,19 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
                 if (playlistId == -1) {
                     CreateNewSetDialogFragment.from(getArguments().getLong(KEY_TRACK_ID)).show(getFragmentManager(), "create_new_set_dialog");
                 } else {
-                    ContentValues cv = new ContentValues();
-                    cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID, playlistId);
-                    cv.put(DBHelper.PlaylistTracks.TRACK_ID, getArguments().getLong(KEY_TRACK_ID));
-                    cv.put(DBHelper.PlaylistTracks.ADDED_AT, System.currentTimeMillis());
-                    // off the UI thread??? ugh
-                    getActivity().getContentResolver().insert(Content.PLAYLIST_TRACKS.forId(playlistId), cv);
+                    final FragmentActivity activity = getActivity();
+                    if (getActivity() != null){
+
+                        Playlist.addTrackToPlaylist(
+                                activity.getContentResolver(),playlistId,getArguments().getLong(KEY_TRACK_ID));
+
+                        // tell the service to update the playlist
+                        final SoundCloudApplication soundCloudApplication = SoundCloudApplication.fromContext(getActivity());
+                        if (soundCloudApplication != null){
+                            ContentResolver.requestSync(soundCloudApplication.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
+                        }
+
+                    }
                 }
                 // we done
                 getDialog().dismiss();

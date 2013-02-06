@@ -12,6 +12,7 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.api.Params;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -22,7 +23,9 @@ import android.os.Parcelable;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Playlist extends Playable {
 
@@ -162,8 +165,6 @@ public class Playlist extends Playable {
         }
     };
 
-
-
     @JsonRootName("playlist")
     public static class ApiCreateObject{
 
@@ -186,10 +187,10 @@ public class Playlist extends Playable {
     public static class ApiUpdateObject {
         @JsonView(Views.Full.class) List<ScModel> tracks;
 
-        public ApiUpdateObject(List<Track> tracks) {
+        public ApiUpdateObject(List<Long> toAdd) {
             this.tracks = new ArrayList<ScModel>();
-            for (Track track : tracks){
-                this.tracks.add(new ScModel(track.id));
+            for (Long id : toAdd){
+                this.tracks.add(new ScModel(id));
             }
         }
 
@@ -197,4 +198,19 @@ public class Playlist extends Playable {
             return mapper.writeValueAsString(this);
         }
     }
+
+    public static Uri addTrackToPlaylist(ContentResolver resolver, long playlistId, long trackId){
+        return addTrackToPlaylist(resolver, playlistId, trackId,System.currentTimeMillis());
+    }
+
+    public static Uri addTrackToPlaylist(ContentResolver resolver, long playlistId, long trackId, long time){
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID, playlistId);
+        cv.put(DBHelper.PlaylistTracks.TRACK_ID, trackId);
+        cv.put(DBHelper.PlaylistTracks.ADDED_AT, time);
+        return resolver.insert(Content.PLAYLIST_TRACKS.forId(playlistId), cv);
+    }
+
+
+
 }

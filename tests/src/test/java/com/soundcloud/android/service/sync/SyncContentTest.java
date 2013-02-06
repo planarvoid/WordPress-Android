@@ -3,6 +3,8 @@ package com.soundcloud.android.service.sync;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -14,6 +16,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import java.util.List;
+import java.util.Set;
 
 @RunWith(DefaultTestRunner.class)
 public class SyncContentTest {
@@ -114,5 +117,31 @@ public class SyncContentTest {
 
         urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
         expect(urisToSync.size()).toEqual(ACTIVE_SYNC_ENDPOINTS-1);
+    }
+
+    @Test
+    public void shouldSyncLocalPlaylistTracks() throws Exception {
+        final long playlistId = 12345l;
+        expect(Playlist.addTrackToPlaylist(resolver, playlistId, 10696200l, System.currentTimeMillis())).not.toBeNull();
+
+        Set<Uri> urisToSync = SyncContent.getPlaylistsDueForSync(Robolectric.application.getContentResolver());
+        expect(urisToSync.size()).toEqual(1);
+        expect(urisToSync.contains(Content.PLAYLIST.forId(playlistId))).toBeTrue();
+    }
+
+    @Test
+    public void shouldSyncMultiplePlaylists() throws Exception {
+        final long playlistId = 12345l;
+        final long playlistId2 = 544321l;
+
+        expect(Playlist.addTrackToPlaylist(resolver, playlistId, 10696200l, System.currentTimeMillis())).not.toBeNull();
+        expect(Playlist.addTrackToPlaylist(resolver, playlistId2, 10696200l, System.currentTimeMillis())).not.toBeNull();
+
+        Set<Uri> urisToSync = SyncContent.getPlaylistsDueForSync(Robolectric.application.getContentResolver());
+        expect(urisToSync.size()).toEqual(2);
+        expect(urisToSync.contains(Content.PLAYLIST.forId(playlistId))).toBeTrue();
+        expect(urisToSync.contains(Content.PLAYLIST.forId(playlistId2))).toBeTrue();
+
+
     }
 }

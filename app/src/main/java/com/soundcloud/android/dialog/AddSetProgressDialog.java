@@ -2,23 +2,20 @@ package com.soundcloud.android.dialog;
 
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
-import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.create.NewPlaylistTask;
-import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextThemeWrapper;
 import android.view.View;
@@ -26,9 +23,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class AddSetProgressDialog extends SherlockDialogFragment {
     public static final String KEY_TRACK_ID = "TRACK_ID";

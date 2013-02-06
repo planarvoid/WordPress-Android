@@ -241,6 +241,10 @@ public class ScContentProvider extends ContentProvider {
                 }
                 break;
 
+            case PLAYLIST_ALL_TRACKS:
+                qb.setTables(Table.PLAYLIST_TRACKS.name);
+                break;
+
             case USERS:
                 qb.setTables(content.table.name);
                 if (_columns == null) _columns = formatWithUser(fullUserColumns,userId);
