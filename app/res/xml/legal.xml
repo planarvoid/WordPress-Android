@@ -29,4 +29,11 @@
                 android:data="http://soundcloud.com/pages/plain_privacy"/>
     </Preference>
 
+    <Preference android:key="imprint"
+                android:title="@string/imprint"
+            >
+        <intent android:action="android.intent.action.VIEW"
+                android:data="https://soundcloud.com/imprint"/>
+    </Preference>
+
 </PreferenceScreen>
