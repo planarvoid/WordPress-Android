@@ -31,7 +31,12 @@ public class SoundAssociationHolderTest {
 
     @Test
     public void shouldRemoveMissingSoundAssociationsMeSounds() throws Exception {
-        writeMeSounds();
+        SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
+                getClass().getResourceAsStream("sounds.json"),
+                SoundAssociationHolder.class);
+
+        expect(manager.writeCollection(old,
+                        ScResource.CacheUpdateMode.NONE)).toEqual(38); // 38 tracks and 3 diff users
 
         expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
                         Content.ME_SOUNDS.uri, 0, 50).size()).toEqual(38);
@@ -53,7 +58,7 @@ public class SoundAssociationHolderTest {
                 SoundAssociationHolder.class);
 
         expect(manager.writeCollection(old,
-                ScResource.CacheUpdateMode.NONE)).toEqual(5); // 4 tracks (2 from a playlist), 1 playlist
+                ScResource.CacheUpdateMode.NONE)).toEqual(3); // 1 playlist 2 tracks
 
         expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
                 Content.ME_LIKES.uri, 0, 50).size()).toEqual(3);
@@ -67,19 +72,9 @@ public class SoundAssociationHolderTest {
                 Content.ME_LIKES.uri, 0, 50).size()).toEqual(1);
     }
 
-    private void writeMeSounds() throws IOException {
-        SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
-                getClass().getResourceAsStream("sounds.json"),
-                SoundAssociationHolder.class);
-
-        expect(manager.writeCollection(old,
-                ScResource.CacheUpdateMode.NONE)).toEqual(41); // 38 tracks and 3 diff users
-    }
-
-
     private SoundAssociation createAssociation(long id, String type) {
         SoundAssociation soundAssociation1 = new SoundAssociation();
-        soundAssociation1.track = new Track(id);
+        soundAssociation1.playable = new Track(id);
         soundAssociation1.setType(type);
         return soundAssociation1;
     }
