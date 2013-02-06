@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="player_toggle_btn_drawable_padding">6dp</dimen>
+
+</resources>
