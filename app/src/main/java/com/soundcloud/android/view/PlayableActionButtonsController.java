@@ -96,11 +96,13 @@ public class PlayableActionButtonsController {
         }
     }
 
-    private String labelForCount(int count) {
+    String labelForCount(int count) {
         if (count < 0) {
             return "\u2014";
         } else if (count == 0) {
             return "";
+        } else if (count >= 1000) {
+            return "1k+";
         } else {
             return String.valueOf(count);
         }
