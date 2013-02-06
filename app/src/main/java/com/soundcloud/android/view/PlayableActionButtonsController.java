@@ -5,6 +5,7 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.*;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
@@ -77,8 +78,7 @@ public class PlayableActionButtonsController {
         button.invalidate();
 
         Context context = mRootView.getContext();
-        AccessibilityManager accessibilityManager = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
-        if (accessibilityManager.isEnabled()) {
+        if (AndroidUtils.accessibilityFeaturesAvailable(context)) {
             final StringBuilder builder = new StringBuilder();
             builder.append(context.getResources().getString(actionStringID));
 
