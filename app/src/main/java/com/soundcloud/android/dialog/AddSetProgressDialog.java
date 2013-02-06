@@ -8,8 +8,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.create.NewPlaylistTask;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
@@ -24,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class AddSetProgressDialog extends SherlockDialogFragment {
@@ -88,7 +92,13 @@ public class AddSetProgressDialog extends SherlockDialogFragment {
                 protected void onPostExecute(Playlist playlist) {
                     super.onPostExecute(playlist);
                     if (playlist != null){
-                        SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(playlist, ScResource.CacheUpdateMode.FULL);
+                        // insert sounds association for new playlist
+                        new SoundAssociation(playlist,new Date(System.currentTimeMillis()), SoundAssociation.Type.PLAYLIST)
+                                .insert(getActivity().getContentResolver(), Content.ME_SOUNDS.uri);
+
+                        // force me_sounds to stale so it will sync next time
+                        LocalCollection.forceToStale(Content.ME_SOUNDS.uri,getActivity().getContentResolver());
+
                         onCompleted(true);
                     } else {
                         onCompleted(false);

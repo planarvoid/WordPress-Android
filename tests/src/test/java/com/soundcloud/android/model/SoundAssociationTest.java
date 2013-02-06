@@ -90,13 +90,10 @@ public class SoundAssociationTest {
                 getClass().getResourceAsStream("sounds.json"),
                 SoundAssociationHolder.class);
 
-        expect(manager.writeCollection(old, ScResource.CacheUpdateMode.NONE)).toEqual(41); // 38 tracks and 3 diff users
+        expect(manager.writeCollection(old, ScResource.CacheUpdateMode.NONE)).toEqual(38); // 38 tracks and 3 diff users
 
         Playlist p = manager.getModelFromStream(SyncAdapterServiceTest.class.getResourceAsStream("playlist.json"));
-        SoundAssociation soundAssociation1 = new SoundAssociation();
-        soundAssociation1.playlist = p;
-        soundAssociation1.created_at = new Date(System.currentTimeMillis());
-        soundAssociation1.setType(SoundAssociation.Type.PLAYLIST.toString());
+        SoundAssociation soundAssociation1 = new SoundAssociation(p, new Date(System.currentTimeMillis()),SoundAssociation.Type.PLAYLIST);
 
         final Uri uri = soundAssociation1.insert(DefaultTestRunner.application.getContentResolver(),Content.ME_SOUNDS.uri);
         expect(uri).toEqual(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/me/sounds/39"));

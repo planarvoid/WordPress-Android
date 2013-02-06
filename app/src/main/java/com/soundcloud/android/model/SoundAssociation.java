@@ -1,7 +1,6 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
@@ -27,7 +26,7 @@ import java.util.Date;
 public class SoundAssociation extends ScResource implements PlayableHolder, Refreshable {
 
     private CharSequence _elapsedTime;
-    enum Type {
+    public enum Type {
         TRACK("track", ScContentProvider.CollectionItemTypes.TRACK),
         TRACK_REPOST("track_repost", ScContentProvider.CollectionItemTypes.REPOST),
         TRACK_LIKE("track_like", ScContentProvider.CollectionItemTypes.LIKE),
@@ -65,6 +64,12 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
             playable = SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(cursor, DBHelper.SoundAssociationView._ID);
         }
 
+    }
+
+    public SoundAssociation(Playable playable, Date created_at, Type typeEnum) {
+        this.playable = playable;
+        this.created_at = created_at;
+        this.associationType = typeEnum.collectionType;
     }
 
     @Override
@@ -179,6 +184,11 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     @Override
     public void refreshTimeSinceCreated(Context context) {
         _elapsedTime = null;
+    }
+
+    public Uri insert(ContentResolver contentResolver, Uri destination){
+        insertDependencies(contentResolver);
+        return contentResolver.insert(destination, buildContentValues());
     }
 
     @Override
