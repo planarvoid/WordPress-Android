@@ -414,6 +414,7 @@ public class ScContentProvider extends ContentProvider {
                 return result;
 
             case COLLECTION_PAGES:
+            case ME_SOUNDS:
                 id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);

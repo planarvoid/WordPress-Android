@@ -9,6 +9,7 @@ import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -165,6 +166,11 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     @Nullable
     public Playlist getPlaylist() {
         return playlist;
+    }
+
+    public Uri insert(ContentResolver contentResolver, Uri uri) {
+        insertDependencies(contentResolver);
+        return contentResolver.insert(uri, buildContentValues());
     }
 
     @Override

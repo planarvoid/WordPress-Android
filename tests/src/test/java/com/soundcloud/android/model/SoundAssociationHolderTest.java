@@ -8,10 +8,14 @@ import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
+import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.net.Uri;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 @RunWith(DefaultTestRunner.class)
@@ -27,12 +31,7 @@ public class SoundAssociationHolderTest {
 
     @Test
     public void shouldRemoveMissingSoundAssociationsMeSounds() throws Exception {
-        SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
-                getClass().getResourceAsStream("sounds.json"),
-                SoundAssociationHolder.class);
-
-        expect(manager.writeCollection(old,
-                        ScResource.CacheUpdateMode.NONE)).toEqual(41); // 38 tracks and 3 diff users
+        writeMeSounds();
 
         expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
                         Content.ME_SOUNDS.uri, 0, 50).size()).toEqual(38);
@@ -66,6 +65,15 @@ public class SoundAssociationHolderTest {
         expect(holder.removeMissingLocallyStoredItems(DefaultTestRunner.application.getContentResolver(), Content.ME_LIKES.uri)).toEqual(2);
         expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
                 Content.ME_LIKES.uri, 0, 50).size()).toEqual(1);
+    }
+
+    private void writeMeSounds() throws IOException {
+        SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
+                getClass().getResourceAsStream("sounds.json"),
+                SoundAssociationHolder.class);
+
+        expect(manager.writeCollection(old,
+                ScResource.CacheUpdateMode.NONE)).toEqual(41); // 38 tracks and 3 diff users
     }
 
 
