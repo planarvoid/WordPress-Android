@@ -90,6 +90,8 @@ public class PlayerTrackView extends LinearLayout implements
 
     private View mArtworkOverlay;
 
+    private final Handler mLabelScroller = new LabelScrollHandler();
+
     public PlayerTrackView(ScPlayer player) {
         super(player);
         View.inflate(player, R.layout.player_track, this);
@@ -578,22 +580,6 @@ public class PlayerTrackView extends LinearLayout implements
         return false;
     }
 
-    private final Handler mLabelScroller = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            TextView tv = (TextView) msg.obj;
-            int x = tv.getScrollX();
-            x = x * 3 / 4;
-            tv.scrollTo(x, 0);
-            if (x == 0) {
-                tv.setEllipsize(TextUtils.TruncateAt.END);
-            } else {
-                Message newmsg = obtainMessage(0, tv);
-                mLabelScroller.sendMessageDelayed(newmsg, 15);
-            }
-        }
-    };
-
     private @Nullable TextView textViewForContainer(View v) {
         View vv = v.findViewById(R.id.track);
         if (vv != null) {
@@ -845,6 +831,22 @@ public class PlayerTrackView extends LinearLayout implements
             return true;
         } else {
             return false;
+        }
+    }
+
+    private static final class LabelScrollHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            TextView tv = (TextView) msg.obj;
+            int x = tv.getScrollX();
+            x = x * 3 / 4;
+            tv.scrollTo(x, 0);
+            if (x == 0) {
+                tv.setEllipsize(TextUtils.TruncateAt.END);
+            } else {
+                Message newmsg = obtainMessage(0, tv);
+                sendMessageDelayed(newmsg, 15);
+            }
         }
     }
 }

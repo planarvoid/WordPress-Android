@@ -14,6 +14,8 @@ import android.os.Message;
 import android.view.ViewConfiguration;
 import android.widget.RelativeLayout;
 
+import java.lang.ref.WeakReference;
+
 public class CreateWaveDisplay extends TouchLayout {
     public static final int MODE_REC = 0;
     public static final int MODE_PLAYBACK = 1;
@@ -235,58 +237,70 @@ public class CreateWaveDisplay extends TouchLayout {
         }
     }
 
-    private final Handler mTouchHandler = new Handler() {
+    private static final class TouchHandler extends Handler {
+        private WeakReference<CreateWaveDisplay> viewRef;
+
+        private TouchHandler(CreateWaveDisplay view) {
+            this.viewRef = new WeakReference<CreateWaveDisplay>(view);
+        }
+
         @Override
         public void handleMessage(Message msg) {
+            final CreateWaveDisplay view = viewRef.get();
+            if (view == null) {
+                return;
+            }
             switch (msg.what) {
                 case UI_UPDATE_SEEK:
-                    final float[] trimWindow = SoundRecorder.getInstance(getContext()).getTrimWindow();
-                    final int minX = mIsEditing ? (int) (trimWindow[0] * waveformWidth) : 0;
-                    final int maxX = mIsEditing ? (int) (trimWindow[1] * waveformWidth) : waveformWidth;
+                    final float[] trimWindow = SoundRecorder.getInstance(view.getContext()).getTrimWindow();
+                    final int minX = view.mIsEditing ? (int) (trimWindow[0] * view.waveformWidth) : 0;
+                    final int maxX = view.mIsEditing ? (int) (trimWindow[1] * view.waveformWidth) : view.waveformWidth;
 
-                    final float adjustedSeekPosition = Math.min(Math.max(minX, lastSeekX),maxX) - minX;
+                    final float adjustedSeekPosition = Math.min(Math.max(minX, view.lastSeekX),maxX) - minX;
                     final float seekPercent = adjustedSeekPosition / (maxX - minX);
 
-                    if (mListener != null) {
-                        mListener.onSeek(seekPercent);
+                    if (view.mListener != null) {
+                        view.mListener.onSeek(seekPercent);
                     }
                     break;
 
                 case UI_UPDATE_TRIM:
-                    mLastTrimAction = System.currentTimeMillis();
+                    view.mLastTrimAction = System.currentTimeMillis();
 
-                    if (newTrimActionLeft != null && newTrimActionLeft.hasMovedFrom(lastTrimActionLeft)) {
-                        leftHandle.update(newTrimActionLeft.position);
-                        if (mListener != null) {
-                            mListener.onAdjustTrimLeft(Math.max(0, ((float) newTrimActionLeft.position / waveformWidth)),
-                                    newTrimActionLeft.timestamp - lastTrimActionLeft.timestamp);
+                    if (view.newTrimActionLeft != null && view.newTrimActionLeft.hasMovedFrom(view.lastTrimActionLeft)) {
+                        view.leftHandle.update(view.newTrimActionLeft.position);
+                        if (view.mListener != null) {
+                            view.mListener.onAdjustTrimLeft(Math.max(0, ((float) view.newTrimActionLeft.position / view.waveformWidth)),
+                                    view.newTrimActionLeft.timestamp - view.lastTrimActionLeft.timestamp);
                         }
-                        mWaveformView.invalidate();
+                        view.mWaveformView.invalidate();
                     }
-                    lastTrimActionLeft = newTrimActionLeft;
+                    view.lastTrimActionLeft = view.newTrimActionLeft;
 
-                    if (newTrimActionRight != null && newTrimActionRight.hasMovedFrom(lastTrimActionRight)) {
-                        rightHandle.update(waveformWidth - newTrimActionRight.position);
-                        if (mListener != null) {
-                            mListener.onAdjustTrimRight(Math.min(1, ((float) newTrimActionRight.position / waveformWidth)),
-                                    newTrimActionRight.timestamp - lastTrimActionRight.timestamp);
+                    if (view.newTrimActionRight != null && view.newTrimActionRight.hasMovedFrom(view.lastTrimActionRight)) {
+                        view.rightHandle.update(view.waveformWidth - view.newTrimActionRight.position);
+                        if (view.mListener != null) {
+                            view.mListener.onAdjustTrimRight(Math.min(1, ((float) view.newTrimActionRight.position / view.waveformWidth)),
+                                    view.newTrimActionRight.timestamp - view.lastTrimActionRight.timestamp);
                         }
-                        mWaveformView.invalidate();
+                        view.mWaveformView.invalidate();
                     }
-                    lastTrimActionRight = newTrimActionRight;
+                    view.lastTrimActionRight = view.newTrimActionRight;
                     break;
 
                 case UI_ON_TRIM_STATE:
-                    mLastTrimAction = System.currentTimeMillis();
-                    lastTrimActionLeft = newTrimActionLeft;
-                    lastTrimActionRight = newTrimActionRight;
+                    view.mLastTrimAction = System.currentTimeMillis();
+                    view.lastTrimActionLeft = view.newTrimActionLeft;
+                    view.lastTrimActionRight = view.newTrimActionRight;
 
-                    rightHandle.setPressed(mRightHandleTouchIndex != -1);
-                    leftHandle.setPressed(mLeftHandleTouchIndex != -1);
+                    view.rightHandle.setPressed(view.mRightHandleTouchIndex != -1);
+                    view.leftHandle.setPressed(view.mLeftHandleTouchIndex != -1);
                     break;
             }
         }
-    };
+    }
+
+    private final Handler mTouchHandler = new TouchHandler(this);
 
     private void setTrimHandles() {
         float[] trimWindow = SoundRecorder.getInstance(getContext()).getTrimWindow();

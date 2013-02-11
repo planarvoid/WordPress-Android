@@ -33,6 +33,8 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Scroller;
 
+import java.lang.ref.WeakReference;
+
 /*
     Touch Handling pulled from the Android ICS ScrollView class
 
@@ -83,7 +85,7 @@ public class RootView extends ViewGroup {
 
     private OnMenuStateListener mOnMenuStateListener;
 
-    private final Handler mHandler = new SlidingHandler();
+    private final Handler mHandler = new SlidingHandler(this);
     private int mTouchDelta;
 
     private final Scroller mScroller;
@@ -1055,13 +1057,16 @@ public class RootView extends ViewGroup {
         return mIsBeingDragged || mAnimating;
     }
 
-    private class SlidingHandler extends Handler {
+    private static final class SlidingHandler extends Handler {
+        private WeakReference<View> mRef;
+
+        private SlidingHandler(View view) {
+            this.mRef = new WeakReference<View>(view);
+        }
+
         public void handleMessage(Message m) {
-            switch (m.what) {
-                case MSG_ANIMATE:
-                    invalidate();
-                    break;
-            }
+            final View view = mRef.get();
+            if (view != null && m.what == MSG_ANIMATE) view.invalidate();
         }
     }
 

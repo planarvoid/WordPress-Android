@@ -2,6 +2,7 @@ package com.soundcloud.android.tracking;
 
 import static com.soundcloud.android.utils.NetworkConnectivityListener.State;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import com.at.ATParams;
@@ -18,6 +19,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -52,6 +54,20 @@ public class ATTracker implements SharedPreferences.OnSharedPreferenceChangeList
     @SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
     private final ATTag atTag;
 
+    private static final class ConnectHandler extends Handler {
+        @Override public void handleMessage(Message msg) {
+            State old = State.values()[msg.arg1];
+            State current = State.values()[msg.arg2];
+            if (old != State.CONNECTED && current == State.CONNECTED) {
+                try {
+                    ATTag.sendNow();
+                } catch (Exception e) {
+                    SoundCloudApplication.handleSilentException("error in ATTag#sendNow()", e);
+                }
+            }
+        }
+    }
+
     public ATTracker(SoundCloudApplication context) {
         atTag = ATTag.init(context,
             context.getString(R.string.at_tracking_subdomain),
@@ -61,22 +77,8 @@ public class ATTracker implements SharedPreferences.OnSharedPreferenceChangeList
         atTag.setOfflineMode(ATTag.OfflineMode.OfflineModeRequired);
         this.app = context;
 
-        final Handler handler = new Handler() {
-            @Override public void handleMessage(Message msg) {
-                State old = State.values()[msg.arg1];
-                State current = State.values()[msg.arg2];
-                if (old != State.CONNECTED && current == State.CONNECTED) {
-                    try {
-                        ATTag.sendNow();
-                    } catch (Exception e) {
-                        SoundCloudApplication.handleSilentException("error in ATTag#sendNow()", e);
-                    }
-                }
-            }
-        };
-
         NetworkConnectivityListener connectivity = new NetworkConnectivityListener();
-        connectivity.registerHandler(handler, 0);
+        connectivity.registerHandler(new ConnectHandler(), 0);
         connectivity.startListening(context);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);

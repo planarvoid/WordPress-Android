@@ -26,6 +26,8 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.widget.ProgressBar;
 
+import java.lang.ref.WeakReference;
+
 public class NowPlayingIndicator extends ProgressBar {
     private static final int REFRESH = 1;
 
@@ -60,6 +62,8 @@ public class NowPlayingIndicator extends ProgressBar {
     private WaveformController.WaveformState mWaveformState;
     private int mWaveformErrorCount;
     private WaveformData mWaveformData;
+
+    private final Handler mHandler = new RefreshHandler(this);
 
     @SuppressWarnings("UnusedDeclaration")
     public NowPlayingIndicator(Context context) {
@@ -212,19 +216,6 @@ public class NowPlayingIndicator extends ProgressBar {
         mHandler.removeMessages(REFRESH);
     }
 
-    private final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (mTrack != null) {
-                switch (msg.what) {
-                    case REFRESH:
-                        setProgress((int) CloudPlaybackService.getCurrentProgress());
-                        queueNextRefresh(mRefreshDelay);
-                }
-            }
-        }
-    };
-
     private void queueNextRefresh(long delay) {
         Message msg = mHandler.obtainMessage(REFRESH);
         mHandler.removeMessages(REFRESH);
@@ -334,5 +325,25 @@ public class NowPlayingIndicator extends ProgressBar {
         }
 
         return mask;
+    }
+
+    private static final class RefreshHandler extends Handler {
+        private WeakReference<NowPlayingIndicator> mRef;
+
+        private RefreshHandler(NowPlayingIndicator nowPlaying) {
+            this.mRef = new WeakReference<NowPlayingIndicator>(nowPlaying);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final NowPlayingIndicator nowPlaying = mRef.get();
+            if (nowPlaying != null && nowPlaying.mTrack != null) {
+                switch (msg.what) {
+                    case REFRESH:
+                        nowPlaying.setProgress((int) CloudPlaybackService.getCurrentProgress());
+                        nowPlaying.queueNextRefresh(nowPlaying.mRefreshDelay);
+                }
+            }
+        }
     }
 }

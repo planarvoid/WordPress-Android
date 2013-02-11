@@ -48,6 +48,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -61,7 +62,6 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
     private ImageLoader mImageLoader;
-    private Handler handler = new Handler();
 
     private final static int TYPE_SEARCH_ITEM = 0;
     private final static int TYPE_TRACK  = 1;
@@ -81,7 +81,9 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             LOCAL
     };
 
+    //FIXME: ported this over to use static handler classes, but why not use AsyncTask instead?
     private SuggestionsHandler mSuggestionsHandler;
+    private Handler mNewSuggestionsHandler = new Handler();
     private HandlerThread mSuggestionsHandlerThread;
     private String mCurrentConstraint;
     private Pattern mCurrentPattern;
@@ -98,7 +100,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
         mSuggestionsHandlerThread = new HandlerThread("SuggestionsHandler", THREAD_PRIORITY_DEFAULT);
         mSuggestionsHandlerThread.start();
-        mSuggestionsHandler = new SuggestionsHandler(mSuggestionsHandlerThread.getLooper());
+        mSuggestionsHandler = new SuggestionsHandler(this, api, mSuggestionsHandlerThread.getLooper());
     }
 
     public void onDestroy() {
@@ -164,48 +166,21 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         }
     }
 
+    // this is called from a background thread
+    private void onRemoteSuggestions(final CharSequence constraint,
+                                     final @NotNull SearchSuggestions suggestions) {
+        mNewSuggestionsHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                // make sure we are still relevant
+                if (constraint.equals(mCurrentConstraint)) {
+                    mRemoteSuggestions = suggestions;
+                    swapCursor(getMixedCursor());
 
-    private final class SuggestionsHandler extends Handler {
-        public SuggestionsHandler(Looper looper) {
-            super(looper);
-        }
-        @Override
-        public void handleMessage(Message msg) {
-            final CharSequence constraint = (CharSequence) msg.obj;
-            try {
-                HttpResponse resp = mApi.get(Request.to("/search/suggest").with(
-                        "q", constraint,
-                        "highlight", "true",
-                        "limit", MAX_REMOTE));
-
-                if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(),
-                            SearchSuggestions.class);
-                    onRemoteSuggestions(constraint, searchSuggestions);
-                    return;
-                } else {
-                    Log.w(TAG, "invalid status code returned: " + resp.getStatusLine());
+                    prefetchResults(mRemoteSuggestions);
                 }
-            } catch (IOException e) {
-                Log.w(TAG, "error fetching suggestions", e);
             }
-            onRemoteSuggestions(constraint, SearchSuggestions.EMPTY);
-        }
-
-        private void onRemoteSuggestions(final CharSequence constraint, final @NotNull SearchSuggestions suggestions) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    // make sure we are still relevant
-                    if (constraint.equals(mCurrentConstraint)) {
-                        mRemoteSuggestions = suggestions;
-                        swapCursor(getMixedCursor());
-
-                        prefetchResults(mRemoteSuggestions);
-                    }
-                }
-            });
-        }
+        });
     }
 
     private void prefetchResults(SearchSuggestions suggestions) {
@@ -405,6 +380,46 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
                     Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         }
         return spanned;
+    }
+
+    private static final class SuggestionsHandler extends Handler {
+        private WeakReference<SuggestionsAdapter> mAdapterRef;
+        private AndroidCloudAPI mApi;
+
+
+        public SuggestionsHandler(SuggestionsAdapter adapter, AndroidCloudAPI api, Looper looper) {
+            super(looper);
+            mAdapterRef = new WeakReference<SuggestionsAdapter>(adapter);
+            mApi = api;
+        }
+        @Override
+        public void handleMessage(Message msg) {
+            final SuggestionsAdapter adapter = mAdapterRef.get();
+            if (adapter == null) {
+                return;
+            }
+
+            final CharSequence constraint = (CharSequence) msg.obj;
+            try {
+                HttpResponse resp = mApi.get(Request.to("/search/suggest").with(
+                        "q", constraint,
+                        "highlight", "true",
+                        "limit", MAX_REMOTE));
+
+                if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                    final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(),
+                            SearchSuggestions.class);
+
+                    adapter.onRemoteSuggestions(constraint, searchSuggestions);
+                    return;
+                } else {
+                    Log.w(TAG, "invalid status code returned: " + resp.getStatusLine());
+                }
+            } catch (IOException e) {
+                Log.w(TAG, "error fetching suggestions", e);
+            }
+            adapter.onRemoteSuggestions(constraint, SearchSuggestions.EMPTY);
+        }
     }
 
     /**

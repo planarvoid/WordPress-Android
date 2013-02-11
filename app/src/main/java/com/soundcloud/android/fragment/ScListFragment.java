@@ -59,6 +59,8 @@ import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 
+import java.lang.ref.WeakReference;
+
 public class ScListFragment extends SherlockListFragment implements PullToRefreshBase.OnRefreshListener,
                                                             DetachableResultReceiver.Receiver,
                                                             LocalCollection.OnChangeListener,
@@ -75,6 +77,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private @Nullable Content mContent;
     private @NotNull Uri mContentUri;
     private NetworkConnectivityListener connectivityListener;
+    private Handler connectivityHandler;
     private @Nullable CollectionTask mRefreshTask;
     private @Nullable LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
@@ -123,7 +126,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     public void onStart() {
         super.onStart();
         connectivityListener = new NetworkConnectivityListener();
-        connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
+        connectivityHandler = new ConnectivityHandler(this, connectivityListener);
+        connectivityListener.registerHandler(connectivityHandler, CONNECTIVITY_MSG);
 
         IntentFilter playbackFilter = new IntentFilter();
         playbackFilter.addAction(CloudPlaybackService.META_CHANGED);
@@ -621,22 +625,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mRefreshTask = null;
     }
 
-    private final Handler connHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                switch (msg.what) {
-                    case CONNECTIVITY_MSG:
-                        if (connectivityListener != null) {
-                            final NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
-                            if (networkInfo != null) {
-                                onDataConnectionUpdated(networkInfo.isConnectedOrConnecting());
-                            }
-                        }
-                        break;
-                }
-            }
-        };
-
     private void append(boolean force) {
         final Context context = getActivity();
         final ScBaseAdapter adapter = getListAdapter();
@@ -647,6 +635,32 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             mAppendTask.executeOnThreadPool(getTaskParams(adapter, false));
         }
         adapter.setIsLoadingData(true);
+    }
+
+    private static final class ConnectivityHandler extends Handler {
+        private WeakReference<ScListFragment> mFragmentRef;
+        private WeakReference<NetworkConnectivityListener> mListenerRef;
+
+        private ConnectivityHandler(ScListFragment fragment, NetworkConnectivityListener listener) {
+            this.mFragmentRef = new WeakReference<ScListFragment>(fragment);
+            this.mListenerRef = new WeakReference<NetworkConnectivityListener>(listener);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final ScListFragment fragment = mFragmentRef.get();
+            final NetworkConnectivityListener listener = mListenerRef.get();
+            switch (msg.what) {
+                case CONNECTIVITY_MSG:
+                    if (fragment != null && listener != null) {
+                        final NetworkInfo networkInfo = listener.getNetworkInfo();
+                        if (networkInfo != null) {
+                            fragment.onDataConnectionUpdated(networkInfo.isConnectedOrConnecting());
+                        }
+                    }
+                    break;
+            }
+        }
     }
 
     private class ChangeObserver extends ContentObserver {

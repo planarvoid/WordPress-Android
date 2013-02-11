@@ -49,6 +49,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
@@ -392,27 +394,36 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         return mCurrentUserId;
     }
 
-    private final Handler connHandler = new Handler() {
+    private static final class ConnectivityHandler extends Handler {
+        private WeakReference<ScActivity> mContextRef;
+
+        private ConnectivityHandler(ScActivity context) {
+            this.mContextRef = new WeakReference<ScActivity>(context);
+        }
+
         @Override
         public void handleMessage(Message msg) {
+            final ScActivity context = mContextRef.get();
             switch (msg.what) {
                 case CONNECTIVITY_MSG:
-                    if (msg.obj instanceof NetworkInfo) {
+                    if (context != null && msg.obj instanceof NetworkInfo) {
                         NetworkInfo networkInfo = (NetworkInfo) msg.obj;
                         final boolean connected = networkInfo.isConnectedOrConnecting();
                         if (connected) {
-                            ImageLoader.get(getApplicationContext()).clearErrors();
+                            ImageLoader.get(context.getApplicationContext()).clearErrors();
 
                             // announce potential proxy change
-                            sendBroadcast(new Intent(Actions.CHANGE_PROXY_ACTION)
-                                    .putExtra(Actions.EXTRA_PROXY, IOUtils.getProxy(ScActivity.this, networkInfo)));
+                            context.sendBroadcast(new Intent(Actions.CHANGE_PROXY_ACTION)
+                                    .putExtra(Actions.EXTRA_PROXY, IOUtils.getProxy(context, networkInfo)));
                         }
-                        onDataConnectionChanged(connected);
+                        context.onDataConnectionChanged(connected);
                     }
                     break;
             }
         }
-    };
+    }
+
+    private final Handler connHandler = new ConnectivityHandler(this);
 
     // tracking shizzle
     public void track(Event event, Object... args) {
