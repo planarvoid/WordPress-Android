@@ -81,6 +81,10 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
 
     public Playable() { }
 
+    public Playable(long id) {
+        super(id);
+    }
+
     public Playable(Cursor cursor) {
 
         final int trackIdIdx = cursor.getColumnIndex(DBHelper.ActivityView.SOUND_ID);

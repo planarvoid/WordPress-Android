@@ -52,6 +52,10 @@ public class Playlist extends Playable {
         super();
     }
 
+    public Playlist(long id) {
+        super(id);
+    }
+
     public Playlist(Parcel in) {
         Bundle b = in.readBundle(getClass().getClassLoader());
         super.readFromBundle(b);
