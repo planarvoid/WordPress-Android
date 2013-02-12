@@ -13,7 +13,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 @RunWith(DefaultTestRunner.class)
-public class PlayerActionButtonsControllerTest {
+public class PlayableActionButtonsControllerTest {
 
     private PlayableActionButtonsController controller;
 
