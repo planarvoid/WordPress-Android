@@ -3,6 +3,7 @@ package com.soundcloud.android;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -78,6 +79,7 @@ public interface AndroidCloudAPI extends CloudAPI {
         public static ObjectMapper buildObjectMapper() {
             return new ObjectMapper().
                     configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false).
+                    configure(SerializationFeature.WRAP_ROOT_VALUE, true).
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).
                     setDateFormat(new CloudDateFormat());
         }
@@ -124,6 +126,8 @@ public interface AndroidCloudAPI extends CloudAPI {
                         PreferenceManager.getDefaultSharedPreferences(context).getString(Consts.PrefKeys.DEV_HTTP_PROXY, null);
                 setProxy(TextUtils.isEmpty(proxy) ? null : URI.create(proxy));
             }
+
+            setDefaultAcceptEncoding("gzip");
         }
 
         @Override

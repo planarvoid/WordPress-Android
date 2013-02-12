@@ -16,14 +16,17 @@ import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.act.TrackActivity;
 import com.soundcloud.android.model.act.TrackSharingActivity;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -31,6 +34,7 @@ import android.net.Uri;
 import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
+@DatabaseConfig.UsingDatabaseMap(DefaultTestRunner.FileDatabaseMap.class)
 public class ApiSyncerTest {
     private static final long USER_ID = 133201L;
     private ContentResolver resolver;
@@ -253,6 +257,31 @@ public class ApiSyncerTest {
         CollectionHolder<Track> trackHolder = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver,Track.class, localUri);
         expect(trackHolder.collection.size()).toBe(41);
         expect(trackHolder.collection.get(1).title).toEqual("Keaton Henson - All Things Must Pass");
+    }
+
+    @Test
+    public void shouldSyncPlaylistWithAdditions() throws Exception {
+
+        TestHelper.addPendingHttpResponse(getClass(), "tracks.json");
+        Result result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));
+        expect(result.success).toBe(true);
+
+        final long playlistId = 2524386l;
+
+        expect(Playlist.addTrackToPlaylist(resolver,playlistId,10696200l, System.currentTimeMillis())).not.toBeNull();
+        expect(Playlist.addTrackToPlaylist(resolver,playlistId,10853436l, System.currentTimeMillis() + 100)).not.toBeNull();
+
+        TestHelper.addPendingHttpResponse(getClass(), "playlist.json", "playlist_added.json");
+
+        result = sync(Content.PLAYLIST.forId(10696200l));
+        expect(result.success).toBe(true);
+        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.change).toEqual(Result.CHANGED);
+        expect(Content.TRACKS).toHaveCount(44);
+
+        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylistWithTracks(playlistId);
+        expect(p.tracks.size()).toBe(43);
+        expect(p.tracks.get(1).title).toEqual("recording on thursday afternoon");
     }
 
     @Test

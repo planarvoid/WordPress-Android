@@ -26,4 +26,11 @@
                      style="@style/btn_sc_transport"
                      android:src="@drawable/ic_next_states"/>
     </RelativeLayout>
+    <RelativeLayout android:layout_weight="1"
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent">
+        <ToggleButton android:layout_centerInParent="true"
+                      android:id="@id/comment"
+                      style="@style/btn_sc_transport_comment"/>
+    </RelativeLayout>
 </merge>

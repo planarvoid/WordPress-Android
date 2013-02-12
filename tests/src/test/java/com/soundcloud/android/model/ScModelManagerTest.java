@@ -373,6 +373,32 @@ public class ScModelManagerTest {
     }
 
     @Test
+    public void shouldAddTrackToPlaylist() throws Exception {
+        Playlist p = manager.getModelFromStream(SyncAdapterServiceTest.class.getResourceAsStream("playlist.json"));
+        expect(p.tracks.size()).toEqual(41);
+        expect(p.insert(resolver)).not.toBeNull();
+
+        List<Track> tracks = createTracks();
+        int i = 0;
+        for (Track track : tracks){
+            expect(track.insert(resolver)).not.toBeNull();
+            ContentValues cv = new ContentValues();
+            cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID,p.id);
+            cv.put(DBHelper.PlaylistTracks.TRACK_ID,track.id);
+            cv.put(DBHelper.PlaylistTracks.ADDED_AT,System.currentTimeMillis() + 100*i); // fake add timestamps
+            final Uri insert = resolver.insert(Content.PLAYLIST_TRACKS.forId(p.id), cv);
+            expect(insert).not.toBeNull();
+            i++;
+        }
+
+        Playlist p2 = manager.getPlaylistWithTracks(p.id);
+        expect(p2).not.toBeNull();
+        expect(p2.tracks.size()).toEqual(43);
+        expect(p2.tracks.get(0).id).toEqual(tracks.get(1).id); // check ordering
+
+    }
+
+    @Test
     public void shouldPersistActivitiesInDb() throws Exception {
         Activities a = manager.getActivitiesFromJson(
                 SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));

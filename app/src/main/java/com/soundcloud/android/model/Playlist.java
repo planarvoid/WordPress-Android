@@ -1,13 +1,18 @@
 package com.soundcloud.android.model;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.api.Params;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,8 +21,11 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Playlist extends Playable {
 
@@ -156,4 +164,53 @@ public class Playlist extends Playable {
             return new Playlist[size];
         }
     };
+
+    @JsonRootName("playlist")
+    public static class ApiCreateObject{
+
+        @JsonView(Views.Full.class) String title;
+        @JsonView(Views.Full.class) String sharing;
+        @JsonView(Views.Full.class) List<ScModel> tracks;
+        public ApiCreateObject(String title, long trackId, boolean isPrivate) {
+            this.title = title;
+            this.sharing =  isPrivate ? Params.Track.PRIVATE : Params.Track.PUBLIC;
+            this.tracks = new ArrayList<ScModel>();
+            tracks.add(new ScModel(trackId));
+        }
+
+        public String toJson(ObjectMapper mapper) throws JsonProcessingException {
+            return mapper.writeValueAsString(this);
+        }
+    }
+
+    @JsonRootName("playlist")
+    public static class ApiUpdateObject {
+        @JsonView(Views.Full.class) List<ScModel> tracks;
+
+        public ApiUpdateObject(List<Long> toAdd) {
+            this.tracks = new ArrayList<ScModel>();
+            for (Long id : toAdd){
+                this.tracks.add(new ScModel(id));
+            }
+        }
+
+        public String toJson(ObjectMapper mapper) throws IOException {
+            return mapper.writeValueAsString(this);
+        }
+    }
+
+    public static Uri addTrackToPlaylist(ContentResolver resolver, long playlistId, long trackId){
+        return addTrackToPlaylist(resolver, playlistId, trackId,System.currentTimeMillis());
+    }
+
+    public static Uri addTrackToPlaylist(ContentResolver resolver, long playlistId, long trackId, long time){
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID, playlistId);
+        cv.put(DBHelper.PlaylistTracks.TRACK_ID, trackId);
+        cv.put(DBHelper.PlaylistTracks.ADDED_AT, time);
+        return resolver.insert(Content.PLAYLIST_TRACKS.forId(playlistId), cv);
+    }
+
+
+
 }

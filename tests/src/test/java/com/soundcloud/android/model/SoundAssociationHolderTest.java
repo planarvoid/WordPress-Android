@@ -8,10 +8,14 @@ import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
+import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.net.Uri;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 @RunWith(DefaultTestRunner.class)
@@ -67,7 +71,6 @@ public class SoundAssociationHolderTest {
         expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
                 Content.ME_LIKES.uri, 0, 50).size()).toEqual(1);
     }
-
 
     private SoundAssociation createAssociation(long id, String type) {
         SoundAssociation soundAssociation1 = new SoundAssociation();

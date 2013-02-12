@@ -8,10 +8,14 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.net.Uri;
 import android.os.Parcel;
+
+import java.util.Date;
 
 @RunWith(DefaultTestRunner.class)
 public class SoundAssociationTest {
@@ -76,6 +80,25 @@ public class SoundAssociationTest {
         expect(soundAssociation1.getListItemId()).not.toEqual(soundAssociation2.getListItemId());
     }
 
+    @Test
+    public void shouldInsertNewSoundAssociation() throws Exception {
+        DefaultTestRunner.application.setCurrentUserId(100L);
+        ScModelManager manager = DefaultTestRunner.application.MODEL_MANAGER;
+
+        //initial population
+        SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
+                getClass().getResourceAsStream("sounds.json"),
+                SoundAssociationHolder.class);
+
+        expect(manager.writeCollection(old, ScResource.CacheUpdateMode.NONE)).toEqual(38); // 38 tracks and 3 diff users
+
+        Playlist p = manager.getModelFromStream(SyncAdapterServiceTest.class.getResourceAsStream("playlist.json"));
+        SoundAssociation soundAssociation1 = new SoundAssociation(p, new Date(System.currentTimeMillis()),SoundAssociation.Type.PLAYLIST);
+
+        final Uri uri = soundAssociation1.insert(DefaultTestRunner.application.getContentResolver(),Content.ME_SOUNDS.uri);
+        expect(uri).toEqual(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/me/sounds/39"));
+    }
+
 
     private void compareSoundItems(SoundAssociation soundItem, SoundAssociation soundItem2) {
         expect(soundItem2.id).toEqual(soundItem.id);
@@ -83,4 +106,7 @@ public class SoundAssociationTest {
         expect(soundItem2.associationType).toEqual(soundItem.associationType);
         expect(soundItem2.playable).toEqual(soundItem.playable);
     }
+
+
+
 }

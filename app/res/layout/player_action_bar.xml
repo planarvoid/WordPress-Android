@@ -13,18 +13,14 @@
                                                     android:layout_marginLeft="5dp"
                                                     android:layout_weight="1"
                                                     android:layout_width="0dp"/>
-    <com.soundcloud.android.view.CustomToggleButton style="@style/PlayerAction.ToggleButton.Comment"
-                                                    android:id="@+id/toggle_comment"
-                                                    android:layout_weight="1"
-                                                    android:layout_marginLeft="5dp"
-                                                    android:layout_width="0dp"/>
-    <View android:layout_width="2dp"
-          android:layout_marginLeft="10dp"
-          android:layout_marginRight="10dp"
-          android:layout_height="fill_parent"
-          android:background="@drawable/player_track_vert_separator_bg"/>
+    <ImageButton style="@style/PlayerAction.Button.AddToSet"
+                 android:id="@+id/btn_addToSet"
+                 android:layout_marginLeft="5dp"/>
+
     <ImageButton android:id="@+id/btn_share"
+                 android:layout_marginLeft="5dp"
                  style="@style/PlayerAction.Button.Share"/>
+
     <ToggleButton android:layout_marginRight="@dimen/player_info_button_margin"
                   android:layout_marginLeft="@dimen/player_info_button_margin"
                   android:id="@+id/toggle_info"

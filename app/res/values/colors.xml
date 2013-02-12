@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="scOrange">#CCe36711</color>
+    <color name="scDarkGray">#CC101010</color>
 
     <color name="listTxtValue">#FF000000</color>
     <color name="listTxtValuePressed">#88FFFFFF</color>
@@ -104,7 +105,7 @@
 
     <color name="main_menu_bg">#FF222222</color>
 
-    <color name="search_suggestion_text_color">#CCCCCC</color>
+    <color name="light_gray_text">#CCCCCC</color>
     <color name="track_info_separator">#FFE5E5E5</color>
 
     <color name="txt_description_color">#FF666666</color>

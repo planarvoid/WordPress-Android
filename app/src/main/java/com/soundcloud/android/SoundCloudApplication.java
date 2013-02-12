@@ -430,6 +430,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi.setDefaultContentType(contentType);
     }
 
+    public void setDefaultAcceptEncoding(String encoding) {
+        mCloudApi.setDefaultAcceptEncoding(encoding);
+    }
+
     public HttpClient getHttpClient() {
         return mCloudApi.getHttpClient();
     }

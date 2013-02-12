@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:fitsSystemWindows="true">
+
+    <TextView android:id="@android:id/title"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              style="?android:attr/textAppearanceLarge"
+              android:minHeight="@dimen/abs__alert_dialog_title_height"
+              android:paddingLeft="16dip"
+              android:paddingRight="16dip"
+              android:gravity="center_vertical|left"/>
+
+    <View android:id="@+id/abs__titleDivider"
+          android:layout_width="fill_parent"
+          android:layout_height="2dip"
+          android:background="@color/scDarkGray"/>
+    <FrameLayout
+            android:layout_width="match_parent" android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:foreground="?attr/windowContentOverlay">
+        <ListView
+                android:id="@android:id/list"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+        </ListView>
+
+    </FrameLayout>
+</LinearLayout>

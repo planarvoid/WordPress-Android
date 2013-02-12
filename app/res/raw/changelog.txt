@@ -3,6 +3,7 @@ $ 55
   _ 2013-01-29
   ! Maintenance
   * Fixed language/local based IO problems
+  * No longer deleting external uploads
 
 
 $ 54
