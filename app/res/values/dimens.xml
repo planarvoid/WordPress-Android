@@ -42,7 +42,7 @@
     <dimen name="player_transport_height">60dp</dimen>
     <!-- end of can't change one of these without change them all -->
 
-    <dimen name="player_toggle_btn_drawable_padding">3dp</dimen>
+    <dimen name="player_info_button_margin">0dp</dimen>
 
     <dimen name="player_time_text_size">10sp</dimen>
     <dimen name="player_time_text_instructions_size">12sp</dimen>

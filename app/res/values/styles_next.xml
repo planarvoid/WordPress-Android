@@ -28,7 +28,7 @@
         <item name="android:background">@drawable/toggle_player_action_states</item>
         <item name="android:paddingLeft">11dp</item>
         <item name="android:paddingRight">11dp</item>
-        <item name="android:drawablePadding">@dimen/player_toggle_btn_drawable_padding</item>
+        <item name="android:drawablePadding">6dp</item>
     </style>
 
     <style name="PlayerAction.ToggleButton.Like">
@@ -59,6 +59,7 @@
         <item name="android:drawablePadding">0dp</item>
         <item name="android:textSize">14dp</item>
         <item name="android:layout_width">45dp</item>
+        <item name="android:gravity">center</item>
         <item name="android:textColor">@drawable/toggle_txt_player_info_states</item>
         <item name="android:textOn">@string/info</item>
         <item name="android:textOff">@string/info</item>

@@ -24,9 +24,9 @@
           android:layout_height="fill_parent"
           android:background="@drawable/player_track_vert_separator_bg"/>
     <ImageButton android:id="@+id/btn_share"
-                 android:layout_marginRight="5dp"
                  style="@style/PlayerAction.Button.Share"/>
-    <ToggleButton android:layout_marginRight="10dp"
+    <ToggleButton android:layout_marginRight="@dimen/player_info_button_margin"
+                  android:layout_marginLeft="@dimen/player_info_button_margin"
                   android:id="@+id/toggle_info"
                   style="@style/PlayerAction.Button.Info"/>
 </LinearLayout>
