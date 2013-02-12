@@ -21,8 +21,10 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.AdapterView;
@@ -53,18 +55,30 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
 
         Cursor cursor = getActivity().getContentResolver().query(
                 Content.ME_PLAYLISTS.uri,
-                new String[]{DBHelper.PlaylistTracksView._ID, DBHelper.PlaylistTracksView.TITLE}, null, null, null);
+                new String[]{DBHelper.PlaylistTracksView._ID,
+                        DBHelper.PlaylistTracksView.TITLE,
+                        DBHelper.PlaylistTracksView.TRACK_COUNT}, null, null, null);
 
-        MatrixCursor extras = new MatrixCursor(new String[] { DBHelper.PlaylistTracksView._ID, DBHelper.PlaylistTracksView.TITLE });
-        extras.addRow(new Object[] { -1l, getString(R.string.create_new_set) });
+        MatrixCursor extras = new MatrixCursor(new String[] { DBHelper.PlaylistTracksView._ID,
+                DBHelper.PlaylistTracksView.TITLE, DBHelper.PlaylistTracksView.TRACK_COUNT });
+
+        extras.addRow(new Object[] { -1l, getString(R.string.create_new_set), -1 });
 
         SimpleCursorAdapter.ViewBinder viewBinder = new SimpleCursorAdapter.ViewBinder() {
                public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-                   if (columnIndex == cursor.getColumnIndex(DBHelper.PlaylistTracksView._ID)){
-                       ImageView image = (ImageView) view;
-                       image.setImageResource(cursor.getLong(columnIndex) == -1 ?
-                               R.drawable.ic_new_set :
-                               R.drawable.ic_set);
+                   if (columnIndex == cursor.getColumnIndex(DBHelper.PlaylistTracksView.TRACK_COUNT)){
+                       final int trackCount = cursor.getInt(columnIndex);
+                       final TextView txtTrackCount = (TextView) view;
+                       if (trackCount == -1) {
+                           txtTrackCount.setCompoundDrawablesWithIntrinsicBounds(
+                                   getResources().getDrawable(R.drawable.ic_new_set), null, null, null);
+                           txtTrackCount.setText("");
+                       } else {
+                           txtTrackCount.setCompoundDrawablesWithIntrinsicBounds(
+                                   getResources().getDrawable(R.drawable.stream_white_sm), null, null, null);
+                           txtTrackCount.setText(String.valueOf(cursor.getLong(columnIndex)));
+                       }
+
 
                        return true;
 
@@ -75,16 +89,18 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
            };
 
         final SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(),
-                R.layout.search_suggestion,
+                R.layout.pick_set_row,
                 new MergeCursor(new Cursor[]{ extras, cursor }),
-                new String[]{DBHelper.PlaylistTracksView._ID,DBHelper.PlaylistTracksView.TITLE},
-                new int[]{R.id.icon,R.id.title});
+                new String[]{DBHelper.PlaylistTracksView.TRACK_COUNT,DBHelper.PlaylistTracksView.TITLE},
+                new int[]{R.id.trackCount,R.id.title});
 
         adapter.setViewBinder(viewBinder);
 
         final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_title_listview, null);
         ((TextView) dialogView.findViewById(android.R.id.title)).setText(getString(R.string.add_track_to_set, getArguments().getString(KEY_TRACK_TITLE)));
         ((ListView) dialogView.findViewById(android.R.id.list)).setAdapter(adapter);
+
+        final Handler handler = new Handler();
 
         ((ListView) dialogView.findViewById(android.R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -93,9 +109,12 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
 
                 if (playlistId == -1) {
                     CreateNewSetDialogFragment.from(getArguments().getLong(KEY_TRACK_ID)).show(getFragmentManager(), "create_new_set_dialog");
+                    getDialog().dismiss();
                 } else {
                     final FragmentActivity activity = getActivity();
                     if (getActivity() != null){
+
+
 
                         Playlist.addTrackToPlaylist(
                                 activity.getContentResolver(),playlistId,getArguments().getLong(KEY_TRACK_ID));
@@ -106,10 +125,21 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
                             ContentResolver.requestSync(soundCloudApplication.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
                         }
 
+                        final TextView txtTrackCount = (TextView) view.findViewById(R.id.trackCount);
+                        try {
+                            txtTrackCount.setText(String.valueOf(Integer.parseInt(String.valueOf(txtTrackCount.getText())) + 1));
+                        } catch (NumberFormatException e){
+                            Log.e(SoundCloudApplication.TAG,"Could not parse track count of "+ txtTrackCount.getText(), e );
+                        }
+
+                        handler.postDelayed(new Runnable() {
+                            public void run() {
+                                getDialog().dismiss();
+                            }
+                        }, 500);
+
                     }
                 }
-                // we done
-                getDialog().dismiss();
             }
         });
 

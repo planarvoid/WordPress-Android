@@ -382,11 +382,7 @@ public class ScModelManagerTest {
         int i = 0;
         for (Track track : tracks){
             expect(track.insert(resolver)).not.toBeNull();
-            ContentValues cv = new ContentValues();
-            cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID,p.id);
-            cv.put(DBHelper.PlaylistTracks.TRACK_ID,track.id);
-            cv.put(DBHelper.PlaylistTracks.ADDED_AT,System.currentTimeMillis() + 100*i); // fake add timestamps
-            final Uri insert = resolver.insert(Content.PLAYLIST_TRACKS.forId(p.id), cv);
+            final Uri insert = Playlist.addTrackToPlaylist(resolver,p.id,track.id,100*i);
             expect(insert).not.toBeNull();
             i++;
         }
