@@ -126,6 +126,8 @@ public interface AndroidCloudAPI extends CloudAPI {
                         PreferenceManager.getDefaultSharedPreferences(context).getString(Consts.PrefKeys.DEV_HTTP_PROXY, null);
                 setProxy(TextUtils.isEmpty(proxy) ? null : URI.create(proxy));
             }
+
+            setDefaultAcceptEncoding("gzip");
         }
 
         @Override
