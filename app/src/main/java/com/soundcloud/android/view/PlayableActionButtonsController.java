@@ -101,8 +101,10 @@ public class PlayableActionButtonsController {
             return "\u2014";
         } else if (count == 0) {
             return "";
+        } else if (count >= 10000) {
+            return "9k+"; // top out at 9k or text gets too long again
         } else if (count >= 1000) {
-            return "1k+";
+            return count / 1000 + "k+";
         } else {
             return String.valueOf(count);
         }

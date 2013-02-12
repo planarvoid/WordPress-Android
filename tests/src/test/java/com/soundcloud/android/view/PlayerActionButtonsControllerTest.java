@@ -26,13 +26,12 @@ public class PlayerActionButtonsControllerTest {
 
     @Test
     public void shouldShortenCountsOnToggleButtons() {
-
-        String smallNumberLabel = controller.labelForCount(999);
-        expect(smallNumberLabel).toEqual("999");
-
-        String largeNumberLabel = controller.labelForCount(1000);
-        expect(largeNumberLabel).toEqual("1k+");
-
+        expect(controller.labelForCount(999)).toEqual("999");
+        expect(controller.labelForCount(1000)).toEqual("1k+");
+        expect(controller.labelForCount(1999)).toEqual("1k+");
+        expect(controller.labelForCount(2000)).toEqual("2k+");
+        expect(controller.labelForCount(9999)).toEqual("9k+");
+        expect(controller.labelForCount(10000)).toEqual("9k+"); // 4 chars would make the text spill over again
     }
 
 
