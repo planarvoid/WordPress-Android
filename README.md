@@ -2,11 +2,12 @@
 
 ## Building
 
-Make sure the [Android SDK][], [Android NDK][] and Maven (3.x required) are installed:
+Make sure the [Android SDK][], [Android NDK][] and Maven (3.0.4+ required) are installed:
 
-    $ brew install android-sdk android-ndk # OSX - you'll also need XCode CLI tools
+    $ brew install android-sdk android-ndk maven # OSX - you'll also need XCode CLI tools
+    $ mv /usr/bin/mvn{,.old}
     $ mvn -version
-    Apache Maven 3.0.3 (r1075438; 2011-02-28 18:31:09+0100)
+    Apache Maven 3.0.4 (r1232337; 2012-01-17 09:44:56+0100)
 
 Add thess lines to your .zshrc (or bash or whatever) [version numbers may change]
 
