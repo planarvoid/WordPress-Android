@@ -169,7 +169,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "playlist_id INTEGER, " +
             "track_id INTEGER," +
             "position INTEGER," +
-
+            "added_at INTEGER," +
             "PRIMARY KEY (track_id, position, playlist_id) ON CONFLICT IGNORE" +
             ");";
 
@@ -398,6 +398,7 @@ public class DBHelper extends SQLiteOpenHelper {
     static final String DATABASE_CREATE_PLAYLIST_TRACKS_VIEW = "AS SELECT " +
             "PlaylistTracks." + PlaylistTracks.PLAYLIST_ID + " as " + PlaylistTracksView.PLAYLIST_ID +
             ", PlaylistTracks." + PlaylistTracks.POSITION + " as " + PlaylistTracksView.PLAYLIST_POSITION +
+            ", PlaylistTracks." + PlaylistTracks.ADDED_AT + " as " + PlaylistTracksView.PLAYLIST_ADDED_AT +
 
             // track+user data
             ", SoundView.*" +
@@ -802,12 +803,14 @@ public class DBHelper extends SQLiteOpenHelper {
     public final static class PlaylistTracksView extends SoundView {
         public static final String PLAYLIST_ID = PlaylistTracks.PLAYLIST_ID;
         public static final String PLAYLIST_POSITION = "playlist_position";
+        public static final String PLAYLIST_ADDED_AT = "playlist_added_at";
     }
 
     public final static class PlaylistTracks implements BaseColumns {
         public static final String PLAYLIST_ID = "playlist_id";
         public static final String TRACK_ID = "track_id";
         public static final String POSITION = "position";
+        public static final String ADDED_AT = "added_at";
     }
 
     /**

@@ -2,6 +2,23 @@
 
 <resources>
 
+
+    <style name="ScDialog" parent="android:Theme.Holo.Dialog">
+        <item name="android:windowTitleStyle">@style/myAlertDialogTitleStyle</item>
+    </style>
+
+    <style name="myAlertDialogTitleStyle">
+        <item name="android:maxLines">1</item>
+        <item name="android:scrollHorizontally">true</item>
+        <item name="android:textAppearance">@style/myAlertDialogTitleStyleTextAppearance</item>
+    </style>
+
+    <style name="myAlertDialogTitleStyleTextAppearance">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">#ffff8800</item>
+    </style>
+
+
     <!-- Standard animations for a non-full-screen window or activity. -->
     <style name="Animation"/>
     <style name="Animation.AddCommentDialog">
@@ -428,6 +445,13 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
+    <style name="btn_sc_transport_comment" parent="btn_sc_transport">
+        <item name="android:textOn">@null</item>
+        <item name="android:textOff">@null</item>
+        <item name="android:background">@drawable/toggle_player_comment_states</item>
+        <item name="android:contentDescription">@string/accessibility_comment_action</item>
+    </style>
+
     <style name="btn_sc_widget">
         <item name="android:padding">0dip</item>
         <item name="android:layout_margin">0dip</item>
@@ -819,7 +843,7 @@
     </style>
 
     <style name="search_suggestion_text" parent="side_menu_item_text">
-        <item name="android:textColor">@color/search_suggestion_text_color</item>
+        <item name="android:textColor">@color/light_gray_text</item>
     </style>
 
     <style name="Animations" />
