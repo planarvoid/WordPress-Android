@@ -60,6 +60,7 @@
         <item name="android:drawablePadding">0dp</item>
         <item name="android:textSize">14dp</item>
         <item name="android:layout_width">45dp</item>
+        <item name="android:gravity">center</item>
         <item name="android:textColor">@drawable/toggle_txt_player_info_states</item>
         <item name="android:textOn">@string/info</item>
         <item name="android:textOff">@string/info</item>
