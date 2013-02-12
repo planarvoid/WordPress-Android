@@ -63,7 +63,7 @@ public class ApiSyncer {
     public Result syncContent(Uri uri, String action) throws IOException {
         final long userId = SoundCloudApplication.getUserIdFromContext(mContext);
         Content c = Content.match(uri);
-        Result result = new Result(uri);
+        Result result = null;
 
         if (userId <= 0){
             Log.w(TAG, "Invalid user id, skipping sync ");
