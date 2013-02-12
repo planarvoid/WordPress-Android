@@ -133,7 +133,7 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncSounds() throws Exception {
-        addResourceResponse("/e1/me/sounds/mini?limit=200&linked_partitioning=1", "me_sounds_mini.json");
+        addResourceResponse("/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
 
         Result result = sync(Content.ME_SOUNDS.uri);
         expect(result.success).toBeTrue();
@@ -145,7 +145,8 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncLikes() throws Exception {
-        addResourceResponse("/e1/me/likes?limit=200&linked_partitioning=1", "e1_likes.json");
+        addResourceResponse("/e1/users/" + String.valueOf(USER_ID)
+                + "/likes?limit=200&representation=mini&linked_partitioning=1", "e1_likes.json");
 
         Result result = sync(Content.ME_LIKES.uri);
         expect(result.success).toBeTrue();
@@ -157,13 +158,14 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncSoundsAndLikes() throws Exception {
-        addResourceResponse("/e1/me/sounds/mini?limit=200&linked_partitioning=1", "me_sounds_mini.json");
+        addResourceResponse("/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
 
         Result result = sync(Content.ME_SOUNDS.uri);
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
-        addResourceResponse("/e1/me/likes?limit=200&linked_partitioning=1", "e1_likes.json");
+        addResourceResponse("/e1/users/" + String.valueOf(USER_ID)
+                + "/likes?limit=200&representation=mini&linked_partitioning=1", "e1_likes.json");
 
         result = sync(Content.ME_LIKES.uri);
         expect(result.success).toBeTrue();
