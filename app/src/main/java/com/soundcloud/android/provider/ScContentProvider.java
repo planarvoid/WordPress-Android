@@ -113,7 +113,7 @@ public class ScContentProvider extends ContentProvider {
                 } else if (_columns == null) _columns = formatWithUser(fullSoundAssociationColumns, userId);
 
                 makeSoundAssociationSelection(qb, String.valueOf(userId),
-                        new int[]{CollectionItemTypes.PLAYLIST});
+                        new int[]{CollectionItemTypes.TRACK, CollectionItemTypes.REPOST, CollectionItemTypes.PLAYLIST});
                 _sortOrder = makeCollectionSort(uri, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC");
 
                 break;
