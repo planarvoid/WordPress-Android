@@ -8,9 +8,9 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
 
-public class TrackRepostActivityRow extends ActivityRow {
+public class RepostActivityRow extends ActivityRow {
 
-    public TrackRepostActivityRow(Context context) {
+    public RepostActivityRow(Context context) {
         super(context);
     }
 

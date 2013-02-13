@@ -451,7 +451,8 @@ public class ApiSyncer {
                 toAdd.add(t.id);
             }
             while (c.moveToNext()) {
-                toAdd.add(c.getLong(0));
+                final long addId = c.getLong(0);
+                if (!toAdd.contains(addId)) toAdd.add(0, addId);
             }
 
             Playlist.ApiUpdateObject updateObject = new Playlist.ApiUpdateObject(toAdd);

@@ -20,7 +20,7 @@ import com.soundcloud.android.view.adapter.CommentActivityRow;
 import com.soundcloud.android.view.adapter.IconLayout;
 import com.soundcloud.android.view.adapter.LikeActivityRow;
 import com.soundcloud.android.view.adapter.PlayableRow;
-import com.soundcloud.android.view.adapter.TrackRepostActivityRow;
+import com.soundcloud.android.view.adapter.RepostActivityRow;
 
 import android.content.Context;
 import android.content.Intent;
@@ -69,11 +69,11 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
                 return new PlayableRow(mContext);
 
             case TRACK_REPOST:
+            case PLAYLIST_REPOST:
                 return (mContent == Content.ME_ACTIVITIES) ?
-                        new TrackRepostActivityRow(mContext) : new PlayableRow(mContext);
+                        new RepostActivityRow(mContext) : new PlayableRow(mContext);
 
             case PLAYLIST:
-            case PLAYLIST_REPOST:
             case PLAYLIST_SHARING:
                 // TODO, playlist view
                 return new PlayableRow(mContext);
