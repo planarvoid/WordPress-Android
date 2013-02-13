@@ -7,6 +7,7 @@ import static com.soundcloud.android.robolectric.TestHelper.readJson;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Like;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Shortcut;
 import com.soundcloud.android.model.SoundAssociation;
@@ -170,7 +171,7 @@ public class ScContentProviderTest {
         Activities activities = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(
                 ApiSyncServiceTest.class.getResourceAsStream("e1_stream_1.json"));
 
-        for (Track t : activities.getUniqueTracks()) {
+        for (Playable t : activities.getUniquePlayables()) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
             expect(resolver.insert(Content.TRACK.uri, t.buildContentValues())).not.toBeNull();
         }

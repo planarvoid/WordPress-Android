@@ -16,7 +16,6 @@ import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.act.TrackActivity;
 import com.soundcloud.android.model.act.TrackSharingActivity;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
@@ -26,7 +25,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -76,7 +74,7 @@ public class ApiSyncerTest {
         Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
         expect(incoming.size()).toEqual(120);
-        expect(incoming.getUniqueTracks().size()).toEqual(111); // currently excluding playlists
+        expect(incoming.getUniquePlayables().size()).toEqual(111); // currently excluding playlists
         assertResolverNotified(Content.ME_SOUND_STREAM.uri, Content.TRACKS.uri, Content.USERS.uri);
     }
     @Test
@@ -410,9 +408,9 @@ public class ApiSyncerTest {
         Activity a2 = incoming.get(1);
 
         expect(a1).toBeInstanceOf(TrackActivity.class);
-        expect(a1.getTrack().permalink).toEqual("bastard-amo1-edit");
+        expect(a1.getPlayable().permalink).toEqual("bastard-amo1-edit");
         expect(a2).toBeInstanceOf(TrackSharingActivity.class);
-        expect(a2.getTrack().permalink).toEqual("leotrax06-leo-zero-boom-bam");
+        expect(a2.getPlayable().permalink).toEqual("leotrax06-leo-zero-boom-bam");
     }
 
     @Test(expected = IOException.class)

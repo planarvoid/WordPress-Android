@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -36,18 +37,13 @@ public class CommentActivity extends Activity {
     }
 
     @Override
-    public Track getTrack() {
+    public Playable getPlayable() {
         return comment.track;
     }
 
     @Override
     public User getUser() {
         return comment.user;
-    }
-
-    @Override
-    public Playlist getPlaylist() {
-        return null;
     }
 
     @Override

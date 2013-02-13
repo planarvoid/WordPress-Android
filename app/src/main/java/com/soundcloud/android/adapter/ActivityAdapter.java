@@ -84,12 +84,10 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
             case TRACK_LIKE:
                 return new LikeActivityRow(mContext);
 
-            /*
-            TODO
-            case PLAYLIST_LIKE:
-                return new LikeActivityRow(mContext, this);
 
-            */
+            case PLAYLIST_LIKE:
+                return new LikeActivityRow(mContext);
+
 
             case AFFILIATION:
                 return new AffiliationActivityRow(mContext);
@@ -144,7 +142,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
                 if (mContent == Content.ME_ACTIVITIES) {
                     // todo, scroll to specific repost
                     mContext.startActivity(new Intent(mContext, TrackInteractionActivity.class)
-                            .putExtra(Track.EXTRA, getItem(position).getTrack())
+                            .putExtra(Track.EXTRA, getItem(position).getPlayable())
                             .putExtra(EXTRA_INTERACTION_TYPE, type.type));
                 } else {
                     PlayUtils.playFromAdapter(mContext, this, mData, position);
@@ -155,7 +153,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
                 if (mContent == Content.ME_ACTIVITIES) {
                     // todo, scroll to specific repost
                     mContext.startActivity(new Intent(mContext, PlaylistInteractionActivity.class)
-                            .putExtra(Playlist.EXTRA, getItem(position).getPlaylist())
+                            .putExtra(Playlist.EXTRA, getItem(position).getPlayable())
                             .putExtra(EXTRA_INTERACTION_TYPE, type.type));
                 } else {
                     PlayUtils.playFromAdapter(mContext, this, mData, position);

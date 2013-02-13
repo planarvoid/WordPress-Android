@@ -4,6 +4,7 @@ import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.fromString;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -79,19 +80,19 @@ public class ActivitiesTest {
     @Test
     public void testGetUniqueTracks() throws Exception {
         Activities activities = new Activities();
-        expect(activities.getUniqueTracks().size()).toEqual(0);
+        expect(activities.getUniquePlayables().size()).toEqual(0);
         Activity e1 = new TrackActivity() { public Track getTrack() { return new Track() { { id = 1; } }; } };
         Activity e2 = new TrackActivity() { public Track getTrack() { return new Track() { { id = 1; } }; } };
         Activity e3 = new TrackActivity() { public Track getTrack() { return new Track() { { id = 3; } }; } };
         activities = new Activities(e1, e2, e3);
-        expect(activities.getUniqueTracks().size()).toEqual(2);
+        expect(activities.getUniquePlayables().size()).toEqual(2);
     }
 
     @Test
     public void testFromJSON() throws Exception {
         Activities a = getActivities();
         expect(a.size()).toEqual(17);
-        expect(a.getUniqueTracks().size()).toEqual(4);
+        expect(a.getUniquePlayables().size()).toEqual(4);
         expect(a.getUniqueUsers().size()).toEqual(12);
     }
 
@@ -127,9 +128,9 @@ public class ActivitiesTest {
 
     @Test
     public void testGroupedByTrack() throws Exception {
-        Map<Track,Activities> grouped = getActivities().groupedByTrack();
+        Map<Playable,Activities> grouped = getActivities().groupedByPlayable();
         expect(grouped.size()).toEqual(5);
-        for (Map.Entry<Track,Activities> entry : grouped.entrySet()) {
+        for (Map.Entry<Playable,Activities> entry : grouped.entrySet()) {
             expect(entry.getValue().isEmpty()).toEqual(false);
         }
     }
