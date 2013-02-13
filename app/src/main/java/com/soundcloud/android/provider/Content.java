@@ -38,24 +38,29 @@ public enum Content  {
     ME_FOLLOWING("me/followings/#", null, 104, User.class, -1, null),
     ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, User.class, FOLLOWER, Table.COLLECTION_ITEMS),
     ME_FOLLOWER("me/followers/#", null, 106, User.class, -1, null),
+    ME_REPOSTS("me/reposts", null, 119, null, REPOST, Table.COLLECTION_ITEMS),
     ME_LIKES("me/likes", TempEndpoints.e1.MY_LIKES, 107, SoundAssociation.class, LIKE, Table.COLLECTION_ITEMS),
     ME_LIKE("me/likes/#", null, 108, Track.class, LIKE, null),
     ME_PLAYLISTS("me/playlists", null, 110, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
     ME_USERID("me/userid", null, 111, null, -1, null),
-    ME_TRACK_REPOSTS("me/reposts/tracks", TempEndpoints.e1.MY_TRACK_REPOSTS, 112, SoundAssociation.class, REPOST, Table.COLLECTION_ITEMS),
-    ME_TRACK_REPOST("me/reposts/tracks/#", TempEndpoints.e1.MY_TRACK_REPOST, 113, Track.class, -1, null),
 
     ME_SHORTCUT("me/shortcuts/#", TempEndpoints.i1.MY_SHORTCUTS, 114, Shortcut.class, -1, Table.SUGGESTIONS),
     ME_SHORTCUTS("me/shortcuts", TempEndpoints.i1.MY_SHORTCUTS, 115, Shortcut.class, -1, Table.SUGGESTIONS),
     ME_SHORTCUTS_ICON("me/shortcut_icon/#", null, 116, null, -1, Table.SUGGESTIONS),
 
+    ME_TRACK_REPOSTS("me/reposts/tracks", TempEndpoints.e1.MY_TRACK_REPOSTS, 112, SoundAssociation.class, REPOST, Table.COLLECTION_ITEMS),
+    ME_TRACK_REPOST("me/reposts/tracks/#", TempEndpoints.e1.MY_TRACK_REPOST, 113, Track.class, -1, null),
+    ME_TRACK_LIKES("me/likes/tracks", TempEndpoints.e1.MY_TRACK_LIKES, 122, SoundAssociation.class, LIKE, Table.COLLECTION_ITEMS),
+    ME_TRACK_LIKE("me/likes/tracks/#", TempEndpoints.e1.MY_TRACK_LIKE, 123, Track.class, -1, null),
+
     ME_PLAYLIST_REPOSTS("me/reposts/playlists", TempEndpoints.e1.MY_PLAYLIST_REPOSTS, 117, SoundAssociation.class, REPOST, Table.COLLECTION_ITEMS),
     ME_PLAYLIST_REPOST("me/reposts/playlists/#", TempEndpoints.e1.MY_PLAYLIST_REPOST, 118, Playlist.class, -1, null),
-    ME_REPOSTS("me/reposts", null, 119, null, REPOST, Table.COLLECTION_ITEMS),
+    ME_PLAYLIST_LIKES("me/likes/playlists", TempEndpoints.e1.MY_PLAYLIST_LIKES, 120, SoundAssociation.class, LIKE, Table.COLLECTION_ITEMS),
+    ME_PLAYLIST_LIKE("me/likes/playlists/#", TempEndpoints.e1.MY_PLAYLIST_LIKE, 121, Playlist.class, -1, null),
 
     ME_CONNECTION("me/connections/#",Endpoints.MY_CONNECTIONS, 130, Connection.class, -1, Table.CONNECTIONS),
     ME_CONNECTIONS("me/connections",Endpoints.MY_CONNECTIONS, 131, Connection.class, -1, Table.CONNECTIONS),
-    ME_SOUNDS("me/sounds", TempEndpoints.e1.MY_SOUNDS_MINI, 120, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
+    ME_SOUNDS("me/sounds", TempEndpoints.e1.MY_SOUNDS_MINI, 132, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
 
     // the ids of the following entries should not be changed, they are referenced in th db
     ME_SOUND_STREAM("me/stream", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),

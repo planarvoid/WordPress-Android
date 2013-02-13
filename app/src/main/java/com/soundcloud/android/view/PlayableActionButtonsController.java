@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.ImageButton;
@@ -78,7 +79,8 @@ public class PlayableActionButtonsController {
         button.invalidate();
 
         Context context = mRootView.getContext();
-        if (AndroidUtils.accessibilityFeaturesAvailable(context)) {
+        if (AndroidUtils.accessibilityFeaturesAvailable(context)
+                && TextUtils.isEmpty(button.getContentDescription())) {
             final StringBuilder builder = new StringBuilder();
             builder.append(context.getResources().getString(actionStringID));
 

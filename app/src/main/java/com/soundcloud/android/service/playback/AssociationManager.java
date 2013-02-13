@@ -31,7 +31,10 @@ public class AssociationManager {
         onLikeStatusSet(playable, like);
         AssociatedSoundTask task = like ? new AddAssociationTask(getApp(), playable) : new RemoveAssociationTask(getApp(), playable);
         task.setOnAssociatedListener(likeListener);
-        task.execute(Endpoints.MY_FAVORITE);
+        // resolve the playable content URI to its API endpoint
+        String contentPath = playable.toUri().getPath();
+        Content likeContent = Content.match(Content.ME_LIKES.uriPath + contentPath);
+        task.execute(likeContent.remoteUri);
     }
 
     void setRepost(@Nullable Playable playable, boolean repost) {

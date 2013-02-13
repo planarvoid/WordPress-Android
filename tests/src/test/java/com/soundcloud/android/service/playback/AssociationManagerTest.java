@@ -37,7 +37,7 @@ public class AssociationManagerTest {
         Track t = createTrack();
         modelManager.write(t);
 
-        addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(201, "OK"));
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(201, "OK"));
 
         int likesCount = modelManager.getTrack(t.id).likes_count;
         associationManager.setLike(t, true);
@@ -59,7 +59,7 @@ public class AssociationManagerTest {
         Track t = createTrack();
         modelManager.write(t);
 
-        addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
 
         int likesCount = modelManager.getTrack(t.id).likes_count;
         associationManager.setLike(t, true);
@@ -72,7 +72,7 @@ public class AssociationManagerTest {
         Track t = createTrack();
         modelManager.write(t);
 
-        addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(404, "FAIL"));
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(404, "FAIL"));
 
         int likesCount = modelManager.getTrack(t.id).likes_count;
         associationManager.setLike(t, true);
@@ -86,7 +86,7 @@ public class AssociationManagerTest {
         t.user_like = true;
         modelManager.write(t);
 
-        addHttpResponseRule("DELETE", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
+        addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
 
         int likesCount = modelManager.getTrack(t.id).likes_count;
         associationManager.setLike(t, false);
@@ -175,7 +175,7 @@ public class AssociationManagerTest {
         Track t = createTrack();
         t.user_like = true;
         modelManager.write(t);
-        addHttpResponseRule("DELETE", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(400, "FAIL"));
+        addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(400, "FAIL"));
 
         associationManager.setLike(t, false);
         expect(t.user_like).toBeTrue();
