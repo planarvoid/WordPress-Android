@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Creation;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
@@ -17,7 +18,6 @@ import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.task.collection.ReturnData;
 import com.soundcloud.android.task.collection.UpdateCollectionTask;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.view.adapter.IconLayout;
 import com.soundcloud.android.view.adapter.ListRow;
 import com.soundcloud.android.view.quickaction.QuickAction;
 import com.soundcloud.api.Endpoints;
@@ -223,34 +223,43 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     protected void checkForStaleItems(List<? extends ScModel> items) {
         if (items.isEmpty() || !IOUtils.isWifiConnected(mContext)) return;
+
         Set<Long> trackUpdates = new HashSet<Long>();
         Set<Long> userUpdates = new HashSet<Long>();
+        Set<Long> playlistUpdates = new HashSet<Long>();
         for (ScModel newItem : items) {
 
             if (newItem instanceof Refreshable) {
                 Refreshable refreshable = (Refreshable) newItem;
                 if (refreshable.isStale()) {
-
                     ScResource resource = refreshable.getRefreshableResource();
                     if (resource instanceof Track) {
                         trackUpdates.add(resource.id);
                     } else if (resource instanceof User) {
                         userUpdates.add(resource.id);
+                    } else if (resource instanceof Playlist) {
+                        playlistUpdates.add(resource.id);
                     }
                 }
             }
         }
         final AndroidCloudAPI api = SoundCloudApplication.fromContext(mContext);
         if (!trackUpdates.isEmpty()) {
-            UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.TRACKS);
+            UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.TRACKS, trackUpdates);
             task.setAdapter(this);
-            task.executeOnThreadPool(trackUpdates);
+            task.executeOnThreadPool();
         }
 
         if (!userUpdates.isEmpty()) {
-            UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.USERS);
+            UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.USERS, userUpdates);
             task.setAdapter(this);
-            task.executeOnThreadPool(userUpdates);
+            task.executeOnThreadPool();
+        }
+
+        if (!playlistUpdates.isEmpty()) {
+            UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.PLAYLISTS, playlistUpdates);
+            task.setAdapter(this);
+            task.executeOnThreadPool("representation", "compact");
         }
     }
 

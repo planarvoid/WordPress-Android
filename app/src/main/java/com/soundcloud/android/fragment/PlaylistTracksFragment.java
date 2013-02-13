@@ -94,7 +94,7 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
         PlayInfo info = new PlayInfo();
         info.initialTrack = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
         info.uri = mContentUri;
-        info.position = position;
+        info.position = position - getListView().getHeaderViewsCount();
         PlayUtils.playTrack(getActivity(), info);
     }
 

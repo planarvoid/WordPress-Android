@@ -18,16 +18,18 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Set;
 
-public class UpdateCollectionTask extends ParallelAsyncTask<Set<Long>, String, Boolean> {
+public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Boolean> {
     private AndroidCloudAPI mApi;
     private String mEndpoint;
     private WeakReference<BaseAdapter> mAdapterReference;
+    private Set<Long> mResourceIds;
 
-    public UpdateCollectionTask(AndroidCloudAPI api, String endpoint) {
+    public UpdateCollectionTask(AndroidCloudAPI api, String endpoint, Set<Long> resourceIds) {
         if (TextUtils.isEmpty(endpoint)) throw new IllegalArgumentException("endpoint is empty");
 
         mApi = api;
         mEndpoint = endpoint;
+        mResourceIds = resourceIds;
     }
 
     public void setAdapter(BaseAdapter lazyEndlessAdapter) {
@@ -43,13 +45,18 @@ public class UpdateCollectionTask extends ParallelAsyncTask<Set<Long>, String, B
     }
 
     @Override
-    protected Boolean doInBackground(Set<Long>... params) {
-        Set<Long> ids = params[0];
-        Log.i(TAG,"Updating " + ids.size() + " items");
+    protected Boolean doInBackground(String... params) {
+        Log.i(TAG,"Updating " + mResourceIds.size() + " items");
         try {
-            HttpResponse resp = mApi.get(Request.to(mEndpoint)
+            Request request = Request.to(mEndpoint)
                     .add("linked_partitioning", "1")
-                    .add("ids", TextUtils.join(",", ids)));
+                    .add("ids", TextUtils.join(",", mResourceIds));
+            if (params != null && params.length > 0 && params.length % 2 == 0) {
+                for (int i = 0; i < params.length; i += 2) {
+                    request.add(params[i], params[i+1]);
+                }
+            }
+            HttpResponse resp = mApi.get(request);
 
             if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 throw new IOException("Invalid response: " + resp.getStatusLine());

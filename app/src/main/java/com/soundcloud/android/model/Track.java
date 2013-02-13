@@ -277,7 +277,7 @@ public class Track extends Playable implements PlayableHolder {
     }
 
     public Track(long id) {
-        this.id = id;
+        super(id);
     }
 
     public Track(Parcel in) {
