@@ -7,6 +7,7 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.task.AddAssociationTask;
 import com.soundcloud.android.task.AssociatedSoundTask;
 import com.soundcloud.android.task.RemoveAssociationTask;
@@ -103,7 +104,7 @@ public class AssociationManager {
                 }
             }
             onRepostStatusSet(playable, isAssociated);
-            updateLocalState(playable, Content.ME_TRACK_REPOSTS.uri, isAssociated);
+            updateLocalState(playable, Content.ME_REPOSTS.uri, isAssociated);
         }
     };
 
@@ -112,7 +113,8 @@ public class AssociationManager {
             mContext.getContentResolver().insert(uri, playable.buildContentValues());
         } else {
             // TODO: this won't work for playlists
-            mContext.getContentResolver().delete(uri, "item_id = ?", new String[]{
+            mContext.getContentResolver().delete(uri, "item_id = ? AND " +
+                    DBHelper.CollectionItems.RESOURCE_TYPE + " = " + playable.getTypeId() , new String[]{
                 String.valueOf(playable.id),
             });
         }
