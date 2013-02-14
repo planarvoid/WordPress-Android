@@ -96,8 +96,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
             }
         });
 
-        String title = getString(R.string.add_track_to_set, getArguments().getString(KEY_TRACK_TITLE));
-        ((TextView) dialogView.findViewById(android.R.id.title)).setText(title);
+        ((TextView) dialogView.findViewById(android.R.id.title)).setText(getString(R.string.add_track_to_set));
         ((ListView) dialogView.findViewById(android.R.id.list)).setAdapter(adapter);
 
         builder.setNegativeButton("Cancel",new DialogInterface.OnClickListener() {
