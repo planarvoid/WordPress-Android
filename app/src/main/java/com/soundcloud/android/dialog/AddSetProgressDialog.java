@@ -47,7 +47,7 @@ public class AddSetProgressDialog extends SherlockDialogFragment {
                 new ContextThemeWrapper(getActivity(), R.style.ScDialog)
         );
 
-        final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_title_progress, null);
+        final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_add_set_progress, null);
         final TextView title = (TextView) dialogView.findViewById(android.R.id.title);
         final ProgressBar progressBar = (ProgressBar) dialogView.findViewById(R.id.progress);
 
