@@ -425,6 +425,13 @@ public class ScContentProvider extends ContentProvider {
 
             case TRACK:
             case USER:
+                if (content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE) != -1) {
+                    getContext().getContentResolver().notifyChange(uri, null, false);
+                } else {
+                    log("Error inserting to uri " + uri.toString());
+                }
+                return uri;
+
             case PLAYLIST:
                 if (content.table.upsert(db, new ContentValues[]{values}) != -1){
                     getContext().getContentResolver().notifyChange(uri, null, false);
@@ -465,6 +472,13 @@ public class ScContentProvider extends ContentProvider {
                 id = db.insert(content.table.name, null, values);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
+
+                // update the track count in the playlist tables
+                String playlistId = values.getAsString(DBHelper.PlaylistTracks.PLAYLIST_ID);
+                final String trackColumn = DBHelper.Sounds.TRACK_COUNT;
+                db.execSQL("UPDATE "+Table.SOUNDS.name+ " SET "+ trackColumn +"="+ trackColumn +" + 1 WHERE "+
+                        DBHelper.Sounds._ID +"=? AND " + DBHelper.Sounds._TYPE + "=?",
+                        new String[] {playlistId, String.valueOf(Playable.DB_TYPE_PLAYLIST)}) ;
                 return result;
 
             case SEARCHES:
@@ -640,31 +654,17 @@ public class ScContentProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
             case COLLECTION:
-                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                count = db.update(content.table.name, values, where, whereArgs);
-                getContext().getContentResolver().notifyChange(uri, null, false);
-                return count;
             case TRACK:
-                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                count = db.update(content.table.name, values, where, whereArgs);
-                getContext().getContentResolver().notifyChange(uri, null, false);
-                return count;
             case USER:
-                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                count = db.update(content.table.name, values, where, whereArgs);
-                getContext().getContentResolver().notifyChange(uri, null, false);
-                return count;
+            case PLAYLIST:
             case SEARCHES_ITEM:
-                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                count = db.update(content.table.name, values, where, whereArgs);
-                getContext().getContentResolver().notifyChange(uri, null, false);
-                return count;
-            case RECORDINGS:
-                count = db.update(content.table.name, values, where, whereArgs);
-                getContext().getContentResolver().notifyChange(uri, null, false);
-                return count;
             case RECORDING:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
+                count = db.update(content.table.name, values, where, whereArgs);
+                getContext().getContentResolver().notifyChange(uri, null, false);
+                return count;
+
+            case RECORDINGS:
                 count = db.update(content.table.name, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;

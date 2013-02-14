@@ -2,6 +2,7 @@ package com.soundcloud.android.dialog;
 
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -11,7 +12,6 @@ import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Switch;
 import android.widget.TextView;
 
 public class CreateNewSetDialogFragment extends SherlockDialogFragment {
@@ -42,6 +42,11 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
 
         final CheckBox privacy = (CheckBox) dialogView.findViewById(R.id.chk_private);
 
+        final boolean isJon = SoundCloudApplication.getUserId() == 172720l;
+        if (!isJon){
+            privacy.setVisibility(View.GONE);
+        }
+
         builder.setNegativeButton(R.string.cancel,new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -51,7 +56,8 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
         builder.setPositiveButton(R.string.done,new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                AddSetProgressDialog.from(getArguments().getLong(KEY_TRACK_ID), String.valueOf(input.getText()), privacy.isChecked())
+                AddSetProgressDialog.from(getArguments().getLong(KEY_TRACK_ID), String.valueOf(input.getText()),
+                        (isJon ? privacy.isChecked() : false))
                         .show(getFragmentManager(), "add_set_progress");
                 dialog.dismiss();
             }
