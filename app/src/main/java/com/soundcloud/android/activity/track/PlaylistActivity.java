@@ -74,7 +74,7 @@ public class PlaylistActivity extends ScActivity {
         unregisterReceiver(mReceiver);
     }
 
-    private boolean refreshPlaylistData(){
+    private boolean refreshPlaylistData() {
         if (mPlaylistUri != null && (mPlaylist = getPlaylist()) != null) {
             mPlaylistBar.display(mPlaylist);
             mActionButtons.update(mPlaylist);
@@ -82,7 +82,7 @@ public class PlaylistActivity extends ScActivity {
             return true;
 
         } else {
-            Log.e(SoundCloudApplication.TAG,"Playlist not found: " + (mPlaylistUri == null ? "null" : mPlaylistUri.toString()));
+            Log.e(SoundCloudApplication.TAG, "Playlist not found: " + (mPlaylistUri == null ? "null" : mPlaylistUri.toString()));
             finish();
             return false;
         }
