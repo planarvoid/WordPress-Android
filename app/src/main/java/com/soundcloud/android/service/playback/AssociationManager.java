@@ -66,7 +66,7 @@ public class AssociationManager {
     }
 
     private void onAssociationChanged(Playable playable) {
-        mModelManager.cache(playable, ScResource.CacheUpdateMode.NONE);
+        mModelManager.cacheAndWrite(playable, ScResource.CacheUpdateMode.NONE);
 
         Intent intent = new Intent(Playable.ACTION_TRACK_ASSOCIATION_CHANGED)
                 .putExtra(CloudPlaybackService.BroadcastExtras.id, playable.id)
