@@ -20,6 +20,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
+import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

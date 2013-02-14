@@ -80,7 +80,10 @@ public class TableTest {
         String oldSchema = Table.SOUNDS.createString;
         db.execSQL(oldSchema);
 
-        String newSchema = Table.SOUNDS.createString.substring(0, Table.SOUNDS.createString.lastIndexOf(")")) + ", new_column INTEGER);";
+        final int insertIndex = Table.SOUNDS.createString.lastIndexOf("PRIMARY");
+        String newSchema = Table.SOUNDS.createString.substring(0, insertIndex) +
+               " new_column INTEGER," + Table.SOUNDS.createString.substring(insertIndex);
+
         final int colCount = Table.alterColumns(db, Table.SOUNDS.name, newSchema, new String[0], new String[0]).size();
         final List<String> columnNames = Table.getColumnNames(db, Table.SOUNDS.name);
         expect(columnNames).toContain("new_column");

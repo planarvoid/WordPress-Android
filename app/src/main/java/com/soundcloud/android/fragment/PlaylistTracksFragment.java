@@ -3,6 +3,7 @@ package com.soundcloud.android.fragment;
 import com.handmark.pulltorefresh.extras.listfragment.PullToRefreshListFragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.PlaylistTracksAdapter;
 import com.soundcloud.android.model.LocalCollection;
@@ -11,8 +12,9 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.PlayUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.ScListView;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -24,7 +26,9 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class PlaylistTracksFragment extends PullToRefreshListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
         PullToRefreshBase.OnRefreshListener, LocalCollection.OnChangeListener {
@@ -33,11 +37,12 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
 
     private static final int PLAYER_LIST_LOADER = 0x01;
     private Uri mContentUri, mPlaylistUri;
-    private @Nullable LocalCollection mLocalCollection;
+    private LocalCollection mLocalCollection;
+    private ViewGroup mInfoHeader;
 
     private PlaylistTracksAdapter mAdapter;
 
-    public static PlaylistTracksFragment newInstance(Uri playlistUri) {
+    public static PlaylistTracksFragment newInstance(@NotNull Uri playlistUri) {
         PlaylistTracksFragment playlistTracksFragment = new PlaylistTracksFragment();
         Bundle args = new Bundle();
         args.putParcelable("playlistUri", playlistUri);
@@ -49,6 +54,11 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
     protected PullToRefreshListView onCreatePullToRefreshListView(LayoutInflater inflater, Bundle savedInstanceState) {
         final ScListView scListView = new ScListView(getActivity());
         scListView.setOnRefreshListener(this);
+
+        mInfoHeader = (ViewGroup) View.inflate(getActivity(), R.layout.playlist_header, null);
+        scListView.getRefreshableView().addHeaderView(mInfoHeader);
+        setHeaderInfo();
+
         return scListView;
     }
 
@@ -77,14 +87,14 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
     @Override
     public void onStart() {
         super.onStart();
-        if (mLocalCollection != null) mLocalCollection.startObservingSelf(getActivity().getContentResolver(), this);
+        mLocalCollection.startObservingSelf(getActivity().getContentResolver(), this);
         setRefreshingState();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (mLocalCollection != null) mLocalCollection.stopObservingSelf();
+        mLocalCollection.stopObservingSelf();
     }
 
     @Override
@@ -139,6 +149,9 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
     @Override
     public void onLocalCollectionChanged() {
         setRefreshingState();
+        if (mLocalCollection.sync_state == LocalCollection.SyncState.IDLE && mInfoHeader != null){
+            setHeaderInfo();
+        }
     }
 
     private void syncPlaylist() {
@@ -152,14 +165,19 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
     }
 
     private void setRefreshingState() {
-        if (mLocalCollection != null){
-            if (mLocalCollection.sync_state != LocalCollection.SyncState.IDLE){
-                getPullToRefreshListView().setRefreshing(true);
-            } else if (getPullToRefreshListView().isRefreshing()){
-                getPullToRefreshListView().onRefreshComplete();
-            }
+        if (mLocalCollection.sync_state != LocalCollection.SyncState.IDLE) {
+            getPullToRefreshListView().setRefreshing(true);
+        } else if (getPullToRefreshListView().isRefreshing()) {
+            getPullToRefreshListView().onRefreshComplete();
         }
     }
 
+    private void setHeaderInfo() {
+        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(mPlaylistUri);
+        final TextView infoText = (TextView) mInfoHeader.findViewById(R.id.playlist_info_header);
+        final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, p.track_count, p.track_count);
+        final String duration = ScTextUtils.formatTimestamp(p.duration);
+        infoText.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
+    }
 
 }

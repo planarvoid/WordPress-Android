@@ -54,7 +54,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.ScDialog));
 
         final BaseAdapter adapter = new MyPlaylistsAdapter(getActivity(),getArguments().getLong(KEY_TRACK_ID));
-        final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_title_listview, null);
+        final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_add_to_set, null);
         final Handler handler = new Handler();
 
         ((ListView) dialogView.findViewById(android.R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -96,7 +96,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
             }
         });
 
-        ((TextView) dialogView.findViewById(android.R.id.title)).setText(getString(R.string.add_track_to_set, getArguments().getString(KEY_TRACK_TITLE)));
+        ((TextView) dialogView.findViewById(android.R.id.title)).setText(getString(R.string.add_track_to_set));
         ((ListView) dialogView.findViewById(android.R.id.list)).setAdapter(adapter);
 
         builder.setNegativeButton("Cancel",new DialogInterface.OnClickListener() {
