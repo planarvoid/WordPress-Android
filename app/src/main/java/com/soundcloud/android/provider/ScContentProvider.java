@@ -425,13 +425,6 @@ public class ScContentProvider extends ContentProvider {
 
             case TRACK:
             case USER:
-                if (content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE) != -1) {
-                    getContext().getContentResolver().notifyChange(uri, null, false);
-                } else {
-                    log("Error inserting to uri " + uri.toString());
-                }
-                return uri;
-
             case PLAYLIST:
                 if (content.table.upsert(db, new ContentValues[]{values}) != -1){
                     getContext().getContentResolver().notifyChange(uri, null, false);
@@ -458,12 +451,12 @@ public class ScContentProvider extends ContentProvider {
                     values.put(DBHelper.TrackMetadata.USER_ID, userId);
                 }
                 String trackId = values.getAsString(DBHelper.TrackMetadata._ID);
-                content.table.insertWithOnConflict(db,values,SQLiteDatabase.CONFLICT_IGNORE);
+                content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
 
                 String counter = DBHelper.TrackMetadata.PLAY_COUNT;
-                db.execSQL("UPDATE "+content.table.name+
-                        " SET "+counter+"="+counter+" + 1 WHERE "+content.table.id +"= ?",
-                        new String[] {trackId}) ;
+                db.execSQL("UPDATE " + content.table.name +
+                        " SET " + counter + "=" + counter + " + 1 WHERE " + content.table.id + "= ?",
+                        new String[]{trackId}) ;
                 result = uri.buildUpon().appendPath(trackId).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
@@ -476,9 +469,9 @@ public class ScContentProvider extends ContentProvider {
                 // update the track count in the playlist tables
                 String playlistId = values.getAsString(DBHelper.PlaylistTracks.PLAYLIST_ID);
                 final String trackColumn = DBHelper.Sounds.TRACK_COUNT;
-                db.execSQL("UPDATE "+Table.SOUNDS.name+ " SET "+ trackColumn +"="+ trackColumn +" + 1 WHERE "+
-                        DBHelper.Sounds._ID +"=? AND " + DBHelper.Sounds._TYPE + "=?",
-                        new String[] {playlistId, String.valueOf(Playable.DB_TYPE_PLAYLIST)}) ;
+                db.execSQL("UPDATE " + Table.SOUNDS.name + " SET " + trackColumn + "=" + trackColumn + " + 1 WHERE " +
+                        DBHelper.Sounds._ID + "=? AND " + DBHelper.Sounds._TYPE + "=?",
+                        new String[]{playlistId, String.valueOf(Playable.DB_TYPE_PLAYLIST)}) ;
                 return result;
 
             case SEARCHES:
