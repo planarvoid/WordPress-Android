@@ -9,6 +9,8 @@
         <item name="actionBarItemBackground">@drawable/action_bar_item_selector</item>
         <item name="android:actionBarItemBackground">@drawable/action_bar_item_selector</item>
 
+        <item name="android:listDivider">@drawable/abs__list_divider_holo_light</item>
+
         <item name="android:windowAnimationStyle">@style/Theme.Next.Animation.Activity</item>
         <item name="android:popupAnimationStyle">@style/Theme.Next.Animation.Popup</item>
 
