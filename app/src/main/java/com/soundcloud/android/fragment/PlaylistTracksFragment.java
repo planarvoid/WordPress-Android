@@ -14,7 +14,7 @@ import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.ScListView;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -37,12 +37,12 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
 
     private static final int PLAYER_LIST_LOADER = 0x01;
     private Uri mContentUri, mPlaylistUri;
-    private @Nullable LocalCollection mLocalCollection;
+    private LocalCollection mLocalCollection;
     private ViewGroup mInfoHeader;
 
     private PlaylistTracksAdapter mAdapter;
 
-    public static PlaylistTracksFragment newInstance(Uri playlistUri) {
+    public static PlaylistTracksFragment newInstance(@NotNull Uri playlistUri) {
         PlaylistTracksFragment playlistTracksFragment = new PlaylistTracksFragment();
         Bundle args = new Bundle();
         args.putParcelable("playlistUri", playlistUri);
@@ -68,7 +68,6 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
 
         mPlaylistUri = (Uri) getArguments().get(PLAYLIST_URI);
         Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(mPlaylistUri);
-        setHeaderInfo(p);
 
         // TODO. the playlist could be null here. What then?
         mContentUri = Content.PLAYLIST_TRACKS.forId(p.id);
@@ -88,14 +87,14 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
     @Override
     public void onStart() {
         super.onStart();
-        if (mLocalCollection != null) mLocalCollection.startObservingSelf(getActivity().getContentResolver(), this);
+        mLocalCollection.startObservingSelf(getActivity().getContentResolver(), this);
         setRefreshingState();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (mLocalCollection != null) mLocalCollection.stopObservingSelf();
+        mLocalCollection.stopObservingSelf();
     }
 
     @Override
@@ -166,28 +165,19 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
     }
 
     private void setRefreshingState() {
-        if (mLocalCollection != null){
-            if (mLocalCollection.sync_state != LocalCollection.SyncState.IDLE){
-                getPullToRefreshListView().setRefreshing(true);
-            } else if (getPullToRefreshListView().isRefreshing()){
-                getPullToRefreshListView().onRefreshComplete();
-            }
+        if (mLocalCollection.sync_state != LocalCollection.SyncState.IDLE) {
+            getPullToRefreshListView().setRefreshing(true);
+        } else if (getPullToRefreshListView().isRefreshing()) {
+            getPullToRefreshListView().onRefreshComplete();
         }
     }
 
     private void setHeaderInfo() {
-        if (mPlaylistUri != null) {
-            setHeaderInfo(SoundCloudApplication.MODEL_MANAGER.getPlaylist(mPlaylistUri));
-        }
-    }
-
-    private void setHeaderInfo(Playlist p) {
-        if (mInfoHeader != null) {
-            final TextView infoText = (TextView) mInfoHeader.findViewById(R.id.playlist_info_header);
-            final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, p.track_count, p.track_count);
-            final String duration = ScTextUtils.formatTimestamp(p.duration);
-            infoText.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
-        }
+        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(mPlaylistUri);
+        final TextView infoText = (TextView) mInfoHeader.findViewById(R.id.playlist_info_header);
+        final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, p.track_count, p.track_count);
+        final String duration = ScTextUtils.formatTimestamp(p.duration);
+        infoText.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
     }
 
 }
