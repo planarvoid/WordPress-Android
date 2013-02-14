@@ -76,7 +76,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
                     action.equals(CloudPlaybackService.BUFFERING) ||
                     action.equals(CloudPlaybackService.BUFFERING_COMPLETE) ||
                     action.equals(CloudPlaybackService.PLAYBACK_ERROR) ||
-                    action.equals(Playable.ACTION_TRACK_ASSOCIATION_CHANGED)
+                    action.equals(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED)
                             && intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1) == mCurrentTrackId) {
 
                 performUpdate(context, new int[0], intent);

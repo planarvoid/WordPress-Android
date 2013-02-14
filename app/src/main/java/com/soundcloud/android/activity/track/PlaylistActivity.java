@@ -8,7 +8,6 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PlayableActionButtonsController;
 import com.soundcloud.android.view.adapter.PlayableBar;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +21,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.widget.TextView;
 
 public class PlaylistActivity extends ScActivity {
 
@@ -68,7 +66,7 @@ public class PlaylistActivity extends ScActivity {
         if (refreshPlaylistData() && savedInstanceState == null) setupTracksFragment();
 
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Playable.ACTION_TRACK_ASSOCIATION_CHANGED);
+        intentFilter.addAction(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED);
         registerReceiver(mReceiver, intentFilter);
     }
 
