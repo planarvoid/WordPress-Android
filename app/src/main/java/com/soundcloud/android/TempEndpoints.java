@@ -10,8 +10,12 @@ public interface TempEndpoints {
     public interface e1 {
         String MY_STREAM           = "/e1/me/stream";
         String MY_ACTIVITIES       = "/e1/me/activities";
+        String MY_TRACK_LIKES      = "/e1/me/track_likes";
+        String MY_TRACK_LIKE       = "/e1/me/track_likes/%d";
         String MY_TRACK_REPOSTS    = "/e1/me/track_reposts";
         String MY_TRACK_REPOST     = "/e1/me/track_reposts/%d";
+        String MY_PLAYLIST_LIKES   = "/e1/me/playlist_likes";
+        String MY_PLAYLIST_LIKE    = "/e1/me/playlist_likes/%d";
         String MY_PLAYLIST_REPOSTS = "/e1/me/playlist_reposts";
         String MY_PLAYLIST_REPOST  = "/e1/me/playlist_reposts/%d";
         String USER_REPOSTS        = "/e1/users/%d/reposts";

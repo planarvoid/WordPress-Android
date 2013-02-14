@@ -7,6 +7,7 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.task.AddAssociationTask;
 import com.soundcloud.android.task.AssociatedSoundTask;
 import com.soundcloud.android.task.RemoveAssociationTask;
@@ -26,23 +27,32 @@ public class AssociationManager {
         mModelManager = SoundCloudApplication.MODEL_MANAGER;
     }
 
-    void setLike(@Nullable Playable playable, boolean like) {
+    void setLike(@Nullable Playable playable, boolean likeAdded) {
         if (playable == null) return;
-        onLikeStatusSet(playable, like);
-        AssociatedSoundTask task = like ? new AddAssociationTask(getApp(), playable) : new RemoveAssociationTask(getApp(), playable);
-        task.setOnAssociatedListener(likeListener);
-        task.execute(Endpoints.MY_FAVORITE);
+        onLikeStatusSet(playable, likeAdded);
+        pushToRemote(playable, Content.ME_LIKES, likeAdded, likeListener);
     }
 
-    void setRepost(@Nullable Playable playable, boolean repost) {
+    void setRepost(@Nullable Playable playable, boolean repostAdded) {
         if (playable == null) return;
-        onRepostStatusSet(playable, repost);
-        AssociatedSoundTask task = repost ? new AddAssociationTask(getApp(), playable) : new RemoveAssociationTask(getApp(), playable);
-        task.setOnAssociatedListener(repostListener);
+        onRepostStatusSet(playable, repostAdded);
+        pushToRemote(playable, Content.ME_REPOSTS, repostAdded, repostListener);
+    }
+
+    /**
+     * PUT the added/removed like/repost to the API.
+     *
+     * @param playable the track or playlist that was liked or reposted
+     * @param content  the parent content URI
+     * @param added    true if the association was added, false if it was removed
+     * @param listener the callback for the API call
+     */
+    private void pushToRemote(Playable playable, Content content, boolean added, AssociatedSoundTask.AssociatedListener listener) {
+        AssociatedSoundTask task = added ? new AddAssociationTask(getApp(), playable) : new RemoveAssociationTask(getApp(), playable);
+        task.setOnAssociatedListener(listener);
         // resolve the playable content URI to its API endpoint
         String contentPath = playable.toUri().getPath();
-        Content repostContent = Content.match(Content.ME_REPOSTS.uriPath + contentPath);
-        task.execute(repostContent.remoteUri);
+        task.execute(Content.match(content.uriPath + contentPath).remoteUri);
     }
 
     private void onLikeStatusSet(Playable playable, boolean isLike) {
@@ -56,7 +66,7 @@ public class AssociationManager {
     }
 
     private void onAssociationChanged(Playable playable) {
-        mModelManager.cache(playable, ScResource.CacheUpdateMode.NONE);
+        mModelManager.cacheAndWrite(playable, ScResource.CacheUpdateMode.NONE);
 
         Intent intent = new Intent(Playable.ACTION_TRACK_ASSOCIATION_CHANGED)
                 .putExtra(CloudPlaybackService.BroadcastExtras.id, playable.id)
@@ -100,7 +110,7 @@ public class AssociationManager {
                 }
             }
             onRepostStatusSet(playable, isAssociated);
-            updateLocalState(playable, Content.ME_TRACK_REPOSTS.uri, isAssociated);
+            updateLocalState(playable, Content.ME_REPOSTS.uri, isAssociated);
         }
     };
 
@@ -108,9 +118,9 @@ public class AssociationManager {
         if (isAssociated) {
             mContext.getContentResolver().insert(uri, playable.buildContentValues());
         } else {
-            // TODO: this won't work for playlists
-            mContext.getContentResolver().delete(uri, "item_id = ?", new String[]{
-                String.valueOf(playable.id),
+            mContext.getContentResolver().delete(uri, "item_id = ? AND " +
+                    DBHelper.CollectionItems.RESOURCE_TYPE + " = " + playable.getTypeId(), new String[]{
+                    String.valueOf(playable.id),
             });
         }
     }

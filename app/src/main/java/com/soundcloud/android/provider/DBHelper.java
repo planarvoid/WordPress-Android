@@ -129,8 +129,8 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     static final String DATABASE_CREATE_SOUNDS = "("+
-            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            "_type INTEGER DEFAULT 0," +
+            "_id INTEGER," +
+            "_type INTEGER," +
             "last_updated INTEGER," +
             "permalink VARCHAR(255)," +
             "original_content_size INTEGER," +
@@ -162,7 +162,8 @@ public class DBHelper extends SQLiteOpenHelper {
             "tracks_uri VARCHAR(255),"+
             "track_count INTEGER DEFAULT -1," +
             "playlist_type VARCHAR(255),"+
-            "user_id INTEGER" +
+            "user_id INTEGER," +
+            "PRIMARY KEY (_id, _type) ON CONFLICT IGNORE" +
             ");";
 
     static final String DATABASE_CREATE_PLAYLIST_TRACKS = "(" +
@@ -328,7 +329,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "resource_type INTEGER DEFAULT 0, " +
             "position INTEGER, " +
             "created_at INTEGER, " +
-            "PRIMARY KEY(user_id, item_id, collection_type) ON CONFLICT REPLACE"+
+            "PRIMARY KEY(user_id, item_id, collection_type, resource_type) ON CONFLICT REPLACE"+
             ");";
 
 

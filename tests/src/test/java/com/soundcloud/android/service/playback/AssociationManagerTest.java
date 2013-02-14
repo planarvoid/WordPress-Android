@@ -9,15 +9,21 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
+import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import android.content.ContentResolver;
+import android.database.Cursor;
+import android.provider.BaseColumns;
 
 @RunWith(DefaultTestRunner.class)
 public class AssociationManagerTest {
@@ -35,153 +41,127 @@ public class AssociationManagerTest {
     @Test
     public void shouldCreateNewLike() throws Exception {
         Track t = createTrack();
-        modelManager.write(t);
+        int likesCount = t.likes_count;
 
-        addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(201, "OK"));
-
-        int likesCount = modelManager.getTrack(t.id).likes_count;
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(201, "OK"));
         associationManager.setLike(t, true);
+
         expect(modelManager.getTrack(t.id).user_like).toBeTrue();
         expect(modelManager.getTrack(t.id).likes_count).toEqual(likesCount + 1);
-        // clear out state
 
-        /*
-        TODO: fix state bug
-
-        modelManager.clear();
-        expect(modelManager.getPlayable(t.id).user_like).toBeTrue();
-
-        */
+        Track trackFromDb = (Track) modelManager.getModel(t.toUri(), null);
+        expect(trackFromDb.user_like).toBeTrue();
+        expect(trackFromDb.likes_count).toEqual(likesCount + 1);
     }
 
     @Test
-    public void shouldNotCreateLikeIfAlreadyLiked() throws Exception {
+    public void shouldNotChangeLikeCountIfAlreadyLiked() throws Exception {
         Track t = createTrack();
-        modelManager.write(t);
+        t.user_like = true;
+        int likesCount = t.likes_count;
 
-        addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
-
-        int likesCount = modelManager.getTrack(t.id).likes_count;
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
         associationManager.setLike(t, true);
+
         expect(modelManager.getTrack(t.id).user_like).toBeTrue();
         expect(modelManager.getTrack(t.id).likes_count).toEqual(likesCount);
+
+        Track trackFromDb = (Track) modelManager.getModel(t.toUri(), null);
+        expect(trackFromDb.user_like).toBeTrue();
+        expect(trackFromDb.likes_count).toEqual(likesCount);
     }
 
     @Test
     public void shouldNotChangeLikeCountWhenAddLikeApiCallFails() throws Exception {
         Track t = createTrack();
-        modelManager.write(t);
+        t.user_like = false;
+        int likesCount = t.likes_count;
 
-        addHttpResponseRule("PUT", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(404, "FAIL"));
-
-        int likesCount = modelManager.getTrack(t.id).likes_count;
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(404, "FAIL"));
         associationManager.setLike(t, true);
+
         expect(modelManager.getTrack(t.id).user_like).toBeFalse();
         expect(modelManager.getTrack(t.id).likes_count).toEqual(likesCount);
+
+        Track trackFromDb = (Track) modelManager.getModel(t.toUri(), null);
+        expect(trackFromDb.user_like).toBeFalse();
+        expect(trackFromDb.likes_count).toEqual(likesCount);
     }
 
     @Test
     public void shouldRemoveLikeStateOfSound() throws Exception {
         Track t = createTrack();
-        t.user_like = true;
-        modelManager.write(t);
+        int likesCount = t.likes_count;
 
-        addHttpResponseRule("DELETE", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
+        DefaultTestRunner.application.getContentResolver().insert(Content.ME_LIKES.uri, t.buildContentValues());
 
-        int likesCount = modelManager.getTrack(t.id).likes_count;
+        expect(((Track) modelManager.getModel(t.toUri(), null)).user_like).toBeTrue(); // make sure db has liked state
+
+        addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
         associationManager.setLike(t, false);
+
         expect(modelManager.getTrack(t.id).user_like).toBeFalse();
         expect(modelManager.getTrack(t.id).likes_count).toEqual(likesCount - 1);
 
-        // clear out state
+        Track trackFromDb = (Track) modelManager.getModel(t.toUri(), null);
+        expect(trackFromDb.user_like).toBeFalse();
+        expect(trackFromDb.likes_count).toEqual(likesCount - 1);
+    }
 
-        /*
+    @Test
+    public void removingLikeForTrackShouldNotRemoteLikeForPlaylistWithSameId() {
+        Track t = createTrack();
+        DefaultTestRunner.application.getContentResolver().insert(Content.ME_LIKES.uri, t.buildContentValues());
 
-        TODO fix state bug
+        Playlist p = new Playlist(t.id);
+        p.likes_count = 1;
+        DefaultTestRunner.application.getContentResolver().insert(Content.ME_LIKES.uri, p.buildContentValues());
 
-        modelManager.clear();
-        expect(modelManager.getPlayable(t.id).user_like).toBeFalse();
+        addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
+        associationManager.setLike(t, false);
 
-        */
+        expect(modelManager.getPlaylist(p.id).user_like).toBeTrue();
+        expect(modelManager.getPlaylist(p.id).likes_count).toEqual(1);
+
+        Playlist playlistFromDb = (Playlist) modelManager.getModel(p.toUri(), null);
+        expect(playlistFromDb.user_like).toBeTrue();
+        expect(playlistFromDb.likes_count).toEqual(1);
     }
 
     @Test
     public void shouldAddTrackRepost() throws Exception {
         Track t = createTrack();
-        modelManager.write(t);
+        expect(t.user_repost).toBeFalse();
+        int repostsCount = t.reposts_count;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.id).toUrl(), new TestHttpResponse(201, "OK"));
-
-        int repostsCount = modelManager.getTrack(t.id).reposts_count;
         associationManager.setRepost(t, true);
+
         expect(t.user_repost).toBeTrue();
         expect(modelManager.getTrack(t.id).user_repost).toBeTrue();
         expect(modelManager.getTrack(t.id).reposts_count).toEqual(repostsCount + 1);
 
-        // clear out cached state, read from db
-
-        /*
-        TODO fix state bug
-
-        modelManager.clear();
-        expect(modelManager.getPlayable(t.id).user_repost).toBeTrue();
-        */
+        Track trackFromDb = (Track) modelManager.getModel(t.toUri(), null);
+        expect(trackFromDb.user_repost).toBeTrue();
+        expect(trackFromDb.reposts_count).toEqual(repostsCount + 1);
     }
 
     @Test
     public void shouldAddPlaylistRepost() throws Exception {
         Playlist p = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
-        modelManager.write(p);
+        expect(p.user_repost).toBeFalse();
+        int repostsCount = p.reposts_count;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, p.id).toUrl(), new TestHttpResponse(201, "OK"));
-
-        int repostsCount = modelManager.getPlaylist(p.id).reposts_count;
-
         associationManager.setRepost(p, true);
+
         expect(p.user_repost).toBeTrue();
         expect(modelManager.getPlaylist(p.id).user_repost).toBeTrue();
         expect(modelManager.getPlaylist(p.id).reposts_count).toEqual(repostsCount + 1);
-    }
 
-    @Test
-    public void shouldAddAndDeleteRepost() throws Exception {
-        Track t = createTrack();
-        modelManager.write(t);
-
-        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.id).toUrl(), new TestHttpResponse(201, "OK"));
-        associationManager.setRepost(t, true);
-        expect(modelManager.getTrack(t.id).user_repost).toBeTrue();
-        expect(modelManager.getTrack(t.id).reposts_count).toEqual(6);
-
-        addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.id).toUrl(), new TestHttpResponse(200, "OK"));
-        associationManager.setRepost(t, false);
-        expect(t.user_repost).toBeFalse();
-        expect(modelManager.getTrack(t.id).user_repost).toBeFalse();
-        expect(modelManager.getTrack(t.id).reposts_count).toEqual(5);
-
-        // clear out cached state, read from db
-        /*
-        TODO FIX state bug
-
-        modelManager.clear();
-        expect(modelManager.getPlayable(t.id).user_repost).toBeFalse();
-
-        */
-    }
-
-
-    @Test
-    public void shouldNotChangeLikeStatusWhenRemoveApiCallFails() throws Exception {
-        Track t = createTrack();
-        t.user_like = true;
-        modelManager.write(t);
-        addHttpResponseRule("DELETE", Request.to(Endpoints.MY_FAVORITE, t.id).toUrl(), new TestHttpResponse(400, "FAIL"));
-
-        associationManager.setLike(t, false);
-        expect(t.user_like).toBeTrue();
-        expect(modelManager.getTrack(t.id).likes_count).toEqual(5);
-
-        expect(modelManager.getTrack(t.id)).toBe(t);
+        Playlist playlistFromDb = (Playlist) modelManager.getModel(p.toUri(), null);
+        expect(playlistFromDb.user_repost).toBeTrue();
+        expect(playlistFromDb.reposts_count).toEqual(repostsCount + 1);
     }
 
     private Track createTrack() {
@@ -195,4 +175,5 @@ public class AssociationManagerTest {
         t.likes_count = t.reposts_count = 5;
         return t;
     }
+
 }
