@@ -348,9 +348,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
 
     public abstract int getTypeId();
 
-    public boolean isStreamable() {
-        return streamable;
-    }
+    public abstract boolean isStreamable();
 
     public boolean isPublic() {
         return sharing == null || sharing.isPublic();

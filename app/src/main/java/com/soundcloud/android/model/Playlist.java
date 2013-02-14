@@ -221,4 +221,8 @@ public class Playlist extends Playable {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.playlist;
     }
 
+    public boolean isStreamable() {
+        return true;
+    }
+
 }
