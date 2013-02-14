@@ -202,6 +202,10 @@ public enum Content  {
         return table == Table.COLLECTION_ITEMS;
     }
 
+    public boolean isActivitiesItem() {
+        return table == Table.ACTIVITIES || table == Table.ACTIVITY_VIEW;
+    }
+
     public boolean isMine() {
         return id < MINE_CEILING;
     }
