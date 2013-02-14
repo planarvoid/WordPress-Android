@@ -492,7 +492,7 @@ public class ScModelManagerTest {
 
         final Track currentTrack = pm.getCurrentTrack();
         expect(currentTrack.id).toEqual(61217025l);
-        expect(activities.get(0).getTrack()).toBe(currentTrack);
+        expect(activities.get(0).getPlayable()).toBe(currentTrack);
 
     }
 
