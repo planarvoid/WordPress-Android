@@ -89,7 +89,7 @@ public enum Content  {
     USER_FOLLOWINGS("users/#/followings", Endpoints.USER_FOLLOWINGS, 306, User.class, FOLLOWING, null),
     USER_COMMENTS("users/#/comments", null, 307, Comment.class, -1, null),
     USER_GROUPS("users/#/groups", null, 308, null, -1, null),
-    USER_PLAYLISTS("users/#/playlists", null, 309, null, -1, null),
+    USER_PLAYLISTS("users/#/playlists", TempEndpoints.USER_PLAYLISTS, 309, null, -1, null),
     USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Playable.class, REPOST, null),
     USER_LOOKUP("users/*", Endpoints.USERS, 350, User.class, -1, Table.USERS),
 
