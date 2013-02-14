@@ -74,7 +74,7 @@ public class ApiSyncerTest {
         Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
         expect(incoming.size()).toEqual(120);
-        expect(incoming.getUniquePlayables().size()).toEqual(111); // currently excluding playlists
+        expect(incoming.getUniquePlayables().size()).toEqual(119); // currently excluding playlists
         assertResolverNotified(Content.ME_SOUND_STREAM.uri, Content.TRACKS.uri, Content.USERS.uri);
     }
     @Test

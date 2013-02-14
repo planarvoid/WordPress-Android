@@ -81,9 +81,9 @@ public class ActivitiesTest {
     public void testGetUniqueTracks() throws Exception {
         Activities activities = new Activities();
         expect(activities.getUniquePlayables().size()).toEqual(0);
-        Activity e1 = new TrackActivity() { public Track getTrack() { return new Track() { { id = 1; } }; } };
-        Activity e2 = new TrackActivity() { public Track getTrack() { return new Track() { { id = 1; } }; } };
-        Activity e3 = new TrackActivity() { public Track getTrack() { return new Track() { { id = 3; } }; } };
+        Activity e1 = new TrackActivity() { public Track getPlayable() { return new Track() { { id = 1; } }; } };
+        Activity e2 = new TrackActivity() { public Track getPlayable() { return new Track() { { id = 1; } }; } };
+        Activity e3 = new TrackActivity() { public Track getPlayable() { return new Track() { { id = 3; } }; } };
         activities = new Activities(e1, e2, e3);
         expect(activities.getUniquePlayables().size()).toEqual(2);
     }
@@ -343,7 +343,7 @@ public class ActivitiesTest {
                 ApiSyncServiceTest.class.getResourceAsStream("e1_one_of_each_activity.json"));
 
         Set<String> urls = a.artworkUrls();
-        expect(urls.size()).toEqual(4);
+        expect(urls.size()).toEqual(6);
         expect(urls).toContain(
             "https://i1.sndcdn.com/artworks-000031001595-r74u1y-large.jpg?04ad178",
             "https://i1.sndcdn.com/artworks-000019924877-kskpwr-large.jpg?04ad178",

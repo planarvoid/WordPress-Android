@@ -177,7 +177,7 @@ public class ScContentProviderTest {
         }
 
         expect(Content.TRACK).toHaveCount(20);
-        expect(Content.USERS).toHaveCount(9);
+        expect(Content.USERS).toHaveCount(11);
         Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(61350393l);
 
         expect(t).not.toBeNull();
