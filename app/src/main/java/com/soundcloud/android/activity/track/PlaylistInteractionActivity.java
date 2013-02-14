@@ -20,9 +20,9 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
         super.onCreate(savedInstanceState);
         // TODO: do we need different titles for playlists?
         if (mInteraction == Activity.Type.PLAYLIST_LIKE) {
-            setTitle(R.string.list_header_track_reposters);
-        } else {
             setTitle(R.string.list_header_track_likers);
+        } else {
+            setTitle(R.string.list_header_track_reposters);
         }
 
         mPlayableInfoBar.setOnClickListener(new View.OnClickListener() {

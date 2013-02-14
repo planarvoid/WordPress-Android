@@ -153,12 +153,9 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
 
         if (getUser() != null) cv.put(DBHelper.Activities.USER_ID, getUser().id);
 
-        if (getType().isPlaylistActivity()) {
-            cv.put(DBHelper.Activities.SOUND_ID, getPlaylist().id);
-            cv.put(DBHelper.Activities.SOUND_TYPE, Playable.DB_TYPE_PLAYLIST);
-        } else if (getTrack() != null) {
-            cv.put(DBHelper.Activities.SOUND_ID, getTrack().id);
-            cv.put(DBHelper.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
+        if (getPlayable() != null){
+            cv.put(DBHelper.Activities.SOUND_ID, getPlayable().id);
+            cv.put(DBHelper.Activities.SOUND_TYPE, getType().isPlaylistActivity() ? Playable.DB_TYPE_PLAYLIST : Playable.DB_TYPE_TRACK);
         }
         return cv;
     }
@@ -213,9 +210,8 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     }
 
     public abstract Type        getType();
-    public abstract Track       getTrack();
+    public abstract Playable    getPlayable();
     public abstract User        getUser();
-    public abstract Playlist    getPlaylist();
     public abstract void        cacheDependencies();
 
 
@@ -224,22 +220,13 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         final User user = getUser();
         if (user != null)  models.add(user);
 
-        final Track track = getTrack();
-        if (track != null) {
-            models.add(track);
-            if (track.user != null && track.user != user){
-                models.add(track.user);
+        final Playable playable = getPlayable();
+        if (playable != null)  {
+            models.add(playable);
+            if (playable.user != null){
+                models.add(playable.user);
             }
         }
-
-        final Playlist playlist = getPlaylist();
-        if (playlist != null) {
-            models.add(playlist);
-            if (playlist.user != null && playlist.user != user) {
-                models.add(playlist.user);
-            }
-        }
-
         return models;
     }
 

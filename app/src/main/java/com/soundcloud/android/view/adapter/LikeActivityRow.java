@@ -35,7 +35,7 @@ public class LikeActivityRow extends ActivityRow {
         builder.append(" ");
         builder.append(getContext().getResources().getString(R.string.accessibility_infix_liked));
         builder.append(" ");
-        builder.append(mActivity.getTrack().title);
+        builder.append(mActivity.getPlayable().title);
         builder.append(". ");
         builder.append(getTimeElapsed(getContext().getResources(), mActivity.created_at.getTime(), true));
 
