@@ -9,13 +9,11 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.create.NewPlaylistTask;
 import com.soundcloud.api.Request;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextThemeWrapper;
 import android.view.View;
