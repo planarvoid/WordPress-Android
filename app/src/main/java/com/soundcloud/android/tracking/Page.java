@@ -51,6 +51,7 @@ public enum Page implements Event {
     // user browser
     Users_dedicated_rec("user_permalink::dedicated_rec", Level2.Users),
     Users_sounds       ("user_permalink::sounds",    Level2.Users),
+    Users_sets         ("user_permalink::sets",      Level2.Users),
     Users_likes        ("user_permalink::likes",     Level2.Users),
     Users_following    ("user_permalink::following", Level2.Users),
     Users_followers    ("user_permalink::followers", Level2.Users),
@@ -59,6 +60,7 @@ public enum Page implements Event {
     // user browser (you)
     You_find_friends("find_friends::main", Level2.You),
     You_sounds      ("sounds::main",    Level2.You),
+    You_sets        ("sets::main",      Level2.You),
     You_likes       ("likes::main",     Level2.You),
     You_following   ("following::main", Level2.You),
     You_followers   ("followers::main", Level2.You),

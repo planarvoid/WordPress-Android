@@ -183,4 +183,7 @@
     <string name="add_set_private">Private</string>
     <string name="add_set_public">Public</string>
 
+    <string name="tab_title_my_sets">Your Sets</string>
+    <string name="tab_title_user_sets">Sets</string>
+
 </resources>

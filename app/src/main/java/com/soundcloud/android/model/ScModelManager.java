@@ -171,6 +171,8 @@ public class ScModelManager {
                     items.add(new Friend(getUserFromCursor(itemsCursor)));
                 } else if (SoundAssociation.class.equals(resourceType)) {
                     items.add(new SoundAssociation(itemsCursor));
+                } else if (Playlist.class.equals(resourceType)) {
+                    items.add(getCachedPlaylistFromCursor(itemsCursor));
                 } else {
                     throw new IllegalArgumentException("NOT HANDLED YET " + resourceType);
                 }
