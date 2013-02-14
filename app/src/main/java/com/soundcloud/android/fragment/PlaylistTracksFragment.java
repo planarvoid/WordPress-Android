@@ -154,6 +154,12 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
         }
     }
 
+    public void refreshTrackList() {
+        if (mAdapter != null) {
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
     private void syncPlaylist() {
         final FragmentActivity activity = getActivity();
         if (activity != null){

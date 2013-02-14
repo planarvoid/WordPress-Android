@@ -31,6 +31,8 @@ public class PlaylistActivity extends ScActivity {
     private PlayableBar mPlaylistBar;
     private PlayableActionButtonsController mActionButtons;
 
+    private PlaylistTracksFragment mFragment;
+
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -39,6 +41,8 @@ public class PlaylistActivity extends ScActivity {
                 mPlaylist.user_repost = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isRepost, false);
                 mActionButtons.update(mPlaylist);
             }
+
+            mFragment.refreshTrackList();
         }
     };
 
@@ -93,8 +97,8 @@ public class PlaylistActivity extends ScActivity {
     }
 
     private void setupTracksFragment() {
-        PlaylistTracksFragment fragment = PlaylistTracksFragment.newInstance(mPlaylistUri);
-        getSupportFragmentManager().beginTransaction().add(R.id.playlist_tracks_fragment, fragment).commit();
+        mFragment = PlaylistTracksFragment.newInstance(mPlaylistUri);
+        getSupportFragmentManager().beginTransaction().add(R.id.playlist_tracks_fragment, mFragment).commit();
     }
 
     @Override
