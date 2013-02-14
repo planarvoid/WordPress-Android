@@ -426,7 +426,7 @@ public class ScContentProvider extends ContentProvider {
             case TRACK:
             case USER:
             case PLAYLIST:
-                if (content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE) != -1){
+                if (content.table.upsert(db, new ContentValues[]{values}) != -1){
                     getContext().getContentResolver().notifyChange(uri, null, false);
                 } else {
                     log("Error inserting to uri " + uri.toString());

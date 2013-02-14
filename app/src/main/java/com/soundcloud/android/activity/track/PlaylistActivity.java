@@ -55,11 +55,6 @@ public class PlaylistActivity extends ScActivity {
             mPlaylistBar.display(mPlaylist);
             mActionButtons.update(mPlaylist);
 
-            TextView infoText = (TextView) findViewById(R.id.playlist_info_header);
-            final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, mPlaylist.track_count, mPlaylist.track_count);
-            final String duration = ScTextUtils.formatTimestamp(mPlaylist.duration);
-            infoText.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
-
             return true;
 
         } else {
