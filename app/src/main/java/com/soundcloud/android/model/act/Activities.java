@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -90,14 +91,14 @@ public class Activities extends CollectionHolder<Activity> {
         return users;
     }
 
-    public List<Track> getUniqueTracks() {
-        List<Track> tracks = new ArrayList<Track>();
+    public List<Playable> getUniquePlayables() {
+        List<Playable> playables = new ArrayList<Playable>();
         for (Activity a : this) {
-            if (a.getTrack() != null && !tracks.contains(a.getTrack())) {
-                tracks.add(a.getTrack());
+            if (a.getPlayable() != null && !playables.contains(a.getPlayable())) {
+                playables.add(a.getPlayable());
             }
         }
-        return tracks;
+        return playables;
     }
 
     public Activities selectType(Class<? extends Activity>... types) {
@@ -131,14 +132,14 @@ public class Activities extends CollectionHolder<Activity> {
         return selectType(TrackRepostActivity.class);
     }
 
-    public Map<Track, Activities> groupedByTrack() {
-        Map<Track,Activities> grouped = new HashMap<Track, Activities>();
+    public Map<Playable, Activities> groupedByPlayable() {
+        Map<Playable,Activities> grouped = new HashMap<Playable, Activities>();
 
         for (Activity e : this) {
-            Activities activities = grouped.get(e.getTrack());
+            Activities activities = grouped.get(e.getPlayable());
             if (activities == null) {
                 activities = new Activities();
-                grouped.put(e.getTrack(), activities);
+                grouped.put(e.getPlayable(), activities);
             }
             activities.add(e);
         }
@@ -189,7 +190,7 @@ public class Activities extends CollectionHolder<Activity> {
         Set<Long> ids = new HashSet<Long>(10);
         for (Activities a : activities) {
             for (Activity e : a) {
-                if (e.getTrack() != null) ids.add(e.getTrack().id);
+                if (e.getPlayable() != null) ids.add(e.getPlayable().id);
             }
         }
         return ids.size();
@@ -397,9 +398,9 @@ public class Activities extends CollectionHolder<Activity> {
     public Set<String> artworkUrls() {
         Set<String> artworkUrls = new HashSet<String>();
         for (Activity a : this) {
-            Track track = a.getTrack();
-            if (track != null) {
-                String artworkUrl = track.getArtwork();
+            Playable playable = a.getPlayable();
+            if (playable != null) {
+                String artworkUrl = playable.getArtwork();
                 if (!TextUtils.isEmpty(artworkUrl)) {
                     artworkUrls.add(artworkUrl);
                 }
@@ -419,9 +420,9 @@ public class Activities extends CollectionHolder<Activity> {
 
     public String getFirstAvailableArtwork() {
         for (Activity a : this) {
-            Track t = a.getTrack();
-            if (t != null && t.shouldLoadIcon()) {
-                return t.artwork_url;
+            Playable p = a.getPlayable();
+            if (p != null && p.shouldLoadIcon()) {
+                return p.artwork_url;
             }
         }
         // no artwork found, fall back to avatar

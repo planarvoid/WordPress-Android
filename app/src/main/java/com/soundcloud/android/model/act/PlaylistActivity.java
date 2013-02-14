@@ -34,18 +34,8 @@ public class PlaylistActivity extends Activity implements PlayableHolder {
     }
 
     @Override
-    public Track getTrack() {
-        return null;
-    }
-
-    @Override
     public User getUser() {
         return null;
-    }
-
-    @Override
-    public Playlist getPlaylist() {
-        return playlist;
     }
 
     @Override

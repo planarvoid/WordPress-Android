@@ -28,11 +28,6 @@ public class CommentActivityRow extends ActivityRow {
     }
 
     @Override
-    protected Track getTrack() {
-        return mComment.track;
-    }
-
-    @Override
     protected User getOriginUser() {
         return mComment.user;
     }
@@ -75,7 +70,7 @@ public class CommentActivityRow extends ActivityRow {
         builder.append(" ");
         builder.append(getContext().getResources().getString(R.string.accessibility_infix_commented));
         builder.append(" ");
-        builder.append(mActivity.getTrack().title);
+        builder.append(mActivity.getPlayable().title);
         builder.append(": ");
         builder.append(mComment.body);
         builder.append(". ");

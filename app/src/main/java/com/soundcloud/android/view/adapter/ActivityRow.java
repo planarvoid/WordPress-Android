@@ -8,6 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -57,8 +58,8 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
     }
 
     // override these for non-dashboard activities to account for different parcelable structures
-    protected Track getTrack() {
-        return mActivity.getTrack();
+    protected Playable getPlayable() {
+        return mActivity.getPlayable();
     }
 
     protected User getOriginUser() {
@@ -71,7 +72,7 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
 
     protected SpannableStringBuilder createSpan() {
         mSpanBuilder = new SpannableStringBuilder();
-        mSpanBuilder.append("  ").append(getTrack().title);
+        mSpanBuilder.append("  ").append(getPlayable().title);
         addSpan(mSpanBuilder);
         return mSpanBuilder;
     }
