@@ -223,6 +223,7 @@ public class PlayQueueManager {
                     // in case we load a depracated URI, just don't load the playlist
                     Log.e(PlayQueueManager.class.getSimpleName(),"Tried to load an invalid uri " + uri);
                 }
+                boolean isActivityCursor = Content.match(uri).isActivitiesItem();
                 ArrayList<PlayQueueItem> newQueue = null;
                 if (cursor != null) {
                     newQueue = new ArrayList<PlayQueueItem>();
@@ -230,7 +231,12 @@ public class PlayQueueManager {
                         do {
                             // tracks only, no playlists allowed past here
                             if (cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView._TYPE)) == Playable.DB_TYPE_TRACK) {
-                                newQueue.add(new PlayQueueItem(SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor), false));
+
+                                final Track trackFromCursor = isActivityCursor ?
+                                        SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor, DBHelper.ActivityView.SOUND_ID) :
+                                        SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor);
+
+                                newQueue.add(new PlayQueueItem(trackFromCursor,false));
                             }
                         } while (cursor.moveToNext());
                     }

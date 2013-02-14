@@ -129,7 +129,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_TRACKS:
             case ME_LIKES:
-            case ME_TRACK_REPOSTS:
+            case ME_REPOSTS:
                 qb.setTables(soundAssociationJoin);
                 if ("1".equals(uri.getQueryParameter(Parameter.TYPE_IDS_ONLY))) {
                     _columns = new String[]{DBHelper.SoundAssociationView._TYPE, DBHelper.SoundAssociationView._ID};
@@ -433,7 +433,7 @@ public class ScContentProvider extends ContentProvider {
                 return uri;
 
             case PLAYLIST:
-                if (content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE) != -1) {
+                if (content.table.upsert(db, new ContentValues[]{values}) != -1){
                     getContext().getContentResolver().notifyChange(uri, null, false);
                 } else {
                     log("Error inserting to uri " + uri.toString());
@@ -514,14 +514,16 @@ public class ScContentProvider extends ContentProvider {
                 }
 
             case ME_LIKES:
-            case ME_TRACK_REPOSTS:
+            case ME_REPOSTS:
                 id = Table.SOUNDS.upsertSingle(db, values);
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, userId);
                     cv.put(DBHelper.CollectionItems.CREATED_AT, System.currentTimeMillis());
-                    cv.put(DBHelper.CollectionItems.ITEM_ID, (Long) values.get(DBHelper.Sounds._ID));
+                    cv.put(DBHelper.CollectionItems.ITEM_ID, values.getAsLong(DBHelper.Sounds._ID));
                     cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, content.collectionType);
+                    cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, values.getAsInteger(DBHelper.Sounds._TYPE));
+
                     id = Table.COLLECTION_ITEMS.insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_IGNORE);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null, false);
@@ -608,7 +610,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_LIKES:
             case ME_TRACKS:
-            case ME_TRACK_REPOSTS:
+            case ME_REPOSTS:
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
             case USER_TRACKS:
@@ -781,7 +783,7 @@ public class ScContentProvider extends ContentProvider {
             case USER_TRACKS:
             case ME_LIKES:
             case USER_LIKES:
-            case ME_TRACK_REPOSTS:
+            case ME_REPOSTS:
             case USER_REPOSTS:
             case ME_FOLLOWERS:
             case USER_FOLLOWERS:

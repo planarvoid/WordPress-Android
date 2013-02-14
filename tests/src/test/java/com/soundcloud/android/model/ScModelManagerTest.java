@@ -5,11 +5,14 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.android.service.sync.ApiSyncerTest;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -467,6 +470,26 @@ public class ScModelManagerTest {
 
         expect(manager.writeCollection(users, ScResource.CacheUpdateMode.MINI)).toEqual(2);
         expect(manager.fetchMissingCollectionItems((AndroidCloudAPI) Robolectric.application, ids, Content.USERS, false, 5)).toEqual(5);
+    }
+
+    @Test
+    public void shouldShareActivityTrackWithPlayQueueManager() throws Exception {
+
+        Activities a = manager.getActivitiesFromJson(
+                SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
+
+        a.insert(Content.ME_SOUND_STREAM, resolver);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
+
+        Activities activities = Activities.get(Content.ME_SOUND_STREAM,resolver);
+
+        PlayQueueManager pm = new PlayQueueManager(Robolectric.application, USER_ID);
+        pm.loadUri(Content.ME_SOUND_STREAM.uri, 0, 61217025l);
+
+        final Track currentTrack = pm.getCurrentTrack();
+        expect(currentTrack.id).toEqual(61217025l);
+        expect(activities.get(0).getTrack()).toBe(currentTrack);
+
     }
 
     private User createUserWithId(long id){
