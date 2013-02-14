@@ -78,7 +78,7 @@ public class User extends ScResource implements Refreshable {
     }
 
     public User(long id) {
-        this.id = id;
+        super(id);
     }
 
     public static User fromUri(Uri uri, ContentResolver resolver, boolean createDummy) {

@@ -31,6 +31,10 @@ public abstract class ScResource extends ScModel {
     public ScResource() {
     }
 
+    public ScResource(long id) {
+        super(id);
+    }
+
     public enum CacheUpdateMode {
         NONE, MINI, FULL;
 

@@ -5,6 +5,7 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.*;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
@@ -77,8 +78,7 @@ public class PlayableActionButtonsController {
         button.invalidate();
 
         Context context = mRootView.getContext();
-        AccessibilityManager accessibilityManager = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
-        if (accessibilityManager.isEnabled()) {
+        if (AndroidUtils.accessibilityFeaturesAvailable(context)) {
             final StringBuilder builder = new StringBuilder();
             builder.append(context.getResources().getString(actionStringID));
 
@@ -96,11 +96,15 @@ public class PlayableActionButtonsController {
         }
     }
 
-    private String labelForCount(int count) {
+    String labelForCount(int count) {
         if (count < 0) {
             return "\u2014";
         } else if (count == 0) {
             return "";
+        } else if (count >= 10000) {
+            return "9k+"; // top out at 9k or text gets too long again
+        } else if (count >= 1000) {
+            return count / 1000 + "k+";
         } else {
             return String.valueOf(count);
         }

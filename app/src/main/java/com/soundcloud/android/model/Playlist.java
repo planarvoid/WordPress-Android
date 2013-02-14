@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.BulkInsertMap;
@@ -50,6 +51,10 @@ public class Playlist extends Playable {
 
     public Playlist() {
         super();
+    }
+
+    public Playlist(long id) {
+        super(id);
     }
 
     public Playlist(Parcel in) {
@@ -121,7 +126,7 @@ public class Playlist extends Playable {
 
     @Override
     public ScResource getRefreshableResource() {
-        return null;
+        return this;
     }
 
     @Override
@@ -211,6 +216,9 @@ public class Playlist extends Playable {
         return resolver.insert(Content.PLAYLIST_TRACKS.forId(playlistId), cv);
     }
 
-
+    @Override
+    public boolean isStale() {
+        return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.playlist;
+    }
 
 }
