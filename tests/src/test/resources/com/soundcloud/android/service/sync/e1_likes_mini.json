@@ -1,0 +1,42 @@
+{
+  "collection":  [
+     {
+      "kind": "like",
+      "created_at": "2013/01/29 13:54:24 +0000",
+      "track":  {
+        "id": 39859648,
+        "created_at": "2012/03/15 16:58:57 +0000",
+        "permalink": "android-to-the-big-screen",
+        "title": "Android to the Big Screen, Google TV by Christian Kurzke at droidcon",
+        "user_id": 5687414,
+        "kind": "track",
+        "duration": 1435609,
+        "sharing": "public",
+        "uri": "https://api.soundcloud.com/tracks/39859648",
+        "user_uri": "https://api.soundcloud.com/users/5687414",
+        "permalink_url": "http://soundcloud.com/soundcloud-android/android-to-the-big-screen",
+        "waveform_url": "https://w1.sndcdn.com/Rlfi6FSATTTN_m.png",
+        "stream_url": "https://api.soundcloud.com/tracks/39859648/stream",
+        "artwork_url": "https://i1.sndcdn.com/artworks-000019994056-v9g624-large.jpg?b55a1ff"
+      },
+      "playlist": null
+    },
+     {
+      "kind": "like",
+      "created_at": "2013/01/29 13:48:10 +0000",
+      "track": null,
+      "playlist":  {
+        "id": 3250804,
+        "created_at": "2013/01/09 14:56:53 +0000",
+        "permalink": "sounds-from-the-office",
+        "title": "Sounds from the office",
+        "user_id": 5687414,
+        "kind": "playlist",
+        "duration": 1456956,
+        "uri": "https://api.soundcloud.com/playlists/3250804",
+        "permalink_url": "http://soundcloud.com/soundcloud-android/sets/sounds-from-the-office",
+        "track_count": 1
+      }
+    }
+  ]
+}

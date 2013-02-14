@@ -2,6 +2,8 @@
 <resources>
 
     <style name="Theme.Next" parent="@style/Theme.Sherlock">
+
+        <item name="android:windowSoftInputMode">adjustPan</item>
         <item name="android:windowBackground">@color/white</item>
 
         <item name="actionBarItemBackground">@drawable/action_bar_item_selector</item>

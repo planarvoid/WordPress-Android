@@ -53,7 +53,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
     @Test
     public void shouldSyncLocalCollections() throws Exception {
         SyncContent.MySounds.setEnabled(Robolectric.application, true);
-        TestHelper.addCannedResponse(getClass(), "/e1/me/sounds/mini?limit=200&linked_partitioning=1" + NON_INTERACTIVE, "me_sounds_mini.json");
+        TestHelper.addCannedResponse(getClass(), "/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1" + NON_INTERACTIVE, "me_sounds_mini.json");
 
         // dashboard
         addCannedActivities(
