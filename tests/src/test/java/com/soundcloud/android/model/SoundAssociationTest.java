@@ -62,7 +62,7 @@ public class SoundAssociationTest {
 
         expect(newItems.size()).toEqual(41);
 
-        expect(Content.ME_PLAYLISTS).toHaveCount(3);
+        expect(Content.ME_PLAYLISTS).toHaveCount(2); // does not include the repost
 
     }
 
