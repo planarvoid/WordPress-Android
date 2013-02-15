@@ -29,7 +29,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
     public static final int DB_TYPE_TRACK    = 0; // TODO should not be exposed
     public static final int DB_TYPE_PLAYLIST = 1;
 
-    public static final String ACTION_TRACK_ASSOCIATION_CHANGED     = "com.soundcloud.android.playable.association_changed";
+    public static final String ACTION_PLAYABLE_ASSOCIATION_CHANGED  = "com.soundcloud.android.playable.association_changed";
     public static final String ACTION_SOUND_INFO_UPDATED            = "com.soundcloud.android.playable.info_updated";
     public static final String ACTION_SOUND_INFO_ERROR              = "com.soundcloud.android.playable.info_error";
     public static final String COMMENTS_UPDATED                     = "com.soundcloud.android.playable.commentsupdated";
@@ -348,9 +348,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
 
     public abstract int getTypeId();
 
-    public boolean isStreamable() {
-        return streamable;
-    }
+    public abstract boolean isStreamable();
 
     public boolean isPublic() {
         return sharing == null || sharing.isPublic();

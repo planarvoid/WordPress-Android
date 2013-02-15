@@ -8,7 +8,6 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PlayableActionButtonsController;
 import com.soundcloud.android.view.adapter.PlayableBar;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +21,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.widget.TextView;
 
 public class PlaylistActivity extends ScActivity {
 
@@ -30,6 +28,8 @@ public class PlaylistActivity extends ScActivity {
     private Playlist mPlaylist;
     private PlayableBar mPlaylistBar;
     private PlayableActionButtonsController mActionButtons;
+
+    private PlaylistTracksFragment mFragment;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -39,6 +39,8 @@ public class PlaylistActivity extends ScActivity {
                 mPlaylist.user_repost = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isRepost, false);
                 mActionButtons.update(mPlaylist);
             }
+
+            mFragment.refreshTrackList();
         }
     };
 
@@ -64,7 +66,7 @@ public class PlaylistActivity extends ScActivity {
         if (refreshPlaylistData() && savedInstanceState == null) setupTracksFragment();
 
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Playable.ACTION_TRACK_ASSOCIATION_CHANGED);
+        intentFilter.addAction(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED);
         registerReceiver(mReceiver, intentFilter);
     }
 
@@ -74,7 +76,7 @@ public class PlaylistActivity extends ScActivity {
         unregisterReceiver(mReceiver);
     }
 
-    private boolean refreshPlaylistData(){
+    private boolean refreshPlaylistData() {
         if (mPlaylistUri != null && (mPlaylist = getPlaylist()) != null) {
             mPlaylistBar.display(mPlaylist);
             mActionButtons.update(mPlaylist);
@@ -82,7 +84,7 @@ public class PlaylistActivity extends ScActivity {
             return true;
 
         } else {
-            Log.e(SoundCloudApplication.TAG,"Playlist not found: " + (mPlaylistUri == null ? "null" : mPlaylistUri.toString()));
+            Log.e(SoundCloudApplication.TAG, "Playlist not found: " + (mPlaylistUri == null ? "null" : mPlaylistUri.toString()));
             finish();
             return false;
         }
@@ -93,8 +95,8 @@ public class PlaylistActivity extends ScActivity {
     }
 
     private void setupTracksFragment() {
-        PlaylistTracksFragment fragment = PlaylistTracksFragment.newInstance(mPlaylistUri);
-        getSupportFragmentManager().beginTransaction().add(R.id.playlist_tracks_fragment, fragment).commit();
+        mFragment = PlaylistTracksFragment.newInstance(mPlaylistUri);
+        getSupportFragmentManager().beginTransaction().add(R.id.playlist_tracks_fragment, mFragment).commit();
     }
 
     @Override

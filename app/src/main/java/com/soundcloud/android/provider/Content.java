@@ -38,7 +38,7 @@ public enum Content  {
     ME_FOLLOWING("me/followings/#", null, 104, User.class, -1, null),
     ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, User.class, FOLLOWER, Table.COLLECTION_ITEMS),
     ME_FOLLOWER("me/followers/#", null, 106, User.class, -1, null),
-    ME_LIKES("me/likes", TempEndpoints.e1.MY_LIKES, 107, SoundAssociation.class, LIKE, Table.COLLECTION_ITEMS),
+    ME_LIKES("me/likes", TempEndpoints.e1.USER_LIKES, 107, SoundAssociation.class, LIKE, Table.COLLECTION_ITEMS),
     ME_LIKE("me/likes/#", null, 108, Track.class, LIKE, null),
     ME_REPOSTS("me/reposts", null, 109, null, REPOST, Table.COLLECTION_ITEMS),
     ME_PLAYLISTS("me/playlists", TempEndpoints.MY_PLAYLISTS, 110, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),

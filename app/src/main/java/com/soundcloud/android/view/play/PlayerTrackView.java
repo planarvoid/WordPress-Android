@@ -29,7 +29,6 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -494,7 +493,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                 mWaveformController.setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
             }
 
-        } else if (Playable.ACTION_TRACK_ASSOCIATION_CHANGED.equals(action)) {
+        } else if (Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED.equals(action)) {
             if (mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
                 mTrack.user_like = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false);
                 mTrack.user_repost = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isRepost, false);

@@ -64,7 +64,7 @@ public class ApiSyncer {
     public Result syncContent(Uri uri, String action) throws IOException {
         final long userId = SoundCloudApplication.getUserIdFromContext(mContext);
         Content c = Content.match(uri);
-        Result result = new Result(uri);
+        Result result = null;
 
         if (userId <= 0){
             Log.w(TAG, "Invalid user id, skipping sync ");
@@ -90,7 +90,7 @@ public class ApiSyncer {
 
                 case ME_LIKES:
                 case ME_SOUNDS:
-                    result = syncSoundAssociations(uri);
+                    result = syncSoundAssociations(c, uri, userId);
                     break;
 
                 case ME_TRACKS:
@@ -157,6 +157,7 @@ public class ApiSyncer {
         return result;
     }
 
+
     /**
      * This is specific because the Api does not return these as sound associations, otherwise
      * we could use that path
@@ -183,13 +184,12 @@ public class ApiSyncer {
         return result;
     }
 
-    private Result syncSoundAssociations(Uri uri) throws IOException {
-        Content c = Content.match(uri);
+    private Result syncSoundAssociations(Content content, Uri uri, long userId) throws IOException {
         Result result = new Result(uri);
         log("syncSoundAssociations(" + uri + ")");
 
         SoundAssociationHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
-                Request.to(c.remoteUri).with("limit", 200),
+                Request.to(content.remoteUri, userId).with("limit", 200).with("representation", "mini"),
                 SoundAssociationHolder.class);
 
         syncLocalSoundAssocationsToHolder(uri, holder, result);

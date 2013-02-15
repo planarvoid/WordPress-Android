@@ -11,7 +11,6 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.task.AddAssociationTask;
 import com.soundcloud.android.task.AssociatedSoundTask;
 import com.soundcloud.android.task.RemoveAssociationTask;
-import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -68,7 +67,7 @@ public class AssociationManager {
     private void onAssociationChanged(Playable playable) {
         mModelManager.cacheAndWrite(playable, ScResource.CacheUpdateMode.NONE);
 
-        Intent intent = new Intent(Playable.ACTION_TRACK_ASSOCIATION_CHANGED)
+        Intent intent = new Intent(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED)
                 .putExtra(CloudPlaybackService.BroadcastExtras.id, playable.id)
                 .putExtra(CloudPlaybackService.BroadcastExtras.isRepost, playable.user_repost)
                 .putExtra(CloudPlaybackService.BroadcastExtras.isLike, playable.user_like)

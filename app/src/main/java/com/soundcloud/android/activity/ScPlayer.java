@@ -329,7 +329,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
         f.addAction(CloudPlaybackService.SEEKING);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
-        f.addAction(Playable.ACTION_TRACK_ASSOCIATION_CHANGED);
+        f.addAction(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED);
         f.addAction(Playable.ACTION_SOUND_INFO_UPDATED);
         f.addAction(Playable.ACTION_SOUND_INFO_ERROR);
         f.addAction(Playable.COMMENTS_UPDATED);
