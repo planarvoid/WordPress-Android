@@ -226,7 +226,7 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case PLAYLIST_TRACKS:
-                qb.setTables(makeCollectionJoin(Table.PLAYLIST_TRACKS_VIEW));
+                qb.setTables(Table.PLAYLIST_TRACKS_VIEW.name);
                 // extract the playlist id from the second to last segment
                 qb.appendWhere(DBHelper.PlaylistTracksView.PLAYLIST_ID + " = " + uri.getPathSegments().get(1));
                 if (_columns == null) {
