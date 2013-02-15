@@ -83,6 +83,10 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         return mData.get(location);
     }
 
+    public @NotNull List<T> getItems() {
+        return mData;
+    }
+
     public void setIsLoadingData(boolean isLoadingData) {
         mIsLoadingData = isLoadingData;
         notifyDataSetChanged();
