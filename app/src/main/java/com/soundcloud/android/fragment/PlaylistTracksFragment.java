@@ -38,7 +38,7 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
     private static final int PLAYER_LIST_LOADER = 0x01;
     private Uri mContentUri, mPlaylistUri;
     private LocalCollection mLocalCollection;
-    private ViewGroup mInfoHeader;
+    private TextView mInfoHeader;
 
     private PlaylistTracksAdapter mAdapter;
 
@@ -55,7 +55,7 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
         final ScListView scListView = new ScListView(getActivity());
         scListView.setOnRefreshListener(this);
 
-        mInfoHeader = (ViewGroup) View.inflate(getActivity(), R.layout.playlist_header, null);
+        mInfoHeader = (TextView) View.inflate(getActivity(), R.layout.playlist_header, null);
         scListView.getRefreshableView().addHeaderView(mInfoHeader);
         setHeaderInfo();
 
@@ -180,10 +180,9 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
 
     private void setHeaderInfo() {
         Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(mPlaylistUri);
-        final TextView infoText = (TextView) mInfoHeader.findViewById(R.id.playlist_info_header);
         final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, p.track_count, p.track_count);
         final String duration = ScTextUtils.formatTimestamp(p.duration);
-        infoText.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
+        mInfoHeader.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
     }
 
 }
