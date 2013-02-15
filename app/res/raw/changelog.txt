@@ -1,5 +1,13 @@
-$ 55
+$ 56
   % v current
+  _ 2013-02-15
+  ! Sets
+  * Listen to Sets in the Android App
+  * Create and add to new sets on the go
+
+
+$ 55
+  % v 2.4.6
   _ 2013-01-29
   ! Maintenance
   * Fixed language/local based IO problems
