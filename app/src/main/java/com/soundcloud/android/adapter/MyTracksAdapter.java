@@ -178,8 +178,15 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
 
     @Override
     public Playable getPlayable(int position) {
-        // unfortunately, a recording isn't a true playable, need to fix this somehow
-        return null;
+        if (mRecordingData != null) {
+            if (position < mRecordingData.size()) {
+                return null;
+            } else {
+                return (Playable) super.getItem(position - mRecordingData.size());
+            }
+        } else {
+            return (Playable) super.getItem(position);
+        }
     }
 
     public void onDestroy(){
