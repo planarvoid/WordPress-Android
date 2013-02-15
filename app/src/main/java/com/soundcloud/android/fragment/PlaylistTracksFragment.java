@@ -56,7 +56,7 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
         scListView.setOnRefreshListener(this);
 
         mInfoHeader = (TextView) View.inflate(getActivity(), R.layout.playlist_header, null);
-        scListView.getRefreshableView().addHeaderView(mInfoHeader);
+        scListView.getRefreshableView().addHeaderView(mInfoHeader, null, false);
         setHeaderInfo();
 
         return scListView;
