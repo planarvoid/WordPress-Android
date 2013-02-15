@@ -92,6 +92,12 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        checkPlaylistSize();
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         mLocalCollection.stopObservingSelf();
@@ -124,14 +130,18 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
                 setListShownNoAnimation(true);
                 setListAdapter(mAdapter);
             }
-
-            // if we don't have the entire playlist, re-sync the playlist.
-            if (data == null || data.getCount() < playlist.track_count) {
-                syncPlaylist();
-            }
+            checkPlaylistSize();
 
         } else {
             mAdapter.swapCursor(data);
+        }
+    }
+
+    private void checkPlaylistSize(){
+        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(mPlaylistUri);
+        // if we don't have the entire playlist, re-sync the playlist.
+        if (getListAdapter() != null && getListAdapter().getCount() < p.track_count) {
+            syncPlaylist();
         }
     }
 

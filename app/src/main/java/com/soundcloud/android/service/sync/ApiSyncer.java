@@ -470,7 +470,10 @@ public class ApiSyncer {
 
         Result result = new Result(contentUri);
         InputStream is = validateResponse(mApi.get(Content.match(contentUri).request(contentUri))).getEntity().getContent();
-        Playlist p = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is);
+
+        // todo, one call
+        Playlist p = (Playlist) SoundCloudApplication.MODEL_MANAGER.cache(
+                SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is), ScResource.CacheUpdateMode.FULL);
 
         Cursor c = mResolver.query(
                 Content.PLAYLIST_TRACKS.forId(p.id), new String[]{DBHelper.PlaylistTracksView._ID},
