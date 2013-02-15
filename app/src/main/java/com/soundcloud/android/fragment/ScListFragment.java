@@ -207,6 +207,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 case ME_LIKES:
                 case USER_LIKES:
                 case USER_SOUNDS:
+                case ME_PLAYLISTS:
+                case USER_PLAYLISTS:
                     adapter = new SoundAssociationAdapter(getActivity(), mContentUri);
                     break;
                 case SEARCH:

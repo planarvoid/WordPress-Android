@@ -41,7 +41,7 @@ public enum Content  {
     ME_LIKES("me/likes", TempEndpoints.e1.USER_LIKES, 107, SoundAssociation.class, LIKE, Table.COLLECTION_ITEMS),
     ME_LIKE("me/likes/#", null, 108, Track.class, LIKE, null),
     ME_REPOSTS("me/reposts", null, 109, null, REPOST, Table.COLLECTION_ITEMS),
-    ME_PLAYLISTS("me/playlists", null, 110, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
+    ME_PLAYLISTS("me/playlists", TempEndpoints.MY_PLAYLISTS, 110, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
     ME_USERID("me/userid", null, 111, null, -1, null),
 
     ME_SHORTCUT("me/shortcuts/#", TempEndpoints.i1.MY_SHORTCUTS, 115, Shortcut.class, -1, Table.SUGGESTIONS),
@@ -89,7 +89,7 @@ public enum Content  {
     USER_FOLLOWINGS("users/#/followings", Endpoints.USER_FOLLOWINGS, 306, User.class, FOLLOWING, null),
     USER_COMMENTS("users/#/comments", null, 307, Comment.class, -1, null),
     USER_GROUPS("users/#/groups", null, 308, null, -1, null),
-    USER_PLAYLISTS("users/#/playlists", null, 309, null, -1, null),
+    USER_PLAYLISTS("users/#/playlists", TempEndpoints.USER_PLAYLISTS, 309, null, -1, null),
     USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Playable.class, REPOST, null),
     USER_LOOKUP("users/*", Endpoints.USERS, 350, User.class, -1, Table.USERS),
 

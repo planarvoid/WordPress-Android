@@ -19,6 +19,7 @@ public class SyncConfig {
 
     public static final long ACTIVITY_STALE_TIME        = DEFAULT_STALE_TIME;
     public static final long TRACK_STALE_TIME           = DEFAULT_STALE_TIME;
+    public static final long PLAYLIST_STALE_TIME        = DEFAULT_STALE_TIME;
     public static final long USER_STALE_TIME            = DEFAULT_STALE_TIME * 12;  // users aren't as crucial
     public static final long CONNECTIONS_STALE_TIME     = DEFAULT_STALE_TIME * 24;
     public static final long SHORTCUTS_STALE_TIME       = DEFAULT_STALE_TIME * 24;
