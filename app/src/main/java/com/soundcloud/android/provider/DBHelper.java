@@ -1043,12 +1043,17 @@ public class DBHelper extends SQLiteOpenHelper {
     // Schema used in sets, added extra fields to SoundView
     private static boolean upgradeTo20(SQLiteDatabase db, int oldVersion) {
         try {
-            Table.SOUNDS.alterColumns(db);
+            Table.COLLECTIONS.recreate(db);
+            Table.COLLECTION_ITEMS.recreate(db);
+            Table.SOUNDS.recreate(db);
+            Table.ACTIVITIES.recreate(db);
+            Table.PLAYLIST_TRACKS.recreate(db);
+
             Table.SOUND_VIEW.recreate(db);
             Table.SOUND_ASSOCIATION_VIEW.recreate(db);
-            Table.ACTIVITIES.recreate(db);
             Table.ACTIVITY_VIEW.recreate(db);
             Table.PLAYLIST_TRACKS_VIEW.recreate(db);
+
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade20 " +
