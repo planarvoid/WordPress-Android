@@ -2,9 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/nav_you"             android:text="@string/side_menu_you"                android:icon="@drawable/sidebar_you"/>
     <item android:id="@+id/nav_stream"          android:text="@string/side_menu_stream"             android:icon="@drawable/sidebar_stream"         android:layout="@layout/main_menu_dashboard_item"   />
-    <item android:id="@+id/nav_news"            android:text="@string/side_menu_activity"           android:icon="@drawable/sidebar_activity"       android:layout="@layout/main_menu_dashboard_item"   />
     <item android:id="@+id/nav_likes"           android:text="@string/side_menu_likes"              android:icon="@drawable/sidebar_likes"/>
-    <item android:id="@+id/nav_sets"             android:text="@string/side_menu_sets"               android:icon="@drawable/ic_action_current_set"/>
+    <item android:id="@+id/nav_sets"            android:text="@string/side_menu_sets"              android:icon="@drawable/ic_set"/>
+    <item android:id="@+id/nav_news"            android:text="@string/side_menu_activity"           android:icon="@drawable/sidebar_activity"       android:layout="@layout/main_menu_dashboard_item"   />
     <item android:id="@+id/nav_suggested_users" android:text="@string/side_menu_suggested_users"    android:icon="@drawable/sidebar_peopleufollow"/>
     <item android:id="@+id/nav_friend_finder"   android:text="@string/side_menu_friend_finder"      android:icon="@drawable/sidebar_you"/>
     <item android:id="@+id/nav_record"          android:text="@string/side_menu_record"             android:icon="@drawable/sidebar_record"/>
