@@ -9,6 +9,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Creation;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
@@ -50,7 +51,7 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = CommentActivity.class, name = "comment")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class Activity extends ScModel implements Parcelable, Refreshable, Comparable<Activity>, Creation {
+public abstract class Activity extends ScModel implements Parcelable, Refreshable, Comparable<Activity>, PlayableHolder {
     @JsonProperty public String uuid;
     @JsonProperty public Date created_at;
     @JsonProperty public String tags;
@@ -210,7 +211,6 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     }
 
     public abstract Type        getType();
-    public abstract Playable    getPlayable();
     public abstract User        getUser();
     public abstract void        cacheDependencies();
 
