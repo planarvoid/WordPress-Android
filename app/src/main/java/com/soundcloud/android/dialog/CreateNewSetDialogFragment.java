@@ -8,11 +8,14 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class CreateNewSetDialogFragment extends SherlockDialogFragment {
 
@@ -53,19 +56,32 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
                 dialog.dismiss();
             }
         });
-        builder.setPositiveButton(R.string.done,new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.done, null);
+
+        // convoluted, but seems there's no better way:
+        // http://stackoverflow.com/questions/2620444/how-to-prevent-a-dialog-from-closing-when-a-button-is-clicked
+        final AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                AddSetProgressDialog.from(getArguments().getLong(KEY_TRACK_ID), String.valueOf(input.getText()),
-                        (isJon ? privacy.isChecked() : false))
-                        .show(getFragmentManager(), "add_set_progress");
-                dialog.dismiss();
+            public void onShow(DialogInterface di) {
+                Button button = dialog.getButton(Dialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (TextUtils.isEmpty(input.getText())) {
+                            Toast.makeText(getActivity(), R.string.error_new_set_blank_title, Toast.LENGTH_SHORT).show();
+                        } else {
+                            AddSetProgressDialog.from(getArguments().getLong(KEY_TRACK_ID), String.valueOf(input.getText()),
+                                    (isJon ? privacy.isChecked() : false))
+                                    .show(getFragmentManager(), "add_set_progress");
+                            dialog.dismiss();
+                        }
+                    }
+                });
             }
         });
 
-        return builder.create();
-
-
+        return dialog;
     }
 
 }
