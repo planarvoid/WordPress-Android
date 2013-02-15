@@ -10,13 +10,13 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.adapter.CommentAdapter;
+import com.soundcloud.android.adapter.DefaultPlayableAdapter;
 import com.soundcloud.android.adapter.FriendAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.PlayableAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.adapter.SearchAdapter;
 import com.soundcloud.android.adapter.SoundAssociationAdapter;
-import com.soundcloud.android.adapter.TrackAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.imageloader.ImageLoader;
@@ -24,8 +24,6 @@ import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -62,8 +60,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
-
-import java.util.List;
 
 public class ScListFragment extends SherlockListFragment implements PullToRefreshBase.OnRefreshListener,
                                                             DetachableResultReceiver.Receiver,
@@ -230,7 +226,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 case USER_PLAYLISTS:
                     listenForPlaylistChanges = true;
                 default:
-                    mAdapter = new TrackAdapter(getActivity(), mContentUri);
+                    mAdapter = new DefaultPlayableAdapter(getActivity(), mContentUri);
             }
             setListAdapter(mAdapter);
             configureEmptyView();
