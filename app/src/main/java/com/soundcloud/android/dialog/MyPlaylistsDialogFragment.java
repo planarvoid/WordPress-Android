@@ -15,6 +15,7 @@ import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
@@ -37,7 +38,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
 
     public static final String COL_ALREADY_ADDED = "ALREADY_ADDED";
 
-    public static MyPlaylistsDialogFragment from(Track track){
+    public static MyPlaylistsDialogFragment from(Track track) {
 
         Bundle b = new Bundle();
         b.putLong(KEY_TRACK_ID, track.id);
@@ -53,9 +54,8 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.ScDialog));
 
-        final BaseAdapter adapter = new MyPlaylistsAdapter(getActivity(),getArguments().getLong(KEY_TRACK_ID));
+        final BaseAdapter adapter = new MyPlaylistsAdapter(getActivity(), getArguments().getLong(KEY_TRACK_ID));
         final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_add_to_set, null);
-        final Handler handler = new Handler();
 
         ((ListView) dialogView.findViewById(android.R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -65,33 +65,8 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
                 if (playlistId == -1) {
                     CreateNewSetDialogFragment.from(getArguments().getLong(KEY_TRACK_ID)).show(getFragmentManager(), "create_new_set_dialog");
                     getDialog().dismiss();
-                } else {
-                    final FragmentActivity activity = getActivity();
-                    if (getActivity() != null){
-
-                        Playlist.addTrackToPlaylist(
-                                activity.getContentResolver(),playlistId,getArguments().getLong(KEY_TRACK_ID));
-
-                        // tell the service to update the playlist
-                        final SoundCloudApplication soundCloudApplication = SoundCloudApplication.fromContext(getActivity());
-                        if (soundCloudApplication != null){
-                            ContentResolver.requestSync(soundCloudApplication.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
-                        }
-
-                        final TextView txtTrackCount = (TextView) view.findViewById(R.id.trackCount);
-                        try {
-                            txtTrackCount.setText(String.valueOf(Integer.parseInt(String.valueOf(txtTrackCount.getText())) + 1));
-                        } catch (NumberFormatException e){
-                            Log.e(SoundCloudApplication.TAG, "Could not parse track count of " + txtTrackCount.getText(), e);
-                        }
-
-                        handler.postDelayed(new Runnable() {
-                            public void run() {
-                                getDialog().dismiss();
-                            }
-                        }, 500);
-
-                    }
+                } else if (getActivity() != null) {
+                    onAddTrackToSet(playlistId, view);
                 }
             }
         });
@@ -99,7 +74,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
         ((TextView) dialogView.findViewById(android.R.id.title)).setText(getString(R.string.add_track_to_set));
         ((ListView) dialogView.findViewById(android.R.id.list)).setAdapter(adapter);
 
-        builder.setNegativeButton("Cancel",new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
@@ -111,11 +86,42 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
 
     }
 
+    private void onAddTrackToSet(long playlistId, View view) {
+        Playlist.addTrackToPlaylist(
+                getActivity().getContentResolver(), playlistId, getArguments().getLong(KEY_TRACK_ID));
+
+        // tell the service to update the playlist
+        final SoundCloudApplication soundCloudApplication = SoundCloudApplication.fromContext(getActivity());
+        if (soundCloudApplication != null) {
+            ContentResolver.requestSync(soundCloudApplication.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
+        }
+
+        final TextView txtTrackCount = (TextView) view.findViewById(R.id.trackCount);
+        int newTracksCount = Integer.parseInt(String.valueOf(txtTrackCount.getText())) + 1;
+        try {
+            txtTrackCount.setText(String.valueOf(newTracksCount));
+        } catch (NumberFormatException e) {
+            Log.e(SoundCloudApplication.TAG, "Could not parse track count of " + txtTrackCount.getText(), e);
+        }
+
+        // broadcast the information that the number of tracks changed
+        Intent intent = new Intent(Playlist.ACTION_CONTENT_CHANGED);
+        intent.putExtra(Playlist.EXTRA_ID, playlistId);
+        intent.putExtra(Playlist.EXTRA_TRACKS_COUNT, newTracksCount);
+        getActivity().sendBroadcast(intent);
+
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                getDialog().dismiss();
+            }
+        }, 500);
+    }
+
     private static class MyPlaylistsAdapter extends BaseAdapter {
         private Context mContext;
         private Cursor mCursor;
 
-        public MyPlaylistsAdapter(Context c, long trackId){
+        public MyPlaylistsAdapter(Context c, long trackId) {
             mContext = c;
             mCursor = getCursor(trackId);
         }
@@ -154,7 +160,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
                 convertView = View.inflate(mContext, R.layout.pick_set_row, null);
             }
 
-            if (mCursor.moveToPosition(position)){
+            if (mCursor.moveToPosition(position)) {
                 final TextView txtTitle = (TextView) convertView.findViewById(R.id.title);
                 final TextView txtTrackCount = ((TextView) convertView.findViewById(R.id.trackCount));
 

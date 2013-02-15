@@ -32,6 +32,9 @@ public class Playlist extends Playable {
 
     public static final String EXTRA = "com.soundcloud.android.playlist";
     public static final String EXTRA_ID = "com.soundcloud.android.playlist_id";
+    public static final String EXTRA_TRACKS_COUNT = "com.soundcloud.android.playlist_tracks";
+
+    public static final String ACTION_CONTENT_CHANGED = "com.soundcloud.android.playlist.content_changed";
 
     @JsonView(Views.Full.class) public String playlist_type;
     @JsonView(Views.Full.class) public String tracks_uri;

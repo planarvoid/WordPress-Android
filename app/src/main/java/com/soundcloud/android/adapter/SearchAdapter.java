@@ -1,6 +1,7 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.PlayUtils;
@@ -64,5 +65,10 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> implements Playable
     @Override
     public Uri getPlayableUri() {
         return null;
+    }
+
+    @Override
+    public Playable getPlayable(int position) {
+        return getItem(position).getPlayable();
     }
 }
