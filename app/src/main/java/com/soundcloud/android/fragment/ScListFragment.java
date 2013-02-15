@@ -122,6 +122,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);
             refreshSyncData();
         }
+
+        boolean shouldListenForPlaylistChanges = setupListAdapter();
+        if (shouldListenForPlaylistChanges) {
+            listenForPlaylistChanges();
+        }
     }
 
     @Override
@@ -180,11 +185,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         }
     }
 
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
+    private boolean setupListAdapter() {
         boolean listenForPlaylistChanges = false;
         if (getListAdapter() == null && mContent != null) {
             switch (mContent) {
@@ -237,9 +238,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             }
         }
 
-        if (listenForPlaylistChanges) {
-            listenForPlaylistChanges();
-        }
+        return listenForPlaylistChanges;
     }
 
     private void listenForPlaylistChanges() {
