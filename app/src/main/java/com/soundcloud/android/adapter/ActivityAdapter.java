@@ -8,6 +8,7 @@ import com.soundcloud.android.activity.track.PlaylistInteractionActivity;
 import com.soundcloud.android.activity.track.TrackInteractionActivity;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activities;
@@ -174,5 +175,10 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
     @Override
     public Uri getPlayableUri() {
         return mContentUri;
+    }
+
+    @Override
+    public Playable getPlayable(int position) {
+        return getItem(position).getPlayable();
     }
 }

@@ -5,6 +5,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.create.ScUpload;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.provider.Content;
@@ -173,6 +174,12 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
     @Override
     public Uri getPlayableUri() {
         return mContentUri;
+    }
+
+    @Override
+    public Playable getPlayable(int position) {
+        // unfortunately, a recording isn't a true playable, need to fix this somehow
+        return null;
     }
 
     public void onDestroy(){
