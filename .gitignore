@@ -46,4 +46,4 @@ reg_ids.yaml
 .gradle
 
 # test data
-tests/*.sqlite
+tests-*.sqlite
