@@ -71,14 +71,14 @@ public class ResolveActivity extends Activity implements FetchModelTask.Listener
     }
 
     @Override
-    public void onSuccess(ScResource m) {
+    public void onSuccess(ScResource resource) {
 
         mResolveTask = null;
-        Intent i = m.getViewIntent();
-        if (i != null){
-            startActivity(i);
+        Intent intent = resource.getViewIntent();
+        if (intent != null){
+            startActivity(intent);
         } else {
-            Log.e(SoundCloudApplication.TAG,"Cannof find view intent for resource " + m);
+            Log.e(SoundCloudApplication.TAG,"Cannof find view intent for resource " + resource);
         }
 
         finish();
