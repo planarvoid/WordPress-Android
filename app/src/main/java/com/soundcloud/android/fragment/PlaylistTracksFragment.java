@@ -82,6 +82,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         setHeaderInfo();
 
         mEmptyView = (EmptyListView) layout.findViewById(android.R.id.empty);
+        mEmptyView.setMessageText(getActivity().getString(R.string.empty_playlist));
         mListView.setEmptyView(mEmptyView);
         mListView.setAdapter(mAdapter);
 
