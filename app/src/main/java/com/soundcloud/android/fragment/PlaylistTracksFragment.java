@@ -76,6 +76,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
         mListView = (ScListView) layout.findViewById(android.R.id.list);
         mListView.setOnRefreshListener(this);
+        mListView.setOnItemClickListener(this);
 
         mInfoHeader = (TextView) View.inflate(getActivity(), R.layout.playlist_header, null);
         mListView.getRefreshableView().addHeaderView(mInfoHeader, null, false);
