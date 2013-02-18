@@ -188,5 +188,6 @@
     <string name="tab_title_user_sets">Sets</string>
 
     <string name="side_menu_sets">Your Sets</string>
+    <string name="empty_playlist">This set has no sounds yet</string>
 
 </resources>

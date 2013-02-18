@@ -1,18 +1,17 @@
 package com.soundcloud.android.fragment;
 
-import com.handmark.pulltorefresh.extras.listfragment.PullToRefreshListFragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.PlaylistTracksAdapter;
-import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.ScListView;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,6 +19,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -27,20 +28,23 @@ import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.widget.AdapterView;
 import android.widget.TextView;
 
-public class PlaylistTracksFragment extends PullToRefreshListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        PullToRefreshBase.OnRefreshListener, LocalCollection.OnChangeListener {
+public class PlaylistTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
+        LoaderManager.LoaderCallbacks<Cursor>, PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver {
 
     public static final String PLAYLIST_URI = "playlistUri";
 
     private static final int PLAYER_LIST_LOADER = 0x01;
     private Uri mContentUri, mPlaylistUri;
-    private LocalCollection mLocalCollection;
     private TextView mInfoHeader;
 
     private PlaylistTracksAdapter mAdapter;
+    private ScListView mListView;
+    private EmptyListView mEmptyView;
+
+    private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
     public static PlaylistTracksFragment newInstance(@NotNull Uri playlistUri) {
         PlaylistTracksFragment playlistTracksFragment = new PlaylistTracksFragment();
@@ -48,18 +52,6 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
         args.putParcelable("playlistUri", playlistUri);
         playlistTracksFragment.setArguments(args);
         return playlistTracksFragment;
-    }
-
-    @Override
-    protected PullToRefreshListView onCreatePullToRefreshListView(LayoutInflater inflater, Bundle savedInstanceState) {
-        final ScListView scListView = new ScListView(getActivity());
-        scListView.setOnRefreshListener(this);
-
-        mInfoHeader = (TextView) View.inflate(getActivity(), R.layout.playlist_header, null);
-        scListView.getRefreshableView().addHeaderView(mInfoHeader, null, false);
-        setHeaderInfo();
-
-        return scListView;
     }
 
     @Override
@@ -72,23 +64,29 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
         // TODO. the playlist could be null here. What then?
         mContentUri = Content.PLAYLIST_TRACKS.forId(p.id);
         getLoaderManager().initLoader(PLAYER_LIST_LOADER, null, this);
+
+        mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext());
+
+        mDetachableReceiver.setReceiver(this);
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        ViewGroup layout = (ViewGroup) inflater.inflate(R.layout.playlist_fragment, container, false);
 
-        if (mLocalCollection == null){
-            mLocalCollection = LocalCollection.fromContentUri(mContentUri, getActivity().getContentResolver(), true);
-            syncPlaylist();
-        }
-    }
+        mListView = (ScListView) layout.findViewById(android.R.id.list);
+        mListView.setOnRefreshListener(this);
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        mLocalCollection.startObservingSelf(getActivity().getContentResolver(), this);
-        setRefreshingState();
+        mInfoHeader = (TextView) View.inflate(getActivity(), R.layout.playlist_header, null);
+        mListView.getRefreshableView().addHeaderView(mInfoHeader, null, false);
+        setHeaderInfo();
+
+        mEmptyView = (EmptyListView) layout.findViewById(android.R.id.empty);
+        mEmptyView.setMessageText(getActivity().getString(R.string.empty_playlist));
+        mListView.setEmptyView(mEmptyView);
+        mListView.setAdapter(mAdapter);
+
+        return layout;
     }
 
     @Override
@@ -100,17 +98,14 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
     @Override
     public void onStop() {
         super.onStop();
-        mLocalCollection.stopObservingSelf();
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         PlayInfo info = new PlayInfo();
         info.initialTrack = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
         info.uri = mContentUri;
-        info.position = position - getListView().getHeaderViewsCount();
+        info.position = position - mListView.getRefreshableView().getHeaderViewsCount();
         PlayUtils.playTrack(getActivity(), info);
     }
 
@@ -121,34 +116,24 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (mAdapter == null) {
-            final Playlist playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(mPlaylistUri);
-
-            // if we can show something (or should show nothing), set the adapter
-            if (data != null && (data.getCount() > 0 || playlist.track_count == 0)) {
-                mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext(), data, true);
-                setListShownNoAnimation(true);
-                setListAdapter(mAdapter);
-            }
-            checkPlaylistSize();
-
-        } else {
-            mAdapter.swapCursor(data);
-        }
+        mAdapter.swapCursor(data);
+        checkPlaylistSize();
     }
 
-    private void checkPlaylistSize(){
+    private void checkPlaylistSize() {
         Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(mPlaylistUri);
         // if we don't have the entire playlist, re-sync the playlist.
-        if (getListAdapter() != null && getListAdapter().getCount() < p.track_count) {
+        if (mAdapter.getCount() < p.track_count) {
+            mEmptyView.setStatus(EmptyListView.Status.WAITING);
             syncPlaylist();
+        } else {
+            mEmptyView.setStatus(EmptyListView.Status.OK);
         }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        if (mAdapter != null) mAdapter.swapCursor(null);
-
+        mAdapter.swapCursor(null);
     }
 
     @Override
@@ -156,35 +141,18 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
         syncPlaylist();
     }
 
-    @Override
-    public void onLocalCollectionChanged() {
-        setRefreshingState();
-        if (mLocalCollection.sync_state == LocalCollection.SyncState.IDLE && mInfoHeader != null){
-            setHeaderInfo();
-        }
-    }
-
     public void refreshTrackList() {
-        if (mAdapter != null) {
-            mAdapter.notifyDataSetChanged();
-        }
+        mAdapter.notifyDataSetChanged();
     }
 
     private void syncPlaylist() {
         final FragmentActivity activity = getActivity();
-        if (activity != null){
-            getPullToRefreshListView().setRefreshing(true);
+        if (activity != null) {
+            mListView.setRefreshing(true);
             activity.startService(new Intent(activity, ApiSyncService.class)
-                            .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                            .setData(mPlaylistUri));
-        }
-    }
-
-    private void setRefreshingState() {
-        if (mLocalCollection.sync_state != LocalCollection.SyncState.IDLE) {
-            getPullToRefreshListView().setRefreshing(true);
-        } else if (getPullToRefreshListView().isRefreshing()) {
-            getPullToRefreshListView().onRefreshComplete();
+                    .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                    .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, mDetachableReceiver)
+                    .setData(mPlaylistUri));
         }
     }
 
@@ -195,4 +163,18 @@ public class PlaylistTracksFragment extends PullToRefreshListFragment implements
         mInfoHeader.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
     }
 
+    @Override
+    public void onReceiveResult(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case ApiSyncService.STATUS_SYNC_FINISHED:
+                mEmptyView.setStatus(EmptyListView.Status.OK);
+                break;
+            case ApiSyncService.STATUS_SYNC_ERROR:
+                mEmptyView.setStatus(EmptyListView.Status.CONNECTION_ERROR);
+                break;
+        }
+
+        mListView.onRefreshComplete();
+        setHeaderInfo();
+    }
 }

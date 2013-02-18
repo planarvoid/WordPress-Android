@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,11 +52,15 @@ public class EmptyListView extends RelativeLayout {
         int OK = SC_OK; //generic OK
     }
 
-
-
     public EmptyListView(final Context context, final Intent... intents) {
         super(context);
         setActionListener(context, intents);
+        init();
+    }
+
+    public EmptyListView(final Context context, AttributeSet attributeSet) {
+        super(context, attributeSet);
+        setActionListener(context);
         init();
     }
 
