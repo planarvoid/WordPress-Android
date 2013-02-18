@@ -10,6 +10,10 @@ import android.view.ViewGroup;
 
 public class PlaylistTracksAdapter extends CursorAdapter {
 
+    public PlaylistTracksAdapter(Context context) {
+        this(context, null, true);
+    }
+
     public PlaylistTracksAdapter(Context context, Cursor c, boolean autoRequery) {
         super(context, c, autoRequery);
     }
