@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.FacebookSSO;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -15,6 +16,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 public class ResolveActivity extends Activity implements FetchModelTask.Listener<ScResource> {
@@ -51,14 +53,6 @@ public class ResolveActivity extends Activity implements FetchModelTask.Listener
         return (SoundCloudApplication) getApplication();
     }
 
-    private void onTrackLoaded(Track track, @Nullable String action) {
-        startActivity(track.getPlayIntent());
-    }
-
-    private void onUserLoaded(User user, @Nullable String action) {
-        startActivity(user.getViewIntent());
-    }
-
     @Override
     public void onError(Object context) {
         mResolveTask = null;
@@ -78,12 +72,15 @@ public class ResolveActivity extends Activity implements FetchModelTask.Listener
 
     @Override
     public void onSuccess(ScResource m) {
+
         mResolveTask = null;
-        if (m instanceof Track) {
-            onTrackLoaded((Track) m, null);
-        } else if (m instanceof User) {
-            onUserLoaded((User) m, null);
+        Intent i = m.getViewIntent();
+        if (i != null){
+            startActivity(i);
+        } else {
+            Log.e(SoundCloudApplication.TAG,"Cannof find view intent for resource " + m);
         }
+
         finish();
     }
 }

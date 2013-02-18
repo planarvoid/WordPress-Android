@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.activity.track.PlaylistActivity;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
@@ -159,6 +162,11 @@ public class Playlist extends Playable {
     @Override
     public int getTypeId() {
         return DB_TYPE_PLAYLIST;
+    }
+
+    @Override
+    public Intent getViewIntent() {
+        return PlaylistActivity.getIntent(this);
     }
 
     public static final Creator<Playlist> CREATOR = new Creator<Playlist>() {
