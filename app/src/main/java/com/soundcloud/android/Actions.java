@@ -23,6 +23,7 @@ public final class Actions {
     public static final String EDIT         = "com.soundcloud.android.EDIT";
     public static final String ACCOUNT_PREF = "com.soundcloud.android.action.ACCOUNT_PREF";
     public static final String USER_BROWSER = "com.soundcloud.android.action.USER_BROWSER";
+    public static final String PLAYLIST     = "com.soundcloud.android.action.PLAYLIST";
 
     public static final String UPLOAD_EXTRA_UPLOADING = "com.soundcloud.android.upload.uploading";
 

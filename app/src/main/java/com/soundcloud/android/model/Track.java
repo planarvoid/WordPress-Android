@@ -520,6 +520,11 @@ public class Track extends Playable implements PlayableHolder {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.track;
     }
 
+    @Override
+    public Intent getViewIntent() {
+        return getPlayIntent();
+    }
+
     public Intent getPlayIntent() {
         return new Intent(Actions.PLAY).putExtra(EXTRA, this);
     }

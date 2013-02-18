@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity.track;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
@@ -45,10 +46,14 @@ public class PlaylistActivity extends ScActivity {
     };
 
     public static void start(Context context, @NotNull Playlist playlist) {
-        Intent intent = new Intent(context, PlaylistActivity.class);
-        intent.setData(playlist.toUri());
         SoundCloudApplication.MODEL_MANAGER.cache(playlist);
-        context.startActivity(intent);
+        context.startActivity(getIntent(playlist));
+    }
+
+    public static Intent getIntent(@NotNull Playlist playlist) {
+        Intent intent = new Intent(Actions.PLAYLIST);
+        intent.setData(playlist.toUri());
+        return intent;
     }
 
     @Override

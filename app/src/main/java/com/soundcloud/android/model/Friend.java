@@ -4,6 +4,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.BulkInsertMap;
 import org.jetbrains.annotations.NotNull;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
@@ -32,6 +33,11 @@ public class Friend extends ScResource implements Refreshable {
     @Override
     public Track getPlayable() {
         return null;
+    }
+
+    @Override
+    public Intent getViewIntent() {
+        return getUser().getViewIntent();
     }
 
     @Override

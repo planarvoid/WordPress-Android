@@ -7,6 +7,7 @@ import com.soundcloud.android.provider.BulkInsertMap;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.net.Uri;
 
 @JsonTypeInfo(
@@ -101,6 +102,10 @@ public abstract class ScResource extends ScModel {
     public abstract User getUser();
 
     public abstract Playable getPlayable();
+
+    public Intent getViewIntent(){
+        return null;
+    }
 
     public static class ScResourceHolder extends CollectionHolder<ScResource> {
 
