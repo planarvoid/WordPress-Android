@@ -1,61 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-       android:layout_width="fill_parent"
-       android:layout_height="fill_parent">
-    <RelativeLayout android:layout_width="fill_parent"
-                    android:background="@color/playerControlBackground"
-                    android:layout_height="wrap_content">
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/playerControlBackground">
+
         <com.soundcloud.android.view.adapter.PlayableBar
                 android:id="@+id/playable_bar"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
+
         <View android:id="@+id/track_info_clicker"
-              android:background="#00000000"
-              android:layout_width="fill_parent"
+              android:background="@android:color/black"
+              android:layout_width="match_parent"
               android:layout_height="0dp"
               android:layout_alignTop="@id/playable_bar"
               android:layout_alignBottom="@id/playable_bar"/>
+
     </RelativeLayout>
+
     <View android:layout_width="fill_parent"
           android:layout_height="2dp"
           android:background="@drawable/player_track_horiz_separator_bg"/>
-    <include layout="@layout/player_action_bar" />
+
+    <!-- contains the action buttons for liking and reposting -->
+    <include layout="@layout/player_action_bar"/>
+
     <com.soundcloud.android.view.SafeViewFlipper android:id="@+id/vfTrackInfo"
                                                  android:layout_weight="1"
-                                                 android:layout_width="fill_parent"
+                                                 android:layout_width="match_parent"
                                                  android:layout_height="0dp">
-        <RelativeLayout android:layout_width="fill_parent"
-                        android:layout_height="fill_parent">
-            <FrameLayout android:layout_width="fill_parent"
-                         android:layout_height="fill_parent"
-                         android:background="@drawable/artwork_player"
+        <RelativeLayout android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+            <!-- the track cover image -->
+            <FrameLayout android:layout_width="match_parent"
+                         android:layout_height="match_parent"
                          android:layout_alignParentTop="true"
+                         android:background="@drawable/artwork_player"
                          android:gravity="top">
-                <ImageView android:layout_width="fill_parent"
-                           android:layout_height="fill_parent"
+                <ImageView android:layout_width="match_parent"
+                           android:layout_height="match_parent"
                            android:id="@+id/artwork"/>
             </FrameLayout>
+
             <View android:id="@+id/artwork_overlay"
-                                  android:background="#88000000"
-                                  android:layout_width="fill_parent"
-                                  android:layout_height="fill_parent"
-                                  android:visibility="gone"/>
+                  android:background="#88000000"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:visibility="gone"/>
+
             <com.soundcloud.android.view.play.WaveformController
                     android:id="@+id/waveform_controller"
                     android:layout_height="wrap_content"
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_alignParentBottom="true"/>
+
             <ViewStub
                     android:id="@+id/stub_unplayable_layout"
                     android:inflatedId="@+id/unplayable_layout"
                     android:layout="@layout/unplayable_layout"
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="40dip"
                     android:layout_alignParentBottom="true"/>
-            <View android:layout_width="fill_parent"
+
+            <View android:layout_width="match_parent"
                   android:layout_height="5dip"
                   android:layout_alignParentTop="true"
                   android:background="@drawable/drop_shadow_down"/>
+
         </RelativeLayout>
     </com.soundcloud.android.view.SafeViewFlipper>
 </merge>
