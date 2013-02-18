@@ -129,6 +129,8 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
                         long _id = Long.parseLong(id);
                         if ("tracks".equalsIgnoreCase(type)) {
                             return SoundCloudApplication.MODEL_MANAGER.getTrack(_id);
+                        } else if ("playlists".equalsIgnoreCase(type)) {
+                            return SoundCloudApplication.MODEL_MANAGER.getPlaylist(_id);
                         } else if ("users".equalsIgnoreCase(type)) {
                             return SoundCloudApplication.MODEL_MANAGER.getUser(_id);
                         }
