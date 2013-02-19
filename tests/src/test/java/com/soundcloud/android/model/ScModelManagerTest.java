@@ -381,16 +381,16 @@ public class ScModelManagerTest {
         final String title = "new playlist";
         final boolean isPrivate = false;
 
-        List<Track> items = createTracks();
+        List<Track> tracks = createTracks();
 
-        final long[] trackIds = new long[items.size()];
+        final long[] trackIds = new long[tracks.size()];
 
-        for (int i = 0; i < items.size(); i++){
-            expect(items.get(i).insert(resolver)).not.toBeNull();
-            trackIds[i] = items.get(i).id;
+        for (int i = 0; i < tracks.size(); i++){
+            expect(tracks.get(i).insert(resolver)).not.toBeNull();
+            trackIds[i] = tracks.get(i).id;
         }
 
-        Uri uri = manager.createPlaylist(title,isPrivate, trackIds);
+        Uri uri = manager.createPlaylist(tracks.get(0).user, title,isPrivate, trackIds);
         expect(uri).not.toBeNull();
 
         Playlist p = manager.getPlaylist(uri);
@@ -403,7 +403,7 @@ public class ScModelManagerTest {
 
         expect(Content.ME_PLAYLISTS).toHaveCount(1);
         Playlist p2 = manager.getPlaylistWithTracks(uri);
-        expect(p2.tracks).toEqual(items);
+        expect(p2.tracks).toEqual(tracks);
         expect(p2.sharing).toBe(isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC);
     }
 

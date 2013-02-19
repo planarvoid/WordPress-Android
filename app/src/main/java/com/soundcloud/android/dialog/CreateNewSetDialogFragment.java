@@ -4,6 +4,8 @@ import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.provider.Content;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -18,6 +20,8 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Date;
 
 public class CreateNewSetDialogFragment extends SherlockDialogFragment {
 
@@ -73,11 +77,26 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
                         if (TextUtils.isEmpty(input.getText())) {
                             Toast.makeText(getActivity(), R.string.error_new_set_blank_title, Toast.LENGTH_SHORT).show();
                         } else {
-                            Uri uri = SoundCloudApplication.MODEL_MANAGER.createPlaylist(
-                                    String.valueOf(input.getText()),
-                                    (isJon ? privacy.isChecked() : false),
-                                    getArguments().getLong(KEY_TRACK_ID)
-                            );
+
+                            // Commit the playlist locally in the background
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Uri uri = SoundCloudApplication.MODEL_MANAGER.createPlaylist(
+                                            ((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser(),
+                                            String.valueOf(input.getText()),
+                                            (isJon ? privacy.isChecked() : false),
+                                            getArguments().getLong(KEY_TRACK_ID)
+                                    );
+
+                                    Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(uri);
+
+                                    // association so it appears in ME_SOUNDS, ME_PLAYLISTS, etc.
+                                    new SoundAssociation(p, new Date(System.currentTimeMillis()), SoundAssociation.Type.PLAYLIST)
+                                            .insert(getActivity().getContentResolver(), Content.ME_PLAYLISTS.uri);
+                                }
+                            }).start();
+
                             dialog.dismiss();
                         }
                     }

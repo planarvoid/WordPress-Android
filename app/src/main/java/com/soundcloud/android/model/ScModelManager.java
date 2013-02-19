@@ -579,10 +579,13 @@ public class ScModelManager {
         return models.insert(mResolver);
     }
 
-    public Uri createPlaylist(String title, boolean isPrivate, long... trackIds) {
+    public Uri createPlaylist(User user, String title, boolean isPrivate, long... trackIds) {
         Playlist p = new Playlist(-System.currentTimeMillis());
+        p.user = user;
         p.title = title;
         p.sharing = isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC;
+        p.created_at = new Date(System.currentTimeMillis());
+        p.track_count = trackIds.length;
         p.tracks = new ArrayList<Track>();
 
         for (long trackId : trackIds){
