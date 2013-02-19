@@ -592,6 +592,8 @@ public class ScModelManager {
             Track track = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(trackId);
             p.tracks.add(track == null ? new Track(trackId) : track);
         }
-        return p.insert(mResolver);
+        Uri uri = p.insert(mResolver);
+        cache(p);
+        return uri;
     }
 }
