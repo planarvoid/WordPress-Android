@@ -100,11 +100,12 @@ public enum Content  {
 
     /* Use string wildcards here since we use negative numbers for local playlists, which breaks with number wildcards */
     PLAYLISTS("playlists", TempEndpoints.PLAYLISTS, 501, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
-    PLAYLIST("playlists/*", TempEndpoints.PLAYLIST_DETAILS, 502, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
+    PLAYLIST_ALL_TRACKS("playlists/tracks", null, 502, Track.class, -1, Table.PLAYLIST_TRACKS), // used for sync service
+    PLAYLIST("playlists/*", TempEndpoints.PLAYLIST_DETAILS, 503, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
     PLAYLIST_TRACKS("playlists/*/tracks", TempEndpoints.PLAYLIST_TRACKS, 532, Track.class, -1, Table.PLAYLIST_TRACKS),
     PLAYLIST_LIKERS("playlists/*/likers", TempEndpoints.e1.PLAYLIST_LIKERS, 533, User.class, -1, Table.USERS),
     PLAYLIST_REPOSTERS("playlists/*/reposters", TempEndpoints.e1.PLAYLIST_REPOSTERS, 534, User.class, -1, Table.USERS),
-    PLAYLIST_ALL_TRACKS("playlists/tracks", null, 535, Track.class, -1, Table.PLAYLIST_TRACKS), // used for sync service
+
 
     // LOCAL URIS
     COLLECTIONS("collections", null, 1000, null, -1, Table.COLLECTIONS),
