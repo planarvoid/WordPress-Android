@@ -13,6 +13,12 @@
         <item name="android:textSize">@dimen/list_txt_sub_2_size</item>
     </style>
 
+    <style name="PlayerActionSeparator">
+        <item name="android:background">@drawable/player_track_vert_separator_bg</item>
+        <item name="android:layout_width">2dp</item>
+        <item name="android:layout_height">38dp</item>
+    </style>
+
     <style name="PlayerAction">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/btn_height</item>
@@ -26,6 +32,7 @@
     <style name="PlayerAction.ToggleButton">
         <item name="android:layout_gravity">left|center</item>
         <item name="android:background">@drawable/toggle_player_action_states</item>
+        <item name="android:minWidth">72dp</item>
         <item name="android:paddingLeft">11dp</item>
         <item name="android:paddingRight">11dp</item>
         <item name="android:drawablePadding">6dp</item>
@@ -33,10 +40,12 @@
 
     <style name="PlayerAction.ToggleButton.Like">
         <item name="android:drawableLeft">@drawable/ic_toggle_player_like_states</item>
+        <item name="android:layout_marginLeft">10dp</item>
     </style>
 
     <style name="PlayerAction.ToggleButton.Repost">
         <item name="android:drawableLeft">@drawable/ic_toggle_player_repost_states</item>
+        <item name="android:layout_marginLeft">5dp</item>
     </style>
 
     <style name="PlayerAction.Button">
