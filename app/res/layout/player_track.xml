@@ -13,7 +13,6 @@
                 android:layout_height="wrap_content"/>
 
         <View android:id="@+id/track_info_clicker"
-              android:background="@android:color/black"
               android:layout_width="match_parent"
               android:layout_height="0dp"
               android:layout_alignTop="@id/playable_bar"
