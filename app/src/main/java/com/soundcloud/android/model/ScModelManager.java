@@ -27,6 +27,7 @@ import android.text.TextUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ScModelManager {
@@ -295,6 +296,12 @@ public class ScModelManager {
             return p;
         }
 
+    public @Nullable Playlist getPlaylistWithTracks(Uri uri) {
+        Playlist playlist = (Playlist) getModel(uri);
+        if (playlist != null) playlist.tracks = loadPlaylistTracks(mResolver, Long.parseLong(uri.getLastPathSegment()));
+        return playlist;
+    }
+
     public @Nullable Playlist getPlaylistWithTracks(long playlistId) {
         Playlist playlist = (Playlist) getModel(Content.PLAYLIST.forId(playlistId));
         if (playlist != null) playlist.tracks = loadPlaylistTracks(mResolver, playlistId);
@@ -303,7 +310,7 @@ public class ScModelManager {
     }
 
     public List<Track> loadPlaylistTracks(ContentResolver resolver, long playlistId){
-        return loadLocalContent(resolver,Track.class,Content.PLAYLIST_TRACKS.forId(playlistId)).collection;
+        return loadLocalContent(resolver,Track.class,Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId))).collection;
     }
 
     public Track getCachedTrack(long id) {
@@ -570,5 +577,24 @@ public class ScModelManager {
             cache(m, mode);
         }
         return models.insert(mResolver);
+    }
+
+    public Uri createPlaylist(String title, boolean isPrivate, long... trackIds) {
+        Playlist p = new Playlist(-System.currentTimeMillis());
+        p.title = title;
+        p.sharing = isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC;
+        p.tracks = new ArrayList<Track>();
+
+        for (long trackId : trackIds){
+            Track track = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(trackId);
+            p.tracks.add(track == null ? new Track(trackId) : track);
+        }
+
+        Uri uri = p.insert(mResolver);
+
+        SoundAssociation soundAssociation = new SoundAssociation(p, new Date(System.currentTimeMillis()), SoundAssociation.Type.PLAYLIST);
+        int inserted = mResolver.bulkInsert(Content.COLLECTION_ITEMS.uri, new ContentValues[]{soundAssociation.buildContentValues()});
+
+        return uri;
     }
 }

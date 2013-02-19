@@ -147,7 +147,7 @@ public class Playlist extends Playable {
                 ContentValues cv = new ContentValues();
                 cv.put(DBHelper.PlaylistTracks.TRACK_ID,t.id);
                 cv.put(DBHelper.PlaylistTracks.POSITION,i);
-                destMap.add(Content.PLAYLIST_TRACKS.forId(id), cv);
+                destMap.add(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(id)), cv);
                 i++;
             }
         }
@@ -155,7 +155,7 @@ public class Playlist extends Playable {
 
     @Override
     public Uri toUri() {
-        return Content.PLAYLISTS.forId(id);
+        return Content.PLAYLISTS.forQuery(String.valueOf(id));
     }
 
 

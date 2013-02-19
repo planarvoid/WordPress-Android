@@ -376,6 +376,29 @@ public class ScModelManagerTest {
     }
 
     @Test
+    public void shouldCreatePlaylistLocally() throws Exception {
+        final String title = "new playlist";
+        final boolean isPrivate = false;
+
+        List<Track> items = createTracks();
+
+        final long[] trackIds = new long[items.size()];
+
+        for (int i = 0; i < items.size(); i++){
+            expect(items.get(i).insert(resolver)).not.toBeNull();
+            trackIds[i] = items.get(i).id;
+        }
+
+        Uri uri = manager.createPlaylist(title,isPrivate, trackIds);
+        expect(uri).not.toBeNull();
+
+        expect(Content.ME_PLAYLISTS).toHaveCount(1);
+        Playlist p = manager.getPlaylistWithTracks(uri);
+        expect(p.tracks).toEqual(items);
+        expect(p.sharing).toBe(isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC);
+    }
+
+    @Test
     public void shouldAddTrackToPlaylist() throws Exception {
         Playlist p = manager.getModelFromStream(SyncAdapterServiceTest.class.getResourceAsStream("playlist.json"));
         expect(p.tracks.size()).toEqual(41);

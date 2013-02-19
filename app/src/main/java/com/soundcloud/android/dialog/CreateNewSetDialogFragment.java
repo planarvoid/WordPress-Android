@@ -3,10 +3,12 @@ package com.soundcloud.android.dialog;
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Playlist;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
@@ -71,9 +73,11 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
                         if (TextUtils.isEmpty(input.getText())) {
                             Toast.makeText(getActivity(), R.string.error_new_set_blank_title, Toast.LENGTH_SHORT).show();
                         } else {
-                            AddSetProgressDialog.from(getArguments().getLong(KEY_TRACK_ID), String.valueOf(input.getText()),
-                                    (isJon ? privacy.isChecked() : false))
-                                    .show(getFragmentManager(), "add_set_progress");
+                            Uri uri = SoundCloudApplication.MODEL_MANAGER.createPlaylist(
+                                    String.valueOf(input.getText()),
+                                    (isJon ? privacy.isChecked() : false),
+                                    getArguments().getLong(KEY_TRACK_ID)
+                            );
                             dialog.dismiss();
                         }
                     }
