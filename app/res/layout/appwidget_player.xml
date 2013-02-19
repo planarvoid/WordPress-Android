@@ -96,7 +96,7 @@
                 android:layout_height="fill_parent"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:background="@color/transparent"
+                android:background="@android:color/transparent"
                 android:src="@drawable/ic_prev_states"/>
 
 
@@ -111,7 +111,7 @@
                 android:layout_height="fill_parent"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:background="@color/transparent"
+                android:background="@android:color/transparent"
                 android:src="@drawable/ic_play_states"/>
 
 
@@ -126,7 +126,7 @@
                 android:layout_height="fill_parent"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:background="@color/transparent"
+                android:background="@android:color/transparent"
                 android:src="@drawable/ic_next_states"/>
     </LinearLayout>
 </LinearLayout>

@@ -4,5 +4,5 @@
           android:layout_height="wrap_content"
           android:background="@drawable/tag_bg_states"
           android:focusable="true"
-          android:textColor="@color/white"/>
+          android:textColor="@android:color/white"/>
 

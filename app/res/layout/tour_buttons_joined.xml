@@ -5,7 +5,7 @@
               android:orientation="horizontal"
               android:layout_width="fill_parent"
               android:layout_height="@dimen/tour_bottom_buttons_height"
-              android:background="@color/transparent">
+              android:background="@android:color/transparent">
 
     <com.soundcloud.android.view.CustomButton android:id="@+id/facebook_btn"
                                               style="@style/Tour.FacebookButton"

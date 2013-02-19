@@ -35,7 +35,7 @@
                   android:layout_marginRight="3dip"
                   android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
-                  android:textColor="@color/white"
+                  android:textColor="@android:color/white"
                   android:singleLine="true"
                   android:ellipsize="marquee"/>
 
@@ -54,7 +54,7 @@
                   android:drawableLeft="@drawable/lock"
                   android:drawablePadding="2dp"
                   android:layout_marginRight="5dp"
-                  android:textColor="@color/white"
+                  android:textColor="@android:color/white"
                   android:textSize="@dimen/list_txt_sub_size"
                   android:layout_width="wrap_content"
                   android:text="@string/tracklist_item_shared_count_unavailable"
