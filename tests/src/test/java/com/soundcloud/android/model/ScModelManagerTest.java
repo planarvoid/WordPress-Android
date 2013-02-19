@@ -26,6 +26,7 @@ import android.net.Uri;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
@@ -392,10 +393,18 @@ public class ScModelManagerTest {
         Uri uri = manager.createPlaylist(title,isPrivate, trackIds);
         expect(uri).not.toBeNull();
 
+        Playlist p = manager.getPlaylist(uri);
+        expect(p).not.toBeNull();
+
+        SoundAssociation soundAssociation = new SoundAssociation(p, new Date(System.currentTimeMillis()), SoundAssociation.Type.PLAYLIST);
+        Uri myPlaylistUri = soundAssociation.insert(DefaultTestRunner.application.getContentResolver(),Content.ME_PLAYLISTS.uri);
+        expect(myPlaylistUri).not.toBeNull();
+        expect(Content.match(myPlaylistUri)).toBe(Content.ME_PLAYLIST);
+
         expect(Content.ME_PLAYLISTS).toHaveCount(1);
-        Playlist p = manager.getPlaylistWithTracks(uri);
-        expect(p.tracks).toEqual(items);
-        expect(p.sharing).toBe(isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC);
+        Playlist p2 = manager.getPlaylistWithTracks(uri);
+        expect(p2.tracks).toEqual(items);
+        expect(p2.sharing).toBe(isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC);
     }
 
     @Test

@@ -418,6 +418,7 @@ public class ScContentProvider extends ContentProvider {
 
             case COLLECTION_PAGES:
             case ME_SOUNDS:
+            case ME_PLAYLISTS:
                 id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);

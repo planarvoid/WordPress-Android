@@ -589,12 +589,6 @@ public class ScModelManager {
             Track track = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(trackId);
             p.tracks.add(track == null ? new Track(trackId) : track);
         }
-
-        Uri uri = p.insert(mResolver);
-
-        SoundAssociation soundAssociation = new SoundAssociation(p, new Date(System.currentTimeMillis()), SoundAssociation.Type.PLAYLIST);
-        int inserted = mResolver.bulkInsert(Content.COLLECTION_ITEMS.uri, new ContentValues[]{soundAssociation.buildContentValues()});
-
-        return uri;
+        return p.insert(mResolver);
     }
 }
