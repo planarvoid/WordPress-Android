@@ -170,6 +170,16 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
 
+            <!-- play with content uri -->
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.PLAY"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="content"
+                      android:host="com.soundcloud.android.provider.ScContentProvider"
+                        />
+            </intent-filter>
+
+
             <!-- play with playlist uri -->
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.PLAY"/>
