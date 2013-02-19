@@ -357,7 +357,7 @@ public class Playlist extends Playable {
         Uri oldUri = toUri();
         final ContentResolver resolver = context.getContentResolver();
         updateFrom(updated, ScResource.CacheUpdateMode.FULL);
-        if (mListenerWeakReferences == null) {
+        if (mListenerWeakReferences == null && mPlaylistObserver != null) {
             resolver.unregisterContentObserver(mPlaylistObserver);
             resolver.registerContentObserver(toUri(), false, mPlaylistObserver);
         }
