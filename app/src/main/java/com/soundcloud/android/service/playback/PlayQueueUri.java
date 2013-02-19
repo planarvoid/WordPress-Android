@@ -43,9 +43,13 @@ public class PlayQueueUri {
     }
 
     public Uri toUri(Track track, int mPlayPos, long seekPos) {
+        return toUri(track == null ? -1l : track.id, mPlayPos, seekPos);
+    }
+
+    public Uri toUri(long trackId, int mPlayPos, long seekPos) {
         Uri.Builder builder = uri.buildUpon().query(null); //clear the query for the new params
-        if (track != null) {
-            builder.appendQueryParameter(PARAM_TRACK_ID, String.valueOf(track.id));
+        if (trackId != -1l) {
+            builder.appendQueryParameter(PARAM_TRACK_ID, String.valueOf(trackId));
         }
         builder.appendQueryParameter(PARAM_PLAYLIST_POS, String.valueOf(mPlayPos));
         builder.appendQueryParameter(PARAM_SEEK_POS, String.valueOf(seekPos));

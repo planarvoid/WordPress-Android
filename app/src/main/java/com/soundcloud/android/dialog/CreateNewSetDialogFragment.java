@@ -90,10 +90,7 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
                                     );
 
                                     Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(uri);
-
-                                    // association so it appears in ME_SOUNDS, ME_PLAYLISTS, etc.
-                                    new SoundAssociation(p, new Date(System.currentTimeMillis()), SoundAssociation.Type.PLAYLIST)
-                                            .insert(getActivity().getContentResolver(), Content.ME_PLAYLISTS.uri);
+                                    p.insertAsMyPlaylist(getActivity().getContentResolver());
                                 }
                             }).start();
 

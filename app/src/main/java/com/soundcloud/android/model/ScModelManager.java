@@ -484,7 +484,7 @@ public class ScModelManager {
         if (code == HttpStatus.SC_UNAUTHORIZED) {
             throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
                     response.getStatusLine().getReasonPhrase());
-        } else if (code != HttpStatus.SC_OK && code != HttpStatus.SC_NOT_MODIFIED) {
+        } else if (code != HttpStatus.SC_OK && code != HttpStatus.SC_NOT_MODIFIED  && code != HttpStatus.SC_CREATED) {
             throw new IOException("Invalid response: " + response.getStatusLine());
         }
         return response;

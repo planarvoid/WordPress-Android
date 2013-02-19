@@ -42,6 +42,6 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
     @Override
     protected Uri getContentUri() {
         Content content = mInteraction == Activity.Type.PLAYLIST_LIKE ? Content.PLAYLIST_LIKERS : Content.PLAYLIST_REPOSTERS;
-        return content.forId(mPlayable.id);
+        return content.forQuery(String.valueOf(mPlayable.id));
     }
 }

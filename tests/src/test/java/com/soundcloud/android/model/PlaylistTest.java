@@ -59,7 +59,7 @@ public class PlaylistTest {
                 Playlist.class);
 
         //create mode
-        Playlist.ApiCreateObject createObject = new Playlist.ApiCreateObject(playlist.title, playlist.tracks.get(0).id, false);
+        Playlist.ApiCreateObject createObject = new Playlist.ApiCreateObject(playlist);
         expect(createObject.toJson(DefaultTestRunner.application.getMapper()))
                 .toEqual("{\"playlist\":{\"title\":\"PA600QT Demos\",\"sharing\":\"public\",\"tracks\":[{\"id\":61363002}]}}");
 

@@ -23,9 +23,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
-public class PlaylistActivity extends ScActivity {
+public class PlaylistActivity extends ScActivity implements Playlist.OnChangeListener {
 
-    private Uri mPlaylistUri;
+    public static final String TRACKS_FRAGMENT_TAG = "tracks_fragment";
     private Playlist mPlaylist;
     private PlayableBar mPlaylistBar;
     private PlayableActionButtonsController mActionButtons;
@@ -61,14 +61,18 @@ public class PlaylistActivity extends ScActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.playlist_activity);
-        mPlaylistUri = getIntent().getData();
+        mPlaylist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(getIntent().getData());
 
         mPlaylistBar = (PlayableBar) findViewById(R.id.playable_bar);
         mPlaylistBar.addTextShadows();
 
         mActionButtons = new PlayableActionButtonsController(mPlaylistBar);
 
-        if (refreshPlaylistData() && savedInstanceState == null) setupTracksFragment();
+        if (refreshPlaylistData() && savedInstanceState == null) {
+            setupTracksFragment();
+        } else {
+            mFragment = (PlaylistTracksFragment) getSupportFragmentManager().findFragmentByTag(TRACKS_FRAGMENT_TAG);
+        }
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED);
@@ -82,38 +86,38 @@ public class PlaylistActivity extends ScActivity {
     }
 
     private boolean refreshPlaylistData() {
-        if (mPlaylistUri != null && (mPlaylist = getPlaylist()) != null) {
+        if (mPlaylist != null) {
             mPlaylistBar.display(mPlaylist);
             mActionButtons.update(mPlaylist);
 
             return true;
 
         } else {
-            Log.e(SoundCloudApplication.TAG, "Playlist not found: " + (mPlaylistUri == null ? "null" : mPlaylistUri.toString()));
+            Log.e(SoundCloudApplication.TAG, "Playlist data missing: " + getIntent().getDataString());
             finish();
             return false;
         }
     }
 
-    private Playlist getPlaylist() {
-        return SoundCloudApplication.MODEL_MANAGER.getPlaylist(mPlaylistUri);
-    }
-
     private void setupTracksFragment() {
-        mFragment = PlaylistTracksFragment.newInstance(mPlaylistUri);
-        getSupportFragmentManager().beginTransaction().add(R.id.playlist_tracks_fragment, mFragment).commit();
+        mFragment = PlaylistTracksFragment.newInstance(getIntent().getData());
+        getSupportFragmentManager().beginTransaction().add(R.id.playlist_tracks_fragment, mFragment, TRACKS_FRAGMENT_TAG).commit();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        getContentResolver().registerContentObserver(mPlaylistUri, false, mPlaylistObserver);
+        if (mPlaylist != null){
+            mPlaylist.startObservingChanges(getContentResolver(), this);
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        getContentResolver().unregisterContentObserver(mPlaylistObserver);
+        if (mPlaylist != null) {
+            mPlaylist.stopObservingChanges(getContentResolver(), this);
+        }
     }
 
     @Override
@@ -121,11 +125,16 @@ public class PlaylistActivity extends ScActivity {
         return 0;
     }
 
-    private ContentObserver mPlaylistObserver = new ContentObserver(new Handler()) {
-        @Override
-        public void onChange(boolean selfChange) {
-            super.onChange(selfChange);
-            getContentResolver().notifyChange(Content.PLAYLIST_TRACKS.forId(getPlaylist().id), null);
-        }
-    };
+    @Override
+    public void onPlaylistChanged() {
+        mFragment.refresh(mPlaylist);
+    }
+
+    @Override
+    public Handler getHandler() {
+        return new Handler();
+    }
+
+    ;
+
 }

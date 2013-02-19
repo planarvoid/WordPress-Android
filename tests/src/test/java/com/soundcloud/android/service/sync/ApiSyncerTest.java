@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScModelManagerTest;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -137,9 +138,7 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncSounds() throws Exception {
-        addResourceResponse("/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
-
-        Result result = sync(Content.ME_SOUNDS.uri);
+        Result result = populateMeSounds();
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
@@ -163,9 +162,7 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncSoundsAndLikes() throws Exception {
-        addResourceResponse("/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
-
-        Result result = sync(Content.ME_SOUNDS.uri);
+        Result result = populateMeSounds();
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
@@ -223,6 +220,31 @@ public class ApiSyncerTest {
         TestHelper.addPendingHttpResponse(getClass(), "connections_delete.json");
         expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
         expect(Content.ME_CONNECTIONS).toHaveCount(3);
+    }
+
+    @Test
+    public void shouldPushNewPlaylist() throws Exception {
+        populateMeSounds();
+
+        TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
+
+        Uri uri = ScModelManagerTest.createNewPlaylist(DefaultTestRunner.application.getContentResolver(),
+                SoundCloudApplication.MODEL_MANAGER);
+
+        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(uri);
+        expect(p).not.toBeNull();
+
+        expect(p.insertAsMyPlaylist(DefaultTestRunner.application.getContentResolver())).not.toBeNull();
+        expect(Content.TRACKS).toHaveCount(50);
+        expect(Content.ME_SOUNDS).toHaveCount(51);
+
+        expect(new ApiSyncer(Robolectric.application).pushLocalPlaylists()).toBe(1);
+        expect(Content.ME_SOUNDS).toHaveCount(51);
+    }
+
+    private Result populateMeSounds() throws IOException {
+        addResourceResponse("/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
+        return sync(Content.ME_SOUNDS.uri);
     }
 
     @Test

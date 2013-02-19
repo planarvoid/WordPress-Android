@@ -207,7 +207,14 @@ public class PlayQueueManager {
             mPlayPos = 0;
         }
 
+
+
         mPlayQueueUri = new PlayQueueUri(uri);
+
+        // if playlist, adjust load uri to request the tracks instead of meta_data
+        if (Content.match(uri) == Content.PLAYLIST){
+            uri = Content.PLAYLIST_TRACKS.forQuery(uri.getLastPathSegment());
+        }
         if (uri != null) {
             loadCursor(uri, position);
         }
@@ -317,6 +324,32 @@ public class PlayQueueManager {
 
     public Uri getUri() {
         return mPlayQueueUri.uri;
+    }
+
+    public static void onPlaylistUriChanged(Context context, Uri oldUri, Uri newUri) {
+        onPlaylistUriChanged(CloudPlaybackService.getPlaylistManager(),context,oldUri,newUri);
+    }
+
+    public static void onPlaylistUriChanged(PlayQueueManager playQueueManager, Context context, Uri oldUri, Uri newUri) {
+        if (playQueueManager != null) {
+            // update in memory
+            playQueueManager.onPlaylistUriChanged(oldUri,newUri);
+
+        } else {
+            // update saved uri
+            final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            final String lastUri = preferences.getString(Consts.PrefKeys.SC_PLAYQUEUE_URI, null);
+            PlayQueueUri playQueueUri = new PlayQueueUri(lastUri);
+            if (playQueueUri.uri.getPath().equals(oldUri.getPath())) {
+                Uri replacement = new PlayQueueUri(newUri).toUri(playQueueUri.getTrackId(), playQueueUri.getPos(), playQueueUri.getSeekPos());
+                SharedPreferencesUtils.apply(preferences.edit().putString(Consts.PrefKeys.SC_PLAYQUEUE_URI, replacement.toString()));
+            }
+        }
+
+    }
+
+    private void onPlaylistUriChanged(Uri oldUri, Uri newUri) {
+        if (getUri().getPath().equals(oldUri.getPath())) mPlayQueueUri = new PlayQueueUri(newUri);
     }
 
     public void clear() {
