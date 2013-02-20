@@ -20,6 +20,7 @@ public class Search {
     public static final int ALL = 0;
     public static final int SOUNDS = 1;
     public static final int USERS  = 2;
+    public static final int PLAYLISTS = 3;
 
     public int id;
     public int search_type;
@@ -47,6 +48,10 @@ public class Search {
         return new Search(query, SOUNDS);
     }
 
+    public static Search forPlaylists(String query) {
+        return new Search(query, PLAYLISTS);
+    }
+
     public static Search forUsers(String query) {
         return new Search(query, USERS);
     }
@@ -56,14 +61,21 @@ public class Search {
     }
 
     public Request request() {
+        String path;
         switch (search_type){
             case USERS:
-                return Request.to(Endpoints.USERS).with("q", query);
+                path = Endpoints.USERS;
+                break;
             case SOUNDS:
-                return Request.to(Endpoints.TRACKS).with("q", query);
+                path = Endpoints.TRACKS;
+                break;
+            case PLAYLISTS:
+                path = Endpoints.PLAYLISTS;
+                break;
             default:
-                return Request.to("/search").with("q", query);
+                path = "/search";
         }
+        return Request.to(path).with("q", query);
     }
 
 
