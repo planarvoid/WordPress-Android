@@ -219,6 +219,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         ArrayList<Uri> toSync = new ArrayList<Uri>();
         if (!trackIds.isEmpty()) toSync.add(Content.TRACK_LOOKUP.forQuery(TextUtils.join(",", trackIds)));
         if (!userIds.isEmpty()) toSync.add(Content.USER_LOOKUP.forQuery(TextUtils.join(",", userIds)));
+        if (!playlistIds.isEmpty()) toSync.add(Content.PLAYLIST_LOOKUP.forQuery(TextUtils.join(",", playlistIds)));
 
         if (!toSync.isEmpty()) {
             Intent intent = new Intent(mContext, ApiSyncService.class)

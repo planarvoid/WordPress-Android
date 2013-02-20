@@ -102,6 +102,7 @@ public enum Content  {
     PLAYLIST_LIKERS("playlists/#/likers", TempEndpoints.e1.PLAYLIST_LIKERS, 533, User.class, -1, Table.USERS),
     PLAYLIST_REPOSTERS("playlists/#/reposters", TempEndpoints.e1.PLAYLIST_REPOSTERS, 534, User.class, -1, Table.USERS),
     PLAYLIST_ALL_TRACKS("playlists/tracks", null, 535, Track.class, -1, Table.PLAYLIST_TRACKS), // used for sync service
+    PLAYLIST_LOOKUP("playlists/*", Endpoints.PLAYLISTS, 536, Playlist.class, -1, Table.SOUNDS),
 
     // LOCAL URIS
     COLLECTIONS("collections", null, 1000, null, -1, Table.COLLECTIONS),
