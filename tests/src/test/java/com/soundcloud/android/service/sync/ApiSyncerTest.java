@@ -228,10 +228,9 @@ public class ApiSyncerTest {
 
         TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
 
-        Uri uri = ScModelManagerTest.createNewPlaylist(DefaultTestRunner.application.getContentResolver(),
+        Playlist p = ScModelManagerTest.createNewPlaylist(DefaultTestRunner.application.getContentResolver(),
                 SoundCloudApplication.MODEL_MANAGER);
 
-        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(uri);
         expect(p).not.toBeNull();
 
         expect(p.insertAsMyPlaylist(DefaultTestRunner.application.getContentResolver())).not.toBeNull();

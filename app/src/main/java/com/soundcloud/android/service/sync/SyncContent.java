@@ -99,7 +99,7 @@ enum SyncContent {
 
     public static @Nullable Set<Uri> getPlaylistsDueForSync(ContentResolver contentResolver) {
         Cursor c = contentResolver.query(Content.PLAYLIST_ALL_TRACKS.uri, new String[]{DBHelper.PlaylistTracks.PLAYLIST_ID},
-                DBHelper.PlaylistTracks.ADDED_AT + " IS NOT NULL", null, null);
+                DBHelper.PlaylistTracks.ADDED_AT + " IS NOT NULL AND " + DBHelper.PlaylistTracks.PLAYLIST_ID + " > 0", null, null);
 
         if (c != null) {
             Set<Uri> uris = new HashSet<Uri>();

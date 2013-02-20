@@ -3,9 +3,13 @@ package com.soundcloud.android.dialog;
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.ScContentProvider;
 
+import android.accounts.Account;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
@@ -76,17 +80,24 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
                         } else {
                             final ContentResolver contentResolver = getActivity().getContentResolver();
                             final User loggedInUser = ((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser();
+                            final Account account = ((SoundCloudApplication) getActivity().getApplication()).getAccount();
                             // Commit the playlist locally in the background
                             new Thread(){
                                 @Override
                                 public void run() {
-                                    Playlist playlist = SoundCloudApplication.MODEL_MANAGER.createPlaylist(
+                                    // create and insert playlist
+                                    SoundCloudApplication.MODEL_MANAGER.createPlaylist(
                                             loggedInUser,
                                             String.valueOf(input.getText()),
                                             (isJon && privacy.isChecked()),
                                             getArguments().getLong(KEY_TRACK_ID)
-                                    );
-                                    playlist.insertAsMyPlaylist(contentResolver);
+                                    ).insertAsMyPlaylist(contentResolver);
+
+                                    // force to stale so we know to update the playlists next time it is viewed
+                                    LocalCollection.forceToStale(Content.ME_PLAYLISTS.uri,contentResolver);
+                                    // request sync to push playlist at next possible opportunity
+                                    ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, new Bundle());
+
                                 }
                             }.start();
 

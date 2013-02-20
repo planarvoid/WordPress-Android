@@ -381,10 +381,9 @@ public class ScModelManagerTest {
         final List<Track> tracks = createTracks();
         final boolean isPrivate = false;
 
-        Uri uri = createNewPlaylist(DefaultTestRunner.application.getContentResolver(),manager, isPrivate, tracks);
-
-        Playlist p = manager.getPlaylist(uri);
+        Playlist p = createNewPlaylist(DefaultTestRunner.application.getContentResolver(),manager, isPrivate, tracks);
         expect(p).not.toBeNull();
+        final Uri uri = p.toUri();
 
         Uri myPlaylistUri = p.insertAsMyPlaylist(DefaultTestRunner.application.getContentResolver());
 
@@ -523,11 +522,11 @@ public class ScModelManagerTest {
         return u;
     }
 
-    public static Uri createNewPlaylist(ContentResolver resolver, ScModelManager manager) {
+    public static Playlist createNewPlaylist(ContentResolver resolver, ScModelManager manager) {
         return createNewPlaylist(resolver, manager, false, createTracks());
     }
 
-    public static Uri createNewPlaylist(ContentResolver resolver, ScModelManager manager, boolean isPrivate, List<Track> tracks) {
+    public static Playlist createNewPlaylist(ContentResolver resolver, ScModelManager manager, boolean isPrivate, List<Track> tracks) {
         final String title = "new playlist " + System.currentTimeMillis();
         final long[] trackIds = new long[tracks.size()];
         for (int i = 0; i < tracks.size(); i++) {
@@ -535,8 +534,8 @@ public class ScModelManagerTest {
             trackIds[i] = tracks.get(i).id;
         }
 
-        Uri uri = manager.createPlaylist(tracks.get(0).user, title, isPrivate, trackIds);
-        expect(uri).not.toBeNull();
-        return uri;
+        Playlist p = manager.createPlaylist(tracks.get(0).user, title, isPrivate, trackIds);
+        expect(p).not.toBeNull();
+        return p;
     }
 }

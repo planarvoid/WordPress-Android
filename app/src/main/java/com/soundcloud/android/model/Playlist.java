@@ -199,6 +199,19 @@ public class Playlist extends Playable {
         }
     };
 
+    public static boolean hasLocalPlaylists(ContentResolver resolver) {
+        Cursor itemsCursor = resolver.query(Content.PLAYLISTS.uri,
+                new String[]{DBHelper.SoundView._ID}, DBHelper.SoundView._ID + " < 0",
+                null, null);
+
+        boolean hasPlaylists = false;
+        if (itemsCursor != null) {
+            hasPlaylists = itemsCursor.getCount() > 0;
+            itemsCursor.close();
+        }
+        return hasPlaylists;
+    }
+
     public static List<Playlist> getLocalPlaylists(ContentResolver resolver) {
         Cursor itemsCursor = resolver.query(Content.PLAYLISTS.uri,
                 null, DBHelper.SoundView._ID + " < 0",
