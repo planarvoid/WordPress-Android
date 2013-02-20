@@ -118,7 +118,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private void checkPlaylistSize() {
         // if we don't have the entire playlist, re-sync the playlist.
-        if (mPlaylist.isLocal() && mAdapter.getCount() < mPlaylist.track_count) {
+        if (!mPlaylist.isLocal() && mAdapter.getCount() < mPlaylist.track_count) {
             mEmptyView.setStatus(EmptyListView.Status.WAITING);
             syncPlaylist();
         } else {
