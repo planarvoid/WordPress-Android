@@ -57,12 +57,11 @@ public class ClientUri {
         return TRACKS_TYPE.equalsIgnoreCase(type) || PLAYLISTS_TYPE.equalsIgnoreCase(type) || SOUNDS_TYPE.equalsIgnoreCase(type);
     }
 
-    public boolean isUser() {
-        return USERS_TYPE.equalsIgnoreCase(type);
-    }
-
     public Uri contentProviderUri() {
-        return isUser() ? Content.USER.forId(numericId) : Content.TRACK.forId(numericId);
+        if (TRACKS_TYPE.equals(type)) return Content.TRACK.forId(numericId);
+        else if (USERS_TYPE.equals(type)) return Content.USER.forId(numericId);
+        else if (PLAYLISTS_TYPE.equals(type)) return Content.PLAYLIST.forId(numericId);
+        else throw new IllegalStateException("Unsupported content type: " + type);
     }
 
     public Uri imageUri() {
