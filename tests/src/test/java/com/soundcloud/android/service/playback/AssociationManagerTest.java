@@ -12,18 +12,12 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
-import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import android.content.ContentResolver;
-import android.database.Cursor;
-import android.provider.BaseColumns;
 
 @RunWith(DefaultTestRunner.class)
 public class AssociationManagerTest {

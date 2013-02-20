@@ -33,7 +33,6 @@ import android.net.Uri;
 import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
-@DatabaseConfig.UsingDatabaseMap(DefaultTestRunner.FileDatabaseMap.class)
 public class ApiSyncerTest {
     private static final long USER_ID = 133201L;
     private ContentResolver resolver;
