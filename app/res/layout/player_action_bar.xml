@@ -1,28 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              style="@style/PlayerActionContainer"
-              android:orientation="horizontal"
-              android:gravity="center_vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                style="@style/PlayerActionContainer">
+
     <com.soundcloud.android.view.CustomToggleButton style="@style/PlayerAction.ToggleButton.Like"
-                                                    android:id="@+id/toggle_like"
-                                                    android:layout_marginLeft="10dp"
-                                                    android:layout_weight="1"
-                                                    android:layout_width="0dp"/>
+                                                    android:id="@+id/toggle_like" />
     <com.soundcloud.android.view.CustomToggleButton style="@style/PlayerAction.ToggleButton.Repost"
                                                     android:id="@+id/toggle_repost"
-                                                    android:layout_marginLeft="5dp"
-                                                    android:layout_weight="1"
-                                                    android:layout_width="0dp"/>
-    <ImageButton style="@style/PlayerAction.Button.AddToSet"
-                 android:id="@+id/btn_addToSet"
-                 android:layout_marginLeft="5dp"/>
+                                                    android:layout_toRightOf="@id/toggle_like"/>
 
-    <ImageButton android:id="@+id/btn_share"
+    <!-- we need this extra layout to center the separator -->
+    <FrameLayout android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_toRightOf="@id/toggle_repost"
+                 android:layout_toLeftOf="@+id/btn_addToSet">
+
+        <View style="@style/PlayerActionSeparator"
+              android:layout_gravity="center_horizontal"/>
+
+    </FrameLayout>
+
+
+    <ImageButton android:id="@id/btn_addToSet"
+                 style="@style/PlayerAction.Button.AddToSet"
+                 android:layout_toLeftOf="@+id/btn_share"/>
+
+    <ImageButton android:id="@id/btn_share"
                  android:layout_marginLeft="5dp"
+                 android:layout_toLeftOf="@+id/toggle_info"
                  style="@style/PlayerAction.Button.Share"/>
 
-    <ToggleButton android:layout_marginRight="@dimen/player_info_button_margin"
+    <ToggleButton android:id="@id/toggle_info"
+                  android:layout_marginRight="@dimen/player_info_button_margin"
                   android:layout_marginLeft="@dimen/player_info_button_margin"
-                  android:id="@+id/toggle_info"
+                  android:layout_alignParentRight="true"
                   style="@style/PlayerAction.Button.Info"/>
-</LinearLayout>
+</RelativeLayout>
