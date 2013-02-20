@@ -23,6 +23,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
+import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -194,7 +195,7 @@ public class ApiSyncer {
 
             for (Playlist p : playlistsToUpload) {
 
-                long toDelete = p.id;
+                Uri toDelete = p.toUri();
 
                 Playlist.ApiCreateObject createObject = new Playlist.ApiCreateObject(p);
 
@@ -516,7 +517,16 @@ public class ApiSyncer {
         log("Syncing playlist " + contentUri);
 
         Result result = new Result(contentUri);
-        InputStream is = validateResponse(mApi.get(Content.match(contentUri).request(contentUri))).getEntity().getContent();
+        final HttpResponse response = mApi.get(Content.match(contentUri).request(contentUri));
+
+        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+            log("Received a 404 on playlist, deleting " + contentUri.toString());
+            Playlist.removePlaylist(mResolver,contentUri);
+            result.setSyncData(true, System.currentTimeMillis(), 0, Result.CHANGED);
+            return result;
+        }
+
+        InputStream is = validateResponse(response).getEntity().getContent();
 
         // todo, one call
         Playlist p = (Playlist) SoundCloudApplication.MODEL_MANAGER.cache(

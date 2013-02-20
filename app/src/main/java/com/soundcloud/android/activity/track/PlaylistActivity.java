@@ -127,12 +127,11 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
 
     @Override
     public void onPlaylistChanged() {
-        mFragment.refresh(mPlaylist);
-    }
+        if (mPlaylist.removed){
+            finish();
+        } else {
+            mFragment.refresh(mPlaylist);
+        }
 
-    @Override
-    public void onPlaylistDeleted() {
-        Log.d(SoundCloudApplication.TAG,"Playlist deleted, finishing activity");
-        finish();
     }
 }

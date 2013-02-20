@@ -4,18 +4,16 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.track.PlaylistActivity;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueManager;
-import com.soundcloud.android.task.fetch.FetchModelTask;
+import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.api.Params;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,6 +50,7 @@ public class Playlist extends Playable {
     @JsonView(Views.Full.class) public String tracks_uri;
     @JsonView(Views.Full.class) @Nullable public List<Track> tracks;
     @JsonView(Views.Full.class) public int track_count;
+    public boolean removed;
 
 
     public static Playlist fromIntent(Intent intent) {
@@ -285,11 +284,40 @@ public class Playlist extends Playable {
         return resolver.insert(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId)), cv);
     }
 
-    public static int removePlaylist(ContentResolver resolver, long playlistId){
+    /**
+     * delete any caching, and mark any local instances as removed
+     * {@link com.soundcloud.android.activity.track.PlaylistActivity#onPlaylistChanged()}
+     * @param resolver
+     * @param playlistUri
+     */
+    public static void removePlaylist(ContentResolver resolver, Uri playlistUri) {
+        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(playlistUri);
+        if (p != null) {
+            p.removed = true;
+            SoundCloudApplication.MODEL_MANAGER.removeFromCache(p.toUri());
+        }
+        Playlist.removePlaylistFromDb(resolver, UriUtils.getLastSegmentAsLong(playlistUri));
+    }
+
+    public static int removePlaylistFromDb(ContentResolver resolver, long playlistId){
+
         final String playlistIdString = String.valueOf(playlistId);
         int deleted = resolver.delete(Content.PLAYLIST.forQuery(playlistIdString), null, null);
         deleted += resolver.delete(Content.PLAYLIST_TRACKS.forQuery(playlistIdString), null, null);
-        deleted += resolver.delete(Content.ME_PLAYLISTS.forQuery(playlistIdString),null,null);
+
+        // delete from collections
+        String where = DBHelper.CollectionItems.ITEM_ID + " = " + playlistId + " AND "
+                + DBHelper.CollectionItems.RESOURCE_TYPE + " = " + Playable.DB_TYPE_PLAYLIST;
+
+        deleted += resolver.delete(Content.ME_PLAYLISTS.uri, where, null);
+        deleted += resolver.delete(Content.ME_SOUNDS.uri, where, null);
+        deleted += resolver.delete(Content.ME_LIKES.uri, where, null);
+
+        // delete from activities
+        where = DBHelper.Activities.SOUND_ID + " = " + playlistId + " AND " +
+                DBHelper.ActivityView.TYPE + " IN ( " + Activity.getDbPlaylistTypesForQuery() + " ) ";
+        deleted += resolver.delete(Content.ME_ALL_ACTIVITIES.uri, where, null);
+
         return deleted;
     }
 
@@ -310,7 +338,6 @@ public class Playlist extends Playable {
 
     public interface OnChangeListener {
         void onPlaylistChanged();
-        void onPlaylistDeleted();
     }
     private ContentObserver mPlaylistObserver;
     public synchronized void startObservingChanges(@NotNull ContentResolver contentResolver, @NotNull OnChangeListener listener) {

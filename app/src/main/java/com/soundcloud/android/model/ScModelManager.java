@@ -217,6 +217,13 @@ public class ScModelManager {
         return (Playlist) getModel(uri);
     }
 
+    public @Nullable void removeFromCache(Uri uri) {
+        final ModelCache cacheFromUri = getCacheFromUri(uri);
+        if (cacheFromUri != null){
+            cacheFromUri.remove(UriUtils.getLastSegmentAsLong(uri));
+        }
+    }
+
     public @Nullable
     ModelCache getCacheFromUri(Uri uri) {
         switch (Content.match(uri)){

@@ -142,7 +142,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private void syncPlaylist() {
         final FragmentActivity activity = getActivity();
-        if (activity != null) {
+        if (isAdded()) {
             mListView.setRefreshing(true);
             activity.startService(new Intent(activity, ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
@@ -152,9 +152,11 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     private void setHeaderInfo() {
-        final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, mPlaylist.track_count, mPlaylist.track_count);
-        final String duration = ScTextUtils.formatTimestamp(mPlaylist.duration);
-        mInfoHeader.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
+        if (isAdded()){ // make sure we are attached to an activity
+            final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, mPlaylist.track_count, mPlaylist.track_count);
+            final String duration = ScTextUtils.formatTimestamp(mPlaylist.duration);
+            mInfoHeader.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
+        }
     }
 
     @Override
@@ -173,6 +175,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     public void refresh(Playlist playlist) {
+        mPlaylist = playlist;
         getActivity().getSupportLoaderManager().restartLoader(PLAYER_LIST_LOADER, null, this);
         setHeaderInfo();
     }
