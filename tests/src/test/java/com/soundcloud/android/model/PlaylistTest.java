@@ -61,7 +61,7 @@ public class PlaylistTest {
         //create mode
         Playlist.ApiCreateObject createObject = new Playlist.ApiCreateObject(playlist);
         expect(createObject.toJson(DefaultTestRunner.application.getMapper()))
-                .toEqual("{\"playlist\":{\"title\":\"PA600QT Demos\",\"sharing\":\"public\",\"tracks\":[{\"id\":61363002}]}}");
+                .toEqual("{\"playlist\":{\"title\":\"PA600QT Demos\",\"sharing\":\"public\",\"tracks\":[{\"id\":61363002},{\"id\":61363003},{\"id\":61363004},{\"id\":61363005},{\"id\":61363006},{\"id\":61363007},{\"id\":61363008},{\"id\":61363009},{\"id\":61363011},{\"id\":61363012},{\"id\":61363013},{\"id\":61363014},{\"id\":61363016},{\"id\":61363017}]}}");
 
     }
 
