@@ -6,6 +6,8 @@ import java.util.List;
 
 public class UnknownResource extends ScResource {
 
+    public UnknownResource() {}
+
     public UnknownResource(long id) {
         super(id);
     }
