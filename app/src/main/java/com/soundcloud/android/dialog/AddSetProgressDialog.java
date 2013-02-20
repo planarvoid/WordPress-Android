@@ -43,9 +43,7 @@ public class AddSetProgressDialog extends SherlockDialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        ProgressDialog.Builder builder = new ProgressDialog.Builder(
-                new ContextThemeWrapper(getActivity(), R.style.ScDialog)
-        );
+        ProgressDialog.Builder builder = new ProgressDialog.Builder(getActivity());
 
         final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_add_set_progress, null);
         final TextView title = (TextView) dialogView.findViewById(android.R.id.title);
