@@ -4,13 +4,12 @@ import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.model.User;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
@@ -20,8 +19,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.Date;
 
 public class CreateNewSetDialogFragment extends SherlockDialogFragment {
 
@@ -77,22 +74,21 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
                         if (TextUtils.isEmpty(input.getText())) {
                             Toast.makeText(getActivity(), R.string.error_new_set_blank_title, Toast.LENGTH_SHORT).show();
                         } else {
-
+                            final ContentResolver contentResolver = getActivity().getContentResolver();
+                            final User loggedInUser = ((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser();
                             // Commit the playlist locally in the background
-                            new Thread(new Runnable() {
+                            new Thread(){
                                 @Override
                                 public void run() {
-                                    Uri uri = SoundCloudApplication.MODEL_MANAGER.createPlaylist(
-                                            ((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser(),
+                                    Playlist playlist = SoundCloudApplication.MODEL_MANAGER.createPlaylist(
+                                            loggedInUser,
                                             String.valueOf(input.getText()),
-                                            (isJon ? privacy.isChecked() : false),
+                                            (isJon && privacy.isChecked()),
                                             getArguments().getLong(KEY_TRACK_ID)
                                     );
-
-                                    Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(uri);
-                                    p.insertAsMyPlaylist(getActivity().getContentResolver());
+                                    playlist.insertAsMyPlaylist(contentResolver);
                                 }
-                            }).start();
+                            }.start();
 
                             dialog.dismiss();
                         }

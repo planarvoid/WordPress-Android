@@ -579,7 +579,7 @@ public class ScModelManager {
         return models.insert(mResolver);
     }
 
-    public Uri createPlaylist(User user, String title, boolean isPrivate, long... trackIds) {
+    public Playlist createPlaylist(User user, String title, boolean isPrivate, long... trackIds) {
         Playlist p = new Playlist(-System.currentTimeMillis());
         p.user = user;
         p.title = title;
@@ -592,8 +592,8 @@ public class ScModelManager {
             Track track = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(trackId);
             p.tracks.add(track == null ? new Track(trackId) : track);
         }
-        Uri uri = p.insert(mResolver);
+        p.insert(mResolver);
         cache(p);
-        return uri;
+        return p;
     }
 }
