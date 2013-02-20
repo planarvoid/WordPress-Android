@@ -253,7 +253,7 @@ public class ApiSyncerTest {
         expect(result.success).toBe(true);
         expect(result.synced_at).toBeGreaterThan(0l);
         expect(result.change).toEqual(Result.CHANGED);
-        expect(Content.PLAYLIST).toHaveCount(1);
+        expect(Content.PLAYLISTS).toHaveCount(1);
 
         Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylistWithTracks(2524386l);
         expect(p.title).toEqual("fall into fall");
