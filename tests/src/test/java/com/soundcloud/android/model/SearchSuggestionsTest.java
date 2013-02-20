@@ -24,7 +24,7 @@ public class SearchSuggestionsTest {
     @Test
     public void shouldDeserializeCorrectly() throws Exception {
         SearchSuggestions suggestions = TestHelper.readJson(SearchSuggestions.class,
-                "/com/soundcloud/android/model/suggest.json");
+                "/com/soundcloud/android/model/suggest_users.json");
 
         expect(suggestions.tx_id).toEqual("92dbb484c0d144afa6c193ece99514f3");
         expect(suggestions.query_time_in_millis).toEqual(1l);
@@ -113,7 +113,7 @@ public class SearchSuggestionsTest {
         });
         SearchSuggestions local = new SearchSuggestions(cursor);
         SearchSuggestions remote = TestHelper.readJson(SearchSuggestions.class,
-                "/com/soundcloud/android/model/suggest.json");
+                "/com/soundcloud/android/model/suggest_users.json");
 
         SearchSuggestions merged = local.merge(remote);
 
