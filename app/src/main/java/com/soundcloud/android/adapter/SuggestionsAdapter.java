@@ -213,7 +213,8 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
         final List<Long> trackIds = new ArrayList<Long>();
         final List<Long> userIds = new ArrayList<Long>();
-        suggestions.putRemoteIds(trackIds, userIds);
+        final List<Long> playlistIds = new ArrayList<Long>();
+        suggestions.putRemoteIds(trackIds, userIds, playlistIds);
 
         ArrayList<Uri> toSync = new ArrayList<Uri>();
         if (!trackIds.isEmpty()) toSync.add(Content.TRACK_LOOKUP.forQuery(TextUtils.join(",", trackIds)));

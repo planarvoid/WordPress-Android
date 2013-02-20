@@ -1,0 +1,26 @@
+{
+  "tx_id" : "92dbb484c0d144afa6c193ece99514f3",
+  "query_time_in_millis" : 1,
+  "query" : "f",
+  "limit" : 5,
+  "suggestions" : [
+      {
+        "query" : "Foo Fighters",
+        "kind" : "user",
+        "id" : 2097360,
+        "score" : 889523
+      },
+      {
+        "query" : "Flying Lotus song",
+        "kind" : "track",
+        "id" : 196380,
+        "score" : 675494
+      },
+      {
+        "query" : "fuckmylife",
+        "kind" : "playlist",
+        "id" : 324731,
+        "score" : 614209
+      }
+  ]
+}
