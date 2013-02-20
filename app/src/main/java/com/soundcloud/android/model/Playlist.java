@@ -52,6 +52,10 @@ public class Playlist extends Playable {
     @JsonView(Views.Full.class) public int track_count;
     public boolean removed;
 
+    public interface OnChangeListener { void onPlaylistChanged(); }
+
+    private Set<WeakReference<OnChangeListener>> mListenerWeakReferences;
+    private ContentObserver mPlaylistObserver;
 
     public static Playlist fromIntent(Intent intent) {
         Playlist playlist = intent.getParcelableExtra(EXTRA);
@@ -333,13 +337,7 @@ public class Playlist extends Playable {
     /**
      * Change listening. Playlist IDs are mutable, so we listen on the actual instance instead of content uri's
      */
-    private OnChangeListener mChangeListener;
-    private Set<WeakReference<OnChangeListener>> mListenerWeakReferences;
 
-    public interface OnChangeListener {
-        void onPlaylistChanged();
-    }
-    private ContentObserver mPlaylistObserver;
     public synchronized void startObservingChanges(@NotNull ContentResolver contentResolver, @NotNull OnChangeListener listener) {
         if (mPlaylistObserver == null) {
             mPlaylistObserver = new ContentObserver(new Handler()) {

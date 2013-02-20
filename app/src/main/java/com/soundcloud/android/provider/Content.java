@@ -225,10 +225,11 @@ public enum Content  {
     }
 
     public Uri forId(long id) {
-        if (uri.toString().contains("#")) {
-            return Uri.parse(uri.toString().replace("#", String.valueOf(id)));
-        } else if (uri.toString().contains("*")) {
-            return Uri.parse(uri.toString().replace("*", String.valueOf(id)));
+        final String uriString = uri.toString();
+        if (uriString.contains("#")) {
+            return Uri.parse(uriString.replace("#", String.valueOf(id)));
+        } else if (uriString.contains("*")) {
+            return Uri.parse(uriString.replace("*", String.valueOf(id)));
         } else {
             return buildUpon().appendEncodedPath(String.valueOf(id)).build();
         }

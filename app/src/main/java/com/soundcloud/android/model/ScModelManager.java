@@ -9,6 +9,9 @@ import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.HttpUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
@@ -491,7 +494,7 @@ public class ScModelManager {
         if (code == HttpStatus.SC_UNAUTHORIZED) {
             throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
                     response.getStatusLine().getReasonPhrase());
-        } else if (code != HttpStatus.SC_OK && code != HttpStatus.SC_NOT_MODIFIED  && code != HttpStatus.SC_CREATED) {
+        } else if (!IOUtils.isStatusCodeOk(code)) {
             throw new IOException("Invalid response: " + response.getStatusLine());
         }
         return response;
