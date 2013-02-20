@@ -6,6 +6,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.task.ParallelAsyncTask;
+import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -51,11 +52,7 @@ public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Bool
             Request request = Request.to(mEndpoint)
                     .add("linked_partitioning", "1")
                     .add("ids", TextUtils.join(",", mResourceIds));
-            if (params != null && params.length > 0 && params.length % 2 == 0) {
-                for (int i = 0; i < params.length; i += 2) {
-                    request.add(params[i], params[i+1]);
-                }
-            }
+            HttpUtils.addQueryParams(request, params);
             HttpResponse resp = mApi.get(request);
 
             if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
