@@ -310,6 +310,7 @@ public class Playlist extends Playable {
 
     public interface OnChangeListener {
         void onPlaylistChanged();
+        void onPlaylistDeleted();
     }
     private ContentObserver mPlaylistObserver;
     public synchronized void startObservingChanges(@NotNull ContentResolver contentResolver, @NotNull OnChangeListener listener) {

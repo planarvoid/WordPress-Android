@@ -339,10 +339,12 @@ public class PlayQueueManager {
             // update saved uri
             final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
             final String lastUri = preferences.getString(Consts.PrefKeys.SC_PLAYQUEUE_URI, null);
-            PlayQueueUri playQueueUri = new PlayQueueUri(lastUri);
-            if (playQueueUri.uri.getPath().equals(oldUri.getPath())) {
-                Uri replacement = new PlayQueueUri(newUri).toUri(playQueueUri.getTrackId(), playQueueUri.getPos(), playQueueUri.getSeekPos());
-                SharedPreferencesUtils.apply(preferences.edit().putString(Consts.PrefKeys.SC_PLAYQUEUE_URI, replacement.toString()));
+            if (!TextUtils.isEmpty(lastUri)){
+                PlayQueueUri playQueueUri = new PlayQueueUri(lastUri);
+                if (playQueueUri.uri.getPath().equals(oldUri.getPath())) {
+                    Uri replacement = new PlayQueueUri(newUri).toUri(playQueueUri.getTrackId(), playQueueUri.getPos(), playQueueUri.getSeekPos());
+                    SharedPreferencesUtils.apply(preferences.edit().putString(Consts.PrefKeys.SC_PLAYQUEUE_URI, replacement.toString()));
+                }
             }
         }
 
