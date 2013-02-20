@@ -61,6 +61,7 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.playlist_activity);
+        // hold on to the playlist instance instead of the URI or id as they may change going from local > global
         mPlaylist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(getIntent().getData());
 
         mPlaylistBar = (PlayableBar) findViewById(R.id.playable_bar);
@@ -128,6 +129,7 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
     @Override
     public void onPlaylistChanged() {
         if (mPlaylist.removed){
+            showToast(R.string.playlist_removed);
             finish();
         } else {
             mFragment.refresh(mPlaylist);

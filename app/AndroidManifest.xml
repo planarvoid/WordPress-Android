@@ -170,7 +170,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
 
-            <!-- play with content uri -->
+            <!-- play with content uri, e.g. ME_STREAM -->
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.PLAY"/>
                 <category android:name="android.intent.category.DEFAULT"/>

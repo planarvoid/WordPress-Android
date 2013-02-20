@@ -190,4 +190,5 @@
     <string name="side_menu_sets">Your Sets</string>
     <string name="empty_playlist">This set has no sounds yet</string>
 
+    <string name="playlist_removed">This set was not found on SoundCloud</string>
 </resources>
