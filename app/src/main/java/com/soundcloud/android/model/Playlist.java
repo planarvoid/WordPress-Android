@@ -310,12 +310,11 @@ public class Playlist extends Playable {
 
     public interface OnChangeListener {
         void onPlaylistChanged();
-        Handler getHandler();
     }
     private ContentObserver mPlaylistObserver;
     public synchronized void startObservingChanges(@NotNull ContentResolver contentResolver, @NotNull OnChangeListener listener) {
         if (mPlaylistObserver == null) {
-            mPlaylistObserver = new ContentObserver(listener.getHandler()) {
+            mPlaylistObserver = new ContentObserver(new Handler()) {
                 @Override
                 public void onChange(boolean selfChange) {
                     super.onChange(selfChange);

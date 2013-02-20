@@ -129,12 +129,4 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
     public void onPlaylistChanged() {
         mFragment.refresh(mPlaylist);
     }
-
-    @Override
-    public Handler getHandler() {
-        return new Handler();
-    }
-
-    ;
-
 }
