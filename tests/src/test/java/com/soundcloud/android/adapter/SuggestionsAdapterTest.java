@@ -78,9 +78,9 @@ public class SuggestionsAdapterTest {
         expect(syncIntent).not.toBeNull();
         List<Uri> uris = syncIntent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS);
         expect(uris.size()).toEqual(3);
-        expect(uris.get(0)).toEqual(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/tracks/196380%2C196381"));
-        expect(uris.get(1).toString()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/users/2097360");
-        expect(uris.get(2).toString()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/playlists/324731");
+        expect(uris.get(0)).toEqual(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/tracks/q/196380%2C196381"));
+        expect(uris.get(1).toString()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/users/q/2097360");
+        expect(uris.get(2).toString()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/playlists/q/324731");
     }
 
     // TODO: shadow for support-v4 CursorAdapter doesn't work. RL 2.0 may fix this.
