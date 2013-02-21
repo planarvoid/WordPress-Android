@@ -8,6 +8,7 @@ public interface TempEndpoints {
     String PLAYLIST_TRACKS      = "/playlists/%d/tracks";
     String MY_PLAYLISTS         = "/me/playlists";
     String USER_PLAYLISTS       = "/users/%d/playlists";
+    String SEARCH               = "/search";
 
     public interface e1 {
         String MY_STREAM           = "/e1/me/stream";

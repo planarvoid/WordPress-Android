@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.api.Endpoints;
@@ -73,7 +74,7 @@ public class Search {
                 path = Endpoints.PLAYLISTS;
                 break;
             default:
-                path = "/search";
+                path = TempEndpoints.SEARCH;
         }
         return Request.to(path).with("q", query);
     }
