@@ -93,6 +93,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         DEV_MODE = isDevMode();
         BETA_MODE = isBetaMode();
 
+        if (DEV_MODE) {
+            setupStrictMode();
+        }
+
         if (DALVIK && !EMULATOR) {
             ACRA.init(this); // don't use ACRA when running unit tests / emulator
             mTracker = new ATTracker(this);
@@ -142,7 +146,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
             ContentStats.init(this);
         }
-//        setupStrictMode();
+
         FacebookSSO.extendAccessTokenIfNeeded(this);
     }
 
@@ -568,16 +572,20 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     private static void setupStrictMode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                    .detectDiskReads()
-                    .detectDiskWrites()
-                    .detectNetwork()
+                    //.detectDiskReads()
+                    //.detectDiskWrites()
+                    //.detectNetwork()
+                    //.penaltyLog()
+                    .detectAll()
                     .penaltyLog()
                     .build());
 
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                    .detectLeakedSqlLiteObjects()
+                    //.detectLeakedSqlLiteObjects()
+                    //.penaltyLog()
+                    //.penaltyDeath()
+                    .detectAll()
                     .penaltyLog()
-                    .penaltyDeath()
                     .build());
         }
     }

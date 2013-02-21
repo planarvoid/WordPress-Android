@@ -54,6 +54,13 @@
                 <action android:name="com.soundcloud.android.action.STREAM"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/stream"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/stream"/>
+            </intent-filter>
         </activity>
 
         <!-- activities -->
@@ -97,6 +104,14 @@
                 <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/search"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/search"/>
+            </intent-filter>
         </activity>
 
         <activity android:name=".activity.landing.News" android:label="@string/side_menu_activity">
@@ -138,6 +153,14 @@
                 <action android:name="com.soundcloud.android.action.WHO_TO_FOLLOW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/people"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/people"/>
+            </intent-filter>
+
         </activity>
         <activity android:name=".activity.landing.FriendFinder" android:label="@string/side_menu_friend_finder"
                   android:configChanges="orientation">
@@ -234,6 +257,13 @@
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.RECORD_STOP"/>
                 <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/upload"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/upload"/>
             </intent-filter>
         </activity>
         <activity android:name=".activity.create.UploadMonitor"
