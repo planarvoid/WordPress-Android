@@ -2,6 +2,7 @@ package com.soundcloud.android.task.fetch;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.task.ResolveTask;
 import com.soundcloud.android.utils.HttpUtils;
@@ -117,7 +118,7 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
     }
 
     private ScResource resolveLocally(Uri uri) {
-        if (uri != null && "soundcloud".equalsIgnoreCase(uri.getScheme())) {
+        if (uri != null && ClientUri.SCHEME.equalsIgnoreCase(uri.getScheme())) {
             final String specific = uri.getSchemeSpecificPart();
             final String[] components = specific.split(":", 2);
             if (components != null && components.length == 2) {
@@ -127,11 +128,11 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
                 if (type != null && id != null) {
                     try {
                         long _id = Long.parseLong(id);
-                        if ("tracks".equalsIgnoreCase(type)) {
+                        if (ClientUri.TRACKS_TYPE.equalsIgnoreCase(type)) {
                             return SoundCloudApplication.MODEL_MANAGER.getTrack(_id);
-                        } else if ("playlists".equalsIgnoreCase(type)) {
+                        } else if (ClientUri.PLAYLISTS_TYPE.equalsIgnoreCase(type)) {
                             return SoundCloudApplication.MODEL_MANAGER.getPlaylist(_id);
-                        } else if ("users".equalsIgnoreCase(type)) {
+                        } else if (ClientUri.USERS_TYPE.equalsIgnoreCase(type)) {
                             return SoundCloudApplication.MODEL_MANAGER.getUser(_id);
                         }
                     } catch (NumberFormatException ignored) {

@@ -43,6 +43,14 @@ public class SearchTest {
     }
 
     @Test
+    public void shouldBuildCorrectApiRequest() {
+        expect(Search.forSounds("foo").request().toUrl()).toEqual("/tracks?q=foo");
+        expect(Search.forPlaylists("foo").request().toUrl()).toEqual("/playlists?q=foo");
+        expect(Search.forUsers("foo").request().toUrl()).toEqual("/users?q=foo");
+        expect(Search.forAll("foo").request().toUrl()).toEqual("/search?q=foo");
+    }
+
+    @Test
     public void shouldNotAddDuplicateSearches() throws Exception {
         for (int i=0; i<5; i++) {
             Search.forSounds("blaz").insert(resolver);

@@ -22,6 +22,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
+import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -101,10 +102,10 @@ public class ApiSyncer {
                     result.success = true;
                     break;
 
+                case PLAYLIST_LOOKUP:
                 case TRACK_LOOKUP:
                 case USER_LOOKUP:
-                    result = fetchAndInsertCollection(uri,
-                            Request.to(c.remoteUri).add("ids", uri.getLastPathSegment()), userId);
+                    result = fetchAndInsertCollection(c, uri);
                     break;
 
                 case ME_PLAYLISTS:
@@ -539,18 +540,19 @@ public class ApiSyncer {
     /**
      * Fetch Api Resources and insert them into the content provider. Plain resource inserts, no extra
      * content values will be inserted
-     * @param uri
-     * @param request
-     * @param userId
-     * @return
      * @throws IOException
      */
-    private Result fetchAndInsertCollection(Uri uri, Request request, long userId) throws IOException {
-        Result result = new Result(uri);
-        log("fetchAndInsertCollection(" + uri + ")");
+    private Result fetchAndInsertCollection(Content content, Uri contentUri) throws IOException {
+        Result result = new Result(contentUri);
+        log("fetchAndInsertCollection(" + contentUri + ")");
+
+        Request request = Request.to(content.remoteUri).add("ids", contentUri.getLastPathSegment());
+        if (Content.PLAYLIST_LOOKUP.equals(content)) {
+            HttpUtils.addQueryParams(request, "representation", "compact");
+        }
 
         ScResource.ScResourceHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
-                request.add("linked_partitioning", "1"), ScResource.ScResourceHolder.class);
+                request, ScResource.ScResourceHolder.class);
 
         if (holder != null) {
             SoundCloudDB.bulkInsertResources(mResolver, holder.collection);

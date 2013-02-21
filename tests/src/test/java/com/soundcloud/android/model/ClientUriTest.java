@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -28,16 +29,25 @@ public class ClientUriTest {
         ClientUri uri = new ClientUri("soundcloud:users:123");
         expect(uri.type).toEqual("users");
         expect(uri.id).toEqual("123");
-        expect(uri.isUser()).toBeTrue();
+        expect(uri.contentProviderUri()).toEqual(Content.USER.forId(123L));
         expect(uri.isSound()).toBeFalse();
     }
 
     @Test
-    public void shouldParseCorrectlySound() throws Exception {
+    public void shouldParseCorrectlyTrack() throws Exception {
         ClientUri uri = new ClientUri("soundcloud:tracks:123");
         expect(uri.type).toEqual("tracks");
         expect(uri.id).toEqual("123");
-        expect(uri.isUser()).toBeFalse();
+        expect(uri.contentProviderUri()).toEqual(Content.TRACK.forId(123L));
+        expect(uri.isSound()).toBeTrue();
+    }
+
+    @Test
+    public void shouldParseCorrectlyPlaylist() throws Exception {
+        ClientUri uri = new ClientUri("soundcloud:playlists:123");
+        expect(uri.type).toEqual("playlists");
+        expect(uri.id).toEqual("123");
+        expect(uri.contentProviderUri()).toEqual(Content.PLAYLIST.forId(123L));
         expect(uri.isSound()).toBeTrue();
     }
 

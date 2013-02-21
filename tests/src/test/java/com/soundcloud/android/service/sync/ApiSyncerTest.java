@@ -306,6 +306,17 @@ public class ApiSyncerTest {
     }
 
     @Test
+    public void shouldDoPlaylistLookup() throws Exception {
+        TestHelper.addCannedResponse(getClass(), "/playlists?ids=3761799%2C1&representation=compact&linked_partitioning=1",
+                "playlists_compact.json");
+        Result result = sync(Content.PLAYLIST_LOOKUP.forQuery("3761799,1"));
+        expect(result.success).toBe(true);
+        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.change).toEqual(Result.CHANGED);
+        expect(Content.PLAYLISTS).toHaveCount(2);
+    }
+
+    @Test
     public void shouldSetSyncResultData() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "e1_activities_1_oldest.json");
         Result result = sync(Content.ME_ACTIVITIES.uri);

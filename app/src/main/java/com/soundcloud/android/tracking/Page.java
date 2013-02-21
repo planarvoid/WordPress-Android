@@ -39,6 +39,7 @@ public enum Page implements Event {
     Search_main("main", Level2.Search),
     Search_results__all__keyword("results::all::%s", Level2.Search),
     Search_results__sounds__keyword("results::sounds::%s", Level2.Search),
+    Search_results__playlists__keyword("results::playlists::%s", Level2.Search),
     Search_results__people__keyword("results::people::%s", Level2.Search),
 
     // settings
