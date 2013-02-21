@@ -5,6 +5,7 @@ import static com.soundcloud.android.model.ScModelManager.validateResponse;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
@@ -22,7 +23,6 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
-import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -165,6 +165,7 @@ public class ApiSyncer {
      */
     private Result syncMyPlaylists() throws IOException {
         Result result = new Result(Content.ME_PLAYLISTS.uri);
+        pushLocalPlaylists();
 
         final Request request = Request.to(Content.ME_PLAYLISTS.remoteUri)
                 .add("linked_partitioning", "1").add("representation", "compact").with("limit", 200);
@@ -183,6 +184,51 @@ public class ApiSyncer {
             syncLocalSoundAssocationsToHolder(Content.ME_PLAYLISTS.uri, soundAssociationHolder, result);
         }
         return result;
+    }
+
+    /* package */ int pushLocalPlaylists() throws IOException {
+
+        // check for local playlists that need to be pushed
+        List<Playlist> playlistsToUpload = Playlist.getLocalPlaylists(mResolver);
+        if (!playlistsToUpload.isEmpty()) {
+
+            for (Playlist p : playlistsToUpload) {
+
+                Uri toDelete = p.toUri();
+
+                Playlist.ApiCreateObject createObject = new Playlist.ApiCreateObject(p);
+
+                if (createObject.tracks == null){
+                    // add the tracks
+                    createObject.tracks = new ArrayList<ScModel>();
+                    Cursor itemsCursor = mResolver.query(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(p.id)),
+                            new String[]{DBHelper.PlaylistTracksView._ID}, null, null, null);
+
+                    if (itemsCursor != null) {
+                        while (itemsCursor.moveToNext()) {
+                            createObject.tracks.add(new ScModel(itemsCursor.getLong(itemsCursor.getColumnIndex(DBHelper.PlaylistTracksView._ID))));
+                        }
+                        itemsCursor.close();
+                    }
+                }
+
+                final String content = mApi.getMapper().writeValueAsString(createObject);
+                log("Pushing new playlist to api: " + content);
+                Request r = Request.to(TempEndpoints.PLAYLISTS).withContent(content, "application/json");
+                InputStream is = validateResponse(mApi.post(r)).getEntity().getContent();
+
+                Playlist added = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is);
+
+                // update local state
+                p.localToGlobal(mContext, added);
+                added.insertAsMyPlaylist(mResolver);
+
+                // remove all traces of the old temporary playlist
+                Playlist.removePlaylist(mResolver, toDelete);
+
+            }
+        }
+        return playlistsToUpload.size();
     }
 
     private Result syncSoundAssociations(Content content, Uri uri, long userId) throws IOException {
@@ -470,7 +516,16 @@ public class ApiSyncer {
         log("Syncing playlist " + contentUri);
 
         Result result = new Result(contentUri);
-        InputStream is = validateResponse(mApi.get(Content.match(contentUri).request(contentUri))).getEntity().getContent();
+        final HttpResponse response = mApi.get(Content.match(contentUri).request(contentUri));
+
+        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+            log("Received a 404 on playlist, deleting " + contentUri.toString());
+            Playlist.removePlaylist(mResolver,contentUri);
+            result.setSyncData(true, System.currentTimeMillis(), 0, Result.CHANGED);
+            return result;
+        }
+
+        InputStream is = validateResponse(response).getEntity().getContent();
 
         // todo, one call
         Playlist p = (Playlist) SoundCloudApplication.MODEL_MANAGER.cache(
@@ -494,7 +549,6 @@ public class ApiSyncer {
 
             Playlist.ApiUpdateObject updateObject = new Playlist.ApiUpdateObject(toAdd);
             final String content = mApi.getMapper().writeValueAsString(updateObject);
-            Log.i("asdf","pushing " + content);
             log("Pushing new playlist content to api: " + content);
 
             Request r = Content.PLAYLIST.request(contentUri).withContent(content, "application/json");

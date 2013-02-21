@@ -123,6 +123,7 @@ public class SyncContentTest {
     public void shouldSyncLocalPlaylistTracks() throws Exception {
         final long playlistId = 12345l;
         expect(Playlist.addTrackToPlaylist(resolver, playlistId, 10696200l, System.currentTimeMillis())).not.toBeNull();
+        expect(Playlist.addTrackToPlaylist(resolver, -34243l, 10696200l, System.currentTimeMillis())).not.toBeNull();
 
         Set<Uri> urisToSync = SyncContent.getPlaylistsDueForSync(Robolectric.application.getContentResolver());
         expect(urisToSync.size()).toEqual(1);

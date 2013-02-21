@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 
 @RunWith(DefaultTestRunner.class)
-@DatabaseConfig.UsingDatabaseMap(DefaultTestRunner.FileDatabaseMap.class)
 public class ActivitiesTest {
 
     public static final long USER_ID = 133201L;

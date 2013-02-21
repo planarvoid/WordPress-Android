@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.PlayableHolder;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.model.Track;
@@ -12,6 +13,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
+import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +21,7 @@ import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.net.Uri;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -294,6 +297,23 @@ public class PlaylistManagerTest {
         expect(pm.getCurrentTrack().id).toEqual(1L);
         expect(pm.prev()).toEqual(true);
         expect(pm.getCurrentTrack().id).toEqual(2L);
+    }
+
+    @Test
+    public void shouldRespondToUriChanges() throws Exception {
+        Playlist p = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(SyncAdapterServiceTest.class.getResourceAsStream("playlist.json"));
+        Uri playlistUri = p.insert(resolver);
+        expect(playlistUri).toEqual(Content.PLAYLIST.forQuery(String.valueOf(2524386)));
+
+        pm.loadUri(playlistUri, 5, 7L);
+        pm.saveQueue(1000l);
+
+        expect(pm.reloadQueue()).toEqual(1000l);
+        expect(pm.getUri().getPath()).toEqual(playlistUri.getPath());
+
+        final Uri newUri = Content.PLAYLIST.forQuery("321");
+        PlayQueueManager.onPlaylistUriChanged(pm, DefaultTestRunner.application,playlistUri, newUri);
+        expect(pm.getUri().getPath()).toEqual(newUri.getPath());
     }
 
 

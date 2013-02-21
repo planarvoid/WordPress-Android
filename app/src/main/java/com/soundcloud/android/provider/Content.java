@@ -44,6 +44,8 @@ public enum Content  {
     ME_PLAYLISTS("me/playlists", TempEndpoints.MY_PLAYLISTS, 110, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
     ME_USERID("me/userid", null, 111, null, -1, null),
 
+    ME_PLAYLIST("me/playlists/*", null, 112, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
+
     ME_SHORTCUT("me/shortcuts/#", TempEndpoints.i1.MY_SHORTCUTS, 115, Shortcut.class, -1, Table.SUGGESTIONS),
     ME_SHORTCUTS("me/shortcuts", TempEndpoints.i1.MY_SHORTCUTS, 116, Shortcut.class, -1, Table.SUGGESTIONS),
     ME_SHORTCUTS_ICON("me/shortcut_icon/#", null, 117, null, -1, Table.SUGGESTIONS),
@@ -96,13 +98,14 @@ public enum Content  {
     COMMENTS("comments", null, 400, Comment.class, -1, Table.COMMENTS),
     COMMENT("comments/#", null, 401, Comment.class, -1, Table.COMMENTS),
 
+    /* Use string wildcards here since we use negative numbers for local playlists, which breaks with number wildcards */
     PLAYLISTS("playlists", TempEndpoints.PLAYLISTS, 501, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
-    PLAYLIST("playlists/#", TempEndpoints.PLAYLIST_DETAILS, 502, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
-    PLAYLIST_TRACKS("playlists/#/tracks", TempEndpoints.PLAYLIST_TRACKS, 532, Track.class, -1, Table.PLAYLIST_TRACKS),
-    PLAYLIST_LIKERS("playlists/#/likers", TempEndpoints.e1.PLAYLIST_LIKERS, 533, User.class, -1, Table.USERS),
-    PLAYLIST_REPOSTERS("playlists/#/reposters", TempEndpoints.e1.PLAYLIST_REPOSTERS, 534, User.class, -1, Table.USERS),
-    PLAYLIST_ALL_TRACKS("playlists/tracks", null, 535, Track.class, -1, Table.PLAYLIST_TRACKS), // used for sync service
-    PLAYLIST_LOOKUP("playlists/*", Endpoints.PLAYLISTS, 536, Playlist.class, -1, Table.SOUNDS),
+    PLAYLIST_ALL_TRACKS("playlists/tracks", null, 502, Track.class, -1, Table.PLAYLIST_TRACKS), // used for sync service
+    PLAYLIST("playlists/*", TempEndpoints.PLAYLIST_DETAILS, 503, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
+    PLAYLIST_TRACKS("playlists/*/tracks", TempEndpoints.PLAYLIST_TRACKS, 532, Track.class, -1, Table.PLAYLIST_TRACKS),
+    PLAYLIST_LIKERS("playlists/*/likers", TempEndpoints.e1.PLAYLIST_LIKERS, 533, User.class, -1, Table.USERS),
+    PLAYLIST_REPOSTERS("playlists/*/reposters", TempEndpoints.e1.PLAYLIST_REPOSTERS, 534, User.class, -1, Table.USERS),
+    PLAYLIST_LOOKUP("playlists/*", Endpoints.PLAYLISTS, 535, Playlist.class, -1, Table.SOUNDS),
 
     // LOCAL URIS
     COLLECTIONS("collections", null, 1000, null, -1, Table.COLLECTIONS),
@@ -222,8 +225,11 @@ public enum Content  {
     }
 
     public Uri forId(long id) {
-        if (uri.toString().contains("#")) {
-            return Uri.parse(uri.toString().replace("#", String.valueOf(id)));
+        final String uriString = uri.toString();
+        if (uriString.contains("#")) {
+            return Uri.parse(uriString.replace("#", String.valueOf(id)));
+        } else if (uriString.contains("*")) {
+            return Uri.parse(uriString.replace("*", String.valueOf(id)));
         } else {
             return buildUpon().appendEncodedPath(String.valueOf(id)).build();
         }

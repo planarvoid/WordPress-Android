@@ -9,6 +9,9 @@ import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.HttpUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
@@ -27,6 +30,7 @@ import android.text.TextUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ScModelManager {
@@ -216,6 +220,13 @@ public class ScModelManager {
         return (Playlist) getModel(uri);
     }
 
+    public @Nullable void removeFromCache(Uri uri) {
+        final ModelCache cacheFromUri = getCacheFromUri(uri);
+        if (cacheFromUri != null){
+            cacheFromUri.remove(UriUtils.getLastSegmentAsLong(uri));
+        }
+    }
+
     public @Nullable
     ModelCache getCacheFromUri(Uri uri) {
         switch (Content.match(uri)){
@@ -295,6 +306,12 @@ public class ScModelManager {
             return p;
         }
 
+    public @Nullable Playlist getPlaylistWithTracks(Uri uri) {
+        Playlist playlist = (Playlist) getModel(uri);
+        if (playlist != null) playlist.tracks = loadPlaylistTracks(mResolver, Long.parseLong(uri.getLastPathSegment()));
+        return playlist;
+    }
+
     public @Nullable Playlist getPlaylistWithTracks(long playlistId) {
         Playlist playlist = (Playlist) getModel(Content.PLAYLIST.forId(playlistId));
         if (playlist != null) playlist.tracks = loadPlaylistTracks(mResolver, playlistId);
@@ -303,7 +320,7 @@ public class ScModelManager {
     }
 
     public List<Track> loadPlaylistTracks(ContentResolver resolver, long playlistId){
-        return loadLocalContent(resolver,Track.class,Content.PLAYLIST_TRACKS.forId(playlistId)).collection;
+        return loadLocalContent(resolver,Track.class,Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId))).collection;
     }
 
     public Track getCachedTrack(long id) {
@@ -477,7 +494,7 @@ public class ScModelManager {
         if (code == HttpStatus.SC_UNAUTHORIZED) {
             throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
                     response.getStatusLine().getReasonPhrase());
-        } else if (code != HttpStatus.SC_OK && code != HttpStatus.SC_NOT_MODIFIED) {
+        } else if (!IOUtils.isStatusCodeOk(code)) {
             throw new IOException("Invalid response: " + response.getStatusLine());
         }
         return response;
@@ -570,5 +587,23 @@ public class ScModelManager {
             cache(m, mode);
         }
         return models.insert(mResolver);
+    }
+
+    public Playlist createPlaylist(User user, String title, boolean isPrivate, long... trackIds) {
+        Playlist p = new Playlist(-System.currentTimeMillis());
+        p.user = user;
+        p.title = title;
+        p.sharing = isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC;
+        p.created_at = new Date(System.currentTimeMillis());
+        p.track_count = trackIds.length;
+        p.tracks = new ArrayList<Track>();
+
+        for (long trackId : trackIds){
+            Track track = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(trackId);
+            p.tracks.add(track == null ? new Track(trackId) : track);
+        }
+        p.insert(mResolver);
+        cache(p);
+        return p;
     }
 }

@@ -170,6 +170,16 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
 
+            <!-- play with content uri, e.g. ME_STREAM -->
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.PLAY"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="content"
+                      android:host="com.soundcloud.android.provider.ScContentProvider"
+                        />
+            </intent-filter>
+
+
             <!-- play with playlist uri -->
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.PLAY"/>
@@ -177,6 +187,7 @@
                 <data android:scheme="content"
                       android:host="com.soundcloud.android.provider.ScContentProvider"
                         />
+                <data android:mimeType="vnd.soundcloud.playable/playlist"/>
             </intent-filter>
 
             <!-- play with track extra -->
@@ -333,14 +344,15 @@
             </intent-filter>
 
           <intent-filter>
-            <action android:name="com.soundcloud.android.like.add"/>
-            <action android:name="com.soundcloud.android.like.remove"/>
-            <action android:name="com.soundcloud.android.repost.add"/>
-            <action android:name="com.soundcloud.android.repost.remove"/>
-            <data android:scheme="content"
-                  android:mimeType="vnd.soundcloud.playable/*"
-                  android:pathPrefix=""
-                  android:host="com.soundcloud.android.provider.ScContentProvider"/>
+              <action android:name="com.soundcloud.android.playback.start"/>
+              <action android:name="com.soundcloud.android.like.add"/>
+              <action android:name="com.soundcloud.android.like.remove"/>
+              <action android:name="com.soundcloud.android.repost.add"/>
+              <action android:name="com.soundcloud.android.repost.remove"/>
+              <data android:scheme="content"
+                    android:mimeType="vnd.soundcloud.playable/*"
+                    android:pathPrefix=""
+                    android:host="com.soundcloud.android.provider.ScContentProvider"/>
           </intent-filter>
         </service>
 

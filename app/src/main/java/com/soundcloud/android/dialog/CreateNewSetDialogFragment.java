@@ -3,11 +3,19 @@ package com.soundcloud.android.dialog;
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.ScContentProvider;
 
+import android.accounts.Account;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -44,8 +52,8 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
 
         final CheckBox privacy = (CheckBox) dialogView.findViewById(R.id.chk_private);
 
-        final boolean isJon = SoundCloudApplication.getUserId() == 172720l;
-        if (!isJon){
+
+        if (!SoundCloudApplication.DEV_MODE){
             privacy.setVisibility(View.GONE);
         }
 
@@ -70,17 +78,40 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
                         if (TextUtils.isEmpty(input.getText())) {
                             Toast.makeText(getActivity(), R.string.error_new_set_blank_title, Toast.LENGTH_SHORT).show();
                         } else {
-                            AddSetProgressDialog.from(getArguments().getLong(KEY_TRACK_ID), String.valueOf(input.getText()),
-                                    (isJon ? privacy.isChecked() : false))
-                                    .show(getFragmentManager(), "add_set_progress");
+                            createPlaylist(input.getText(), SoundCloudApplication.DEV_MODE && privacy.isChecked());
                             dialog.dismiss();
                         }
                     }
                 });
             }
         });
-
         return dialog;
+    }
+
+    private void createPlaylist(final Editable text, final boolean isPrivate) {
+        final ContentResolver contentResolver = getActivity().getContentResolver();
+        final User loggedInUser = ((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser();
+        final Account account = ((SoundCloudApplication) getActivity().getApplication()).getAccount();
+
+        // Commit the playlist locally in the background
+        new Thread(){
+            @Override
+            public void run() {
+                // create and insert playlist
+                SoundCloudApplication.MODEL_MANAGER.createPlaylist(
+                        loggedInUser,
+                        String.valueOf(text),
+                        isPrivate,
+                        getArguments().getLong(KEY_TRACK_ID)
+                ).insertAsMyPlaylist(contentResolver);
+
+                // force to stale so we know to update the playlists next time it is viewed
+                LocalCollection.forceToStale(Content.ME_PLAYLISTS.uri, contentResolver);
+                // request sync to push playlist at next possible opportunity
+                ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, new Bundle());
+
+            }
+        }.start();
     }
 
 }

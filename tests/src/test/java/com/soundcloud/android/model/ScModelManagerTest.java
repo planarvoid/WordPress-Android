@@ -26,6 +26,7 @@ import android.net.Uri;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
@@ -322,7 +323,7 @@ public class ScModelManagerTest {
         return items;
     }
 
-    private List<Track> createTracks() {
+    public static List<Track> createTracks() {
         List<Track> items = new ArrayList<Track>();
 
         User u1 = new User();
@@ -336,7 +337,6 @@ public class ScModelManagerTest {
         User u2 = new User();
         u2.permalink = "u2";
         u2.id = 300L;
-
 
         Track t2 = new Track();
         t2.id = 400;
@@ -373,6 +373,30 @@ public class ScModelManagerTest {
         expect(p3.tracks.size()).toEqual(40);
         expect(p3.tracks.get(0).id).not.toEqual(p.tracks.get(0).id);
 
+    }
+
+    @Test
+    public void shouldCreatePlaylistLocally() throws Exception {
+
+        final List<Track> tracks = createTracks();
+        final boolean isPrivate = false;
+
+        Playlist p = createNewPlaylist(DefaultTestRunner.application.getContentResolver(),manager, isPrivate, tracks);
+        expect(p).not.toBeNull();
+        final Uri uri = p.toUri();
+
+        Uri myPlaylistUri = p.insertAsMyPlaylist(DefaultTestRunner.application.getContentResolver());
+
+        expect(myPlaylistUri).not.toBeNull();
+        expect(Content.match(myPlaylistUri)).toBe(Content.ME_PLAYLIST);
+
+        expect(Content.ME_PLAYLISTS).toHaveCount(1);
+        Playlist p2 = manager.getPlaylistWithTracks(uri);
+        expect(p2.tracks).toEqual(tracks);
+        expect(p2.sharing).toBe(isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC);
+
+        List<Playlist> playlists = Playlist.getLocalPlaylists(DefaultTestRunner.application.getContentResolver());
+        expect(playlists.size()).toBe(1);
     }
 
     @Test
@@ -496,5 +520,22 @@ public class ScModelManagerTest {
         User u = new User();
         u.id = id;
         return u;
+    }
+
+    public static Playlist createNewPlaylist(ContentResolver resolver, ScModelManager manager) {
+        return createNewPlaylist(resolver, manager, false, createTracks());
+    }
+
+    public static Playlist createNewPlaylist(ContentResolver resolver, ScModelManager manager, boolean isPrivate, List<Track> tracks) {
+        final String title = "new playlist " + System.currentTimeMillis();
+        final long[] trackIds = new long[tracks.size()];
+        for (int i = 0; i < tracks.size(); i++) {
+            expect(tracks.get(i).insert(resolver)).not.toBeNull();
+            trackIds[i] = tracks.get(i).id;
+        }
+
+        Playlist p = manager.createPlaylist(tracks.get(0).user, title, isPrivate, trackIds);
+        expect(p).not.toBeNull();
+        return p;
     }
 }

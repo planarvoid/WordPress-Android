@@ -196,6 +196,12 @@ public class SyncAdapterService extends Service {
                     Log.d(TAG, "skipping collection sync, no wifi");
                 }
 
+                // see if there are any local playlists that need to be pushed
+                if (Playlist.hasLocalPlaylists(app.getContentResolver())){
+                    urisToSync.add(Content.ME_PLAYLISTS.uri);
+                }
+
+                // see if there are any playlists with un-pushed track changes
                 final Set<Uri> playlistsDueForSync = SyncContent.getPlaylistsDueForSync(app.getContentResolver());
                 if (playlistsDueForSync != null) urisToSync.addAll(playlistsDueForSync);
 

@@ -384,7 +384,9 @@ public class ActionBarController {
 
                 Uri uri = CloudPlaybackService.getUri();
                 if (Content.match(uri) == Content.PLAYLIST_TRACKS){
-                    intent.setData(Content.PLAYLIST.forId(Long.parseLong(uri.getPathSegments().get(uri.getPathSegments().size() - 2))));
+                    // id is in 2nd to last segment
+                    final String playlistIdStr = uri.getPathSegments().get(uri.getPathSegments().size() - 2);
+                    intent.setData(Content.PLAYLIST.forQuery(playlistIdStr));
                 } else if (Content.match(uri) == Content.PLAYLIST_TRACKS) {
                     intent.setData(uri);
                 } else {

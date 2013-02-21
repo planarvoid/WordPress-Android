@@ -37,7 +37,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public static final String PLAYLIST_URI = "playlistUri";
 
     private static final int PLAYER_LIST_LOADER = 0x01;
-    private Uri mContentUri, mPlaylistUri;
+    private Playlist mPlaylist;
     private TextView mInfoHeader;
 
     private PlaylistTracksAdapter mAdapter;
@@ -58,15 +58,9 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mPlaylistUri = (Uri) getArguments().get(PLAYLIST_URI);
-        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(mPlaylistUri);
-
-        // TODO. the playlist could be null here. What then?
-        mContentUri = Content.PLAYLIST_TRACKS.forId(p.id);
-        getLoaderManager().initLoader(PLAYER_LIST_LOADER, null, this);
-
+        mPlaylist = SoundCloudApplication.MODEL_MANAGER.getPlaylist((Uri) getArguments().get(PLAYLIST_URI));
         mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext());
-
+        getLoaderManager().initLoader(PLAYER_LIST_LOADER, null, this);
         mDetachableReceiver.setReceiver(this);
     }
 
@@ -105,14 +99,15 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         PlayInfo info = new PlayInfo();
         info.initialTrack = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
-        info.uri = mContentUri;
+        info.uri = mPlaylist.toUri();
         info.position = position - mListView.getRefreshableView().getHeaderViewsCount();
         PlayUtils.playTrack(getActivity(), info);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getActivity(), mContentUri, null, null, null, null);
+        return new CursorLoader(getActivity(), Content.PLAYLIST_TRACKS.forQuery(String.valueOf(mPlaylist.id)),
+                null, null, null, null);
     }
 
     @Override
@@ -122,9 +117,8 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     private void checkPlaylistSize() {
-        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(mPlaylistUri);
         // if we don't have the entire playlist, re-sync the playlist.
-        if (mAdapter.getCount() < p.track_count) {
+        if (!mPlaylist.isLocal() && mAdapter.getCount() < mPlaylist.track_count) {
             mEmptyView.setStatus(EmptyListView.Status.WAITING);
             syncPlaylist();
         } else {
@@ -148,20 +142,21 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private void syncPlaylist() {
         final FragmentActivity activity = getActivity();
-        if (activity != null) {
+        if (isAdded()) {
             mListView.setRefreshing(true);
             activity.startService(new Intent(activity, ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, mDetachableReceiver)
-                    .setData(mPlaylistUri));
+                    .setData(mPlaylist.toUri()));
         }
     }
 
     private void setHeaderInfo() {
-        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(mPlaylistUri);
-        final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, p.track_count, p.track_count);
-        final String duration = ScTextUtils.formatTimestamp(p.duration);
-        mInfoHeader.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
+        if (isAdded()){ // make sure we are attached to an activity
+            final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, mPlaylist.track_count, mPlaylist.track_count);
+            final String duration = ScTextUtils.formatTimestamp(mPlaylist.duration);
+            mInfoHeader.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
+        }
     }
 
     @Override
@@ -176,6 +171,12 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         }
 
         mListView.onRefreshComplete();
+        setHeaderInfo();
+    }
+
+    public void refresh(Playlist playlist) {
+        mPlaylist = playlist;
+        getActivity().getSupportLoaderManager().restartLoader(PLAYER_LIST_LOADER, null, this);
         setHeaderInfo();
     }
 }

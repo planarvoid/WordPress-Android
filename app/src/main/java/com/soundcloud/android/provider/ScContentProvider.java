@@ -418,6 +418,7 @@ public class ScContentProvider extends ContentProvider {
 
             case COLLECTION_PAGES:
             case ME_SOUNDS:
+            case ME_PLAYLISTS:
                 id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
@@ -556,6 +557,7 @@ public class ScContentProvider extends ContentProvider {
         int count;
         final Content content = Content.match(uri);
 
+        final long userIdFromContext = SoundCloudApplication.getUserIdFromContext(getContext());
         switch (content) {
             case COLLECTIONS:
             case COLLECTION_PAGES:
@@ -568,11 +570,11 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case TRACK:
-                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                break;
             case USER:
+            case PLAYLIST:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 break;
+
             case PLAYLIST_TRACKS:
                 where = (!TextUtils.isEmpty(where) ? where + " AND " : "") + DBHelper.PlaylistTracks.PLAYLIST_ID + "=" + uri.getPathSegments().get(1);
                 break;
@@ -589,9 +591,9 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_SOUNDS:
                 // add userId
-                String whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + SoundCloudApplication.getUserIdFromContext(getContext());
+                String whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + userIdFromContext;
                 // append possible types
-                int[] collectionType = new int[]{CollectionItemTypes.TRACK, CollectionItemTypes.REPOST};
+                int[] collectionType = new int[]{CollectionItemTypes.TRACK, CollectionItemTypes.REPOST, CollectionItemTypes.PLAYLIST};
                 for (int i = 0; i < collectionType.length; i++) {
                     whereAppend += (i == 0 ? " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" : ", ")
                             + collectionType[i]
@@ -602,6 +604,7 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_LIKES:
+            case ME_PLAYLISTS:
             case ME_TRACKS:
             case ME_REPOSTS:
             case ME_FOLLOWINGS:
@@ -612,11 +615,18 @@ public class ScContentProvider extends ContentProvider {
             case USER_FOLLOWINGS:
             case USER_FOLLOWERS:
             case ME_FRIENDS:
-                whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + SoundCloudApplication.getUserIdFromContext(getContext())
+                whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + userIdFromContext
                         + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + content.collectionType;
                 where = TextUtils.isEmpty(where) ? whereAppend
                         : where + " AND " + whereAppend;
 
+                break;
+
+            case ME_PLAYLIST:
+                whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + userIdFromContext
+                + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " +CollectionItemTypes.PLAYLIST + " " ;
+                where += " AND " + DBHelper.CollectionItems.ITEM_ID + " = " + uri.getLastPathSegment();
+                where += " AND " + whereAppend;
                 break;
 
             default:
@@ -1153,7 +1163,6 @@ public class ScContentProvider extends ContentProvider {
         }
 
         public static AsyncTask<Long,Void,Void> removeTrack(final Context context) {
-            //TODO, delete tracks from playlist table
             return new AsyncTask<Long,Void,Void>(){
                 @Override
                 protected Void doInBackground(Long... params) {

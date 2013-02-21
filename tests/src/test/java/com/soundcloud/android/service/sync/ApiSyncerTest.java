@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScModelManagerTest;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -32,7 +33,6 @@ import android.net.Uri;
 import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
-@DatabaseConfig.UsingDatabaseMap(DefaultTestRunner.FileDatabaseMap.class)
 public class ApiSyncerTest {
     private static final long USER_ID = 133201L;
     private ContentResolver resolver;
@@ -137,9 +137,7 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncSounds() throws Exception {
-        addResourceResponse("/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
-
-        Result result = sync(Content.ME_SOUNDS.uri);
+        Result result = populateMeSounds();
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
@@ -163,9 +161,7 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncSoundsAndLikes() throws Exception {
-        addResourceResponse("/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
-
-        Result result = sync(Content.ME_SOUNDS.uri);
+        Result result = populateMeSounds();
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
@@ -226,13 +222,37 @@ public class ApiSyncerTest {
     }
 
     @Test
+    public void shouldPushNewPlaylist() throws Exception {
+        populateMeSounds();
+
+        TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
+
+        Playlist p = ScModelManagerTest.createNewPlaylist(DefaultTestRunner.application.getContentResolver(),
+                SoundCloudApplication.MODEL_MANAGER);
+
+        expect(p).not.toBeNull();
+
+        expect(p.insertAsMyPlaylist(DefaultTestRunner.application.getContentResolver())).not.toBeNull();
+        expect(Content.TRACKS).toHaveCount(50);
+        expect(Content.ME_SOUNDS).toHaveCount(51);
+
+        expect(new ApiSyncer(Robolectric.application).pushLocalPlaylists()).toBe(1);
+        expect(Content.ME_SOUNDS).toHaveCount(51);
+    }
+
+    private Result populateMeSounds() throws IOException {
+        addResourceResponse("/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
+        return sync(Content.ME_SOUNDS.uri);
+    }
+
+    @Test
     public void shouldSyncAPlaylist() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
         Result result = sync(Content.PLAYLIST.forId(2524386l));
         expect(result.success).toBe(true);
         expect(result.synced_at).toBeGreaterThan(0l);
         expect(result.change).toEqual(Result.CHANGED);
-        expect(Content.PLAYLIST).toHaveCount(1);
+        expect(Content.PLAYLISTS).toHaveCount(1);
 
         Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylistWithTracks(2524386l);
         expect(p.title).toEqual("fall into fall");
