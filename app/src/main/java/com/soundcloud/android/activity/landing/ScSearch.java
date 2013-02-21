@@ -59,7 +59,7 @@ public class ScSearch extends ScActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (mLastSelectedPosition != position) {
-                    perform(getSearch());
+                    perform(getSearchFromInputText());
                 }
                 mLastSelectedPosition = position;
             }
@@ -74,7 +74,7 @@ public class ScSearch extends ScActivity {
         mTxtQuery.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                return !isFinishing() && actionId == EditorInfo.IME_ACTION_SEARCH && perform(getSearch());
+                return !isFinishing() && actionId == EditorInfo.IME_ACTION_SEARCH && perform(getSearchFromInputText());
             }
         });
 
@@ -82,7 +82,7 @@ public class ScSearch extends ScActivity {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 return !isFinishing() && ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-                        (keyCode == KeyEvent.KEYCODE_ENTER)) && perform(getSearch());
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) && perform(getSearchFromInputText());
             }
         });
 
@@ -115,7 +115,8 @@ public class ScSearch extends ScActivity {
         } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null) {
             Content c = Content.match(intent.getData());
             if (c == Content.SEARCH_ITEM){
-                mPendingSearch = new Search(Uri.decode(intent.getData().getLastPathSegment()), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
+                String query = Uri.decode(intent.getData().getLastPathSegment());
+                mPendingSearch = new Search(query, intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
             } else {
                 // probably came through quick search box, resolve intent through normal system
                 startActivity(new Intent(Intent.ACTION_VIEW).setData(intent.getData()));
@@ -146,7 +147,7 @@ public class ScSearch extends ScActivity {
         }
     }
 
-    private Search getSearch() {
+    private Search getSearchFromInputText() {
         String query = mTxtQuery.getText().toString();
         switch (mSpinner.getSelectedItemPosition()) {
             case SPINNER_POS_ALL:
