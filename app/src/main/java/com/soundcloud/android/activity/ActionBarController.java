@@ -356,7 +356,7 @@ public class ActionBarController {
             boolean visible = false;
             if ((mOwner.getActivity() instanceof ScPlayer)) {
                 Uri uri = CloudPlaybackService.getUri();
-                if (uri != null && Content.match(uri) == Content.PLAYLIST_TRACKS) {
+                if (uri != null && Content.match(uri) == Content.PLAYLIST) {
                     visible = true;
                 }
             }
@@ -383,11 +383,7 @@ public class ActionBarController {
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
                 Uri uri = CloudPlaybackService.getUri();
-                if (Content.match(uri) == Content.PLAYLIST_TRACKS){
-                    // id is in 2nd to last segment
-                    final String playlistIdStr = uri.getPathSegments().get(uri.getPathSegments().size() - 2);
-                    intent.setData(Content.PLAYLIST.forQuery(playlistIdStr));
-                } else if (Content.match(uri) == Content.PLAYLIST_TRACKS) {
+                if (Content.match(uri) == Content.PLAYLIST) {
                     intent.setData(uri);
                 } else {
                     return false;
