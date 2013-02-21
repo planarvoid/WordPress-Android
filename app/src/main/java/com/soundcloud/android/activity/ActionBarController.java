@@ -380,9 +380,7 @@ public class ActionBarController {
 
             case R.id.backToSet:
                 Intent intent = new Intent(mOwner.getActivity(), PlaylistActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 intent.putExtra(PlaylistActivity.EXTRA_SCROLL_TO_PLAYING_TRACK, true);
-
                 Uri uri = CloudPlaybackService.getUri();
                 if (Content.match(uri) == Content.PLAYLIST) {
                     intent.setData(uri);
