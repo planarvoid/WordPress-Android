@@ -44,9 +44,9 @@ public class SearchTest {
 
     @Test
     public void shouldBuildCorrectApiRequest() {
-        expect(Search.forSounds("foo").request().toUrl()).toEqual("/tracks?q=foo");
-        expect(Search.forPlaylists("foo").request().toUrl()).toEqual("/playlists?q=foo");
-        expect(Search.forUsers("foo").request().toUrl()).toEqual("/users?q=foo");
+        expect(Search.forSounds("foo").request().toUrl()).toEqual("/search/sounds?q=foo");
+        expect(Search.forPlaylists("foo").request().toUrl()).toEqual("/search/sets?q=foo");
+        expect(Search.forUsers("foo").request().toUrl()).toEqual("/search/people?q=foo");
         expect(Search.forAll("foo").request().toUrl()).toEqual("/search?q=foo");
     }
 

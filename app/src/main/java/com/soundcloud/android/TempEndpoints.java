@@ -9,6 +9,9 @@ public interface TempEndpoints {
     String MY_PLAYLISTS         = "/me/playlists";
     String USER_PLAYLISTS       = "/users/%d/playlists";
     String SEARCH               = "/search";
+    String TRACK_SEARCH         = "/search/sounds";
+    String PLAYLIST_SEARCH      = "/search/sets";
+    String USER_SEARCH          = "/search/people";
 
     public interface e1 {
         String MY_STREAM           = "/e1/me/stream";

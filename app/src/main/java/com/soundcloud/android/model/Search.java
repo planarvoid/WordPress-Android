@@ -65,13 +65,13 @@ public class Search {
         String path;
         switch (search_type){
             case USERS:
-                path = Endpoints.USERS;
+                path = TempEndpoints.USER_SEARCH;
                 break;
             case SOUNDS:
-                path = Endpoints.TRACKS;
+                path = TempEndpoints.TRACK_SEARCH;
                 break;
             case PLAYLISTS:
-                path = Endpoints.PLAYLISTS;
+                path = TempEndpoints.PLAYLIST_SEARCH;
                 break;
             default:
                 path = TempEndpoints.SEARCH;
