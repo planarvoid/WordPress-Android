@@ -17,7 +17,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -42,7 +41,7 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), android.R.style.Theme_Holo_Dialog));
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_create_new_set, null);
         ((TextView) dialogView.findViewById(android.R.id.title)).setText(R.string.create_new_set);

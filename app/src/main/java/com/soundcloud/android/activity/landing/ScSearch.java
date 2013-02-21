@@ -12,8 +12,6 @@ import com.soundcloud.android.view.ClearText;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -25,13 +23,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Tracking(page = Page.Search_main)
 public class ScSearch extends ScActivity {
 
-    private static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
+    private static final int SPINNER_POS_ALL = 0;
+    private static final int SPINNER_POS_SOUNDS = 1;
+    private static final int SPINNER_POS_PLAYLISTS = 2;
+    private static final int SPINNER_POS_USERS = 3;
 
     private ClearText mTxtQuery;
     private Spinner mSpinner;
@@ -134,13 +132,18 @@ public class ScSearch extends ScActivity {
     }
 
     private Search getSearch() {
+        String query = mTxtQuery.getText().toString();
         switch (mSpinner.getSelectedItemPosition()) {
-            case 1:
-                return new Search(mTxtQuery.getText().toString(), Search.SOUNDS);
-            case 2:
-                return new Search(mTxtQuery.getText().toString(), Search.USERS);
+            case SPINNER_POS_ALL:
+                return Search.forAll(query);
+            case SPINNER_POS_SOUNDS:
+                return Search.forSounds(query);
+            case SPINNER_POS_USERS:
+                return Search.forUsers(query);
+            case SPINNER_POS_PLAYLISTS:
+                return Search.forPlaylists(query);
             default:
-                return new Search(mTxtQuery.getText().toString(), Search.ALL);
+                throw new IllegalStateException("Unexpected search filter");
         }
     }
 
@@ -151,16 +154,22 @@ public class ScSearch extends ScActivity {
 
         switch (search.search_type) {
             case Search.SOUNDS:
-                mSpinner.setSelection(1);
+                mSpinner.setSelection(SPINNER_POS_SOUNDS);
                 track(Page.Search_results__sounds__keyword, search.query);
                 break;
 
             case Search.USERS:
-                mSpinner.setSelection(2);
+                mSpinner.setSelection(SPINNER_POS_USERS);
                 track(Page.Search_results__people__keyword, search.query);
                 break;
+
+            case Search.PLAYLISTS:
+                mSpinner.setSelection(SPINNER_POS_PLAYLISTS);
+                track(Page.Search_results__playlists__keyword, search.query);
+                break;
+
             default:
-                mSpinner.setSelection(0);
+                mSpinner.setSelection(SPINNER_POS_ALL);
                 track(Page.Search_results__all__keyword, search.query);
                 break;
         }

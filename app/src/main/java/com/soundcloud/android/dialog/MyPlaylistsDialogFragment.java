@@ -52,7 +52,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.ScDialog));
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         final BaseAdapter adapter = new MyPlaylistsAdapter(getActivity(), getArguments().getLong(KEY_TRACK_ID));
         final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_add_to_set, null);

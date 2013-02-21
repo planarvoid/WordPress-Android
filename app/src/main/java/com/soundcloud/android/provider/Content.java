@@ -105,7 +105,7 @@ public enum Content  {
     PLAYLIST_TRACKS("playlists/*/tracks", TempEndpoints.PLAYLIST_TRACKS, 532, Track.class, -1, Table.PLAYLIST_TRACKS),
     PLAYLIST_LIKERS("playlists/*/likers", TempEndpoints.e1.PLAYLIST_LIKERS, 533, User.class, -1, Table.USERS),
     PLAYLIST_REPOSTERS("playlists/*/reposters", TempEndpoints.e1.PLAYLIST_REPOSTERS, 534, User.class, -1, Table.USERS),
-
+    PLAYLIST_LOOKUP("playlists/*", Endpoints.PLAYLISTS, 535, Playlist.class, -1, Table.SOUNDS),
 
     // LOCAL URIS
     COLLECTIONS("collections", null, 1000, null, -1, Table.COLLECTIONS),
