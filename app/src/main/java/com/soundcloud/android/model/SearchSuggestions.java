@@ -9,11 +9,13 @@ import android.app.SearchManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -89,10 +91,29 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
                     q.query,           // SUGGEST_COLUMN_TEXT_1
                     q.getIntentData(), // SUGGEST_COLUMN_INTENT_DATA
                     q.getIconUri(),    //
-                    q.isLocal() ? 1 : 0
+                    q.isLocal() ? 1 : 0,
+                    buildHighlightData(q)
             });
         }
         return cursor;
+    }
+
+    //FIXME: this is a wild hack, but we need to pipe the highlight data through the cursor somehow.
+    //I don't think SuggestionsAdapter has to be a CursorAdapter to begin with, but should operate directly
+    //on SearchSuggestions
+    private String buildHighlightData(Query q) {
+        if (q.highlights == null || q.highlights.isEmpty()) {
+            return null;
+        }
+
+        StringBuilder highlightData = new StringBuilder();
+        Iterator<Map<String, Integer>> iterator = q.highlights.iterator();
+        while (iterator.hasNext()) {
+            Map<String, Integer> highlight = iterator.next();
+            highlightData.append(highlight.get("pre") + "," + highlight.get("post"));
+            if (iterator.hasNext()) highlightData.append(";");
+        }
+        return highlightData.toString();
     }
 
     public void add(Query q) {
@@ -163,6 +184,7 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         public String kind;
         public long   id;
         public long   score;
+        public List<Map<String, Integer>> highlights;
 
         // internal fields
         private String iconUri;
