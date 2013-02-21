@@ -19,6 +19,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -36,6 +37,7 @@ public class ScSearch extends ScActivity {
     private Search mCurrentSearch;
     private ScSearchFragment mSearchFragment;
     private Search pendingSearch;
+    private int mLastSelectedPosition;
 
     private static final String EXTRA_SEARCH_TYPE = "search_type";
 
@@ -53,6 +55,19 @@ public class ScSearch extends ScActivity {
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinner.setAdapter(adapter);
+        mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (mLastSelectedPosition != position) {
+                    perform(getSearch());
+                }
+                mLastSelectedPosition = position;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 
         mTxtQuery = (ClearText) findViewById(R.id.txt_query);
 
