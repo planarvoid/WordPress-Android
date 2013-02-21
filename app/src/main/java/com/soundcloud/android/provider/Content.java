@@ -80,7 +80,7 @@ public enum Content  {
     TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 206, null, -1, null),
     TRACK_LIKERS("tracks/#/favoriters", Endpoints.TRACK_FAVORITERS, 207, User.class, -1, Table.USERS),
     TRACK_REPOSTERS("tracks/#/reposters", TempEndpoints.e1.TRACK_REPOSTERS, 208, User.class, -1, Table.USERS),
-    TRACK_LOOKUP("tracks/*", Endpoints.TRACKS, 2250, Track.class, -1, Table.SOUNDS),
+    TRACK_LOOKUP("tracks/q/*", Endpoints.TRACKS, 2250, Track.class, -1, Table.SOUNDS),
 
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
     USER("users/#", Endpoints.USER_DETAILS, 302, User.class, -1, Table.USERS),
@@ -93,7 +93,7 @@ public enum Content  {
     USER_GROUPS("users/#/groups", null, 308, null, -1, null),
     USER_PLAYLISTS("users/#/playlists", TempEndpoints.USER_PLAYLISTS, 309, null, -1, null),
     USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Playable.class, REPOST, null),
-    USER_LOOKUP("users/*", Endpoints.USERS, 350, User.class, -1, Table.USERS),
+    USER_LOOKUP("users/q/*", Endpoints.USERS, 350, User.class, -1, Table.USERS),
 
     COMMENTS("comments", null, 400, Comment.class, -1, Table.COMMENTS),
     COMMENT("comments/#", null, 401, Comment.class, -1, Table.COMMENTS),
@@ -105,7 +105,7 @@ public enum Content  {
     PLAYLIST_TRACKS("playlists/*/tracks", TempEndpoints.PLAYLIST_TRACKS, 532, Track.class, -1, Table.PLAYLIST_TRACKS),
     PLAYLIST_LIKERS("playlists/*/likers", TempEndpoints.e1.PLAYLIST_LIKERS, 533, User.class, -1, Table.USERS),
     PLAYLIST_REPOSTERS("playlists/*/reposters", TempEndpoints.e1.PLAYLIST_REPOSTERS, 534, User.class, -1, Table.USERS),
-    PLAYLIST_LOOKUP("playlists/*", Endpoints.PLAYLISTS, 535, Playlist.class, -1, Table.SOUNDS),
+    PLAYLIST_LOOKUP("playlists/q/*", Endpoints.PLAYLISTS, 535, Playlist.class, -1, Table.SOUNDS),
 
     // LOCAL URIS
     COLLECTIONS("collections", null, 1000, null, -1, Table.COLLECTIONS),
