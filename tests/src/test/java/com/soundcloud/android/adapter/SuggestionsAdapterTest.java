@@ -51,15 +51,18 @@ public class SuggestionsAdapterTest {
                 DefaultTestRunner.application);
 
         TestHelper.addCannedResponse(SearchSuggestions.class,
-                "/search/suggest?q=foo&highlight=true&limit=5", "suggest_highlight.json");
+                "/search/suggest?q=foo&highlight_mode=offsets&limit=5", "suggest_highlight.json");
 
         adapter.runQueryOnBackgroundThread("foo");
 
         expect(adapter.getRemote().size()).toEqual(3);
         expect(adapter.getLocal().size()).toEqual(0);
 
-        String q1 = adapter.getRemote().suggestions.get(0).query;
-        expect(q1).toEqual("<b>Foo</b> Fighters");
+        SearchSuggestions.Query suggestion = adapter.getRemote().suggestions.get(0);
+        expect(suggestion.query).toEqual("Foo Fighters");
+        expect(suggestion.highlights.size()).toEqual(1);
+        expect(suggestion.highlights.get(0).get("pre")).toEqual(0);
+        expect(suggestion.highlights.get(0).get("post")).toEqual(3);
     }
 
     @Test
@@ -68,7 +71,7 @@ public class SuggestionsAdapterTest {
         SuggestionsAdapter adapter = new SuggestionsAdapter(context, context);
 
         TestHelper.addCannedResponse(SearchSuggestions.class,
-                "/search/suggest?q=foo&highlight=true&limit=5", "suggest_mixed.json");
+                "/search/suggest?q=foo&highlight_mode=offsets&limit=5", "suggest_mixed.json");
 
         adapter.runQueryOnBackgroundThread("foo");
 

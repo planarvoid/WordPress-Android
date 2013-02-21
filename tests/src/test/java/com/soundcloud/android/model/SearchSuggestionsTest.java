@@ -18,7 +18,9 @@ import android.provider.BaseColumns;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 @RunWith(DefaultTestRunner.class)
 public class SearchSuggestionsTest {
@@ -128,6 +130,27 @@ public class SearchSuggestionsTest {
         expect(it.next().isLocal()).toBeFalse();
         expect(it.next().isLocal()).toBeFalse();
         expect(it.hasNext()).toBeFalse();
+    }
+
+    @Test
+    public void shouldConvertHighlightsToCursorFormat() {
+        SearchSuggestions suggestions = new SearchSuggestions();
+        Query suggestion = new Query();
+        ArrayList<Map<String, Integer>> highlights = new ArrayList<Map<String, Integer>>(1);
+        highlights.add(new HashMap<String, Integer>());
+        highlights.add(new HashMap<String, Integer>());
+        highlights.get(0).put("pre", 0);
+        highlights.get(0).put("post", 3);
+        highlights.get(1).put("pre", 6);
+        highlights.get(1).put("post", 9);
+
+        suggestion.kind = "user";
+        suggestion.highlights = highlights;
+        suggestions.add(suggestion);
+
+        Cursor c = suggestions.asCursor();
+        expect(c.moveToNext()).toBeTrue();
+        expect(c.getString(c.getColumnIndex(SuggestionsAdapter.HIGHLIGHTS))).toEqual("0,3;6,9");
     }
 
     @Test
