@@ -36,7 +36,7 @@ public class ScSearch extends ScActivity {
     private Spinner mSpinner;
     private Search mCurrentSearch;
     private ScSearchFragment mSearchFragment;
-    private Search pendingSearch;
+    private Search mPendingSearch;
     private int mLastSelectedPosition;
 
     private static final String EXTRA_SEARCH_TYPE = "search_type";
@@ -111,11 +111,11 @@ public class ScSearch extends ScActivity {
             "android.media.action.MEDIA_PLAY_FROM_SEARCH".equals(intent.getAction())) {
 
             String query = intent.getStringExtra(SearchManager.QUERY);
-            pendingSearch = new Search(query, intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
+            mPendingSearch = new Search(query, intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
         } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null) {
             Content c = Content.match(intent.getData());
             if (c == Content.SEARCH_ITEM){
-                pendingSearch = new Search(Uri.decode(intent.getData().getLastPathSegment()), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
+                mPendingSearch = new Search(Uri.decode(intent.getData().getLastPathSegment()), intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
             } else {
                 // probably came through quick search box, resolve intent through normal system
                 startActivity(new Intent(Intent.ACTION_VIEW).setData(intent.getData()));
@@ -140,9 +140,9 @@ public class ScSearch extends ScActivity {
         super.onResume();
         track(getClass());
 
-        if (pendingSearch != null){
-            perform(pendingSearch);
-            pendingSearch = null;
+        if (mPendingSearch != null){
+            perform(mPendingSearch);
+            mPendingSearch = null;
         }
     }
 
@@ -193,7 +193,7 @@ public class ScSearch extends ScActivity {
             mSearchFragment.setCurrentSearch(search);
             mCurrentSearch = search;
         } else {
-            pendingSearch = search;
+            mPendingSearch = search;
         }
 
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
