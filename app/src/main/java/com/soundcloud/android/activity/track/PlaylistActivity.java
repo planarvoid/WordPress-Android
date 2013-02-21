@@ -7,7 +7,6 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.PlaylistTracksFragment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.view.PlayableActionButtonsController;
 import com.soundcloud.android.view.adapter.PlayableBar;
@@ -17,15 +16,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.ContentObserver;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 
 public class PlaylistActivity extends ScActivity implements Playlist.OnChangeListener {
 
     public static final String TRACKS_FRAGMENT_TAG = "tracks_fragment";
+    public static final String EXTRA_SCROLL_TO_PLAYING_TRACK = "scroll_to_playing_track";
     private Playlist mPlaylist;
     private PlayableBar mPlaylistBar;
     private PlayableActionButtonsController mActionButtons;
@@ -62,15 +59,16 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
 
         setContentView(R.layout.playlist_activity);
         // hold on to the playlist instance instead of the URI or id as they may change going from local > global
-        mPlaylist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(getIntent().getData());
+
 
         mPlaylistBar = (PlayableBar) findViewById(R.id.playable_bar);
         mPlaylistBar.addTextShadows();
 
         mActionButtons = new PlayableActionButtonsController(mPlaylistBar);
 
-        if (refreshPlaylistData() && savedInstanceState == null) {
-            setupTracksFragment();
+        if (savedInstanceState == null) {
+            mFragment = new PlaylistTracksFragment();
+            getSupportFragmentManager().beginTransaction().add(R.id.playlist_tracks_fragment, mFragment, TRACKS_FRAGMENT_TAG).commit();
         } else {
             mFragment = (PlaylistTracksFragment) getSupportFragmentManager().findFragmentByTag(TRACKS_FRAGMENT_TAG);
         }
@@ -78,31 +76,37 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED);
         registerReceiver(mReceiver, intentFilter);
+
+        handleIntent();
     }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIntent();
+    }
+
+    private void handleIntent(){
+        final Playlist playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(getIntent().getData());
+        if (playlist != null) {
+            if (mPlaylist != null && playlist != mPlaylist){
+                mPlaylist.stopObservingChanges(getContentResolver(),this);
+            }
+
+            mPlaylist = playlist;
+            refresh();
+        } else {
+            Log.e(SoundCloudApplication.TAG, "Playlist data missing: " + getIntent().getDataString());
+            finish();
+        }
+    }
+
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mReceiver);
-    }
-
-    private boolean refreshPlaylistData() {
-        if (mPlaylist != null) {
-            mPlaylistBar.display(mPlaylist);
-            mActionButtons.update(mPlaylist);
-
-            return true;
-
-        } else {
-            Log.e(SoundCloudApplication.TAG, "Playlist data missing: " + getIntent().getDataString());
-            finish();
-            return false;
-        }
-    }
-
-    private void setupTracksFragment() {
-        mFragment = PlaylistTracksFragment.newInstance(getIntent().getData());
-        getSupportFragmentManager().beginTransaction().add(R.id.playlist_tracks_fragment, mFragment, TRACKS_FRAGMENT_TAG).commit();
     }
 
     @Override
@@ -134,6 +138,11 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
         } else {
             mFragment.refresh(mPlaylist);
         }
+    }
 
+    private void refresh() {
+        mFragment.refresh(mPlaylist);
+        mPlaylistBar.display(mPlaylist);
+        mActionButtons.update(mPlaylist);
     }
 }

@@ -13,11 +13,9 @@ import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.ScListView;
-import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -37,7 +35,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public static final String PLAYLIST_URI = "playlistUri";
 
     private static final int PLAYER_LIST_LOADER = 0x01;
-    private Playlist mPlaylist;
+    private Playlist mPlaylist = new Playlist();
     private TextView mInfoHeader;
 
     private PlaylistTracksAdapter mAdapter;
@@ -46,19 +44,10 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
-    public static PlaylistTracksFragment newInstance(@NotNull Uri playlistUri) {
-        PlaylistTracksFragment playlistTracksFragment = new PlaylistTracksFragment();
-        Bundle args = new Bundle();
-        args.putParcelable("playlistUri", playlistUri);
-        playlistTracksFragment.setArguments(args);
-        return playlistTracksFragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mPlaylist = SoundCloudApplication.MODEL_MANAGER.getPlaylist((Uri) getArguments().get(PLAYLIST_URI));
         mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext());
         getLoaderManager().initLoader(PLAYER_LIST_LOADER, null, this);
         mDetachableReceiver.setReceiver(this);
@@ -176,7 +165,10 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     public void refresh(Playlist playlist) {
         mPlaylist = playlist;
-        getActivity().getSupportLoaderManager().restartLoader(PLAYER_LIST_LOADER, null, this);
-        setHeaderInfo();
+        if (isAdded()){
+            getActivity().getSupportLoaderManager().restartLoader(PLAYER_LIST_LOADER, null, this);
+            setHeaderInfo();
+        }
+
     }
 }
