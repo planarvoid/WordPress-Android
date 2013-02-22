@@ -8,10 +8,14 @@ import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
+import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.net.Uri;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 @RunWith(DefaultTestRunner.class)
@@ -32,7 +36,7 @@ public class SoundAssociationHolderTest {
                 SoundAssociationHolder.class);
 
         expect(manager.writeCollection(old,
-                        ScResource.CacheUpdateMode.NONE)).toEqual(41); // 38 tracks and 3 diff users
+                        ScResource.CacheUpdateMode.NONE)).toEqual(38); // 38 tracks and 3 diff users
 
         expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
                         Content.ME_SOUNDS.uri, 0, 50).size()).toEqual(38);
@@ -48,30 +52,29 @@ public class SoundAssociationHolderTest {
     }
 
     @Test
-        public void shouldRemoveMissingSoundAssociationsMeLikes() throws Exception {
-            SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
-                    ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
-                    SoundAssociationHolder.class);
+    public void shouldRemoveMissingSoundAssociationsMeLikes() throws Exception {
+        SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
+                ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
+                SoundAssociationHolder.class);
 
-            expect(manager.writeCollection(old,
-                            ScResource.CacheUpdateMode.NONE)).toEqual(4); // 4 tracks (2 from a playlist)
+        expect(manager.writeCollection(old,
+                ScResource.CacheUpdateMode.NONE)).toEqual(3); // 1 playlist 2 tracks
 
-            expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
-                            Content.ME_LIKES.uri, 0, 50).size()).toEqual(2); // 2 tracks, ignoring playlist
+        expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
+                Content.ME_LIKES.uri, 0, 50).size()).toEqual(3);
 
-            SoundAssociationHolder holder = new SoundAssociationHolder();
-            holder.collection = new ArrayList<SoundAssociation>();
-            holder.collection.add(createAssociation(56143158l, SoundAssociation.Type.TRACK.type));
+        SoundAssociationHolder holder = new SoundAssociationHolder();
+        holder.collection = new ArrayList<SoundAssociation>();
+        holder.collection.add(createAssociation(56143158l, SoundAssociation.Type.TRACK.type));
 
-            expect(holder.removeMissingLocallyStoredItems(DefaultTestRunner.application.getContentResolver(), Content.ME_LIKES.uri)).toEqual(1);
-            expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
-                                    Content.ME_LIKES.uri, 0, 50).size()).toEqual(1);
-        }
-
+        expect(holder.removeMissingLocallyStoredItems(DefaultTestRunner.application.getContentResolver(), Content.ME_LIKES.uri)).toEqual(2);
+        expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
+                Content.ME_LIKES.uri, 0, 50).size()).toEqual(1);
+    }
 
     private SoundAssociation createAssociation(long id, String type) {
         SoundAssociation soundAssociation1 = new SoundAssociation();
-        soundAssociation1.track = new Track(id);
+        soundAssociation1.playable = new Track(id);
         soundAssociation1.setType(type);
         return soundAssociation1;
     }

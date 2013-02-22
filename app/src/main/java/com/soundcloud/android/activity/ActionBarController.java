@@ -9,7 +9,9 @@ import com.actionbarsherlock.widget.SearchView;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.track.PlaylistActivity;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.view.NowPlayingIndicator;
 import com.soundcloud.android.view.RootView;
@@ -19,8 +21,10 @@ import org.jetbrains.annotations.Nullable;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.app.SearchableInfo;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.net.Uri;
@@ -47,6 +51,8 @@ public class ActionBarController {
 
     @Nullable private View mMenuIndicator;
 
+    private boolean mListening;
+
     private SuggestionsAdapter mSuggestionsAdapter;
 
     private boolean mInSearchMode;
@@ -69,12 +75,8 @@ public class ActionBarController {
         configureCustomView();
     }
 
-    private void updateWaveformVisibility() {
-        if (mActivity instanceof ScPlayer || CloudPlaybackService.getCurrentTrackId() < 0) {
-            getNowPlayingHolder().setVisibility(View.GONE);
-        } else {
-            getNowPlayingHolder().setVisibility(View.VISIBLE);
-        }
+    public interface PlaybackIntentReceiver {
+        void onReceive(Intent intent);
     }
 
     public void setTitle(CharSequence title) {
@@ -99,11 +101,9 @@ public class ActionBarController {
     }
 
     public void onResume() {
-        if (!(mActivity instanceof ScPlayer)) {
-            getNowPlaying().resume();
-        }
-
+        startListening();
         updateWaveformVisibility();
+        getNowPlaying().resume();
 
         if (mCloseSearchOnResume) {
             closeSearch(true);
@@ -112,6 +112,7 @@ public class ActionBarController {
     }
 
     public void onPause() {
+        stopListening();
         if (!(mActivity instanceof ScPlayer)) {
             getNowPlaying().pause();
         }
@@ -144,6 +145,46 @@ public class ActionBarController {
             }
         }
     }
+
+    private void startListening() {
+        if (!mListening) {
+            mListening = true;
+            IntentFilter f = new IntentFilter();
+            f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
+            f.addAction(CloudPlaybackService.META_CHANGED);
+            f.addAction(CloudPlaybackService.SEEK_COMPLETE);
+            f.addAction(CloudPlaybackService.SEEKING);
+            mOwner.getActivity().registerReceiver(mStatusListener, new IntentFilter(f));
+        }
+    }
+
+    private void stopListening() {
+        if (mListening) {
+            mOwner.getActivity().unregisterReceiver(mStatusListener);
+        }
+        mListening = false;
+    }
+
+    private void updateWaveformVisibility() {
+        if (mActivity instanceof ScPlayer || CloudPlaybackService.getCurrentTrackId() < 0) {
+            getNowPlayingHolder().setVisibility(View.GONE);
+        } else {
+            getNowPlayingHolder().setVisibility(View.VISIBLE);
+        }
+    }
+
+    private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (mActivity instanceof ScPlayer && mNowPlaying != null) {
+                mNowPlaying.onReceive(intent);
+            }
+
+            if (intent.getAction().equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
+                mOwner.invalidateOptionsMenu();
+            }
+        }
+    };
 
     private void configureCustomView(){
         if (mOwner.getSupportActionBar() != null) {
@@ -309,6 +350,18 @@ public class ActionBarController {
             final int menuResourceId = mOwner.getMenuResourceId();
             if (menuResourceId > 0) mOwner.getSupportMenuInflater().inflate(menuResourceId, menu);
         }
+
+        final MenuItem backToSetItem = menu.findItem(R.id.backToSet);
+        if (backToSetItem != null) {
+            boolean visible = false;
+            if ((mOwner.getActivity() instanceof ScPlayer)) {
+                Uri uri = CloudPlaybackService.getUri();
+                if (uri != null && Content.match(uri) == Content.PLAYLIST) {
+                    visible = true;
+                }
+            }
+            backToSetItem.setVisible(visible);
+        }
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -323,6 +376,18 @@ public class ActionBarController {
                 } else {
                     getSearchView().setIconified(true);
                 }
+                return true;
+
+            case R.id.backToSet:
+                Intent intent = new Intent(mOwner.getActivity(), PlaylistActivity.class);
+                intent.putExtra(PlaylistActivity.EXTRA_SCROLL_TO_PLAYING_TRACK, true);
+                Uri uri = CloudPlaybackService.getUri();
+                if (Content.match(uri) == Content.PLAYLIST) {
+                    intent.setData(uri);
+                } else {
+                    return false;
+                }
+                mOwner.getActivity().startActivity(intent);
                 return true;
 
             default:

@@ -3,7 +3,11 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.soundcloud.android.provider.BulkInsertMap;
+import org.jetbrains.annotations.NotNull;
 
+import android.content.ContentResolver;
+import android.content.Intent;
 import android.net.Uri;
 
 @JsonTypeInfo(
@@ -26,6 +30,10 @@ public abstract class ScResource extends ScModel {
     public long last_updated = NOT_SET;
 
     public ScResource() {
+    }
+
+    public ScResource(long id) {
+        super(id);
     }
 
     public enum CacheUpdateMode {
@@ -57,13 +65,64 @@ public abstract class ScResource extends ScModel {
         return id > NOT_SET;
     }
 
+    /**
+     * Add resource's dependencies to the given map.
+     * Used for object persistence in DB.
+     * @param destination
+     */
+    @JsonIgnore
+    public void putDependencyValues(@NotNull BulkInsertMap destination){
+        // no dependencies by default
+    }
+
+    /**
+     * Put all necessary content values into the map, includeing the object itself
+     * @param destination
+     */
+    public void putFullContentValues(@NotNull BulkInsertMap destination){
+        putDependencyValues(destination);
+        destination.add(getBulkInsertUri(), buildContentValues());
+    }
+
+    public Uri insert(ContentResolver contentResolver) {
+        insertDependencies(contentResolver);
+        return contentResolver.insert(toUri(),buildContentValues());
+    }
+
+    protected void insertDependencies(ContentResolver contentResolver) {
+        final BulkInsertMap dependencies = new BulkInsertMap();
+        putDependencyValues(dependencies);
+        dependencies.insert(contentResolver);
+    }
+
+    public abstract Uri toUri();
+
     public abstract Uri getBulkInsertUri();
 
     public abstract User getUser();
 
-    public abstract Sound getSound();
+    public abstract Playable getPlayable();
+
+    public Intent getViewIntent(){
+        return null;
+    }
 
     public static class ScResourceHolder extends CollectionHolder<ScResource> {
+
+        /**
+         * Insert the collection resources using a given URI along with dependencies
+         * @param resolver
+         * @param contentUri
+         * @return the total resources inserted, including dependencies
+         */
+        public int insert(ContentResolver resolver, @NotNull Uri contentUri) {
+            BulkInsertMap map = new BulkInsertMap();
+            for (ScResource r : this) {
+                r.putDependencyValues(map);
+                map.add(contentUri, r.buildContentValues());
+            }
+            return map.insert(resolver);
+        }
     }
 
 }

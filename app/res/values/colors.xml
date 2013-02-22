@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="scOrange">#CCe36711</color>
+    <color name="scDarkGray">#CC101010</color>
+
     <color name="listTxtValue">#FF000000</color>
     <color name="listTxtValuePressed">#88FFFFFF</color>
     <color name="listTxtValueInactive">#FFa9a9a9</color>
@@ -72,10 +75,6 @@
 
     <color name="listSeperator">#FF333333</color>
 
-    <color name="white">#ffffffff</color>
-    <color name="black">#ff000000</color>
-    <color name="transparent">#00000000</color>
-
     <color name="tour_overlay">#CC000000</color>
     <color name="signup_separator">#999999</color>
 
@@ -102,9 +101,11 @@
 
     <color name="main_menu_bg">#FF222222</color>
 
-    <color name="search_suggestion_text_color">#CCCCCC</color>
+    <color name="light_gray_text">#CCCCCC</color>
     <color name="track_info_separator">#FFE5E5E5</color>
 
     <color name="txt_description_color">#FF666666</color>
+
+    <color name="dialog_list_txt_disabled">#777</color>
 
 </resources>

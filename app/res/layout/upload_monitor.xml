@@ -26,7 +26,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="20dip"
                     android:padding="10dip"
-                    android:background="@color/white">
+                    android:background="@android:color/white">
                 <ImageView android:id="@+id/icon"
                            android:layout_alignParentLeft="true"
                            android:layout_width="@dimen/share_progress_icon_width"

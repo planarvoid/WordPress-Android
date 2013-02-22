@@ -7,6 +7,7 @@ public final class Actions {
     public static final String YOU              = "com.soundcloud.android.action.YOU";
     public static final String YOUR_INFO        = "com.soundcloud.android.action.YOUR_INFO";
     public static final String YOUR_SOUNDS      = "com.soundcloud.android.action.YOUR_SOUNDS";
+    public static final String YOUR_SETS        = "com.soundcloud.android.action.YOUR_SETS";
     public static final String YOUR_LIKES       = "com.soundcloud.android.action.YOUR_LIKES";
     public static final String YOUR_FOLLOWINGS  = "com.soundcloud.android.action.YOUR_FOLLOWINGS";
     public static final String YOUR_FOLLOWERS   = "com.soundcloud.android.action.YOUR_FOLLOWERS";
@@ -22,6 +23,7 @@ public final class Actions {
     public static final String EDIT         = "com.soundcloud.android.EDIT";
     public static final String ACCOUNT_PREF = "com.soundcloud.android.action.ACCOUNT_PREF";
     public static final String USER_BROWSER = "com.soundcloud.android.action.USER_BROWSER";
+    public static final String PLAYLIST     = "com.soundcloud.android.action.PLAYLIST";
 
     public static final String UPLOAD_EXTRA_UPLOADING = "com.soundcloud.android.upload.uploading";
 

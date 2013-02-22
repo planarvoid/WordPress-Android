@@ -135,6 +135,15 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             });
 
             C2DMReceiver.register(this, getLoggedInUser());
+
+            // sync current sets
+            AndroidUtils.doOnce(this, "request.sets.sync", new Runnable() {
+                @Override
+                public void run() {
+                    requestSetsSync();
+                }
+            });
+
             ContentStats.init(this);
         }
 
@@ -244,10 +253,21 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
             startService(intent);
 
+            requestSetsSync();
+
             return true;
         } else {
             return false;
         }
+    }
+
+    private void requestSetsSync(){
+        // sync shortcuts so suggest works properly
+        Intent intent = new Intent(this, ApiSyncService.class)
+                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                .setData(Content.ME_PLAYLISTS.uri);
+
+        startService(intent);
     }
 
     /**

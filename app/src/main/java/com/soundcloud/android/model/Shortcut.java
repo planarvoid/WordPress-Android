@@ -15,7 +15,7 @@ public class Shortcut extends ScModel {
     public String kind;         // following | like | group
     public String permalink_url;
     public String username;     // username
-    public String title;        // sound
+    public String title;        // playable
     public String name;         // group
     public String avatar_url;
     public String artwork_url;

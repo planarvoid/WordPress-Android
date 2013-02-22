@@ -3,12 +3,11 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.service.playback.CloudPlaybackService.getPlaylistManager;
 
-import android.util.Log;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Sound;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -37,6 +36,7 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.CompoundButton;
 
 public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPageListener {
     public static final int REFRESH_DELAY = 1000;
@@ -54,8 +54,11 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private PlayerTrackPager mTrackPager;
     private TransportBar mTransportBar;
     private @Nullable CloudPlaybackService mPlaybackService;
+    private int mPendingPlayPosition = -1, mCommentingPosition = -1;
 
-    private int mPendingPlayPosition = -1;
+    public int getCommentPosition() {
+        return mCommentingPosition;
+    }
 
     public interface PlayerError {
         int PLAYBACK_ERROR    = 0;
@@ -79,6 +82,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         mTransportBar.setOnPrevListener(mPrevListener);
         mTransportBar.setOnNextListener(mNextListener);
         mTransportBar.setOnPauseListener(mPauseListener);
+        mTransportBar.setOnCommentListener(mCommentListener);
 
         mShouldShowComments = getApp().getAccountDataBoolean(PLAYER_SHOWING_COMMENTS);
 
@@ -112,6 +116,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             }
             mChangeTrackFast = false;
         }
+
+        mTransportBar.setIsCommenting(getCurrentDisplayedTrackPosition() == mCommentingPosition);
     }
 
     public void toggleShowingComments() {
@@ -156,18 +162,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         return !(mPlaybackService == null || !mPlaybackService.isSeekable());
     }
 
-    public boolean toggleLike(Track track) {
-        if (track == null || mPlaybackService == null) return false;
-        mPlaybackService.setLikeStatus(track.id, !track.user_like);
-        return true;
-    }
-
-    public boolean toggleRepost(Track track) {
-        if (track == null || mPlaybackService == null) return false;
-        mPlaybackService.setRepostStatus(track.id, !track.user_repost);
-        return true;
-    }
-
     public void onNewComment(Comment comment) {
         final PlayerTrackView ptv = getTrackViewById(comment.track_id);
         if (ptv != null){
@@ -198,7 +192,20 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         super.onRestoreInstanceState(state);
     }
 
+    public void closeCommentMode(){
+        mCommentingPosition = -1;
+        setCommentMode(true);
+    }
+
+    private void setCommentMode(boolean animate){
+        for (PlayerTrackView ptv : mTrackPager.playerTrackViews()) {
+            ptv.setCommentMode((ptv.getPlayPosition() == mCommentingPosition), animate);
+        }
+        mTransportBar.setIsCommenting(getCurrentDisplayedTrackPosition() == mCommentingPosition);
+    }
+
     public void addNewComment(final Comment comment) {
+        closeCommentMode();
         pendingComment = comment;
         safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
     }
@@ -322,10 +329,10 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
         f.addAction(CloudPlaybackService.SEEKING);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
-        f.addAction(Sound.ACTION_TRACK_ASSOCIATION_CHANGED);
-        f.addAction(Sound.ACTION_SOUND_INFO_UPDATED);
-        f.addAction(Sound.ACTION_SOUND_INFO_ERROR);
-        f.addAction(Sound.COMMENTS_UPDATED);
+        f.addAction(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED);
+        f.addAction(Playable.ACTION_SOUND_INFO_UPDATED);
+        f.addAction(Playable.ACTION_SOUND_INFO_ERROR);
+        f.addAction(Playable.COMMENTS_UPDATED);
         registerReceiver(mStatusListener, new IntentFilter(f));
     }
 
@@ -348,6 +355,14 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         unregisterReceiver(mStatusListener);
         mPlaybackService = null;
     }
+
+    private final View.OnClickListener mCommentListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mCommentingPosition = ((CompoundButton) v).isChecked() ? getCurrentDisplayedTrackPosition() : -1;
+            setCommentMode(true);
+        }
+    };
 
     private final View.OnClickListener mPauseListener = new View.OnClickListener() {
         public void onClick(View v) {
@@ -546,7 +561,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             final PlayerTrackView playerTrackView = getTrackViewById(CloudPlaybackService.getCurrentTrackId());
             if (playerTrackView != null) playerTrackView.onBuffering();
         }
-
+        setCommentMode(false);
         setPlaybackState();
     }
 

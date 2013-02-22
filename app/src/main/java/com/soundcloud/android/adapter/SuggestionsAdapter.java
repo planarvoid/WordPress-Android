@@ -71,6 +71,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private static final int MAX_REMOTE = 5;
 
     public static final String LOCAL = "_local";
+    public static final String HIGHLIGHTS = "_highlights";
 
     public static final String[] COLUMN_NAMES = new String[]{
             BaseColumns._ID,                 // suggest id
@@ -78,7 +79,8 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             SearchManager.SUGGEST_COLUMN_TEXT_1,
             SearchManager.SUGGEST_COLUMN_INTENT_DATA,
             DBHelper.Suggestions.ICON_URL,
-            LOCAL
+            LOCAL,
+            HIGHLIGHTS
     };
 
     private SuggestionsHandler mSuggestionsHandler;
@@ -175,7 +177,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             try {
                 HttpResponse resp = mApi.get(Request.to("/search/suggest").with(
                         "q", constraint,
-                        "highlight", "true",
+                        "highlight_mode", "offsets",
                         "limit", MAX_REMOTE));
 
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
@@ -213,11 +215,13 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
         final List<Long> trackIds = new ArrayList<Long>();
         final List<Long> userIds = new ArrayList<Long>();
-        suggestions.putRemoteIds(trackIds, userIds);
+        final List<Long> playlistIds = new ArrayList<Long>();
+        suggestions.putRemoteIds(trackIds, userIds, playlistIds);
 
         ArrayList<Uri> toSync = new ArrayList<Uri>();
         if (!trackIds.isEmpty()) toSync.add(Content.TRACK_LOOKUP.forQuery(TextUtils.join(",", trackIds)));
         if (!userIds.isEmpty()) toSync.add(Content.USER_LOOKUP.forQuery(TextUtils.join(",", userIds)));
+        if (!playlistIds.isEmpty()) toSync.add(Content.PLAYLIST_LOOKUP.forQuery(TextUtils.join(",", playlistIds)));
 
         if (!toSync.isEmpty()) {
             Intent intent = new Intent(mContext, ApiSyncService.class)
@@ -298,7 +302,8 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
                     mContext.getResources().getString(R.string.search_for_query, constraint),
                     Content.SEARCH_ITEM.forQuery(constraint),
                     "",
-                    1 /* local */
+                    1 /* local */,
+                    null
             });
         }
         return cursor;
@@ -321,14 +326,16 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             tag = (SearchTag) view.getTag();
         }
 
+
         final long id = cursor.getLong(cursor.getColumnIndex(DBHelper.Suggestions.ID));
         final String query = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1));
         final boolean local = cursor.getInt(cursor.getColumnIndex(LOCAL)) == 1;
+        final String highlightData = cursor.getString(cursor.getColumnIndex(HIGHLIGHTS));
 
         if (id == -1 /* header */) {
             tag.tv_main.setText(query);
         } else {
-            tag.tv_main.setText(local ? highlightLocal(query) : highlightRemote(query));
+            tag.tv_main.setText(local ? highlightLocal(query) : highlightRemote(query, highlightData));
         }
 
         final int rowType = getItemViewType(cursor.getPosition());
@@ -372,39 +379,37 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         TextView tv_main;
     }
 
-    protected Spanned highlightRemote(String query) {
-        // need to replace <b>foo</b> tags
-        // NOTE: don't use Html.fromHtml(), it's slow!
-        final int leftTag  = query.indexOf("<b>");
-        final int rightTag = query.indexOf("</b>") - 3;
-        if (leftTag != -1 && rightTag != -1) {
-            query = query.replace("<b>", "");
-            query = query.replace("</b>", "");
+    protected Spanned highlightRemote(final String query, final String highlightData) {
+        SpannableString spanned = new SpannableString(query);
+        String[] regions = highlightData.split(";");
+        for (String regionData : regions) {
+            String[] bounds = regionData.split(",");
+            setHighlightSpans(spanned, Integer.parseInt(bounds[0]), Integer.parseInt(bounds[1]));
         }
-        return createSpanned(query, leftTag, rightTag);
+        return spanned;
     }
 
     private Spanned highlightLocal(String query) {
+        SpannableString spanned = new SpannableString(query);
         Matcher m = mCurrentPattern.matcher(query);
         if (m.find()) {
-            return createSpanned(query, m.start(2), m.end(2));
+            setHighlightSpans(spanned, m.start(2), m.end(2));
         } else {
-            return createSpanned(query, -1, -1);
+            setHighlightSpans(spanned, -1, -1);
         }
+        return spanned;
     }
 
-    private static Spanned createSpanned(String s, int start, int end) {
-        final SpannableString spanned = new SpannableString(s);
+    private static void setHighlightSpans(SpannableString spanned, int start, int end) {
         spanned.setSpan(new ForegroundColorSpan(0xFF666666),
-                0, s.length(),
+                0, spanned.length(),
                 Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 
-        if (start >= 0 && start < end && end > 0 && end <= s.length()) {
+        if (start >= 0 && start < end && end > 0 && end <= spanned.length()) {
             spanned.setSpan(new ForegroundColorSpan(Color.WHITE),
                     start, end,
                     Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         }
-        return spanned;
     }
 
     /**

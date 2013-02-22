@@ -281,12 +281,13 @@ public class RecordingTest {
 
     @Test
     public void shouldGetRecordingFromIntentViaDatabase() throws Exception {
-        Recording r = SoundCloudDB.upsertRecording(Robolectric.application.getContentResolver(), createRecording(), null);
+        final ContentResolver contentResolver = Robolectric.application.getContentResolver();
+        Recording r = Recording.fromUri(createRecording().insert(contentResolver), contentResolver);
 
         assert r != null;
         Intent i = new Intent().setData(r.toUri());
 
-        Recording r2 = Recording.fromIntent(i, Robolectric.application.getContentResolver(), -1);
+        Recording r2 = Recording.fromIntent(i, contentResolver, -1);
         expect(r2).not.toBeNull();
         expect(r2.description).toEqual(r.description);
         expect(r2.is_private).toEqual(r.is_private);

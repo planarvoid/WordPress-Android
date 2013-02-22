@@ -2,6 +2,7 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.api.Request;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -91,5 +92,21 @@ public final class HttpUtils {
             Log.w(TAG, e);
         }
         return null;
+    }
+
+    /**
+     * Adds an optional list of query params to the given request object.
+     * @param request the SoundCloud API request
+     * @param params null, empty array, or key-value pairs
+     */
+    public static void addQueryParams(Request request, String... params) {
+        if (params != null) {
+            if (params.length % 2 != 0) {
+                throw new IllegalArgumentException("Query params must be passed in k/v pairs");
+            }
+            for (int i = 0; i < params.length; i += 2) {
+                request.add(params[i], params[i + 1]);
+            }
+        }
     }
 }

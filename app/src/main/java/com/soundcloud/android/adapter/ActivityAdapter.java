@@ -1,23 +1,27 @@
 package com.soundcloud.android.adapter;
 
+import static com.soundcloud.android.activity.track.PlayableInteractionActivity.EXTRA_INTERACTION_TYPE;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.activity.track.TrackComments;
-import com.soundcloud.android.activity.track.TrackReposters;
+import com.soundcloud.android.activity.track.PlaylistInteractionActivity;
+import com.soundcloud.android.activity.track.TrackInteractionActivity;
+import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
-import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.adapter.AffiliationActivityRow;
 import com.soundcloud.android.view.adapter.CommentActivityRow;
-import com.soundcloud.android.view.adapter.LazyRow;
+import com.soundcloud.android.view.adapter.IconLayout;
 import com.soundcloud.android.view.adapter.LikeActivityRow;
-import com.soundcloud.android.view.adapter.TrackInfoBar;
-import com.soundcloud.android.view.adapter.TrackRepostActivityRow;
+import com.soundcloud.android.view.adapter.PlayableRow;
+import com.soundcloud.android.view.adapter.RepostActivityRow;
 
 import android.content.Context;
 import android.content.Intent;
@@ -58,25 +62,36 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
     }
 
     @Override
-    protected LazyRow createRow(int position) {
+    protected IconLayout createRow(int position) {
         Activity.Type type = Activity.Type.values()[getItemViewType(position)];
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
-                return new TrackInfoBar(mContext, this);
+                return new PlayableRow(mContext);
 
             case TRACK_REPOST:
+            case PLAYLIST_REPOST:
                 return (mContent == Content.ME_ACTIVITIES) ?
-                        new TrackRepostActivityRow(mContext, this) : new TrackInfoBar(mContext, this);
+                        new RepostActivityRow(mContext) : new PlayableRow(mContext);
+
+            case PLAYLIST:
+            case PLAYLIST_SHARING:
+                // TODO, playlist view
+                return new PlayableRow(mContext);
 
             case COMMENT:
-                return new CommentActivityRow(mContext, this);
+                return new CommentActivityRow(mContext);
 
             case TRACK_LIKE:
-                return new LikeActivityRow(mContext, this);
+                return new LikeActivityRow(mContext);
+
+
+            case PLAYLIST_LIKE:
+                return new LikeActivityRow(mContext);
+
 
             case AFFILIATION:
-                return new AffiliationActivityRow(mContext, this);
+                return new AffiliationActivityRow(mContext);
 
 
             default:
@@ -117,23 +132,33 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
+            case PLAYLIST:
+            case PLAYLIST_SHARING:
                 PlayUtils.playFromAdapter(mContext, this, mData, position);
                 return ItemClickResults.LEAVING;
 
+            case COMMENT:
+            case TRACK_LIKE:
             case TRACK_REPOST:
                 if (mContent == Content.ME_ACTIVITIES) {
                     // todo, scroll to specific repost
-                    mContext.startActivity(new Intent(mContext, TrackReposters.class)
-                        .putExtra(Track.EXTRA, getItem(position).getTrack()));
+                    mContext.startActivity(new Intent(mContext, TrackInteractionActivity.class)
+                            .putExtra(Track.EXTRA, getItem(position).getPlayable())
+                            .putExtra(EXTRA_INTERACTION_TYPE, type.type));
                 } else {
                     PlayUtils.playFromAdapter(mContext, this, mData, position);
                 }
                 return ItemClickResults.LEAVING;
-
-            case COMMENT:
-                mContext.startActivity(new Intent(mContext, TrackComments.class)
-                        .putExtra(Track.EXTRA, getItem(position).getTrack()));
-                // todo, scroll to specific comment
+            case PLAYLIST_LIKE:
+            case PLAYLIST_REPOST:
+                if (mContent == Content.ME_ACTIVITIES) {
+                    // todo, scroll to specific repost
+                    mContext.startActivity(new Intent(mContext, PlaylistInteractionActivity.class)
+                            .putExtra(Playlist.EXTRA, getItem(position).getPlayable())
+                            .putExtra(EXTRA_INTERACTION_TYPE, type.type));
+                } else {
+                    PlayUtils.playFromAdapter(mContext, this, mData, position);
+                }
                 return ItemClickResults.LEAVING;
 
             case AFFILIATION:
@@ -150,5 +175,10 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
     @Override
     public Uri getPlayableUri() {
         return mContentUri;
+    }
+
+    @Override
+    public Playable getPlayable(int position) {
+        return getItem(position).getPlayable();
     }
 }

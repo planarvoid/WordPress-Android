@@ -43,6 +43,14 @@ public class SearchTest {
     }
 
     @Test
+    public void shouldBuildCorrectApiRequest() {
+        expect(Search.forSounds("foo").request().toUrl()).toEqual("/search/sounds?q=foo");
+        expect(Search.forPlaylists("foo").request().toUrl()).toEqual("/search/sets?q=foo");
+        expect(Search.forUsers("foo").request().toUrl()).toEqual("/search/people?q=foo");
+        expect(Search.forAll("foo").request().toUrl()).toEqual("/search?q=foo");
+    }
+
+    @Test
     public void shouldNotAddDuplicateSearches() throws Exception {
         for (int i=0; i<5; i++) {
             Search.forSounds("blaz").insert(resolver);
@@ -54,7 +62,7 @@ public class SearchTest {
     @Test
     public void shouldClearHistory() throws Exception {
         for (int i=0; i<5; i++) {
-            Search.forSounds("sound"+i).insert(resolver);
+            Search.forSounds("playable"+i).insert(resolver);
         }
 
         expect(Content.SEARCHES_ITEM).toHaveCount(5);

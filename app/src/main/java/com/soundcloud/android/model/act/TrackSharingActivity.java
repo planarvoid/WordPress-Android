@@ -5,22 +5,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SharingNote;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.DBHelper;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Date;
-
-public class TrackSharingActivity extends Activity implements Playable {
-    @JsonProperty @JsonView(Views.Mini.class) public Track track;
+public class TrackSharingActivity extends TrackActivity implements PlayableHolder {
 
     public TrackSharingActivity() {
         super();
@@ -32,44 +27,12 @@ public class TrackSharingActivity extends Activity implements Playable {
 
     public TrackSharingActivity(Parcel in) {
         super(in);
-        track = in.readParcelable(Track.class.getClassLoader());
     }
 
     @Override
     public Type getType() {
         return Type.TRACK_SHARING;
     }
-
-    @Override
-    public Track getTrack() {
-        return track;
-    }
-
-    @Override
-    public User getUser() {
-        return track.user;
-    }
-
-    @Override
-    public Playlist getPlaylist() {
-        return null;
-    }
-
-    @JsonIgnore
-    @Override
-    public void setCachedTrack(Track track) {
-        this.track = track;
-    }
-
-    @JsonIgnore @Override
-    public void setCachedUser(User user) {
-    }
-
-    @Override
-    public ScResource getRefreshableResource() {
-        return track;
-    }
-
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -93,9 +56,7 @@ public class TrackSharingActivity extends Activity implements Playable {
         if (!super.equals(o)) return false;
 
         TrackSharingActivity that = (TrackSharingActivity) o;
-
         if (track != null ? !track.equals(that.track) : that.track != null) return false;
-
         return true;
     }
 

@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Creation;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
@@ -17,15 +18,13 @@ import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.task.collection.ReturnData;
 import com.soundcloud.android.task.collection.UpdateCollectionTask;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.view.adapter.LazyRow;
+import com.soundcloud.android.view.adapter.ListRow;
 import com.soundcloud.android.view.quickaction.QuickAction;
 import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.support.v4.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -84,6 +83,10 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         return mData.get(location);
     }
 
+    public @NotNull List<T> getItems() {
+        return mData;
+    }
+
     public void setIsLoadingData(boolean isLoadingData) {
         mIsLoadingData = isLoadingData;
         notifyDataSetChanged();
@@ -119,17 +122,20 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
             return mProgressView;
         }
 
-        LazyRow rowView;
+        View rowView;
         if (row == null) {
             rowView = createRow(index);
-        }  else {
-            rowView = (LazyRow) row;
+        } else {
+            rowView = row;
         }
-        rowView.display(index, getItem(index));
+
+        if (rowView instanceof ListRow) {
+            ((ListRow) rowView).display(index, getItem(index));
+        }
         return rowView;
     }
 
-    protected abstract LazyRow createRow(int position);
+    protected abstract View createRow(int position);
 
     public void clearData() {
         mData.clear();
@@ -161,8 +167,8 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     }
 
     public void refreshCreationStamps() {
-        for (ScModel resource : mData){
-            if (resource instanceof Creation){
+        for (ScModel resource : mData) {
+            if (resource instanceof Creation) {
                 ((Creation) resource).refreshTimeSinceCreated(mContext);
             }
         }
@@ -171,7 +177,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     public boolean shouldRequestNextPage(int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
         // if loading, subtract the loading item from total count
-        boolean lastItemReached = ((mIsLoadingData? totalItemCount - 1 : totalItemCount) > 0)
+        boolean lastItemReached = ((mIsLoadingData ? totalItemCount - 1 : totalItemCount) > 0)
                 && (totalItemCount - visibleItemCount * 2 < firstVisibleItem);
 
         return !mIsLoadingData && lastItemReached;
@@ -201,10 +207,10 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
             /*
             if (IOUtils.isWifiConnected(mContext)){
-                // prefetch sound artwork
+                // prefetch playable artwork
                 for (ScModel model : data.newItems){
-                    if (model instanceof Playable){
-                        final String artworkUrl = Consts.GraphicSize.formatUriForList(mContext, ((Playable) model).getTrack().getArtwork());
+                    if (model instanceof PlayableHolder){
+                        final String artworkUrl = Consts.GraphicSize.formatUriForList(mContext, ((PlayableHolder) model).getPlayable().getArtwork());
                         if (!TextUtils.isEmpty(artworkUrl)) ImageLoader.get(mContext).prefetch(artworkUrl);
                     }
                 }
@@ -221,40 +227,49 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     protected void checkForStaleItems(List<? extends ScModel> items) {
         if (items.isEmpty() || !IOUtils.isWifiConnected(mContext)) return;
+
         Set<Long> trackUpdates = new HashSet<Long>();
         Set<Long> userUpdates = new HashSet<Long>();
+        Set<Long> playlistUpdates = new HashSet<Long>();
         for (ScModel newItem : items) {
 
             if (newItem instanceof Refreshable) {
                 Refreshable refreshable = (Refreshable) newItem;
                 if (refreshable.isStale()) {
-
                     ScResource resource = refreshable.getRefreshableResource();
                     if (resource instanceof Track) {
                         trackUpdates.add(resource.id);
                     } else if (resource instanceof User) {
                         userUpdates.add(resource.id);
+                    } else if (resource instanceof Playlist) {
+                        playlistUpdates.add(resource.id);
                     }
                 }
             }
         }
         final AndroidCloudAPI api = SoundCloudApplication.fromContext(mContext);
         if (!trackUpdates.isEmpty()) {
-            UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.TRACKS);
+            UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.TRACKS, trackUpdates);
             task.setAdapter(this);
-            task.executeOnThreadPool(trackUpdates);
+            task.executeOnThreadPool();
         }
 
         if (!userUpdates.isEmpty()) {
-            UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.USERS);
+            UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.USERS, userUpdates);
             task.setAdapter(this);
-            task.executeOnThreadPool(userUpdates);
+            task.executeOnThreadPool();
+        }
+
+        if (!playlistUpdates.isEmpty()) {
+            UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.PLAYLISTS, playlistUpdates);
+            task.setAdapter(this);
+            task.executeOnThreadPool("representation", "compact");
         }
     }
 
     public abstract int handleListItemClick(int position, long id);
 
-    public interface ItemClickResults{
+    public interface ItemClickResults {
         int IGNORE = 0;
         int LEAVING = 1;
     }

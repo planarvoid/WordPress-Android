@@ -15,6 +15,10 @@
         </attr>
     </declare-styleable>
 
+    <declare-styleable name="PlayableBar">
+        <attr name="android:layout"/>
+    </declare-styleable>
+
     <declare-styleable name="PullToRefresh">
         <attr name="ptr_adapterViewBackground" format="reference|color" />
         <attr name="ptr_headerBackground" format="reference|color" />

@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +17,13 @@ public class ScModel implements Parcelable {
     public static final int NOT_SET = -1;
     @JsonView(Views.Mini.class) public long id = NOT_SET;
 
-    public @Nullable ContentValues buildContentValues() {
+    public ScModel() { }
+
+    public ScModel(long id) {
+        this.id = id;
+    }
+
+    public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
         if (id != ScResource.NOT_SET) cv.put(BaseColumns._ID, id);
         return cv;
@@ -40,6 +47,7 @@ public class ScModel implements Parcelable {
         return c.isNull(index) ? NOT_SET : c.getInt(index);
     }
 
+    @JsonIgnore
     public long getListItemId(){
         return id;
     }

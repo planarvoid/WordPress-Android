@@ -20,6 +20,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -250,5 +251,10 @@ public final class AndroidUtils {
             }
             return candidate;
         }
+    }
+
+    public static boolean accessibilityFeaturesAvailable(Context context) {
+        AccessibilityManager accessibilityManager = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+        return accessibilityManager != null && accessibilityManager.isEnabled();
     }
 }

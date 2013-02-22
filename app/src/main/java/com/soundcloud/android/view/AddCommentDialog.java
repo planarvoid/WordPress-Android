@@ -97,7 +97,7 @@ public class AddCommentDialog extends Dialog {
         super.onStart();
         final Comment comment = ScPlayer.pendingComment;
         if (comment != null) {
-            mActivity.track(Page.Sounds_add_comment, comment.getSound());
+            mActivity.track(Page.Sounds_add_comment, comment.getPlayable());
         }
     }
 

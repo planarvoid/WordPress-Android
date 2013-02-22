@@ -6,7 +6,10 @@ import static com.soundcloud.android.service.sync.ApiSyncer.Result;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScModelManagerTest;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -17,6 +20,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,15 +66,15 @@ public class ApiSyncerTest {
         expect(result.synced_at).toBeGreaterThan(0l);
 
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(112);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(120);
         expect(Content.TRACKS).toHaveCount(111);
         expect(Content.USERS).toHaveCount(28);
-        //expect(Content.PLAYLISTS).toHaveCount(8);
+        expect(Content.PLAYLISTS).toHaveCount(8);
 
         Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
-        expect(incoming.size()).toEqual(112);
-        expect(incoming.getUniqueTracks().size()).toEqual(111); // currently excluding playlists
+        expect(incoming.size()).toEqual(120);
+        expect(incoming.getUniquePlayables().size()).toEqual(119); // currently excluding playlists
         assertResolverNotified(Content.ME_SOUND_STREAM.uri, Content.TRACKS.uri, Content.USERS.uri);
     }
     @Test
@@ -133,14 +137,12 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncSounds() throws Exception {
-        addResourceResponse("/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
-
-        Result result = sync(Content.ME_SOUNDS.uri);
+        Result result = populateMeSounds();
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
         expect(Content.TRACKS).toHaveCount(48);
-        expect(Content.ME_SOUNDS).toHaveCount(48);
+        expect(Content.ME_SOUNDS).toHaveCount(50);
     }
 
     @Test
@@ -153,14 +155,13 @@ public class ApiSyncerTest {
         expect(result.synced_at).toBeGreaterThan(0l);
 
         expect(Content.TRACKS).toHaveCount(1);
-        expect(Content.ME_LIKES).toHaveCount(1);  // FIXME: when sets go live, change to 2
+        expect(Content.PLAYLISTS).toHaveCount(1);
+        expect(Content.ME_LIKES).toHaveCount(2);
     }
 
     @Test
     public void shouldSyncSoundsAndLikes() throws Exception {
-        addResourceResponse("/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
-
-        Result result = sync(Content.ME_SOUNDS.uri);
+        Result result = populateMeSounds();
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
@@ -171,9 +172,9 @@ public class ApiSyncerTest {
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
-        expect(Content.TRACKS).toHaveCount(49);
-        expect(Content.ME_SOUNDS).toHaveCount(48);
-        expect(Content.ME_LIKES).toHaveCount(1); // FIXME: when sets go live, change to 2
+        expect(Content.TRACKS).toHaveCount(49); // 48 tracks + from /me/sounds + 1 track from /me/likes
+        expect(Content.ME_SOUNDS).toHaveCount(50); // 48 tracks + 2 playlists from /me/sounds
+        expect(Content.ME_LIKES).toHaveCount(2); // 1 track + 1 playlist like
     }
 
     @Test
@@ -221,6 +222,90 @@ public class ApiSyncerTest {
     }
 
     @Test
+    public void shouldPushNewPlaylist() throws Exception {
+        populateMeSounds();
+
+        TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
+
+        Playlist p = ScModelManagerTest.createNewPlaylist(DefaultTestRunner.application.getContentResolver(),
+                SoundCloudApplication.MODEL_MANAGER);
+
+        expect(p).not.toBeNull();
+
+        expect(p.insertAsMyPlaylist(DefaultTestRunner.application.getContentResolver())).not.toBeNull();
+        expect(Content.TRACKS).toHaveCount(50);
+        expect(Content.ME_SOUNDS).toHaveCount(51);
+
+        expect(new ApiSyncer(Robolectric.application).pushLocalPlaylists()).toBe(1);
+        expect(Content.ME_SOUNDS).toHaveCount(51);
+    }
+
+    private Result populateMeSounds() throws IOException {
+        addResourceResponse("/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
+        return sync(Content.ME_SOUNDS.uri);
+    }
+
+    @Test
+    public void shouldSyncAPlaylist() throws Exception {
+        TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
+        Result result = sync(Content.PLAYLIST.forId(2524386l));
+        expect(result.success).toBe(true);
+        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.change).toEqual(Result.CHANGED);
+        expect(Content.PLAYLISTS).toHaveCount(1);
+
+        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylistWithTracks(2524386l);
+        expect(p.title).toEqual("fall into fall");
+        expect(p.track_count).toEqual(41);
+        expect(p.tracks).not.toBeNull();
+
+        final Track track = p.tracks.get(10);
+        expect(track.title).toEqual("Mozart Parties - Where Has Everybody Gone (Regal Safari Remix)");
+        expect(track.user).not.toBeNull();
+        expect(track.user.username).toEqual("Regal Safari");
+    }
+
+    @Test
+    public void shouldSyncPlaylistTracks() throws Exception {
+        TestHelper.addPendingHttpResponse(getClass(), "playlist_tracks.json");
+        final Uri localUri = Content.PLAYLIST_TRACKS.forId(2524386l);
+        Result result = sync(localUri);
+        expect(result.success).toBe(true);
+        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.change).toEqual(Result.CHANGED);
+        expect(Content.TRACKS).toHaveCount(41);
+
+        CollectionHolder<Track> trackHolder = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver,Track.class, localUri);
+        expect(trackHolder.collection.size()).toBe(41);
+        expect(trackHolder.collection.get(1).title).toEqual("Keaton Henson - All Things Must Pass");
+    }
+
+    @Test
+    public void shouldSyncPlaylistWithAdditions() throws Exception {
+
+        TestHelper.addPendingHttpResponse(getClass(), "tracks.json");
+        Result result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));
+        expect(result.success).toBe(true);
+
+        final long playlistId = 2524386l;
+
+        expect(Playlist.addTrackToPlaylist(resolver,playlistId,10696200l, System.currentTimeMillis())).not.toBeNull();
+        expect(Playlist.addTrackToPlaylist(resolver,playlistId,10853436l, System.currentTimeMillis() + 100)).not.toBeNull();
+
+        TestHelper.addPendingHttpResponse(getClass(), "playlist.json", "playlist_added.json");
+
+        result = sync(Content.PLAYLIST.forId(10696200l));
+        expect(result.success).toBe(true);
+        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.change).toEqual(Result.CHANGED);
+        expect(Content.TRACKS).toHaveCount(44);
+
+        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylistWithTracks(playlistId);
+        expect(p.tracks.size()).toBe(43);
+        expect(p.tracks.get(1).title).toEqual("recording on thursday afternoon");
+    }
+
+    @Test
     public void shouldDoTrackLookup() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "tracks.json");
         Result result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));
@@ -238,6 +323,17 @@ public class ApiSyncerTest {
         expect(result.synced_at).toBeGreaterThan(0l);
         expect(result.change).toEqual(Result.CHANGED);
         expect(Content.USERS).toHaveCount(3);
+    }
+
+    @Test
+    public void shouldDoPlaylistLookup() throws Exception {
+        TestHelper.addCannedResponse(getClass(), "/playlists?ids=3761799%2C1&representation=compact&linked_partitioning=1",
+                "playlists_compact.json");
+        Result result = sync(Content.PLAYLIST_LOOKUP.forQuery("3761799,1"));
+        expect(result.success).toBe(true);
+        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.change).toEqual(Result.CHANGED);
+        expect(Content.PLAYLISTS).toHaveCount(2);
     }
 
     @Test
@@ -319,7 +415,7 @@ public class ApiSyncerTest {
                 "e1_stream.json",
                 "e1_stream_oldest.json");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(112);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(120);
         expect(Content.ME_ACTIVITIES).toHaveCount(17);
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(137);
     }
@@ -328,7 +424,7 @@ public class ApiSyncerTest {
     public void shouldNotProduceDuplicatesWhenSyncing() throws Exception {
         sync(Content.ME_SOUND_STREAM.uri, "e1_stream_1_oldest.json");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(22);
     }
 
@@ -346,9 +442,9 @@ public class ApiSyncerTest {
         Activity a2 = incoming.get(1);
 
         expect(a1).toBeInstanceOf(TrackActivity.class);
-        expect(a1.getTrack().permalink).toEqual("bastard-amo1-edit");
+        expect(a1.getPlayable().permalink).toEqual("bastard-amo1-edit");
         expect(a2).toBeInstanceOf(TrackSharingActivity.class);
-        expect(a2.getTrack().permalink).toEqual("leotrax06-leo-zero-boom-bam");
+        expect(a2.getPlayable().permalink).toEqual("leotrax06-leo-zero-boom-bam");
     }
 
     @Test(expected = IOException.class)

@@ -5,11 +5,14 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.android.service.sync.ApiSyncerTest;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -23,6 +26,7 @@ import android.net.Uri;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
@@ -57,7 +61,7 @@ public class ScModelManagerTest {
     // TODO, one instance of every user. deserialize post processing
     @Test
     public void testUniqueUserMultipleTracks() throws IOException {
-        CollectionHolder<ScResource> holder = manager.getCollectionFromStream(SyncAdapterServiceTest.class.getResourceAsStream("tracks.json"));
+        CollectionHolder<ScResource> holder = manager.getCollectionFromStream(SyncAdapterServiceTest.class.getResourceAsStream("tracks.json"), true);
         expect(holder.size()).toBe(3);
 
         Track t1 = (Track) holder.get(0);
@@ -283,7 +287,7 @@ public class ScModelManagerTest {
     @Test
     public void shouldBulkInsertWithCollections() throws Exception {
         List<Track> items = createTracks();
-        expect(manager.writeCollection(items, Content.ME_LIKES.uri, USER_ID, ScResource.CacheUpdateMode.MINI)).toEqual(4);
+        expect(manager.writeCollection(items, Content.ME_LIKES.uri, USER_ID, ScResource.CacheUpdateMode.MINI)).toEqual(6);
 
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(2);
@@ -319,7 +323,7 @@ public class ScModelManagerTest {
         return items;
     }
 
-    private List<Track> createTracks() {
+    public static List<Track> createTracks() {
         List<Track> items = new ArrayList<Track>();
 
         User u1 = new User();
@@ -334,7 +338,6 @@ public class ScModelManagerTest {
         u2.permalink = "u2";
         u2.id = 300L;
 
-
         Track t2 = new Track();
         t2.id = 400;
         t2.user = u2;
@@ -344,6 +347,79 @@ public class ScModelManagerTest {
         return items;
     }
 
+    @Test
+    public void shouldPersistPlaylistInDb() throws Exception {
+        Playlist p = manager.getModelFromStream(SyncAdapterServiceTest.class.getResourceAsStream("playlist.json"));
+        expect(p).not.toBeNull();
+        expect(p.user.username).toEqual("Natalie");
+        expect(p.tracks.size()).toEqual(41);
+
+        Uri actualUri = p.insert(resolver);
+        expect(actualUri)
+                .toEqual(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/playlists/2524386"));
+
+        Long id = Long.parseLong(actualUri.getLastPathSegment());
+        Playlist p2 = manager.getPlaylistWithTracks(id);
+        expect(p2).not.toBeNull();
+        expect(p2.user.username).toEqual("Natalie");
+        expect(p2.tracks.size()).toEqual(41);
+        expect(p.tracks.get(0).id).toEqual(p2.tracks.get(0).id);
+
+        p2.tracks.remove(0);
+        expect(p2.insert(resolver)).not.toBeNull();
+
+        Playlist p3 = manager.getPlaylistWithTracks(id);
+        expect(p3).not.toBeNull();
+        expect(p3.tracks.size()).toEqual(40);
+        expect(p3.tracks.get(0).id).not.toEqual(p.tracks.get(0).id);
+
+    }
+
+    @Test
+    public void shouldCreatePlaylistLocally() throws Exception {
+
+        final List<Track> tracks = createTracks();
+        final boolean isPrivate = false;
+
+        Playlist p = createNewPlaylist(DefaultTestRunner.application.getContentResolver(),manager, isPrivate, tracks);
+        expect(p).not.toBeNull();
+        final Uri uri = p.toUri();
+
+        Uri myPlaylistUri = p.insertAsMyPlaylist(DefaultTestRunner.application.getContentResolver());
+
+        expect(myPlaylistUri).not.toBeNull();
+        expect(Content.match(myPlaylistUri)).toBe(Content.ME_PLAYLIST);
+
+        expect(Content.ME_PLAYLISTS).toHaveCount(1);
+        Playlist p2 = manager.getPlaylistWithTracks(uri);
+        expect(p2.tracks).toEqual(tracks);
+        expect(p2.sharing).toBe(isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC);
+
+        List<Playlist> playlists = Playlist.getLocalPlaylists(DefaultTestRunner.application.getContentResolver());
+        expect(playlists.size()).toBe(1);
+    }
+
+    @Test
+    public void shouldAddTrackToPlaylist() throws Exception {
+        Playlist p = manager.getModelFromStream(SyncAdapterServiceTest.class.getResourceAsStream("playlist.json"));
+        expect(p.tracks.size()).toEqual(41);
+        expect(p.insert(resolver)).not.toBeNull();
+
+        List<Track> tracks = createTracks();
+        int i = 0;
+        for (Track track : tracks){
+            expect(track.insert(resolver)).not.toBeNull();
+            final Uri insert = Playlist.addTrackToPlaylist(resolver,p.id,track.id,100*i);
+            expect(insert).not.toBeNull();
+            i++;
+        }
+
+        Playlist p2 = manager.getPlaylistWithTracks(p.id);
+        expect(p2).not.toBeNull();
+        expect(p2.tracks.size()).toEqual(43);
+        expect(p2.tracks.get(0).id).toEqual(tracks.get(1).id); // check ordering
+
+    }
 
     @Test
     public void shouldPersistActivitiesInDb() throws Exception {
@@ -351,10 +427,9 @@ public class ScModelManagerTest {
                 SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
         expect(a.insert(Content.ME_SOUND_STREAM, resolver)).toBe(22);
 
-        // 2 of these are playlists and are not returned for now
-        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
         expect(Activities.getSince(Content.ME_SOUND_STREAM,
-                                resolver, -1).size()).toEqual(20);
+                                resolver, -1).size()).toEqual(22);
     }
 
 
@@ -363,7 +438,7 @@ public class ScModelManagerTest {
         Activities a = manager.getActivitiesFromJson(
                 SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
         a.insert(Content.ME_SOUND_STREAM, resolver);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
         expect(
                 Activities.getSince(Content.ME_SOUND_STREAM,
@@ -377,7 +452,7 @@ public class ScModelManagerTest {
         Activities a = manager.getActivitiesFromJson(
                 SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
         a.insert(Content.ME_SOUND_STREAM, resolver);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
         expect(
                 Activities.getLastActivity(Content.ME_SOUND_STREAM,
@@ -391,7 +466,7 @@ public class ScModelManagerTest {
                 SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
 
         a.insert(Content.ME_SOUND_STREAM, resolver);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(20);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
         LocalCollection.insertLocalCollection(Content.ME_SOUND_STREAM.uri,
                 0, System.currentTimeMillis(), System.currentTimeMillis(), a.size(), a.future_href,
@@ -421,9 +496,46 @@ public class ScModelManagerTest {
         expect(manager.fetchMissingCollectionItems((AndroidCloudAPI) Robolectric.application, ids, Content.USERS, false, 5)).toEqual(5);
     }
 
+    @Test
+    public void shouldShareActivityTrackWithPlayQueueManager() throws Exception {
+
+        Activities a = manager.getActivitiesFromJson(
+                SyncAdapterServiceTest.class.getResourceAsStream("e1_stream_1.json"));
+
+        a.insert(Content.ME_SOUND_STREAM, resolver);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
+
+        Activities activities = Activities.get(Content.ME_SOUND_STREAM,resolver);
+
+        PlayQueueManager pm = new PlayQueueManager(Robolectric.application, USER_ID);
+        pm.loadUri(Content.ME_SOUND_STREAM.uri, 0, 61217025l);
+
+        final Track currentTrack = pm.getCurrentTrack();
+        expect(currentTrack.id).toEqual(61217025l);
+        expect(activities.get(0).getPlayable()).toBe(currentTrack);
+
+    }
+
     private User createUserWithId(long id){
         User u = new User();
         u.id = id;
         return u;
+    }
+
+    public static Playlist createNewPlaylist(ContentResolver resolver, ScModelManager manager) {
+        return createNewPlaylist(resolver, manager, false, createTracks());
+    }
+
+    public static Playlist createNewPlaylist(ContentResolver resolver, ScModelManager manager, boolean isPrivate, List<Track> tracks) {
+        final String title = "new playlist " + System.currentTimeMillis();
+        final long[] trackIds = new long[tracks.size()];
+        for (int i = 0; i < tracks.size(); i++) {
+            expect(tracks.get(i).insert(resolver)).not.toBeNull();
+            trackIds[i] = tracks.get(i).id;
+        }
+
+        Playlist p = manager.createPlaylist(tracks.get(0).user, title, isPrivate, trackIds);
+        expect(p).not.toBeNull();
+        return p;
     }
 }

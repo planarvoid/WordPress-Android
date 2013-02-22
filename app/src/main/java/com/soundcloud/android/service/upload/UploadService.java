@@ -29,6 +29,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.*;
 import android.os.Process;
@@ -401,13 +402,18 @@ public class UploadService extends Service {
             soundRecorder.gotoIdleState();
         }
 
-        // make sure recording is saved before uploading
-        if (!recording.isSaved() &&
-            (recording = SoundCloudDB.upsertRecording(getContentResolver(), recording, null)) == null) {
-            Log.w(TAG, "could not insert " + recording);
-        } else {
+        if (!recording.isSaved()){
+            Uri uri = recording.insert(getContentResolver());
+            if (uri != null) {
+                recording.id = Long.parseLong(uri.getLastPathSegment());
+            }
+        }
+
+        if (recording.isSaved()){
             recording.upload_status = Recording.Status.UPLOADING;
             recording.updateStatus(getContentResolver());
+        } else {
+            Log.w(TAG, "could not insert " + recording);
         }
         queueUpload(recording);
     }

@@ -39,6 +39,7 @@ public enum Page implements Event {
     Search_main("main", Level2.Search),
     Search_results__all__keyword("results::all::%s", Level2.Search),
     Search_results__sounds__keyword("results::sounds::%s", Level2.Search),
+    Search_results__playlists__keyword("results::playlists::%s", Level2.Search),
     Search_results__people__keyword("results::people::%s", Level2.Search),
 
     // settings
@@ -51,6 +52,7 @@ public enum Page implements Event {
     // user browser
     Users_dedicated_rec("user_permalink::dedicated_rec", Level2.Users),
     Users_sounds       ("user_permalink::sounds",    Level2.Users),
+    Users_sets         ("user_permalink::sets",      Level2.Users),
     Users_likes        ("user_permalink::likes",     Level2.Users),
     Users_following    ("user_permalink::following", Level2.Users),
     Users_followers    ("user_permalink::followers", Level2.Users),
@@ -59,6 +61,7 @@ public enum Page implements Event {
     // user browser (you)
     You_find_friends("find_friends::main", Level2.You),
     You_sounds      ("sounds::main",    Level2.You),
+    You_sets        ("sets::main",      Level2.You),
     You_likes       ("likes::main",     Level2.You),
     You_following   ("following::main", Level2.You),
     You_followers   ("followers::main", Level2.You),
@@ -69,9 +72,10 @@ public enum Page implements Event {
     Sounds_add_comment      ("user_permalink::track_permalink::add_comment", Level2.Sounds),
     Sounds_share            ("user_permalink::track_permalink::share", Level2.Sounds),
     Sounds_info__main       ("user_permalink::track_permalink::info_main", Level2.Sounds),
-    Sounds_info__people_like("user_permalink::track_permalink::info_people_like", Level2.Sounds),
-    Sounds_info__people_repost("user_permalink::track_permalink::info_people_repost", Level2.Sounds),
-    Sounds_info__comment    ("user_permalink::track_permalink::info_comment", Level2.Sounds),
+    // TODO: these don't make sense anymore now that playlists enter the game. Need to re-spec/re-build tracking.
+    //Sounds_info__people_like("user_permalink::track_permalink::info_people_like", Level2.Sounds),
+    //Sounds_info__people_repost("user_permalink::track_permalink::info_people_repost", Level2.Sounds),
+    //Sounds_info__comment    ("user_permalink::track_permalink::info_comment", Level2.Sounds),
 
     UNKNOWN(null, null);
 

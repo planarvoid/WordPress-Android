@@ -29,10 +29,8 @@ public class UserTest {
     @Test
     public void testBuildContentValues() throws Exception {
         User u = new User();
-        u.buildContentValues(false);
-        u.buildContentValues(true);
         u.id = 1000L;
-        ContentValues cv = u.buildContentValues(false);
+        ContentValues cv = u.buildContentValues();
         expect(cv.getAsLong(DBHelper.Users._ID)).toEqual(1000L);
     }
 

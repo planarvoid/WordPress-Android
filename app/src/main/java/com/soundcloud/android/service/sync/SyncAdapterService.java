@@ -6,6 +6,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
@@ -34,6 +35,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Sync service - delegates to {@link ApiSyncService} for the actual syncing. This class is responsible for the setup
@@ -193,6 +195,15 @@ public class SyncAdapterService extends Service {
                 } else if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "skipping collection sync, no wifi");
                 }
+
+                // see if there are any local playlists that need to be pushed
+                if (Playlist.hasLocalPlaylists(app.getContentResolver())){
+                    urisToSync.add(Content.ME_PLAYLISTS.uri);
+                }
+
+                // see if there are any playlists with un-pushed track changes
+                final Set<Uri> playlistsDueForSync = SyncContent.getPlaylistsDueForSync(app.getContentResolver());
+                if (playlistsDueForSync != null) urisToSync.addAll(playlistsDueForSync);
 
                 final List<Uri> dueForSync = SyncCleanups.getCleanupsDueForSync(app, manual);
                 if (Log.isLoggable(TAG, Log.DEBUG)) {

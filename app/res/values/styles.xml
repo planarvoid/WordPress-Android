@@ -2,6 +2,9 @@
 
 <resources>
 
+
+
+
     <!-- Standard animations for a non-full-screen window or activity. -->
     <style name="Animation"/>
     <style name="Animation.AddCommentDialog">
@@ -51,7 +54,7 @@
     <style name="btn_following">
         <item name="android:background">@drawable/btn_blue</item>
         <item name="android:text">@string/btn_following</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="btn_default" parent="@android:style/Widget.Button">
@@ -207,6 +210,19 @@
         <item name="android:shadowRadius">1</item>
     </style>
 
+    <style name="txt_list_playable_track_count">
+        <item name="android:textColor">@drawable/txt_list_main_dark_states</item>
+        <item name="android:textSize">@dimen/list_txt_main_size</item>
+        <item name="android:background">@drawable/bg_dark_round_rect</item>
+        <item name="android:gravity">center</item>
+        <item name="android:minWidth">@dimen/list_playlist_track_count_dimension</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/list_playlist_track_count_dimension</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingRight">5dp</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
     <style name="txt_search" parent="android:Widget.TextView">
         <item name="android:textSize">@dimen/slm_item_text_size</item>
         <item name="android:paddingTop">@dimen/slm_search_item_text_padding</item>
@@ -243,7 +259,7 @@
     <style name="txt_record_saved_message">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@android:color/white</item>
         <item name="android:background">@color/btnDarkFlat</item>
         <item name="android:textSize">12sp</item>
         <item name="android:paddingTop">5dp</item>
@@ -415,6 +431,13 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
+    <style name="btn_sc_transport_comment" parent="btn_sc_transport">
+        <item name="android:textOn">@null</item>
+        <item name="android:textOff">@null</item>
+        <item name="android:background">@drawable/toggle_player_comment_states</item>
+        <item name="android:contentDescription">@string/accessibility_comment_action</item>
+    </style>
+
     <style name="btn_sc_widget">
         <item name="android:padding">0dip</item>
         <item name="android:layout_margin">0dip</item>
@@ -542,6 +565,42 @@
         <item name="android:drawable">@drawable/progress_bar_land</item>
     </style>
 
+    <style name="ListItemContainer">
+        <item name="android:paddingLeft">@dimen/list_item_padding_left</item>
+        <item name="android:paddingTop">@dimen/list_item_padding_top</item>
+        <item name="android:paddingRight">@dimen/list_item_padding_right</item>
+        <item name="android:paddingBottom">@dimen/list_item_padding_bottom</item>
+    </style>
+
+    <!-- Playable (tracks/playlists) styles -->
+
+    <style name="PlayableIcon">
+        <item name="android:layout_width">@dimen/list_icon_width</item>
+        <item name="android:layout_height">@dimen/list_icon_height</item>
+        <item name="android:layout_marginRight">@dimen/list_icon_margin_right</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="android:contentDescription"/>  <!-- TODO Need a string for this? -->
+    </style>
+
+    <style name="PlayableIcon.Playlist">
+        <item name="android:layout_width">@dimen/playlist_page_icon_size</item>
+        <item name="android:layout_height">@dimen/playlist_page_icon_size</item>
+    </style>
+
+    <style name="PlayableTitle">
+        <item name="android:layout_alignLeft">@+id/playable_user_holder</item>
+        <item name="android:layout_toLeftOf">@+id/playable_track_count</item>
+        <item name="android:layout_alignWithParentIfMissing">true</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_below">@id/playable_user_holder</item>
+        <item name="android:textAppearance">@style/txt_list_main</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
     <style name="Playlist">
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:background">@android:color/black</item>
@@ -551,6 +610,15 @@
         <item name="android:layout_marginTop">60dip</item>
     </style>
 
+    <style name="PlayerActionContainer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:background">@color/playerControlBackground</item>
+    </style>
+
+    <!-- END Playable styles -->
 
     <style name="FloatingPlayer">
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -749,7 +817,7 @@
         <item name="android:paddingRight">7dp</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:textSize">@dimen/slm_item_dashboard_counter_text_size</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@android:color/white</item>
         <item name="android:background">@drawable/activity_bubble</item>
         <item name="android:singleLine">true</item>
         <item name="android:gravity">center</item>
@@ -760,8 +828,12 @@
         <item name="android:shadowDx">0</item>
     </style>
 
-    <style name="search_suggestion_text" parent="side_menu_item_text">
-        <item name="android:textColor">@color/search_suggestion_text_color</item>
+    <style name="searchSuggestionText" parent="side_menu_item_text">
+        <item name="android:textColor">@color/light_gray_text</item>
+    </style>
+
+    <style name="pickPlaylistText" parent="side_menu_item_text">
+        <item name="android:textColor">@color/light_gray_text</item>
     </style>
 
     <style name="Animations" />

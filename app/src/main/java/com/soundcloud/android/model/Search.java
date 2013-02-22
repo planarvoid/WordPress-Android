@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.api.Endpoints;
@@ -20,6 +21,7 @@ public class Search {
     public static final int ALL = 0;
     public static final int SOUNDS = 1;
     public static final int USERS  = 2;
+    public static final int PLAYLISTS = 3;
 
     public int id;
     public int search_type;
@@ -47,6 +49,10 @@ public class Search {
         return new Search(query, SOUNDS);
     }
 
+    public static Search forPlaylists(String query) {
+        return new Search(query, PLAYLISTS);
+    }
+
     public static Search forUsers(String query) {
         return new Search(query, USERS);
     }
@@ -56,14 +62,21 @@ public class Search {
     }
 
     public Request request() {
+        String path;
         switch (search_type){
             case USERS:
-                return Request.to(Endpoints.USERS).with("q", query);
+                path = TempEndpoints.USER_SEARCH;
+                break;
             case SOUNDS:
-                return Request.to(Endpoints.TRACKS).with("q", query);
+                path = TempEndpoints.TRACK_SEARCH;
+                break;
+            case PLAYLISTS:
+                path = TempEndpoints.PLAYLIST_SEARCH;
+                break;
             default:
-                return Request.to("/search").with("q", query);
+                path = TempEndpoints.SEARCH;
         }
+        return Request.to(path).with("q", query);
     }
 
 

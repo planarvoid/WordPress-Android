@@ -2,9 +2,12 @@ package com.soundcloud.android.utils;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.track.PlaylistActivity;
 import com.soundcloud.android.adapter.PlayableAdapter;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayableHolder;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -16,6 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class PlayUtils {
+
+    // TODO, Playlists...
+
     private PlayUtils() {}
 
     public static void playTrack(Context c, PlayInfo info) {
@@ -23,18 +29,19 @@ public final class PlayUtils {
     }
 
     public static void playTrack(Context c, PlayInfo info, boolean goToPlayer, boolean commentMode) {
-        final Track t = info.getTrack();
+        final Track t = info.initialTrack;
         Intent intent = new Intent();
         if (CloudPlaybackService.getCurrentTrackId() != t.id) {
             // changing tracks
             intent.putExtra(CloudPlaybackService.PlayExtras.trackId, t.id);
+            CloudPlaybackService.playlistXfer = info.playables;
+
             if (info.uri != null) {
-                SoundCloudApplication.MODEL_MANAGER.cache(info.getTrack());
-                intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.getTrack().id)
+                SoundCloudApplication.MODEL_MANAGER.cache(info.initialTrack);
+                intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.initialTrack.id)
                         .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                         .setData(info.uri);
             } else {
-                CloudPlaybackService.playlistXfer = info.playables;
                 intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                         .putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true);
             }
@@ -55,9 +62,9 @@ public final class PlayUtils {
     public static Track getTrackFromIntent(Intent intent){
         if (intent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferCache,false)){
             final int position = intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition,-1);
-            final List<Playable> list = CloudPlaybackService.playlistXfer;
-            if (list != null && position > -1 && position < list.size()){
-                return list.get(position).getTrack();
+            final List<Track> list = CloudPlaybackService.playlistXfer;
+            if (list != null && position > -1 && position < list.size() && list.get(position).getPlayable() instanceof Track){
+                return (Track) list.get(position).getPlayable();
             }
         } else if (intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l) > 0) {
             return SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l));
@@ -68,26 +75,37 @@ public final class PlayUtils {
     }
 
     public static void playFromAdapter(Context c, PlayableAdapter adapter, List<? extends ScModel> data, int position) {
-        if (position > data.size() || !(data.get(position) instanceof Playable)) {
-            throw new AssertionError("Invalid item " + position);
+        if (position > data.size() || !(data.get(position) instanceof PlayableHolder)) {
+            throw new AssertionError("Invalid item " + position + ", must be a playable");
         }
 
-        PlayInfo info = new PlayInfo();
-        info.uri = adapter.getPlayableUri();
+        Playable playable = ((PlayableHolder) data.get(position)).getPlayable();
+        if (playable instanceof Track) {
+            PlayInfo info = new PlayInfo();
+            info.initialTrack = (Track) ((PlayableHolder) data.get(position)).getPlayable();
+            info.uri = adapter.getPlayableUri();
 
-        List<Playable> playables = new ArrayList<Playable>(data.size());
+            List<Track> tracks = new ArrayList<Track>(data.size());
 
-        int adjustedPosition = position;
-        for (int i = 0; i < data.size(); i++) {
-            if (data.get(i) instanceof Playable) {
-                playables.add((Playable) data.get(i));
-            } else if (i < position) {
-                adjustedPosition--;
+            // Required for mixed adapters (e.g. mix of users and tracks, we only want tracks)
+            int adjustedPosition = position;
+            for (int i = 0; i < data.size(); i++) {
+                if (data.get(i) instanceof PlayableHolder && ((PlayableHolder) data.get(i)).getPlayable() instanceof Track) {
+                    tracks.add((Track) ((PlayableHolder) data.get(i)).getPlayable());
+                } else if (i < position) {
+                    adjustedPosition--;
+                }
             }
-        }
 
-        info.position = adjustedPosition;
-        info.playables = playables;
-        playTrack(c, info);
+            info.position = adjustedPosition;
+            info.playables = tracks;
+
+            playTrack(c, info);
+
+        } else if (playable instanceof Playlist) {
+            PlaylistActivity.start(c, (Playlist) playable);
+        } else {
+            throw new AssertionError("Unexpected playable type");
+        }
     }
 }
