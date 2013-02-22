@@ -106,7 +106,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mAdapter.swapCursor(data);
         checkPlaylistSize();
-        if (mScrollToPos != -1){
+        if (mScrollToPos != -1 && mListView != null){
             smoothScrollTo(mScrollToPos);
             mScrollToPos = -1;
         }
@@ -188,6 +188,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     private void smoothScrollTo(int position) {
+
         final ListView refreshableView = mListView.getRefreshableView();
         final int adjustedPosition = position + refreshableView.getHeaderViewsCount();
         refreshableView.smoothScrollToPositionFromTop(
