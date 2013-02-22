@@ -16,6 +16,14 @@
         <url>http://soundcloud.com</url>
     </organization>
 
+    <properties>
+        <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
+        <keystore.alias>beta-key</keystore.alias>
+        <keystore.password />
+        <keystore.keypass />
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <build>
         <pluginManagement>
           <plugins>
@@ -105,14 +113,6 @@
             <url>http://maven.int.s-cloud.net/content/repositories/thirdparty_releases</url>
         </pluginRepository>
     </pluginRepositories>
-
-    <properties>
-      <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
-      <keystore.alias>beta-key</keystore.alias>
-      <keystore.password />
-      <keystore.keypass />
-      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
 
     <scm>
         <connection>scm:git:https://github.com/soundcloud/SoundCloud-Android.git</connection>
