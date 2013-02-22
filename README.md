@@ -42,7 +42,19 @@ the Maven project.
 
 ## Running tests
 
-### Unit
+### Robolectric tests on command line
+
+You can run all or individual unit tests using Maven. `cd` into the parent module, then run
+
+    $ mvn test -DfailIfNoTests=false
+
+to run all tests, or
+
+    $ mvn test -DfailIfNoTests=false -Dtest=FooTest,BarTest,BazTest#shouldHonk
+
+to run individual tests.
+
+### Robolectric tests in IDEA
 
 Change the default JUnit Run/Debug configuration to look like this:
 ![JUnit default run config][JUnit default run config]
