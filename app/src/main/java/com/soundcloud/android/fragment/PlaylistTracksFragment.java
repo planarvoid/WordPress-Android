@@ -27,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class PlaylistTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
@@ -41,6 +42,8 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     private PlaylistTracksAdapter mAdapter;
     private ScListView mListView;
     private EmptyListView mEmptyView;
+
+    private int mScrollToPos = -1;
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
@@ -103,6 +106,10 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mAdapter.swapCursor(data);
         checkPlaylistSize();
+        if (mScrollToPos != -1 && mListView != null){
+            smoothScrollTo(mScrollToPos);
+            mScrollToPos = -1;
+        }
     }
 
     private void checkPlaylistSize() {
@@ -170,5 +177,21 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
             setHeaderInfo();
         }
 
+    }
+
+    public void scrollToPosition(int position) {
+        if (mListView != null){
+            smoothScrollTo(position);
+        } else {
+           mScrollToPos = position;
+        }
+    }
+
+    private void smoothScrollTo(int position) {
+
+        final ListView refreshableView = mListView.getRefreshableView();
+        final int adjustedPosition = position + refreshableView.getHeaderViewsCount();
+        refreshableView.smoothScrollToPositionFromTop(
+                adjustedPosition, (int) (50 * getResources().getDisplayMetrics().density));
     }
 }

@@ -60,7 +60,6 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
         setContentView(R.layout.playlist_activity);
         // hold on to the playlist instance instead of the URI or id as they may change going from local > global
 
-
         mPlaylistBar = (PlayableBar) findViewById(R.id.playable_bar);
         mPlaylistBar.addTextShadows();
 
@@ -90,12 +89,17 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
     private void handleIntent(){
         final Playlist playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(getIntent().getData());
         if (playlist != null) {
-            if (mPlaylist != null && playlist != mPlaylist){
-                mPlaylist.stopObservingChanges(getContentResolver(),this);
+            final boolean changed = playlist != mPlaylist;
+            if (mPlaylist != null && changed) {
+                mPlaylist.stopObservingChanges(getContentResolver(), this);
             }
 
             mPlaylist = playlist;
-            refresh();
+            if (changed) refresh();
+            if (getIntent().getBooleanExtra(EXTRA_SCROLL_TO_PLAYING_TRACK, false)) {
+                mFragment.scrollToPosition(CloudPlaybackService.getPlaylistManager().getPosition());
+            }
+
         } else {
             Log.e(SoundCloudApplication.TAG, "Playlist data missing: " + getIntent().getDataString());
             finish();
