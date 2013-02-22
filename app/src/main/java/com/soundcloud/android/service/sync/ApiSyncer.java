@@ -556,7 +556,8 @@ public class ApiSyncer {
             is.close();
 
             is = validateResponse(mApi.put(r)).getEntity().getContent();
-            p = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is);
+            p = (Playlist) SoundCloudApplication.MODEL_MANAGER.cache(
+                            SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is), ScResource.CacheUpdateMode.FULL);
         }
 
         final Uri insertedUri = p.insert(mResolver);

@@ -17,7 +17,6 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.3.2</version>
 
                 <configuration>
                     <target>all</target>
@@ -25,7 +24,6 @@
                     <useHeaderArchives>false</useHeaderArchives>
                     <ndkBuildAdditionalCommandline>NDK_TOOLCHAIN=""</ndkBuildAdditionalCommandline>
                 </configuration>
-                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <id>build-ndk</id>
