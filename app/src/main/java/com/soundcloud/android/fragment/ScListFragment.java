@@ -81,7 +81,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private @Nullable CollectionTask mRefreshTask;
     private @Nullable LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
-    private boolean mIgnorePlaybackStatus, mKeepGoing, mPendingSync;
+    private boolean mIgnorePlaybackStatus, mKeepGoing, mPendingSync, mShouldListenForPlaylistChanges;
     private CollectionTask mAppendTask;
     protected String mNextHref;
 
@@ -123,10 +123,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             refreshSyncData();
         }
 
-        boolean shouldListenForPlaylistChanges = setupListAdapter();
-        if (shouldListenForPlaylistChanges) {
-            listenForPlaylistChanges();
-        }
+        mShouldListenForPlaylistChanges = setupListAdapter();
     }
 
     @Override
@@ -146,6 +143,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         generalIntentFilter.addAction(Actions.LOGGING_OUT);
         getActivity().registerReceiver(mGeneralIntentListener, generalIntentFilter);
 
+        if (mShouldListenForPlaylistChanges) {
+            listenForPlaylistChanges();
+        }
+
         final ScBaseAdapter listAdapter = getListAdapter();
         if (listAdapter instanceof PlayableAdapter) listAdapter.notifyDataSetChanged();
     }
@@ -155,6 +156,9 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         super.onStop();
         getActivity().unregisterReceiver(mPlaybackStatusListener);
         getActivity().unregisterReceiver(mGeneralIntentListener);
+        if (mShouldListenForPlaylistChanges && mPlaylistChangedReceiver != null) {
+            getActivity().unregisterReceiver(mPlaylistChangedReceiver);
+        }
         mIgnorePlaybackStatus = false;
     }
 
@@ -603,9 +607,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             if (mLocalCollection != null) {
                 mLocalCollection.stopObservingSelf();
             }
-        }
-        if (mPlaylistChangedReceiver != null) {
-            getActivity().unregisterReceiver(mPlaylistChangedReceiver);
         }
     }
 
