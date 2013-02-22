@@ -22,6 +22,7 @@
         <keystore.password />
         <keystore.keypass />
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <androidApiLevel>16</androidApiLevel>
     </properties>
 
     <build>
@@ -41,7 +42,7 @@
                 <artifactId>android-maven-plugin</artifactId>
                 <configuration>
                     <sdk>
-                        <platform>14</platform>
+                        <platform>${androidApiLevel}</platform>
                     </sdk>
                     <undeployBeforeDeploy>true</undeployBeforeDeploy>
                 </configuration>
