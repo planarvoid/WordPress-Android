@@ -92,9 +92,7 @@ public class PlayableBar extends IconLayout {
     }
 
     private void setupPrivateIndicator(Playable playable) {
-        if (playable.isPublic()) {
-            mPrivateIndicator.setVisibility(View.GONE);
-        } else {
+        if (playable.isPrivate()) {
             if (playable.shared_to_count <= 0) {
                 mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
                 mPrivateIndicator.setText(R.string.tracklist_item_shared_count_unavailable);
@@ -110,6 +108,8 @@ public class PlayableBar extends IconLayout {
                 mPrivateIndicator.setText(getContext().getString(R.string.tracklist_item_shared_with_x_people, playable.shared_to_count));
             }
             mPrivateIndicator.setVisibility(View.VISIBLE);
+        } else {
+            mPrivateIndicator.setVisibility(View.GONE);
         }
     }
 
