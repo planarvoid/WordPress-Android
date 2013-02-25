@@ -68,7 +68,7 @@ public class PlayerTrackDetails extends RelativeLayout {
         mRepostersRow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-            openInteractionActivity(Activity.Type.TRACK_REPOST);
+                openInteractionActivity(Activity.Type.TRACK_REPOST);
             }
         });
 
