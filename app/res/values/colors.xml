@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="scOrange">#CCe36711</color>
+    <color name="scOrange">#ff6600</color>
+    <color name="scDarkOrange">#CCe36711</color>
     <color name="scDarkGray">#CC101010</color>
 
     <color name="listTxtValue">#FF000000</color>
@@ -39,7 +40,7 @@
     <color name="recordListItemBackground">#ff999999</color>
 
     <color name="btnDarkFlat">#242424</color>
-    <color name="btnOrangePressedStart">#ff6600</color>
+    <color name="btnOrangePressedStart">@color/scOrange</color>
     <color name="btnOrangePressedEnd">#ff3300</color>
     <color name="btnTransparentSelectedStroke">#80ffffff</color>
     <color name="recButtonBarSeparator">#ff000000</color>
@@ -56,7 +57,7 @@
     <color name="cloudProgressSecondaryEnd">#222222</color>
 
     <color name="cloudProgressStart">#ff3300</color>
-    <color name="cloudProgressCenter">#ff6600</color>
+    <color name="cloudProgressCenter">@color/scOrange</color>
     <color name="cloudProgressEnd">#ff3300</color>
 
     <color name="cloudProgressLandscapeBackgroundStart">#FF444444</color>
@@ -93,7 +94,7 @@
 
     <color name="search_item_unselected_color">#999999</color>
     <color name="search_item_selected_color">#ffffff</color>
-    <color name="search_item_pressed_color">#ff6600</color>
+    <color name="search_item_pressed_color">@color/scOrange</color>
 
     <color name="pressed_next">#CCff6600</color>
 

@@ -11,7 +11,7 @@
             android:layout_height="wrap_content"/>
 
     <View android:id="@+id/playlist_actionbar_separator"
-          android:background="@color/scOrange"
+          android:background="@color/scDarkOrange"
           android:layout_below="@id/playable_bar"
           android:layout_height="2dp"
           android:layout_width="match_parent"/>
