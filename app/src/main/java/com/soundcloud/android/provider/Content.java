@@ -135,6 +135,10 @@ public enum Content  {
     ANDROID_SEARCH_REFRESH(SearchManager.SUGGEST_URI_PATH_SHORTCUT, null, 10002, null, -1, null),
     ANDROID_SEARCH_REFRESH_PATH(SearchManager.SUGGEST_URI_PATH_SHORTCUT + "/*", null, 10003, null, -1, null),
 
+    // play tracking / eventlogger
+    TRACKING_EVENTS("tracking_events", null, 11000, null, -1, Table.PLAY_TRACKING),
+    //TRACKING_EVENT("tracking_events/#", null, 11001, null, -1, Table.PLAY_TRACKING),
+
     UNKNOWN(null, null, -1, null, -1, null);
 
 

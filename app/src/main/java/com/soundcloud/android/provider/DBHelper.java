@@ -414,6 +414,21 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     /**
+     * Play duration tracking
+     */
+    static final String DATABASE_CREATE_PLAY_TRACKING = "(" +
+            TrackingEvents._ID + " INTEGER PRIMARY KEY," +
+            TrackingEvents.TIMESTAMP + " INTEGER NOT NULL," +
+            TrackingEvents.ACTION + " TEXT NOT NULL," +
+            TrackingEvents.SOUND_URN + " TEXT NOT NULL," +
+            TrackingEvents.USER_URN + " TEXT NOT NULL," + // soundcloud:users:123 for logged in, anonymous:<UUID> for logged out
+            TrackingEvents.SOUND_DURATION + " INTEGER NOT NULL," + // this it the total sound length in millis
+            TrackingEvents.ORIGIN_URL + " TEXT NOT NULL," + // figure out what this means in our app
+            TrackingEvents.LEVEL + " TEXT NOT NULL," +
+            "UNIQUE (" + TrackingEvents.TIMESTAMP + ", " + TrackingEvents.ACTION + ") ON CONFLICT IGNORE" +
+            ")";
+
+    /**
      * {@link DBHelper.Suggestions}
      */
     static final String DATABASE_CREATE_SUGGESTIONS = "(" +
@@ -674,6 +689,19 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String TRACK_ID = "track_id";
         public static final String POSITION = "position";
         public static final String USER_ID = "user_id";
+    }
+
+    /**
+     * {@link DBHelper#DATABASE_CREATE_PLAY_TRACKING}
+     */
+    public interface TrackingEvents extends BaseColumns {
+        final String TIMESTAMP = "timestamp";
+        final String ACTION = "action";
+        final String SOUND_URN = "sound_urn";
+        final String USER_URN = "user_urn";
+        final String SOUND_DURATION = "sound_duration";
+        final String ORIGIN_URL = "origin_url";
+        final String LEVEL = "level";
     }
 
     public static class SoundView extends ResourceTable implements BaseColumns  {

@@ -10,6 +10,7 @@ import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
+import org.apache.http.client.utils.URIUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
@@ -17,6 +18,7 @@ import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -340,6 +342,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_SHORTCUTS:
             case ME_CONNECTIONS:
+            case TRACKING_EVENTS:
                 qb.setTables(content.table.name);
                 break;
 
@@ -472,6 +475,11 @@ public class ScContentProvider extends ContentProvider {
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 return result;
 
+            case TRACKING_EVENTS:
+                id = content.table.insertOrReplace(db, values);
+                result = ContentUris.withAppendedId(uri, id);
+                return result;
+
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -501,22 +509,20 @@ public class ScContentProvider extends ContentProvider {
             case ME_CONNECTIONS:
             case PLAYLISTS:
             case ME_ALL_ACTIVITIES:
+            case TRACKING_EVENTS:
                 break;
 
             case TRACK:
-                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                break;
             case USER:
-                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                break;
-            case ME_ACTIVITIES:
-            case ME_SOUND_STREAM:
-                where = DBHelper.Activities.CONTENT_ID+"= ?";
-                whereArgs = new String[] {String.valueOf(content.id) };
-                break;
             case RECORDING:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 break;
+
+            case ME_ACTIVITIES:
+            case ME_SOUND_STREAM:
+            where = DBHelper.Activities.CONTENT_ID+"= ?";
+            whereArgs = new String[] {String.valueOf(content.id) };
+            break;
 
             case ME_SOUNDS:
                 // add userId
