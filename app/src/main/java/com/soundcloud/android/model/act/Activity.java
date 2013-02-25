@@ -301,4 +301,9 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     public int describeContents() {
         return 0;
     }
+
+    @Override
+    public boolean isIncomplete() {
+        return false;
+    }
 }

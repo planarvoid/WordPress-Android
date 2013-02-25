@@ -55,4 +55,9 @@ public class PlaylistActivity extends Activity {
     public ScResource getRefreshableResource() {
         return null; // TODO
     }
+
+    @Override
+    public boolean isIncomplete() {
+        return playlist == null || playlist.isIncomplete();
+    }
 }
