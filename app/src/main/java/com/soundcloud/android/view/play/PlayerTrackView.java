@@ -89,7 +89,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         mPlayer = player;
 
         mTrackInfoBar = (PlayableBar) findViewById(R.id.playable_bar);
-        mTrackInfoBar.setEnabled(false);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
 
         mAddToSet = findViewById(R.id.btn_addToSet);
@@ -115,7 +114,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
         mAvatar = (ImageView) findViewById(R.id.icon);
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
-        findViewById(R.id.track_info_clicker).setOnClickListener(new View.OnClickListener() {
+        mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 UserBrowser.startFromPlayable(getContext(),mTrack);
             }

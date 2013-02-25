@@ -3,22 +3,11 @@
        android:layout_width="match_parent"
        android:layout_height="match_parent">
 
-    <RelativeLayout android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/playerControlBackground">
-
         <com.soundcloud.android.view.adapter.PlayableBar
                 android:id="@+id/playable_bar"
+                android:background="@color/playerControlBackground"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
-
-        <View android:id="@+id/track_info_clicker"
-              android:layout_width="match_parent"
-              android:layout_height="0dp"
-              android:layout_alignTop="@id/playable_bar"
-              android:layout_alignBottom="@id/playable_bar"/>
-
-    </RelativeLayout>
 
     <View android:layout_width="fill_parent"
           android:layout_height="2dp"
