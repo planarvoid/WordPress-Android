@@ -99,9 +99,7 @@ public class PlayableActionButtonsController {
     }
 
     String labelForCount(int count) {
-        if (count < 0) {
-            return "\u2014";
-        } else if (count == 0) {
+        if (count <= 0) {
             return "";
         } else if (count >= 10000) {
             return "9k+"; // top out at 9k or text gets too long again
