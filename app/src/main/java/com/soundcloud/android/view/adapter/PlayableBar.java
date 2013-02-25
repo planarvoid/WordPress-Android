@@ -83,7 +83,7 @@ public class PlayableBar extends IconLayout {
         mCreatedAt.setText(p.getTimeSinceCreated(context));
 
         if (mStatsView != null) {
-            mStatsView.updateWithPlayable(playable, shouldShowFullStats());
+            mStatsView.updateWithPlayable(playable, isListViewRow());
         }
 
         if (mPrivateIndicator != null) {
@@ -113,7 +113,7 @@ public class PlayableBar extends IconLayout {
         }
     }
 
-    protected boolean shouldShowFullStats() {
+    protected boolean isListViewRow() {
         return false;
     }
 
@@ -141,6 +141,14 @@ public class PlayableBar extends IconLayout {
     @Override
     protected int getDefaultArtworkResId() {
         return R.drawable.artwork_badge;
+    }
+
+    @Override
+    protected void dispatchSetPressed(boolean pressed) {
+        // if not in a list, we dont want pressed state to go to textfields. this is the only way I have found
+        if (isListViewRow()){
+            super.dispatchSetPressed(pressed);
+        }
     }
 
     @Override

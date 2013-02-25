@@ -57,7 +57,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
     }
 
     @Override
-    protected boolean shouldShowFullStats() {
+    protected boolean isListViewRow() {
         return true;
     }
 
