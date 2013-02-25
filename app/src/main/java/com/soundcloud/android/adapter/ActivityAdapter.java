@@ -144,7 +144,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
                     // todo, scroll to specific repost
                     mContext.startActivity(new Intent(mContext, TrackInteractionActivity.class)
                             .putExtra(Track.EXTRA, getItem(position).getPlayable())
-                            .putExtra(EXTRA_INTERACTION_TYPE, type.type));
+                            .putExtra(EXTRA_INTERACTION_TYPE, type));
                 } else {
                     PlayUtils.playFromAdapter(mContext, this, mData, position);
                 }
@@ -155,7 +155,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
                     // todo, scroll to specific repost
                     mContext.startActivity(new Intent(mContext, PlaylistInteractionActivity.class)
                             .putExtra(Playlist.EXTRA, getItem(position).getPlayable())
-                            .putExtra(EXTRA_INTERACTION_TYPE, type.type));
+                            .putExtra(EXTRA_INTERACTION_TYPE, type));
                 } else {
                     PlayUtils.playFromAdapter(mContext, this, mData, position);
                 }
