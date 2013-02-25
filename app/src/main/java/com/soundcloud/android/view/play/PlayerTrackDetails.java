@@ -54,11 +54,7 @@ public class PlayerTrackDetails extends RelativeLayout {
         mLikersRow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mTrackId > 0) {
-                    getContext().startActivity(new Intent(getContext(), TrackInteractionActivity.class)
-                        .putExtra(Track.EXTRA_ID, mTrackId)
-                        .putExtra(EXTRA_INTERACTION_TYPE, Activity.Type.TRACK_LIKE));
-                }
+                openInteractionActivity(Activity.Type.TRACK_LIKE);
             }
         });
 
@@ -72,12 +68,7 @@ public class PlayerTrackDetails extends RelativeLayout {
         mRepostersRow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mTrackId > 0) {
-                    getContext().startActivity(
-                        new Intent(getContext(), TrackInteractionActivity.class)
-                            .putExtra(EXTRA_INTERACTION_TYPE, Activity.Type.TRACK_REPOST)
-                            .putExtra(Track.EXTRA_ID, mTrackId));
-                }
+            openInteractionActivity(Activity.Type.TRACK_REPOST);
             }
         });
 
@@ -91,11 +82,7 @@ public class PlayerTrackDetails extends RelativeLayout {
         mCommentersRow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mTrackId > 0) {
-                    getContext().startActivity(new Intent(getContext(), TrackInteractionActivity.class)
-                        .putExtra(Track.EXTRA_ID, mTrackId)
-                        .putExtra(EXTRA_INTERACTION_TYPE, Activity.Type.COMMENT));
-                }
+                openInteractionActivity(Activity.Type.COMMENT);
             }
         });
 
@@ -196,6 +183,12 @@ public class PlayerTrackDetails extends RelativeLayout {
                 mTrackTags.addView(txt, flowLP);
             }
         }
+    }
+
+    private void openInteractionActivity(Activity.Type interactionType) {
+        getContext().startActivity(new Intent(getContext(), TrackInteractionActivity.class)
+                .putExtra(Track.EXTRA_ID, mTrackId)
+                .putExtra(EXTRA_INTERACTION_TYPE, interactionType));
     }
 
 
