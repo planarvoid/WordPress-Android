@@ -117,15 +117,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
         findViewById(R.id.track_info_clicker).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (mTrack != null && mTrack.getUserId() >= 0) {
-                    if (mTrack.user != null) {
-                        SoundCloudApplication.MODEL_MANAGER.cache(mTrack.user, ScResource.CacheUpdateMode.NONE);
-                    }
-
-                    getContext().startActivity(
-                        new Intent(getContext(), UserBrowser.class)
-                            .putExtra("userId", mTrack.getUserId()));
-                }
+                UserBrowser.startFromPlayable(getContext(),mTrack);
             }
         });
 

@@ -13,6 +13,7 @@ import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.fragment.UserDetailsFragment;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -80,6 +81,20 @@ public class UserBrowser extends ScActivity implements
     private boolean mDelayContent;
 
     private UserDetailsFragment mUserDetailsFragment;
+
+    public static boolean startFromPlayable(Context context, Playable playable) {
+        if (playable != null && playable.getUserId() >= 0) {
+            if (playable.user != null) {
+                SoundCloudApplication.MODEL_MANAGER.cache(playable.user, ScResource.CacheUpdateMode.NONE);
+            }
+
+            context.startActivity(
+                    new Intent(context, UserBrowser.class)
+                            .putExtra("userId", playable.getUserId()));
+            return true;
+        }
+        return false;
+    }
 
     @SuppressWarnings("unchecked")
     @Override

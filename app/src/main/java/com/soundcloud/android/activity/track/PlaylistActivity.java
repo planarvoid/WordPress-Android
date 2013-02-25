@@ -4,6 +4,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.fragment.PlaylistTracksFragment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
@@ -18,6 +19,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 public class PlaylistActivity extends ScActivity implements Playlist.OnChangeListener {
 
@@ -62,6 +64,12 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
 
         mPlaylistBar = (PlayableBar) findViewById(R.id.playable_bar);
         mPlaylistBar.addTextShadows();
+        mPlaylistBar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                UserBrowser.startFromPlayable(PlaylistActivity.this, mPlaylist);
+            }
+        });
 
         mActionButtons = new PlayableActionButtonsController(mPlaylistBar);
 
