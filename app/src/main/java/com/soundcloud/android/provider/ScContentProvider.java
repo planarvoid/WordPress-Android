@@ -1046,11 +1046,13 @@ public class ScContentProvider extends ContentProvider {
                 table.name + ".*",
                 "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                         + " WHERE " + table.id + " = " + DBHelper.CollectionItems.ITEM_ID
+                        + " AND " + table.type + " = " + DBHelper.CollectionItems.RESOURCE_TYPE
                         + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + LIKE
                         + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.SoundView.USER_LIKE,
 
                 "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                         + " WHERE " + table.id + " = " + DBHelper.CollectionItems.ITEM_ID
+                        + " AND " + table.type + " = " + DBHelper.CollectionItems.RESOURCE_TYPE
                         + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + CollectionItemTypes.REPOST
                         + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.SoundView.USER_REPOST
         };
