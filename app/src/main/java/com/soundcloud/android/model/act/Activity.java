@@ -1,31 +1,27 @@
 
 package com.soundcloud.android.model.act;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Creation;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.PlayableHolder;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Refreshable;
-import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SharingNote;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.utils.ScTextUtils;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayableHolder;
+import com.soundcloud.android.model.Refreshable;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SharingNote;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -261,7 +257,7 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
             }
         }
 
-        public static Type fromString(String type) {
+        public static Type fromString(@NotNull String type) {
             for (Type t : values()) {
                 if (t.type.equals(type)) {
                     return t;

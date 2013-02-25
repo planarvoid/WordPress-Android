@@ -25,6 +25,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import static com.soundcloud.android.activity.track.PlayableInteractionActivity.EXTRA_INTERACTION_TYPE;
+
 public class PlayerTrackDetails extends RelativeLayout {
     private final ViewGroup mTrackTags;
     private final TableRow mLikersRow,     mRepostersRow,     mCommentersRow;
@@ -53,10 +55,9 @@ public class PlayerTrackDetails extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 if (mTrackId > 0) {
-                    Intent intent = new Intent(getContext(), TrackInteractionActivity.class);
-                    intent.putExtra(Track.EXTRA_ID, mTrackId);
-                    intent.putExtra(TrackInteractionActivity.EXTRA_INTERACTION_TYPE, Activity.Type.TRACK_LIKE.type);
-                    getContext().startActivity(intent);
+                    getContext().startActivity(new Intent(getContext(), TrackInteractionActivity.class)
+                        .putExtra(Track.EXTRA_ID, mTrackId)
+                        .putExtra(EXTRA_INTERACTION_TYPE, Activity.Type.TRACK_LIKE));
                 }
             }
         });
@@ -73,7 +74,9 @@ public class PlayerTrackDetails extends RelativeLayout {
             public void onClick(View v) {
                 if (mTrackId > 0) {
                     getContext().startActivity(
-                        new Intent(getContext(), TrackInteractionActivity.class).putExtra(Track.EXTRA_ID, mTrackId));
+                        new Intent(getContext(), TrackInteractionActivity.class)
+                            .putExtra(EXTRA_INTERACTION_TYPE, Activity.Type.TRACK_REPOST)
+                            .putExtra(Track.EXTRA_ID, mTrackId));
                 }
             }
         });
@@ -89,10 +92,9 @@ public class PlayerTrackDetails extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 if (mTrackId > 0) {
-                    Intent intent = new Intent(getContext(), TrackInteractionActivity.class);
-                    intent.putExtra(Track.EXTRA_ID, mTrackId);
-                    intent.putExtra(TrackInteractionActivity.EXTRA_INTERACTION_TYPE, Activity.Type.COMMENT.type);
-                    getContext().startActivity(intent);
+                    getContext().startActivity(new Intent(getContext(), TrackInteractionActivity.class)
+                        .putExtra(Track.EXTRA_ID, mTrackId)
+                        .putExtra(EXTRA_INTERACTION_TYPE, Activity.Type.COMMENT));
                 }
             }
         });

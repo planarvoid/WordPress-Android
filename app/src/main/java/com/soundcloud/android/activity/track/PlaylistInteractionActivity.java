@@ -16,8 +16,8 @@ import android.view.View;
 
 public class PlaylistInteractionActivity extends PlayableInteractionActivity {
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
         // TODO: do we need different titles for playlists?
         if (mInteraction == Activity.Type.PLAYLIST_LIKE) {
             setTitle(R.string.list_header_track_likers);

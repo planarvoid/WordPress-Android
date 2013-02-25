@@ -15,8 +15,8 @@ import android.view.View;
 
 public class TrackInteractionActivity extends PlayableInteractionActivity {
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
 
         switch (mInteraction) {
             case TRACK_LIKE:

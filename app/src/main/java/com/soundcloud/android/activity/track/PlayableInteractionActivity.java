@@ -22,17 +22,21 @@ public abstract class PlayableInteractionActivity extends ScActivity {
     protected PlayableBar mPlayableInfoBar;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
         setContentView(R.layout.track_info_collection);
 
-        mInteraction = Activity.Type.fromString(getIntent().getStringExtra(EXTRA_INTERACTION_TYPE));
+        if (!getIntent().hasExtra(EXTRA_INTERACTION_TYPE)) {
+            throw new IllegalArgumentException("need to pass in EXTRA_INTERACTION_TYPE");
+        }
+
+        mInteraction = (Activity.Type) getIntent().getSerializableExtra(EXTRA_INTERACTION_TYPE);
         mPlayable = getPlayableFromIntent(getIntent());
 
         mPlayableInfoBar = ((PlayableBar) findViewById(R.id.playable_bar));
         mPlayableInfoBar.display(mPlayable);
 
-        if (savedInstanceState == null) {
+        if (bundle == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.listHolder, ScListFragment.newInstance(getContentUri())).commit();
         }
