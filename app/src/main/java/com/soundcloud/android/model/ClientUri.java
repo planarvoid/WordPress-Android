@@ -79,7 +79,7 @@ public class ClientUri {
     }
 
     public static Uri forTrack(long id) {
-        return Uri.parse("soundcloud:tracks:"+id);
+        return Uri.parse("soundcloud:sounds:"+id);
     }
 
     public static Uri forUser(long id) {
