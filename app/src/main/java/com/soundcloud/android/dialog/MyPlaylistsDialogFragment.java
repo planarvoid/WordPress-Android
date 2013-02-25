@@ -21,9 +21,10 @@ import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -31,12 +32,13 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
+public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String KEY_TRACK_ID = "TRACK_ID";
     public static final String KEY_TRACK_TITLE = "TRACK_TITLE";
 
     public static final String COL_ALREADY_ADDED = "ALREADY_ADDED";
+    private MyPlaylistsAdapter mAdapter;
 
     public static MyPlaylistsDialogFragment from(Track track) {
 
@@ -53,14 +55,16 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        mAdapter = new MyPlaylistsAdapter(getActivity(), getArguments().getLong(KEY_TRACK_ID));
 
-        final BaseAdapter adapter = new MyPlaylistsAdapter(getActivity(), getArguments().getLong(KEY_TRACK_ID));
+
         final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_add_to_set, null);
-
-        ((ListView) dialogView.findViewById(android.R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        final ListView listView = (ListView) dialogView.findViewById(android.R.id.list);
+        listView.setEmptyView(dialogView.findViewById(android.R.id.empty));
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final long playlistId = adapter.getItemId(position);
+                final long playlistId = mAdapter.getItemId(position);
 
                 if (playlistId == -1) {
                     CreateNewSetDialogFragment.from(getArguments().getLong(KEY_TRACK_ID)).show(getFragmentManager(), "create_new_set_dialog");
@@ -72,7 +76,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
         });
 
         ((TextView) dialogView.findViewById(android.R.id.title)).setText(getString(R.string.add_track_to_set));
-        ((ListView) dialogView.findViewById(android.R.id.list)).setAdapter(adapter);
+        listView.setAdapter(mAdapter);
 
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
@@ -81,6 +85,8 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
             }
         });
         builder.setView(dialogView);
+
+        getSherlockActivity().getSupportLoaderManager().initLoader(0x01, getArguments(), this).forceLoad();
 
         return builder.create();
 
@@ -120,27 +126,68 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
         }, 500);
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new AsyncTaskLoader<Cursor>(getActivity()) {
+            @Override
+            public Cursor loadInBackground() {
+
+                final String existsCol = "EXISTS (SELECT 1 FROM " + Table.PLAYLIST_TRACKS
+                        + " WHERE " + DBHelper.PlaylistTracks.TRACK_ID + " = " + getArguments().getLong(KEY_TRACK_ID) + " AND " +
+                        DBHelper.PlaylistTracks.PLAYLIST_ID + " = " + DBHelper.PlaylistTracksView._ID + ") as " + COL_ALREADY_ADDED;
+
+                Cursor dbCursor = getContext().getContentResolver().query(
+                        Content.ME_PLAYLISTS.uri,
+                        new String[]{DBHelper.PlaylistTracksView._ID,
+                                DBHelper.PlaylistTracksView.TITLE,
+                                DBHelper.PlaylistTracksView.TRACK_COUNT,
+                                existsCol},
+                        null, null, null);
+
+                MatrixCursor extras = new MatrixCursor(new String[]{DBHelper.PlaylistTracksView._ID,
+                        DBHelper.PlaylistTracksView.TITLE, DBHelper.PlaylistTracksView.TRACK_COUNT, COL_ALREADY_ADDED});
+
+                extras.addRow(new Object[]{-1l, getContext().getString(R.string.create_new_set), -1, 0});
+
+                return new MergeCursor(new Cursor[]{extras, dbCursor});
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mAdapter.setCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mAdapter.setCursor(null);
+    }
+
     private static class MyPlaylistsAdapter extends BaseAdapter {
         private Context mContext;
         private Cursor mCursor;
 
         public MyPlaylistsAdapter(Context c, long trackId) {
             mContext = c;
-            mCursor = getCursor(trackId);
         }
 
         @Override
         public int getCount() {
-            return mCursor.getCount();
+            return mCursor == null ? 0 : mCursor.getCount();
         }
 
         public Object getItem(int position) {
-            mCursor.moveToPosition(position);
-            return mCursor;
+            if (mCursor == null){
+                return null;
+            } else {
+                mCursor.moveToPosition(position);
+                return mCursor;
+            }
         }
 
         public long getItemId(int position) {
-            if (mCursor.moveToPosition(position)) {
+            if (mCursor != null && mCursor.moveToPosition(position)) {
                 return mCursor.getLong(mCursor.getColumnIndex(DBHelper.PlaylistTracksView._ID));
             } else {
                 return 0;
@@ -149,7 +196,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
 
         @Override
         public boolean isEnabled(int position) {
-            if (mCursor.moveToPosition(position)) {
+            if (mCursor != null && mCursor.moveToPosition(position)) {
                 return mCursor.getInt(mCursor.getColumnIndex(COL_ALREADY_ADDED)) != 1;
             } else {
                 return false;
@@ -189,25 +236,12 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment {
             return convertView;
         }
 
-        private Cursor getCursor(long trackId) {
-            final String existsCol = "EXISTS (SELECT 1 FROM " + Table.PLAYLIST_TRACKS
-                    + " WHERE " + DBHelper.PlaylistTracks.TRACK_ID + " = " + trackId + " AND " +
-                    DBHelper.PlaylistTracks.PLAYLIST_ID + " = " + DBHelper.PlaylistTracksView._ID + ") as " + COL_ALREADY_ADDED;
-
-            Cursor dbCursor = mContext.getContentResolver().query(
-                    Content.ME_PLAYLISTS.uri,
-                    new String[]{DBHelper.PlaylistTracksView._ID,
-                            DBHelper.PlaylistTracksView.TITLE,
-                            DBHelper.PlaylistTracksView.TRACK_COUNT,
-                            existsCol},
-                    null, null, null);
-
-            MatrixCursor extras = new MatrixCursor(new String[]{DBHelper.PlaylistTracksView._ID,
-                    DBHelper.PlaylistTracksView.TITLE, DBHelper.PlaylistTracksView.TRACK_COUNT, COL_ALREADY_ADDED});
-
-            extras.addRow(new Object[]{-1l, mContext.getString(R.string.create_new_set), -1, 0});
-
-            return new MergeCursor(new Cursor[]{extras, dbCursor});
+        public void setCursor(Cursor data) {
+            mCursor = data;
+            notifyDataSetChanged();
         }
     }
+
+
+
 }
