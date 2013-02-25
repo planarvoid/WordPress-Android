@@ -43,6 +43,11 @@ public class TestHelper {
         return getObjectMapper().readValue(is, klazz);
     }
 
+    public static <T> T readJson(Class<T> modelClass, Class<?> lookupClass, String file) throws IOException {
+        InputStream is = lookupClass.getResourceAsStream(file);
+        expect(is).not.toBeNull();
+        return getObjectMapper().readValue(is, modelClass);
+    }
 
     public static void addPendingHttpResponse(Class klazz, String... resources) throws IOException {
         for (String r : resources) {
