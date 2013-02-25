@@ -107,7 +107,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         mAdapter.swapCursor(data);
         checkPlaylistSize();
         if (mScrollToPos != -1 && mListView != null){
-            smoothScrollTo(mScrollToPos);
+            scrollToPosition(mScrollToPos);
             mScrollToPos = -1;
         }
     }
@@ -181,17 +181,15 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     public void scrollToPosition(int position) {
         if (mListView != null){
-            smoothScrollTo(position);
+            final ListView refreshableView = mListView.getRefreshableView();
+            final int adjustedPosition = position + refreshableView.getHeaderViewsCount();
+
+            refreshableView.setSelectionFromTop(
+                    adjustedPosition, (int) (50 * getResources().getDisplayMetrics().density));
+
         } else {
            mScrollToPos = position;
         }
     }
 
-    private void smoothScrollTo(int position) {
-
-        final ListView refreshableView = mListView.getRefreshableView();
-        final int adjustedPosition = position + refreshableView.getHeaderViewsCount();
-        refreshableView.smoothScrollToPositionFromTop(
-                adjustedPosition, (int) (50 * getResources().getDisplayMetrics().density));
-    }
 }
