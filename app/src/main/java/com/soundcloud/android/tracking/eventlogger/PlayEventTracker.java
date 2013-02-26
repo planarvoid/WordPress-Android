@@ -81,12 +81,17 @@ public class PlayEventTracker {
 
         db.beginTransaction();
         Cursor cursor = db.query(EVENTS_TABLE, null, null, null, null, null, null);
-        if (cursor != null) {
+        if (cursor != null && cursor.getCount() > 0) {
             trackingApi.pushToRemote(cursor);
-            cursor.close();
-            db.delete(EVENTS_TABLE, null, null);
-        }
 
+            final int deleted = db.delete(EVENTS_TABLE, "1", null);
+            if (deleted <= 0) {
+                Log.w(TAG, "error deleting events");
+            }
+        }
+        if (cursor != null) cursor.close();
+
+        db.setTransactionSuccessful();
         db.endTransaction();
     }
 
