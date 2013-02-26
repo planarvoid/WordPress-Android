@@ -1,6 +1,5 @@
 package com.soundcloud.android.tracking.eventlogger;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
@@ -9,19 +8,15 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
 
 import java.util.UUID;
 
 public class PlayEventTracker {
 
     private ContentResolver resolver;
-    private PlayEventTrackingApi mApi;
 
-    public PlayEventTracker(ContentResolver resolver, PlayEventTrackingApi api) {
+    public PlayEventTracker(ContentResolver resolver) {
         this.resolver = resolver;
-        mApi = api;
     }
 
     public void trackEvent(final @Nullable Track track, final Action action, final long userId, final String originUrl,
@@ -30,14 +25,6 @@ public class PlayEventTracker {
             ContentValues values = buildContentValues(track, action.toApiName(), userId, originUrl, level);
             resolver.insert(Content.TRACKING_EVENTS.uri, values);
         }
-    }
-
-    public void pushTrackingData() {
-        Cursor cursor = resolver.query(Content.TRACKING_EVENTS.uri, null, null, null, null);
-        mApi.pushToRemote(cursor);
-        cursor.close();
-
-        resolver.delete(Content.TRACKING_EVENTS.uri, null, null);
     }
 
     private ContentValues buildContentValues(final Track track, final String action, final long userId,
