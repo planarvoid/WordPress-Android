@@ -73,7 +73,7 @@ public class PlayEventTracker {
     }
 
     private boolean flushPlaybackTrackingEvents() {
-        Log.d(TAG, "flushPlaybackTrackingEvents");
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "flushPlaybackTrackingEvents");
 
         if (!IOUtils.isConnected(mContext)) {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "not connected, skipping flush");
@@ -100,7 +100,7 @@ public class PlayEventTracker {
                 if (deleted != submitted.length) {
                     Log.w(TAG, "error deleting events (deleted="+deleted+")");
                 } else {
-                    Log.d(TAG, "submitted "+deleted+ " events");
+                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "submitted "+deleted+ " events");
                 }
             }
         }
