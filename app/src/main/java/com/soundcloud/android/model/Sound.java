@@ -298,4 +298,9 @@ public abstract class Sound extends ScResource implements Playable, Refreshable,
     }
 
     public abstract int getTypeId();
+
+    @Override
+    public boolean isIncomplete() {
+        return user == null || user.isIncomplete();
+    }
 }

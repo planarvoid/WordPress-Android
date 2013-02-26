@@ -38,4 +38,9 @@ public class Friend extends ScResource implements Refreshable {
     public boolean isStale() {
         return user.isStale();
     }
+
+    @Override
+    public boolean isIncomplete() {
+        return user.isIncomplete();
+    }
 }
