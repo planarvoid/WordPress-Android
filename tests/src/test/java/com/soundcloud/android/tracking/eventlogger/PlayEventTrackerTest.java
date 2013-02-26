@@ -27,7 +27,6 @@ public class PlayEventTrackerTest {
 
     private static Track currentTrack, nextTrack;
 
-    private ContentResolver resolver;
     private CloudPlaybackService service;
 
     @BeforeClass
@@ -40,9 +39,6 @@ public class PlayEventTrackerTest {
 
     @Before
     public void setup() {
-        resolver = DefaultTestRunner.application.getContentResolver();
-        resolver.delete(Content.TRACKING_EVENTS.uri, null, null);
-
         service = new CloudPlaybackService();
         service.onCreate();
     }

@@ -35,8 +35,6 @@ public enum Table {
     SUGGESTIONS("Suggestions", false, DBHelper.DATABASE_CREATE_SUGGESTIONS, DBHelper.Suggestions.ALL_FIELDS),
     CONNECTIONS("Connections", false, DBHelper.DATABASE_CREATE_CONNECTIONS),
 
-    PLAY_TRACKING("PlayTracking", false, DBHelper.DATABASE_CREATE_PLAY_TRACKING),
-
     // views
     SOUND_VIEW("SoundView", true, DBHelper.DATABASE_CREATE_SOUND_VIEW),
     ACTIVITY_VIEW("ActivityView", true, DBHelper.DATABASE_CREATE_ACTIVITY_VIEW),

@@ -187,7 +187,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mPlayQueueManager = new PlayQueueManager(this, SoundCloudApplication.getUserId());
         mAssociationManager = new AssociationManager(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        mPlayEventTracker = new PlayEventTracker(getContentResolver());
+        mPlayEventTracker = new PlayEventTracker(this);
 
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(PLAY_ACTION);
@@ -233,6 +233,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mPlayerHandler.removeCallbacksAndMessages(null);
         mPlayQueueManager.onDestroy();
+        mPlayEventTracker.stop();
 
         mFocus.abandonMusicFocus(false);
         unregisterReceiver(mIntentReceiver);

@@ -1,7 +1,6 @@
 package com.soundcloud.android.tracking.eventlogger;
 
 import com.integralblue.httpresponsecache.compat.Charsets;
-import com.soundcloud.android.provider.DBHelper;
 
 import android.database.Cursor;
 import android.util.Log;
@@ -10,6 +9,8 @@ import javax.net.ssl.HttpsURLConnection;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
+
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.*;
 
 public class PlayEventTrackingApi {
 
@@ -50,21 +51,20 @@ public class PlayEventTrackingApi {
 
     private String buildUrl(Cursor trackingData) throws UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder(ENDPOINT);
-        sb.append("?client_id=" + mClientId);
-        long timestamp = trackingData.getLong(trackingData.getColumnIndex(DBHelper.TrackingEvents.TIMESTAMP));
-        sb.append("&ts=" + timestamp);
-        String action = trackingData.getString(trackingData.getColumnIndex(DBHelper.TrackingEvents.ACTION));
-        sb.append("&action=" + action);
-        String userUrn = trackingData.getString(trackingData.getColumnIndex(DBHelper.TrackingEvents.USER_URN));
-        sb.append("&user=" + URLEncoder.encode(userUrn, Charsets.UTF_8.name()));
-        String soundUrn = trackingData.getString(trackingData.getColumnIndex(DBHelper.TrackingEvents.SOUND_URN));
-        sb.append("&sound=" + URLEncoder.encode(soundUrn, Charsets.UTF_8.name()));
-        long soundDuration = trackingData.getLong(trackingData.getColumnIndex(DBHelper.TrackingEvents.SOUND_DURATION));
-        sb.append("&duration=" + soundDuration);
+        sb.append("?client_id=").append(mClientId);
+        long timestamp = trackingData.getLong(trackingData.getColumnIndex(TIMESTAMP));
+        sb.append("&ts=").append(timestamp);
+        String action = trackingData.getString(trackingData.getColumnIndex(ACTION));
+        sb.append("&action=").append(action);
+        String userUrn = trackingData.getString(trackingData.getColumnIndex(USER_URN));
+        sb.append("&user=").append(URLEncoder.encode(userUrn, Charsets.UTF_8.name()));
+        String soundUrn = trackingData.getString(trackingData.getColumnIndex(SOUND_URN));
+        sb.append("&sound=").append(URLEncoder.encode(soundUrn, Charsets.UTF_8.name()));
+        long soundDuration = trackingData.getLong(trackingData.getColumnIndex(SOUND_DURATION));
+        sb.append("&duration=").append(soundDuration);
 
         //TODO: url, level
 
         return sb.toString();
     }
-
 }

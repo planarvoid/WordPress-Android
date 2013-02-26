@@ -66,10 +66,7 @@ public class ApiSyncer {
         Content c = Content.match(uri);
         Result result = null;
 
-        if (Content.TRACKING_EVENTS == c) {
-            flushPlaybackTrackingEvents();
-
-        } else if (userId <= 0){
+        if (userId <= 0){
             Log.w(TAG, "Invalid user id, skipping sync ");
         } else if (c.remoteUri != null) {
             switch (c) {
@@ -147,14 +144,6 @@ public class ApiSyncer {
         return result;
     }
 
-    private void flushPlaybackTrackingEvents() {
-
-        // tracking events need special treatment
-        PlayEventTrackingApi trackingApi = new PlayEventTrackingApi(mContext.getString(R.string.client_id));
-        Cursor cursor = mResolver.query(Content.TRACKING_EVENTS.uri, null, null, null, null);
-        trackingApi.pushToRemote(cursor);
-        cursor.close();
-    }
 
     private Result syncSoundAssociations(Content content, Uri uri, long userId) throws IOException {
         Result result = new Result(uri);
