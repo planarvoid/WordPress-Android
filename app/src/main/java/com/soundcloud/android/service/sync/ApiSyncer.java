@@ -4,6 +4,7 @@ import static com.soundcloud.android.model.ScModelManager.validateResponse;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.CollectionHolder;
@@ -21,6 +22,8 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
+import com.soundcloud.android.tracking.eventlogger.PlayEventTracker;
+import com.soundcloud.android.tracking.eventlogger.PlayEventTrackingApi;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -65,7 +68,11 @@ public class ApiSyncer {
         Content c = Content.match(uri);
         Result result = null;
 
-        if (userId <= 0){
+        if (Content.TRACKING_EVENTS == c) {
+            // tracking events need special treatment
+            PlayEventTrackingApi trackingApi = new PlayEventTrackingApi(mContext.getString(R.string.client_id));
+            new PlayEventTracker(mResolver, trackingApi).pushTrackingData();
+        } else if (userId <= 0){
             Log.w(TAG, "Invalid user id, skipping sync ");
         } else if (c.remoteUri != null) {
             switch (c) {
