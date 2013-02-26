@@ -43,7 +43,7 @@ public class PlayEventTracker {
     public void trackEvent(final @Nullable Track track, final Action action, final long userId, final String originUrl,
                            final String level) {
 
-        Log.d(TAG, "trackEvent("+track+", "+action+", "+userId+","+originUrl+","+level+")");
+        Log.d(TAG, "trackEvent("+track.id+", "+action+", "+userId+","+originUrl+","+level+")");
 
         if (track == null) return;
 
