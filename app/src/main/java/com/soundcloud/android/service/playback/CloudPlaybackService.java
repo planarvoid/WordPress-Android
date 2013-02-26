@@ -161,6 +161,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     // for play duration tracking
     private PlayEventTracker mPlayEventTracker;
 
+    public PlayEventTracker getPlayEventTracker() {
+        return mPlayEventTracker;
+    }
+
     public interface PlayExtras{
         String trackId = "track_id";
         String playPosition = "play_position";
@@ -433,7 +437,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     startTrack(track);
                 }
             } else { // new track
-                trackStopEvent(); // track stop event for previous track, if any
+                if (isPlaying()) {
+                    trackStopEvent(); // track stop event for previous track, if any
+                }
                 track(Media.fromTrack(currentTrack), action);
 
                 currentTrack = track;

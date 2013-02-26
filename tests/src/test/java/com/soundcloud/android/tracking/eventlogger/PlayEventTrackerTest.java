@@ -1,11 +1,11 @@
 package com.soundcloud.android.tracking.eventlogger;
 
-import static com.soundcloud.android.Expect.expect;
-
+import android.content.Intent;
+import android.database.Cursor;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackTest;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -14,13 +14,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import android.content.ContentResolver;
-import android.content.Intent;
-import android.database.Cursor;
+import scala.actors.threadpool.Arrays;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
+
+import static com.soundcloud.android.Expect.expect;
 
 @RunWith(DefaultTestRunner.class)
 public class PlayEventTrackerTest {
@@ -28,6 +28,7 @@ public class PlayEventTrackerTest {
     private static Track currentTrack, nextTrack;
 
     private CloudPlaybackService service;
+    private PlayEventTracker tracker;
 
     @BeforeClass
     public static void setupFixtures() throws IOException {
@@ -39,8 +40,14 @@ public class PlayEventTrackerTest {
 
     @Before
     public void setup() {
+        List<Track> tracks = Arrays.asList(new Object[]{currentTrack, nextTrack});
+        DefaultTestRunner.application.MODEL_MANAGER.writeCollection(tracks, Content.ME_LIKES.uri, 1, ScResource.CacheUpdateMode.FULL);
+
         service = new CloudPlaybackService();
         service.onCreate();
+        service.getPlayQueueManager().loadUri(Content.ME_LIKES.uri, 0, currentTrack);
+
+        tracker = service.getPlayEventTracker();
     }
 
     @After
@@ -54,12 +61,12 @@ public class PlayEventTrackerTest {
 
         startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
 
-        Cursor cursor = resolver.query(Content.TRACKING_EVENTS.uri, null, null, null, null);
+        Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(1);
 
         assertTrackingDataFor(currentTrack, "play", cursor);
 
-        String userUrn = cursor.getString(cursor.getColumnIndex(DBHelper.TrackingEvents.USER_URN));
+        String userUrn = cursor.getString(cursor.getColumnIndex(PlayEventTracker.TrackingEvents.USER_URN));
         expect(userUrn).toEqual("soundcloud:users:456");
     }
 
@@ -67,11 +74,11 @@ public class PlayEventTrackerTest {
     public void shouldTrackPlayEventForLoggedOutUser() {
         startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
 
-        Cursor cursor = resolver.query(Content.TRACKING_EVENTS.uri, null, null, null, null);
+        Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(1);
 
         assertTrackingDataFor(currentTrack, "play", cursor);
-        String userUrn = cursor.getString(cursor.getColumnIndex(DBHelper.TrackingEvents.USER_URN));
+        String userUrn = cursor.getString(cursor.getColumnIndex(PlayEventTracker.TrackingEvents.USER_URN));
         expect(userUrn).toMatch("^anonymous:.*");
 
         String uuid = userUrn.replaceAll("anonymous:", "");
@@ -83,7 +90,7 @@ public class PlayEventTrackerTest {
         startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
         startPlaybackService(CloudPlaybackService.PAUSE_ACTION, currentTrack);
 
-        Cursor cursor = resolver.query(Content.TRACKING_EVENTS.uri, null, null, null, null);
+        Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(2);
 
         assertTrackingDataFor(currentTrack, "play", cursor);
@@ -95,7 +102,7 @@ public class PlayEventTrackerTest {
         startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
         startPlaybackService(CloudPlaybackService.PLAY_ACTION, nextTrack);
 
-        Cursor cursor = resolver.query(Content.TRACKING_EVENTS.uri, null, null, null, null);
+        Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(3);
 
         assertTrackingDataFor(currentTrack, "play", cursor);
@@ -109,7 +116,7 @@ public class PlayEventTrackerTest {
         startPlaybackService(CloudPlaybackService.TOGGLEPAUSE_ACTION, null);
         startPlaybackService(CloudPlaybackService.TOGGLEPAUSE_ACTION, null);
 
-        Cursor cursor = resolver.query(Content.TRACKING_EVENTS.uri, null, null, null, null);
+        Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(3);
 
         assertTrackingDataFor(currentTrack, "play", cursor);
@@ -118,11 +125,24 @@ public class PlayEventTrackerTest {
     }
 
     @Test
+    public void shouldTrackNextEvent() throws IOException {
+        startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.NEXT_ACTION, null);
+
+        Cursor cursor = tracker.eventsCursor();
+        expect(cursor.getCount()).toBe(3);
+
+        assertTrackingDataFor(currentTrack, "play", cursor);
+        assertTrackingDataFor(currentTrack, "stop", cursor);
+        assertTrackingDataFor(nextTrack, "play", cursor);
+    }
+
+    @Test
     public void shouldNotRecordPlayTwice() {
         startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
         startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
 
-        Cursor cursor = resolver.query(Content.TRACKING_EVENTS.uri, null, null, null, null);
+        Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(1);
 
         assertTrackingDataFor(currentTrack, "play", cursor);
@@ -134,7 +154,20 @@ public class PlayEventTrackerTest {
         startPlaybackService(CloudPlaybackService.PAUSE_ACTION, currentTrack);
         startPlaybackService(CloudPlaybackService.PAUSE_ACTION, currentTrack);
 
-        Cursor cursor = resolver.query(Content.TRACKING_EVENTS.uri, null, null, null, null);
+        Cursor cursor = tracker.eventsCursor();
+        expect(cursor.getCount()).toBe(2);
+
+        assertTrackingDataFor(currentTrack, "play", cursor);
+        assertTrackingDataFor(currentTrack, "stop", cursor);
+    }
+
+    @Test
+    public void pressingNextshouldNotRecordStopAgainAfterPlayPauseCycle() {
+        startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.PAUSE_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.PAUSE_ACTION, currentTrack);
+
+        Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(2);
 
         assertTrackingDataFor(currentTrack, "play", cursor);
@@ -143,16 +176,16 @@ public class PlayEventTrackerTest {
 
     private void assertTrackingDataFor(Track track, String expectedAction, Cursor cursor) {
         cursor.moveToNext();
-        long timestamp = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackingEvents.TIMESTAMP));
+        long timestamp = cursor.getLong(cursor.getColumnIndex(PlayEventTracker.TrackingEvents.TIMESTAMP));
         expect(timestamp).toBeGreaterThan(1361807068947L); // time this test was written :)
 
-        String action = cursor.getString(cursor.getColumnIndex(DBHelper.TrackingEvents.ACTION));
+        String action = cursor.getString(cursor.getColumnIndex(PlayEventTracker.TrackingEvents.ACTION));
         expect(action).toEqual(expectedAction);
 
-        String soundUrn = cursor.getString(cursor.getColumnIndex(DBHelper.TrackingEvents.SOUND_URN));
+        String soundUrn = cursor.getString(cursor.getColumnIndex(PlayEventTracker.TrackingEvents.SOUND_URN));
         expect(soundUrn).toEqual("soundcloud:sounds:" + track.id);
 
-        long duration = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackingEvents.SOUND_DURATION));
+        long duration = cursor.getLong(cursor.getColumnIndex(PlayEventTracker.TrackingEvents.SOUND_DURATION));
         expect(duration).toEqual(Long.valueOf(track.duration));
     }
 
@@ -165,5 +198,4 @@ public class PlayEventTrackerTest {
 
         return service;
     }
-
 }

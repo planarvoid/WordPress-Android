@@ -35,10 +35,9 @@ public class PlayEventTracker {
     private Context mContext;
 
 
+
     public PlayEventTracker(Context context) {
         mContext = context;
-        TrackingDbHelper helper = new TrackingDbHelper(context);
-        trackingDb = helper.getWritableDatabase();
     }
 
     public void trackEvent(final @Nullable Track track, final Action action, final long userId, final String originUrl,
@@ -58,8 +57,12 @@ public class PlayEventTracker {
             Message insert = handler.obtainMessage(INSERT_TOKEN, params);
 
             handler.removeMessages(FINISH_TOKEN);
-            handler.sendMessageDelayed(insert, 500);
+            handler.sendMessage(insert);
         }
+    }
+
+    public Cursor eventsCursor() {
+        return getTrackingDb().query(EVENTS_TABLE, null, null, null, null, null, null);
     }
 
     public void stop() {
@@ -74,17 +77,25 @@ public class PlayEventTracker {
         Log.d(TAG, "flushPlaybackTrackingEvents");
 
         PlayEventTrackingApi trackingApi = new PlayEventTrackingApi(mContext.getString(R.string.client_id));
+        SQLiteDatabase db = getTrackingDb();
 
-        trackingDb.beginTransaction();
-        Cursor cursor = trackingDb.query(EVENTS_TABLE, null, null, null, null, null, null);
-
+        db.beginTransaction();
+        Cursor cursor = db.query(EVENTS_TABLE, null, null, null, null, null, null);
         if (cursor != null) {
             trackingApi.pushToRemote(cursor);
             cursor.close();
-            trackingDb.delete(EVENTS_TABLE, null, null);
+            db.delete(EVENTS_TABLE, null, null);
         }
 
-        trackingDb.endTransaction();
+        db.endTransaction();
+    }
+
+    private SQLiteDatabase getTrackingDb() {
+        if (trackingDb == null) {
+            TrackingDbHelper helper = new TrackingDbHelper(mContext);
+            trackingDb = helper.getWritableDatabase();
+        }
+        return trackingDb;
     }
 
     public interface TrackingEvents extends BaseColumns {
@@ -111,7 +122,6 @@ public class PlayEventTracker {
             this.originUrl = originUrl;
             this.level = level;
         }
-
 
         public ContentValues toContentValues() {
             ContentValues values = new ContentValues();
@@ -183,7 +193,11 @@ public class PlayEventTracker {
             switch (msg.what) {
                 case INSERT_TOKEN: {
                     final TrackingParams params = (TrackingParams) msg.obj;
-                    trackingDb.insert(EVENTS_TABLE, null, params.toContentValues());
+                    long id = getTrackingDb().insert(EVENTS_TABLE, null, params.toContentValues());
+
+                    if (id < 0) {
+                        Log.w(TAG, "error inserting tracking event");
+                    }
 
                     synchronized (lock) {
                         if (handler != null) {
@@ -205,6 +219,7 @@ public class PlayEventTracker {
                     break;
                 }
             }
+
         }
     }
 }
