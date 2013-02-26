@@ -18,7 +18,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DBHelper";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION  = 19;
+    public static final int DATABASE_VERSION  = 20;
     private static final String DATABASE_NAME = "SoundCloud";
 
     public DBHelper(Context context) {
@@ -91,6 +91,9 @@ public class DBHelper extends SQLiteOpenHelper {
                             break;
                         case 19:
                             success = upgradeTo19(db, oldVersion);
+                            break;
+                        case 20:
+                            success = upgradeTo20(db, oldVersion);
                             break;
 
                         default:
@@ -995,6 +998,18 @@ public class DBHelper extends SQLiteOpenHelper {
             return false;
         }
 
+    }
+
+    // Play Duration Tracking
+    private static boolean upgradeTo20(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.PLAY_TRACKING.create(db);
+            return true;
+        } catch (SQLException e) {
+            SoundCloudApplication.handleSilentException("error during upgrade20 " +
+                    "(from " + oldVersion + ")", e);
+        }
+        return false;
     }
 
     public static String getWhereInClause(String column, List<Long> idSet){
