@@ -8,10 +8,13 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.util.Log;
 
 import java.util.UUID;
 
 public class PlayEventTracker {
+
+    private static final String TAG = PlayEventTracker.class.getSimpleName();
 
     private ContentResolver resolver;
 
@@ -22,6 +25,7 @@ public class PlayEventTracker {
     public void trackEvent(final @Nullable Track track, final Action action, final long userId, final String originUrl,
                            final String level) {
         if (track != null) {
+            Log.d(TAG, "Tracked player event: track_id=" + track.id + "|action=" + action.name());
             ContentValues values = buildContentValues(track, action.toApiName(), userId, originUrl, level);
             resolver.insert(Content.TRACKING_EVENTS.uri, values);
         }
