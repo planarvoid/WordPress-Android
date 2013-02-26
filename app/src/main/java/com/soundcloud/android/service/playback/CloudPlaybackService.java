@@ -701,12 +701,22 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    /* package */ void prev() {
-        if (mPlayQueueManager.prev()) openCurrent(Media.Action.Backward);
+    /* package */ boolean prev() {
+        if (mPlayQueueManager.prev()) {
+            openCurrent(Media.Action.Backward);
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    /* package */ void next() {
-        if (mPlayQueueManager.next()) openCurrent(Media.Action.Forward);
+    /* package */ boolean next() {
+        if (mPlayQueueManager.next()) {
+            openCurrent(Media.Action.Forward);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private void setPlayingNotification(final Track track) {
@@ -1122,9 +1132,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     if (state == PLAYING && mAutoAdvance) next();
                     break;
                 case TRACK_ENDED:
-                    if (mAutoAdvance) {
-                        next();
-                    } else {
+                    if (!mAutoAdvance || !next()) {
                         notifyChange(PLAYBACK_COMPLETE);
                         gotoIdleState(COMPLETED);
                     }

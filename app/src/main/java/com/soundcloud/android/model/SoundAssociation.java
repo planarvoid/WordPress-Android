@@ -80,6 +80,10 @@ public class SoundAssociation extends ScResource implements Playable, Refreshabl
         return track != null && track.isStale(); // TODO, playlist
     }
 
+    @Override
+    public boolean isIncomplete() {
+        return track != null && track.isIncomplete();
+    }
 
     public SoundAssociation(Parcel in) {
         associationType = in.readInt();
