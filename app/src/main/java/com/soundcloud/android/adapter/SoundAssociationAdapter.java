@@ -29,7 +29,7 @@ public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> imp
 
     @Override
     public Uri getPlayableUri() {
-        return null;
+        return mContentUri;
     }
 
     @Override
