@@ -1165,13 +1165,14 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         @Override
         public boolean onInfo(MediaPlayer mediaPlayer, int what, int extra) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onInfo("+what+","+extra+", state="+state+")");
+                Log.d(TAG, "onInfo(" + what + "," + extra + ", state=" + state + ")");
             }
 
             switch (what) {
                 case MediaPlayer.MEDIA_INFO_BUFFERING_START:
                     mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
                     state = PAUSED_FOR_BUFFERING;
+                    trackStopEvent();
                     notifyChange(BUFFERING);
                     break;
 
@@ -1182,9 +1183,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     } else if (Log.isLoggable(TAG, Log.DEBUG)) {
                         Log.d(TAG, "Not clearing seek, waiting for seek to finish");
                     }
-                    if (!state.isSupposedToBePlaying()){
+                    if (!state.isSupposedToBePlaying()) {
                         safePause();
                     } else {
+                        trackPlayEvent(currentTrack);
                         // still playing back, set proper state after buffering state
                         state = PLAYING;
                     }
