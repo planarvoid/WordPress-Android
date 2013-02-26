@@ -14,6 +14,7 @@ import android.util.Log;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -26,15 +27,14 @@ public class PlayEventTracker {
 
     private static final int INSERT_TOKEN = 0;
     private static final int FINISH_TOKEN = 0xDEADBEEF;
-    public static final int THREAD_LIFETIME = 20000;
+    public static final int FLUSH_DELAY   = 20000;
+    public static final int BATCH_SIZE    = 10;
 
     private SQLiteDatabase trackingDb;
     private TrackerHandler handler;
 
     private final Object lock = new Object();
     private Context mContext;
-
-
 
     public PlayEventTracker(Context context) {
         mContext = context;
@@ -43,9 +43,8 @@ public class PlayEventTracker {
     public void trackEvent(final @Nullable Track track, final Action action, final long userId, final String originUrl,
                            final String level) {
 
-        Log.d(TAG, "trackEvent("+track.id+", "+action+", "+userId+","+originUrl+","+level+")");
-
         if (track == null) return;
+        Log.d(TAG, "trackEvent("+track.id+", "+action+", "+userId+","+originUrl+","+level+")");
 
         synchronized (lock) {
             if (handler == null) {
@@ -73,26 +72,47 @@ public class PlayEventTracker {
         }
     }
 
-    private void flushPlaybackTrackingEvents() {
-        Log.d(TAG, "flushPlaybackTrackingEvents");
+    private boolean flushPlaybackTrackingEvents() {
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "flushPlaybackTrackingEvents");
+
+        if (!IOUtils.isConnected(mContext)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "not connected, skipping flush");
+            return true;
+        }
 
         PlayEventTrackingApi trackingApi = new PlayEventTrackingApi(mContext.getString(R.string.client_id));
         SQLiteDatabase db = getTrackingDb();
 
         db.beginTransaction();
-        Cursor cursor = db.query(EVENTS_TABLE, null, null, null, null, null, null);
-        if (cursor != null && cursor.getCount() > 0) {
-            trackingApi.pushToRemote(cursor);
+        Cursor cursor = db.query(EVENTS_TABLE, null, null, null, null, null,
+                TrackingEvents.TIMESTAMP+" DESC",
+                String.valueOf(BATCH_SIZE));
 
-            final int deleted = db.delete(EVENTS_TABLE, "1", null);
-            if (deleted <= 0) {
-                Log.w(TAG, "error deleting events");
+        if (cursor != null && cursor.getCount() > 0) {
+            String[] submitted = trackingApi.pushToRemote(cursor);
+            if (submitted.length > 0) {
+                StringBuilder query = new StringBuilder(submitted.length * 2 - 1);
+                query.append(TrackingEvents._ID).append(" IN (?");
+                for (int i = 1; i < submitted.length; i++) query.append(",?");
+                query.append(")");
+
+                final int deleted = db.delete(EVENTS_TABLE, query.toString(), submitted);
+                if (deleted != submitted.length) {
+                    Log.w(TAG, "error deleting events (deleted="+deleted+")");
+                } else {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "submitted "+deleted+ " events");
+                }
             }
         }
-        if (cursor != null) cursor.close();
+        boolean flushedAll = false;
+        if (cursor != null) {
+            flushedAll = cursor.getCount() < BATCH_SIZE;
+            cursor.close();
+        }
 
         db.setTransactionSuccessful();
         db.endTransaction();
+        return flushedAll;
     }
 
     private SQLiteDatabase getTrackingDb() {
@@ -105,12 +125,12 @@ public class PlayEventTracker {
 
     public interface TrackingEvents extends BaseColumns {
         final String TIMESTAMP = "timestamp";
-        final String ACTION = "action";
+        final String ACTION    = "action";
         final String SOUND_URN = "sound_urn";
-        final String USER_URN = "user_urn";
+        final String USER_URN  = "user_urn";
         final String SOUND_DURATION = "sound_duration";
-        final String ORIGIN_URL = "origin_url";
-        final String LEVEL = "level";
+        final String ORIGIN_URL     = "origin_url";
+        final String LEVEL          = "level";
     }
 
     static class TrackingParams {
@@ -156,7 +176,6 @@ public class PlayEventTracker {
         private static final String DATABASE_NAME = "SoundCloud-tracking.sqlite";
         private static final int DATABASE_VERSION = 1;
         static final String EVENTS_TABLE = "events";
-
 
         /**
          * Play duration tracking
@@ -206,25 +225,25 @@ public class PlayEventTracker {
 
                     synchronized (lock) {
                         if (handler != null) {
-                            handler.sendMessageDelayed(handler.obtainMessage(FINISH_TOKEN), THREAD_LIFETIME);
+                            handler.sendMessageDelayed(handler.obtainMessage(FINISH_TOKEN), FLUSH_DELAY);
                         }
                     }
                     break;
                 }
-
                 case FINISH_TOKEN: {
-                    flushPlaybackTrackingEvents();
-
-                    synchronized (lock) {
-                        if (handler != null) {
-                            handler.getLooper().quit();
-                            handler = null;
+                    if (flushPlaybackTrackingEvents()) {
+                        synchronized (lock) {
+                            if (handler != null) {
+                                handler.getLooper().quit();
+                                handler = null;
+                            }
                         }
+                    } else {
+                        sendMessageDelayed(obtainMessage(FINISH_TOKEN), FLUSH_DELAY);
                     }
                     break;
                 }
             }
-
         }
     }
 }

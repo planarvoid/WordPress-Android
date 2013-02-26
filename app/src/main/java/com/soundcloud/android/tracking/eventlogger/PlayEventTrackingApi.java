@@ -4,11 +4,14 @@ import com.integralblue.httpresponsecache.compat.Charsets;
 
 import android.database.Cursor;
 import android.util.Log;
+import org.apache.http.HttpStatus;
 
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.*;
 
@@ -24,9 +27,13 @@ public class PlayEventTrackingApi {
         mClientId = clientId;
     }
 
-    public void pushToRemote(Cursor trackingData) {
+    /**
+     * @param trackingData a cursor with the tracking data to be submitted
+     * @return a list of successfully submitted ids
+     */
+    public String[] pushToRemote(Cursor trackingData) {
         Log.d(TAG, "Pushing " + trackingData.getCount() + " new tracking events");
-
+        List<String> successes = new ArrayList<String>(trackingData.getCount());
         String url = null;
         while (trackingData.moveToNext()) {
             HttpURLConnection connection = null;
@@ -36,11 +43,16 @@ public class PlayEventTrackingApi {
                 connection = (HttpURLConnection) new URL(url).openConnection();
 
                 connection.setReadTimeout(CONNECTION_TIMEOUT);
-
                 connection.connect();
 
+                final int response = connection.getResponseCode();
+
+                if (response == HttpStatus.SC_OK) {
+                    successes.add(trackingData.getString(trackingData.getColumnIndex(PlayEventTracker.TrackingEvents._ID)));
+                } else {
+                    Log.w(TAG, "unexpected status code: "+response);
+                }
             } catch (Exception e) {
-                e.printStackTrace();
                 Log.e(TAG, "Failed pushing play event " + url);
             } finally {
                 if (connection != null) {
@@ -48,6 +60,7 @@ public class PlayEventTrackingApi {
                 }
             }
         }
+        return successes.toArray(new String[successes.size()]);
     }
 
     public String buildUrl(Cursor trackingData) throws UnsupportedEncodingException {
