@@ -569,7 +569,13 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 mMediaPlayer.setDataSource(mProxy.createUri(currentTrack.stream_url, next == null ? null : next.stream_url).toString());
             }
 
-            mMediaPlayer.prepare();
+            // this is purely for test support, unfortunately the prepare event doesn't fire
+            // in Robolectric tests using prepareAsync
+            if (SoundCloudApplication.DALVIK) {
+                mMediaPlayer.prepareAsync();
+            } else {
+                mMediaPlayer.prepare();
+            }
 
         } catch (IllegalStateException e) {
             Log.e(TAG, "error", e);
