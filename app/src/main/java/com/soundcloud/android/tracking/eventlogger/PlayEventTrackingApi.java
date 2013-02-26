@@ -5,8 +5,8 @@ import com.integralblue.httpresponsecache.compat.Charsets;
 import android.database.Cursor;
 import android.util.Log;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
@@ -15,7 +15,7 @@ import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.Track
 public class PlayEventTrackingApi {
 
     private static final String TAG = PlayEventTrackingApi.class.getSimpleName();
-    private static final String ENDPOINT = "https://eventlogger.soundcloud.com/audio";
+    private static final String ENDPOINT = "http://eventlogger.soundcloud.com/audio";
     private static final int CONNECTION_TIMEOUT = 10 * 1000;
 
     private final String mClientId;
@@ -29,10 +29,11 @@ public class PlayEventTrackingApi {
 
         String url = null;
         while (trackingData.moveToNext()) {
-            HttpsURLConnection connection = null;
+            HttpURLConnection connection = null;
             try {
                 url = buildUrl(trackingData);
-                connection = (HttpsURLConnection) new URL(url).openConnection();
+                Log.d(TAG, "logging "+url);
+                connection = (HttpURLConnection) new URL(url).openConnection();
 
                 connection.setReadTimeout(CONNECTION_TIMEOUT);
 

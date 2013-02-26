@@ -26,7 +26,7 @@ public class PlayEventTracker {
 
     private static final int INSERT_TOKEN = 0;
     private static final int FINISH_TOKEN = 0xDEADBEEF;
-    public static final int THREAD_LIFETIME = 60000;
+    public static final int THREAD_LIFETIME = 20000;
 
     private SQLiteDatabase trackingDb;
     private TrackerHandler handler;
