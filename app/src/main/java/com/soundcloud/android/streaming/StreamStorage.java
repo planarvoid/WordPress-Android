@@ -267,6 +267,7 @@ public class StreamStorage {
         if (length < chunkSize) {
             fc.write(ByteBuffer.allocate(chunkSize - length));
         }
+        fc.close();
         return true;
     }
 
