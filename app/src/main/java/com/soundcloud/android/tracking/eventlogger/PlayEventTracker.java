@@ -260,8 +260,10 @@ public class PlayEventTracker {
                             if (handler != null) {
                                 handler.getLooper().quit();
                                 handler = null;
-                                trackingDb.close();
-                                trackingDb = null;
+                                if (trackingDb != null) {
+                                    trackingDb.close();
+                                    trackingDb = null;
+                                }
                             }
                         }
                     } else {
