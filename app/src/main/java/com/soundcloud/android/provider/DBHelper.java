@@ -18,7 +18,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DBHelper";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION  = 20;
+    public static final int DATABASE_VERSION  = 19;
     private static final String DATABASE_NAME = "SoundCloud";
 
     public DBHelper(Context context) {
