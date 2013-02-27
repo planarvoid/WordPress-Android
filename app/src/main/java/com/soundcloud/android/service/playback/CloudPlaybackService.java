@@ -437,7 +437,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     startTrack(track);
                 }
             } else { // new track
-                if (isPlaying()) {
+                if (state.isSupposedToBePlaying()) {
                     trackStopEvent(); // track stop event for previous track, if any
                 }
                 track(Media.fromTrack(currentTrack), action);
