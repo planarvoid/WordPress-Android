@@ -38,6 +38,9 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
     public static final String KEY_TRACK_TITLE = "TRACK_TITLE";
 
     public static final String COL_ALREADY_ADDED = "ALREADY_ADDED";
+
+    private static final int LOADER_ID = 1;
+
     private MyPlaylistsAdapter mAdapter;
 
     public static MyPlaylistsDialogFragment from(Track track) {
@@ -86,7 +89,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
         });
         builder.setView(dialogView);
 
-        getSherlockActivity().getSupportLoaderManager().initLoader(0x01, getArguments(), this).forceLoad();
+        getSherlockActivity().getSupportLoaderManager().initLoader(LOADER_ID, getArguments(), this).forceLoad();
 
         return builder.create();
 
