@@ -25,6 +25,8 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:foreground="?attr/windowContentOverlay">
+        <include layout="@layout/list_loading_item"
+                 android:id="@android:id/empty"/>
         <ListView
                 android:id="@android:id/list"
                 android:layout_width="fill_parent"
