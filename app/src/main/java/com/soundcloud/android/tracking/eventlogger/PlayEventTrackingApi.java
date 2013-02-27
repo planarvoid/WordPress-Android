@@ -32,14 +32,18 @@ public class PlayEventTrackingApi {
      * @return a list of successfully submitted ids
      */
     public String[] pushToRemote(Cursor trackingData) {
-        Log.d(TAG, "Pushing " + trackingData.getCount() + " new tracking events");
+        if (Log.isLoggable(TAG, Log.DEBUG)){
+            Log.d(TAG, "Pushing " + trackingData.getCount() + " new tracking events");
+        }
         List<String> successes = new ArrayList<String>(trackingData.getCount());
         String url = null;
         while (trackingData.moveToNext()) {
             HttpURLConnection connection = null;
             try {
                 url = buildUrl(trackingData);
-                Log.d(TAG, "logging "+url);
+                if (Log.isLoggable(TAG, Log.DEBUG)){
+                    Log.d(TAG, "logging "+url);
+                }
                 connection = (HttpURLConnection) new URL(url).openConnection();
 
                 connection.setReadTimeout(CONNECTION_TIMEOUT);

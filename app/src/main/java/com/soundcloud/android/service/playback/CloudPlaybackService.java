@@ -871,6 +871,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     mSeekPos = newPos;
                     mWaitingForSeek = true;
                     notifyChange(SEEKING);
+
                     mMediaPlayer.seekTo((int) newPos);
                 } else {
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -1186,9 +1187,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     if (!state.isSupposedToBePlaying()) {
                         safePause();
                     } else {
-                        trackPlayEvent(currentTrack);
                         // still playing back, set proper state after buffering state
                         state = PLAYING;
+                        trackPlayEvent(currentTrack);
                     }
                     notifyChange(BUFFERING_COMPLETE);
                     break;
@@ -1223,6 +1224,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     // keep the last seek time for 3000 ms because getCurrentPosition will be incorrect at first
                     mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
                     mPlayerHandler.sendEmptyMessageDelayed(CLEAR_LAST_SEEK, 3000);
+
                 } else if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "Not clearing seek, waiting for buffer");
                 }
@@ -1311,6 +1313,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             Log.e(TAG, "onError("+what+ ", "+extra+", state="+state+")");
             //noinspection ObjectEquality
             if (mp == mMediaPlayer && state != STOPPED) {
+                trackStopEvent();
                 // when the proxy times out it will just close the connection - different implementations
                 // return different error codes. try to reconnect at least twice before giving up.
                 if (mConnectRetries++ < 4) {
