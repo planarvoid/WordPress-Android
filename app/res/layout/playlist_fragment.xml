@@ -3,14 +3,25 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <com.soundcloud.android.view.ScListView
-            android:id="@android:id/list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+    <FrameLayout android:id="@+id/listContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    <com.soundcloud.android.view.EmptyListView
-            android:id="@android:id/empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+        <com.soundcloud.android.view.ScListView
+                android:id="@android:id/list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        <com.soundcloud.android.view.EmptyListView
+                android:id="@android:id/empty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+    </FrameLayout>
+
+    <include layout="@layout/list_loading_item"
+             android:id="@android:id/progress"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"/>
 
 </FrameLayout>

@@ -39,8 +39,11 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     private Playlist mPlaylist = new Playlist();
     private TextView mInfoHeader;
 
+    private boolean mListShown, mWaitingForSync;
+
     private PlaylistTracksAdapter mAdapter;
     private ScListView mListView;
+    private View mListViewContainer, mProgressView;
     private EmptyListView mEmptyView;
 
     private int mScrollToPos = -1;
@@ -60,6 +63,9 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ViewGroup layout = (ViewGroup) inflater.inflate(R.layout.playlist_fragment, container, false);
 
+        mListViewContainer = layout.findViewById(R.id.listContainer);
+        mProgressView = layout.findViewById(android.R.id.progress);
+
         mListView = (ScListView) layout.findViewById(android.R.id.list);
         mListView.setOnRefreshListener(this);
         mListView.setOnItemClickListener(this);
@@ -73,7 +79,20 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         mListView.setEmptyView(mEmptyView);
         mListView.setAdapter(mAdapter);
 
+        setListShown(mListShown);
+
         return layout;
+    }
+
+    private void setListShown(boolean show){
+        mListShown = show;
+        if (mListShown){
+            mListViewContainer.setVisibility(View.VISIBLE);
+            mProgressView.setVisibility(View.GONE);
+        } else {
+            mListViewContainer.setVisibility(View.GONE);
+            mProgressView.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -115,9 +134,10 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     private void checkPlaylistSize() {
         // if we don't have the entire playlist, re-sync the playlist.
         if (!mPlaylist.isLocal() && mAdapter.getCount() < mPlaylist.track_count) {
-            mEmptyView.setStatus(EmptyListView.Status.WAITING);
+            setListShown(false);
             syncPlaylist();
         } else {
+            setListShown(true);
             mEmptyView.setStatus(EmptyListView.Status.OK);
         }
     }
@@ -139,7 +159,8 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     private void syncPlaylist() {
         final FragmentActivity activity = getActivity();
         if (isAdded()) {
-            mListView.setRefreshing(true);
+            mWaitingForSync = true;
+            mListView.setRefreshing(false);
             activity.startService(new Intent(activity, ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, mDetachableReceiver)
@@ -157,23 +178,27 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
+        mWaitingForSync = false;
+
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
-                mEmptyView.setStatus(EmptyListView.Status.OK);
+                refresh(mPlaylist);
                 break;
             case ApiSyncService.STATUS_SYNC_ERROR:
                 mEmptyView.setStatus(EmptyListView.Status.CONNECTION_ERROR);
+                setListShown(true);
                 break;
         }
 
         mListView.onRefreshComplete();
-        setHeaderInfo();
     }
 
     public void refresh(Playlist playlist) {
         mPlaylist = playlist;
         if (isAdded()){
-            getActivity().getSupportLoaderManager().restartLoader(PLAYER_LIST_LOADER, null, this);
+            if (!mWaitingForSync) {
+                getActivity().getSupportLoaderManager().restartLoader(PLAYER_LIST_LOADER, null, this);
+            }
             setHeaderInfo();
         }
 
