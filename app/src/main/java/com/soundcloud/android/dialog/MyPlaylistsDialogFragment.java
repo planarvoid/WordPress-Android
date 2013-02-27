@@ -171,7 +171,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
         private Context mContext;
         private Cursor mCursor;
 
-        public MyPlaylistsAdapter(Context c, long trackId) {
+        public MyPlaylistsAdapter(Context c) {
             mContext = c;
         }
 
