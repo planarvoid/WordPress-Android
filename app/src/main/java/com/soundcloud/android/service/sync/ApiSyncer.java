@@ -4,8 +4,8 @@ import static com.soundcloud.android.model.ScModelManager.validateResponse;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
@@ -21,6 +21,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
+import com.soundcloud.android.tracking.eventlogger.PlayEventTrackingApi;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -89,7 +90,7 @@ public class ApiSyncer {
 
                 case ME_LIKES:
                 case ME_SOUNDS:
-                    result = syncSoundAssociations(uri);
+                    result = syncSoundAssociations(c, uri, userId);
                     break;
 
                 case ME_TRACKS:
@@ -143,13 +144,13 @@ public class ApiSyncer {
         return result;
     }
 
-    private Result syncSoundAssociations(Uri uri) throws IOException {
-        Content c = Content.match(uri);
+
+    private Result syncSoundAssociations(Content content, Uri uri, long userId) throws IOException {
         Result result = new Result(uri);
         log("syncSoundAssociations(" + uri + ")");
 
         SoundAssociationHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
-                Request.to(c.remoteUri).with("limit", 200),
+                Request.to(content.remoteUri, userId).with("limit", 200).with("representation", "mini"),
                 SoundAssociationHolder.class);
 
         if (holder != null) {

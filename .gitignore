@@ -44,3 +44,6 @@ c2dm.credentials
 reg_ids.yaml
 
 .gradle
+
+# test data
+tests-*.sqlite

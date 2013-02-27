@@ -1,5 +1,16 @@
+$ 55
+  % v 2.4.6
+  _ 2013-02-26
+  ! Maintenance
+  * Fixed language/local based IO problems
+  * No longer deleting external uploads
+  * Locale and data fixes for Arabic
+  * Fixed visibility with unplayable likes
+
+
+
 $ 54
-  % v current
+  % v 2.4.5
   _ 2013-01-25
   ! Maintenance
   * Image cropping bugs fixed

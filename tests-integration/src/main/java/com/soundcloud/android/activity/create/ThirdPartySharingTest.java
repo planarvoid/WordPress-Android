@@ -5,13 +5,17 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.test.ShareSound;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.tests.ActivityTestCase;
+import com.soundcloud.android.tests.AudioTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
+import com.soundcloud.android.tests.ScAndroidTestCase;
+import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.SystemClock;
@@ -56,7 +60,10 @@ public class ThirdPartySharingTest extends ActivityTestCase<ShareSound> {
      * Create an empty temp file, send sharing intent, assert upload screen + header is shown, upload.
      */
     public void testShareWithExistingFile() throws IOException {
-        File file = File.createTempFile("sharing", ".mp3", Environment.getExternalStorageDirectory());
+        File file = File.createTempFile("sharing", ".ogg", Environment.getExternalStorageDirectory());
+
+        AssetManager am = ScAndroidTestCase.testAssets(getInstrumentation().getContext());
+        IOUtils.copy(am.open(AudioTestCase.SHORT_TEST_OGG), file);
 
         Intent intent = getShareIntent(file, "Testing");
         intent.putExtra("com.soundcloud.android.extra.where",  "Somewhere");
@@ -84,8 +91,10 @@ public class ThirdPartySharingTest extends ActivityTestCase<ShareSound> {
         assertMatches("content://com.soundcloud.android.provider.ScContentProvider/recordings/\\d+",
                 result.intent.getData().toString());
 
-        // empty file.
-        assertNotNull(waitForIntent(UploadService.TRANSFER_ERROR, 5000));
+        assertNotNull(waitForIntent(UploadService.TRANSCODING_SUCCESS, 15000));
+
+        // make sure file didn't get deleted
+        assertTrue("file should not get deleted", file.exists());
     }
 
     /*
