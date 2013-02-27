@@ -6,7 +6,7 @@ $ 55
   * No longer deleting external uploads
   * Locale and data fixes for Arabic
   * Fixed visibility with unplayable likes
-
+  - Add play duration tracking
 
 
 $ 54

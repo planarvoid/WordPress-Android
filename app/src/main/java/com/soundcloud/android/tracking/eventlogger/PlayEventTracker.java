@@ -46,7 +46,6 @@ public class PlayEventTracker {
                            final String level) {
 
         if (track == null) return;
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "trackEvent("+track.id+", "+action+", "+userId+","+originUrl+","+level+")");
 
         synchronized (lock) {
             if (handler == null) {
@@ -55,6 +54,8 @@ public class PlayEventTracker {
                 handler = new TrackerHandler(thread.getLooper());
             }
             TrackingParams params = new TrackingParams(track, action, userId, originUrl, level);
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "new tracking event: " + params.toString());
+
             Message insert = handler.obtainMessage(INSERT_TOKEN, params);
 
             handler.removeMessages(FINISH_TOKEN);
@@ -138,6 +139,7 @@ public class PlayEventTracker {
     static class TrackingParams {
         final Track track;
         final Action action;
+        final long timestamp;
         final long userId;
         final String originUrl;
         final String level;
@@ -148,11 +150,12 @@ public class PlayEventTracker {
             this.userId = userId;
             this.originUrl = originUrl;
             this.level = level;
+            this.timestamp = System.currentTimeMillis();
         }
 
         public ContentValues toContentValues() {
             ContentValues values = new ContentValues();
-            values.put(TrackingEvents.TIMESTAMP, System.currentTimeMillis());
+            values.put(TrackingEvents.TIMESTAMP, timestamp);
             values.put(TrackingEvents.ACTION, action.toApiName());
             values.put(TrackingEvents.SOUND_URN, ClientUri.forTrack(track.id).toString());
             values.put(TrackingEvents.SOUND_DURATION, track.duration);
@@ -171,6 +174,17 @@ public class PlayEventTracker {
             }
         }
 
+        @Override
+        public String toString() {
+            return "TrackingParams{" +
+                    "track_id=" + track.id +
+                    ", action=" + action.name() +
+                    ", timestamp=" + timestamp +
+                    ", userId=" + userId +
+                    ", originUrl='" + originUrl + '\'' +
+                    ", level='" + level + '\'' +
+                    '}';
+        }
     }
 
 
