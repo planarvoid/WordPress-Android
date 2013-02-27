@@ -9,6 +9,7 @@ import org.apache.http.HttpStatus;
 import android.database.Cursor;
 import android.util.Log;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -33,9 +34,8 @@ public class PlayEventTrackingApi {
      * @return a list of successfully submitted ids
      */
     public String[] pushToRemote(Cursor trackingData) {
-        if (Log.isLoggable(TAG, Log.DEBUG)){
-            Log.d(TAG, "Pushing " + trackingData.getCount() + " new tracking events");
-        }
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Pushing " + trackingData.getCount() + " new tracking events");
+
         List<String> successes = new ArrayList<String>(trackingData.getCount());
         String url = null;
         HttpURLConnection connection = null;
@@ -43,9 +43,7 @@ public class PlayEventTrackingApi {
         while (trackingData.moveToNext()) {
             try {
                 url = buildUrl(trackingData);
-                if (Log.isLoggable(TAG, Log.DEBUG)){
-                    Log.d(TAG, "logging "+url);
-                }
+                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "logging "+url);
                 connection = (HttpURLConnection) new URL(url).openConnection();
 
                 connection.setReadTimeout(CONNECTION_TIMEOUT);
@@ -58,8 +56,8 @@ public class PlayEventTrackingApi {
                 } else {
                     Log.w(TAG, "unexpected status code: " + response);
                 }
-            } catch (Exception e) {
-                Log.e(TAG, "Failed pushing play event " + url);
+            } catch (IOException e) {
+                Log.w(TAG, "Failed pushing play event " + url);
             } finally {
                 // consume the response or HTTP pipelining will not work
                 IOUtils.consumeStream(connection);
