@@ -46,7 +46,6 @@ public class PlayEventTracker {
                            final String level) {
 
         if (track == null) return;
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "trackEvent("+track.id+", "+action+", "+userId+","+originUrl+","+level+")");
 
         synchronized (lock) {
             if (handler == null) {
@@ -55,6 +54,8 @@ public class PlayEventTracker {
                 handler = new TrackerHandler(thread.getLooper());
             }
             TrackingParams params = new TrackingParams(track, action, userId, originUrl, level);
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "new tracking event: " + params.toString());
+
             Message insert = handler.obtainMessage(INSERT_TOKEN, params);
 
             handler.removeMessages(FINISH_TOKEN);
@@ -171,6 +172,16 @@ public class PlayEventTracker {
             }
         }
 
+        @Override
+        public String toString() {
+            return "TrackingParams{" +
+                    "track_id=" + track.id +
+                    ", action=" + action.name() +
+                    ", userId=" + userId +
+                    ", originUrl='" + originUrl + '\'' +
+                    ", level='" + level + '\'' +
+                    '}';
+        }
     }
 
 
