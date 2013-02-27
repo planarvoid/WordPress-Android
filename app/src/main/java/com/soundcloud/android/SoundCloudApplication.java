@@ -302,7 +302,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     private long getCurrentUserId()  {
-        return getLoggedInUser().id;
+        return mLoggedInUser == null ? getAccountDataLong(User.DataKeys.USER_ID) : mLoggedInUser.id;
     }
 
     public static long getUserId() {
