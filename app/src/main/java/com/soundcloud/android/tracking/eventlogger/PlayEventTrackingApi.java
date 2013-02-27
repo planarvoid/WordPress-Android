@@ -1,10 +1,13 @@
 package com.soundcloud.android.tracking.eventlogger;
 
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.*;
+
 import com.integralblue.httpresponsecache.compat.Charsets;
+import com.soundcloud.android.utils.IOUtils;
+import org.apache.http.HttpStatus;
 
 import android.database.Cursor;
 import android.util.Log;
-import org.apache.http.HttpStatus;
 
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -12,8 +15,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.*;
 
 public class PlayEventTrackingApi {
 
@@ -35,8 +36,9 @@ public class PlayEventTrackingApi {
         Log.d(TAG, "Pushing " + trackingData.getCount() + " new tracking events");
         List<String> successes = new ArrayList<String>(trackingData.getCount());
         String url = null;
+        HttpURLConnection connection = null;
+
         while (trackingData.moveToNext()) {
-            HttpURLConnection connection = null;
             try {
                 url = buildUrl(trackingData);
                 Log.d(TAG, "logging " + url);
@@ -55,11 +57,15 @@ public class PlayEventTrackingApi {
             } catch (Exception e) {
                 Log.e(TAG, "Failed pushing play event " + url);
             } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
+                // consume the response or HTTP pipelining will not work
+                IOUtils.consumeStream(connection);
             }
         }
+
+        if (connection != null) {
+            connection.disconnect();
+        }
+
         return successes.toArray(new String[successes.size()]);
     }
 
