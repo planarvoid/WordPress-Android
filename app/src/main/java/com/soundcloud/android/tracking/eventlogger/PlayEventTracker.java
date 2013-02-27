@@ -27,7 +27,7 @@ public class PlayEventTracker {
 
     private static final int INSERT_TOKEN = 0;
     private static final int FINISH_TOKEN = 0xDEADBEEF;
-    public static final int FLUSH_DELAY   = 20000;
+    public static final int FLUSH_DELAY   = 60 * 1000;
     public static final int BATCH_SIZE    = 10;
 
     private SQLiteDatabase trackingDb;

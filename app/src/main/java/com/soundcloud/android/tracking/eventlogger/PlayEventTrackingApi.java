@@ -1,10 +1,13 @@
 package com.soundcloud.android.tracking.eventlogger;
 
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.*;
+
 import com.integralblue.httpresponsecache.compat.Charsets;
+import com.soundcloud.android.utils.IOUtils;
+import org.apache.http.HttpStatus;
 
 import android.database.Cursor;
 import android.util.Log;
-import org.apache.http.HttpStatus;
 
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -12,8 +15,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.*;
 
 public class PlayEventTrackingApi {
 
@@ -37,8 +38,9 @@ public class PlayEventTrackingApi {
         }
         List<String> successes = new ArrayList<String>(trackingData.getCount());
         String url = null;
+        HttpURLConnection connection = null;
+
         while (trackingData.moveToNext()) {
-            HttpURLConnection connection = null;
             try {
                 url = buildUrl(trackingData);
                 if (Log.isLoggable(TAG, Log.DEBUG)){
@@ -54,16 +56,20 @@ public class PlayEventTrackingApi {
                 if (response == HttpStatus.SC_OK) {
                     successes.add(trackingData.getString(trackingData.getColumnIndex(PlayEventTracker.TrackingEvents._ID)));
                 } else {
-                    Log.w(TAG, "unexpected status code: "+response);
+                    Log.w(TAG, "unexpected status code: " + response);
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Failed pushing play event " + url);
             } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
+                // consume the response or HTTP pipelining will not work
+                IOUtils.consumeStream(connection);
             }
         }
+
+        if (connection != null) {
+            connection.disconnect();
+        }
+
         return successes.toArray(new String[successes.size()]);
     }
 
