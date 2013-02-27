@@ -902,14 +902,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         return mPlayQueueManager;
     }
 
-    public void setPlayQueueManager(PlayQueueManager manager) {
-        mPlayQueueManager = manager;
-    }
-
-    public void setAutoAdvance(boolean autoAdvance) {
-        mAutoAdvance = autoAdvance;
-    }
-
     private String getUserName() {
         return currentTrack != null ? currentTrack.getUserName() : null;
     }
