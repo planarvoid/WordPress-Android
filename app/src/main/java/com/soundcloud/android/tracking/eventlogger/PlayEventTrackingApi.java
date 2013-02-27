@@ -39,7 +39,7 @@ public class PlayEventTrackingApi {
             HttpURLConnection connection = null;
             try {
                 url = buildUrl(trackingData);
-                Log.d(TAG, "logging "+url);
+                Log.d(TAG, "logging " + url);
                 connection = (HttpURLConnection) new URL(url).openConnection();
 
                 connection.setReadTimeout(CONNECTION_TIMEOUT);
@@ -50,7 +50,7 @@ public class PlayEventTrackingApi {
                 if (response == HttpStatus.SC_OK) {
                     successes.add(trackingData.getString(trackingData.getColumnIndex(PlayEventTracker.TrackingEvents._ID)));
                 } else {
-                    Log.w(TAG, "unexpected status code: "+response);
+                    Log.w(TAG, "unexpected status code: " + response);
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Failed pushing play event " + url);
