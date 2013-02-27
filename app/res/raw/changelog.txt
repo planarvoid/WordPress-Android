@@ -1,20 +1,21 @@
 $ 56
   % v current
-  _ 2013-02-22
+  _ 2013-02-27
   ! Sets
   * Search functionality added to sets
   * Set creation is done in the background
   - Listen to Sets in the Android App
   - Create and add to new sets on the go
 
-
 $ 55
   % v 2.4.6
-  _ 2013-01-29
+  _ 2013-02-26
   ! Maintenance
   * Fixed language/local based IO problems
   * No longer deleting external uploads
-
+  * Locale and data fixes for Arabic
+  * Fixed visibility with unplayable likes
+  - Add play duration tracking
 
 $ 54
   % v 2.4.5
@@ -25,8 +26,6 @@ $ 54
   * Fixed track positioning when Stream updates
   * Various other bug fixes
   - Fixed some Image Cropping issues
-
-
 
 $ 53
   % v 2.4.4

@@ -88,6 +88,10 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
         return playable.isStale();
     }
 
+    @Override
+    public boolean isIncomplete() {
+        return playable != null && playable.isIncomplete();
+    }
 
     public SoundAssociation(Parcel in) {
         associationType = in.readInt();

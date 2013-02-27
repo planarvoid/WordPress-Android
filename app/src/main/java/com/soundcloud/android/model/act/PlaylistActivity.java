@@ -52,4 +52,9 @@ public class PlaylistActivity extends Activity implements PlayableHolder {
     public Playable getPlayable() {
         return playlist;
     }
+
+    @Override
+    public boolean isIncomplete() {
+        return playlist == null || playlist.isIncomplete();
+    }
 }

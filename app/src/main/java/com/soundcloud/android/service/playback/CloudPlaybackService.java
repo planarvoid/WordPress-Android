@@ -22,6 +22,8 @@ import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracker;
+import com.soundcloud.android.tracking.eventlogger.Action;
+import com.soundcloud.android.tracking.eventlogger.PlayEventTracker;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -165,6 +167,13 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private Notification status;
 
+    // for play duration tracking
+    private PlayEventTracker mPlayEventTracker;
+
+    public PlayEventTracker getPlayEventTracker() {
+        return mPlayEventTracker;
+    }
+
     public interface PlayExtras{
         String trackId = "track_id";
         String playPosition = "play_position";
@@ -191,6 +200,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mPlayQueueManager = new PlayQueueManager(this, SoundCloudApplication.getUserId());
         mAssociationManager = new AssociationManager(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        mPlayEventTracker = new PlayEventTracker(this);
 
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(PLAY_ACTION);
@@ -232,6 +242,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mPlayerHandler.removeCallbacksAndMessages(null);
         mPlayQueueManager.onDestroy();
+        mPlayEventTracker.stop();
 
         mFocus.abandonMusicFocus(false);
         unregisterReceiver(mIntentReceiver);
@@ -426,10 +437,16 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             }
             mLoadPercent = 0;
             if (track.equals(currentTrack) && track.isStreamable()) {
-                notifyChange(META_CHANGED);
-                startTrack(track);
+                if (!isPlaying()) {
+                    notifyChange(META_CHANGED);
+                    startTrack(track);
+                }
             } else { // new track
+                if (state.isSupposedToBePlaying()) {
+                    trackStopEvent(); // track stop event for previous track, if any
+                }
                 track(Media.fromTrack(currentTrack), action);
+
                 currentTrack = track;
                 notifyChange(META_CHANGED);
                 mConnectRetries = 0; // new track, reset connection attempts
@@ -446,6 +463,20 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             Log.d(TAG, "playlist is empty");
             state = EMPTY_PLAYLIST;
         }
+    }
+
+    private void trackPlayEvent(Track newTrack) {
+        final long userId = SoundCloudApplication.getUserId();
+        final String originUrl = ""; //TODO
+        final String level = ""; //TODO
+        mPlayEventTracker.trackEvent(newTrack, Action.PLAY, userId, originUrl, level);
+    }
+
+    private void trackStopEvent() {
+        final long userId = SoundCloudApplication.getUserId();
+        final String originUrl = ""; //TODO
+        final String level = ""; //TODO
+        mPlayEventTracker.trackEvent(currentTrack, Action.STOP, userId, originUrl, level);
     }
 
     private FetchModelTask.Listener<Track> mInfoListener = new FetchModelTask.Listener<Track>() {
@@ -593,6 +624,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 notifyChange(PLAYSTATE_CHANGED);
                 if (!Consts.SdkSwitches.useRichNotifications) setPlayingNotification(currentTrack);
 
+                trackPlayEvent(currentTrack);
+
             } else if (state != PLAYING) {
                 // must have been a playback error
                 openCurrent();
@@ -606,7 +639,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             Log.d(TAG, "pause(state="+state+")");
         }
         if (!state.isSupposedToBePlaying()) return;
+
+        trackStopEvent();
         track(Media.fromTrack(currentTrack), Media.Action.Pause);
+
         safePause();
         notifyChange(PLAYSTATE_CHANGED);
     }
@@ -840,6 +876,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     mSeekPos = newPos;
                     mWaitingForSeek = true;
                     notifyChange(SEEKING);
+
                     mMediaPlayer.seekTo((int) newPos);
                 } else {
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -868,10 +905,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     public PlayQueueManager getPlayQueueManager() {
         return mPlayQueueManager;
-    }
-
-    public void setAutoAdvance(boolean autoAdvance) {
-        mAutoAdvance = autoAdvance;
     }
 
     private String getUserName() {
@@ -1134,13 +1167,14 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         @Override
         public boolean onInfo(MediaPlayer mediaPlayer, int what, int extra) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onInfo("+what+","+extra+", state="+state+")");
+                Log.d(TAG, "onInfo(" + what + "," + extra + ", state=" + state + ")");
             }
 
             switch (what) {
                 case MediaPlayer.MEDIA_INFO_BUFFERING_START:
                     mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
                     state = PAUSED_FOR_BUFFERING;
+                    trackStopEvent();
                     notifyChange(BUFFERING);
                     break;
 
@@ -1151,11 +1185,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     } else if (Log.isLoggable(TAG, Log.DEBUG)) {
                         Log.d(TAG, "Not clearing seek, waiting for seek to finish");
                     }
-                    if (!state.isSupposedToBePlaying()){
+                    if (!state.isSupposedToBePlaying()) {
                         safePause();
                     } else {
                         // still playing back, set proper state after buffering state
                         state = PLAYING;
+                        trackPlayEvent(currentTrack);
                     }
                     notifyChange(BUFFERING_COMPLETE);
                     break;
@@ -1190,6 +1225,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     // keep the last seek time for 3000 ms because getCurrentPosition will be incorrect at first
                     mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
                     mPlayerHandler.sendEmptyMessageDelayed(CLEAR_LAST_SEEK, 3000);
+
                 } else if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "Not clearing seek, waiting for buffer");
                 }
@@ -1278,6 +1314,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             Log.e(TAG, "onError("+what+ ", "+extra+", state="+state+")");
             //noinspection ObjectEquality
             if (mp == mMediaPlayer && state != STOPPED) {
+                trackStopEvent();
                 // when the proxy times out it will just close the connection - different implementations
                 // return different error codes. try to reconnect at least twice before giving up.
                 if (mConnectRetries++ < 4) {

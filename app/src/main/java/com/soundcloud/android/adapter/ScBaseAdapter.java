@@ -226,8 +226,9 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     }
 
     protected void checkForStaleItems(List<? extends ScModel> items) {
-        if (items.isEmpty() || !IOUtils.isWifiConnected(mContext)) return;
+        if (items.isEmpty()) return;
 
+        final boolean onWifi = IOUtils.isWifiConnected(mContext);
         Set<Long> trackUpdates = new HashSet<Long>();
         Set<Long> userUpdates = new HashSet<Long>();
         Set<Long> playlistUpdates = new HashSet<Long>();
@@ -235,7 +236,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
             if (newItem instanceof Refreshable) {
                 Refreshable refreshable = (Refreshable) newItem;
-                if (refreshable.isStale()) {
+                if (refreshable.isIncomplete() || (onWifi && refreshable.isStale())) {
                     ScResource resource = refreshable.getRefreshableResource();
                     if (resource instanceof Track) {
                         trackUpdates.add(resource.id);

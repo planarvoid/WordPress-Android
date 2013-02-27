@@ -56,4 +56,9 @@ public class TrackActivity extends Activity implements PlayableHolder {
     public ScResource getRefreshableResource() {
         return track;
     }
+
+    @Override
+    public boolean isIncomplete() {
+        return track == null || track.isIncomplete();
+    }
 }

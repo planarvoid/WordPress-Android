@@ -580,14 +580,15 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
 
-            case ME_ACTIVITIES:
-            case ME_SOUND_STREAM:
-                where = DBHelper.Activities.CONTENT_ID+"= ?";
-                whereArgs = new String[] {String.valueOf(content.id) };
-                break;
             case RECORDING:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 break;
+
+            case ME_ACTIVITIES:
+            case ME_SOUND_STREAM:
+            where = DBHelper.Activities.CONTENT_ID+"= ?";
+            whereArgs = new String[] {String.valueOf(content.id) };
+            break;
 
             case ME_SOUNDS:
                 // add userId

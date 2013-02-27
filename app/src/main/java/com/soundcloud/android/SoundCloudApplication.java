@@ -152,7 +152,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public synchronized User getLoggedInUser() {
         if (mLoggedInUser == null) {
-            final long id = getCurrentUserId();
+            final long id = getAccountDataLong(User.DataKeys.USER_ID);
             if (id != -1) {
                 mLoggedInUser = MODEL_MANAGER.getUser(id);
             }
@@ -322,7 +322,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     private long getCurrentUserId()  {
-        return getAccountDataLong(User.DataKeys.USER_ID);
+        return mLoggedInUser == null ? getAccountDataLong(User.DataKeys.USER_ID) : mLoggedInUser.id;
     }
 
     public static long getUserId() {

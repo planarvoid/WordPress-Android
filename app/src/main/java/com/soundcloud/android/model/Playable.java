@@ -134,6 +134,11 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         return false;
     }
 
+    @Override
+    public boolean isIncomplete() {
+        return user == null || user.isIncomplete();
+    }
+
     @Override @JsonIgnore
     public User getUser() {
         return user;

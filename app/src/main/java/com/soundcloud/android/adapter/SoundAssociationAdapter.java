@@ -2,6 +2,7 @@ package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.adapter.IconLayout;
 import com.soundcloud.android.view.adapter.PlayableRow;
@@ -27,7 +28,7 @@ public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> imp
 
     @Override
     public Uri getPlayableUri() {
-        return null;
+        return Content.match(mContentUri).isMine() ? mContentUri : null;
     }
 
     @Override

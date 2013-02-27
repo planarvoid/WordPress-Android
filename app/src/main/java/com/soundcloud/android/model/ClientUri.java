@@ -15,7 +15,7 @@ public class ClientUri {
 
     public static final String SCHEME = "soundcloud";
     public static final String SOUNDS_TYPE = "sounds";
-    public static final String TRACKS_TYPE = "tracks";
+    public static final String TRACKS_TYPE = "sounds";
     public static final String PLAYLISTS_TYPE = "playlists";
     public static final String USERS_TYPE = "users";
 
@@ -85,7 +85,7 @@ public class ClientUri {
     }
 
     public static Uri forTrack(long id) {
-        return Uri.parse("soundcloud:tracks:"+id);
+        return Uri.parse("soundcloud:sounds:"+id);
     }
 
     public static Uri forUser(long id) {

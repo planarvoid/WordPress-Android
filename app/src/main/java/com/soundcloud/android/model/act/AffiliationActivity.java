@@ -48,4 +48,11 @@ public class AffiliationActivity extends Activity {
     public ScResource getRefreshableResource() {
         return user;
     }
+
+    @Override
+    public boolean isIncomplete() {
+        return user == null || user.isIncomplete();
+    }
+
+
 }

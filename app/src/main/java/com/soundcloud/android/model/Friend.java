@@ -65,4 +65,9 @@ public class Friend extends ScResource implements Refreshable {
         Log.e(SoundCloudApplication.TAG, "Unexpected call to toUri on a Friend");
         return null;
     }
+
+    @Override
+    public boolean isIncomplete() {
+        return user.isIncomplete();
+    }
 }

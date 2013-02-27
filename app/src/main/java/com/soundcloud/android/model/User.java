@@ -324,6 +324,11 @@ public class User extends ScResource implements Refreshable {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.user;
     }
 
+    @Override
+    public boolean isIncomplete() {
+        return id <= 0;
+    }
+
     public User updateFrom(User user, CacheUpdateMode cacheUpdateMode) {
         this.id = user.id;
         this.username = user.username;

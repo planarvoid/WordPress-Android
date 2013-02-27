@@ -23,7 +23,7 @@
     <issue id="ContentDescription" severity="ignore"/>
 
     <!-- flag NewApi as error -->
-    <issue id="NewApi" severity="warning"/>
+    <issue id="NewApi" severity="error"/>
 
     <!-- ABS + ViewPagerIndicator -->
     <issue id="NewApi">
@@ -62,6 +62,8 @@
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsAdapterView.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsProgressBar.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/ActionBarView$HomeView.class"/>
+      <ignore path="res/values/styles_next.xml"/>
+      <ignore path="res/values/themes.xml"/>
     </issue>
 
     <issue id="FloatMath">

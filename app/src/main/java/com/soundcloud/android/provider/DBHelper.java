@@ -96,7 +96,6 @@ public class DBHelper extends SQLiteOpenHelper {
                         case 20:
                             success = upgradeTo20(db, oldVersion);
                             break;
-
                         default:
                             break;
                     }
@@ -447,6 +446,7 @@ public class DBHelper extends SQLiteOpenHelper {
             ;
 
 
+
     /**
      * {@link DBHelper.Suggestions}
      */
@@ -715,6 +715,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String POSITION = "position";
         public static final String USER_ID = "user_id";
     }
+
 
     public static class SoundView extends ResourceTable implements BaseColumns  {
         public static final String LAST_UPDATED = Sounds.LAST_UPDATED;

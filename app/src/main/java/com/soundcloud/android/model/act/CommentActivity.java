@@ -71,4 +71,9 @@ public class CommentActivity extends Activity {
         // TODO, comment refreshing?
         return comment.user;
     }
+
+    @Override
+    public boolean isIncomplete() {
+        return false;
+    }
 }
