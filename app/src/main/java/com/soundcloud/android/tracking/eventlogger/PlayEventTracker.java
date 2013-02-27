@@ -139,6 +139,7 @@ public class PlayEventTracker {
     static class TrackingParams {
         final Track track;
         final Action action;
+        final long timestamp;
         final long userId;
         final String originUrl;
         final String level;
@@ -149,11 +150,12 @@ public class PlayEventTracker {
             this.userId = userId;
             this.originUrl = originUrl;
             this.level = level;
+            this.timestamp = System.currentTimeMillis();
         }
 
         public ContentValues toContentValues() {
             ContentValues values = new ContentValues();
-            values.put(TrackingEvents.TIMESTAMP, System.currentTimeMillis());
+            values.put(TrackingEvents.TIMESTAMP, timestamp);
             values.put(TrackingEvents.ACTION, action.toApiName());
             values.put(TrackingEvents.SOUND_URN, ClientUri.forTrack(track.id).toString());
             values.put(TrackingEvents.SOUND_DURATION, track.duration);
@@ -177,6 +179,7 @@ public class PlayEventTracker {
             return "TrackingParams{" +
                     "track_id=" + track.id +
                     ", action=" + action.name() +
+                    ", timestamp=" + timestamp +
                     ", userId=" + userId +
                     ", originUrl='" + originUrl + '\'' +
                     ", level='" + level + '\'' +
