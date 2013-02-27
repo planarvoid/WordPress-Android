@@ -152,6 +152,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
                     R.drawable.ic_list_playing_pressed : R.drawable.ic_list_playing_orange, ImageSpan.ALIGN_BOTTOM),
                     0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             mSpanBuilder.append(mPlayableHolder.getPlayable().title);
+            // offset by 2 because of the speaker image and space
             mSpanBuilder.setSpan(fcs, 2, mPlayableHolder.getPlayable().title.length()+2,
                     Spannable.SPAN_INCLUSIVE_INCLUSIVE);
             mTitle.setText(mSpanBuilder);
