@@ -72,6 +72,10 @@ public class ScBaseAdapterTest {
             public boolean isStale() {
                 return false; // not stale, should not appear
             }
+            @Override
+            public boolean isIncomplete() {
+                return false; // not stale, should not appear
+            }
         });
 
         // users

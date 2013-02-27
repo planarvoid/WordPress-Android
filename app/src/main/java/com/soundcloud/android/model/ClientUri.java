@@ -15,7 +15,7 @@ public class ClientUri {
 
     public static final String SCHEME = "soundcloud";
     public static final String SOUNDS_TYPE = "sounds";
-    public static final String TRACKS_TYPE = "sounds";
+    public static final String TRACKS_TYPE = "tracks";
     public static final String PLAYLISTS_TYPE = "playlists";
     public static final String USERS_TYPE = "users";
 
@@ -58,7 +58,8 @@ public class ClientUri {
     }
 
     public Uri contentProviderUri() {
-        if (TRACKS_TYPE.equals(type)) return Content.TRACK.forId(numericId);
+        if (SOUNDS_TYPE.equals(type)) return Content.TRACK.forId(numericId);
+        else if (TRACKS_TYPE.equals(type)) return Content.TRACK.forId(numericId);
         else if (USERS_TYPE.equals(type)) return Content.USER.forId(numericId);
         else if (PLAYLISTS_TYPE.equals(type)) return Content.PLAYLIST.forId(numericId);
         else throw new IllegalStateException("Unsupported content type: " + type);
