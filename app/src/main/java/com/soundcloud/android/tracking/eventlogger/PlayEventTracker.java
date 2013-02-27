@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -12,6 +13,7 @@ import android.os.Message;
 import android.provider.BaseColumns;
 import android.util.Log;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.IOUtils;
@@ -44,7 +46,7 @@ public class PlayEventTracker {
                            final String level) {
 
         if (track == null) return;
-        Log.d(TAG, "trackEvent("+track.id+", "+action+", "+userId+","+originUrl+","+level+")");
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "trackEvent("+track.id+", "+action+", "+userId+","+originUrl+","+level+")");
 
         synchronized (lock) {
             if (handler == null) {
@@ -115,7 +117,7 @@ public class PlayEventTracker {
         return flushedAll;
     }
 
-    private SQLiteDatabase getTrackingDb() {
+    private SQLiteDatabase getTrackingDb() throws SQLiteException {
         if (trackingDb == null) {
             TrackingDbHelper helper = new TrackingDbHelper(mContext);
             trackingDb = helper.getWritableDatabase();
@@ -214,6 +216,14 @@ public class PlayEventTracker {
 
         @Override
         public void handleMessage(Message msg) {
+            try {
+                handleTrackingEvent(msg);
+            } catch (Exception e) {
+                SoundCloudApplication.handleSilentException("Error in tracking handler", e);
+            }
+        }
+
+        private void handleTrackingEvent(Message msg) {
             switch (msg.what) {
                 case INSERT_TOKEN: {
                     final TrackingParams params = (TrackingParams) msg.obj;
