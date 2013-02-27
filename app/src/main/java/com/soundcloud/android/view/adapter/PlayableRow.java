@@ -23,6 +23,7 @@ import android.database.Cursor;
 import android.os.Parcelable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.util.AttributeSet;
 import android.view.View;
@@ -40,6 +41,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
 
     // used to build the string for the title text
     private SpannableStringBuilder mSpanBuilder;
+    private final ForegroundColorSpan fcs = new ForegroundColorSpan(getResources().getColor(R.color.scOrange));
 
     public PlayableRow(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -143,13 +145,18 @@ public class PlayableRow extends PlayableBar implements ListRow {
     protected void setTitle(boolean pressed) {
         if (mPlayableHolder.getPlayable().id == CloudPlaybackService.getCurrentTrackId()) {
             if (mSpanBuilder == null) mSpanBuilder = new SpannableStringBuilder();
+
             mSpanBuilder.clear();
             mSpanBuilder.append("  ");
             mSpanBuilder.setSpan(new ImageSpan(getContext(), pressed ?
-                    R.drawable.list_playing_white_50 : R.drawable.list_playing, ImageSpan.ALIGN_BASELINE),
+                    R.drawable.ic_list_playing_pressed : R.drawable.ic_list_playing_orange, ImageSpan.ALIGN_BOTTOM),
                     0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             mSpanBuilder.append(mPlayableHolder.getPlayable().title);
+            // offset by 2 because of the speaker image and space
+            mSpanBuilder.setSpan(fcs, 2, mPlayableHolder.getPlayable().title.length()+2,
+                    Spannable.SPAN_INCLUSIVE_INCLUSIVE);
             mTitle.setText(mSpanBuilder);
+
         } else {
             super.setTitle();
         }
