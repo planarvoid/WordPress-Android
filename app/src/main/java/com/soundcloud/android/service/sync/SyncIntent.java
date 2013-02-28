@@ -60,7 +60,14 @@ import java.util.Set;
      */
     public boolean onUriResult(CollectionSyncRequest request) {
         if (requestsRemaining.contains(request)) {
+            // if this is a different instance of the same sync request, share the result
+            for (CollectionSyncRequest instance : requestsRemaining){
+                if (instance.equals(request) && instance != request){
+                    instance.result = request.result;
+                }
+            }
             requestsRemaining.remove(request);
+
             resultData.putBoolean(request.contentUri.toString(), isUIRequest ?
                     request.result.change != ApiSyncer.Result.UNCHANGED : request.result.change == ApiSyncer.Result.CHANGED);
 
