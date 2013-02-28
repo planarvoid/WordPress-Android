@@ -9,15 +9,22 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.model.act.Activity;
+import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.service.sync.ApiSyncServiceTest;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import android.content.ContentValues;
 
 @RunWith(DefaultTestRunner.class)
 public class AssociationManagerTest {
@@ -156,6 +163,24 @@ public class AssociationManagerTest {
         Playlist playlistFromDb = (Playlist) modelManager.getModel(p.toUri(), null);
         expect(playlistFromDb.user_repost).toBeTrue();
         expect(playlistFromDb.reposts_count).toEqual(repostsCount + 1);
+    }
+
+    @Test
+    public void shouldRemoveRepostActivity() throws Exception {
+        Activities a = modelManager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_playlist_repost.json"), false);
+        a.get(0).getUser().id = USER_ID; // needs to be the logged in user
+
+        Playlist playlist = (Playlist) a.get(0).getPlayable();
+
+        expect(a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver())).toBe(1);
+        DefaultTestRunner.application.getContentResolver().insert(Content.ME_REPOSTS.uri, playlist.buildContentValues());
+        expect(Content.ME_SOUND_STREAM).toHaveCount(1);
+
+        addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.id).toUrl(), new TestHttpResponse(200, "OK"));
+        associationManager.setRepost(playlist, false);
+
+        expect(modelManager.getPlaylist(playlist.id).user_like).toBeFalse();
+        expect(Content.ME_SOUND_STREAM).toHaveCount(0);
     }
 
     private Track createTrack() {
