@@ -89,7 +89,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
         });
         builder.setView(dialogView);
 
-        getSherlockActivity().getSupportLoaderManager().initLoader(LOADER_ID, getArguments(), this).forceLoad();
+        getSherlockActivity().getSupportLoaderManager().restartLoader(LOADER_ID, getArguments(), this);
 
         return builder.create();
 
@@ -133,8 +133,11 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new AsyncTaskLoader<Cursor>(getActivity()) {
             @Override
+            protected void onStartLoading() {
+                forceLoad();
+            }
+            @Override
             public Cursor loadInBackground() {
-
                 final String existsCol = "EXISTS (SELECT 1 FROM " + Table.PLAYLIST_TRACKS
                         + " WHERE " + DBHelper.PlaylistTracks.TRACK_ID + " = " + getArguments().getLong(KEY_TRACK_ID) + " AND " +
                         DBHelper.PlaylistTracks.PLAYLIST_ID + " = " + DBHelper.PlaylistTracksView._ID + ") as " + COL_ALREADY_ADDED;
