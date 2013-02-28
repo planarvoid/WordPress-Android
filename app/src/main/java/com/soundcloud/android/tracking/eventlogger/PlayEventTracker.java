@@ -249,6 +249,7 @@ public class PlayEventTracker {
 
                     synchronized (lock) {
                         if (handler != null) {
+                            handler.removeMessages(FINISH_TOKEN);
                             handler.sendMessageDelayed(handler.obtainMessage(FINISH_TOKEN), FLUSH_DELAY);
                         }
                     }
