@@ -281,7 +281,7 @@ public enum Content  {
         }
     }
 
-    public static Content byUri(Uri uri) {
+    public static @Nullable Content byUri(Uri uri) {
         return sUris.get(uri);
     }
 
