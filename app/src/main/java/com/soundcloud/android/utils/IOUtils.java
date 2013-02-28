@@ -143,7 +143,10 @@ public final class IOUtils {
     public static void consumeStream(@Nullable HttpURLConnection connection) {
         try {
             if (connection != null) {
-                readInputStreamAsBytes(connection.getInputStream(), connection.getContentLength());
+                final int contentLength = connection.getContentLength();
+                if (contentLength > 0) {
+                    readInputStreamAsBytes(connection.getInputStream(), contentLength);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
