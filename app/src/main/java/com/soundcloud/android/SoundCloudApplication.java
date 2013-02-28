@@ -526,7 +526,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
            Log.w(TAG, "silentException: "+msg, e);
            ACRA.getErrorReporter().putCustomData("message", msg);
         }
-        return ACRA.getErrorReporter().handleSilentException(e);
+        return ACRA.getErrorReporter().handleSilentException(new SilentException(e));
     }
 
     public static SoundCloudApplication fromContext(@NotNull Context c){
@@ -569,4 +569,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                     .build());
         }
     }
+
+    private static class SilentException extends Exception {
+        private SilentException(Throwable throwable) {
+            super(throwable);
+        }
+    }
+
 }
