@@ -12,7 +12,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.provider.BaseColumns;
 import android.util.Log;
-import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.Track;
