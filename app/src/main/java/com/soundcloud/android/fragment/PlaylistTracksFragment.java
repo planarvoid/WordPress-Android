@@ -158,7 +158,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private void syncPlaylist() {
         final FragmentActivity activity = getActivity();
-        if (isAdded()) {
+        if (isAdded() && !mWaitingForSync) {
             mWaitingForSync = true;
             mListView.setRefreshing(false);
             activity.startService(new Intent(activity, ApiSyncService.class)
@@ -179,7 +179,6 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         mWaitingForSync = false;
-
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
                 refresh(mPlaylist);
