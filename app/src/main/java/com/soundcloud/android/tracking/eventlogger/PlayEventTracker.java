@@ -239,7 +239,7 @@ public class PlayEventTracker {
 
         private void handleTrackingEvent(Message msg) {
             switch (msg.what) {
-                case INSERT_TOKEN: {
+                case INSERT_TOKEN:
                     final TrackingParams params = (TrackingParams) msg.obj;
                     long id = getTrackingDb().insert(EVENTS_TABLE, null, params.toContentValues());
 
@@ -253,24 +253,20 @@ public class PlayEventTracker {
                         }
                     }
                     break;
-                }
-                case FINISH_TOKEN: {
-                    if (flushPlaybackTrackingEvents()) {
-                        synchronized (lock) {
-                            if (handler != null) {
-                                handler.getLooper().quit();
-                                handler = null;
-                                if (trackingDb != null) {
-                                    trackingDb.close();
-                                    trackingDb = null;
-                                }
+                case FINISH_TOKEN:
+                    flushPlaybackTrackingEvents();
+                    synchronized (lock) {
+                        if (handler != null) {
+                            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Shutting down.");
+                            handler.getLooper().quit();
+                            handler = null;
+                            if (trackingDb != null) {
+                                trackingDb.close();
+                                trackingDb = null;
                             }
                         }
-                    } else {
-                        sendMessageDelayed(obtainMessage(FINISH_TOKEN), FLUSH_DELAY);
                     }
                     break;
-                }
             }
         }
     }
