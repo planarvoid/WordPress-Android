@@ -118,11 +118,7 @@ public class IOUtilsTest {
 
     @Test
     public void consumeContentShouldNotThrowForNullConnection() {
-        try {
-            IOUtils.consumeStream(null);
-        } catch (Throwable e) {
-            fail("Expected not to throw, but caught " + e);
-        }
+        IOUtils.consumeStream(null);
     }
 
     @Test
@@ -130,10 +126,6 @@ public class IOUtilsTest {
         HttpURLConnection connection = mock(HttpURLConnection.class);
         when(connection.getContentLength()).thenReturn(0);
 
-        try {
-            IOUtils.consumeStream(connection);
-        } catch (Throwable e) {
-            fail("Expected not to throw, but caught " + e);
-        }
+        IOUtils.consumeStream(connection);
     }
 }

@@ -73,7 +73,7 @@ public class PlayEventTrackingApi {
         return successes.toArray(new String[successes.size()]);
     }
 
-    public String buildUrl(Cursor trackingData) throws UnsupportedEncodingException {
+    String buildUrl(Cursor trackingData) throws UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder(ENDPOINT);
         sb.append("?client_id=").append(mClientId);
         long timestamp = trackingData.getLong(trackingData.getColumnIndex(TIMESTAMP));

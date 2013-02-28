@@ -38,8 +38,11 @@ public class PlayEventTracker {
     private final Object lock = new Object();
     private Context mContext;
 
-    public PlayEventTracker(Context context) {
+    private final PlayEventTrackingApi mTrackingApi;
+
+    public PlayEventTracker(Context context, PlayEventTrackingApi api) {
         mContext = context;
+        mTrackingApi = api;
     }
 
     public void trackEvent(final @Nullable Track track, final Action action, final long userId, final String originUrl,
@@ -75,7 +78,7 @@ public class PlayEventTracker {
         }
     }
 
-    private boolean flushPlaybackTrackingEvents() {
+    /* package */ boolean flushPlaybackTrackingEvents() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "flushPlaybackTrackingEvents");
 
         if (!IOUtils.isConnected(mContext)) {
@@ -83,7 +86,6 @@ public class PlayEventTracker {
             return true;
         }
 
-        PlayEventTrackingApi trackingApi = new PlayEventTrackingApi(mContext.getString(R.string.client_id));
         SQLiteDatabase db = getTrackingDb();
 
         db.beginTransaction();
@@ -92,7 +94,7 @@ public class PlayEventTracker {
                 String.valueOf(BATCH_SIZE));
 
         if (cursor != null && cursor.getCount() > 0) {
-            String[] submitted = trackingApi.pushToRemote(cursor);
+            String[] submitted = mTrackingApi.pushToRemote(cursor);
             if (submitted.length > 0) {
                 StringBuilder query = new StringBuilder(submitted.length * 2 - 1);
                 query.append(TrackingEvents._ID).append(" IN (?");
