@@ -101,13 +101,6 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        syncIfNecessary();
-
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
         mLocalCollection.startObservingSelf(getActivity().getContentResolver(),this);
@@ -137,7 +130,9 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mAdapter.swapCursor(data);
-        setListShown(mAdapter.isEmpty() ? mLocalCollection.isIdle() : true);
+
+        boolean syncing = syncIfNecessary();
+        setListShown(mAdapter.isEmpty() ? mLocalCollection.isIdle() && !syncing : true);
 
         if (mScrollToPos != -1 && mListView != null){
             scrollToPosition(mScrollToPos);
@@ -178,8 +173,12 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
                 setListShown(true);
                 break;
         }
-
         mListView.onRefreshComplete();
+    }
+
+    @Override
+    public void onLocalCollectionChanged() {
+        setListLastUpdated();
     }
 
     public void refresh(Playlist playlist) {
@@ -190,7 +189,6 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
                 mLocalCollection = LocalCollection.fromContentUri(mPlaylist.toUri(), getActivity().getContentResolver(), true);
             }
             getActivity().getSupportLoaderManager().restartLoader(PLAYER_LIST_LOADER, null, this);
-            syncIfNecessary();
             setHeaderInfo();
         }
     }
@@ -208,16 +206,20 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         }
     }
 
-    private void syncIfNecessary(){
-        if (mPlaylist.isLocal() || mLocalCollection.shouldAutoRefresh()) {
+    private boolean syncIfNecessary(){
+        if (mPlaylist.isLocal() || (mLocalCollection != null && mLocalCollection.shouldAutoRefresh())) {
             syncPlaylist();
+            return true;
+        } else {
+            setListLastUpdated();
+            return false;
         }
     }
 
     private void syncPlaylist() {
         final FragmentActivity activity = getActivity();
         if (isAdded() && mLocalCollection.isIdle()) {
-            if (mListView != null) mListView.setRefreshing(false);
+            if (mListView != null) mListView.setRefreshing(true);
             activity.startService(new Intent(activity, ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, mDetachableReceiver)
@@ -225,8 +227,9 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         }
     }
 
-    @Override
-    public void onLocalCollectionChanged() {
-        if (mAdapter != null && mAdapter.isEmpty()) setListShown(mLocalCollection.isIdle());
+    private void setListLastUpdated() {
+        if (mListView != null && mLocalCollection.last_sync_success > 0) {
+            mListView.setLastUpdated(mLocalCollection.last_sync_success);
+        }
     }
 }
