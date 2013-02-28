@@ -81,7 +81,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
         ((TextView) dialogView.findViewById(android.R.id.title)).setText(getString(R.string.add_track_to_set));
         listView.setAdapter(mAdapter);
 
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
