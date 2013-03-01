@@ -17,13 +17,16 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.3.2</version>
+                <version>3.5.0</version>
 
                 <configuration>
                     <target>all</target>
                     <clearNativeArtifacts>false</clearNativeArtifacts>
                     <useHeaderArchives>false</useHeaderArchives>
                     <ndkBuildAdditionalCommandline>NDK_TOOLCHAIN=""</ndkBuildAdditionalCommandline>
+                    <sdk>
+                        <platform>16</platform>
+                    </sdk>
                 </configuration>
                 <extensions>true</extensions>
                 <executions>
