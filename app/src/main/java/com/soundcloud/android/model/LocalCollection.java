@@ -5,6 +5,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncer;
 import com.soundcloud.android.service.sync.SyncConfig;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
@@ -96,8 +97,12 @@ public class LocalCollection {
         return resolver.update(Content.COLLECTIONS.forId(id), buildContentValues(), null,null) == 1;
     }
 
+    public boolean isIdle(){
+        return sync_state == SyncState.IDLE;
+    }
 
-    public static LocalCollection fromContent(Content content, ContentResolver resolver, boolean createIfNecessary) {
+
+    public static @Nullable LocalCollection fromContent(Content content, ContentResolver resolver, boolean createIfNecessary) {
         return fromContentUri(content.uri, resolver, createIfNecessary);
     }
 
@@ -240,7 +245,9 @@ public class LocalCollection {
     }
 
     public boolean shouldAutoRefresh() {
-        Content c = Content.byUri(uri);
+        if (!isIdle()) return false;
+
+        Content c = Content.match(uri);
 
         // only auto refresh once every 30 mins at most, that we won't hammer their phone or the api if there are errors
         if (last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) return false;
@@ -248,6 +255,7 @@ public class LocalCollection {
         // do not auto refresh users when the list opens, because users are always changing
         if (User.class.equals(c.modelType)) return last_sync_success <= 0;
         final long staleTime = (Track.class.equals(c.modelType))    ? SyncConfig.TRACK_STALE_TIME :
+                               (Playlist.class.equals(c.modelType))    ? 3000 :
                                (Activity.class.equals(c.modelType)) ? SyncConfig.ACTIVITY_STALE_TIME :
                                SyncConfig.DEFAULT_STALE_TIME;
 
