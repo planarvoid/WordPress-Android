@@ -336,7 +336,8 @@
         <activity android:name=".activity.create.EmailPicker" android:theme="@style/Theme.Next.NoActionBar"/>
         <activity android:name=".activity.create.LocationPicker" android:theme="@style/Theme.Next.NoActionBar"/>
         <activity android:name=".activity.auth.EmailConfirm"/>
-        <activity android:name=".cropimage.CropImage" android:hardwareAccelerated="false"/>
+        <activity android:name=".cropimage.CropImageActivity" android:hardwareAccelerated="false"/>
+
         <!-- for testing purposes -->
         <activity android:name="com.soundcloud.android.activity.test.ShareSound">
             <intent-filter>
