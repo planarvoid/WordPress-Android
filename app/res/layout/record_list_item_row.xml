@@ -42,7 +42,7 @@
                   style="@style/txt_list_main"
                   android:textColor="@color/white"
                   android:singleLine="true"
-                  android:ellipsize="marquee"
+                  android:ellipsize="end"
                   android:text="@string/track"/>
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"

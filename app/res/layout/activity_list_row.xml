@@ -21,7 +21,7 @@
               style="@style/txt_list_track_user"
               android:text="@string/user"
               android:singleLine="true"
-              android:ellipsize="marquee"
+              android:ellipsize="end"
               android:layout_marginRight="3dp"
               android:layout_width="wrap_content"
               android:layout_alignTop="@id/icon"
@@ -34,7 +34,7 @@
               android:layout_alignTop="@id/icon"
               android:paddingLeft="0dip"
               android:singleLine="true"
-              android:ellipsize="marquee"
+              android:ellipsize="end"
               android:layout_alignParentRight="true"/>
     <TextView android:id="@+id/title"
               android:layout="@id/user"

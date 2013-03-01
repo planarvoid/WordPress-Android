@@ -26,7 +26,7 @@
         <TextView android:id="@+id/username"
                   android:layout_height="wrap_content"
                   style="@style/txt_list_main"
-                  android:ellipsize="marquee"
+                  android:ellipsize="end"
                   android:text="@string/username"
                   android:textSize="@dimen/list_txt_main_size"
                   android:lines="1"
