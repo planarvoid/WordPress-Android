@@ -178,8 +178,6 @@ public class AssociationManagerTest {
 
         addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.id).toUrl(), new TestHttpResponse(200, "OK"));
         associationManager.setRepost(playlist, false);
-
-        expect(modelManager.getPlaylist(playlist.id).user_like).toBeFalse();
         expect(Content.ME_SOUND_STREAM).toHaveCount(0);
     }
 
