@@ -124,8 +124,8 @@ public class AssociationManager {
             mContext.getContentResolver().insert(uri, playable.buildContentValues());
         } else {
             mContext.getContentResolver().delete(uri, "item_id = ? AND " +
-                    DBHelper.CollectionItems.RESOURCE_TYPE + " = " + playable.getTypeId(), new String[]{
-                    String.valueOf(playable.id),
+                    DBHelper.CollectionItems.RESOURCE_TYPE + " = ?", new String[]{
+                    String.valueOf(playable.id), String.valueOf(playable.getTypeId())
             });
 
             // quick and dirty way to remove reposts from
