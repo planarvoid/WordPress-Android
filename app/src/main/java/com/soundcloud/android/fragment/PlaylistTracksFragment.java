@@ -35,8 +35,6 @@ import android.widget.TextView;
 public class PlaylistTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
         LoaderManager.LoaderCallbacks<Cursor>, PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener {
 
-    public static final String PLAYLIST_URI = "playlistUri";
-
     private static final int PLAYER_LIST_LOADER = 0x01;
     private Playlist mPlaylist = new Playlist();
     private TextView mInfoHeader;
@@ -103,13 +101,17 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     @Override
     public void onStart() {
         super.onStart();
-        mLocalCollection.startObservingSelf(getActivity().getContentResolver(),this);
+        if (mLocalCollection != null) {
+            mLocalCollection.startObservingSelf(getActivity().getContentResolver(), this);
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        mLocalCollection.stopObservingSelf();
+        if (mLocalCollection != null) {
+            mLocalCollection.stopObservingSelf();
+        }
     }
 
     @Override
@@ -132,7 +134,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         mAdapter.swapCursor(data);
 
         boolean syncing = syncIfNecessary();
-        boolean isIdle = mLocalCollection.isIdle() && !syncing;
+        boolean isIdle = mLocalCollection != null && mLocalCollection.isIdle() && !syncing;
         setListShown(!mAdapter.isEmpty() || isIdle);
 
         if (mScrollToPos != -1 && mListView != null){
@@ -219,7 +221,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private void syncPlaylist() {
         final FragmentActivity activity = getActivity();
-        if (isAdded() && mLocalCollection.isIdle()) {
+        if (isAdded() && mLocalCollection != null && mLocalCollection.isIdle()) {
             if (mListView != null) mListView.setRefreshing(true);
             activity.startService(new Intent(activity, ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
@@ -229,7 +231,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     private void setListLastUpdated() {
-        if (mListView != null && mLocalCollection.last_sync_success > 0) {
+        if (mListView != null && mLocalCollection != null && mLocalCollection.last_sync_success > 0) {
             mListView.setLastUpdated(mLocalCollection.last_sync_success);
         }
     }
