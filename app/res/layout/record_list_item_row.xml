@@ -51,7 +51,7 @@
                   android:id="@+id/track_created_at"
                   android:layout_marginRight="5dip"
                   android:paddingRight="0dip"
-                  android:text=""/>
+                  android:text=""/>                         f
         <TextView android:id="@+id/private_indicator"
                   android:singleLine="true"
                   android:ellipsize="none"
