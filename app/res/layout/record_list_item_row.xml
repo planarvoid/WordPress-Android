@@ -37,7 +37,7 @@
                   android:layout_height="wrap_content"
                   android:textColor="@android:color/white"
                   android:singleLine="true"
-                  android:ellipsize="marquee"/>
+                  android:ellipsize="end"/>
 
         <TextView android:id="@id/playable_created_at"
                   android:layout_width="wrap_content"
