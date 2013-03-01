@@ -128,21 +128,10 @@
     <string name="dialog_transcoding_failed_title">Error de transcodificación</string>
     <string name="dialog_transcoding_failed_message">Vaya, algo ha salido mal y no se puede reproducir tu sonido. Puedes eliminar el sonido de tu lista a través de la página web. Para obtener más información, ponte en contacto con nuestro soporte.</string>
 
-    <string name="dialog_transcoding_processing_title">Procesando sonido</string>
-    <string name="dialog_transcoding_processing_message">Se está procesando tu sonido y en unos segundos se podrá reproducir.</string>
-
     <string name="visit_support">Visita Soporte</string>
-    <string name="following_spam_warning">Has alcanzado el límite de seguidores usuarios, se desactivará esta opción de tu cuenta de forma temporal.</string>
 
     <string name="yes">Sí</string>
     <string name="no">No</string>
-
-
-    <string name="dialog_transcoding_failed_title">Error en la transcodificación</string>
-    <string name="dialog_transcoding_failed_message">Huy, algo ha fallado y tu sonido no se puede reproducir. Puedes
-        eliminar el sonido de la lista mediante la página web. Para más información, contacta con nuestro servicio técnico.
-    </string>
-    <string name="visit_support">Visitar servicio técnico</string>
 
     <string name="waiting_for_sync">Esperando sincronización...</string>
 
@@ -164,9 +153,6 @@
 
     <string name="following_spam_warning">Has llegado al límite de usuarios a los que puedes seguir y esta opción queda temporalmente desactivada para tu cuenta.
     </string>
-
-    <string name="yes">Sí</string>
-    <string name="no">No</string>
 
     <string name="action_bar_like">Dar voto positivo</string>
     <string name="action_bar_search">Buscar</string>
@@ -238,7 +224,6 @@
     <string name="tour_title_3">Conectar y compartir</string>
 
     <string name="search_for_query">Busca \'%s\'</string>
-    <string name="authentication_recover_password_msg">Introduce tu dirección de correo electrónico y te enviaremos un enlace que te permitirá cambiar tu contraseña. ¿Problemas? Contacta con el servicio técnico.</string>
     <string name="done">Hecho</string>
     <string name="tour_signup_header">Regístrate con tu cuenta</string>
     <string name="email">Correo electrónico</string>

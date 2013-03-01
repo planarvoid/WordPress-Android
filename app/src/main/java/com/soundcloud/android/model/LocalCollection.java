@@ -246,11 +246,10 @@ public class LocalCollection {
 
     public boolean shouldAutoRefresh() {
         if (!isIdle()) return false;
-
         Content c = Content.match(uri);
 
         // only auto refresh once every 30 mins at most, that we won't hammer their phone or the api if there are errors
-        if (last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) return false;
+        if (c == null || last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) return false;
 
         // do not auto refresh users when the list opens, because users are always changing
         if (User.class.equals(c.modelType)) return last_sync_success <= 0;

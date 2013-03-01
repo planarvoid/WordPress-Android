@@ -21,7 +21,8 @@ public class PlayEventTrackingApi {
 
     private static final String TAG = PlayEventTrackingApi.class.getSimpleName();
     private static final String ENDPOINT = "http://eventlogger.soundcloud.com/audio";
-    private static final int CONNECTION_TIMEOUT = 10 * 1000;
+    private static final int READ_TIMEOUT = 5 * 1000;
+    private static final int CONNECT_TIMEOUT = 10 * 1000;
 
     private final String mClientId;
 
@@ -46,7 +47,8 @@ public class PlayEventTrackingApi {
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "logging "+url);
                 connection = (HttpURLConnection) new URL(url).openConnection();
 
-                connection.setReadTimeout(CONNECTION_TIMEOUT);
+                connection.setConnectTimeout(CONNECT_TIMEOUT);
+                connection.setReadTimeout(READ_TIMEOUT);
                 connection.connect();
 
                 final int response = connection.getResponseCode();
@@ -71,7 +73,7 @@ public class PlayEventTrackingApi {
         return successes.toArray(new String[successes.size()]);
     }
 
-    public String buildUrl(Cursor trackingData) throws UnsupportedEncodingException {
+    String buildUrl(Cursor trackingData) throws UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder(ENDPOINT);
         sb.append("?client_id=").append(mClientId);
         long timestamp = trackingData.getLong(trackingData.getColumnIndex(TIMESTAMP));

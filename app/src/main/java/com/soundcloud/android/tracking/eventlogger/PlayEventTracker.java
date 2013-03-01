@@ -12,7 +12,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.provider.BaseColumns;
 import android.util.Log;
-import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.Track;
@@ -38,8 +37,11 @@ public class PlayEventTracker {
     private final Object lock = new Object();
     private Context mContext;
 
-    public PlayEventTracker(Context context) {
+    private final PlayEventTrackingApi mTrackingApi;
+
+    public PlayEventTracker(Context context, PlayEventTrackingApi api) {
         mContext = context;
+        mTrackingApi = api;
     }
 
     public void trackEvent(final @Nullable Track track, final Action action, final long userId, final String originUrl,
@@ -75,7 +77,7 @@ public class PlayEventTracker {
         }
     }
 
-    private boolean flushPlaybackTrackingEvents() {
+    /* package */ boolean flushPlaybackTrackingEvents() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "flushPlaybackTrackingEvents");
 
         if (!IOUtils.isConnected(mContext)) {
@@ -83,7 +85,6 @@ public class PlayEventTracker {
             return true;
         }
 
-        PlayEventTrackingApi trackingApi = new PlayEventTrackingApi(mContext.getString(R.string.client_id));
         SQLiteDatabase db = getTrackingDb();
 
         db.beginTransaction();
@@ -92,7 +93,7 @@ public class PlayEventTracker {
                 String.valueOf(BATCH_SIZE));
 
         if (cursor != null && cursor.getCount() > 0) {
-            String[] submitted = trackingApi.pushToRemote(cursor);
+            String[] submitted = mTrackingApi.pushToRemote(cursor);
             if (submitted.length > 0) {
                 StringBuilder query = new StringBuilder(submitted.length * 2 - 1);
                 query.append(TrackingEvents._ID).append(" IN (?");
@@ -239,7 +240,7 @@ public class PlayEventTracker {
 
         private void handleTrackingEvent(Message msg) {
             switch (msg.what) {
-                case INSERT_TOKEN: {
+                case INSERT_TOKEN:
                     final TrackingParams params = (TrackingParams) msg.obj;
                     long id = getTrackingDb().insert(EVENTS_TABLE, null, params.toContentValues());
 
@@ -249,28 +250,25 @@ public class PlayEventTracker {
 
                     synchronized (lock) {
                         if (handler != null) {
+                            handler.removeMessages(FINISH_TOKEN);
                             handler.sendMessageDelayed(handler.obtainMessage(FINISH_TOKEN), FLUSH_DELAY);
                         }
                     }
                     break;
-                }
-                case FINISH_TOKEN: {
-                    if (flushPlaybackTrackingEvents()) {
-                        synchronized (lock) {
-                            if (handler != null) {
-                                handler.getLooper().quit();
-                                handler = null;
-                                if (trackingDb != null) {
-                                    trackingDb.close();
-                                    trackingDb = null;
-                                }
+                case FINISH_TOKEN:
+                    flushPlaybackTrackingEvents();
+                    synchronized (lock) {
+                        if (handler != null) {
+                            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Shutting down.");
+                            handler.getLooper().quit();
+                            handler = null;
+                            if (trackingDb != null) {
+                                trackingDb.close();
+                                trackingDb = null;
                             }
                         }
-                    } else {
-                        sendMessageDelayed(obtainMessage(FINISH_TOKEN), FLUSH_DELAY);
                     }
                     break;
-                }
             }
         }
     }
