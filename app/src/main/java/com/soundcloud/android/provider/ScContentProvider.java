@@ -1047,7 +1047,7 @@ public class ScContentProvider extends ContentProvider {
     }
 
     private static String[] getSoundViewColumns(Table table) {
-        return getSoundViewColumns(table, DBHelper.SoundView._ID, DBHelper.SoundView._TYPE);
+        return getSoundViewColumns(table, table.id, table.type);
     }
 
     private static String[] getSoundViewColumns(Table table, String idCol, String typeCol) {
