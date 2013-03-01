@@ -119,7 +119,7 @@
         <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>support-v4</artifactId>
-            <version>r7</version>
+            <version>r12</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
