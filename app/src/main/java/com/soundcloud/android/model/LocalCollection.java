@@ -5,6 +5,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncer;
 import com.soundcloud.android.service.sync.SyncConfig;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
@@ -101,7 +102,7 @@ public class LocalCollection {
     }
 
 
-    public static LocalCollection fromContent(Content content, ContentResolver resolver, boolean createIfNecessary) {
+    public static @Nullable LocalCollection fromContent(Content content, ContentResolver resolver, boolean createIfNecessary) {
         return fromContentUri(content.uri, resolver, createIfNecessary);
     }
 
