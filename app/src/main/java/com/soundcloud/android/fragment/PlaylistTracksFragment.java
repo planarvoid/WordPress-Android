@@ -132,7 +132,8 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         mAdapter.swapCursor(data);
 
         boolean syncing = syncIfNecessary();
-        setListShown(mAdapter.isEmpty() ? mLocalCollection.isIdle() && !syncing : true);
+        boolean isIdle = mLocalCollection.isIdle() && !syncing;
+        setListShown(!mAdapter.isEmpty() || isIdle);
 
         if (mScrollToPos != -1 && mListView != null){
             scrollToPosition(mScrollToPos);
