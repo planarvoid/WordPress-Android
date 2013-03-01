@@ -44,7 +44,7 @@
                   android:drawablePadding="3dp"
                   style="@style/txt_list_track_reposter"
                   android:singleLine="true"
-                  android:ellipsize="marquee"
+                  android:ellipsize="end"
                   android:layout_width="0dp"
                   android:layout_alignParentRight="true"
                   android:layout_alignBottom="@id/user"
@@ -71,7 +71,7 @@
               android:layout_below="@id/user_holder"
               android:maxLines="2"
               style="@style/txt_list_main"
-              android:ellipsize="marquee"
+              android:ellipsize="end"
               android:text="@string/track"/>
 
         <TextView android:id="@+id/private_indicator"
