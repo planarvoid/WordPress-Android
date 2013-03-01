@@ -1,8 +1,11 @@
 $ 56
   % v current
-  _ 2013-02-26
+  _ 2013-03-1
   ! Sets
-  * Various bug and UI fixes
+  * Fixed add to playlist locking bug
+  * Fixed erratic liked/reposted state on stream items
+  * Changed refresh logic to account for private sounds in sets
+  - Various bug and UI fixes
   - Search functionality added to sets
   - Set creation is done in the background
   - Listen to Sets in the Android App
