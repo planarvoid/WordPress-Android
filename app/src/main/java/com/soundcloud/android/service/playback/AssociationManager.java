@@ -129,15 +129,16 @@ public class AssociationManager {
             });
 
             // quick and dirty way to remove reposts from
-            if (uri == Content.ME_REPOSTS.uri){
+            if (uri.equals(Content.ME_REPOSTS.uri)){
 
                 Activity.Type activityType = (playable instanceof Track) ? Activity.Type.TRACK_REPOST :
                         Activity.Type.PLAYLIST_REPOST;
 
                 mContext.getContentResolver().delete(Content.ME_SOUND_STREAM.uri,
-                        DBHelper.Activities.USER_ID + " = " + String.valueOf(SoundCloudApplication.getUserId()) + " AND " +
-                                DBHelper.Activities.SOUND_ID + " = " + String.valueOf(playable.id) + " AND " +
-                                DBHelper.ActivityView.TYPE + " = '" + activityType + "'", null);
+                        DBHelper.Activities.USER_ID + " = ? AND " + DBHelper.Activities.SOUND_ID + " = ? AND " +
+                                DBHelper.ActivityView.TYPE + " = ?",
+                        new String[]{String.valueOf(SoundCloudApplication.getUserId()),
+                                String.valueOf(playable.id), String.valueOf(activityType)});
             }
         }
     }
