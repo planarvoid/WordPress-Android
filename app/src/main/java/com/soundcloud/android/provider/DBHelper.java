@@ -446,10 +446,15 @@ public class DBHelper extends SQLiteOpenHelper {
             "   Activities." + Activities.SOUND_TYPE + " = " + "SoundView." + SoundView._TYPE + ")" +
             " LEFT JOIN Comments ON(" +
             "   Activities." + Activities.COMMENT_ID + " = " + "Comments." + Comments._ID + ")" +
+            // filter out duplicates
+            " LEFT JOIN Activities dup ON(" +
+            "   dup.sound_id = Activities.sound_id AND " +
+            "     (dup.type='track-sharing'    AND Activities.type = 'track')" +
+            "  OR (dup.type='playlist-sharing' AND Activities.type = 'playlist')" +
+            ")" +
+            " WHERE dup._id IS NULL" +
             " ORDER BY " + ActivityView.CREATED_AT + " DESC"
             ;
-
-
 
     /**
      * {@link DBHelper.Suggestions}

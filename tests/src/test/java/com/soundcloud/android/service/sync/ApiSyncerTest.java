@@ -64,17 +64,17 @@ public class ApiSyncerTest {
                 "e1_stream_oldest.json");
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
+        final int TOTAL_STREAM_SIZE = 119; // 120 - 1 dup
 
-
-        expect(Content.ME_SOUND_STREAM).toHaveCount(120);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(TOTAL_STREAM_SIZE);
         expect(Content.TRACKS).toHaveCount(111);
         expect(Content.USERS).toHaveCount(28);
         expect(Content.PLAYLISTS).toHaveCount(8);
 
         Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
-        expect(incoming.size()).toEqual(120);
-        expect(incoming.getUniquePlayables().size()).toEqual(119); // currently excluding playlists
+        expect(incoming.size()).toEqual(TOTAL_STREAM_SIZE);
+        expect(incoming.getUniquePlayables().size()).toEqual(TOTAL_STREAM_SIZE);
         assertResolverNotified(Content.ME_SOUND_STREAM.uri, Content.TRACKS.uri, Content.USERS.uri);
     }
     @Test
@@ -406,7 +406,7 @@ public class ApiSyncerTest {
     }
 
     @Test
-    public void shouldSyncDifferentEndoints() throws Exception {
+    public void shouldSyncDifferentEndpoints() throws Exception {
         sync(Content.ME_ACTIVITIES.uri,
                 "e1_activities_1.json",
                 "e1_activities_2.json");
@@ -415,9 +415,9 @@ public class ApiSyncerTest {
                 "e1_stream.json",
                 "e1_stream_oldest.json");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(120);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(119);
         expect(Content.ME_ACTIVITIES).toHaveCount(17);
-        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(137);
+        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(136);
     }
 
     @Test
@@ -432,7 +432,7 @@ public class ApiSyncerTest {
     public void shouldFilterOutDuplicateTrackAndSharingsAndKeepSharings() throws Exception {
         sync(Content.ME_SOUND_STREAM.uri, "track_and_track_sharing.json");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(3);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(2);
         Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
         expect(incoming.size()).toEqual(2);
