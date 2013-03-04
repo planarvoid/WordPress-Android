@@ -14,6 +14,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
+import com.soundcloud.android.model.act.PlaylistActivity;
 import com.soundcloud.android.model.act.TrackActivity;
 import com.soundcloud.android.model.act.TrackSharingActivity;
 import com.soundcloud.android.provider.Content;
@@ -443,6 +444,20 @@ public class ApiSyncerTest {
         expect(a1.getPlayable().permalink).toEqual("bastard-amo1-edit");
         expect(a2).toBeInstanceOf(TrackSharingActivity.class);
         expect(a2.getPlayable().permalink).toEqual("leotrax06-leo-zero-boom-bam");
+    }
+
+    @Test
+    public void shouldFilterOutDuplicatePlaylistAndSharingsAndKeepSharings() throws Exception {
+        sync(Content.ME_SOUND_STREAM.uri, "playlist_and_playlist_sharing.json");
+
+        expect(Content.ME_SOUND_STREAM).toHaveCount(1);
+        Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
+
+        expect(incoming.size()).toEqual(1);
+        Activity a1 = incoming.get(0);
+
+        expect(a1).toBeInstanceOf(PlaylistActivity.class);
+        expect(a1.getPlayable().permalink).toEqual("private-share-test");
     }
 
     @Test(expected = IOException.class)
