@@ -430,14 +430,12 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldFilterOutDuplicateTrackAndSharingsAndKeepSharings() throws Exception {
-        // TODO, removed duplicate handling. Figure out how to handle with reposts now
-        //  1 unrelated track + 2 track-sharing/track with same id
         sync(Content.ME_SOUND_STREAM.uri, "track_and_track_sharing.json");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(3);
         Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
-        expect(incoming.size()).toEqual(3); // this is with a duplicate
+        expect(incoming.size()).toEqual(2);
         Activity a1 = incoming.get(0);
         Activity a2 = incoming.get(1);
 
