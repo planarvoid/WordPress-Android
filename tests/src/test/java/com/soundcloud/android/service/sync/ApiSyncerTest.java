@@ -21,7 +21,6 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +35,8 @@ import java.io.IOException;
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncerTest {
     private static final long USER_ID = 133201L;
+    private static  final int TOTAL_STREAM_SIZE = 119; // 120 - 1 dup
+
     private ContentResolver resolver;
 
     @Before
@@ -65,7 +66,6 @@ public class ApiSyncerTest {
                 "e1_stream_oldest.json");
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
-        final int TOTAL_STREAM_SIZE = 119; // 120 - 1 dup
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(TOTAL_STREAM_SIZE);
         expect(Content.TRACKS).toHaveCount(111);
@@ -416,7 +416,7 @@ public class ApiSyncerTest {
                 "e1_stream.json",
                 "e1_stream_oldest.json");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(119);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(TOTAL_STREAM_SIZE);
         expect(Content.ME_ACTIVITIES).toHaveCount(17);
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(136);
     }
