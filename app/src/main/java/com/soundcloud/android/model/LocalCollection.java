@@ -253,8 +253,9 @@ public class LocalCollection {
 
         // do not auto refresh users when the list opens, because users are always changing
         if (User.class.equals(c.modelType)) return last_sync_success <= 0;
+
         final long staleTime = (Track.class.equals(c.modelType))    ? SyncConfig.TRACK_STALE_TIME :
-                               (Playlist.class.equals(c.modelType))    ? 3000 :
+                               (Playlist.class.equals(c.modelType)) ? SyncConfig.PLAYLIST_STALE_TIME :
                                (Activity.class.equals(c.modelType)) ? SyncConfig.ACTIVITY_STALE_TIME :
                                SyncConfig.DEFAULT_STALE_TIME;
 
