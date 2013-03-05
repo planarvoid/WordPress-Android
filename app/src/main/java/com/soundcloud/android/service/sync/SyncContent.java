@@ -106,6 +106,7 @@ enum SyncContent {
             while (c.moveToNext()) {
                 uris.add(Content.PLAYLIST.forId(c.getLong(0)));
             }
+            c.close();
             return uris;
         }
 
