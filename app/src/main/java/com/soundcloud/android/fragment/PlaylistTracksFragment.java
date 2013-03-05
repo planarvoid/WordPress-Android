@@ -91,7 +91,6 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
         mInfoHeader = (TextView) View.inflate(getActivity(), R.layout.playlist_header, null);
         mListView.getRefreshableView().addHeaderView(mInfoHeader, null, false);
-        setHeaderInfo();
 
         mEmptyView = (EmptyListView) layout.findViewById(android.R.id.empty);
         mEmptyView.setMessageText(getActivity().getString(R.string.empty_playlist));
@@ -150,6 +149,8 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mAdapter.swapCursor(data);
 
+        setHeaderInfo();
+
         boolean syncing = syncIfNecessary();
         boolean isIdle = mLocalCollection != null && mLocalCollection.isIdle() && !syncing;
         setListShown(!mAdapter.isEmpty() || isIdle);
@@ -183,7 +184,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onReceiveResult(int resultCode, Bundle resultData) {
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
-                refresh(mPlaylist);
+                refresh();
                 break;
             case ApiSyncService.STATUS_SYNC_ERROR:
                 mEmptyView.setStatus(EmptyListView.Status.CONNECTION_ERROR);
@@ -198,14 +199,11 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         setListLastUpdated();
     }
 
-    public void refresh(Playlist playlist) {
-        mPlaylist = playlist;
-
+    public void refresh() {
         if (isAdded()) {
             mLocalCollection = getLocalCollection();
             if (mLocalCollection != null) {
                 getLoaderManager().restartLoader(TRACK_LIST_LOADER, null, this);
-                setHeaderInfo();
             }
         }
     }

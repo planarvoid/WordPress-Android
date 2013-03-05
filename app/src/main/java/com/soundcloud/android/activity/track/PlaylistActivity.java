@@ -160,7 +160,7 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
     }
 
     private void refresh() {
-        mFragment.refresh(mPlaylist);
+        mFragment.refresh();
         mPlaylistBar.display(mPlaylist);
         mActionButtons.update(mPlaylist);
     }
