@@ -31,16 +31,17 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class PlaylistTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
         LoaderManager.LoaderCallbacks<Cursor>, PullToRefreshBase.OnRefreshListener, DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener {
 
-    private static final int PLAYER_LIST_LOADER = 0x01;
-    private Playlist mPlaylist = new Playlist();
+    private static final int TRACK_LIST_LOADER = 1;
+    private Playlist mPlaylist;
     private TextView mInfoHeader;
 
     private boolean mListShown;
-    private @Nullable LocalCollection mLocalCollection;
+    private LocalCollection mLocalCollection;
 
     private PlaylistTracksAdapter mAdapter;
     private ScListView mListView;
@@ -51,15 +52,30 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
+    public static PlaylistTracksFragment create(Playlist playlist) {
+        Bundle args = new Bundle();
+        args.putParcelable(Playlist.EXTRA, playlist);
+
+        PlaylistTracksFragment fragment = new PlaylistTracksFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext());
-        getLoaderManager().initLoader(PLAYER_LIST_LOADER, null, this);
-        mDetachableReceiver.setReceiver(this);
+        mPlaylist = (Playlist) getArguments().get(Playlist.EXTRA);
+        mLocalCollection = getLocalCollection();
 
-        if (mPlaylist != null) refresh(mPlaylist); //force a content refresh
+        if (mLocalCollection == null) {
+            Toast.makeText(getActivity(), R.string.playlist_removed, Toast.LENGTH_SHORT);
+            getActivity().finish();
+        } else {
+            mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext());
+            getLoaderManager().initLoader(TRACK_LIST_LOADER, null, this);
+            mDetachableReceiver.setReceiver(this);
+        }
     }
 
     @Override
@@ -129,6 +145,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
                 null, null, null, null);
     }
 
+    // fires when the loader has finished reading playlist tracks from the local DB
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mAdapter.swapCursor(data);
@@ -153,10 +170,6 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         syncPlaylist();
     }
 
-    public void refreshTrackList() {
-        mAdapter.notifyDataSetChanged();
-    }
-
     private void setHeaderInfo() {
         if (isAdded() && mInfoHeader != null){ // make sure we are attached to an activity
             final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, mPlaylist.track_count, mPlaylist.track_count);
@@ -165,6 +178,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         }
     }
 
+    // fires when the playlist sync operation returns
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         switch (resultCode) {
@@ -188,12 +202,16 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         mPlaylist = playlist;
 
         if (isAdded()) {
-            if (mPlaylist != null && (mLocalCollection == null || !mLocalCollection.uri.equals(mPlaylist.toUri()))) {
-                mLocalCollection = LocalCollection.fromContentUri(mPlaylist.toUri(), getActivity().getContentResolver(), true);
+            mLocalCollection = getLocalCollection();
+            if (mLocalCollection != null) {
+                getLoaderManager().restartLoader(TRACK_LIST_LOADER, null, this);
+                setHeaderInfo();
             }
-            getActivity().getSupportLoaderManager().restartLoader(PLAYER_LIST_LOADER, null, this);
-            setHeaderInfo();
         }
+    }
+
+    private @Nullable LocalCollection getLocalCollection() {
+        return LocalCollection.fromContentUri(mPlaylist.toUri(), getActivity().getContentResolver(), true);
     }
 
     public void scrollToPosition(int position) {
@@ -210,7 +228,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     private boolean syncIfNecessary(){
-        if (mPlaylist.isLocal() || (mLocalCollection != null && mLocalCollection.shouldAutoRefresh())) {
+        if (mPlaylist.isLocal() || mLocalCollection.shouldAutoRefresh()) {
             syncPlaylist();
             return true;
         } else {

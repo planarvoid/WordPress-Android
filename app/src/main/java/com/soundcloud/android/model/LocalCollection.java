@@ -106,7 +106,7 @@ public class LocalCollection {
         return fromContentUri(content.uri, resolver, createIfNecessary);
     }
 
-    public static LocalCollection fromContentUri(Uri contentUri, ContentResolver resolver, boolean createIfNecessary) {
+    public static @Nullable LocalCollection fromContentUri(Uri contentUri, ContentResolver resolver, boolean createIfNecessary) {
         LocalCollection lc = null;
         Cursor c = resolver.query(Content.COLLECTIONS.uri, null, "uri = ?", new String[]{contentUri.toString()}, null);
         if (c != null && c.moveToFirst()) {
@@ -121,11 +121,11 @@ public class LocalCollection {
         return lc;
     }
 
-    public static LocalCollection insertLocalCollection(Uri contentUri, ContentResolver resolver) {
+    public static @Nullable LocalCollection insertLocalCollection(Uri contentUri, ContentResolver resolver) {
         return insertLocalCollection(contentUri, 0, -1, -1, -1, null, resolver);
     }
 
-    public static LocalCollection insertLocalCollection(Uri contentUri, int syncState, long lastSyncAttempt, long lastSyncSuccess, int size, String extra, ContentResolver resolver) {
+    public static @Nullable LocalCollection insertLocalCollection(Uri contentUri, int syncState, long lastSyncAttempt, long lastSyncSuccess, int size, String extra, ContentResolver resolver) {
         // insert if not there
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.URI, contentUri.toString());
