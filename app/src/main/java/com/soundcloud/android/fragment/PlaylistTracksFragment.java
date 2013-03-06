@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -52,9 +53,9 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
-    public static PlaylistTracksFragment create(Playlist playlist) {
+    public static PlaylistTracksFragment create(Uri playlistUri) {
         Bundle args = new Bundle();
-        args.putParcelable(Playlist.EXTRA, playlist);
+        args.putParcelable(Playlist.EXTRA_URI, playlistUri);
 
         PlaylistTracksFragment fragment = new PlaylistTracksFragment();
         fragment.setArguments(args);
@@ -65,7 +66,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mPlaylist = (Playlist) getArguments().get(Playlist.EXTRA);
+        mPlaylist = Playlist.fromBundle(getArguments());
         mLocalCollection = getLocalCollection();
 
         if (mLocalCollection == null) {

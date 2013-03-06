@@ -95,7 +95,7 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
         mActionButtons = new PlayableActionButtonsController(mPlaylistBar);
 
         if (savedInstanceState == null) {
-            mFragment = PlaylistTracksFragment.create(mPlaylist);
+            mFragment = PlaylistTracksFragment.create(getIntent().getData());
             getSupportFragmentManager().beginTransaction().add(R.id.playlist_tracks_fragment, mFragment, TRACKS_FRAGMENT_TAG).commit();
         } else {
             mFragment = (PlaylistTracksFragment) getSupportFragmentManager().findFragmentByTag(TRACKS_FRAGMENT_TAG);

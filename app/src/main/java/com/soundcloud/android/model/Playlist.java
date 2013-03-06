@@ -42,6 +42,7 @@ public class Playlist extends Playable {
 
     public static final String EXTRA = "com.soundcloud.android.playlist";
     public static final String EXTRA_ID = "com.soundcloud.android.playlist_id";
+    public static final String EXTRA_URI = "com.soundcloud.android.playlist_uri";
     public static final String EXTRA_TRACKS_COUNT = "com.soundcloud.android.playlist_tracks";
 
     public static final String ACTION_CONTENT_CHANGED = "com.soundcloud.android.playlist.content_changed";
@@ -57,15 +58,23 @@ public class Playlist extends Playable {
     private Set<WeakReference<OnChangeListener>> mListenerWeakReferences;
     private ContentObserver mPlaylistObserver;
 
-    public static Playlist fromIntent(Intent intent) {
-        Playlist playlist = intent.getParcelableExtra(EXTRA);
-        if (playlist == null) {
-            playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(intent.getLongExtra(EXTRA_ID, 0));
-            if (playlist == null) {
-                throw new IllegalArgumentException("Could not obtain playlist from intent " + intent);
-            }
+    public static @Nullable Playlist fromBundle(Bundle bundle) {
+        Playlist playlist;
+        if (bundle.containsKey(EXTRA)) {
+            playlist = bundle.getParcelable(EXTRA);
+        } else if (bundle.containsKey(EXTRA_ID)) {
+            playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(bundle.getLong(EXTRA_ID, 0));
+        } else if (bundle.containsKey(EXTRA_URI)) {
+            Uri uri = (Uri) bundle.getParcelable(EXTRA_URI);
+            playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(uri);
+        } else {
+            throw new IllegalArgumentException("Could not obtain playlist from bundle");
         }
         return playlist;
+    }
+
+    public static @Nullable Playlist fromIntent(Intent intent) {
+        return fromBundle(intent.getExtras());
     }
 
     public Playlist() {
