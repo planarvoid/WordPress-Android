@@ -70,8 +70,9 @@ public class PlayableActionButtonsController {
         setLikes(mPlayable.likes_count, mPlayable.user_like);
         setReposts(mPlayable.reposts_count, mPlayable.user_repost);
 
-        mToggleRepost.setEnabled(mPlayable.isPublic() && mPlayable.getUserId() != SoundCloudApplication.getUserId());
-        mShareButton.setEnabled(mPlayable.isPublic());
+        boolean showRepost = mPlayable.isPublic() && mPlayable.getUserId() != SoundCloudApplication.getUserId();
+        mToggleRepost.setVisibility(showRepost ? View.VISIBLE : View.GONE);
+        mShareButton.setVisibility(mPlayable.isPublic() ? View.VISIBLE : View.GONE);
     }
 
     public void update(ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked, int checkedStringId) {
