@@ -63,10 +63,6 @@ public class PlayableRow extends PlayableBar implements ListRow {
         return true;
     }
 
-    /** update the views with the data corresponding to selection index */
-    public void display(int position) {
-    }
-
     @Override
     public void display(Cursor cursor) {
         display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor));
