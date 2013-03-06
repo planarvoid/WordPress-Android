@@ -103,9 +103,9 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         return layout;
     }
 
-    private void setListShown(boolean show){
+    private void setListShown(boolean show) {
         mListShown = show;
-        if (mListShown){
+        if (mListShown) {
             mListViewContainer.setVisibility(View.VISIBLE);
             mProgressView.setVisibility(View.GONE);
         } else {
@@ -117,17 +117,14 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     @Override
     public void onStart() {
         super.onStart();
-        if (mLocalCollection != null) {
-            mLocalCollection.startObservingSelf(getActivity().getContentResolver(), this);
-        }
+        // observe changes to the local collection to update the last updated timestamp
+        mLocalCollection.startObservingSelf(getActivity().getContentResolver(), this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (mLocalCollection != null) {
-            mLocalCollection.stopObservingSelf();
-        }
+        mLocalCollection.stopObservingSelf();
     }
 
     @Override
@@ -156,7 +153,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         boolean isIdle = mLocalCollection != null && mLocalCollection.isIdle() && !syncing;
         setListShown(!mAdapter.isEmpty() || isIdle);
 
-        if (mScrollToPos != -1 && mListView != null){
+        if (mScrollToPos != -1 && mListView != null) {
             scrollToPosition(mScrollToPos);
             mScrollToPos = -1;
         }
@@ -173,7 +170,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     private void setHeaderInfo() {
-        if (isAdded() && mInfoHeader != null){ // make sure we are attached to an activity
+        if (isAdded() && mInfoHeader != null) { // make sure we are attached to an activity
             final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, mPlaylist.track_count, mPlaylist.track_count);
             final String duration = ScTextUtils.formatTimestamp(mPlaylist.duration);
             mInfoHeader.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
@@ -214,7 +211,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     public void scrollToPosition(int position) {
-        if (mListView != null){
+        if (mListView != null) {
             final ListView refreshableView = mListView.getRefreshableView();
             final int adjustedPosition = position + refreshableView.getHeaderViewsCount();
 
@@ -222,11 +219,11 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
                     adjustedPosition, (int) (50 * getResources().getDisplayMetrics().density));
 
         } else {
-           mScrollToPos = position;
+            mScrollToPos = position;
         }
     }
 
-    private boolean syncIfNecessary(){
+    private boolean syncIfNecessary() {
         if (mPlaylist.isLocal() || mLocalCollection.shouldAutoRefresh()) {
             syncPlaylist();
             return true;
@@ -238,7 +235,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private void syncPlaylist() {
         final FragmentActivity activity = getActivity();
-        if (isAdded() && mLocalCollection != null && mLocalCollection.isIdle()) {
+        if (isAdded() && mLocalCollection.isIdle()) {
             if (mListView != null) mListView.setRefreshing(true);
             activity.startService(new Intent(activity, ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
@@ -248,7 +245,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     private void setListLastUpdated() {
-        if (mListView != null && mLocalCollection != null && mLocalCollection.last_sync_success > 0) {
+        if (mListView != null && mLocalCollection.last_sync_success > 0) {
             mListView.setLastUpdated(mLocalCollection.last_sync_success);
         }
     }
