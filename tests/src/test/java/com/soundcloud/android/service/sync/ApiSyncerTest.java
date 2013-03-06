@@ -35,7 +35,7 @@ import java.io.IOException;
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncerTest {
     private static final long USER_ID = 133201L;
-    private static  final int TOTAL_STREAM_SIZE = 119; // 120 - 1 dup
+    private static final int TOTAL_STREAM_SIZE = 119; // 120 - 1 dup
 
     private ContentResolver resolver;
 

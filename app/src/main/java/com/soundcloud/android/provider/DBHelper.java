@@ -449,8 +449,8 @@ public class DBHelper extends SQLiteOpenHelper {
             // filter out duplicates
             " LEFT JOIN Activities dup ON(" +
             "   dup.sound_id = Activities.sound_id AND " +
-            "     (dup.type='track-sharing'    AND Activities.type = 'track')" +
-            "  OR (dup.type='playlist-sharing' AND Activities.type = 'playlist')" +
+            "     (dup.type = 'track-sharing'    AND Activities.type = 'track')" +
+            "  OR (dup.type = 'playlist-sharing' AND Activities.type = 'playlist')" +
             ")" +
             " WHERE dup._id IS NULL" +
             " ORDER BY " + ActivityView.CREATED_AT + " DESC"
