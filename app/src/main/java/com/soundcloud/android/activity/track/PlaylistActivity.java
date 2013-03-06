@@ -17,8 +17,10 @@ import com.soundcloud.android.view.adapter.PlayableBar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -32,6 +34,16 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
     private PlayableActionButtonsController mActionButtons;
 
     private PlaylistTracksFragment mFragment;
+
+    private final BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (CloudPlaybackService.PLAYSTATE_CHANGED.equals(action)) {
+                mFragment.getAdapter().notifyDataSetChanged();
+            }
+        }
+    };
 
     public static void start(Context context, @NotNull Playlist playlist) {
         SoundCloudApplication.MODEL_MANAGER.cache(playlist);
@@ -51,6 +63,17 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
         setContentView(R.layout.playlist_activity);
 
         handleIntent(savedInstanceState, true);
+
+        // listen for playback changes, so that we can update the now-playing indicator
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
+        registerReceiver(mPlaybackStatusListener, intentFilter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mPlaybackStatusListener);
     }
 
     private void handleIntent(@Nullable Bundle savedInstanceState, boolean setupViews) {

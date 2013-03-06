@@ -249,4 +249,8 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
             mListView.setLastUpdated(mLocalCollection.last_sync_success);
         }
     }
+
+    public PlaylistTracksAdapter getAdapter() {
+        return mAdapter;
+    }
 }
