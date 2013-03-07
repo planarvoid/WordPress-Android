@@ -1089,9 +1089,6 @@ public class ScContentProvider extends ContentProvider {
         };
     }
 
-    ;
-
-
     /**
      * Roughly corresponds to locally synced collections.
      */

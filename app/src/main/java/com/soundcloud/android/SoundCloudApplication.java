@@ -262,7 +262,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     private void requestSetsSync(){
-        // sync shortcuts so suggest works properly
         Intent intent = new Intent(this, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .setData(Content.ME_PLAYLISTS.uri);
