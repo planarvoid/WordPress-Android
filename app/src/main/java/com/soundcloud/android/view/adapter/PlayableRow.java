@@ -81,8 +81,8 @@ public class PlayableRow extends PlayableBar implements ListRow {
         // makes the row slightly transparent if not playable
         setStaticTransformationsEnabled(!playable.isStreamable());
 
-        if (playable instanceof Playlist && ((Playlist) playable).track_count >= 0){
-            mTrackCount.setText(String.valueOf(((Playlist) playable).track_count));
+        if (playable instanceof Playlist && ((Playlist) playable).getTrackCount() >= 0){
+            mTrackCount.setText(String.valueOf(((Playlist) playable).getTrackCount()));
             mTrackCount.setVisibility(View.VISIBLE);
         } else {
             mTrackCount.setVisibility(View.GONE);

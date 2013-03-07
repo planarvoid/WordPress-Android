@@ -171,7 +171,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private void setHeaderInfo() {
         if (isAdded() && mInfoHeader != null) { // make sure we are attached to an activity
-            final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, mPlaylist.track_count, mPlaylist.track_count);
+            final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, mPlaylist.getTrackCount(), mPlaylist.getTrackCount());
             final String duration = ScTextUtils.formatTimestamp(mPlaylist.duration);
             mInfoHeader.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
         }

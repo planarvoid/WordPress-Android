@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -50,7 +51,7 @@ public class Playlist extends Playable {
     @JsonView(Views.Full.class) public String playlist_type;
     @JsonView(Views.Full.class) public String tracks_uri;
     @JsonView(Views.Full.class) @Nullable public List<Track> tracks;
-    @JsonView(Views.Full.class) public int track_count;
+    @JsonView(Views.Full.class) private int track_count;
     public boolean removed;
 
     public interface OnChangeListener { void onPlaylistChanged(); }
@@ -342,6 +343,17 @@ public class Playlist extends Playable {
     public boolean isStreamable() {
         return true;
     }
+
+
+    public int getTrackCount() {
+        return  tracks == null ? track_count : Math.max(tracks.size(), track_count);
+    }
+
+    @JsonProperty("track_count")
+    public void setTrackCount(int count) {
+        track_count = count;
+    }
+
 
     /**
      * Change listening. Playlist IDs are mutable, so we listen on the actual instance instead of content uri's
