@@ -47,6 +47,7 @@ public class PlayEventTrackingApi {
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "logging "+url);
                 connection = (HttpURLConnection) new URL(url).openConnection();
 
+                connection.setRequestMethod("HEAD");
                 connection.setConnectTimeout(CONNECT_TIMEOUT);
                 connection.setReadTimeout(READ_TIMEOUT);
                 connection.connect();
@@ -60,9 +61,6 @@ public class PlayEventTrackingApi {
                 }
             } catch (IOException e) {
                 Log.w(TAG, "Failed pushing play event " + url);
-            } finally {
-                // consume the response or HTTP pipelining will not work
-                IOUtils.consumeStream(connection);
             }
         }
 
