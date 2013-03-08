@@ -852,16 +852,7 @@ public class ScContentProvider extends ContentProvider {
                         " SELECT id, text, icon_url, permalink_url FROM " + Table.SUGGESTIONS.name + " where kind = 'following'");
                 db.execSQL("INSERT OR IGNORE INTO " + Table.SOUNDS.name + " (_id, title, artwork_url, permalink_url, _type) " +
                         " SELECT id, text, icon_url, permalink_url, 0 FROM " + Table.SUGGESTIONS.name + " where kind = 'like'");
-            } else if (content == Content.PLAYLIST_TRACKS) {
-                // update the track_count counter cache on the playlist; this is mostly
-                // to address the issue that private tracks are not part of a playlist's
-                // public track count on the API
-                // FIXME: this doesn't work unless run through the unit test?
-                db.execSQL("UPDATE " + Table.SOUNDS + " SET " + DBHelper.Sounds.TRACK_COUNT + "= " + values.length +
-                        " WHERE " + DBHelper.Sounds._ID + "=" + extraCV[1] + " AND " + DBHelper.Sounds._TYPE + "=" +
-                        Playable.DB_TYPE_PLAYLIST);
             }
-
 
             if (!failed) db.setTransactionSuccessful();
         } finally {
