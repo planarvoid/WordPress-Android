@@ -447,6 +447,14 @@ public class ApiSyncerTest {
     }
 
     @Test
+    public void shouldFilterOutDuplicateTrackAndSharingsAndKeepSharingsWithRealData() throws Exception {
+        sync(Content.ME_SOUND_STREAM.uri, "stream_with_duplicates.json");
+        // 2 track dups: take-you-home-ruff-cut-preview, b-b-fuller-7-minutes-preview
+        // 1 set dup: repost-your-favorite
+        expect(Content.ME_SOUND_STREAM).toHaveCount(47);
+    }
+
+    @Test
     public void shouldFilterOutDuplicatePlaylistAndSharingsAndKeepSharings() throws Exception {
         sync(Content.ME_SOUND_STREAM.uri, "playlist_and_playlist_sharing.json");
 
