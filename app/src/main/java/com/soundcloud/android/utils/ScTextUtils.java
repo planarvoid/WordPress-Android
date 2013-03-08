@@ -97,12 +97,12 @@ public class ScTextUtils {
     }
 
     /**
-     * @param pos play position in ms
+     * @param msecs duration or time in ms
      * @return formatted time string in the form of 0.05 or 2.12.04
      */
-    public static String formatTimestamp(long pos){
+    public static String formatTimestamp(long msecs){
         StringBuilder builder = new StringBuilder();
-        int secs = (int) (pos / 1000);
+        int secs = (int) (msecs / 1000);
         int minutes = secs  / 60;
         int hours = minutes / 60;
         if (hours > 0) {
