@@ -19,7 +19,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DBHelper";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION  = 21;
+    public static final int DATABASE_VERSION  = 22;
     private static final String DATABASE_NAME = "SoundCloud";
 
     public DBHelper(Context context) {
@@ -98,6 +98,9 @@ public class DBHelper extends SQLiteOpenHelper {
                             break;
                         case 21:
                             success = upgradeTo21(db, oldVersion);
+                            break;
+                        case 22:
+                            success = upgradeTo22(db, oldVersion);
                             break;
                         default:
                             break;
@@ -1085,6 +1088,11 @@ public class DBHelper extends SQLiteOpenHelper {
                     "(from " + oldVersion + ")", e);
         }
         return false;
+    }
+
+    // deduplicate logic in schema
+    private static boolean upgradeTo22(SQLiteDatabase db, int oldVersion) {
+        return upgradeTo21(db, oldVersion);
     }
 
     public static String getWhereInClause(String column, List<Long> idSet){
