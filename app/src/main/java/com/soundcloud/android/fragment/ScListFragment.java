@@ -260,7 +260,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                         if (playable instanceof Playlist && playable.id == playlistId) {
                             Playlist playlist = (Playlist) playable;
                             // TODO: this should be updated by the model manager
-                            playlist.track_count = newTracksCount;
+
+                            playlist.setTrackCount(newTracksCount);
                             mAdapter.notifyDataSetChanged();
                         }
                     }

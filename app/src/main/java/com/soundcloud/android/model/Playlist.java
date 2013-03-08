@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -42,6 +43,7 @@ public class Playlist extends Playable {
 
     public static final String EXTRA = "com.soundcloud.android.playlist";
     public static final String EXTRA_ID = "com.soundcloud.android.playlist_id";
+    public static final String EXTRA_URI = "com.soundcloud.android.playlist_uri";
     public static final String EXTRA_TRACKS_COUNT = "com.soundcloud.android.playlist_tracks";
 
     public static final String ACTION_CONTENT_CHANGED = "com.soundcloud.android.playlist.content_changed";
@@ -49,7 +51,7 @@ public class Playlist extends Playable {
     @JsonView(Views.Full.class) public String playlist_type;
     @JsonView(Views.Full.class) public String tracks_uri;
     @JsonView(Views.Full.class) @Nullable public List<Track> tracks;
-    @JsonView(Views.Full.class) public int track_count;
+    @JsonView(Views.Full.class) private int track_count;
     public boolean removed;
 
     public interface OnChangeListener { void onPlaylistChanged(); }
@@ -57,15 +59,23 @@ public class Playlist extends Playable {
     private Set<WeakReference<OnChangeListener>> mListenerWeakReferences;
     private ContentObserver mPlaylistObserver;
 
-    public static Playlist fromIntent(Intent intent) {
-        Playlist playlist = intent.getParcelableExtra(EXTRA);
-        if (playlist == null) {
-            playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(intent.getLongExtra(EXTRA_ID, 0));
-            if (playlist == null) {
-                throw new IllegalArgumentException("Could not obtain playlist from intent " + intent);
-            }
+    public static @Nullable Playlist fromBundle(Bundle bundle) {
+        Playlist playlist;
+        if (bundle.containsKey(EXTRA)) {
+            playlist = bundle.getParcelable(EXTRA);
+        } else if (bundle.containsKey(EXTRA_ID)) {
+            playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(bundle.getLong(EXTRA_ID, 0));
+        } else if (bundle.containsKey(EXTRA_URI)) {
+            Uri uri = (Uri) bundle.getParcelable(EXTRA_URI);
+            playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(uri);
+        } else {
+            throw new IllegalArgumentException("Could not obtain playlist from bundle");
         }
         return playlist;
+    }
+
+    public static @Nullable Playlist fromIntent(Intent intent) {
+        return fromBundle(intent.getExtras());
     }
 
     public Playlist() {
@@ -333,6 +343,17 @@ public class Playlist extends Playable {
     public boolean isStreamable() {
         return true;
     }
+
+
+    public int getTrackCount() {
+        return  tracks == null ? track_count : Math.max(tracks.size(), track_count);
+    }
+
+    @JsonProperty("track_count")
+    public void setTrackCount(int count) {
+        track_count = count;
+    }
+
 
     /**
      * Change listening. Playlist IDs are mutable, so we listen on the actual instance instead of content uri's

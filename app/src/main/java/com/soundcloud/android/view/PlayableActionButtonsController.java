@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import static com.soundcloud.android.service.playback.CloudPlaybackService.*;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -69,6 +70,8 @@ public class PlayableActionButtonsController {
         setLikes(mPlayable.likes_count, mPlayable.user_like);
         setReposts(mPlayable.reposts_count, mPlayable.user_repost);
 
+        boolean showRepost = mPlayable.isPublic() && mPlayable.getUserId() != SoundCloudApplication.getUserId();
+        mToggleRepost.setVisibility(showRepost ? View.VISIBLE : View.GONE);
         mShareButton.setVisibility(mPlayable.isPublic() ? View.VISIBLE : View.GONE);
     }
 

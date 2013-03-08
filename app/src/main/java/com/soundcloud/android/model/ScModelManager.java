@@ -595,7 +595,7 @@ public class ScModelManager {
         p.title = title;
         p.sharing = isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC;
         p.created_at = new Date(System.currentTimeMillis());
-        p.track_count = trackIds.length;
+        p.setTrackCount(trackIds.length);
         p.tracks = new ArrayList<Track>();
 
         for (long trackId : trackIds){

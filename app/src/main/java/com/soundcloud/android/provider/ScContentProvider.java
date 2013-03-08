@@ -474,8 +474,8 @@ public class ScContentProvider extends ContentProvider {
 
                 // update the track count in the playlist tables
                 String playlistId = values.getAsString(DBHelper.PlaylistTracks.PLAYLIST_ID);
-                final String trackColumn = DBHelper.Sounds.TRACK_COUNT;
-                db.execSQL("UPDATE " + Table.SOUNDS.name + " SET " + trackColumn + "=" + trackColumn + " + 1 WHERE " +
+                final String trackCount = DBHelper.Sounds.TRACK_COUNT;
+                db.execSQL("UPDATE " + Table.SOUNDS.name + " SET " + trackCount + "=" + trackCount + " + 1 WHERE " +
                         DBHelper.Sounds._ID + "=? AND " + DBHelper.Sounds._TYPE + "=?",
                         new String[]{playlistId, String.valueOf(Playable.DB_TYPE_PLAYLIST)}) ;
                 return result;
@@ -854,7 +854,6 @@ public class ScContentProvider extends ContentProvider {
                         " SELECT id, text, icon_url, permalink_url, 0 FROM " + Table.SUGGESTIONS.name + " where kind = 'like'");
             }
 
-
             if (!failed) db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -1080,9 +1079,6 @@ public class ScContentProvider extends ContentProvider {
                         + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.Users.USER_FOLLOWER
         };
     }
-
-    ;
-
 
     /**
      * Roughly corresponds to locally synced collections.

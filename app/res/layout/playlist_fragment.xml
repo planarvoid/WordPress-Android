@@ -7,8 +7,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
+        <!-- don't use android:id/list here for now, since it conflicts with the PTR stuff -->
+        <!-- see https://github.com/soundcloud/SoundCloud-Android/issues/534 -->
         <com.soundcloud.android.view.ScListView
-                android:id="@android:id/list"
+                android:id="@+id/list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
 
