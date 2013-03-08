@@ -27,8 +27,8 @@ import android.widget.Toast;
 
 public class PlaylistActivity extends ScActivity implements Playlist.OnChangeListener {
 
-    public static final String TRACKS_FRAGMENT_TAG = "tracks_fragment";
     public static final String EXTRA_SCROLL_TO_PLAYING_TRACK = "scroll_to_playing_track";
+    private static final String TRACKS_FRAGMENT_TAG = "tracks_fragment";
     private Playlist mPlaylist;
     private PlayableBar mPlaylistBar;
     private PlayableActionButtonsController mActionButtons;
@@ -78,7 +78,7 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
 
     private void handleIntent(@Nullable Bundle savedInstanceState, boolean setupViews) {
         final Playlist playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(getIntent().getData());
-        if (assertPlaylistAvailable(playlist)) {
+        if (playlist != null) {
             boolean playlistChanged = setPlaylist(playlist);
 
             if (setupViews) {
@@ -91,6 +91,9 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
                 PlayQueueManager playQueueManager = CloudPlaybackService.getPlaylistManager();
                 if (playQueueManager != null) mFragment.scrollToPosition(playQueueManager.getPosition());
             }
+        } else {
+            Toast.makeText(this, R.string.playlist_removed, Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
@@ -123,15 +126,6 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
         } else {
             mFragment = (PlaylistTracksFragment) getSupportFragmentManager().findFragmentByTag(TRACKS_FRAGMENT_TAG);
         }
-    }
-
-    private boolean assertPlaylistAvailable(@Nullable Playlist playlist) {
-        if (playlist == null) {
-            Toast.makeText(this, R.string.playlist_removed, Toast.LENGTH_SHORT).show();
-            finish();
-            return false;
-        }
-        return true;
     }
 
     private boolean setPlaylist(@Nullable Playlist playlist) {
