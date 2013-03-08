@@ -95,6 +95,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
         mEmptyView = (EmptyListView) layout.findViewById(android.R.id.empty);
         mEmptyView.setMessageText(getActivity().getString(R.string.empty_playlist));
+        mEmptyView.setStatus(EmptyListView.Status.OK);
         mListView.setEmptyView(mEmptyView);
         mListView.setAdapter(mAdapter);
 
