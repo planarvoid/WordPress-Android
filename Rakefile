@@ -75,8 +75,12 @@ end
       tmp_path = "/sdcard/SoundCloud.sqlite"
       desc "get db from #{t}"
         task :pull do
-          adb["shell su -c 'cp -f #{db_path} #{tmp_path}'"]
-          adb["pull #{tmp_path} ."]
+          case t
+            when :device;
+              adb["shell su -c 'cp -f #{db_path} #{tmp_path}'"]
+              adb["pull #{tmp_path} ."]
+            when :emu; adb["pull #{db_path} ."]
+          end
         end
     end
 
