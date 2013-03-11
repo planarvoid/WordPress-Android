@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -567,13 +568,12 @@ public class ApiSyncer {
 
 
         if (c != null && c.getCount() > 0) {
-            List<Long> toAdd = new ArrayList<Long>(c.getCount());
+            Set<Long> toAdd = new LinkedHashSet<Long>(c.getCount());
             for (Track t : p.tracks) {
                 toAdd.add(t.id);
             }
             while (c.moveToNext()) {
-                final long addId = c.getLong(0);
-                if (!toAdd.contains(addId)) toAdd.add(0, addId);
+                toAdd.add(c.getLong(0));
             }
 
             Playlist.ApiUpdateObject updateObject = new Playlist.ApiUpdateObject(toAdd);
