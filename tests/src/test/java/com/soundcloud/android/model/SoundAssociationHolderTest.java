@@ -17,12 +17,9 @@ import java.util.Date;
 @RunWith(DefaultTestRunner.class)
 public class SoundAssociationHolderTest {
 
-    private ScModelManager manager;
-
     @Before
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(100L);
-        manager = DefaultTestRunner.application.MODEL_MANAGER;
     }
 
     @Test
@@ -38,13 +35,19 @@ public class SoundAssociationHolderTest {
         expect(old.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeFalse();
         expect(Content.ME_SOUNDS).toHaveCount(38);
 
+        // expect change, syncing with 2 items
         SoundAssociationHolder holder = new SoundAssociationHolder();
         holder.collection = new ArrayList<SoundAssociation>();
         holder.collection.add(createAssociation(66376067l, SoundAssociation.Type.TRACK_REPOST.type));
-        holder.collection.add(createAssociation(62633570l, SoundAssociation.Type.TRACK.type));
+        holder.collection.add(createAssociation(66376067l, SoundAssociation.Type.TRACK.type));
 
         expect(holder.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeTrue();
         expect(Content.ME_SOUNDS).toHaveCount(2);
+
+        // remove the repost and make sure it gets removed locally
+        holder.collection.remove(0);
+        expect(holder.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeTrue();
+        expect(Content.ME_SOUNDS).toHaveCount(1);
     }
 
     @Test
@@ -66,20 +69,6 @@ public class SoundAssociationHolderTest {
 
         expect(holder.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_LIKES.uri)).toBeTrue();
         expect(Content.ME_LIKES).toHaveCount(1);
-    }
-
-    @Test
-    public void shouldDetectChangeOnDuplicateSoundRemoval() throws Exception {
-        SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
-                getClass().getResourceAsStream("sounds.json"),
-                SoundAssociationHolder.class);
-
-        expect(old.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeTrue();
-        expect(Content.ME_SOUNDS).toHaveCount(38);
-
-        old.collection.remove(0); // a repost of a previous sound, remove it to check change logic
-        expect(old.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeTrue();
-        expect(Content.ME_SOUNDS).toHaveCount(37);
     }
 
     private SoundAssociation createAssociation(long id, String type) {
