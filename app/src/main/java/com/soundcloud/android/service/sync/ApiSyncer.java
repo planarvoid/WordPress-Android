@@ -249,6 +249,9 @@ public class ApiSyncer {
                 p.localToGlobal(mContext, added);
                 added.insertAsMyPlaylist(mResolver);
 
+                LocalCollection.fromContentUri(p.toUri(), mResolver, true)
+                        .updateLastSyncSuccessTime(System.currentTimeMillis(), mResolver);
+
                 // remove all traces of the old temporary playlist
                 Playlist.removePlaylist(mResolver, toDelete);
 
