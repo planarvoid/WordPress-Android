@@ -25,17 +25,23 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
         super(collection);
     }
 
+
     /**
-     * Delete any items from the content resolver that do not appear in this collection, for syncing
-     * TODO PLAYLISTS. This will not pull playlists, therefore they will not get deleted (yet)
+     * Sync this collection to the local database by removing any stale items and
+     * inserting the sound associations (which will replace the existing items)
+     * @param resolver
+     * @param contentUri
+     * @return whether any items were added or removed
      */
-    public int removeMissingLocallyStoredItems(ContentResolver resolver, Uri contentUri) {
+    public boolean syncToLocal(ContentResolver resolver, Uri contentUri) {
         // get current local id and types for this uri
         Cursor c = resolver.query(contentUri,
                 new String[]{DBHelper.CollectionItems.ITEM_ID, DBHelper.CollectionItems.RESOURCE_TYPE},
                 null, null, null);
 
-        int deleted = 0;
+
+        boolean changed = true; // assume changed by default
+
         if (c != null) {
             Map<Integer, ArrayList<Long>> deletions = new HashMap<Integer, ArrayList<Long>>();
             while (c.moveToNext()) {
@@ -59,17 +65,25 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
             }
             c.close();
 
-            for (Integer type : deletions.keySet()) {
-                for (Long id : deletions.get(type)) {
-                    deleted += resolver.delete(contentUri,
-                            DBHelper.CollectionItems.ITEM_ID + " = ? AND " + DBHelper.CollectionItems.RESOURCE_TYPE + " = ?",
-                            new String[]{String.valueOf(id), String.valueOf(type)});
+            if (deletions.isEmpty()) {
+                // user hasn't removed anything, and if size is consistent we can assume the collection hasn't changed
+                changed = c.getCount() != size();
+
+            } else {
+                for (Integer type : deletions.keySet()) {
+                    for (Long id : deletions.get(type)) {
+                        resolver.delete(contentUri,
+                                DBHelper.CollectionItems.ITEM_ID + " = ? AND " + DBHelper.CollectionItems.RESOURCE_TYPE + " = ?",
+                                new String[]{String.valueOf(id), String.valueOf(type)});
+                    }
                 }
             }
         }
 
-        return deleted;
+        insert(resolver);
+        return changed;
     }
+
 
     public int insert(ContentResolver resolver) {
 

@@ -246,12 +246,9 @@ public class ApiSyncer {
 
     private void syncLocalSoundAssocationsToHolder(Uri uri, SoundAssociationHolder holder, Result result) {
         if (holder != null) {
-            holder.removeMissingLocallyStoredItems(mResolver, uri);
-            holder.insert(mResolver);
-
+            result.change =  holder.syncToLocal(mResolver, uri) ? Result.CHANGED : Result.UNCHANGED;
             result.setSyncData(System.currentTimeMillis(), holder.collection.size(), null);
             result.success = true;
-            result.change = Result.CHANGED;
         }
     }
 
