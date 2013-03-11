@@ -165,7 +165,6 @@ public class ApiSyncer {
      * we could use that path
      */
     private Result syncMyPlaylists() throws IOException {
-        Result result = new Result(Content.ME_PLAYLISTS.uri);
         pushLocalPlaylists();
 
         final Request request = Request.to(Content.ME_PLAYLISTS.remoteUri)
@@ -174,17 +173,13 @@ public class ApiSyncer {
         ScResource.ScResourceHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
                 request, ScResource.ScResourceHolder.class);
 
-        if (holder != null) {
-            // manually build the sound association holder
-            SoundAssociationHolder soundAssociationHolder = new SoundAssociationHolder(new ArrayList<SoundAssociation>());
-            for (ScResource resource : holder) {
-                Playlist playlist = (Playlist) resource;
-                soundAssociationHolder.collection.add(new SoundAssociation(playlist, playlist.created_at, SoundAssociation.Type.PLAYLIST));
-            }
-
-            syncLocalSoundAssocationsToHolder(Content.ME_PLAYLISTS.uri, soundAssociationHolder, result);
+        // manually build the sound association holder
+        SoundAssociationHolder soundAssociationHolder = new SoundAssociationHolder(new ArrayList<SoundAssociation>());
+        for (ScResource resource : holder) {
+            Playlist playlist = (Playlist) resource;
+            soundAssociationHolder.collection.add(new SoundAssociation(playlist, playlist.created_at, SoundAssociation.Type.PLAYLIST));
         }
-        return result;
+        return syncLocalSoundAssocationsToHolder(Content.ME_PLAYLISTS.uri, soundAssociationHolder);
     }
 
     /* package */ int pushLocalPlaylists() throws IOException {
@@ -233,23 +228,23 @@ public class ApiSyncer {
     }
 
     private Result syncSoundAssociations(Content content, Uri uri, long userId) throws IOException {
-        Result result = new Result(uri);
         log("syncSoundAssociations(" + uri + ")");
 
         SoundAssociationHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
                 Request.to(content.remoteUri, userId).with("limit", 200).with("representation", "mini"),
                 SoundAssociationHolder.class);
 
-        syncLocalSoundAssocationsToHolder(uri, holder, result);
-        return result;
+        return syncLocalSoundAssocationsToHolder(uri, holder);
     }
 
-    private void syncLocalSoundAssocationsToHolder(Uri uri, SoundAssociationHolder holder, Result result) {
-        if (holder != null) {
-            result.change =  holder.syncToLocal(mResolver, uri) ? Result.CHANGED : Result.UNCHANGED;
-            result.setSyncData(System.currentTimeMillis(), holder.collection.size(), null);
-            result.success = true;
-        }
+    private Result syncLocalSoundAssocationsToHolder(Uri uri, SoundAssociationHolder holder) {
+        boolean changed = holder.syncToLocal(mResolver, uri);
+
+        Result result = new Result(uri);
+        result.change =  changed ? Result.CHANGED : Result.UNCHANGED;
+        result.setSyncData(System.currentTimeMillis(), holder.collection.size(), null);
+        result.success = true;
+        return result;
     }
 
     private Result syncActivities(Uri uri, String action) throws IOException {
@@ -607,10 +602,8 @@ public class ApiSyncer {
         ScResource.ScResourceHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
                 request, ScResource.ScResourceHolder.class);
 
-        if (holder != null) {
-            SoundCloudDB.bulkInsertResources(mResolver, holder.collection);
-            result.setSyncData(true, System.currentTimeMillis(), holder.collection.size(), Result.CHANGED);
-        }
+        SoundCloudDB.bulkInsertResources(mResolver, holder.collection);
+        result.setSyncData(true, System.currentTimeMillis(), holder.collection.size(), Result.CHANGED);
         return result;
     }
 
@@ -630,11 +623,9 @@ public class ApiSyncer {
            ScResource.ScResourceHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
                    Content.match(uri).request(uri).add("linked_partitioning", "1"), ScResource.ScResourceHolder.class);
 
-           if (holder != null) {
-               SoundCloudDB.insertCollection(mResolver, holder.collection, uri, userId);
-               result.setSyncData(true, System.currentTimeMillis(), holder.collection.size(), Result.CHANGED);
-           }
-           return result;
+        SoundCloudDB.insertCollection(mResolver, holder.collection, uri, userId);
+        result.setSyncData(true, System.currentTimeMillis(), holder.collection.size(), Result.CHANGED);
+        return result;
        }
 
 
