@@ -31,14 +31,12 @@ public class SoundAssociationHolderTest {
                 getClass().getResourceAsStream("sounds.json"),
                 SoundAssociationHolder.class);
 
-        expect(manager.writeCollection(old,
-                        ScResource.CacheUpdateMode.NONE)).toEqual(38); // 38 tracks and 3 diff users
-
-        expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
-                        Content.ME_SOUNDS.uri, 0, 50).size()).toEqual(38);
+        expect(old.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeTrue();
+        expect(Content.ME_SOUNDS).toHaveCount(38);
 
         // expect no change, syncing to itself
         expect(old.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeFalse();
+        expect(Content.ME_SOUNDS).toHaveCount(38);
 
         SoundAssociationHolder holder = new SoundAssociationHolder();
         holder.collection = new ArrayList<SoundAssociation>();
@@ -46,8 +44,7 @@ public class SoundAssociationHolderTest {
         holder.collection.add(createAssociation(62633570l, SoundAssociation.Type.TRACK.type));
 
         expect(holder.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeTrue();
-        expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
-                                Content.ME_SOUNDS.uri, 0, 50).size()).toEqual(2);
+        expect(Content.ME_SOUNDS).toHaveCount(2);
     }
 
     @Test
@@ -56,22 +53,19 @@ public class SoundAssociationHolderTest {
                 ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
                 SoundAssociationHolder.class);
 
-        expect(manager.writeCollection(old,
-                ScResource.CacheUpdateMode.NONE)).toEqual(3); // 1 playlist 2 tracks
-
-        expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
-                Content.ME_LIKES.uri, 0, 50).size()).toEqual(3);
+        expect(old.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_LIKES.uri)).toBeTrue();
+        expect(Content.ME_LIKES).toHaveCount(3);
 
         // expect no change, syncing to itself
         expect(old.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_LIKES.uri)).toBeFalse();
+        expect(Content.ME_LIKES).toHaveCount(3);
 
         SoundAssociationHolder holder = new SoundAssociationHolder();
         holder.collection = new ArrayList<SoundAssociation>();
         holder.collection.add(createAssociation(56143158l, SoundAssociation.Type.TRACK.type));
 
         expect(holder.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_LIKES.uri)).toBeTrue();
-        expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
-                Content.ME_LIKES.uri, 0, 50).size()).toEqual(1);
+        expect(Content.ME_LIKES).toHaveCount(1);
     }
 
     private SoundAssociation createAssociation(long id, String type) {
