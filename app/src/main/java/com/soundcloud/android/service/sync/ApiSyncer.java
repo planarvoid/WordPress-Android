@@ -190,9 +190,9 @@ public class ApiSyncer {
                 final LocalCollection localCollection = LocalCollection.fromContentUri(playlist.toUri(), mResolver, true);
                 if (localCollection == null) continue;
 
-                final boolean tracksStale = (localCollection.shouldAutoRefresh() && onWifi) || localCollection.last_sync_success <= 0;
+                final boolean playlistStale = (localCollection.shouldAutoRefresh() && onWifi) || localCollection.last_sync_success <= 0;
 
-                if (tracksStale && playlist.getTrackCount() < MAX_MY_PLAYLIST_TRACK_COUNT_SYNC){
+                if (playlistStale && playlist.getTrackCount() < MAX_MY_PLAYLIST_TRACK_COUNT_SYNC) {
                     try {
                         HttpResponse resp = mApi.get(Request.to(TempEndpoints.PLAYLIST_TRACKS, playlist.id));
                         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
@@ -204,8 +204,7 @@ public class ApiSyncer {
                         Log.e(TAG,"Failed to fetch playlist tracks for playlist " + playlist, e);
                     }
                 }
-
-                soundAssociationHolder.collection.add(new SoundAssociation(playlist, playlist.created_at, SoundAssociation.Type.PLAYLIST));
+                soundAssociationHolder.add(new SoundAssociation(playlist, playlist.created_at, SoundAssociation.Type.PLAYLIST));
             }
         return syncLocalSoundAssocationsToHolder(Content.ME_PLAYLISTS.uri, soundAssociationHolder);
     }
