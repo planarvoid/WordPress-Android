@@ -160,6 +160,18 @@ public class ApiSyncerTest {
     }
 
     @Test
+    public void shouldSyncPlaylists() throws Exception {
+        addResourceResponse("/me/playlists?linked_partitioning=1&representation=compact&limit=200", "me_playlists_compact.json");
+
+        Result result = sync(Content.ME_PLAYLISTS.uri);
+        expect(result.success).toBeTrue();
+        expect(result.synced_at).toBeGreaterThan(0l);
+
+        expect(Content.PLAYLISTS).toHaveCount(3);
+        expect(Content.ME_PLAYLISTS).toHaveCount(3);
+    }
+
+    @Test
     public void shouldSyncSoundsAndLikes() throws Exception {
         Result result = populateMeSounds();
         expect(result.success).toBeTrue();
