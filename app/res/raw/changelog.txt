@@ -1,8 +1,8 @@
 $ 57
   % v current
-  _ 2013-03-08
-  ! Sets RC 1
-  * Sets bugfixes
+  _ 2013-03-11
+  ! Sets RC 2
+  * Sets sync fixes
   - Fixed add to playlist locking bug
   - Fixed erratic liked/reposted state on stream items
   - Changed refresh logic to account for private sounds in sets
