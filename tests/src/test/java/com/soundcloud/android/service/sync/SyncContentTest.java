@@ -120,28 +120,29 @@ public class SyncContentTest {
     }
 
     @Test
-    public void shouldSyncLocalPlaylistTracks() throws Exception {
-        final long playlistId = 12345l;
-        expect(Playlist.addTrackToPlaylist(resolver, playlistId, 10696200l, System.currentTimeMillis())).not.toBeNull();
-        expect(Playlist.addTrackToPlaylist(resolver, -34243l, 10696200l, System.currentTimeMillis())).not.toBeNull();
+    public void shouldSyncChangesToExistingPlaylists() throws Exception {
+        final Playlist playlist = new Playlist(12345);
+        expect(Playlist.addTrackToPlaylist(resolver, playlist, 10696200, System.currentTimeMillis())).not.toBeNull();
+        // local unpushed playlists (those with a negative timestamp) are not part of this sync step
+        expect(Playlist.addTrackToPlaylist(resolver, new Playlist(-34243), 10696200, System.currentTimeMillis())).not.toBeNull();
 
         Set<Uri> urisToSync = SyncContent.getPlaylistsDueForSync(Robolectric.application.getContentResolver());
         expect(urisToSync.size()).toEqual(1);
-        expect(urisToSync.contains(Content.PLAYLIST.forId(playlistId))).toBeTrue();
+        expect(urisToSync.contains(Content.PLAYLIST.forId(playlist.id))).toBeTrue();
     }
 
     @Test
     public void shouldSyncMultiplePlaylists() throws Exception {
-        final long playlistId = 12345l;
-        final long playlistId2 = 544321l;
+        final Playlist playlist1 = new Playlist(12345);
+        final Playlist playlist2 = new Playlist(544321);
 
-        expect(Playlist.addTrackToPlaylist(resolver, playlistId, 10696200l, System.currentTimeMillis())).not.toBeNull();
-        expect(Playlist.addTrackToPlaylist(resolver, playlistId2, 10696200l, System.currentTimeMillis())).not.toBeNull();
+        expect(Playlist.addTrackToPlaylist(resolver, playlist1, 10696200, System.currentTimeMillis())).not.toBeNull();
+        expect(Playlist.addTrackToPlaylist(resolver, playlist2, 10696200, System.currentTimeMillis())).not.toBeNull();
 
         Set<Uri> urisToSync = SyncContent.getPlaylistsDueForSync(Robolectric.application.getContentResolver());
         expect(urisToSync.size()).toEqual(2);
-        expect(urisToSync.contains(Content.PLAYLIST.forId(playlistId))).toBeTrue();
-        expect(urisToSync.contains(Content.PLAYLIST.forId(playlistId2))).toBeTrue();
+        expect(urisToSync.contains(Content.PLAYLIST.forId(playlist1.id))).toBeTrue();
+        expect(urisToSync.contains(Content.PLAYLIST.forId(playlist2.id))).toBeTrue();
 
 
     }

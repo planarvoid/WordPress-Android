@@ -409,7 +409,7 @@ public class ScModelManagerTest {
         int i = 0;
         for (Track track : tracks){
             expect(track.insert(resolver)).not.toBeNull();
-            final Uri insert = Playlist.addTrackToPlaylist(resolver,p.id,track.id,100*i);
+            final Uri insert = Playlist.addTrackToPlaylist(resolver,p,track.id,100*i);
             expect(insert).not.toBeNull();
             i++;
         }

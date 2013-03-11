@@ -34,6 +34,7 @@ import android.os.Parcelable;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -212,6 +213,7 @@ public class Playlist extends Playable {
         }
     };
 
+    // Local i.e. unpushed playlists are currently identified by having a negative timestamp
     public static boolean hasLocalPlaylists(ContentResolver resolver) {
         Cursor itemsCursor = resolver.query(Content.PLAYLISTS.uri,
                 new String[]{DBHelper.SoundView._ID}, DBHelper.SoundView._ID + " < 0",
@@ -225,6 +227,7 @@ public class Playlist extends Playable {
         return hasPlaylists;
     }
 
+    // Local i.e. unpushed playlists are currently identified by having a negative timestamp
     public static List<Playlist> getLocalPlaylists(ContentResolver resolver) {
         Cursor itemsCursor = resolver.query(Content.PLAYLISTS.uri,
                 null, DBHelper.SoundView._ID + " < 0",
@@ -274,8 +277,8 @@ public class Playlist extends Playable {
     public static class ApiUpdateObject {
         @JsonView(Views.Full.class) List<ScModel> tracks;
 
-        public ApiUpdateObject(List<Long> toAdd) {
-            this.tracks = new ArrayList<ScModel>();
+        public ApiUpdateObject(Collection<Long> toAdd) {
+            this.tracks = new ArrayList<ScModel>(toAdd.size());
             for (Long id : toAdd){
                 this.tracks.add(new ScModel(id));
             }
@@ -286,16 +289,17 @@ public class Playlist extends Playable {
         }
     }
 
-    public static Uri addTrackToPlaylist(ContentResolver resolver, long playlistId, long trackId){
-        return addTrackToPlaylist(resolver, playlistId, trackId,System.currentTimeMillis());
+    public static Uri addTrackToPlaylist(ContentResolver resolver, Playlist playlist, long trackId){
+        return addTrackToPlaylist(resolver, playlist, trackId,System.currentTimeMillis());
     }
 
-    public static Uri addTrackToPlaylist(ContentResolver resolver, long playlistId, long trackId, long time){
+    public static Uri addTrackToPlaylist(ContentResolver resolver, Playlist playlist, long trackId, long time){
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID, playlistId);
+        cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID, playlist.id);
         cv.put(DBHelper.PlaylistTracks.TRACK_ID, trackId);
         cv.put(DBHelper.PlaylistTracks.ADDED_AT, time);
-        return resolver.insert(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId)), cv);
+        cv.put(DBHelper.PlaylistTracks.POSITION, playlist.getTrackCount());
+        return resolver.insert(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.id)), cv);
     }
 
     /**

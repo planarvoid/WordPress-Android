@@ -288,20 +288,20 @@ public class ApiSyncerTest {
         Result result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));
         expect(result.success).toBe(true);
 
-        final long playlistId = 2524386l;
+        final Playlist playlist = new Playlist(2524386);
 
-        expect(Playlist.addTrackToPlaylist(resolver,playlistId,10696200l, System.currentTimeMillis())).not.toBeNull();
-        expect(Playlist.addTrackToPlaylist(resolver,playlistId,10853436l, System.currentTimeMillis() + 100)).not.toBeNull();
+        expect(Playlist.addTrackToPlaylist(resolver,playlist,10696200, System.currentTimeMillis())).not.toBeNull();
+        expect(Playlist.addTrackToPlaylist(resolver,playlist,10853436, System.currentTimeMillis() + 100)).not.toBeNull();
 
         TestHelper.addPendingHttpResponse(getClass(), "playlist.json", "playlist_added.json");
 
-        result = sync(Content.PLAYLIST.forId(10696200l));
+        result = sync(Content.PLAYLIST.forId(10696200));
         expect(result.success).toBe(true);
-        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.synced_at).toBeGreaterThan(0L);
         expect(result.change).toEqual(Result.CHANGED);
         expect(Content.TRACKS).toHaveCount(44);
 
-        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylistWithTracks(playlistId);
+        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylistWithTracks(playlist.id);
         expect(p.tracks.size()).toBe(43);
         expect(p.tracks.get(1).title).toEqual("recording on thursday afternoon");
     }
