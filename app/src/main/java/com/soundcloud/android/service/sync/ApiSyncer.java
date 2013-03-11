@@ -24,6 +24,7 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.HttpUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -52,6 +53,7 @@ import java.util.Set;
 public class ApiSyncer {
     public static final String TAG = ApiSyncService.LOG_TAG;
     private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
+    private static final int MAX_MY_PLAYLIST_TRACK_COUNT_SYNC = 100;
 
     private final AndroidCloudAPI mApi;
     private final ContentResolver mResolver;
@@ -168,7 +170,8 @@ public class ApiSyncer {
         Result result = new Result(Content.ME_PLAYLISTS.uri);
         pushLocalPlaylists();
 
-        final Request request = Request.to(Content.ME_PLAYLISTS.remoteUri).add("representation", "compact").with("limit", 200);
+        final Request request = Request.to(Content.ME_PLAYLISTS.remoteUri)
+                .add("representation", "compact").with("limit", 200);
 
         ScResource.ScResourceHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
                 request, ScResource.ScResourceHolder.class);
@@ -176,8 +179,28 @@ public class ApiSyncer {
         if (holder != null) {
             // manually build the sound association holder
             SoundAssociationHolder soundAssociationHolder = new SoundAssociationHolder(new ArrayList<SoundAssociation>());
+
+            boolean onWifi = IOUtils.isWifiConnected(mContext);
             for (ScResource resource : holder) {
                 Playlist playlist = (Playlist) resource;
+
+                // if we have never synced the playlist or are on wifi and past the stale time, fetch the tracks
+                final LocalCollection localCollection = LocalCollection.fromContentUri(playlist.toUri(), mResolver, true);
+                final boolean tracksStale = (localCollection.shouldAutoRefresh() && onWifi) || localCollection.last_sync_success <= 0;
+
+                if (tracksStale && playlist.track_count < MAX_MY_PLAYLIST_TRACK_COUNT_SYNC){
+                    try {
+                        HttpResponse resp = mApi.get(Request.to(TempEndpoints.PLAYLIST_TRACKS, playlist.id));
+                        if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                            playlist.tracks = mApi.getMapper().readValue(resp.getEntity().getContent(),
+                                    mApi.getMapper().getTypeFactory().constructCollectionType(List.class, Track.class));
+                        }
+                    } catch (IOException e) {
+                        // don't let the track fetch fail the sync, it is just an optimization
+                        Log.e(TAG,"Failed to fetch playlist tracks for playlist " + playlist, e);
+                    }
+                }
+
                 soundAssociationHolder.collection.add(new SoundAssociation(playlist, playlist.created_at, SoundAssociation.Type.PLAYLIST));
             }
 

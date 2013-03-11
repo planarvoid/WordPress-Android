@@ -10,6 +10,7 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManagerTest;
+import com.soundcloud.android.model.Sharing;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -162,13 +163,20 @@ public class ApiSyncerTest {
     @Test
     public void shouldSyncPlaylists() throws Exception {
         addResourceResponse("/me/playlists?representation=compact&limit=200&linked_partitioning=1", "me_playlists_compact.json");
+        addResourceResponse("/playlists/3250812/tracks", "playlist_3250812_tracks.json");
+        addResourceResponse("/playlists/3250804/tracks", "playlist_3250804_tracks.json");
 
         Result result = sync(Content.ME_PLAYLISTS.uri);
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
+        expect(Content.TRACKS).toHaveCount(7);
         expect(Content.PLAYLISTS).toHaveCount(3);
         expect(Content.ME_PLAYLISTS).toHaveCount(3);
+
+        expect(Content.PLAYLIST_TRACKS.forQuery("3250812")).toHaveCount(4);
+        expect(Content.PLAYLIST_TRACKS.forQuery("3250804")).toHaveCount(4);
+        expect(Content.PLAYLIST_TRACKS.forQuery("4042968")).toHaveCount(0); // this one is too big for the sync (101 sounds)
     }
 
     @Test

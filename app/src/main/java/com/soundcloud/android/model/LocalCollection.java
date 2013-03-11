@@ -240,7 +240,7 @@ public class LocalCollection {
     }
 
     public boolean shouldAutoRefresh() {
-        Content c = Content.byUri(uri);
+        Content c = Content.match(uri);
 
         // only auto refresh once every 30 mins at most, that we won't hammer their phone or the api if there are errors
         if (last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) return false;

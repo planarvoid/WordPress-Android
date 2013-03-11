@@ -1,5 +1,4 @@
-{
-  "collection": [
+[
     {
       "kind": "track",
       "id": 39859648,
@@ -273,4 +272,3 @@
       "secret_uri": "https://api.soundcloud.com/tracks/39722328?secret_token=s-GxHkv"
     }
   ]
-}
