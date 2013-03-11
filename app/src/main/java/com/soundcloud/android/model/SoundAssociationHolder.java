@@ -36,8 +36,8 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
     public boolean syncToLocal(ContentResolver resolver, Uri contentUri) {
         // get current local id and types for this uri
         Cursor c = resolver.query(contentUri,
-                new String[]{DBHelper.CollectionItems.ITEM_ID, DBHelper.CollectionItems.RESOURCE_TYPE},
-                null, null, null);
+                new String[]{DBHelper.CollectionItems.ITEM_ID, DBHelper.CollectionItems.RESOURCE_TYPE,
+                        DBHelper.CollectionItems.COLLECTION_TYPE}, null, null, null);
 
         boolean changed = true; // assume changed by default
         if (c != null) {
@@ -47,9 +47,11 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
                 boolean found = false;
                 final long id = c.getLong(0);
                 final int resourceType = c.getInt(1);
+                final int associationType = c.getInt(2);
 
                 for (SoundAssociation a : this) {
-                    if (a.getPlayable().id == id && a.getResourceType() == resourceType) {
+                    if (a.getPlayable().id == id && a.getResourceType() == resourceType
+                            && a.associationType == associationType) {
                         found = true;
                         break;
                     }

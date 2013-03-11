@@ -62,10 +62,24 @@ public class SoundAssociationHolderTest {
 
         SoundAssociationHolder holder = new SoundAssociationHolder();
         holder.collection = new ArrayList<SoundAssociation>();
-        holder.collection.add(createAssociation(56143158l, SoundAssociation.Type.TRACK.type));
+        holder.collection.add(createAssociation(56143158l, SoundAssociation.Type.TRACK_LIKE.type));
 
         expect(holder.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_LIKES.uri)).toBeTrue();
         expect(Content.ME_LIKES).toHaveCount(1);
+    }
+
+    @Test
+    public void shouldDetectChangeOnDuplicateSoundRemoval() throws Exception {
+        SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
+                getClass().getResourceAsStream("sounds.json"),
+                SoundAssociationHolder.class);
+
+        expect(old.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeTrue();
+        expect(Content.ME_SOUNDS).toHaveCount(38);
+
+        old.collection.remove(0); // a repost of a previous sound, remove it to check change logic
+        expect(old.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeTrue();
+        expect(Content.ME_SOUNDS).toHaveCount(37);
     }
 
     private SoundAssociation createAssociation(long id, String type) {
