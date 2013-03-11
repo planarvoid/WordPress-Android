@@ -39,7 +39,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private static final int TRACK_LIST_LOADER = 1;
     private Playlist mPlaylist;
-    private TextView mInfoHeader;
+    private TextView mInfoHeaderText;
 
     private boolean mListShown;
     private LocalCollection mLocalCollection;
@@ -90,7 +90,8 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         mListView.setOnRefreshListener(this);
         mListView.setOnItemClickListener(this);
 
-        mInfoHeader = (TextView) View.inflate(getActivity(), R.layout.playlist_header, null);
+        View mInfoHeader = View.inflate(getActivity(), R.layout.playlist_header, null);
+        mInfoHeaderText = (TextView) mInfoHeader.findViewById(android.R.id.text1);
         mListView.getRefreshableView().addHeaderView(mInfoHeader, null, false);
 
         mEmptyView = (EmptyListView) layout.findViewById(android.R.id.empty);
@@ -171,10 +172,10 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     private void setHeaderInfo() {
-        if (isAdded() && mInfoHeader != null) { // make sure we are attached to an activity
+        if (isAdded() && mInfoHeaderText != null) { // make sure we are attached to an activity
             final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, mPlaylist.getTrackCount(), mPlaylist.getTrackCount());
             final String duration = ScTextUtils.formatTimestamp(mPlaylist.duration);
-            mInfoHeader.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
+            mInfoHeaderText.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
         }
     }
 
