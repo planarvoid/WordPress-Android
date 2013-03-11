@@ -112,7 +112,8 @@ public class ScSearch extends ScActivity {
 
             String query = intent.getStringExtra(SearchManager.QUERY);
             mPendingSearch = new Search(query, intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
-        } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null) {
+        } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null
+                && !intent.getData().getPath().equals("/search") /* came from search url intercept */) {
             Content c = Content.match(intent.getData());
             if (c == Content.SEARCH_ITEM){
                 String query = Uri.decode(intent.getData().getLastPathSegment());
