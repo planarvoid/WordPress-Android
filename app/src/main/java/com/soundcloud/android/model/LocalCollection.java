@@ -140,6 +140,7 @@ public class LocalCollection {
             return new LocalCollection(Integer.parseInt(inserted.getLastPathSegment()),
                     contentUri, lastSyncAttempt,lastSyncSuccess, syncState, size, extra);
         } else {
+            // TODO: should throw an exception here
             return null;
         }
     }
