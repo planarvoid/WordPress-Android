@@ -39,12 +39,9 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
                 new String[]{DBHelper.CollectionItems.ITEM_ID, DBHelper.CollectionItems.RESOURCE_TYPE},
                 null, null, null);
 
-
         boolean changed = true; // assume changed by default
-
         if (c != null) {
             final int localCount = c.getCount();
-
             Map<Integer, ArrayList<Long>> deletions = new HashMap<Integer, ArrayList<Long>>();
             while (c.moveToNext()) {
                 boolean found = false;
@@ -69,9 +66,7 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
 
             if (deletions.isEmpty()) {
                 // user hasn't removed anything, and if size is consistent we can assume the collection hasn't changed
-
                 changed = localCount != size();
-
             } else {
                 for (Integer type : deletions.keySet()) {
                     for (Long id : deletions.get(type)) {
