@@ -172,11 +172,9 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     private void setHeaderInfo() {
-        if (isAdded() && mInfoHeaderText != null) { // make sure we are attached to an activity
-            final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, mPlaylist.getTrackCount(), mPlaylist.getTrackCount());
-            final String duration = ScTextUtils.formatTimestamp(mPlaylist.duration);
-            mInfoHeaderText.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
-        }
+        final String trackCount = getResources().getQuantityString(R.plurals.number_of_sounds, mPlaylist.getTrackCount(), mPlaylist.getTrackCount());
+        final String duration = ScTextUtils.formatTimestamp(mPlaylist.duration);
+        mInfoHeaderText.setText(getString(R.string.playlist_info_header_text, trackCount, duration));
     }
 
     // fires when the playlist sync operation returns
