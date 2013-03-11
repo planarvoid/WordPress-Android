@@ -188,7 +188,7 @@ public class ApiSyncer {
                 final LocalCollection localCollection = LocalCollection.fromContentUri(playlist.toUri(), mResolver, true);
                 final boolean tracksStale = (localCollection.shouldAutoRefresh() && onWifi) || localCollection.last_sync_success <= 0;
 
-                if (tracksStale && playlist.track_count < MAX_MY_PLAYLIST_TRACK_COUNT_SYNC){
+                if (tracksStale && playlist.getTrackCount() < MAX_MY_PLAYLIST_TRACK_COUNT_SYNC){
                     try {
                         HttpResponse resp = mApi.get(Request.to(TempEndpoints.PLAYLIST_TRACKS, playlist.id));
                         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
