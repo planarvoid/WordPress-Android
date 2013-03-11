@@ -168,8 +168,7 @@ public class ApiSyncer {
         Result result = new Result(Content.ME_PLAYLISTS.uri);
         pushLocalPlaylists();
 
-        final Request request = Request.to(Content.ME_PLAYLISTS.remoteUri)
-                .add("linked_partitioning", "1").add("representation", "compact").with("limit", 200);
+        final Request request = Request.to(Content.ME_PLAYLISTS.remoteUri).add("representation", "compact").with("limit", 200);
 
         ScResource.ScResourceHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
                 request, ScResource.ScResourceHolder.class);

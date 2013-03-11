@@ -161,7 +161,7 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncPlaylists() throws Exception {
-        addResourceResponse("/me/playlists?linked_partitioning=1&representation=compact&limit=200", "me_playlists_compact.json");
+        addResourceResponse("/me/playlists?representation=compact&limit=200&linked_partitioning=1", "me_playlists_compact.json");
 
         Result result = sync(Content.ME_PLAYLISTS.uri);
         expect(result.success).toBeTrue();
