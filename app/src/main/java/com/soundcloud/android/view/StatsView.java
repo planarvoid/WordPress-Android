@@ -196,6 +196,9 @@ public class StatsView extends View {
             final Track track = (Track) playable;
             mPlays = track.playback_count;
             mComments = (showFullStats) ? track.comment_count : 0;
+        } else {
+            mPlays = 0;
+            mComments = 0;
         }
 
         invalidate();

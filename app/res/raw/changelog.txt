@@ -1,12 +1,25 @@
-$ 56
+$ 57
   % v current
-  _ 2013-02-26
-  ! Sets
-  * Various bug and UI fixes
+  _ 2013-03-08
+  ! Sets RC 1
+  * Sets bugfixes
+  - Fixed add to playlist locking bug
+  - Fixed erratic liked/reposted state on stream items
+  - Changed refresh logic to account for private sounds in sets
+  - Various bug and UI fixes
   - Search functionality added to sets
   - Set creation is done in the background
   - Listen to Sets in the Android App
   - Create and add to new sets on the go
+
+$ 56
+  % v 2.4.7
+  _ 2013-03-01
+  ! Maintenance
+  - tracking bug fixes
+  - support library bump to r12
+  - crop library bump to 1.1.6
+  - various BugSense bug fixes
 
 $ 55
   % v 2.4.6

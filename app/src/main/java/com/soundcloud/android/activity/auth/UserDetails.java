@@ -142,7 +142,7 @@ public class UserDetails extends RelativeLayout {
         }
     }
 
-    private File createTempAvatarFile()  {
+    private @Nullable File createTempAvatarFile()  {
         try {
             return File.createTempFile(Long.toString(System.currentTimeMillis()), ".bmp", IOUtils.getCacheDir(getContext()));
         } catch (IOException e) {
@@ -153,13 +153,16 @@ public class UserDetails extends RelativeLayout {
 
     public void onImagePick(int resultCode, Intent result) {
         if (resultCode == Activity.RESULT_OK) {
-            mAvatarFile = createTempAvatarFile();
-            ImageUtils.sendCropIntent((Activity) getContext(), result.getData(), Uri.fromFile(mAvatarFile));
+            File tmpAvatar = createTempAvatarFile();
+            if (tmpAvatar != null) {
+                mAvatarFile = tmpAvatar;
+                ImageUtils.sendCropIntent((Activity) getContext(), result.getData(), Uri.fromFile(mAvatarFile));
+            }
         }
     }
 
     public void onImageTake(int resultCode, Intent result) {
-        if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK && mAvatarFile != null) {
             ImageUtils.sendCropIntent((Activity) getContext(), Uri.fromFile(mAvatarFile));
         }
     }

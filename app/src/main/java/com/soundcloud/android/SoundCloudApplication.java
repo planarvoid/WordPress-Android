@@ -262,7 +262,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     private void requestSetsSync(){
-        // sync shortcuts so suggest works properly
         Intent intent = new Intent(this, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .setData(Content.ME_PLAYLISTS.uri);
@@ -546,7 +545,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
            Log.w(TAG, "silentException: "+msg, e);
            ACRA.getErrorReporter().putCustomData("message", msg);
         }
-        return ACRA.getErrorReporter().handleSilentException(e);
+        return ACRA.getErrorReporter().handleSilentException(new SilentException(e));
     }
 
     public static SoundCloudApplication fromContext(@NotNull Context c){
@@ -589,4 +588,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                     .build());
         }
     }
+
+    private static class SilentException extends Exception {
+        private SilentException(Throwable throwable) {
+            super(throwable);
+        }
+    }
+
 }

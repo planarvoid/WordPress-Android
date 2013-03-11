@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="2.5.0-BETA3"
+      android:versionName="2.5.0-BETA5"
       android:installLocation="auto"
       android:versionCode="57">
 
@@ -331,7 +331,8 @@
         <activity android:name=".activity.create.EmailPicker" android:theme="@style/Theme.Next.NoActionBar"/>
         <activity android:name=".activity.create.LocationPicker" android:theme="@style/Theme.Next.NoActionBar"/>
         <activity android:name=".activity.auth.EmailConfirm"/>
-        <activity android:name=".cropimage.CropImage" android:hardwareAccelerated="false"/>
+        <activity android:name=".cropimage.CropImageActivity" android:hardwareAccelerated="false"/>
+
         <!-- for testing purposes -->
         <activity android:name="com.soundcloud.android.activity.test.ShareSound">
             <intent-filter>

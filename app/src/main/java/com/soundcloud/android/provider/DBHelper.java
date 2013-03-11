@@ -19,7 +19,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DBHelper";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION  = 20;
+    public static final int DATABASE_VERSION  = 22;
     private static final String DATABASE_NAME = "SoundCloud";
 
     public DBHelper(Context context) {
@@ -95,6 +95,12 @@ public class DBHelper extends SQLiteOpenHelper {
                             break;
                         case 20:
                             success = upgradeTo20(db, oldVersion);
+                            break;
+                        case 21:
+                            success = upgradeTo21(db, oldVersion);
+                            break;
+                        case 22:
+                            success = upgradeTo22(db, oldVersion);
                             break;
                         default:
                             break;
@@ -417,6 +423,7 @@ public class DBHelper extends SQLiteOpenHelper {
             ",Activities." + Activities.CREATED_AT + " as " + ActivityView.CREATED_AT+
             ",Activities." + Activities.COMMENT_ID + " as " + ActivityView.COMMENT_ID+
             ",Activities." + Activities.SOUND_ID + " as " + ActivityView.SOUND_ID +
+            ",Activities." + Activities.SOUND_TYPE + " as " + ActivityView.SOUND_TYPE +
             ",Activities." + Activities.USER_ID + " as " + ActivityView.USER_ID +
             ",Activities." + Activities.CONTENT_ID + " as " + ActivityView.CONTENT_ID +
             ",Activities." + Activities.SHARING_NOTE_TEXT + " as " + ActivityView.SHARING_NOTE_TEXT +
@@ -442,10 +449,18 @@ public class DBHelper extends SQLiteOpenHelper {
             "   Activities." + Activities.SOUND_TYPE + " = " + "SoundView." + SoundView._TYPE + ")" +
             " LEFT JOIN Comments ON(" +
             "   Activities." + Activities.COMMENT_ID + " = " + "Comments." + Comments._ID + ")" +
+            // filter out duplicates
+            " LEFT JOIN Activities track_dup ON(" +
+            "   track_dup.sound_id = Activities.sound_id AND " +
+            "   track_dup.type = 'track-sharing' AND Activities.type = 'track'" +
+            ")" +
+            " LEFT JOIN Activities set_dup ON(" +
+            "   set_dup.sound_id = Activities.sound_id AND " +
+            "   set_dup.type = 'playlist-sharing' AND Activities.type = 'playlist'" +
+            ")" +
+            " WHERE track_dup._id IS NULL AND set_dup._id IS NULL" +
             " ORDER BY " + ActivityView.CREATED_AT + " DESC"
             ;
-
-
 
     /**
      * {@link DBHelper.Suggestions}
@@ -1061,6 +1076,23 @@ public class DBHelper extends SQLiteOpenHelper {
                     "(from " + oldVersion + ")", e);
         }
         return false;
+    }
+
+    // Post sets beta. added sound_type to ActivityView
+    private static boolean upgradeTo21(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.ACTIVITY_VIEW.recreate(db);
+            return true;
+        } catch (SQLException e) {
+            SoundCloudApplication.handleSilentException("error during upgrade21 " +
+                    "(from " + oldVersion + ")", e);
+        }
+        return false;
+    }
+
+    // deduplicate logic in schema
+    private static boolean upgradeTo22(SQLiteDatabase db, int oldVersion) {
+        return upgradeTo21(db, oldVersion);
     }
 
     public static String getWhereInClause(String column, List<Long> idSet){

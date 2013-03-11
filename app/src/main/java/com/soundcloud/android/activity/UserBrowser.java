@@ -240,61 +240,6 @@ public class UserBrowser extends ScActivity implements
         return false;
     }
 
-
-    class UserFragmentAdapter extends FragmentPagerAdapter {
-        public UserFragmentAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            if (Tab.values()[position] == Tab.details){
-                return mUserDetailsFragment;
-            } else {
-                ScListFragment listFragment = ScListFragment.newInstance(isYou() ?
-                        Tab.values()[position].youContent.uri : Tab.values()[position].userContent.forId(mUser.id));
-                listFragment.setEmptyCollection(getEmptyScreenFromContent(position));
-                return listFragment;
-            }
-        }
-
-        @Override
-        public int getCount() {
-            return Tab.values().length;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return Tab.getTitle(getResources(),position,isYou());
-        }
-    }
-
-    class TempAdapter extends PagerAdapter {
-        @Override
-        public int getCount() {
-            return Tab.values().length;
-        }
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return Tab.getTitle(getResources(),position,isYou());
-        }
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            final View v = View.inflate(UserBrowser.this, R.layout.empty_list,null);
-            container.addView(v);
-            return v;
-        }
-        @Override
-        public boolean isViewFromObject(View view, Object object) {
-            return object == view;
-        }
-
-        @Override
-        public void destroyItem(View collection, int position, Object view) {
-            ((ViewPager) collection).removeView((View) view);
-        }
-    }
-
     private EmptyListView getEmptyScreenFromContent(int position) {
         switch (isYou() ? Tab.values()[position].youContent : Tab.values()[position].userContent){
             case ME_SOUNDS:
@@ -597,6 +542,60 @@ public class UserBrowser extends ScActivity implements
 
         public static String getTitle(Resources resources, int position, boolean isYou){
             return resources.getString(isYou ? Tab.values()[position].youTitle : Tab.values()[position].userTitle);
+        }
+    }
+
+    class UserFragmentAdapter extends FragmentPagerAdapter {
+        public UserFragmentAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            if (Tab.values()[position] == Tab.details){
+                return mUserDetailsFragment;
+            } else {
+                ScListFragment listFragment = ScListFragment.newInstance(isYou() ?
+                        Tab.values()[position].youContent.uri : Tab.values()[position].userContent.forId(mUser.id));
+                listFragment.setEmptyCollection(getEmptyScreenFromContent(position));
+                return listFragment;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return Tab.values().length;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return Tab.getTitle(getResources(),position,isYou());
+        }
+    }
+
+    class TempAdapter extends PagerAdapter {
+        @Override
+        public int getCount() {
+            return Tab.values().length;
+        }
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return Tab.getTitle(getResources(),position,isYou());
+        }
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            final View v = View.inflate(UserBrowser.this, R.layout.empty_list,null);
+            container.addView(v);
+            return v;
+        }
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return object == view;
+        }
+
+        @Override
+        public void destroyItem(View collection, int position, Object view) {
+            ((ViewPager) collection).removeView((View) view);
         }
     }
 }

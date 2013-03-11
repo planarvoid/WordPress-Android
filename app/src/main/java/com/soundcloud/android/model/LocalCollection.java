@@ -5,6 +5,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncer;
 import com.soundcloud.android.service.sync.SyncConfig;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
@@ -96,12 +97,16 @@ public class LocalCollection {
         return resolver.update(Content.COLLECTIONS.forId(id), buildContentValues(), null,null) == 1;
     }
 
+    public boolean isIdle(){
+        return sync_state == SyncState.IDLE;
+    }
 
-    public static LocalCollection fromContent(Content content, ContentResolver resolver, boolean createIfNecessary) {
+
+    public static @Nullable LocalCollection fromContent(Content content, ContentResolver resolver, boolean createIfNecessary) {
         return fromContentUri(content.uri, resolver, createIfNecessary);
     }
 
-    public static LocalCollection fromContentUri(Uri contentUri, ContentResolver resolver, boolean createIfNecessary) {
+    public static @Nullable LocalCollection fromContentUri(Uri contentUri, ContentResolver resolver, boolean createIfNecessary) {
         LocalCollection lc = null;
         Cursor c = resolver.query(Content.COLLECTIONS.uri, null, "uri = ?", new String[]{contentUri.toString()}, null);
         if (c != null && c.moveToFirst()) {
@@ -116,11 +121,11 @@ public class LocalCollection {
         return lc;
     }
 
-    public static LocalCollection insertLocalCollection(Uri contentUri, ContentResolver resolver) {
+    public static @Nullable LocalCollection insertLocalCollection(Uri contentUri, ContentResolver resolver) {
         return insertLocalCollection(contentUri, 0, -1, -1, -1, null, resolver);
     }
 
-    public static LocalCollection insertLocalCollection(Uri contentUri, int syncState, long lastSyncAttempt, long lastSyncSuccess, int size, String extra, ContentResolver resolver) {
+    public static @Nullable LocalCollection insertLocalCollection(Uri contentUri, int syncState, long lastSyncAttempt, long lastSyncSuccess, int size, String extra, ContentResolver resolver) {
         // insert if not there
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.URI, contentUri.toString());
@@ -240,14 +245,17 @@ public class LocalCollection {
     }
 
     public boolean shouldAutoRefresh() {
+        if (!isIdle()) return false;
         Content c = Content.match(uri);
 
         // only auto refresh once every 30 mins at most, that we won't hammer their phone or the api if there are errors
-        if (last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) return false;
+        if (c == null || last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) return false;
 
         // do not auto refresh users when the list opens, because users are always changing
         if (User.class.equals(c.modelType)) return last_sync_success <= 0;
+
         final long staleTime = (Track.class.equals(c.modelType))    ? SyncConfig.TRACK_STALE_TIME :
+                               (Playlist.class.equals(c.modelType)) ? SyncConfig.PLAYLIST_STALE_TIME :
                                (Activity.class.equals(c.modelType)) ? SyncConfig.ACTIVITY_STALE_TIME :
                                SyncConfig.DEFAULT_STALE_TIME;
 

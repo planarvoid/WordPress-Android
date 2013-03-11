@@ -6,6 +6,8 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.task.AddAssociationTask;
@@ -122,9 +124,22 @@ public class AssociationManager {
             mContext.getContentResolver().insert(uri, playable.buildContentValues());
         } else {
             mContext.getContentResolver().delete(uri, "item_id = ? AND " +
-                    DBHelper.CollectionItems.RESOURCE_TYPE + " = " + playable.getTypeId(), new String[]{
-                    String.valueOf(playable.id),
+                    DBHelper.CollectionItems.RESOURCE_TYPE + " = ?", new String[]{
+                    String.valueOf(playable.id), String.valueOf(playable.getTypeId())
             });
+
+            // quick and dirty way to remove reposts from
+            if (uri.equals(Content.ME_REPOSTS.uri)){
+
+                Activity.Type activityType = (playable instanceof Track) ? Activity.Type.TRACK_REPOST :
+                        Activity.Type.PLAYLIST_REPOST;
+
+                mContext.getContentResolver().delete(Content.ME_SOUND_STREAM.uri,
+                        DBHelper.Activities.USER_ID + " = ? AND " + DBHelper.Activities.SOUND_ID + " = ? AND " +
+                                DBHelper.ActivityView.TYPE + " = ?",
+                        new String[]{String.valueOf(SoundCloudApplication.getUserId()),
+                                String.valueOf(playable.id), String.valueOf(activityType)});
+            }
         }
     }
 }

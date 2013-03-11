@@ -318,7 +318,6 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
             user = updatedItem.user;
             likes_count = updatedItem.likes_count;
             reposts_count = updatedItem.reposts_count;
-            user_like = updatedItem.user_like;
             created_at = updatedItem.created_at;
             description = updatedItem.description;
             tag_list = updatedItem.tag_list;
