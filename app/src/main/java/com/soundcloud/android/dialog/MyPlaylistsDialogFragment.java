@@ -108,8 +108,6 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
         Playlist.addTrackToPlaylist(
                 getActivity().getContentResolver(), playlist, getArguments().getLong(KEY_TRACK_ID));
 
-        playlist.setTrackCount(playlist.getTrackCount() + 1);
-
         // tell the service to update the playlist
         final SoundCloudApplication soundCloudApplication = SoundCloudApplication.fromContext(getActivity());
         if (soundCloudApplication != null) {

@@ -294,6 +294,8 @@ public class Playlist extends Playable {
     }
 
     public static Uri addTrackToPlaylist(ContentResolver resolver, Playlist playlist, long trackId, long time){
+        playlist.setTrackCount(playlist.getTrackCount() + 1);
+
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID, playlist.id);
         cv.put(DBHelper.PlaylistTracks.TRACK_ID, trackId);

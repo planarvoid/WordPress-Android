@@ -417,8 +417,8 @@ public class ScModelManagerTest {
         Playlist p2 = manager.getPlaylistWithTracks(p.id);
         expect(p2).not.toBeNull();
         expect(p2.tracks.size()).toEqual(43);
-        expect(p2.tracks.get(0).id).toEqual(tracks.get(1).id); // check ordering
-
+        expect(p2.tracks.get(41).id).toEqual(tracks.get(0).id); // check ordering
+        expect(p2.tracks.get(42).id).toEqual(tracks.get(1).id); // check ordering
     }
 
     @Test
