@@ -537,6 +537,7 @@ public class Track extends Playable implements PlayableHolder {
         super.updateFrom(updatedItem,cacheUpdateMode);
         stream_url = updatedItem.stream_url;
         if (cacheUpdateMode == CacheUpdateMode.FULL){
+            user_like = updatedItem.user_like;
             commentable = updatedItem.commentable;
             state = updatedItem.state;
             waveform_url = updatedItem.waveform_url;

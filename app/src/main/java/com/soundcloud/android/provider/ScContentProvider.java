@@ -320,7 +320,12 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_SOUND_STREAM:
-                if (_columns == null) _columns = formatWithUser(getSoundViewColumns(Table.ACTIVITY_VIEW), userId);
+                if (_columns == null) {
+                    final String[] rawColumns = getSoundViewColumns(Table.ACTIVITY_VIEW,
+                            DBHelper.ActivityView.SOUND_ID, DBHelper.ActivityView.SOUND_TYPE);
+
+                    _columns = formatWithUser(rawColumns, userId);
+                }
                 if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
                     qb.appendWhere(DBHelper.SoundView.CACHED + "= 1 AND ");
                 }
@@ -469,8 +474,8 @@ public class ScContentProvider extends ContentProvider {
 
                 // update the track count in the playlist tables
                 String playlistId = values.getAsString(DBHelper.PlaylistTracks.PLAYLIST_ID);
-                final String trackColumn = DBHelper.Sounds.TRACK_COUNT;
-                db.execSQL("UPDATE " + Table.SOUNDS.name + " SET " + trackColumn + "=" + trackColumn + " + 1 WHERE " +
+                final String trackCount = DBHelper.Sounds.TRACK_COUNT;
+                db.execSQL("UPDATE " + Table.SOUNDS.name + " SET " + trackCount + "=" + trackCount + " + 1 WHERE " +
                         DBHelper.Sounds._ID + "=? AND " + DBHelper.Sounds._TYPE + "=?",
                         new String[]{playlistId, String.valueOf(Playable.DB_TYPE_PLAYLIST)}) ;
                 return result;
@@ -849,7 +854,6 @@ public class ScContentProvider extends ContentProvider {
                         " SELECT id, text, icon_url, permalink_url, 0 FROM " + Table.SUGGESTIONS.name + " where kind = 'like'");
             }
 
-
             if (!failed) db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -1041,19 +1045,22 @@ public class ScContentProvider extends ContentProvider {
         return columns;
     }
 
-
     private static String[] getSoundViewColumns(Table table) {
+        return getSoundViewColumns(table, table.id, table.type);
+    }
+
+    private static String[] getSoundViewColumns(Table table, String idCol, String typeCol) {
         return new String[]{
                 table.name + ".*",
                 "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
-                        + " WHERE " + table.id + " = " + DBHelper.CollectionItems.ITEM_ID
-                        + " AND " + table.type + " = " + DBHelper.CollectionItems.RESOURCE_TYPE
+                        + " WHERE " + idCol + " = " + DBHelper.CollectionItems.ITEM_ID
+                        + " AND " + typeCol + " = " + DBHelper.CollectionItems.RESOURCE_TYPE
                         + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + LIKE
                         + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.SoundView.USER_LIKE,
 
                 "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
-                        + " WHERE " + table.id + " = " + DBHelper.CollectionItems.ITEM_ID
-                        + " AND " + table.type + " = " + DBHelper.CollectionItems.RESOURCE_TYPE
+                        + " WHERE " + idCol + " = " + DBHelper.CollectionItems.ITEM_ID
+                        + " AND " + typeCol + " = " + DBHelper.CollectionItems.RESOURCE_TYPE
                         + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + CollectionItemTypes.REPOST
                         + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.SoundView.USER_REPOST
         };
@@ -1072,9 +1079,6 @@ public class ScContentProvider extends ContentProvider {
                         + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.Users.USER_FOLLOWER
         };
     }
-
-    ;
-
 
     /**
      * Roughly corresponds to locally synced collections.

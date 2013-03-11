@@ -24,6 +24,7 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.eventlogger.Action;
 import com.soundcloud.android.tracking.eventlogger.PlayEventTracker;
+import com.soundcloud.android.tracking.eventlogger.PlayEventTrackingApi;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -127,7 +128,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private static final float FADE_CHANGE = 0.02f; // change to fade faster/slower
 
-    private MediaPlayer mMediaPlayer;
+    private @Nullable MediaPlayer mMediaPlayer;
     private int mLoadPercent = 0;       // track buffer indicator
     private boolean mAutoPause = true;  // used when svc is first created and playlist is resumed on start
     private boolean mAutoAdvance = true;// automatically skip to next track
@@ -200,7 +201,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mPlayQueueManager = new PlayQueueManager(this, SoundCloudApplication.getUserId());
         mAssociationManager = new AssociationManager(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        mPlayEventTracker = new PlayEventTracker(this);
+        mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.client_id)));
 
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(PLAY_ACTION);
@@ -442,7 +443,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     startTrack(track);
                 }
             } else { // new track
-                if (state.isSupposedToBePlaying()) {
+                if (isMediaPlayerPlaying()) {
                     trackStopEvent(); // track stop event for previous track, if any
                 }
                 track(Media.fromTrack(currentTrack), action);
@@ -890,13 +891,18 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    /* package */
-    public boolean isPlaying() {
+    private boolean isMediaPlayerPlaying() {
         try {
-            return mMediaPlayer != null && mMediaPlayer.isPlaying() && state.isSupposedToBePlaying();
+            return mMediaPlayer != null && mMediaPlayer.isPlaying();
         } catch (IllegalStateException e) {
+            e.printStackTrace();
             return false;
         }
+    }
+
+    /* package */
+    public boolean isPlaying() {
+        return isMediaPlayerPlaying() && state.isSupposedToBePlaying();
     }
 
     public void restartTrack() {

@@ -63,10 +63,6 @@ public class PlayableRow extends PlayableBar implements ListRow {
         return true;
     }
 
-    /** update the views with the data corresponding to selection index */
-    public void display(int position) {
-    }
-
     @Override
     public void display(Cursor cursor) {
         display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor));
@@ -85,8 +81,8 @@ public class PlayableRow extends PlayableBar implements ListRow {
         // makes the row slightly transparent if not playable
         setStaticTransformationsEnabled(!playable.isStreamable());
 
-        if (playable instanceof Playlist && ((Playlist) playable).track_count >= 0){
-            mTrackCount.setText(String.valueOf(((Playlist) playable).track_count));
+        if (playable instanceof Playlist && ((Playlist) playable).getTrackCount() >= 0){
+            mTrackCount.setText(String.valueOf(((Playlist) playable).getTrackCount()));
             mTrackCount.setVisibility(View.VISIBLE);
         } else {
             mTrackCount.setVisibility(View.GONE);

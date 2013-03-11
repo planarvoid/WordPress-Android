@@ -47,3 +47,4 @@ reg_ids.yaml
 
 # test data
 tests-*.sqlite
+coverage-error.log

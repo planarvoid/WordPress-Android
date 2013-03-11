@@ -31,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -40,6 +41,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
     public static final String COL_ALREADY_ADDED = "ALREADY_ADDED";
 
     private static final int LOADER_ID = 1;
+    private static final int NEW_PLAYLIST_ITEM = -1;
 
     private MyPlaylistsAdapter mAdapter;
 
@@ -67,13 +69,13 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final long playlistId = mAdapter.getItemId(position);
+                final long rowId = mAdapter.getItemId(position);
 
-                if (playlistId == -1) {
+                if (rowId == NEW_PLAYLIST_ITEM) {
                     CreateNewSetDialogFragment.from(getArguments().getLong(KEY_TRACK_ID)).show(getFragmentManager(), "create_new_set_dialog");
                     getDialog().dismiss();
                 } else if (getActivity() != null) {
-                    onAddTrackToSet(playlistId, view);
+                    onAddTrackToSet(rowId, view);
                 }
             }
         });
@@ -96,11 +98,15 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
     }
 
     private void onAddTrackToSet(long playlistId, View view) {
-        Playlist.addTrackToPlaylist(
-                getActivity().getContentResolver(), playlistId, getArguments().getLong(KEY_TRACK_ID));
-
         final Playlist playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(playlistId);
-        playlist.track_count++;
+
+        if (playlist == null) {
+            Toast.makeText(getActivity(), getString(R.string.playlist_removed), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Playlist.addTrackToPlaylist(
+                getActivity().getContentResolver(), playlist, getArguments().getLong(KEY_TRACK_ID));
 
         // tell the service to update the playlist
         final SoundCloudApplication soundCloudApplication = SoundCloudApplication.fromContext(getActivity());
@@ -153,7 +159,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
                 MatrixCursor extras = new MatrixCursor(new String[]{DBHelper.PlaylistTracksView._ID,
                         DBHelper.PlaylistTracksView.TITLE, DBHelper.PlaylistTracksView.TRACK_COUNT, COL_ALREADY_ADDED});
 
-                extras.addRow(new Object[]{-1l, getContext().getString(R.string.create_new_set), -1, 0});
+                extras.addRow(new Object[]{NEW_PLAYLIST_ITEM, getContext().getString(R.string.create_new_set), -1, 0});
 
                 return new MergeCursor(new Cursor[]{extras, dbCursor});
             }

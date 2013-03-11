@@ -24,6 +24,7 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.HttpUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -42,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -52,6 +54,7 @@ import java.util.Set;
 public class ApiSyncer {
     public static final String TAG = ApiSyncService.LOG_TAG;
     private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
+    private static final int MAX_MY_PLAYLIST_TRACK_COUNT_SYNC = 100;
 
     private final AndroidCloudAPI mApi;
     private final ContentResolver mResolver;
@@ -161,6 +164,9 @@ public class ApiSyncer {
 
 
     /**
+     * Pushes any locally created playlists to the server, fetches the user's playlists from the server,
+     * and fetches tracks for these playlists that are missing locally.
+     *
      * This is specific because the Api does not return these as sound associations, otherwise
      * we could use that path
      */
@@ -168,7 +174,7 @@ public class ApiSyncer {
         pushLocalPlaylists();
 
         final Request request = Request.to(Content.ME_PLAYLISTS.remoteUri)
-                .add("linked_partitioning", "1").add("representation", "compact").with("limit", 200);
+                .add("representation", "compact").with("limit", 200);
 
         ScResource.ScResourceHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
                 request, ScResource.ScResourceHolder.class);
@@ -178,7 +184,29 @@ public class ApiSyncer {
         for (ScResource resource : holder) {
             Playlist playlist = (Playlist) resource;
             soundAssociationHolder.collection.add(new SoundAssociation(playlist, playlist.created_at, SoundAssociation.Type.PLAYLIST));
-        }
+            boolean onWifi = IOUtils.isWifiConnected(mContext);
+
+                // if we have never synced the playlist or are on wifi and past the stale time, fetch the tracks
+                final LocalCollection localCollection = LocalCollection.fromContentUri(playlist.toUri(), mResolver, true);
+                if (localCollection == null) continue;
+
+                final boolean tracksStale = (localCollection.shouldAutoRefresh() && onWifi) || localCollection.last_sync_success <= 0;
+
+                if (tracksStale && playlist.getTrackCount() < MAX_MY_PLAYLIST_TRACK_COUNT_SYNC){
+                    try {
+                        HttpResponse resp = mApi.get(Request.to(TempEndpoints.PLAYLIST_TRACKS, playlist.id));
+                        if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                            playlist.tracks = mApi.getMapper().readValue(resp.getEntity().getContent(),
+                                    mApi.getMapper().getTypeFactory().constructCollectionType(List.class, Track.class));
+                        }
+                    } catch (IOException e) {
+                        // don't let the track fetch fail the sync, it is just an optimization
+                        Log.e(TAG,"Failed to fetch playlist tracks for playlist " + playlist, e);
+                    }
+                }
+
+                soundAssociationHolder.collection.add(new SoundAssociation(playlist, playlist.created_at, SoundAssociation.Type.PLAYLIST));
+            }
         return syncLocalSoundAssocationsToHolder(Content.ME_PLAYLISTS.uri, soundAssociationHolder);
     }
 
@@ -218,6 +246,11 @@ public class ApiSyncer {
                 // update local state
                 p.localToGlobal(mContext, added);
                 added.insertAsMyPlaylist(mResolver);
+
+                LocalCollection lc = LocalCollection.fromContentUri(p.toUri(), mResolver, true);
+                if (lc != null) {
+                    lc.updateLastSyncSuccessTime(System.currentTimeMillis(), mResolver);
+                }
 
                 // remove all traces of the old temporary playlist
                 Playlist.removePlaylist(mResolver, toDelete);
@@ -453,57 +486,57 @@ public class ApiSyncer {
     }
 
     private Result syncMyConnections() throws IOException {
-            log("Syncing my connections");
+        log("Syncing my connections");
 
-            Result result = new Result(Content.ME_CONNECTIONS.uri);
-            HttpResponse resp = mApi.get(Content.ME_CONNECTIONS.request());
-            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+        Result result = new Result(Content.ME_CONNECTIONS.uri);
+        HttpResponse resp = mApi.get(Content.ME_CONNECTIONS.request());
+        if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 
-                // compare local vs remote connections
-                HashSet<Connection> remoteConnections = mApi.getMapper().readValue(resp.getEntity().getContent(),
-                        mApi.getMapper().getTypeFactory().constructCollectionType(Set.class, Content.ME_CONNECTIONS.modelType));
+            // compare local vs remote connections
+            HashSet<Connection> remoteConnections = mApi.getMapper().readValue(resp.getEntity().getContent(),
+                    mApi.getMapper().getTypeFactory().constructCollectionType(Set.class, Content.ME_CONNECTIONS.modelType));
 
-                Cursor c = mResolver.query(Content.ME_CONNECTIONS.uri, null, null, null, null);
-                HashSet<Connection> storedConnections = new HashSet<Connection>();
-                if (c != null && c.moveToFirst()){
-                    do {
-                        storedConnections.add(new Connection(c));
-                    } while (c.moveToNext());
-                }
-
-                if (storedConnections.equals(remoteConnections)){
-                    result.change = Result.UNCHANGED;
-                } else {
-                    result.change = Result.CHANGED;
-                    // remove unneeded connections
-                    storedConnections.removeAll(remoteConnections);
-                    List<Long> toRemove = new ArrayList<Long>();
-                    for (Connection storedConnection : storedConnections) {
-                        toRemove.add(storedConnection.id);
-                    }
-                    if (!toRemove.isEmpty()){
-                        mResolver.delete(Content.ME_CONNECTIONS.uri, DBHelper.getWhereInClause(DBHelper.Connections._ID, toRemove), ScModelManager.longListToStringArr(toRemove));
-                    }
-                }
-
-                // write anyways to update connections
-                List<ContentValues> cvs = new ArrayList<ContentValues>(remoteConnections.size());
-                for (Connection connection : remoteConnections) {
-                    ContentValues cv = connection.buildContentValues();
-                    if (cv != null) cvs.add(cv);
-                }
-
-                int inserted = 0;
-                if (!cvs.isEmpty()) {
-                    inserted = mResolver.bulkInsert(Content.ME_CONNECTIONS.uri, cvs.toArray(new ContentValues[cvs.size()]));
-                    log("inserted " + inserted + " generic models");
-                }
-
-                result.setSyncData(System.currentTimeMillis(), inserted, null);
-                result.success = true;
+            Cursor c = mResolver.query(Content.ME_CONNECTIONS.uri, null, null, null, null);
+            HashSet<Connection> storedConnections = new HashSet<Connection>();
+            if (c != null && c.moveToFirst()) {
+                do {
+                    storedConnections.add(new Connection(c));
+                } while (c.moveToNext());
             }
-            return result;
+
+            if (storedConnections.equals(remoteConnections)) {
+                result.change = Result.UNCHANGED;
+            } else {
+                result.change = Result.CHANGED;
+                // remove unneeded connections
+                storedConnections.removeAll(remoteConnections);
+                List<Long> toRemove = new ArrayList<Long>();
+                for (Connection storedConnection : storedConnections) {
+                    toRemove.add(storedConnection.id);
+                }
+                if (!toRemove.isEmpty()) {
+                    mResolver.delete(Content.ME_CONNECTIONS.uri, DBHelper.getWhereInClause(DBHelper.Connections._ID, toRemove), ScModelManager.longListToStringArr(toRemove));
+                }
+            }
+
+            // write anyways to update connections
+            List<ContentValues> cvs = new ArrayList<ContentValues>(remoteConnections.size());
+            for (Connection connection : remoteConnections) {
+                ContentValues cv = connection.buildContentValues();
+                if (cv != null) cvs.add(cv);
+            }
+
+            int inserted = 0;
+            if (!cvs.isEmpty()) {
+                inserted = mResolver.bulkInsert(Content.ME_CONNECTIONS.uri, cvs.toArray(new ContentValues[cvs.size()]));
+                log("inserted " + inserted + " generic models");
+            }
+
+            result.setSyncData(System.currentTimeMillis(), inserted, null);
+            result.success = true;
         }
+        return result;
+    }
 
     private Result syncPlaylist(Uri contentUri) throws IOException {
         log("Syncing playlist " + contentUri);
@@ -531,13 +564,12 @@ public class ApiSyncer {
 
 
         if (c != null && c.getCount() > 0) {
-            List<Long> toAdd = new ArrayList<Long>(c.getCount());
+            Set<Long> toAdd = new LinkedHashSet<Long>(c.getCount());
             for (Track t : p.tracks) {
                 toAdd.add(t.id);
             }
             while (c.moveToNext()) {
-                final long addId = c.getLong(0);
-                if (!toAdd.contains(addId)) toAdd.add(0, addId);
+                toAdd.add(c.getLong(0));
             }
 
             Playlist.ApiUpdateObject updateObject = new Playlist.ApiUpdateObject(toAdd);

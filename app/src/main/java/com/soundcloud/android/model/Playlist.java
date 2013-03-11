@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -33,6 +34,7 @@ import android.os.Parcelable;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +44,7 @@ public class Playlist extends Playable {
 
     public static final String EXTRA = "com.soundcloud.android.playlist";
     public static final String EXTRA_ID = "com.soundcloud.android.playlist_id";
+    public static final String EXTRA_URI = "com.soundcloud.android.playlist_uri";
     public static final String EXTRA_TRACKS_COUNT = "com.soundcloud.android.playlist_tracks";
 
     public static final String ACTION_CONTENT_CHANGED = "com.soundcloud.android.playlist.content_changed";
@@ -49,7 +52,7 @@ public class Playlist extends Playable {
     @JsonView(Views.Full.class) public String playlist_type;
     @JsonView(Views.Full.class) public String tracks_uri;
     @JsonView(Views.Full.class) @Nullable public List<Track> tracks;
-    @JsonView(Views.Full.class) public int track_count;
+    @JsonView(Views.Full.class) private int track_count;
     public boolean removed;
 
     public interface OnChangeListener { void onPlaylistChanged(); }
@@ -57,15 +60,23 @@ public class Playlist extends Playable {
     private Set<WeakReference<OnChangeListener>> mListenerWeakReferences;
     private ContentObserver mPlaylistObserver;
 
-    public static Playlist fromIntent(Intent intent) {
-        Playlist playlist = intent.getParcelableExtra(EXTRA);
-        if (playlist == null) {
-            playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(intent.getLongExtra(EXTRA_ID, 0));
-            if (playlist == null) {
-                throw new IllegalArgumentException("Could not obtain playlist from intent " + intent);
-            }
+    public static @Nullable Playlist fromBundle(Bundle bundle) {
+        Playlist playlist;
+        if (bundle.containsKey(EXTRA)) {
+            playlist = bundle.getParcelable(EXTRA);
+        } else if (bundle.containsKey(EXTRA_ID)) {
+            playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(bundle.getLong(EXTRA_ID, 0));
+        } else if (bundle.containsKey(EXTRA_URI)) {
+            Uri uri = (Uri) bundle.getParcelable(EXTRA_URI);
+            playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(uri);
+        } else {
+            throw new IllegalArgumentException("Could not obtain playlist from bundle");
         }
         return playlist;
+    }
+
+    public static @Nullable Playlist fromIntent(Intent intent) {
+        return fromBundle(intent.getExtras());
     }
 
     public Playlist() {
@@ -202,6 +213,7 @@ public class Playlist extends Playable {
         }
     };
 
+    // Local i.e. unpushed playlists are currently identified by having a negative timestamp
     public static boolean hasLocalPlaylists(ContentResolver resolver) {
         Cursor itemsCursor = resolver.query(Content.PLAYLISTS.uri,
                 new String[]{DBHelper.SoundView._ID}, DBHelper.SoundView._ID + " < 0",
@@ -215,6 +227,7 @@ public class Playlist extends Playable {
         return hasPlaylists;
     }
 
+    // Local i.e. unpushed playlists are currently identified by having a negative timestamp
     public static List<Playlist> getLocalPlaylists(ContentResolver resolver) {
         Cursor itemsCursor = resolver.query(Content.PLAYLISTS.uri,
                 null, DBHelper.SoundView._ID + " < 0",
@@ -264,8 +277,8 @@ public class Playlist extends Playable {
     public static class ApiUpdateObject {
         @JsonView(Views.Full.class) List<ScModel> tracks;
 
-        public ApiUpdateObject(List<Long> toAdd) {
-            this.tracks = new ArrayList<ScModel>();
+        public ApiUpdateObject(Collection<Long> toAdd) {
+            this.tracks = new ArrayList<ScModel>(toAdd.size());
             for (Long id : toAdd){
                 this.tracks.add(new ScModel(id));
             }
@@ -276,16 +289,19 @@ public class Playlist extends Playable {
         }
     }
 
-    public static Uri addTrackToPlaylist(ContentResolver resolver, long playlistId, long trackId){
-        return addTrackToPlaylist(resolver, playlistId, trackId,System.currentTimeMillis());
+    public static Uri addTrackToPlaylist(ContentResolver resolver, Playlist playlist, long trackId){
+        return addTrackToPlaylist(resolver, playlist, trackId,System.currentTimeMillis());
     }
 
-    public static Uri addTrackToPlaylist(ContentResolver resolver, long playlistId, long trackId, long time){
+    public static Uri addTrackToPlaylist(ContentResolver resolver, Playlist playlist, long trackId, long time){
+        playlist.setTrackCount(playlist.getTrackCount() + 1);
+
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID, playlistId);
+        cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID, playlist.id);
         cv.put(DBHelper.PlaylistTracks.TRACK_ID, trackId);
         cv.put(DBHelper.PlaylistTracks.ADDED_AT, time);
-        return resolver.insert(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId)), cv);
+        cv.put(DBHelper.PlaylistTracks.POSITION, playlist.getTrackCount());
+        return resolver.insert(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.id)), cv);
     }
 
     /**
@@ -333,6 +349,17 @@ public class Playlist extends Playable {
     public boolean isStreamable() {
         return true;
     }
+
+
+    public int getTrackCount() {
+        return  tracks == null ? track_count : Math.max(tracks.size(), track_count);
+    }
+
+    @JsonProperty("track_count")
+    public void setTrackCount(int count) {
+        track_count = count;
+    }
+
 
     /**
      * Change listening. Playlist IDs are mutable, so we listen on the actual instance instead of content uri's

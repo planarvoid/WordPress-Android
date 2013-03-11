@@ -1,14 +1,22 @@
 package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.Expect.expect;
+import static junit.framework.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 
 public class IOUtilsTest {
     @Rule
@@ -91,5 +99,33 @@ public class IOUtilsTest {
         expect(IOUtils.removeExtension(new File("foo.ogg")).getName()).toEqual("foo");
         expect(IOUtils.removeExtension(new File("foo.ogg.ogg")).getName()).toEqual("foo.ogg");
         expect(IOUtils.removeExtension(new File("foo")).getName()).toEqual("foo");
+    }
+
+    @Test
+    public void consumeContentShouldConsumeResponsePayload() throws IOException {
+        InputStream payload = new ByteArrayInputStream(new byte[]{1, 3, 3, 7});
+        expect(payload.available()).toBe(4);
+
+        HttpURLConnection connection = mock(HttpURLConnection.class);
+
+        when(connection.getContentLength()).thenReturn(payload.available());
+        when(connection.getInputStream()).thenReturn(payload);
+
+        IOUtils.consumeStream(connection);
+
+        expect(payload.available()).toBe(0);
+    }
+
+    @Test
+    public void consumeContentShouldNotThrowForNullConnection() {
+        IOUtils.consumeStream(null);
+    }
+
+    @Test
+    public void consumeContentShouldNotThrowWhenPayloadEmpty() {
+        HttpURLConnection connection = mock(HttpURLConnection.class);
+        when(connection.getContentLength()).thenReturn(0);
+
+        IOUtils.consumeStream(connection);
     }
 }

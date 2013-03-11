@@ -1,12 +1,11 @@
 package com.soundcloud.android.utils;
 
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.imageloader.ImageLoader.Options;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.cropimage.CropImage;
+import com.soundcloud.android.cropimage.CropImageActivity;
 import com.soundcloud.android.imageloader.ImageLoader;
 
 import android.app.Activity;
@@ -524,15 +523,13 @@ public final class ImageUtils {
     }
 
     public static void sendCropIntent(Activity activity, Uri inputUri, Uri outputUri, int width, int height) {
-        Intent intent = new Intent(activity, CropImage.class)
+        Intent intent = new Intent(activity, CropImageActivity.class)
                 .setData(inputUri)
                 .putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
                 .putExtra("aspectX", 1)
                 .putExtra("aspectY", 1)
                 .putExtra("maxX", width)
-                .putExtra("maxY", height)
-                .putExtra("exifRotation", ImageUtils.getExifRotation(IOUtils.getFromMediaUri(activity.getContentResolver(), inputUri)))
-                .putExtra("noFaceDetection", true);
+                .putExtra("maxY", height);
 
         activity.startActivityForResult(intent, Consts.RequestCodes.IMAGE_CROP);
     }
