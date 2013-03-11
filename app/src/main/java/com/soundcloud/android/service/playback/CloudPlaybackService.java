@@ -24,6 +24,7 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.eventlogger.Action;
 import com.soundcloud.android.tracking.eventlogger.PlayEventTracker;
+import com.soundcloud.android.tracking.eventlogger.PlayEventTrackingApi;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -200,7 +201,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mPlayQueueManager = new PlayQueueManager(this, SoundCloudApplication.getUserId());
         mAssociationManager = new AssociationManager(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        mPlayEventTracker = new PlayEventTracker(this);
+        mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.client_id)));
 
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(PLAY_ACTION);
