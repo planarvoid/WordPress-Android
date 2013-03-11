@@ -163,6 +163,9 @@ public class ApiSyncer {
 
 
     /**
+     * Pushes any locally created playlists to the server, fetches the user's playlists from the server,
+     * and fetches tracks for these playlists that are missing locally.
+     *
      * This is specific because the Api does not return these as sound associations, otherwise
      * we could use that path
      */
@@ -483,57 +486,57 @@ public class ApiSyncer {
     }
 
     private Result syncMyConnections() throws IOException {
-            log("Syncing my connections");
+        log("Syncing my connections");
 
-            Result result = new Result(Content.ME_CONNECTIONS.uri);
-            HttpResponse resp = mApi.get(Content.ME_CONNECTIONS.request());
-            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+        Result result = new Result(Content.ME_CONNECTIONS.uri);
+        HttpResponse resp = mApi.get(Content.ME_CONNECTIONS.request());
+        if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 
-                // compare local vs remote connections
-                HashSet<Connection> remoteConnections = mApi.getMapper().readValue(resp.getEntity().getContent(),
-                        mApi.getMapper().getTypeFactory().constructCollectionType(Set.class, Content.ME_CONNECTIONS.modelType));
+            // compare local vs remote connections
+            HashSet<Connection> remoteConnections = mApi.getMapper().readValue(resp.getEntity().getContent(),
+                    mApi.getMapper().getTypeFactory().constructCollectionType(Set.class, Content.ME_CONNECTIONS.modelType));
 
-                Cursor c = mResolver.query(Content.ME_CONNECTIONS.uri, null, null, null, null);
-                HashSet<Connection> storedConnections = new HashSet<Connection>();
-                if (c != null && c.moveToFirst()){
-                    do {
-                        storedConnections.add(new Connection(c));
-                    } while (c.moveToNext());
-                }
-
-                if (storedConnections.equals(remoteConnections)){
-                    result.change = Result.UNCHANGED;
-                } else {
-                    result.change = Result.CHANGED;
-                    // remove unneeded connections
-                    storedConnections.removeAll(remoteConnections);
-                    List<Long> toRemove = new ArrayList<Long>();
-                    for (Connection storedConnection : storedConnections) {
-                        toRemove.add(storedConnection.id);
-                    }
-                    if (!toRemove.isEmpty()){
-                        mResolver.delete(Content.ME_CONNECTIONS.uri, DBHelper.getWhereInClause(DBHelper.Connections._ID, toRemove), ScModelManager.longListToStringArr(toRemove));
-                    }
-                }
-
-                // write anyways to update connections
-                List<ContentValues> cvs = new ArrayList<ContentValues>(remoteConnections.size());
-                for (Connection connection : remoteConnections) {
-                    ContentValues cv = connection.buildContentValues();
-                    if (cv != null) cvs.add(cv);
-                }
-
-                int inserted = 0;
-                if (!cvs.isEmpty()) {
-                    inserted = mResolver.bulkInsert(Content.ME_CONNECTIONS.uri, cvs.toArray(new ContentValues[cvs.size()]));
-                    log("inserted " + inserted + " generic models");
-                }
-
-                result.setSyncData(System.currentTimeMillis(), inserted, null);
-                result.success = true;
+            Cursor c = mResolver.query(Content.ME_CONNECTIONS.uri, null, null, null, null);
+            HashSet<Connection> storedConnections = new HashSet<Connection>();
+            if (c != null && c.moveToFirst()) {
+                do {
+                    storedConnections.add(new Connection(c));
+                } while (c.moveToNext());
             }
-            return result;
+
+            if (storedConnections.equals(remoteConnections)) {
+                result.change = Result.UNCHANGED;
+            } else {
+                result.change = Result.CHANGED;
+                // remove unneeded connections
+                storedConnections.removeAll(remoteConnections);
+                List<Long> toRemove = new ArrayList<Long>();
+                for (Connection storedConnection : storedConnections) {
+                    toRemove.add(storedConnection.id);
+                }
+                if (!toRemove.isEmpty()) {
+                    mResolver.delete(Content.ME_CONNECTIONS.uri, DBHelper.getWhereInClause(DBHelper.Connections._ID, toRemove), ScModelManager.longListToStringArr(toRemove));
+                }
+            }
+
+            // write anyways to update connections
+            List<ContentValues> cvs = new ArrayList<ContentValues>(remoteConnections.size());
+            for (Connection connection : remoteConnections) {
+                ContentValues cv = connection.buildContentValues();
+                if (cv != null) cvs.add(cv);
+            }
+
+            int inserted = 0;
+            if (!cvs.isEmpty()) {
+                inserted = mResolver.bulkInsert(Content.ME_CONNECTIONS.uri, cvs.toArray(new ContentValues[cvs.size()]));
+                log("inserted " + inserted + " generic models");
+            }
+
+            result.setSyncData(System.currentTimeMillis(), inserted, null);
+            result.success = true;
         }
+        return result;
+    }
 
     private Result syncPlaylist(Uri contentUri) throws IOException {
         log("Syncing playlist " + contentUri);
