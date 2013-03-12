@@ -3,7 +3,6 @@ package com.soundcloud.android.tracking.eventlogger;
 import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.*;
 
 import com.integralblue.httpresponsecache.compat.Charsets;
-import com.soundcloud.android.utils.IOUtils;
 import org.apache.http.HttpStatus;
 
 import android.database.Cursor;
@@ -24,10 +23,10 @@ public class PlayEventTrackingApi {
     private static final int READ_TIMEOUT = 5 * 1000;
     private static final int CONNECT_TIMEOUT = 10 * 1000;
 
-    private final String mClientId;
+    private final String mAppId;
 
-    public PlayEventTrackingApi(String clientId) {
-        mClientId = clientId;
+    public PlayEventTrackingApi(String appId) {
+        mAppId = appId;
     }
 
     /**
@@ -73,7 +72,7 @@ public class PlayEventTrackingApi {
 
     String buildUrl(Cursor trackingData) throws UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder(ENDPOINT);
-        sb.append("?client_id=").append(mClientId);
+        sb.append("?client_id=").append(mAppId);
         long timestamp = trackingData.getLong(trackingData.getColumnIndex(TIMESTAMP));
         sb.append("&ts=").append(timestamp);
         String action = trackingData.getString(trackingData.getColumnIndex(ACTION));
