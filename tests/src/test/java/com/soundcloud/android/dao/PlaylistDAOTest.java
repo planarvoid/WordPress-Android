@@ -1,5 +1,11 @@
 package com.soundcloud.android.dao;
 
+import org.junit.Test;
+
 public class PlaylistDAOTest extends BaseDAOTest {
-    // TODO: test previously untested methods!
+
+    @Test
+    public void test() throws Exception {
+        // TODO: test previously untested methods!
+    }
 }
