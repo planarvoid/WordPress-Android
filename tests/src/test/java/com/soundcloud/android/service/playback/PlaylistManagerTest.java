@@ -3,6 +3,7 @@ package com.soundcloud.android.service.playback;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dao.PlayQueueManagerDAO;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
