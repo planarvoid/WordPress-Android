@@ -6,13 +6,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.dao.ActivitiesDAO;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.json.Views;
-import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
@@ -33,7 +33,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.EnumSet;
-import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -378,7 +377,7 @@ public class User extends ScResource implements Refreshable {
             resolver.delete(Content.COLLECTIONS.uri,
                 DBHelper.Collections.URI + " = ?", new String[]{ c.uri.toString() });
         }
-        Activities.clear(null, resolver);
+        ActivitiesDAO.clear(null, resolver);
         PlayQueueManager.clearState(context);
         FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
         Search.clearState(resolver, SoundCloudApplication.getUserId());

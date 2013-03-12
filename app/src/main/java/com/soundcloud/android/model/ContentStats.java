@@ -1,7 +1,7 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.dao.ActivitiesDAO;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 
@@ -37,7 +37,7 @@ public class ContentStats {
             protected Void doInBackground(Content... contents) {
                 for (Content content : contents) {
                     updateCount(context, content,
-                            Activities.getCountSince(context.getContentResolver(), getLastSeen(context, content), content));
+                            ActivitiesDAO.getCountSince(context.getContentResolver(), getLastSeen(context, content), content));
                 }
                 return null;
             }

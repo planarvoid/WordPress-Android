@@ -1,5 +1,6 @@
 package com.soundcloud.android.task.collection;
 
+import com.soundcloud.android.dao.ActivitiesDAO;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.act.Activities;
@@ -23,7 +24,7 @@ public class ActivitiesLoader extends CollectionLoader<Activity> {
         Activities newActivities;
         final ContentResolver resolver = api.getContext().getContentResolver();
         if (params.isRefresh) {
-            newActivities = Activities.getSince(params.contentUri, resolver, params.timestamp);
+            newActivities = ActivitiesDAO.getSince(params.contentUri, resolver, params.timestamp);
             returnData.keepGoing = newActivities.size() >= params.maxToLoad;
 
         } else {
@@ -59,7 +60,7 @@ public class ActivitiesLoader extends CollectionLoader<Activity> {
     }
 
     private Activities getOlderActivities(ContentResolver resolver, CollectionParams params) {
-        return Activities.getBefore(
+        return ActivitiesDAO.getBefore(
                 params.contentUri.buildUpon().appendQueryParameter("limit", String.valueOf(params.maxToLoad)).build(),
                 resolver,
                 params.timestamp);

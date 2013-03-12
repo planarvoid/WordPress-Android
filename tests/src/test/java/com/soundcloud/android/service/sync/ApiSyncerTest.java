@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.*;
 import static com.soundcloud.android.service.sync.ApiSyncer.Result;
 
+import com.soundcloud.android.dao.ActivitiesDAO;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
@@ -11,7 +12,6 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManagerTest;
-import com.soundcloud.android.model.Sharing;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -74,7 +74,7 @@ public class ApiSyncerTest {
         expect(Content.USERS).toHaveCount(28);
         expect(Content.PLAYLISTS).toHaveCount(8);
 
-        Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
+        Activities incoming = ActivitiesDAO.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
         expect(incoming.size()).toEqual(TOTAL_STREAM_SIZE);
         expect(incoming.getUniquePlayables().size()).toEqual(TOTAL_STREAM_SIZE);
@@ -114,7 +114,7 @@ public class ApiSyncerTest {
         expect(Content.ME_ACTIVITIES).toHaveCount(17);
         expect(Content.COMMENTS).toHaveCount(5);
 
-        Activities own = Activities.getSince(Content.ME_ACTIVITIES, Robolectric.application.getContentResolver(), -1);
+        Activities own = ActivitiesDAO.getSince(Content.ME_ACTIVITIES, Robolectric.application.getContentResolver(), -1);
         expect(own.size()).toEqual(17);
 
         assertResolverNotified(Content.TRACKS.uri,
@@ -458,7 +458,7 @@ public class ApiSyncerTest {
         sync(Content.ME_SOUND_STREAM.uri, "track_and_track_sharing.json");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(2);
-        Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
+        Activities incoming = ActivitiesDAO.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
         expect(incoming.size()).toEqual(2);
         Activity a1 = incoming.get(0);
@@ -483,7 +483,7 @@ public class ApiSyncerTest {
         sync(Content.ME_SOUND_STREAM.uri, "playlist_and_playlist_sharing.json");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
-        Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
+        Activities incoming = ActivitiesDAO.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
         expect(incoming.size()).toEqual(1);
         Activity a1 = incoming.get(0);

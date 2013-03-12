@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.sync;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.dao.ActivitiesDAO;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -59,7 +60,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
                     if (delta > frequency) {
                         final long lastStreamSeen = ContentStats.getLastSeen(app, Content.ME_SOUND_STREAM);
                         final Activities stream = !SyncConfig.isIncomingEnabled(app, extras) ? Activities.EMPTY :
-                                Activities.getSince(Content.ME_SOUND_STREAM, app.getContentResolver(), lastStreamSeen);
+                                ActivitiesDAO.getSince(Content.ME_SOUND_STREAM, app.getContentResolver(), lastStreamSeen);
 
 
                         maybeNotifyStream(app, stream);
@@ -69,7 +70,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
 
                     final long lastOwnSeen = ContentStats.getLastSeen(app, Content.ME_ACTIVITIES);
                     final Activities news = !SyncConfig.isActivitySyncEnabled(app, extras) ? Activities.EMPTY :
-                            Activities.getSince(Content.ME_ACTIVITIES, app.getContentResolver(), lastOwnSeen);
+                            ActivitiesDAO.getSince(Content.ME_ACTIVITIES, app.getContentResolver(), lastOwnSeen);
                     maybeNotifyActivity(app, news, extras);
                 }
                 break;

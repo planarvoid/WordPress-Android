@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.sync;
 
+import com.soundcloud.android.dao.ActivitiesDAO;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -8,7 +9,6 @@ import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.DebugUtils;
@@ -275,7 +275,7 @@ public class SyncAdapterService extends Service {
 
     private static void clearActivities(ContentResolver resolver){
         // drop all activities before re-sync
-        int deleted = Activities.clear(null, resolver);
+        int deleted = ActivitiesDAO.clear(null, resolver);
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "deleted "+deleted+ " activities");
         }

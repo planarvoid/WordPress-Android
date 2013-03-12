@@ -2,6 +2,7 @@ package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.model.ScModelManager.validateResponse;
 
+import com.soundcloud.android.dao.ActivitiesDAO;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -287,7 +288,7 @@ public class ApiSyncer {
         final int inserted;
         Activities activities;
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
-            final Activity lastActivity = Activities.getLastActivity(c, mResolver);
+            final Activity lastActivity = ActivitiesDAO.getLastActivity(c, mResolver);
             Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
             if (lastActivity != null) request.add("cursor", lastActivity.toGUID());
             activities = Activities.fetch(mApi, request);
@@ -295,7 +296,7 @@ public class ApiSyncer {
                 // this can happen at the end of the list
                 inserted = 0;
             } else {
-                inserted = activities.insert(c, mResolver);
+                inserted = ActivitiesDAO.insert(c, mResolver, activities);
             }
         } else {
             String future_href = LocalCollection.getExtraFromUri(uri, mResolver);
@@ -307,11 +308,11 @@ public class ApiSyncer {
                 mResolver.delete(c.uri, null, null);
             }
 
-            if (activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(Activities.getFirstActivity(c, mResolver)))) {
+            if (activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(ActivitiesDAO.getFirstActivity(c, mResolver)))) {
                 // this can happen at the beginning of the list if the api returns the first item incorrectly
                 inserted = 0;
             } else {
-                inserted = activities.insert(c, mResolver);
+                inserted = ActivitiesDAO.insert(c, mResolver, activities);
             }
             result.setSyncData(System.currentTimeMillis(), activities.size(), activities.future_href);
         }
