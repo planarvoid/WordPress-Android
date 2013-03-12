@@ -6,6 +6,7 @@ import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ActivitiesDAO;
+import com.soundcloud.android.dao.TrackDAO;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Like;
 import com.soundcloud.android.model.Playable;
@@ -21,7 +22,6 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
-import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -468,7 +468,7 @@ public class ScContentProviderTest {
         expect(u.avatar_url).toEqual("https://i1.sndcdn.com/avatars-000013690441-hohfv1-tiny.jpg?2479809");
         expect(u.permalink_url).toEqual("http://soundcloud.com/katharina");
 
-        Track t = Track.fromUri(Content.TRACK.forId(64629168), resolver, false);
+        Track t = TrackDAO.fromUri(Content.TRACK.forId(64629168), resolver, false);
         expect(t).not.toBeNull();
         expect(t.title).toEqual("Halls - Roses For The Dead (Max Cooper remix)");
         expect(t.artwork_url).toEqual("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809");

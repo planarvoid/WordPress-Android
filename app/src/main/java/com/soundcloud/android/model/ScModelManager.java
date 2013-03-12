@@ -1,5 +1,11 @@
 package com.soundcloud.android.model;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.text.TextUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
@@ -9,8 +15,6 @@ import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.api.CloudAPI;
@@ -19,13 +23,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.text.TextUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

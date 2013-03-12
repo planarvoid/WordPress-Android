@@ -89,7 +89,7 @@ public abstract class ScResource extends ScModel {
         return contentResolver.insert(toUri(),buildContentValues());
     }
 
-    protected void insertDependencies(ContentResolver contentResolver) {
+    public void insertDependencies(ContentResolver contentResolver) {
         final BulkInsertMap dependencies = new BulkInsertMap();
         putDependencyValues(dependencies);
         dependencies.insert(contentResolver);
