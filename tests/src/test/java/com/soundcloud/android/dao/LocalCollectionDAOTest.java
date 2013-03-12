@@ -1,26 +1,13 @@
 package com.soundcloud.android.dao;
 
-import android.content.ContentResolver;
 import android.net.Uri;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static com.soundcloud.android.Expect.expect;
 
-@RunWith(DefaultTestRunner.class)
-public class LocalCollectionDAOTest {
-    ContentResolver resolver;
-
-    @Before
-    public void before() {
-        resolver = Robolectric.application.getContentResolver();
-    }
-
+public class LocalCollectionDAOTest extends BaseDAOTest {
     @Test
     public void shouldInsertCollection() throws Exception {
         final Uri uri = Uri.parse("foo");

@@ -12,6 +12,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
+import com.soundcloud.android.dao.SearchDAO;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -380,7 +381,7 @@ public class User extends ScResource implements Refreshable {
         ActivitiesDAO.clear(null, resolver);
         PlayQueueManager.clearState(context);
         FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
-        Search.clearState(resolver, SoundCloudApplication.getUserId());
+        SearchDAO.clearState(resolver, SoundCloudApplication.getUserId());
     }
 
     @Override

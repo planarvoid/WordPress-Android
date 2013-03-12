@@ -25,16 +25,7 @@ import org.junit.runner.RunWith;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 
-@RunWith(DefaultTestRunner.class)
-public class ActivitiesDAOTest {
-    private static final long USER_ID = 133201L;
-    private ContentResolver resolver;
-
-    @Before
-    public void before() {
-        resolver = Robolectric.application.getContentResolver();
-    }
-
+public class ActivitiesDAOTest extends BaseDAOTest {
     @Test
     public void shouldPersistActivitiesInDb() throws Exception {
         Activities a = TestHelper.readJson(Activities.class, SyncAdapterServiceTest.class, "e1_stream_1.json");

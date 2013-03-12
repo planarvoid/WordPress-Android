@@ -1,23 +1,16 @@
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.TempEndpoints;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.api.Request;
 
 public class Search {
-    static final Content CONTENT  = Content.SEARCHES;
-
     public static final int ALL = 0;
     public static final int SOUNDS = 1;
     public static final int USERS  = 2;
@@ -88,30 +81,6 @@ public class Search {
         return cv;
     }
 
-    public Uri insert(ContentResolver resolver) {
-        return resolver.insert(CONTENT.uri, buildContentValues());
-    }
-
-    public static List<Search> getHistory(ContentResolver resolver) {
-        Cursor cursor = resolver.query(CONTENT.uri,
-                null,
-                null,
-                null,
-                DBHelper.Searches.CREATED_AT + " DESC");
-
-        List<Search> list = new ArrayList<Search>();
-        while (cursor != null && cursor.moveToNext()) {
-            list.add(new Search(cursor));
-        }
-        if (cursor != null) cursor.close();
-        return list;
-    }
-
-    public static void clearState(ContentResolver resolver, long userId) {
-        resolver.delete(Content.SEARCHES.uri,
-                DBHelper.Searches.USER_ID + " = ?",
-                new String[]{String.valueOf(userId)});
-    }
 
     @SuppressWarnings("RedundantIfStatement")
     @Override
