@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="TextAppearance.ScActionBarTitle" parent="@style/TextAppearance.Sherlock.Widget.ActionBar.Title.Inverse">
+    <style name="TextAppearance.ScActionBarTitle" parent="@style/TextAppearance.Sherlock.Widget.ActionBar.Title">
         <item name="android:textColor">@color/abs__primary_text_holo_dark</item>
     </style>
 
