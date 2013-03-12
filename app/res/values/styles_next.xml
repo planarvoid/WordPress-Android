@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="TextAppearance.ScActionBarTitle" parent="@style/TextAppearance.Sherlock.Widget.ActionBar.Title.Inverse">
+        <item name="android:textColor">@color/abs__primary_text_holo_dark</item>
+    </style>
 
     <style name="txt_list_track_user">
         <item name="android:textColor">@drawable/txt_list_track_user_states</item>
@@ -75,7 +78,8 @@
         <item name="android:textOff">@string/info</item>
     </style>
 
-    <style name="UserBrowser"/>
+    <style name="UserBrowser" />
+
     <style name="UserBrowser.ToggleButton" parent="PlayerAction">
         <item name="android:layout_height">@dimen/btn_height</item>
         <item name="android:textSize">@dimen/btn_text_size</item>
@@ -92,7 +96,8 @@
         <item name="android:textOff">@string/btn_follow</item>
     </style>
 
-    <style name="Tour"/>
+    <style name="Tour" />
+
     <style name="Tour.Button">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">fill_parent</item>
@@ -122,6 +127,7 @@
         -->
         <item name="android:layout_marginRight">-1dp</item>
     </style>
+
     <style name="Tour.RightButton" parent="Tour.Button">
         <item name="android:background">@drawable/next_button_white_right</item>
         <item name="android:layout_marginLeft">-1dp</item>
@@ -181,7 +187,8 @@
         <item name="android:layout_marginRight">8dp</item>
     </style>
 
-    <style name="SignUp"/> <!-- and Login, too! -->
+    <style name="SignUp" />
+    <!-- and Login, too! -->
 
     <style name="SignUp.Background">
         <item name="android:layout_width">fill_parent</item>
@@ -214,8 +221,7 @@
         <item name="android:orientation">vertical</item>
     </style>
 
-    <style name="SignUp.Content" parent="SignUp.Content.Base">
-    </style>
+    <style name="SignUp.Content" parent="SignUp.Content.Base"></style>
 
     <style name="SignUp.Info">
         <item name="android:layout_width">fill_parent</item>
@@ -315,8 +321,9 @@
         <item name="android:inputType">textPassword</item>
     </style>
 
-    <style name="Player"/>
-    <style name="Player.TrackInfo"/>
+    <style name="Player" />
+
+    <style name="Player.TrackInfo" />
 
     <style name="Player.TrackInfo.Table">
         <item name="android:layout_width">fill_parent</item>
