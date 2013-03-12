@@ -11,6 +11,7 @@ import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.audio.reader.WavReader;
+import com.soundcloud.android.dao.RecordingsDAO;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -83,7 +84,8 @@ public class Recording extends ScResource implements Comparable<Recording> {
     public String tip_key;
 
     // assets
-    @NotNull protected File audio_path;
+    @NotNull
+    public File audio_path;
     @Nullable public File artwork_path;
     @Nullable public File resized_artwork_path;
 
@@ -111,7 +113,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
     public static final String TAG_SOURCE_ANDROID_RECORD          = "soundcloud:source=android-record";
     public static final String TAG_RECORDING_TYPE_DEDICATED       = "soundcloud:recording-type=dedicated";
     public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
-    private static String PROCESSED_APPEND = "_processed";
+    public static String PROCESSED_APPEND = "_processed";
 
     public String getTitle(Resources r) {
         return TextUtils.isEmpty(title) ? sharingNote(r) : title;
@@ -130,16 +132,6 @@ public class Recording extends ScResource implements Comparable<Recording> {
     @Override
     public Track getPlayable() {
         return null;
-    }
-
-    public Uri insert(ContentResolver contentResolver) {
-        return insert(contentResolver,true);
-    }
-
-    public Uri insert(ContentResolver contentResolver, boolean fullValues) {
-        insertDependencies(contentResolver);
-        // insert parent resource, with possible partial values
-        return contentResolver.insert(toUri(), fullValues ? buildContentValues() : buildBaseContentValues());
     }
 
     public static interface Status {
@@ -387,28 +379,6 @@ public class Recording extends ScResource implements Comparable<Recording> {
         return ScTextUtils.formatTimestamp(duration);
     }
 
-    public boolean delete(@Nullable ContentResolver resolver) {
-        boolean deleted = false;
-        if (!external_upload || isLegacyRecording()) {
-            deleted = IOUtils.deleteFile(audio_path);
-        }
-        IOUtils.deleteFile(getEncodedFile());
-        IOUtils.deleteFile(getAmplitudeFile());
-        if (id > 0 && resolver != null) resolver.delete(toUri(), null, null);
-        return deleted;
-    }
-
-    public boolean updateStatus(ContentResolver resolver) {
-        if (id > 0) {
-            ContentValues cv = new ContentValues();
-            cv.put(Recordings.UPLOAD_STATUS, upload_status);
-            cv.put(Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
-            return resolver.update(toUri(), cv, null, null) > 0;
-        } else {
-            return false;
-        }
-    }
-
     public void record(Context context) {
         context.startService(getRecordIntent());
     }
@@ -531,19 +501,6 @@ public class Recording extends ScResource implements Comparable<Recording> {
         return hasArtwork() && !hasResizedArtwork();
     }
 
-    /**
-     * Gets called after successful upload. Clean any tmp files here.
-     */
-    public void onUploaded(ContentResolver resolver) {
-        upload_status = Status.UPLOADED;
-        if (!external_upload) {
-            IOUtils.deleteFile(getFile());
-            IOUtils.deleteFile(getEncodedFile());
-        }
-        IOUtils.deleteFile(resized_artwork_path);
-        updateStatus(resolver);
-    }
-
     public boolean isUploaded() {
         return upload_status == Status.UPLOADED;
     }
@@ -581,48 +538,6 @@ public class Recording extends ScResource implements Comparable<Recording> {
     @Override
     public int compareTo(Recording recording) {
         return Long.valueOf(lastModified()).compareTo(recording.lastModified());
-    }
-
-    public static List<Recording> getUnsavedRecordings(ContentResolver resolver, File directory, Recording ignore, long userId) {
-        MediaPlayer mp = null;
-        List<Recording> unsaved = new ArrayList<Recording>();
-
-        Map<String,File> toCheck = new HashMap<String,File>();
-        final File[] list = IOUtils.nullSafeListFiles(directory, new RecordingFilter(ignore));
-        Arrays.sort(list); // we want .wav files taking precedence, so make sure they appear last (alpha order)
-        for (File f : list) {
-            if (getUserIdFromFile(f) != -1) continue; //TODO, what to do about private messages
-            toCheck.put(IOUtils.removeExtension(f).getAbsolutePath(), f);
-        }
-        for (File f : toCheck.values()) {
-            if (Recording.isAmplitudeFile(f.getName())) {
-                Log.d(TAG, "Deleting isolated amplitude file : " + f.getName() + " : " + f.delete());
-            } else {
-                Recording r = SoundCloudDB.getRecordingByPath(resolver, f);
-                if (r == null) {
-                    r = new Recording(f);
-                    r.user_id = userId;
-                    try {
-                        if (mp == null) {
-                            mp = new MediaPlayer();
-                        }
-                        mp.reset();
-                        mp.setDataSource(f.getAbsolutePath());
-                        mp.prepare();
-                        r.duration = mp.getDuration();
-                    } catch (IOException e) {
-                        Log.e(TAG, "error", e);
-                    }
-                    if (r.duration <= 0 || f.getName().contains(PROCESSED_APPEND)) {
-                        Log.d(TAG, "Deleting unusable file : " + f.getName() + " : " + r.delete(resolver));
-                    } else {
-                        unsaved.add(r);
-                    }
-                }
-            }
-        }
-        Collections.sort(unsaved, null);
-        return unsaved;
     }
 
     public static class RecordingFilter implements FilenameFilter {
@@ -665,6 +580,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
         }
     }
 
+    // TODO , not sure where this belongs
     public static @Nullable Recording fromIntent(@Nullable Intent intent, ContentResolver resolver, long userId) {
         if (intent == null) return null;
         final String action = intent.getAction();

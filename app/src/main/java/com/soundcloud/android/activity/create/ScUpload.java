@@ -9,9 +9,9 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.audio.PlaybackStream;
+import com.soundcloud.android.dao.RecordingsDAO;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -107,7 +107,7 @@ public class ScUpload extends ScActivity {
                 track(Click.Record_Share_Record_Another);
 
                 if (mRecording.external_upload){
-                    mRecording.delete(getContentResolver());
+                    RecordingsDAO.delete(mRecording, getContentResolver());
                 } else {
                     setResult(RESULT_OK, new Intent().setData(mRecording.toUri()));
                 }
@@ -209,7 +209,7 @@ public class ScUpload extends ScActivity {
     private void saveRecording() {
         mapToRecording(mRecording);
         if (mRecording != null) {
-            mRecording.insert(getContentResolver());
+            RecordingsDAO.insert(mRecording, getContentResolver());
         }
     }
 

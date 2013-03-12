@@ -5,8 +5,8 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.audio.reader.WavReader;
+import com.soundcloud.android.dao.RecordingsDAO;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.IOUtils;
@@ -25,7 +25,6 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
-import android.text.TextUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,8 +32,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -115,7 +112,7 @@ public class RecordingTest {
     public void shouldDeleteRecording() throws Exception {
         Recording r = createRecording();
         expect(r.exists()).toBeTrue();
-        expect(r.delete(null)).toBeTrue();
+        expect(RecordingsDAO.delete(r, null)).toBeTrue();
         expect(r.exists()).toBeFalse();
     }
 
@@ -123,7 +120,7 @@ public class RecordingTest {
     public void shouldNotDeleteRecordingIfExternal() throws Exception {
         Recording r = createRecording();
         r.external_upload = true;
-        expect(r.delete(null)).toBeFalse();
+        expect(RecordingsDAO.delete(r, null)).toBeFalse();
         expect(r.exists()).toBeTrue();
     }
 
@@ -282,7 +279,7 @@ public class RecordingTest {
     @Test
     public void shouldGetRecordingFromIntentViaDatabase() throws Exception {
         final ContentResolver contentResolver = Robolectric.application.getContentResolver();
-        Recording r = Recording.fromUri(createRecording().insert(contentResolver), contentResolver);
+        Recording r = Recording.fromUri(RecordingsDAO.insert(createRecording(), contentResolver), contentResolver);
 
         assert r != null;
         Intent i = new Intent().setData(r.toUri());

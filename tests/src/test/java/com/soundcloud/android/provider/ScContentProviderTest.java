@@ -6,6 +6,7 @@ import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ActivitiesDAO;
+import com.soundcloud.android.dao.RecordingsDAO;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Like;
 import com.soundcloud.android.model.Playable;
@@ -21,7 +22,6 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
-import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -434,7 +434,7 @@ public class ScContentProviderTest {
     @Test
     public void shouldDeleteRecordings() throws Exception {
         Recording r = Recording.create();
-        expect(r.insert(resolver)).not.toBeNull();
+        expect(RecordingsDAO.insert(r, resolver)).not.toBeNull();
         resolver.delete(Content.RECORDINGS.uri, null, null);
         Cursor cursor = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
         expect(cursor.getCount()).toEqual(0);

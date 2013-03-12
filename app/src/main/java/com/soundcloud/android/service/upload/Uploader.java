@@ -4,9 +4,9 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dao.RecordingsDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
@@ -147,7 +147,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             LocalCollection.forceToStale(Content.ME_TRACKS.uri, api.getContext().getContentResolver());
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + track);
 
-            mUpload.onUploaded(api.getContext().getContentResolver());
+            RecordingsDAO.setUploaded(mUpload, api.getContext().getContentResolver());
             broadcast(UploadService.TRANSFER_SUCCESS, track);
         } catch (IOException e) {
             onUploadFailed(e);

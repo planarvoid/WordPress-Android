@@ -6,6 +6,7 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
+import com.soundcloud.android.dao.RecordingsDAO;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -273,7 +274,7 @@ public class UploadServiceTest {
     public void shouldCheckForStuckRecordingsOnStartup() throws Exception {
         Recording stuck = TestApplication.getValidRecording();
         stuck.upload_status = Recording.Status.UPLOADING;
-        stuck.insert(svc.getContentResolver());
+        RecordingsDAO.insert(stuck, svc.getContentResolver());
 
         UploadService service = startService();
         Recording r = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), stuck.toUri());

@@ -1,18 +1,15 @@
 package com.soundcloud.android.activity.create;
 
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.audio.PlaybackStream;
+import com.soundcloud.android.dao.RecordingsDAO;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -465,7 +462,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         Recording.clearRecordingFromIntent(intent);
 
         if (newState == CreateState.IDLE_RECORD) {
-            mUnsavedRecordings = Recording.getUnsavedRecordings(
+            mUnsavedRecordings = RecordingsDAO.getUnsavedRecordings(
                     getContentResolver(),
                     SoundRecorder.RECORD_DIR,
                     mRecorder.getRecording(),
@@ -906,9 +903,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                     for (int i = 0; i < recordings.size(); i++) {
                                         if (checked[i]) {
                                             DeprecatedRecordingProfile.migrate(recordings.get(i)); // migrate deprecated format, otherwise this is harmless
-                                            recordings.get(i).insert(getContentResolver());
+                                            RecordingsDAO.insert(recordings.get(i), getContentResolver());
                                         } else {
-                                            recordings.get(i).delete(null);
+                                            RecordingsDAO.delete(recordings.get(i), null);
                                         }
                                     }
                                     mUnsavedRecordings = null;
