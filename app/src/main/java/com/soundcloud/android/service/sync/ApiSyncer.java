@@ -8,6 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.dao.LocalCollectionDAO;
+import com.soundcloud.android.dao.PlaylistDAO;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
@@ -214,7 +215,7 @@ public class ApiSyncer {
     /* package */ int pushLocalPlaylists() throws IOException {
 
         // check for local playlists that need to be pushed
-        List<Playlist> playlistsToUpload = Playlist.getLocalPlaylists(mResolver);
+        List<Playlist> playlistsToUpload = PlaylistDAO.getLocalPlaylists(mResolver);
         if (!playlistsToUpload.isEmpty()) {
 
             for (Playlist p : playlistsToUpload) {
@@ -246,7 +247,7 @@ public class ApiSyncer {
 
                 // update local state
                 p.localToGlobal(mContext, added);
-                added.insertAsMyPlaylist(mResolver);
+                PlaylistDAO.insertAsMyPlaylist(mResolver, added);
 
                 LocalCollection lc = LocalCollectionDAO.fromContentUri(p.toUri(), mResolver, true);
                 if (lc != null) {
@@ -254,7 +255,7 @@ public class ApiSyncer {
                 }
 
                 // remove all traces of the old temporary playlist
-                Playlist.removePlaylist(mResolver, toDelete);
+                PlaylistDAO.removePlaylist(mResolver, toDelete);
 
             }
         }
@@ -547,7 +548,7 @@ public class ApiSyncer {
 
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
             log("Received a 404 on playlist, deleting " + contentUri.toString());
-            Playlist.removePlaylist(mResolver,contentUri);
+            PlaylistDAO.removePlaylist(mResolver, contentUri);
             result.setSyncData(true, System.currentTimeMillis(), 0, Result.CHANGED);
             return result;
         }

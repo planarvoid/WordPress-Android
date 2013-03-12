@@ -6,9 +6,9 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.dao.LocalCollectionDAO;
+import com.soundcloud.android.dao.PlaylistDAO;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -198,7 +198,7 @@ public class SyncAdapterService extends Service {
                 }
 
                 // see if there are any local playlists that need to be pushed
-                if (Playlist.hasLocalPlaylists(app.getContentResolver())){
+                if (PlaylistDAO.hasLocalPlaylists(app.getContentResolver())){
                     urisToSync.add(Content.ME_PLAYLISTS.uri);
                 }
 

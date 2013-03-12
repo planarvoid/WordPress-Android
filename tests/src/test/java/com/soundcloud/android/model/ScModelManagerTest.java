@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.dao.PlaylistDAO;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -379,7 +380,7 @@ public class ScModelManagerTest {
         expect(p).not.toBeNull();
         final Uri uri = p.toUri();
 
-        Uri myPlaylistUri = p.insertAsMyPlaylist(DefaultTestRunner.application.getContentResolver());
+        Uri myPlaylistUri = PlaylistDAO.insertAsMyPlaylist(DefaultTestRunner.application.getContentResolver(), p);
 
         expect(myPlaylistUri).not.toBeNull();
         expect(Content.match(myPlaylistUri)).toBe(Content.ME_PLAYLIST);
@@ -389,7 +390,7 @@ public class ScModelManagerTest {
         expect(p2.tracks).toEqual(tracks);
         expect(p2.sharing).toBe(isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC);
 
-        List<Playlist> playlists = Playlist.getLocalPlaylists(DefaultTestRunner.application.getContentResolver());
+        List<Playlist> playlists = PlaylistDAO.getLocalPlaylists(DefaultTestRunner.application.getContentResolver());
         expect(playlists.size()).toBe(1);
     }
 
@@ -403,7 +404,7 @@ public class ScModelManagerTest {
         int i = 0;
         for (Track track : tracks){
             expect(track.insert(resolver)).not.toBeNull();
-            final Uri insert = Playlist.addTrackToPlaylist(resolver,p,track.id,100*i);
+            final Uri insert = PlaylistDAO.addTrackToPlaylist(resolver, p, track.id, 100 * i);
             expect(insert).not.toBeNull();
             i++;
         }

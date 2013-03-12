@@ -3,6 +3,7 @@ package com.soundcloud.android.service.sync;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.dao.LocalCollectionDAO;
+import com.soundcloud.android.dao.PlaylistDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
@@ -122,9 +123,9 @@ public class SyncContentTest {
     @Test
     public void shouldSyncChangesToExistingPlaylists() throws Exception {
         final Playlist playlist = new Playlist(12345);
-        expect(Playlist.addTrackToPlaylist(resolver, playlist, 10696200, System.currentTimeMillis())).not.toBeNull();
+        expect(PlaylistDAO.addTrackToPlaylist(resolver, playlist, 10696200, System.currentTimeMillis())).not.toBeNull();
         // local unpushed playlists (those with a negative timestamp) are not part of this sync step
-        expect(Playlist.addTrackToPlaylist(resolver, new Playlist(-34243), 10696200, System.currentTimeMillis())).not.toBeNull();
+        expect(PlaylistDAO.addTrackToPlaylist(resolver, new Playlist(-34243), 10696200, System.currentTimeMillis())).not.toBeNull();
 
         Set<Uri> urisToSync = SyncContent.getPlaylistsDueForSync(Robolectric.application.getContentResolver());
         expect(urisToSync.size()).toEqual(1);
@@ -136,8 +137,8 @@ public class SyncContentTest {
         final Playlist playlist1 = new Playlist(12345);
         final Playlist playlist2 = new Playlist(544321);
 
-        expect(Playlist.addTrackToPlaylist(resolver, playlist1, 10696200, System.currentTimeMillis())).not.toBeNull();
-        expect(Playlist.addTrackToPlaylist(resolver, playlist2, 10696200, System.currentTimeMillis())).not.toBeNull();
+        expect(PlaylistDAO.addTrackToPlaylist(resolver, playlist1, 10696200, System.currentTimeMillis())).not.toBeNull();
+        expect(PlaylistDAO.addTrackToPlaylist(resolver, playlist2, 10696200, System.currentTimeMillis())).not.toBeNull();
 
         Set<Uri> urisToSync = SyncContent.getPlaylistsDueForSync(Robolectric.application.getContentResolver());
         expect(urisToSync.size()).toEqual(2);

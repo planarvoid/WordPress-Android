@@ -3,6 +3,7 @@ package com.soundcloud.android.dialog;
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dao.PlaylistDAO;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
@@ -105,7 +106,7 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
             return;
         }
 
-        Playlist.addTrackToPlaylist(
+        PlaylistDAO.addTrackToPlaylist(
                 getActivity().getContentResolver(), playlist, getArguments().getLong(KEY_TRACK_ID));
 
         // tell the service to update the playlist
