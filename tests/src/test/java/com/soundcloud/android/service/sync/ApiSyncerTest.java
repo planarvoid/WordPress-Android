@@ -7,8 +7,8 @@ import static com.soundcloud.android.service.sync.ApiSyncer.Result;
 import com.soundcloud.android.dao.ActivitiesDAO;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManagerTest;
@@ -262,7 +262,7 @@ public class ApiSyncerTest {
         expect(new ApiSyncer(Robolectric.application).pushLocalPlaylists()).toBe(1);
         expect(Content.ME_SOUNDS).toHaveCount(51);
 
-        expect(LocalCollection.fromContentUri(p.toUri(), contentResolver, true).shouldAutoRefresh()).toBeFalse();
+        expect(LocalCollectionDAO.fromContentUri(p.toUri(), contentResolver, true).shouldAutoRefresh()).toBeFalse();
     }
 
     private Result populateMeSounds() throws IOException {

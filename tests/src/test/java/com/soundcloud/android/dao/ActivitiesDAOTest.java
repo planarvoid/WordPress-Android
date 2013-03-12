@@ -3,7 +3,6 @@ package com.soundcloud.android.dao;
 import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.toTime;
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.act.AffiliationActivity;
@@ -79,7 +78,7 @@ public class ActivitiesDAOTest {
         ActivitiesDAO.insert(Content.ME_SOUND_STREAM, resolver, a);
         expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
-        LocalCollection.insertLocalCollection(Content.ME_SOUND_STREAM.uri,
+        LocalCollectionDAO.insertLocalCollection(Content.ME_SOUND_STREAM.uri,
                 0, System.currentTimeMillis(), System.currentTimeMillis(), a.size(), a.future_href,
                 resolver);
 

@@ -1,5 +1,6 @@
 package com.soundcloud.android.cache;
 
+import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
@@ -70,7 +71,7 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
 
     private void doQuery(@Nullable final Listener listener){
         if (listener != null) addListener(listener);
-        mLocalCollection = LocalCollection.fromContentUri(Content.ME_CONNECTIONS.uri, mContext.getContentResolver(), true);
+        mLocalCollection = LocalCollectionDAO.fromContentUri(Content.ME_CONNECTIONS.uri, mContext.getContentResolver(), true);
         asyncQueryHandler = new ConnectionsQueryHandler(mContext, this);
         asyncQueryHandler.startQuery(0, null, Content.ME_CONNECTIONS.uri, null, null, null, null);
     }

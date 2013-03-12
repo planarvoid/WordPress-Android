@@ -7,6 +7,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
@@ -138,7 +139,7 @@ public class ApiSyncer {
                     result = syncMyConnections();
                     if (result.change == Result.CHANGED){
                         // connections changed so make sure friends gets auto synced next opportunity
-                        LocalCollection.forceToStale(Content.ME_FRIENDS.uri, mResolver);
+                        LocalCollectionDAO.forceToStale(Content.ME_FRIENDS.uri, mResolver);
                     }
                     break;
             }
@@ -188,7 +189,7 @@ public class ApiSyncer {
             boolean onWifi = IOUtils.isWifiConnected(mContext);
 
                 // if we have never synced the playlist or are on wifi and past the stale time, fetch the tracks
-                final LocalCollection localCollection = LocalCollection.fromContentUri(playlist.toUri(), mResolver, true);
+                final LocalCollection localCollection = LocalCollectionDAO.fromContentUri(playlist.toUri(), mResolver, true);
                 if (localCollection == null) continue;
 
                 final boolean playlistStale = (localCollection.shouldAutoRefresh() && onWifi) || localCollection.last_sync_success <= 0;
@@ -247,7 +248,7 @@ public class ApiSyncer {
                 p.localToGlobal(mContext, added);
                 added.insertAsMyPlaylist(mResolver);
 
-                LocalCollection lc = LocalCollection.fromContentUri(p.toUri(), mResolver, true);
+                LocalCollection lc = LocalCollectionDAO.fromContentUri(p.toUri(), mResolver, true);
                 if (lc != null) {
                     lc.updateLastSyncSuccessTime(System.currentTimeMillis(), mResolver);
                 }
@@ -299,7 +300,7 @@ public class ApiSyncer {
                 inserted = ActivitiesDAO.insert(c, mResolver, activities);
             }
         } else {
-            String future_href = LocalCollection.getExtraFromUri(uri, mResolver);
+            String future_href = LocalCollectionDAO.getExtraFromUri(uri, mResolver);
             Request request = future_href == null ? c.request() : Request.to(future_href);
             activities = Activities.fetchRecent(mApi, request, MAX_LOOKUP_COUNT);
 

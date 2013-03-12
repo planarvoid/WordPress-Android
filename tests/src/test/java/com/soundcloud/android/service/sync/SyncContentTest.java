@@ -2,6 +2,7 @@ package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
@@ -12,7 +13,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.net.Uri;
 
 import java.util.List;
@@ -38,7 +38,7 @@ public class SyncContentTest {
 
     @Test
     public void shouldSyncAllExceptMySounds() throws Exception {
-        LocalCollection c = LocalCollection.insertLocalCollection(
+        LocalCollection c = LocalCollectionDAO.insertLocalCollection(
                 SyncContent.MySounds.content.uri, // uri
                 1, // sync state
                 -1l, // last sync attempt, ignored in the sync adapter
@@ -53,7 +53,7 @@ public class SyncContentTest {
 
     @Test
     public void shouldSyncAllExceptMySounds1Miss() throws Exception {
-        LocalCollection c = LocalCollection.insertLocalCollection(
+        LocalCollection c = LocalCollectionDAO.insertLocalCollection(
                 SyncContent.MySounds.content.uri, // uri
                 1, // sync state
                 -1l, // last sync attempt, ignored in the sync adapter
@@ -68,7 +68,7 @@ public class SyncContentTest {
 
     @Test
     public void shouldSyncAllMySounds1Miss() throws Exception {
-        LocalCollection c = LocalCollection.insertLocalCollection(
+        LocalCollection c = LocalCollectionDAO.insertLocalCollection(
                 SyncContent.MySounds.content.uri, // uri
                 1, // sync state
                 -1l, // last sync attempt, ignored in the sync adapter
@@ -83,7 +83,7 @@ public class SyncContentTest {
 
     @Test
     public void shouldSyncAllExceptMySoundsMaxMisses() throws Exception {
-        LocalCollection c = LocalCollection.insertLocalCollection(
+        LocalCollection c = LocalCollectionDAO.insertLocalCollection(
                 SyncContent.MySounds.content.uri, // uri
                 1, // sync state
                 -1l, // last sync attempt, ignored in the sync adapter
@@ -99,7 +99,7 @@ public class SyncContentTest {
 
     @Test
     public void shouldNotSyncAfterMiss() throws Exception {
-        LocalCollection c = LocalCollection.insertLocalCollection(
+        LocalCollection c = LocalCollectionDAO.insertLocalCollection(
                 SyncContent.MySounds.content.uri,// uri
                 1, // sync state
                 -1l, // last sync attempt, ignored in the sync adapter
