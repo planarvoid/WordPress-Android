@@ -1,12 +1,9 @@
 package com.soundcloud.android.model;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.net.Uri;
 import android.text.TextUtils;
 import com.soundcloud.android.TempEndpoints;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.api.Request;
 
