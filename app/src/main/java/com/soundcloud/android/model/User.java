@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.model;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
