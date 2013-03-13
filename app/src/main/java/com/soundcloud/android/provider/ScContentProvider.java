@@ -682,21 +682,14 @@ public class ScContentProvider extends ContentProvider {
                 // TODO, Cleanup playlist tracks that haven't been pushed
                 long userId = SoundCloudApplication.getUserIdFromContext(getContext());
                 if (userId > 0){
+                    final long start = System.currentTimeMillis();
                     where = "_id NOT IN ("
-                                    + "SELECT _id FROM "+ Table.SOUNDS.name + " WHERE EXISTS("
-                                        + "SELECT 1 FROM CollectionItems WHERE "
-                                        + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.TRACK+
-                                            " ," + CollectionItemTypes.LIKE + " ," + CollectionItemTypes.REPOST +") "
-                                        + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
-                                        + " AND  " + DBHelper.CollectionItems.ITEM_ID + " =  " + DBHelper.Sounds._ID
-                                        + " AND  " + DBHelper.CollectionItems.RESOURCE_TYPE + " =  " + DBHelper.Sounds._TYPE
-                                    + ")"
-                                    + " UNION SELECT DISTINCT " + DBHelper.ActivityView.SOUND_ID + " FROM "+ Table.ACTIVITIES.name
+                                    + "SELECT _id FROM " + Table.SOUNDS.name + " WHERE EXISTS("
+                                    + String.format(selectAssociationsAndActivities, userId, Playable.DB_TYPE_TRACK, Playable.DB_TYPE_TRACK)
                                     + " UNION SELECT DISTINCT " + DBHelper.PlayQueue.TRACK_ID + " FROM "+ Table.PLAY_QUEUE.name
                                     + " UNION SELECT DISTINCT " + DBHelper.PlaylistTracks.TRACK_ID + " FROM "+ Table.PLAYLIST_TRACKS.name
-                                + ")";
+                                + ") AND " + DBHelper.SoundView._TYPE + " = " + Playable.DB_TYPE_TRACK;
 
-                    final long start = System.currentTimeMillis();
                     count = db.delete(Table.SOUNDS.name,where,null);
                     log("Track cleanup done: deleted " + count + " tracks in " + (System.currentTimeMillis() - start) + " ms");
                     getContext().getContentResolver().notifyChange(Content.TRACKS.uri, null, false);
@@ -1081,6 +1074,17 @@ public class ScContentProvider extends ContentProvider {
                         + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.Users.USER_FOLLOWER
         };
     }
+
+    private static String selectAssociationsAndActivities =
+        "SELECT 1 FROM CollectionItems WHERE "
+            + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.TRACK +
+                " ," + CollectionItemTypes.LIKE + " ," + CollectionItemTypes.REPOST + ") "
+            + " AND " + DBHelper.CollectionItems.USER_ID + " = %s"
+            + " AND  " + DBHelper.CollectionItems.ITEM_ID + " =  " + DBHelper.Sounds._ID
+            + " AND  " + DBHelper.CollectionItems.RESOURCE_TYPE + " =  %s"
+        + ")"
+        + " UNION SELECT DISTINCT " + DBHelper.Activities.SOUND_ID + " FROM " + Table.ACTIVITIES.name
+        + " WHERE " + DBHelper.Activities.SOUND_TYPE + " = %s";
 
     /**
      * Roughly corresponds to locally synced collections.

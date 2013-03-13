@@ -124,34 +124,29 @@ public class ScContentProviderTest {
     }
 
     @Test
-    public void shouldCleanup() throws Exception {
-        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
-
+    public void shouldCleanupTracks() throws Exception {
+        TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
         int i = 0;
         for (Track t : tracks) {
-            expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(i < tracks.size()/2 ? Content.ME_LIKES.uri : Content.ME_REPOSTS.uri,
-                    t.buildContentValues())).not.toBeNull();
+            t.insert(resolver, i < tracks.size()/2 ? Content.ME_LIKES.uri : Content.ME_REPOSTS.uri);
             i++;
         }
-
         expect(Content.TRACKS).toHaveCount(15);
         expect(Content.USERS).toHaveCount(14);
 
         Playlist playlist  = readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
         expect(playlist.insert(resolver)).not.toBeNull();
-        expect(resolver.insert(Content.ME_LIKES.uri, playlist.buildContentValues())).not.toBeNull();
 
         expect(Content.TRACKS).toHaveCount(56); // added 41 from playlist
         expect(Content.PLAYLISTS).toHaveCount(1);
         expect(Content.USERS).toHaveCount(46); // added 32 from playlist
 
+        // insert extra tracks that should be cleaned up
         tracks = readJson(TrackHolder.class, "/com/soundcloud/android/provider/tracks.json");
-
         for (Track t : tracks) {
-            expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(Content.TRACKS.uri, t.buildContentValues())).not.toBeNull();
+            expect(t.insert(resolver)).not.toBeNull();
         }
+
         expect(Content.TRACKS).toHaveCount(59);
         expect(Content.PLAYLISTS).toHaveCount(1);
         expect(Content.USERS).toHaveCount(47);
@@ -163,6 +158,8 @@ public class ScContentProviderTest {
         expect(Content.PLAYLISTS).toHaveCount(1);
         expect(Content.USERS).toHaveCount(46);
     }
+
+
 
     @Test
     public void shouldCleanupSoundStream() throws Exception {

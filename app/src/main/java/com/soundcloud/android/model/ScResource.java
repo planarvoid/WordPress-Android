@@ -84,9 +84,24 @@ public abstract class ScResource extends ScModel {
         destination.add(getBulkInsertUri(), buildContentValues());
     }
 
+    /**
+     * Insert to this objects uri field
+     * @param contentResolver
+     * @return
+     */
     public Uri insert(ContentResolver contentResolver) {
+        return insert(contentResolver,toUri());
+    }
+
+    /**
+     * insert to a specific URI, e.g. ME_LIKES.uri
+     * @param contentResolver
+     * @param uri
+     * @return
+     */
+    public Uri insert(ContentResolver contentResolver, Uri uri) {
         insertDependencies(contentResolver);
-        return contentResolver.insert(toUri(),buildContentValues());
+        return contentResolver.insert(uri, buildContentValues());
     }
 
     protected void insertDependencies(ContentResolver contentResolver) {
