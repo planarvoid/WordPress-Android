@@ -686,12 +686,14 @@ public class ScContentProvider extends ContentProvider {
                                     + "SELECT _id FROM "+ Table.SOUNDS.name + " WHERE EXISTS("
                                         + "SELECT 1 FROM CollectionItems WHERE "
                                         + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.TRACK+
-                                            " ," + CollectionItemTypes.LIKE + ") "
+                                            " ," + CollectionItemTypes.LIKE + " ," + CollectionItemTypes.REPOST +") "
                                         + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
                                         + " AND  " + DBHelper.CollectionItems.ITEM_ID + " =  " + DBHelper.Sounds._ID
+                                        + " AND  " + DBHelper.CollectionItems.RESOURCE_TYPE + " =  " + DBHelper.Sounds._TYPE
+                                    + ")"
                                     + " UNION SELECT DISTINCT " + DBHelper.ActivityView.SOUND_ID + " FROM "+ Table.ACTIVITIES.name
                                     + " UNION SELECT DISTINCT " + DBHelper.PlayQueue.TRACK_ID + " FROM "+ Table.PLAY_QUEUE.name
-                                    + ")"
+                                    + " UNION SELECT DISTINCT " + DBHelper.PlaylistTracks.TRACK_ID + " FROM "+ Table.PLAYLIST_TRACKS.name
                                 + ")";
 
                     final long start = System.currentTimeMillis();
