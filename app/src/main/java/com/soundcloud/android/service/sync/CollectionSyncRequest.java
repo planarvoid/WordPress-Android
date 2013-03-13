@@ -2,6 +2,7 @@ package com.soundcloud.android.service.sync;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.api.CloudAPI;
 
@@ -38,7 +39,7 @@ import java.io.IOException;
     }
 
     public void onQueued() {
-        localCollection = LocalCollection.fromContentUri(contentUri, context.getContentResolver(), true);
+        localCollection = LocalCollectionDAO.fromContentUri(contentUri, context.getContentResolver(), true);
         localCollection.updateSyncState(LocalCollection.SyncState.PENDING, context.getContentResolver());
     }
 

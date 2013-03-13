@@ -9,6 +9,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.dao.UserDAO;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.fragment.UserDetailsFragment;
 import com.soundcloud.android.imageloader.ImageLoader;
@@ -330,7 +331,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     private boolean loadUserByUri(Uri uri) {
-        if (uri != null) mUser = User.fromUri(uri, getContentResolver(), true);
+        if (uri != null) mUser = UserDAO.fromUri(uri, getContentResolver(), true);
         return (mUser != null);
     }
 

@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.sync;
 
+import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -67,7 +68,7 @@ enum SyncContent {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
         for (SyncContent sc : SyncContent.values()) {
             if (sc.isEnabled(prefs)) {
-                final LocalCollection lc = LocalCollection.fromContent(sc.content, c.getContentResolver(), false);
+                final LocalCollection lc = LocalCollectionDAO.fromContent(sc.content, c.getContentResolver(), false);
                 if (manual || lc == null || sc.shouldSync(lc.syncMisses(), lc.last_sync_success)) {
                     urisToSync.add(sc.content.uri);
                 }
@@ -87,7 +88,7 @@ enum SyncContent {
             if (resultData.containsKey(sc.content.uri.toString()) &&
                 !resultData.getBoolean(sc.content.uri.toString())) {
 
-                final int misses = LocalCollection.incrementSyncMiss(sc.content.uri, c.getContentResolver());
+                final int misses = LocalCollectionDAO.incrementSyncMiss(sc.content.uri, c.getContentResolver());
 
                 if (Log.isLoggable(SyncAdapterService.TAG, Log.DEBUG)) {
                     Log.d(SyncAdapterService.TAG, "Sync endpoint unchanged, " + sc.content.uri +

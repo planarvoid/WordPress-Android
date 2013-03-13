@@ -1,25 +1,6 @@
 
 package com.soundcloud.android.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.dao.ActivitiesDAO;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.activity.auth.FacebookSSO;
-import com.soundcloud.android.activity.auth.SignupVia;
-import com.soundcloud.android.json.Views;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.DBHelper.Users;
-import com.soundcloud.android.service.playback.PlayQueueManager;
-import com.soundcloud.android.utils.ImageUtils;
-import org.jetbrains.annotations.Nullable;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -30,7 +11,26 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.activity.auth.FacebookSSO;
+import com.soundcloud.android.activity.auth.SignupVia;
+import com.soundcloud.android.dao.ActivitiesDAO;
+import com.soundcloud.android.dao.SearchDAO;
+import com.soundcloud.android.dao.UserDAO;
+import com.soundcloud.android.json.Views;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.DBHelper.Users;
+import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.android.utils.ImageUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
 
@@ -78,33 +78,6 @@ public class User extends ScResource implements Refreshable {
 
     public User(long id) {
         super(id);
-    }
-
-    public static User fromUri(Uri uri, ContentResolver resolver, boolean createDummy) {
-        long id = -1l;
-        try {
-            //check the cache first
-            id = Long.parseLong(uri.getLastPathSegment());
-            final User u = SoundCloudApplication.MODEL_MANAGER.getCachedUser(id);
-            if (u != null) return u;
-
-        } catch (NumberFormatException e) {
-            Log.e(UserBrowser.class.getSimpleName(), "Unexpected User uri: " + uri.toString());
-        }
-
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        try {
-            if (cursor != null && cursor.moveToFirst()) {
-                return SoundCloudApplication.MODEL_MANAGER.getUserFromCursor(cursor);
-            } else if (createDummy && id >= 0) {
-                return new User(id);
-            } else {
-                return null;
-            }
-
-        } finally {
-            if (cursor != null) cursor.close();
-        }
     }
 
     public User(Parcel in) {
@@ -368,19 +341,12 @@ public class User extends ScResource implements Refreshable {
 
     public static void clearLoggedInUserFromStorage(Context context) {
         final ContentResolver resolver = context.getContentResolver();
-        // TODO move to model
-        for (Content c : EnumSet.of(
-                Content.ME_SOUNDS,
-                Content.ME_LIKES,
-                Content.ME_FOLLOWINGS,
-                Content.ME_FOLLOWERS)) {
-            resolver.delete(Content.COLLECTIONS.uri,
-                DBHelper.Collections.URI + " = ?", new String[]{ c.uri.toString() });
-        }
+
+        UserDAO.clearLoggedInUserFromStorage(resolver);
         ActivitiesDAO.clear(null, resolver);
         PlayQueueManager.clearState(context);
         FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
-        Search.clearState(resolver, SoundCloudApplication.getUserId());
+        SearchDAO.clearState(resolver, SoundCloudApplication.getUserId());
     }
 
     @Override

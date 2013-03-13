@@ -1,14 +1,11 @@
 package com.soundcloud.android.service.sync;
 
+import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +36,7 @@ enum SyncCleanups {
     public static List<Uri> getCleanupsDueForSync(Context c, boolean manual) {
         List<Uri> urisToSync = new ArrayList<Uri>();
         for (SyncCleanups sc : SyncCleanups.values()) {
-            final LocalCollection lc = LocalCollection.fromContent(sc.content, c.getContentResolver(), false);
+            final LocalCollection lc = LocalCollectionDAO.fromContent(sc.content, c.getContentResolver(), false);
             if (manual || lc == null || sc.shouldSync(lc.syncMisses(), lc.last_sync_success)) {
                 final Uri uri = sc.toKeep > -1 ? Uri.parse(sc.content.uri.toString() + "?limit="+sc.toKeep) : sc.content.uri;
                 urisToSync.add(uri);

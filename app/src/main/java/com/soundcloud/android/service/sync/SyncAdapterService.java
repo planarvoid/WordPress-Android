@@ -5,9 +5,10 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.c2dm.PushEvent;
+import com.soundcloud.android.dao.LocalCollectionDAO;
+import com.soundcloud.android.dao.PlaylistDAO;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -162,7 +163,7 @@ public class SyncAdapterService extends Service {
                     syncIntent.setData(Content.ME_FOLLOWERS.uri); // refresh follower list
                 } else {
                     // set last sync time to 0 so it auto-refreshes on next load
-                    final LocalCollection lc = LocalCollection.fromContent(Content.ME_FOLLOWERS, app.getContentResolver(), false);
+                    final LocalCollection lc = LocalCollectionDAO.fromContent(Content.ME_FOLLOWERS, app.getContentResolver(), false);
                     if (lc != null) lc.updateLastSyncSuccessTime(0, app.getContentResolver());
                 }
 
@@ -173,7 +174,7 @@ public class SyncAdapterService extends Service {
                     syncIntent.setData(Content.ME_ACTIVITIES.uri);
                 } else {
                     // set last sync time to 0 so it auto-refreshes on next load
-                    final LocalCollection lc = LocalCollection.fromContent(Content.ME_ACTIVITIES, app.getContentResolver(), false);
+                    final LocalCollection lc = LocalCollectionDAO.fromContent(Content.ME_ACTIVITIES, app.getContentResolver(), false);
                     if (lc != null) lc.updateLastSyncSuccessTime(0, app.getContentResolver());
                 }
                 break;
@@ -197,7 +198,7 @@ public class SyncAdapterService extends Service {
                 }
 
                 // see if there are any local playlists that need to be pushed
-                if (Playlist.hasLocalPlaylists(app.getContentResolver())){
+                if (PlaylistDAO.hasLocalPlaylists(app.getContentResolver())){
                     urisToSync.add(Content.ME_PLAYLISTS.uri);
                 }
 

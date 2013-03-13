@@ -4,6 +4,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.PlaylistTracksAdapter;
+import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playlist;
@@ -207,7 +208,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     private @Nullable LocalCollection getLocalCollection() {
-        return LocalCollection.fromContentUri(mPlaylist.toUri(), getActivity().getContentResolver(), true);
+        return LocalCollectionDAO.fromContentUri(mPlaylist.toUri(), getActivity().getContentResolver(), true);
     }
 
     public void scrollToPosition(int position) {

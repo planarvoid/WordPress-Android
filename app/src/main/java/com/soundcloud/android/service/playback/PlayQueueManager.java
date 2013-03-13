@@ -1,29 +1,24 @@
 package com.soundcloud.android.service.playback;
 
 
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.PlayableHolder;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.task.ParallelAsyncTask;
-import com.soundcloud.android.utils.SharedPreferencesUtils;
-import org.jetbrains.annotations.Nullable;
-
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.util.Log;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dao.PlayQueueManagerDAO;
+import com.soundcloud.android.model.PlayableHolder;
+import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.task.ParallelAsyncTask;
+import com.soundcloud.android.utils.SharedPreferencesUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -223,36 +218,9 @@ public class PlayQueueManager {
     private AsyncTask loadCursor(final Uri uri, final int position) {
         return new ParallelAsyncTask<Uri,Void,List<PlayQueueItem>>() {
             @Override protected List<PlayQueueItem> doInBackground(Uri... params) {
-                Cursor cursor = null;
-                try {
-                    cursor = mContext.getContentResolver().query(params[0], null, null, null, null);
-                } catch (IllegalArgumentException e) {
-                    // in case we load a depracated URI, just don't load the playlist
-                    Log.e(PlayQueueManager.class.getSimpleName(),"Tried to load an invalid uri " + uri);
-                }
-                boolean isActivityCursor = Content.match(uri).isActivitiesItem();
-                ArrayList<PlayQueueItem> newQueue = null;
-                if (cursor != null) {
-                    newQueue = new ArrayList<PlayQueueItem>();
-                    if (cursor.moveToFirst()){
-                        do {
-                            // tracks only, no playlists allowed past here
-                            if (cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView._TYPE)) == Playable.DB_TYPE_TRACK) {
-
-                                final Track trackFromCursor = isActivityCursor ?
-                                        SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor, DBHelper.ActivityView.SOUND_ID) :
-                                        SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor);
-
-                                newQueue.add(new PlayQueueItem(trackFromCursor,false));
-                            }
-                        } while (cursor.moveToNext());
-                    }
-                    cursor.close();
-                }
-                return newQueue;
-
-
+                return PlayQueueManagerDAO.getItems(mContext.getContentResolver(), params[0]);
             }
+
             @Override protected void onPostExecute(List<PlayQueueItem> newQueue) {
                 // make sure this cursor is valid and still wanted
                 if (newQueue != null){
@@ -264,7 +232,7 @@ public class PlayQueueManager {
                     int adjustedPosition = -1;
                     if (t != null && t.id != playingId) {
                         if (Content.match(uri).isCollectionItem()){
-                            adjustedPosition = getPlayQueuePositionFromUri(mContext.getContentResolver(), uri, playingId);
+                            adjustedPosition = PlayQueueManagerDAO.getPlayQueuePositionFromUri(mContext.getContentResolver(), uri, playingId);
                         } else {
                             /* adjust for deletions or new items. find the original track
                              this is a really dumb sequential search. If there are duplicates in the list, it will probably
@@ -391,7 +359,7 @@ public class PlayQueueManager {
                 loadUri(playQueueUri.uri, playQueueUri.getPos(), t);
                 // adjust play position if it has changed
                 if (getCurrentTrack() != null && getCurrentTrack().id != trackId && playQueueUri.isCollectionUri()) {
-                    final int newPos = getPlayQueuePositionFromUri(mContext.getContentResolver(), playQueueUri.uri, trackId);
+                    final int newPos = PlayQueueManagerDAO.getPlayQueuePositionFromUri(mContext.getContentResolver(), playQueueUri.uri, trackId);
                     if (newPos == -1) seekPos = 0;
                     setPosition(Math.max(newPos, 0));
                 }
@@ -402,27 +370,12 @@ public class PlayQueueManager {
         }
     }
 
-    public static int getPlayQueuePositionFromUri(ContentResolver resolver, Uri collectionUri, long itemId) {
-        Cursor cursor = resolver.query(collectionUri,
-                new String[]{ DBHelper.CollectionItems.POSITION },
-                DBHelper.CollectionItems.ITEM_ID + " = ?",
-                new String[] {String.valueOf(itemId)},
-                null);
-
-        int position = -1;
-        if (cursor != null && cursor.getCount() != 0) {
-            cursor.moveToFirst();
-            position = cursor.getInt(0);
-        }
-        if (cursor != null) cursor.close();
-        return position;
-    }
-
-
     public static void clearState(Context context) {
-        context.getContentResolver().delete(Content.PLAY_QUEUE.uri, null, null);
-        clearLastPlayed(context);
+        PlayQueueManagerDAO.clearState(context.getContentResolver());
+        PlayQueueManager.clearLastPlayed(context);
     }
+
+
 
     public static void clearLastPlayed(Context context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit()

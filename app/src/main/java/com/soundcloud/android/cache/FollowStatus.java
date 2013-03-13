@@ -3,6 +3,7 @@ package com.soundcloud.android.cache;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
@@ -50,7 +51,7 @@ public class FollowStatus {
     protected FollowStatus(final Context c) {
         mContext = c;
 
-        mFollowingCollectionState = LocalCollection.fromContent(Content.ME_FOLLOWINGS,mContext.getContentResolver(),true);
+        mFollowingCollectionState = LocalCollectionDAO.fromContent(Content.ME_FOLLOWINGS, mContext.getContentResolver(), true);
         mFollowingCollectionState.startObservingSelf(mContext.getContentResolver(), new LocalCollection.OnChangeListener() {
             @Override
             public void onLocalCollectionChanged() {
@@ -145,7 +146,7 @@ public class FollowStatus {
                     } else {
 
                         // tell the list to refresh itself next time
-                        LocalCollection.forceToStale(Content.ME_FOLLOWINGS.uri, mContext.getContentResolver());
+                        LocalCollectionDAO.forceToStale(Content.ME_FOLLOWINGS.uri, mContext.getContentResolver());
                     }
                     return success;
 
@@ -162,7 +163,7 @@ public class FollowStatus {
                     SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.NONE).user_following = addFollowing;
 
                     if (followings.isEmpty() && addFollowing){
-                        LocalCollection.forceToStale(Content.ME_SOUND_STREAM.uri, mContext.getContentResolver());
+                        LocalCollectionDAO.forceToStale(Content.ME_SOUND_STREAM.uri, mContext.getContentResolver());
                     }
 
                     if (handler != null) {

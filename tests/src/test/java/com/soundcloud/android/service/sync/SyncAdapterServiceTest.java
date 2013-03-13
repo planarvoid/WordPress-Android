@@ -6,6 +6,7 @@ import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.TestApplication;
+import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -62,7 +63,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
 
         doPerformSync(DefaultTestRunner.application, false, null);
 
-        LocalCollection lc = LocalCollection.fromContent(Content.ME_SOUNDS, Robolectric.application.getContentResolver(), false);
+        LocalCollection lc = LocalCollectionDAO.fromContent(Content.ME_SOUNDS, Robolectric.application.getContentResolver(), false);
         expect(lc).not.toBeNull();
         expect(lc.extra).toBeNull();
         expect(lc.size).toEqual(50);
@@ -77,7 +78,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
 
         doPerformSync(DefaultTestRunner.application, false, null);
 
-        lc = LocalCollection.fromContent(Content.ME_SOUNDS, Robolectric.application.getContentResolver(), false);
+        lc = LocalCollectionDAO.fromContent(Content.ME_SOUNDS, Robolectric.application.getContentResolver(), false);
         expect(lc).not.toBeNull();
         expect(lc.extra).toBeNull();
         expect(lc.size).toEqual(50);

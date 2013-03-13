@@ -3,8 +3,8 @@ package com.soundcloud.android.dialog;
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.dao.LocalCollectionDAO;
+import com.soundcloud.android.dao.PlaylistDAO;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -98,15 +98,16 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
             @Override
             public void run() {
                 // create and insert playlist
-                SoundCloudApplication.MODEL_MANAGER.createPlaylist(
-                        loggedInUser,
-                        String.valueOf(text),
-                        isPrivate,
-                        getArguments().getLong(KEY_TRACK_ID)
-                ).insertAsMyPlaylist(contentResolver);
+                PlaylistDAO.insertAsMyPlaylist(contentResolver,
+                    SoundCloudApplication.MODEL_MANAGER.createPlaylist(
+                            loggedInUser,
+                            String.valueOf(text),
+                            isPrivate,
+                            getArguments().getLong(KEY_TRACK_ID)
+                    ));
 
                 // force to stale so we know to update the playlists next time it is viewed
-                LocalCollection.forceToStale(Content.ME_PLAYLISTS.uri, contentResolver);
+                LocalCollectionDAO.forceToStale(Content.ME_PLAYLISTS.uri, contentResolver);
                 // request sync to push playlist at next possible opportunity
                 ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, new Bundle());
 

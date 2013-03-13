@@ -39,10 +39,10 @@ public class ActivitiesDAO
         // make sure to delete corresponding collection
         if (contentToDelete == Content.ME_ALL_ACTIVITIES) {
             for (Content c : Content.ACTIVITIES) {
-                LocalCollection.deleteUri(c.uri, resolver);
+                LocalCollectionDAO.deleteUri(c.uri, resolver);
             }
         } else {
-            LocalCollection.deleteUri(contentToDelete.uri, resolver);
+            LocalCollectionDAO.deleteUri(contentToDelete.uri, resolver);
         }
 
         return resolver.delete(contentToDelete.uri, null, null);
@@ -89,7 +89,7 @@ public class ActivitiesDAO
             Log.d(TAG, "Activities.getSince("+contentUri+", since="+since+")");
 
         Activities activities = new Activities();
-        LocalCollection lc = LocalCollection.fromContentUri(contentUri, resolver, false);
+        LocalCollection lc = LocalCollectionDAO.fromContentUri(contentUri, resolver, false);
         if (lc != null) {
             activities.future_href = lc.extra;
         }
