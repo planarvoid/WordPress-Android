@@ -462,7 +462,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         Recording.clearRecordingFromIntent(intent);
 
         if (newState == CreateState.IDLE_RECORD) {
-            mUnsavedRecordings = RecordingsDAO.getUnsavedRecordings(
+            mUnsavedRecordings = Recording.getUnsavedRecordings(
                     getContentResolver(),
                     SoundRecorder.RECORD_DIR,
                     mRecorder.getRecording(),

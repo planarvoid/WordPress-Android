@@ -1,11 +1,8 @@
 package com.soundcloud.android.provider;
 
-import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -13,7 +10,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -81,33 +77,6 @@ public class SoundCloudDB {
             }
         }
         return map.insert(resolver);
-    }
-
-    public static @Nullable Recording getRecordingByUri(ContentResolver resolver, Uri uri) {
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        Recording recording = null;
-        if (cursor != null && cursor.getCount() != 0) {
-            cursor.moveToFirst();
-            recording = new Recording(cursor);
-        }
-        if (cursor != null) cursor.close();
-        return recording;
-    }
-
-    public static @Nullable Recording getRecordingByPath(ContentResolver resolver, File file) {
-        Cursor cursor = resolver.query(Content.RECORDINGS.uri,
-                null,
-                DBHelper.Recordings.AUDIO_PATH + " LIKE ?",
-                new String[]{ IOUtils.removeExtension(file).getAbsolutePath() + "%" },
-                null);
-
-        Recording recording = null;
-        if (cursor != null && cursor.moveToFirst()) {
-            recording = new Recording(cursor);
-        }
-        if (cursor != null) cursor.close();
-
-        return recording;
     }
 
     public static @NotNull List<Long> idCursorToList(Cursor c) {
