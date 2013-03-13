@@ -7,6 +7,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.dao.SoundAssociationsDAO;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
@@ -271,7 +272,7 @@ public class ApiSyncer {
     }
 
     private Result syncLocalSoundAssocationsToHolder(Uri uri, SoundAssociationHolder holder) {
-        boolean changed = holder.syncToLocal(mResolver, uri);
+        boolean changed = SoundAssociationsDAO.syncToLocal(holder, mResolver, uri);
 
         Result result = new Result(uri);
         result.change =  changed ? Result.CHANGED : Result.UNCHANGED;

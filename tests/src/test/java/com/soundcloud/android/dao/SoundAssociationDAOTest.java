@@ -1,9 +1,14 @@
-package com.soundcloud.android.model;
+package com.soundcloud.android.dao;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.dao.SoundAssociationsDAO;
+import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.model.SoundAssociationHolder;
+import com.soundcloud.android.model.SoundAssociationTest;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
@@ -15,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 @RunWith(DefaultTestRunner.class)
-public class SoundAssociationHolderTest {
+public class SoundAssociationDAOTest {
 
     @Before
     public void before() {
@@ -25,14 +30,14 @@ public class SoundAssociationHolderTest {
     @Test
     public void shouldSyncSoundAssociationsMeSounds() throws Exception {
         SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
-                getClass().getResourceAsStream("sounds.json"),
+                SoundAssociationTest.class.getResourceAsStream("sounds.json"),
                 SoundAssociationHolder.class);
 
-        expect(old.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeTrue();
+        expect(SoundAssociationsDAO.syncToLocal(old, DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeTrue();
         expect(Content.ME_SOUNDS).toHaveCount(38);
 
         // expect no change, syncing to itself
-        expect(old.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeFalse();
+        expect(SoundAssociationsDAO.syncToLocal(old, DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeFalse();
         expect(Content.ME_SOUNDS).toHaveCount(38);
 
         // expect change, syncing with 2 items
@@ -41,12 +46,12 @@ public class SoundAssociationHolderTest {
         holder.collection.add(createAssociation(66376067l, SoundAssociation.Type.TRACK_REPOST.type));
         holder.collection.add(createAssociation(66376067l, SoundAssociation.Type.TRACK.type));
 
-        expect(holder.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeTrue();
+        expect(SoundAssociationsDAO.syncToLocal(holder, DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeTrue();
         expect(Content.ME_SOUNDS).toHaveCount(2);
 
         // remove the repost and make sure it gets removed locally
         holder.collection.remove(0);
-        expect(holder.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeTrue();
+        expect(SoundAssociationsDAO.syncToLocal(holder, DefaultTestRunner.application.getContentResolver(), Content.ME_SOUNDS.uri)).toBeTrue();
         expect(Content.ME_SOUNDS).toHaveCount(1);
     }
 
@@ -56,18 +61,18 @@ public class SoundAssociationHolderTest {
                 ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
                 SoundAssociationHolder.class);
 
-        expect(old.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_LIKES.uri)).toBeTrue();
+        expect(SoundAssociationsDAO.syncToLocal(old, DefaultTestRunner.application.getContentResolver(), Content.ME_LIKES.uri)).toBeTrue();
         expect(Content.ME_LIKES).toHaveCount(3);
 
         // expect no change, syncing to itself
-        expect(old.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_LIKES.uri)).toBeFalse();
+        expect(SoundAssociationsDAO.syncToLocal(old, DefaultTestRunner.application.getContentResolver(), Content.ME_LIKES.uri)).toBeFalse();
         expect(Content.ME_LIKES).toHaveCount(3);
 
         SoundAssociationHolder holder = new SoundAssociationHolder();
         holder.collection = new ArrayList<SoundAssociation>();
         holder.collection.add(createAssociation(56143158l, SoundAssociation.Type.TRACK_LIKE.type));
 
-        expect(holder.syncToLocal(DefaultTestRunner.application.getContentResolver(), Content.ME_LIKES.uri)).toBeTrue();
+        expect(SoundAssociationsDAO.syncToLocal(holder, DefaultTestRunner.application.getContentResolver(), Content.ME_LIKES.uri)).toBeTrue();
         expect(Content.ME_LIKES).toHaveCount(1);
     }
 
