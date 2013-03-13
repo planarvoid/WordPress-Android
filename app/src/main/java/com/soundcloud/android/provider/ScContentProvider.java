@@ -678,21 +678,35 @@ public class ScContentProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
 
-            case TRACK_CLEANUP:
-                // TODO, Cleanup playlist tracks that haven't been pushed
+            case PLAYABLE_CLEANUP:
                 long userId = SoundCloudApplication.getUserIdFromContext(getContext());
                 if (userId > 0){
                     final long start = System.currentTimeMillis();
+
+                    // remove unassociated playlists
+                    where = "_id NOT IN ("
+                            + "SELECT _id FROM " + Table.SOUNDS.name + " WHERE EXISTS("
+                            + getPlaylistAssociationsSelect(userId)
+                            + ") AND " + DBHelper.SoundView._TYPE + " = " + Playable.DB_TYPE_PLAYLIST;
+                    count = db.delete(Table.SOUNDS.name, where, null);
+
+                    // delete stale playlist associations
+                    where = DBHelper.PlaylistTracks.PLAYLIST_ID + " NOT IN ("
+                            + "SELECT _id FROM " + Table.SOUNDS.name + " WHERE " + DBHelper.Sounds._TYPE
+                            + " = " + Playable.DB_TYPE_PLAYLIST
+                        + ")";
+                    count += db.delete(Table.PLAYLIST_TRACKS.name, where, null);
+
+                    // finally, remove tracks
                     where = "_id NOT IN ("
                                     + "SELECT _id FROM " + Table.SOUNDS.name + " WHERE EXISTS("
-                                    + String.format(selectAssociationsAndActivities, userId, Playable.DB_TYPE_TRACK, Playable.DB_TYPE_TRACK)
+                                    + getTrackAssociationsSelect(userId)
                                     + " UNION SELECT DISTINCT " + DBHelper.PlayQueue.TRACK_ID + " FROM "+ Table.PLAY_QUEUE.name
                                     + " UNION SELECT DISTINCT " + DBHelper.PlaylistTracks.TRACK_ID + " FROM "+ Table.PLAYLIST_TRACKS.name
                                 + ") AND " + DBHelper.SoundView._TYPE + " = " + Playable.DB_TYPE_TRACK;
 
-                    count = db.delete(Table.SOUNDS.name,where,null);
-                    log("Track cleanup done: deleted " + count + " tracks in " + (System.currentTimeMillis() - start) + " ms");
-                    getContext().getContentResolver().notifyChange(Content.TRACKS.uri, null, false);
+                    count += db.delete(Table.SOUNDS.name,where, null);
+                    log("Track cleanup done: deleted " + count + " items in " + (System.currentTimeMillis() - start) + " ms");
                     return count;
                 }
                 return 0;
@@ -736,6 +750,15 @@ public class ScContentProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
+    }
+
+    private String getTrackAssociationsSelect(long userId) {
+        return String.format(selectAssociationsAndActivities, String.valueOf(CollectionItemTypes.PLAYLIST),userId, Playable.DB_TYPE_TRACK, Playable.DB_TYPE_TRACK);
+    }
+
+    private String getPlaylistAssociationsSelect(long userId) {
+        return String.format(selectAssociationsAndActivities, String.valueOf(CollectionItemTypes.PLAYLIST),
+            userId, Playable.DB_TYPE_PLAYLIST, Playable.DB_TYPE_PLAYLIST);
     }
 
     private int cleanupActivities(Content content, SQLiteDatabase db, String limit) {
@@ -1077,8 +1100,8 @@ public class ScContentProvider extends ContentProvider {
 
     private static String selectAssociationsAndActivities =
         "SELECT 1 FROM CollectionItems WHERE "
-            + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.TRACK +
-                " ," + CollectionItemTypes.LIKE + " ," + CollectionItemTypes.REPOST + ") "
+            + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (%s,"
+                + CollectionItemTypes.LIKE + " ," + CollectionItemTypes.REPOST + ") "
             + " AND " + DBHelper.CollectionItems.USER_ID + " = %s"
             + " AND  " + DBHelper.CollectionItems.ITEM_ID + " =  " + DBHelper.Sounds._ID
             + " AND  " + DBHelper.CollectionItems.RESOURCE_TYPE + " =  %s"

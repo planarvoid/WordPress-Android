@@ -143,7 +143,7 @@ public class ApiSyncer {
             }
         } else {
             switch (c) {
-                case TRACK_CLEANUP:
+                case PLAYABLE_CLEANUP:
                 case USERS_CLEANUP:
                 case SOUND_STREAM_CLEANUP:
                 case ACTIVITIES_CLEANUP:

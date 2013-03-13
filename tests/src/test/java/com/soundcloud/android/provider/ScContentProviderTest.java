@@ -21,7 +21,6 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
-import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -135,7 +134,7 @@ public class ScContentProviderTest {
         expect(Content.USERS).toHaveCount(14);
 
         Playlist playlist  = readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
-        expect(playlist.insert(resolver)).not.toBeNull();
+        expect(playlist.insert(resolver, Content.ME_LIKES.uri)).not.toBeNull();
 
         expect(Content.TRACKS).toHaveCount(56); // added 41 from playlist
         expect(Content.PLAYLISTS).toHaveCount(1);
@@ -151,12 +150,42 @@ public class ScContentProviderTest {
         expect(Content.PLAYLISTS).toHaveCount(1);
         expect(Content.USERS).toHaveCount(47);
 
-        resolver.update(Content.TRACK_CLEANUP.uri, null, null, null);
+        resolver.update(Content.PLAYABLE_CLEANUP.uri, null, null, null);
         resolver.update(Content.USERS_CLEANUP.uri, null, null, null);
 
         expect(Content.TRACKS).toHaveCount(56);
         expect(Content.PLAYLISTS).toHaveCount(1);
         expect(Content.USERS).toHaveCount(46);
+        expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(41); // playlist > track relational
+    }
+
+    @Test
+    public void shouldCleanupPlaylist() throws Exception {
+        TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
+        int i = 0;
+        for (Track t : tracks) {
+            t.insert(resolver, i < tracks.size() / 2 ? Content.ME_LIKES.uri : Content.ME_REPOSTS.uri);
+            i++;
+        }
+        expect(Content.TRACKS).toHaveCount(15);
+        expect(Content.USERS).toHaveCount(14);
+
+        Playlist playlist = readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
+        expect(playlist.insert(resolver)).not.toBeNull();
+
+        expect(Content.TRACKS).toHaveCount(56); // added 41 from playlist
+        expect(Content.PLAYLISTS).toHaveCount(1);
+        expect(Content.USERS).toHaveCount(46); // added 32 from playlist
+
+        expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(41); // playlist > track relational
+
+        resolver.update(Content.PLAYABLE_CLEANUP.uri, null, null, null);
+        resolver.update(Content.USERS_CLEANUP.uri, null, null, null);
+
+        expect(Content.TRACKS).toHaveCount(15);
+        expect(Content.PLAYLISTS).toHaveCount(0);
+        expect(Content.USERS).toHaveCount(14);
+        expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(0);
     }
 
 
