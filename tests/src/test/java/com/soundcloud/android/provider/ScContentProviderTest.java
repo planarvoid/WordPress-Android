@@ -6,7 +6,7 @@ import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ActivitiesDAO;
-import com.soundcloud.android.dao.RecordingsDAO;
+import com.soundcloud.android.dao.RecordingDAO;
 import com.soundcloud.android.dao.TrackDAO;
 import com.soundcloud.android.dao.UserDAO;
 import com.soundcloud.android.model.CollectionHolder;
@@ -436,7 +436,7 @@ public class ScContentProviderTest {
     @Test
     public void shouldDeleteRecordings() throws Exception {
         Recording r = Recording.create();
-        expect(RecordingsDAO.insert(r, resolver)).not.toBeNull();
+        expect(RecordingDAO.insert(r, resolver)).not.toBeNull();
         resolver.delete(Content.RECORDINGS.uri, null, null);
         Cursor cursor = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
         expect(cursor.getCount()).toEqual(0);

@@ -11,7 +11,7 @@ import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.audio.reader.WavReader;
-import com.soundcloud.android.dao.RecordingsDAO;
+import com.soundcloud.android.dao.RecordingDAO;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -96,8 +96,8 @@ public class Recording extends ScResource implements Comparable<Recording> {
 
     // private message to another user
     @Deprecated private User   recipient;
-    /* package */ @Deprecated String recipient_username;
-    /* package */ @Deprecated long   recipient_user_id;
+    @Deprecated public String recipient_username;
+    @Deprecated public long   recipient_user_id;
 
     // status
     public boolean external_upload;
@@ -627,7 +627,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
             IOUtils.deleteFile(getEncodedFile());
         }
         IOUtils.deleteFile(resized_artwork_path);
-        RecordingsDAO.updateStatus(this, resolver);
+        RecordingDAO.updateStatus(this, resolver);
     }
 
     public static void clearRecordingFromIntent(Intent intent) {
@@ -862,7 +862,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
             if (isAmplitudeFile(f.getName())) {
                 Log.d(TAG, "Deleting isolated amplitude file : " + f.getName() + " : " + f.delete());
             } else {
-                Recording r = RecordingsDAO.getRecordingByPath(resolver, f);
+                Recording r = RecordingDAO.getRecordingByPath(resolver, f);
                 if (r == null) {
                     r = new Recording(f);
                     r.user_id = userId;
@@ -878,7 +878,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
                         Log.e(TAG, "error", e);
                     }
                     if (r.duration <= 0 || f.getName().contains(PROCESSED_APPEND)) {
-                        Log.d(TAG, "Deleting unusable file : " + f.getName() + " : " + RecordingsDAO.delete(r, resolver));
+                        Log.d(TAG, "Deleting unusable file : " + f.getName() + " : " + RecordingDAO.delete(r, resolver));
                     } else {
                         unsaved.add(r);
                     }

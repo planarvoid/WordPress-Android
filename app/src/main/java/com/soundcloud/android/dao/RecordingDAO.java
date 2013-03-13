@@ -13,7 +13,7 @@ import android.net.Uri;
 
 import java.io.File;
 
-public class RecordingsDAO {
+public class RecordingDAO {
 
     public static Uri insert(Recording recording, ContentResolver contentResolver) {
         return insert(recording, contentResolver, true);

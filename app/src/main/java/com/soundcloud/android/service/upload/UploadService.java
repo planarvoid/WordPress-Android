@@ -6,7 +6,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.dao.RecordingsDAO;
+import com.soundcloud.android.dao.RecordingDAO;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -290,7 +290,7 @@ public class UploadService extends Service {
                     || TRANSFER_CANCELLED.equals(action)
                     || TRANSFER_ERROR.equals(action);
             if (wasError) {
-                RecordingsDAO
+                RecordingDAO
                         .updateStatus(recording.setUploadFailed(PROCESSING_CANCELED.equals(action) || TRANSFER_CANCELLED.equals(action)), getContentResolver()); // for list state
 
                 releaseLocks();
@@ -401,7 +401,7 @@ public class UploadService extends Service {
         }
 
         if (!recording.isSaved()){
-            Uri uri = RecordingsDAO.insert(recording, getContentResolver());
+            Uri uri = RecordingDAO.insert(recording, getContentResolver());
             if (uri != null) {
                 recording.id = Long.parseLong(uri.getLastPathSegment());
             }
@@ -409,7 +409,7 @@ public class UploadService extends Service {
 
         if (recording.isSaved()){
             recording.upload_status = Recording.Status.UPLOADING;
-            RecordingsDAO.updateStatus(recording, getContentResolver());
+            RecordingDAO.updateStatus(recording, getContentResolver());
         } else {
             Log.w(TAG, "could not insert " + recording);
         }

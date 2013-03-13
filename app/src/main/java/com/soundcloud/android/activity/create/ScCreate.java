@@ -6,7 +6,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.audio.PlaybackStream;
-import com.soundcloud.android.dao.RecordingsDAO;
+import com.soundcloud.android.dao.RecordingDAO;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
@@ -903,9 +903,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                     for (int i = 0; i < recordings.size(); i++) {
                                         if (checked[i]) {
                                             DeprecatedRecordingProfile.migrate(recordings.get(i)); // migrate deprecated format, otherwise this is harmless
-                                            RecordingsDAO.insert(recordings.get(i), getContentResolver());
+                                            RecordingDAO.insert(recordings.get(i), getContentResolver());
                                         } else {
-                                            RecordingsDAO.delete(recordings.get(i), null);
+                                            RecordingDAO.delete(recordings.get(i), null);
                                         }
                                     }
                                     mUnsavedRecordings = null;
