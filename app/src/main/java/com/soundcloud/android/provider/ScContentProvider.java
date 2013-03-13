@@ -753,7 +753,8 @@ public class ScContentProvider extends ContentProvider {
     }
 
     private String getTrackAssociationsSelect(long userId) {
-        return String.format(selectAssociationsAndActivities, String.valueOf(CollectionItemTypes.PLAYLIST),userId, Playable.DB_TYPE_TRACK, Playable.DB_TYPE_TRACK);
+        return String.format(selectAssociationsAndActivities, String.valueOf(CollectionItemTypes.TRACK),
+                userId, Playable.DB_TYPE_TRACK, Playable.DB_TYPE_TRACK);
     }
 
     private String getPlaylistAssociationsSelect(long userId) {
