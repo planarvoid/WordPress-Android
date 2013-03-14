@@ -2,23 +2,16 @@ package com.soundcloud.android.fragment;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.ActivityAdapter;
-import com.soundcloud.android.database.Subscriptions;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.view.ScListView;
-import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
-import rx.util.functions.Func2;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import java.util.List;
 
 public class HomeListFragment extends Fragment implements Observer<Activities> {
 
@@ -48,47 +41,6 @@ public class HomeListFragment extends Fragment implements Observer<Activities> {
     public void onStart() {
         super.onStart();
 
-        Observable<Activities> observable = Subscriptions.getActivities();
-        subscription = observable.subscribe(this);
-
-        Observable<Playlist> zip = Observable.zip(Subscriptions.getPlaylist(), Subscriptions.getPlaylistTracks(), new Func2<Playlist, List<Track>, Playlist>() {
-            @Override
-            public Playlist call(Playlist playlist, List<Track> tracks) {
-                playlist.tracks = tracks;
-                playlist.setTrackCount(tracks.size());
-                return playlist;
-            }
-        });
-        zip.subscribe(new Observer<Playlist>() {
-            @Override
-            public void onCompleted() {
-            }
-
-            @Override
-            public void onError(Exception e) {
-
-            }
-
-            @Override
-            public void onNext(Playlist args) {
-                System.out.println(args);
-            }
-        });
-        zip.subscribe(new Observer<Playlist>() {
-            @Override
-            public void onCompleted() {
-            }
-
-            @Override
-            public void onError(Exception e) {
-
-            }
-
-            @Override
-            public void onNext(Playlist args) {
-                System.out.println(args);
-            }
-        });
     }
 
     @Override
