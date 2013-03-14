@@ -5,7 +5,7 @@ import static com.soundcloud.android.provider.ScContentProvider.Parameter.*;
 import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.dao.ActivitiesDAO;
+import com.soundcloud.android.dao.ActivityDAO;
 import com.soundcloud.android.dao.RecordingDAO;
 import com.soundcloud.android.dao.TrackDAO;
 import com.soundcloud.android.dao.UserDAO;
@@ -157,7 +157,7 @@ public class ScContentProviderTest {
     @Test
     public void shouldCleanupSoundStream() throws Exception {
         Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_stream.json"));
-        expect(ActivitiesDAO.insert(Content.ME_SOUND_STREAM, resolver, a)).toBe(50);
+        expect(ActivityDAO.insert(Content.ME_SOUND_STREAM, resolver, a)).toBe(50);
         expect(Content.ME_SOUND_STREAM).toHaveCount(50);
         expect(resolver.update(Uri.parse(Content.SOUND_STREAM_CLEANUP.uri.toString() + "?limit=10"), null, null, null)).toBe(40);
     }
@@ -165,7 +165,7 @@ public class ScContentProviderTest {
     @Test
     public void shouldCleanupActivities() throws Exception {
         Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities.json"));
-        expect(ActivitiesDAO.insert(Content.ME_ACTIVITIES, resolver, a)).toBe(17);
+        expect(ActivityDAO.insert(Content.ME_ACTIVITIES, resolver, a)).toBe(17);
         expect(Content.ME_ACTIVITIES).toHaveCount(17);
         expect(resolver.update(Uri.parse(Content.ACTIVITIES_CLEANUP.uri.toString() + "?limit=5"), null, null, null)).toBe(12);
     }

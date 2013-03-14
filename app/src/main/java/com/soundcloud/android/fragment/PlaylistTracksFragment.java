@@ -4,18 +4,17 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.PlaylistTracksAdapter;
-import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.ScListView;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -201,14 +200,12 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void refresh() {
         if (isAdded()) {
             mLocalCollection = getLocalCollection();
-            if (mLocalCollection != null) {
-                getLoaderManager().restartLoader(TRACK_LIST_LOADER, null, this);
-            }
+            getLoaderManager().restartLoader(TRACK_LIST_LOADER, null, this);
         }
     }
 
-    private @Nullable LocalCollection getLocalCollection() {
-        return LocalCollectionDAO.fromContentUri(mPlaylist.toUri(), getActivity().getContentResolver(), true);
+    private LocalCollection getLocalCollection() {
+        return new SyncStateManager(getActivity().getContentResolver()).fromContent(mPlaylist.toUri());
     }
 
     public void scrollToPosition(int position) {

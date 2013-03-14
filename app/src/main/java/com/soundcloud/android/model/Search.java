@@ -2,12 +2,14 @@ package com.soundcloud.android.model;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 import android.text.TextUtils;
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.api.Request;
 
-public class Search {
+public class Search implements ModelLike {
     public static final int ALL = 0;
     public static final int SOUNDS = 1;
     public static final int USERS  = 2;
@@ -69,6 +71,16 @@ public class Search {
         return Request.to(path).with("q", query);
     }
 
+
+    @Override
+    public long getId() {
+        return id;
+    }
+
+    @Override
+    public Uri toUri() {
+        return Content.SEARCH.forId(id);
+    }
 
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();

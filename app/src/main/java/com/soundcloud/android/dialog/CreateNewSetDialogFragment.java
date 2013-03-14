@@ -23,6 +23,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.soundcloud.android.service.sync.SyncStateManager;
 
 public class CreateNewSetDialogFragment extends SherlockDialogFragment {
 
@@ -97,7 +98,7 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
         new Thread(){
             @Override
             public void run() {
-                // create and insert playlist
+                // create and create playlist
                 PlaylistDAO.insertAsMyPlaylist(contentResolver,
                     SoundCloudApplication.MODEL_MANAGER.createPlaylist(
                             loggedInUser,
@@ -107,7 +108,8 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
                     ));
 
                 // force to stale so we know to update the playlists next time it is viewed
-                LocalCollectionDAO.forceToStale(Content.ME_PLAYLISTS.uri, contentResolver);
+                new SyncStateManager(contentResolver).forceToStale(Content.ME_PLAYLISTS);
+
                 // request sync to push playlist at next possible opportunity
                 ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, new Bundle());
 

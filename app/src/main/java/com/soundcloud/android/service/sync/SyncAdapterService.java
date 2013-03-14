@@ -1,14 +1,12 @@
 package com.soundcloud.android.service.sync;
 
-import com.soundcloud.android.dao.ActivitiesDAO;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.c2dm.PushEvent;
-import com.soundcloud.android.dao.LocalCollectionDAO;
+import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistDAO;
 import com.soundcloud.android.model.ContentStats;
-import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -152,6 +150,8 @@ public class SyncAdapterService extends Service {
     }
 
     private static Intent getSyncIntent(SoundCloudApplication app, Bundle extras) {
+        final SyncStateManager syncStateManager = new SyncStateManager(app.getContentResolver());
+
         final Intent syncIntent = new Intent(app, ApiSyncService.class);
         switch (PushEvent.fromExtras(extras)) {
             case FOLLOWER:
@@ -163,8 +163,7 @@ public class SyncAdapterService extends Service {
                     syncIntent.setData(Content.ME_FOLLOWERS.uri); // refresh follower list
                 } else {
                     // set last sync time to 0 so it auto-refreshes on next load
-                    final LocalCollection lc = LocalCollectionDAO.fromContent(Content.ME_FOLLOWERS, app.getContentResolver(), false);
-                    if (lc != null) lc.updateLastSyncSuccessTime(0, app.getContentResolver());
+                    syncStateManager.updateLastSyncSuccessTime(Content.ME_FOLLOWERS.uri, 0);
                 }
 
                 break;
@@ -174,8 +173,7 @@ public class SyncAdapterService extends Service {
                     syncIntent.setData(Content.ME_ACTIVITIES.uri);
                 } else {
                     // set last sync time to 0 so it auto-refreshes on next load
-                    final LocalCollection lc = LocalCollectionDAO.fromContent(Content.ME_ACTIVITIES, app.getContentResolver(), false);
-                    if (lc != null) lc.updateLastSyncSuccessTime(0, app.getContentResolver());
+                    syncStateManager.updateLastSyncSuccessTime(Content.ME_ACTIVITIES, 0);
                 }
                 break;
 
@@ -188,7 +186,7 @@ public class SyncAdapterService extends Service {
                 }
 
                 if (manual || SyncConfig.shouldSyncCollections(app)) {
-                    final List<Uri> dueForSync = SyncContent.getCollectionsDueForSync(app, manual);
+                    final List<Uri> dueForSync = syncStateManager.getCollectionsDueForSync(app, manual);
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
                         Log.d(TAG, "collection due for sync:" +dueForSync);
                     }
@@ -276,7 +274,7 @@ public class SyncAdapterService extends Service {
 
     private static void clearActivities(ContentResolver resolver){
         // drop all activities before re-sync
-        int deleted = ActivitiesDAO.clear(null, resolver);
+        int deleted =  new ActivitiesStorage(resolver).clear(null);
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "deleted "+deleted+ " activities");
         }

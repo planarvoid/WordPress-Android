@@ -13,7 +13,10 @@ import android.net.Uri;
 
 import java.io.File;
 
-public class RecordingDAO {
+public class RecordingDAO extends BaseDAO<Recording> {
+    protected RecordingDAO(ContentResolver contentResolver) {
+        super(contentResolver);
+    }
 
     public static Uri insert(Recording recording, ContentResolver contentResolver) {
         return insert(recording, contentResolver, true);
@@ -21,7 +24,7 @@ public class RecordingDAO {
 
     public static Uri insert(Recording recording, ContentResolver contentResolver, boolean fullValues) {
         recording.insertDependencies(contentResolver);
-        // insert parent resource, with possible partial values
+        // create parent resource, with possible partial values
         return contentResolver.insert(recording.toUri(), fullValues ? recording.buildContentValues() : recording.buildBaseContentValues());
     }
 
@@ -72,5 +75,10 @@ public class RecordingDAO {
         if (cursor != null) cursor.close();
 
         return recording;
+    }
+
+    @Override
+    public Content getContent() {
+        return Content.RECORDINGS;
     }
 }

@@ -24,7 +24,7 @@ import android.net.Uri;
         @JsonSubTypes.Type(value = Connection.class, name = "connection"),
         @JsonSubTypes.Type(value = Like.class, name = "like"),
         @JsonSubTypes.Type(value = Friend.class, name = "friend")})
-public abstract class ScResource extends ScModel {
+public abstract class ScResource extends ScModel implements ModelLike {
 
     @JsonIgnore
     public long last_updated = NOT_SET;

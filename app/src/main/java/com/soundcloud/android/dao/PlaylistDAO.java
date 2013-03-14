@@ -17,7 +17,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class PlaylistDAO {
+public class PlaylistDAO extends BaseDAO<Playlist> {
+    protected PlaylistDAO(ContentResolver contentResolver) {
+        super(contentResolver);
+    }
+
     /**
      * delete any caching, and mark any local instances as removed
      * {@link com.soundcloud.android.activity.track.PlaylistActivity#onPlaylistChanged()}
@@ -106,5 +110,10 @@ public class PlaylistDAO {
         deleted += resolver.delete(Content.ME_ALL_ACTIVITIES.uri, where, null);
 
         return deleted;
+    }
+
+    @Override
+    public Content getContent() {
+        return Content.PLAYLISTS;
     }
 }

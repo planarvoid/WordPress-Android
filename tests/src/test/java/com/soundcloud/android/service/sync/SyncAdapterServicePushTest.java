@@ -7,7 +7,6 @@ import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.c2dm.PushEvent;
-import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -94,12 +93,11 @@ public class SyncAdapterServicePushTest extends SyncAdapterServiceTestBase {
         TestHelper.addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
         TestHelper.addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
 
-
         Bundle extras = new Bundle();
         extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, pushType);
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
 
-        LocalCollection lc = LocalCollectionDAO.fromContent(Content.ME_TRACKS, Robolectric.application.getContentResolver(), false);
+        LocalCollection lc = new SyncStateManager(Robolectric.application.getContentResolver()).fromContent(Content.ME_TRACKS);
         expect(lc).toBeNull();
         expect(result.notifications.size()).toEqual(1);
     }

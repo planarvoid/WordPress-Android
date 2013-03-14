@@ -528,7 +528,7 @@ public class ScContentProvider extends ContentProvider {
                     getContext().getContentResolver().notifyChange(result, null, false);
                     return result;
                 } else {
-                    throw new SQLException("No insert available for: " + uri);
+                    throw new SQLException("No create available for: " + uri);
                 }
 
             case ME_SOUND_STREAM:

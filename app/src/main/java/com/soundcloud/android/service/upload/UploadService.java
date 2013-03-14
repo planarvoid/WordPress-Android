@@ -411,7 +411,7 @@ public class UploadService extends Service {
             recording.upload_status = Recording.Status.UPLOADING;
             RecordingDAO.updateStatus(recording, getContentResolver());
         } else {
-            Log.w(TAG, "could not insert " + recording);
+            Log.w(TAG, "could not create " + recording);
         }
         queueUpload(recording);
     }

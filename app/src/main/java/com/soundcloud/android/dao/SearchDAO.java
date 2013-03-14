@@ -10,7 +10,11 @@ import com.soundcloud.android.provider.DBHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchDAO {
+public class SearchDAO extends BaseDAO<Search> {
+
+    protected SearchDAO(ContentResolver contentResolver) {
+        super(contentResolver);
+    }
 
     public static Uri insert(ContentResolver resolver, Search search) {
         return resolver.insert(Content.SEARCHES.uri, search.buildContentValues());
@@ -35,5 +39,10 @@ public class SearchDAO {
         resolver.delete(Content.SEARCHES.uri,
                 DBHelper.Searches.USER_ID + " = ?",
                 new String[]{String.valueOf(userId)});
+    }
+
+    @Override
+    public Content getContent() {
+        return null;
     }
 }

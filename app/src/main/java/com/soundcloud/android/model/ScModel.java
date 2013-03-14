@@ -51,4 +51,8 @@ public class ScModel implements Parcelable {
     public long getListItemId(){
         return id;
     }
+
+    public long getId() {
+        return id;
+    }
 }

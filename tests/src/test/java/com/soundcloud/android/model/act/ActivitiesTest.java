@@ -3,15 +3,13 @@ package com.soundcloud.android.model.act;
 import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.fromString;
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.dao.ActivitiesDAO;
+import com.soundcloud.android.dao.ActivityDAO;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
@@ -228,12 +226,6 @@ public class ActivitiesTest {
         Activities a = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_1.json"));
         ContentValues[] cv = a.buildContentValues(-1);
         expect(cv.length).toEqual(a.size());
-    }
-
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowIfContentPassedToClearIsUnrelated() throws Exception {
-        ActivitiesDAO.clear(Content.ME, resolver);
     }
 
 

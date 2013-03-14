@@ -2,7 +2,7 @@ package com.soundcloud.android.adapter;
 
 import static com.soundcloud.android.activity.track.PlayableInteractionActivity.EXTRA_INTERACTION_TYPE;
 
-import com.soundcloud.android.dao.ActivitiesDAO;
+import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.track.PlaylistInteractionActivity;
@@ -31,9 +31,12 @@ import android.util.Log;
 import java.util.Collections;
 
 public class ActivityAdapter extends ScBaseAdapter<Activity> implements PlayableAdapter {
+    private ActivitiesStorage mActivitiesStorage;
+
 
     public ActivityAdapter(Context context, Uri uri) {
         super(context, uri);
+        mActivitiesStorage = new ActivitiesStorage(context.getContentResolver());
     }
 
     @Override
@@ -56,7 +59,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
             return true; // need to pull from DB
         } else {
             // check if there is anything newer
-            final Activity firstActivity = ActivitiesDAO.getFirstActivity(mContent, mContext.getContentResolver());
+            final Activity firstActivity = mActivitiesStorage.getFirstActivity(mContent);
             return (firstActivity == null || firstActivity.created_at.getTime() > mData.get(0).created_at.getTime());
         }
     }

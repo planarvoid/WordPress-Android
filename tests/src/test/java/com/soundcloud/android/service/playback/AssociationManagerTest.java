@@ -5,16 +5,13 @@ import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
-import com.soundcloud.android.dao.ActivitiesDAO;
+import com.soundcloud.android.dao.ActivityDAO;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
-import com.soundcloud.android.model.act.Activity;
-import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
@@ -24,8 +21,6 @@ import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import android.content.ContentValues;
 
 @RunWith(DefaultTestRunner.class)
 public class AssociationManagerTest {
@@ -173,7 +168,7 @@ public class AssociationManagerTest {
 
         Playlist playlist = (Playlist) a.get(0).getPlayable();
 
-        expect(ActivitiesDAO.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver(), a)).toBe(1);
+        expect(ActivityDAO.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver(), a)).toBe(1);
         DefaultTestRunner.application.getContentResolver().insert(Content.ME_REPOSTS.uri, playlist.buildContentValues());
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
 

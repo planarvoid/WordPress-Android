@@ -3,13 +3,13 @@ package com.soundcloud.android.cache;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -48,10 +48,13 @@ public class FollowStatus {
     private HashMap<Long,Long> followedAtStamps = new HashMap<Long, Long>();
     private HashMap<Long,Long> unFollowedAtStamps = new HashMap<Long, Long>();
 
+    private SyncStateManager mSyncStateManager;
+
     protected FollowStatus(final Context c) {
         mContext = c;
+        mSyncStateManager = new SyncStateManager(c.getContentResolver());
 
-        mFollowingCollectionState = LocalCollectionDAO.fromContent(Content.ME_FOLLOWINGS, mContext.getContentResolver(), true);
+        mFollowingCollectionState = mSyncStateManager.fromContent(Content.ME_FOLLOWINGS);
         mFollowingCollectionState.startObservingSelf(mContext.getContentResolver(), new LocalCollection.OnChangeListener() {
             @Override
             public void onLocalCollectionChanged() {
@@ -144,9 +147,8 @@ public class FollowStatus {
                     if (!success) {
                         Log.w(TAG, "error changing following status, resp=" + status);
                     } else {
-
                         // tell the list to refresh itself next time
-                        LocalCollectionDAO.forceToStale(Content.ME_FOLLOWINGS.uri, mContext.getContentResolver());
+                        mSyncStateManager.forceToStale(Content.ME_FOLLOWINGS);
                     }
                     return success;
 
@@ -162,8 +164,8 @@ public class FollowStatus {
                     // make sure the cache reflects the new state
                     SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.NONE).user_following = addFollowing;
 
-                    if (followings.isEmpty() && addFollowing){
-                        LocalCollectionDAO.forceToStale(Content.ME_SOUND_STREAM.uri, mContext.getContentResolver());
+                    if (followings.isEmpty() && addFollowing) {
+                        mSyncStateManager.forceToStale(Content.ME_SOUND_STREAM);
                     }
 
                     if (handler != null) {

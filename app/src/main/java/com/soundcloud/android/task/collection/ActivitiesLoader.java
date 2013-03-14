@@ -1,8 +1,9 @@
 package com.soundcloud.android.task.collection;
 
-import com.soundcloud.android.dao.ActivitiesDAO;
+import android.util.Log;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -10,25 +11,23 @@ import com.soundcloud.android.service.sync.ApiSyncer;
 import com.soundcloud.api.CloudAPI;
 import org.apache.http.HttpStatus;
 
-import android.content.ContentResolver;
-import android.util.Log;
-
 import java.io.IOException;
 
 public class ActivitiesLoader extends CollectionLoader<Activity> {
     @Override
     public ReturnData<Activity> load(AndroidCloudAPI api, CollectionParams params) {
+        final ActivitiesStorage storage = new ActivitiesStorage(api.getContext().getContentResolver());
         ReturnData<Activity> returnData = new ReturnData<Activity>(params);
         returnData.success = true;
 
         Activities newActivities;
-        final ContentResolver resolver = api.getContext().getContentResolver();
+
         if (params.isRefresh) {
-            newActivities = ActivitiesDAO.getSince(params.contentUri, resolver, params.timestamp);
+            newActivities = storage.getSince(params.contentUri, params.timestamp);
             returnData.keepGoing = newActivities.size() >= params.maxToLoad;
 
         } else {
-            newActivities = getOlderActivities(resolver, params);
+            newActivities = getOlderActivities(storage, params);
             if (newActivities.size() < params.maxToLoad) {
 
                 ApiSyncer.Result result = null;
@@ -45,7 +44,7 @@ public class ActivitiesLoader extends CollectionLoader<Activity> {
                 }
 
                 if (result != null && result.success) {
-                    newActivities = getOlderActivities(resolver, params);
+                    newActivities = getOlderActivities(storage, params);
                 }
             }
         }
@@ -59,10 +58,9 @@ public class ActivitiesLoader extends CollectionLoader<Activity> {
         return returnData;
     }
 
-    private Activities getOlderActivities(ContentResolver resolver, CollectionParams params) {
-        return ActivitiesDAO.getBefore(
+    private Activities getOlderActivities(ActivitiesStorage storage, CollectionParams params) {
+        return storage.getBefore(
                 params.contentUri.buildUpon().appendQueryParameter("limit", String.valueOf(params.maxToLoad)).build(),
-                resolver,
                 params.timestamp);
     }
 }
