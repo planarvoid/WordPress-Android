@@ -9,7 +9,6 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,8 +28,7 @@ public class ActivityDAO extends BaseDAO<Activity> {
         return Content.ME_ALL_ACTIVITIES;
     }
 
-
-    public static int insert(Content content, ContentResolver resolver, Activities activities) {
+    public int insert(Content content, Activities activities) {
         Set<ScResource> models = new HashSet<ScResource>();
         for (Activity a : activities) {
             models.addAll(a.getDependentModels());
@@ -46,10 +44,10 @@ public class ActivityDAO extends BaseDAO<Activity> {
         }
 
         for (Map.Entry<Uri, List<ContentValues>> entry : values.entrySet()) {
-            resolver.bulkInsert(entry.getKey(), entry.getValue().toArray(new ContentValues[entry.getValue().size()]));
+            mResolver.bulkInsert(entry.getKey(), entry.getValue().toArray(new ContentValues[entry.getValue().size()]));
         }
 
-        return resolver.bulkInsert(content.uri, activities.buildContentValues(content.id));
+        return mResolver.bulkInsert(content.uri, activities.buildContentValues(content.id));
     }
 
     public Activities queryAll() {

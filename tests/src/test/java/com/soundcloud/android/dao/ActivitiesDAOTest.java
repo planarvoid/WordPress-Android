@@ -28,9 +28,7 @@ public class ActivitiesDAOTest extends BaseDAOTest<ActivityDAO> {
     @Test
     public void shouldPersistActivitiesInDb() throws Exception {
         Activities stream = TestHelper.readJson(Activities.class, SyncAdapterServiceTest.class, "e1_stream_1.json");
-        for (Activity a : stream) {
-            getDAO().create(a);
-        }
+        getDAO().insert(Content.ME_SOUND_STREAM, stream);
         expect(Content.ME_SOUND_STREAM).toHaveCount(22);
     }
 
@@ -45,7 +43,7 @@ public class ActivitiesDAOTest extends BaseDAOTest<ActivityDAO> {
         Activities one_of_each = TestHelper.readJson(Activities.class, ApiSyncServiceTest.class,
                 "e1_one_of_each_activity.json");
 
-        expect(ActivityDAO.insert(Content.ME_SOUND_STREAM, resolver, one_of_each)).toBe(7);
+        expect(getDAO().insert(Content.ME_SOUND_STREAM, one_of_each)).toBe(7);
 
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(7);
 
@@ -123,7 +121,7 @@ public class ActivitiesDAOTest extends BaseDAOTest<ActivityDAO> {
         Activities one_of_each = TestHelper.readJson(Activities.class, ApiSyncServiceTest.class,
                 "e1_one_of_each_activity.json");
 
-        expect(ActivityDAO.insert(Content.ME_SOUND_STREAM, resolver, one_of_each)).toBe(7);
+        expect(getDAO().insert(Content.ME_SOUND_STREAM, one_of_each)).toBe(7);
 
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(7);
 

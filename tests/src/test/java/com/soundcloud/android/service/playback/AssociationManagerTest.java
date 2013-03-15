@@ -5,7 +5,7 @@ import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
-import com.soundcloud.android.dao.ActivityDAO;
+import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
@@ -168,7 +168,7 @@ public class AssociationManagerTest {
 
         Playlist playlist = (Playlist) a.get(0).getPlayable();
 
-        expect(ActivityDAO.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver(), a)).toBe(1);
+        expect(new ActivitiesStorage(Robolectric.application.getContentResolver()).insert(Content.ME_SOUND_STREAM, a)).toBe(1);
         DefaultTestRunner.application.getContentResolver().insert(Content.ME_REPOSTS.uri, playlist.buildContentValues());
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
 

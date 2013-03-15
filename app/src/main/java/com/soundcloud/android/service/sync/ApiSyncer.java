@@ -297,7 +297,7 @@ public class ApiSyncer {
                 // this can happen at the end of the list
                 inserted = 0;
             } else {
-                inserted = ActivityDAO.insert(c, mResolver, activities);
+                inserted = mActivitiesStorage.insert(c, activities);
             }
         } else {
             String future_href = mSyncStateManager.getExtraFromUri(uri);
@@ -314,7 +314,7 @@ public class ApiSyncer {
                 // this can happen at the beginning of the list if the api returns the first item incorrectly
                 inserted = 0;
             } else {
-                inserted = ActivityDAO.insert(c, mResolver, activities);
+                inserted = mActivitiesStorage.insert(c, activities);
             }
             result.setSyncData(System.currentTimeMillis(), activities.size(), activities.future_href);
         }

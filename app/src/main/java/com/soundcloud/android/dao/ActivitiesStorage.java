@@ -27,7 +27,6 @@ public class ActivitiesStorage {
         mActivitiesDAO = new ActivityDAO(resolver);
     }
 
-
     public Activities getSince(Uri contentUri, long since)  {
         if (Log.isLoggable(TAG, Log.DEBUG))
             Log.d(TAG, "Activities.getSince("+contentUri+", since="+since+")");
@@ -133,6 +132,6 @@ public class ActivitiesStorage {
     }
 
     public int insert(Content content, Activities activities) {
-        return activities.insert(mResolver);
+        return mActivitiesDAO.insert(content, activities);
     }
 }

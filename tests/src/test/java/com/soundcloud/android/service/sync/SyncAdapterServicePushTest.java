@@ -96,9 +96,6 @@ public class SyncAdapterServicePushTest extends SyncAdapterServiceTestBase {
         Bundle extras = new Bundle();
         extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, pushType);
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
-
-        LocalCollection lc = new SyncStateManager(Robolectric.application.getContentResolver()).fromContent(Content.ME_TRACKS);
-        expect(lc).toBeNull();
         expect(result.notifications.size()).toEqual(1);
     }
 }
