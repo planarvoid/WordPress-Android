@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Deprecated
 public class SoundCloudDB {
     public static final int RESOLVER_BATCH_SIZE = 100;
 
