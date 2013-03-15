@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.dao.PlaylistDAO;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -28,7 +27,6 @@ import java.util.List;
 public class ScModelManagerTest {
     ScModelManager manager;
     ContentResolver resolver;
-    PlaylistDAO playlistDAO;
     final static long USER_ID = 1L;
 
     @Before
@@ -36,7 +34,6 @@ public class ScModelManagerTest {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
         manager = new ScModelManager(Robolectric.application, TestHelper.getObjectMapper());
         resolver = Robolectric.application.getContentResolver();
-        playlistDAO = new PlaylistDAO(resolver);
     }
 
     @Test
@@ -344,79 +341,6 @@ public class ScModelManagerTest {
         return items;
     }
 
-    @Test
-    public void shouldPersistPlaylistInDb() throws Exception {
-        Playlist p = manager.getModelFromStream(SyncAdapterServiceTest.class.getResourceAsStream("playlist.json"));
-        expect(p).not.toBeNull();
-        expect(p.user.username).toEqual("Natalie");
-        expect(p.tracks.size()).toEqual(41);
-
-        Uri actualUri = p.insert(resolver);
-        expect(actualUri)
-                .toEqual(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/playlists/2524386"));
-
-        Long id = Long.parseLong(actualUri.getLastPathSegment());
-        Playlist p2 = manager.getPlaylistWithTracks(id);
-        expect(p2).not.toBeNull();
-        expect(p2.user.username).toEqual("Natalie");
-        expect(p2.tracks.size()).toEqual(41);
-        expect(p.tracks.get(0).id).toEqual(p2.tracks.get(0).id);
-
-        p2.tracks.remove(0);
-        expect(p2.insert(resolver)).not.toBeNull();
-
-        Playlist p3 = manager.getPlaylistWithTracks(id);
-        expect(p3).not.toBeNull();
-        expect(p3.tracks.size()).toEqual(40);
-        expect(p3.tracks.get(0).id).not.toEqual(p.tracks.get(0).id);
-
-    }
-
-    @Test
-    public void shouldCreatePlaylistLocally() throws Exception {
-
-        final List<Track> tracks = createTracks();
-        final boolean isPrivate = false;
-
-        Playlist p = createNewPlaylist(DefaultTestRunner.application.getContentResolver(),manager, isPrivate, tracks);
-        expect(p).not.toBeNull();
-        final Uri uri = p.toUri();
-
-        Uri myPlaylistUri = playlistDAO.insertAsMyPlaylist(p);
-
-        expect(myPlaylistUri).not.toBeNull();
-        expect(Content.match(myPlaylistUri)).toBe(Content.ME_PLAYLIST);
-
-        expect(Content.ME_PLAYLISTS).toHaveCount(1);
-        Playlist p2 = manager.getPlaylistWithTracks(uri);
-        expect(p2.tracks).toEqual(tracks);
-        expect(p2.sharing).toBe(isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC);
-
-        List<Playlist> playlists = playlistDAO.getLocalPlaylists();
-        expect(playlists.size()).toBe(1);
-    }
-
-    @Test
-    public void shouldAddTrackToPlaylist() throws Exception {
-        Playlist p = manager.getModelFromStream(SyncAdapterServiceTest.class.getResourceAsStream("playlist.json"));
-        expect(p.tracks.size()).toEqual(41);
-        expect(p.insert(resolver)).not.toBeNull();
-
-        List<Track> tracks = createTracks();
-        int i = 0;
-        for (Track track : tracks){
-            expect(track.insert(resolver)).not.toBeNull();
-            final Uri insert = playlistDAO.addTrackToPlaylist(p, track.id, 100 * i);
-            expect(insert).not.toBeNull();
-            i++;
-        }
-
-        Playlist p2 = manager.getPlaylistWithTracks(p.id);
-        expect(p2).not.toBeNull();
-        expect(p2.tracks.size()).toEqual(43);
-        expect(p2.tracks.get(41).id).toEqual(tracks.get(0).id); // check ordering
-        expect(p2.tracks.get(42).id).toEqual(tracks.get(1).id); // check ordering
-    }
 
     @Test
     public void shouldWriteMissingCollectionItems() throws Exception {
@@ -442,20 +366,5 @@ public class ScModelManagerTest {
         return u;
     }
 
-    public static Playlist createNewPlaylist(ContentResolver resolver, ScModelManager manager) {
-        return createNewPlaylist(resolver, manager, false, createTracks());
-    }
 
-    public static Playlist createNewPlaylist(ContentResolver resolver, ScModelManager manager, boolean isPrivate, List<Track> tracks) {
-        final String title = "new playlist " + System.currentTimeMillis();
-        final long[] trackIds = new long[tracks.size()];
-        for (int i = 0; i < tracks.size(); i++) {
-            expect(tracks.get(i).insert(resolver)).not.toBeNull();
-            trackIds[i] = tracks.get(i).id;
-        }
-
-        Playlist p = manager.createPlaylist(tracks.get(0).user, title, isPrivate, trackIds);
-        expect(p).not.toBeNull();
-        return p;
-    }
 }

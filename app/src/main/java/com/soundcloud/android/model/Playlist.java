@@ -265,7 +265,6 @@ public class Playlist extends Playable {
         track_count = count;
     }
 
-
     /**
      * Change listening. Playlist IDs are mutable, so we listen on the actual instance instead of content uri's
      */

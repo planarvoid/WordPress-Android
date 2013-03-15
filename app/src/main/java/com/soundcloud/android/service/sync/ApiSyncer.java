@@ -7,7 +7,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.dao.ActivitiesStorage;
-import com.soundcloud.android.dao.PlaylistDAO;
+import com.soundcloud.android.dao.PlaylistStorage;
 import com.soundcloud.android.dao.SoundAssociationsDAO;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
@@ -64,7 +64,7 @@ public class ApiSyncer {
     private final Context mContext;
     private final SyncStateManager mSyncStateManager;
     private final ActivitiesStorage mActivitiesStorage;
-    private final PlaylistDAO mPlaylistDAO;
+    private final PlaylistStorage mPlaylistStorage;
 
     public ApiSyncer(Context context) {
         mApi = (AndroidCloudAPI) context.getApplicationContext();
@@ -72,7 +72,7 @@ public class ApiSyncer {
         mContext = context;
         mSyncStateManager = new SyncStateManager(mResolver);
         mActivitiesStorage = new ActivitiesStorage(mResolver);
-        mPlaylistDAO = new PlaylistDAO(mResolver);
+        mPlaylistStorage = new PlaylistStorage(mResolver);
     }
 
     public Result syncContent(Uri uri, String action) throws IOException {
@@ -219,7 +219,7 @@ public class ApiSyncer {
     /* package */ int pushLocalPlaylists() throws IOException {
 
         // check for local playlists that need to be pushed
-        List<Playlist> playlistsToUpload = mPlaylistDAO.getLocalPlaylists();
+        List<Playlist> playlistsToUpload = mPlaylistStorage.getLocalPlaylists();
         if (!playlistsToUpload.isEmpty()) {
 
             for (Playlist p : playlistsToUpload) {
@@ -251,12 +251,12 @@ public class ApiSyncer {
 
                 // update local state
                 p.localToGlobal(mContext, added);
-                mPlaylistDAO.insertAsMyPlaylist(added);
+                mPlaylistStorage.insertAsMyPlaylist(added);
 
                 mSyncStateManager.updateLastSyncSuccessTime(p.toUri(), System.currentTimeMillis());
 
                 // remove all traces of the old temporary playlist
-                mPlaylistDAO.removePlaylist(toDelete);
+                mPlaylistStorage.removePlaylist(toDelete);
             }
         }
         return playlistsToUpload.size();
@@ -549,7 +549,7 @@ public class ApiSyncer {
 
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
             log("Received a 404 on playlist, deleting " + contentUri.toString());
-            mPlaylistDAO.removePlaylist(contentUri);
+            mPlaylistStorage.removePlaylist(contentUri);
             result.setSyncData(true, System.currentTimeMillis(), 0, Result.CHANGED);
             return result;
         }

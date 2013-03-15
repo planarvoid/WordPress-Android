@@ -99,7 +99,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
             return;
         }
 
-        mPlaylistDAO.addTrackToPlaylist(playlist, getArguments().getLong(KEY_TRACK_ID));
+        getPlaylistStorage().addTrackToPlaylist(playlist, getArguments().getLong(KEY_TRACK_ID));
 
         // tell the service to update the playlist
         final SoundCloudApplication soundCloudApplication = SoundCloudApplication.fromContext(getActivity());

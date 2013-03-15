@@ -1,23 +1,11 @@
 package com.soundcloud.android.service.sync;
 
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import org.jetbrains.annotations.Nullable;
-
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.soundcloud.android.provider.Content;
 
 enum SyncContent {
     MySounds    (Content.ME_SOUNDS,     SyncConfig.TRACK_STALE_TIME, SyncConfig.TRACK_BACKOFF_MULTIPLIERS),
@@ -77,21 +65,5 @@ enum SyncContent {
                 }
             }
         }
-    }
-
-    public static @Nullable Set<Uri> getPlaylistsDueForSync(ContentResolver contentResolver) {
-        Cursor c = contentResolver.query(Content.PLAYLIST_ALL_TRACKS.uri, new String[]{DBHelper.PlaylistTracks.PLAYLIST_ID},
-                DBHelper.PlaylistTracks.ADDED_AT + " IS NOT NULL AND " + DBHelper.PlaylistTracks.PLAYLIST_ID + " > 0", null, null);
-
-        if (c != null) {
-            Set<Uri> uris = new HashSet<Uri>();
-            while (c.moveToNext()) {
-                uris.add(Content.PLAYLIST.forId(c.getLong(0)));
-            }
-            c.close();
-            return uris;
-        }
-
-        return null;
     }
 }

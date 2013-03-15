@@ -6,6 +6,7 @@ import static com.xtremelabs.robolectric.Robolectric.*;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
@@ -41,6 +42,12 @@ public class TestHelper {
         InputStream is = TestHelper.class.getResourceAsStream(path);
         expect(is).not.toBeNull();
         return getObjectMapper().readValue(is, klazz);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends ScResource> T readResource(String path) throws IOException {
+        InputStream is = TestHelper.class.getResourceAsStream(path);
+        return (T) getObjectMapper().readValue(is, ScResource.class);
     }
 
     public static <T> T readJson(Class<T> modelClass, Class<?> lookupClass, String file) throws IOException {
