@@ -7,7 +7,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.dao.ActivitiesStorage;
-import com.soundcloud.android.dao.ActivityDAO;
 import com.soundcloud.android.dao.PlaylistDAO;
 import com.soundcloud.android.dao.SoundAssociationsDAO;
 import com.soundcloud.android.model.CollectionHolder;
@@ -431,7 +430,7 @@ public class ApiSyncer {
             int i = 0;
             while (i < itemDeletions.size()) {
                 List<Long> batch = itemDeletions.subList(i, Math.min(i + SoundCloudDB.RESOLVER_BATCH_SIZE, itemDeletions.size()));
-                mResolver.delete(content.uri, DBHelper.getWhereInClause(DBHelper.CollectionItems.ITEM_ID, batch), ScModelManager.longListToStringArr(batch));
+                mResolver.delete(content.uri, SoundCloudDB.getWhereInClause(DBHelper.CollectionItems.ITEM_ID, batch), ScModelManager.longListToStringArr(batch));
                 i += SoundCloudDB.RESOLVER_BATCH_SIZE;
             }
         }
@@ -517,7 +516,7 @@ public class ApiSyncer {
                     toRemove.add(storedConnection.id);
                 }
                 if (!toRemove.isEmpty()) {
-                    mResolver.delete(Content.ME_CONNECTIONS.uri, DBHelper.getWhereInClause(DBHelper.Connections._ID, toRemove), ScModelManager.longListToStringArr(toRemove));
+                    mResolver.delete(Content.ME_CONNECTIONS.uri, SoundCloudDB.getWhereInClause(DBHelper.Connections._ID, toRemove), ScModelManager.longListToStringArr(toRemove));
                 }
             }
 

@@ -110,7 +110,7 @@ public class SoundCloudDB {
             List<Long> batch = ids.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, ids.size()));
             storedIds.addAll(idCursorToList(
                     resolver.query(content.uri, new String[]{BaseColumns._ID},
-                            DBHelper.getWhereInClause(BaseColumns._ID, batch) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0"
+                            getWhereInClause(BaseColumns._ID, batch) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0"
                             , ScModelManager.longListToStringArr(batch), null)
             ));
             i += RESOLVER_BATCH_SIZE;
@@ -122,5 +122,14 @@ public class SoundCloudDB {
         return idCursorToList(resolver.query(SoundCloudDB.addPagingParams(uri, offset, limit)
                 .appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY, "1").build(),
                 null, null, null, null));
+    }
+
+    public static String getWhereInClause(String column, List<Long> idSet){
+        StringBuilder sb = new StringBuilder(column + " IN (?");
+        for (int i = 1; i < idSet.size(); i++) {
+            sb.append(",?");
+        }
+        sb.append(")");
+        return sb.toString();
     }
 }
