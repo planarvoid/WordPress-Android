@@ -196,7 +196,7 @@ public class SyncAdapterService extends Service {
                 }
 
                 // see if there are any local playlists that need to be pushed
-                if (PlaylistDAO.hasLocalPlaylists(app.getContentResolver())){
+                if (new PlaylistDAO(app.getContentResolver()).hasLocalPlaylists()){
                     urisToSync.add(Content.ME_PLAYLISTS.uri);
                 }
 

@@ -64,6 +64,7 @@ public class ApiSyncer {
     private final Context mContext;
     private final SyncStateManager mSyncStateManager;
     private final ActivitiesStorage mActivitiesStorage;
+    private final PlaylistDAO mPlaylistDAO;
 
     public ApiSyncer(Context context) {
         mApi = (AndroidCloudAPI) context.getApplicationContext();
@@ -71,6 +72,7 @@ public class ApiSyncer {
         mContext = context;
         mSyncStateManager = new SyncStateManager(mResolver);
         mActivitiesStorage = new ActivitiesStorage(mResolver);
+        mPlaylistDAO = new PlaylistDAO(mResolver);
     }
 
     public Result syncContent(Uri uri, String action) throws IOException {
@@ -217,7 +219,7 @@ public class ApiSyncer {
     /* package */ int pushLocalPlaylists() throws IOException {
 
         // check for local playlists that need to be pushed
-        List<Playlist> playlistsToUpload = PlaylistDAO.getLocalPlaylists(mResolver);
+        List<Playlist> playlistsToUpload = mPlaylistDAO.getLocalPlaylists();
         if (!playlistsToUpload.isEmpty()) {
 
             for (Playlist p : playlistsToUpload) {
@@ -249,12 +251,12 @@ public class ApiSyncer {
 
                 // update local state
                 p.localToGlobal(mContext, added);
-                PlaylistDAO.insertAsMyPlaylist(mResolver, added);
+                mPlaylistDAO.insertAsMyPlaylist(added);
 
                 mSyncStateManager.updateLastSyncSuccessTime(p.toUri(), System.currentTimeMillis());
 
                 // remove all traces of the old temporary playlist
-                PlaylistDAO.removePlaylist(mResolver, toDelete);
+                mPlaylistDAO.removePlaylist(toDelete);
             }
         }
         return playlistsToUpload.size();
@@ -547,7 +549,7 @@ public class ApiSyncer {
 
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
             log("Received a 404 on playlist, deleting " + contentUri.toString());
-            PlaylistDAO.removePlaylist(mResolver, contentUri);
+            mPlaylistDAO.removePlaylist(contentUri);
             result.setSyncData(true, System.currentTimeMillis(), 0, Result.CHANGED);
             return result;
         }

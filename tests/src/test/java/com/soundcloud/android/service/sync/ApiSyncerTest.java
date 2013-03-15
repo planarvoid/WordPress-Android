@@ -41,6 +41,7 @@ public class ApiSyncerTest {
     ContentResolver resolver;
     SyncStateManager syncStateManager;
     ActivitiesStorage activitiesStorage;
+    PlaylistDAO playlistDAO;
 
     @Before
     public void before() {
@@ -48,6 +49,7 @@ public class ApiSyncerTest {
         resolver = DefaultTestRunner.application.getContentResolver();
         syncStateManager = new SyncStateManager(resolver);
         activitiesStorage = new ActivitiesStorage(resolver);
+        playlistDAO = new PlaylistDAO(resolver);
     }
 
     @Test
@@ -258,7 +260,7 @@ public class ApiSyncerTest {
 
         expect(p).not.toBeNull();
 
-        expect(PlaylistDAO.insertAsMyPlaylist(contentResolver, p)).not.toBeNull();
+        expect(playlistDAO.insertAsMyPlaylist(p)).not.toBeNull();
         expect(Content.TRACKS).toHaveCount(50);
         expect(Content.ME_SOUNDS).toHaveCount(51);
 
@@ -317,8 +319,8 @@ public class ApiSyncerTest {
 
         final Playlist playlist = new Playlist(2524386);
 
-        expect(PlaylistDAO.addTrackToPlaylist(resolver, playlist, 10696200, System.currentTimeMillis())).not.toBeNull();
-        expect(PlaylistDAO.addTrackToPlaylist(resolver, playlist, 10853436, System.currentTimeMillis() + 100)).not.toBeNull();
+        expect(playlistDAO.addTrackToPlaylist(playlist, 10696200, System.currentTimeMillis())).not.toBeNull();
+        expect(playlistDAO.addTrackToPlaylist(playlist, 10853436, System.currentTimeMillis() + 100)).not.toBeNull();
 
         TestHelper.addPendingHttpResponse(getClass(), "playlist.json", "playlist_added.json");
 

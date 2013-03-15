@@ -22,6 +22,7 @@ import java.util.Set;
 public class SyncContentTest {
     ContentResolver resolver;
     SyncStateManager syncStateManager;
+    PlaylistDAO playlistDAO;
 
     private static final int ACTIVE_SYNC_ENDPOINTS = SyncContent.values().length - 1; /* follower disabled */
 
@@ -29,6 +30,8 @@ public class SyncContentTest {
     public void before() {
         resolver = Robolectric.application.getContentResolver();
         syncStateManager = new SyncStateManager(resolver);
+        playlistDAO = new PlaylistDAO(resolver);
+
         SyncContent.setAllSyncEnabledPrefs(Robolectric.application,true);
     }
 
@@ -124,9 +127,9 @@ public class SyncContentTest {
     @Test
     public void shouldSyncChangesToExistingPlaylists() throws Exception {
         final Playlist playlist = new Playlist(12345);
-        expect(PlaylistDAO.addTrackToPlaylist(resolver, playlist, 10696200, System.currentTimeMillis())).not.toBeNull();
+        expect(playlistDAO.addTrackToPlaylist(playlist, 10696200, System.currentTimeMillis())).not.toBeNull();
         // local unpushed playlists (those with a negative timestamp) are not part of this sync step
-        expect(PlaylistDAO.addTrackToPlaylist(resolver, new Playlist(-34243), 10696200, System.currentTimeMillis())).not.toBeNull();
+        expect(playlistDAO.addTrackToPlaylist(new Playlist(-34243), 10696200, System.currentTimeMillis())).not.toBeNull();
 
         Set<Uri> urisToSync = SyncContent.getPlaylistsDueForSync(Robolectric.application.getContentResolver());
         expect(urisToSync.size()).toEqual(1);
@@ -138,8 +141,8 @@ public class SyncContentTest {
         final Playlist playlist1 = new Playlist(12345);
         final Playlist playlist2 = new Playlist(544321);
 
-        expect(PlaylistDAO.addTrackToPlaylist(resolver, playlist1, 10696200, System.currentTimeMillis())).not.toBeNull();
-        expect(PlaylistDAO.addTrackToPlaylist(resolver, playlist2, 10696200, System.currentTimeMillis())).not.toBeNull();
+        expect(playlistDAO.addTrackToPlaylist(playlist1, 10696200, System.currentTimeMillis())).not.toBeNull();
+        expect(playlistDAO.addTrackToPlaylist(playlist2, 10696200, System.currentTimeMillis())).not.toBeNull();
 
         Set<Uri> urisToSync = SyncContent.getPlaylistsDueForSync(Robolectric.application.getContentResolver());
         expect(urisToSync.size()).toEqual(2);
