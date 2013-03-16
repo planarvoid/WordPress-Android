@@ -1095,15 +1095,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return upgradeTo21(db, oldVersion);
     }
 
-    public static String getWhereInClause(String column, List<Long> idSet){
-        StringBuilder sb = new StringBuilder(column + " IN (?");
-        for (int i = 1; i < idSet.size(); i++) {
-            sb.append(",?");
-        }
-        sb.append(")");
-        return sb.toString();
-    }
-
     private static void cleanActivities(SQLiteDatabase db){
         Table.ACTIVITIES.recreate(db);
         db.execSQL("UPDATE " + Table.COLLECTIONS + " SET " + Collections.EXTRA + " = NULL");

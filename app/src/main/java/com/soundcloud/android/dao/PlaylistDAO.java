@@ -17,32 +17,35 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class PlaylistDAO {
+public class PlaylistDAO extends BaseDAO<Playlist> {
+    public PlaylistDAO(ContentResolver contentResolver) {
+        super(contentResolver);
+    }
+
     /**
      * delete any caching, and mark any local instances as removed
      * {@link com.soundcloud.android.activity.track.PlaylistActivity#onPlaylistChanged()}
-     * @param resolver
-     * @param playlistUri
+     * @param playlistUri the playlistUri
      */
-    public static void removePlaylist(ContentResolver resolver, Uri playlistUri) {
+    public void removePlaylist(Uri playlistUri) {
         Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(playlistUri);
         if (p != null) {
             p.removed = true;
             SoundCloudApplication.MODEL_MANAGER.removeFromCache(p.toUri());
         }
-        removePlaylistFromDb(resolver, UriUtils.getLastSegmentAsLong(playlistUri));
+        removePlaylistFromDb(mResolver, UriUtils.getLastSegmentAsLong(playlistUri));
     }
 
-    public static Uri insertAsMyPlaylist(ContentResolver resolver, Playlist playlist) {
-        playlist.insert(resolver);
+    public Uri insertAsMyPlaylist(Playlist playlist) {
+        playlist.insert(mResolver);
         // association so it appears in ME_SOUNDS, ME_PLAYLISTS, etc.
         return new SoundAssociation(playlist, new Date(System.currentTimeMillis()), SoundAssociation.Type.PLAYLIST)
-                .insert(resolver, Content.ME_PLAYLISTS.uri);
+                .insert(mResolver, Content.ME_PLAYLISTS.uri);
     }
 
     // Local i.e. unpushed playlists are currently identified by having a negative timestamp
-    public static boolean hasLocalPlaylists(ContentResolver resolver) {
-        Cursor itemsCursor = resolver.query(Content.PLAYLISTS.uri,
+    public boolean hasLocalPlaylists() {
+        Cursor itemsCursor = mResolver.query(Content.PLAYLISTS.uri,
                 new String[]{DBHelper.SoundView._ID}, DBHelper.SoundView._ID + " < 0",
                 null, null);
 
@@ -55,8 +58,8 @@ public class PlaylistDAO {
     }
 
     // Local i.e. unpushed playlists are currently identified by having a negative timestamp
-    public static List<Playlist> getLocalPlaylists(ContentResolver resolver) {
-        Cursor itemsCursor = resolver.query(Content.PLAYLISTS.uri,
+    public List<Playlist> getLocalPlaylists() {
+        Cursor itemsCursor = mResolver.query(Content.PLAYLISTS.uri,
                 null, DBHelper.SoundView._ID + " < 0",
                 null, DBHelper.SoundView._ID + " DESC");
 
@@ -71,11 +74,11 @@ public class PlaylistDAO {
         return playlists;
     }
 
-    public static Uri addTrackToPlaylist(ContentResolver resolver, Playlist playlist, long trackId){
-        return addTrackToPlaylist(resolver, playlist, trackId,System.currentTimeMillis());
+    public Uri addTrackToPlaylist(Playlist playlist, long trackId){
+        return addTrackToPlaylist(playlist, trackId,System.currentTimeMillis());
     }
 
-    public static Uri addTrackToPlaylist(ContentResolver resolver, Playlist playlist, long trackId, long time){
+    public Uri addTrackToPlaylist(Playlist playlist, long trackId, long time){
         playlist.setTrackCount(playlist.getTrackCount() + 1);
 
         ContentValues cv = new ContentValues();
@@ -83,10 +86,10 @@ public class PlaylistDAO {
         cv.put(DBHelper.PlaylistTracks.TRACK_ID, trackId);
         cv.put(DBHelper.PlaylistTracks.ADDED_AT, time);
         cv.put(DBHelper.PlaylistTracks.POSITION, playlist.getTrackCount());
-        return resolver.insert(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.id)), cv);
+        return mResolver.insert(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.id)), cv);
     }
 
-    public static int removePlaylistFromDb(ContentResolver resolver, long playlistId){
+    public int removePlaylistFromDb(ContentResolver resolver, long playlistId){
 
         final String playlistIdString = String.valueOf(playlistId);
         int deleted = resolver.delete(Content.PLAYLIST.forQuery(playlistIdString), null, null);
@@ -106,5 +109,10 @@ public class PlaylistDAO {
         deleted += resolver.delete(Content.ME_ALL_ACTIVITIES.uri, where, null);
 
         return deleted;
+    }
+
+    @Override
+    public Content getContent() {
+        return Content.PLAYLISTS;
     }
 }

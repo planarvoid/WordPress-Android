@@ -19,7 +19,6 @@ import com.soundcloud.android.adapter.SearchAdapter;
 import com.soundcloud.android.adapter.SoundAssociationAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
@@ -28,6 +27,7 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.task.collection.CollectionTask;
 import com.soundcloud.android.task.collection.ReturnData;
@@ -117,7 +117,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (mContent.isSyncable()) {
             final ContentResolver contentResolver = getActivity().getContentResolver();
             // TODO :  Move off the UI thread.
-            mLocalCollection = LocalCollectionDAO.fromContentUri(mContentUri, contentResolver, true);
+            mLocalCollection = new SyncStateManager(contentResolver).fromContent(mContentUri);
             mLocalCollection.startObservingSelf(contentResolver, this);
             mChangeObserver = new ChangeObserver();
             contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);

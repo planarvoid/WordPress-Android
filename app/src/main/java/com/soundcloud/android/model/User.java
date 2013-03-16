@@ -21,7 +21,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
-import com.soundcloud.android.dao.ActivitiesDAO;
+import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.SearchDAO;
 import com.soundcloud.android.dao.UserDAO;
 import com.soundcloud.android.json.Views;
@@ -31,8 +31,6 @@ import com.soundcloud.android.provider.DBHelper.Users;
 import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.utils.ImageUtils;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.EnumSet;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -343,7 +341,7 @@ public class User extends ScResource implements Refreshable {
         final ContentResolver resolver = context.getContentResolver();
 
         UserDAO.clearLoggedInUserFromStorage(resolver);
-        ActivitiesDAO.clear(null, resolver);
+        new ActivitiesStorage(resolver).clear(null);
         PlayQueueManager.clearState(context);
         FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
         SearchDAO.clearState(resolver, SoundCloudApplication.getUserId());

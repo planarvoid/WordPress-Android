@@ -6,13 +6,11 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.dao.RecordingDAO;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.record.SoundRecorderService;
@@ -292,8 +290,8 @@ public class UploadService extends Service {
                     || TRANSFER_CANCELLED.equals(action)
                     || TRANSFER_ERROR.equals(action);
             if (wasError) {
-                recording.setUploadFailed(PROCESSING_CANCELED.equals(action) || TRANSFER_CANCELLED.equals(action))
-                        .updateStatus(getContentResolver()); // for list state
+                RecordingDAO
+                        .updateStatus(recording.setUploadFailed(PROCESSING_CANCELED.equals(action) || TRANSFER_CANCELLED.equals(action)), getContentResolver()); // for list state
 
                 releaseLocks();
                 mUploads.remove(recording.id);
@@ -403,7 +401,7 @@ public class UploadService extends Service {
         }
 
         if (!recording.isSaved()){
-            Uri uri = recording.insert(getContentResolver());
+            Uri uri = RecordingDAO.insert(recording, getContentResolver());
             if (uri != null) {
                 recording.id = Long.parseLong(uri.getLastPathSegment());
             }
@@ -411,9 +409,9 @@ public class UploadService extends Service {
 
         if (recording.isSaved()){
             recording.upload_status = Recording.Status.UPLOADING;
-            recording.updateStatus(getContentResolver());
+            RecordingDAO.updateStatus(recording, getContentResolver());
         } else {
-            Log.w(TAG, "could not insert " + recording);
+            Log.w(TAG, "could not create " + recording);
         }
         queueUpload(recording);
     }

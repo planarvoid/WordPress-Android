@@ -6,9 +6,9 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
+import com.soundcloud.android.dao.RecordingDAO;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.LocalBinder;
@@ -187,12 +187,12 @@ public class UploadServiceTest {
 
         svc.upload(recording);
 
-        Recording updated = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), recording.toUri());
+        Recording updated = RecordingDAO.getRecordingByUri(svc.getContentResolver(), recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADING);
 
         getUploadScheduler().unPause();
 
-        updated = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), recording.toUri());
+        updated = RecordingDAO.getRecordingByUri(svc.getContentResolver(), recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADED);
     }
 
@@ -204,7 +204,7 @@ public class UploadServiceTest {
 
         svc.upload(recording);
 
-        Recording updated = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), recording.toUri());
+        Recording updated = RecordingDAO.getRecordingByUri(svc.getContentResolver(), recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.ERROR);
     }
 
@@ -221,7 +221,7 @@ public class UploadServiceTest {
         expect(upload.isUploaded()).toBeTrue();
         expect(upload.resized_artwork_path).toEqual(upload.artwork_path);
 
-        Recording updated = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), upload.toUri());
+        Recording updated = RecordingDAO.getRecordingByUri(svc.getContentResolver(), upload.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADED);
     }
 
@@ -273,10 +273,10 @@ public class UploadServiceTest {
     public void shouldCheckForStuckRecordingsOnStartup() throws Exception {
         Recording stuck = TestApplication.getValidRecording();
         stuck.upload_status = Recording.Status.UPLOADING;
-        stuck.insert(svc.getContentResolver());
+        RecordingDAO.insert(stuck, svc.getContentResolver());
 
         UploadService service = startService();
-        Recording r = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), stuck.toUri());
+        Recording r = RecordingDAO.getRecordingByUri(svc.getContentResolver(), stuck.toUri());
         expect(r.upload_status).toEqual(Recording.Status.NOT_YET_UPLOADED);
 //        expect(shadowOf(service).isStoppedBySelf()).toBeTrue();
     }

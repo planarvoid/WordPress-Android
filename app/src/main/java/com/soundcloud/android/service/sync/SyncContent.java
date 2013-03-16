@@ -1,6 +1,5 @@
 package com.soundcloud.android.service.sync;
 
-import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -57,25 +56,6 @@ enum SyncContent {
             && System.currentTimeMillis() - lastSync >= syncDelay * backoffMultipliers[misses]);
     }
 
-    /**
-     * Returns a list of uris to be synced, based on recent changes. The idea is that collections which don't change
-     * very often don't get synced as frequently as collections which do.
-     *
-     * @param manual manual sync {@link android.content.ContentResolver#SYNC_EXTRAS_MANUAL}
-     */
-    public static List<Uri> getCollectionsDueForSync(Context c, boolean manual) {
-        List<Uri> urisToSync = new ArrayList<Uri>();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
-        for (SyncContent sc : SyncContent.values()) {
-            if (sc.isEnabled(prefs)) {
-                final LocalCollection lc = LocalCollectionDAO.fromContent(sc.content, c.getContentResolver(), false);
-                if (manual || lc == null || sc.shouldSync(lc.syncMisses(), lc.last_sync_success)) {
-                    urisToSync.add(sc.content.uri);
-                }
-            }
-        }
-        return urisToSync;
-    }
 
     public static void setAllSyncEnabledPrefs(Context c, boolean enabled) {
         for (SyncContent sc : SyncContent.values()) {
@@ -84,11 +64,12 @@ enum SyncContent {
     }
 
     public static void updateCollections(Context c, Bundle resultData) {
+        SyncStateManager stateManager = new SyncStateManager(c.getContentResolver());
+
         for (SyncContent sc : SyncContent.values()) {
             if (resultData.containsKey(sc.content.uri.toString()) &&
                 !resultData.getBoolean(sc.content.uri.toString())) {
-
-                final int misses = LocalCollectionDAO.incrementSyncMiss(sc.content.uri, c.getContentResolver());
+                final int misses = stateManager.incrementSyncMiss(sc.content.uri);
 
                 if (Log.isLoggable(SyncAdapterService.TAG, Log.DEBUG)) {
                     Log.d(SyncAdapterService.TAG, "Sync endpoint unchanged, " + sc.content.uri +

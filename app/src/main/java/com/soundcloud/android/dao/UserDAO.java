@@ -1,21 +1,22 @@
 package com.soundcloud.android.dao;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.service.playback.PlayQueueManager;
 
 import java.util.EnumSet;
 
-public class UserDAO {
+public class UserDAO extends BaseDAO<User> {
+
+    protected UserDAO(ContentResolver contentResolver) {
+        super(contentResolver);
+    }
 
     public static User fromUri(Uri uri, ContentResolver resolver, boolean createDummy) {
         long id = -1l;
@@ -54,5 +55,10 @@ public class UserDAO {
             resolver.delete(Content.COLLECTIONS.uri,
                     DBHelper.Collections.URI + " = ?", new String[]{ c.uri.toString() });
         }
+    }
+
+    @Override
+    public Content getContent() {
+        return Content.USERS;
     }
 }

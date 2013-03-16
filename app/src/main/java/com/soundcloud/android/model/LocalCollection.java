@@ -19,7 +19,7 @@ import android.text.TextUtils;
  * Represents the state of a local collection sync, including last sync and size.
  * See {@link DBHelper.Collections}.
  */
-public class LocalCollection {
+public class LocalCollection implements ModelLike {
     public final int id;
     public final Uri uri;
 
@@ -86,16 +86,6 @@ public class LocalCollection {
         this.extra = extra;
     }
 
-    public boolean onSyncComplete(ApiSyncer.Result result, ContentResolver resolver) {
-        if (result == null) return false;
-        if (result.synced_at > 0) last_sync_success = result.synced_at;
-        size = result.new_size;
-        extra = result.extra;
-        sync_state = SyncState.IDLE;
-
-        return resolver.update(Content.COLLECTIONS.forId(id), buildContentValues(), null,null) == 1;
-    }
-
     public boolean isIdle(){
         return sync_state == SyncState.IDLE;
     }
@@ -114,15 +104,10 @@ public class LocalCollection {
                 '}';
     }
 
-    public boolean updateLastSyncSuccessTime(long time, ContentResolver resolver) {
-        ContentValues cv = buildContentValues();
-        cv.put(DBHelper.Collections.LAST_SYNC, time);
-        return resolver.update(Content.COLLECTIONS.forId(id), cv, null, null) == 1;
-    }
 
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Collections._ID, id);
+        if (id > 0) cv.put(DBHelper.Collections._ID, id);
         if (sync_state != -1) cv.put(DBHelper.Collections.SYNC_STATE, sync_state);
         if (size != -1) cv.put(DBHelper.Collections.SIZE, size);
         if (last_sync_attempt != -1) cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT, last_sync_attempt);
@@ -130,15 +115,6 @@ public class LocalCollection {
         if (!TextUtils.isEmpty(extra)) cv.put(DBHelper.Collections.EXTRA, extra);
         cv.put(DBHelper.Collections.URI, uri.toString());
         return cv;
-    }
-
-    public boolean updateSyncState(int newSyncState, ContentResolver resolver) {
-        ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Collections.SYNC_STATE, newSyncState);
-        if (newSyncState == SyncState.SYNCING || newSyncState == SyncState.PENDING) {
-            cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT,System.currentTimeMillis());
-        }
-        return (resolver.update(Content.COLLECTIONS.forId(id), cv, null,null) == 1);
     }
 
     public boolean shouldAutoRefresh() {
@@ -162,9 +138,19 @@ public class LocalCollection {
     public void startObservingSelf(ContentResolver contentResolver, OnChangeListener listener) {
         mContentResolver = contentResolver;
         mChangeObserver = new ChangeObserver();
-        contentResolver.registerContentObserver(Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(id)).build(), true, mChangeObserver);
+        contentResolver.registerContentObserver(toUri(), true, mChangeObserver);
         mChangeListener = listener;
     }
+
+    @Override
+    public long getId() {
+        return id;
+    }
+
+    public Uri toUri() {
+        return Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(id)).build();
+    }
+
     public void stopObservingSelf() {
         if (mChangeObserver != null) mContentResolver.unregisterContentObserver(mChangeObserver);
         mChangeListener = null;

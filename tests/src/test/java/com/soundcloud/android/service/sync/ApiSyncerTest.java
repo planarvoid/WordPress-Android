@@ -1,13 +1,12 @@
 package com.soundcloud.android.service.sync;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.*;
-import static com.soundcloud.android.service.sync.ApiSyncer.Result;
-
-import com.soundcloud.android.dao.ActivitiesDAO;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.dao.LocalCollectionDAO;
+import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistDAO;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Playlist;
@@ -28,24 +27,29 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.ContentResolver;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
-
 import java.io.IOException;
+
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.*;
+import static com.soundcloud.android.service.sync.ApiSyncer.Result;
 
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncerTest {
     private static final long USER_ID = 133201L;
     private static final int TOTAL_STREAM_SIZE = 119; // 120 - 1 dup
 
-    private ContentResolver resolver;
+    ContentResolver resolver;
+    SyncStateManager syncStateManager;
+    ActivitiesStorage activitiesStorage;
+    PlaylistDAO playlistDAO;
 
     @Before
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
+        syncStateManager = new SyncStateManager(resolver);
+        activitiesStorage = new ActivitiesStorage(resolver);
+        playlistDAO = new PlaylistDAO(resolver);
     }
 
     @Test
@@ -75,7 +79,7 @@ public class ApiSyncerTest {
         expect(Content.USERS).toHaveCount(28);
         expect(Content.PLAYLISTS).toHaveCount(8);
 
-        Activities incoming = ActivitiesDAO.getSince(Content.ME_SOUND_STREAM, resolver, -1);
+        Activities incoming = activitiesStorage.getSince(Content.ME_SOUND_STREAM, -1);
 
         expect(incoming.size()).toEqual(TOTAL_STREAM_SIZE);
         expect(incoming.getUniquePlayables().size()).toEqual(TOTAL_STREAM_SIZE);
@@ -115,7 +119,7 @@ public class ApiSyncerTest {
         expect(Content.ME_ACTIVITIES).toHaveCount(17);
         expect(Content.COMMENTS).toHaveCount(5);
 
-        Activities own = ActivitiesDAO.getSince(Content.ME_ACTIVITIES, Robolectric.application.getContentResolver(), -1);
+        Activities own = activitiesStorage.getSince(Content.ME_ACTIVITIES, -1);
         expect(own.size()).toEqual(17);
 
         assertResolverNotified(Content.TRACKS.uri,
@@ -256,14 +260,14 @@ public class ApiSyncerTest {
 
         expect(p).not.toBeNull();
 
-        expect(PlaylistDAO.insertAsMyPlaylist(contentResolver, p)).not.toBeNull();
+        expect(playlistDAO.insertAsMyPlaylist(p)).not.toBeNull();
         expect(Content.TRACKS).toHaveCount(50);
         expect(Content.ME_SOUNDS).toHaveCount(51);
 
         expect(new ApiSyncer(Robolectric.application).pushLocalPlaylists()).toBe(1);
         expect(Content.ME_SOUNDS).toHaveCount(51);
 
-        expect(LocalCollectionDAO.fromContentUri(p.toUri(), contentResolver, true).shouldAutoRefresh()).toBeFalse();
+        expect(syncStateManager.fromContent(p.toUri()).shouldAutoRefresh()).toBeFalse();
     }
 
     private Result populateMeSounds() throws IOException {
@@ -315,8 +319,8 @@ public class ApiSyncerTest {
 
         final Playlist playlist = new Playlist(2524386);
 
-        expect(PlaylistDAO.addTrackToPlaylist(resolver, playlist, 10696200, System.currentTimeMillis())).not.toBeNull();
-        expect(PlaylistDAO.addTrackToPlaylist(resolver, playlist, 10853436, System.currentTimeMillis() + 100)).not.toBeNull();
+        expect(playlistDAO.addTrackToPlaylist(playlist, 10696200, System.currentTimeMillis())).not.toBeNull();
+        expect(playlistDAO.addTrackToPlaylist(playlist, 10853436, System.currentTimeMillis() + 100)).not.toBeNull();
 
         TestHelper.addPendingHttpResponse(getClass(), "playlist.json", "playlist_added.json");
 
@@ -459,7 +463,7 @@ public class ApiSyncerTest {
         sync(Content.ME_SOUND_STREAM.uri, "track_and_track_sharing.json");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(2);
-        Activities incoming = ActivitiesDAO.getSince(Content.ME_SOUND_STREAM, resolver, -1);
+        Activities incoming = activitiesStorage.getSince(Content.ME_SOUND_STREAM, -1);
 
         expect(incoming.size()).toEqual(2);
         Activity a1 = incoming.get(0);
@@ -484,7 +488,7 @@ public class ApiSyncerTest {
         sync(Content.ME_SOUND_STREAM.uri, "playlist_and_playlist_sharing.json");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
-        Activities incoming = ActivitiesDAO.getSince(Content.ME_SOUND_STREAM, resolver, -1);
+        Activities incoming = activitiesStorage.getSince(Content.ME_SOUND_STREAM, -1);
 
         expect(incoming.size()).toEqual(1);
         Activity a1 = incoming.get(0);

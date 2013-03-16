@@ -5,7 +5,6 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.addCannedResponse;
 import static com.soundcloud.android.robolectric.TestHelper.addIdResponse;
 
-import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -32,10 +31,13 @@ import java.util.LinkedHashMap;
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncServiceTest {
     ContentResolver resolver;
+    SyncStateManager syncStateManager;
+
     static final long USER_ID = 100L;
 
     @Before public void before() {
         resolver = Robolectric.application.getContentResolver();
+        syncStateManager = new SyncStateManager(resolver);
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
     }
 
@@ -143,8 +145,7 @@ public class ApiSyncServiceTest {
                 "e1_stream_oldest.json");
 
         expect(Content.COLLECTIONS).toHaveCount(1);
-        LocalCollection collection = LocalCollectionDAO.fromContent(Content.ME_SOUND_STREAM, resolver, false);
-        expect(collection).not.toBeNull();
+        LocalCollection collection = syncStateManager.fromContent(Content.ME_SOUND_STREAM);
         expect(collection.last_sync_success).toBeGreaterThan(0L);
         expect(collection.extra).toEqual("https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde");
     }
@@ -158,9 +159,7 @@ public class ApiSyncServiceTest {
                 "e1_stream_2_oldest.json");
 
         expect(Content.COLLECTIONS).toHaveCount(1);
-        LocalCollection collection = LocalCollectionDAO.fromContent(Content.ME_SOUND_STREAM, resolver, false);
-
-        expect(collection).not.toBeNull();
+        LocalCollection collection = syncStateManager.fromContent(Content.ME_SOUND_STREAM);
         expect(collection.last_sync_success).toBeGreaterThan(0L);
         expect(collection.extra).toEqual("https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde");
 
@@ -172,7 +171,7 @@ public class ApiSyncServiceTest {
         sync(svc, Content.ME_SOUND_STREAM);
 
         expect(Content.COLLECTIONS).toHaveCount(1);
-        collection = LocalCollectionDAO.fromContent(Content.ME_SOUND_STREAM, resolver, false);
+        collection = syncStateManager.fromContent(Content.ME_SOUND_STREAM);
         expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
     }
 
@@ -213,7 +212,7 @@ public class ApiSyncServiceTest {
         ApiSyncService svc = new ApiSyncService();
         ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
         svc.onDestroy();
-        expect(LocalCollectionDAO.fromContentUri(Content.ME_TRACKS.uri, resolver, true).sync_state).toBe(LocalCollection.SyncState.IDLE);
+        expect(syncStateManager.fromContent(Content.ME_TRACKS).sync_state).toEqual(LocalCollection.SyncState.IDLE);
     }
 
     private void addResourceResponse(String url, String resource) throws IOException {

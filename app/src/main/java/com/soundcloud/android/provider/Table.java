@@ -183,7 +183,7 @@ public enum Table {
     }
 
     /**
-     * @see <a href="http://stackoverflow.com/questions/418898/sqlite-upsert-not-insert-or-replace/">
+     * @see <a href="http://stackoverflow.com/questions/418898/sqlite-upsert-not-create-or-replace/">
      *  SQLite - UPSERT *not* INSERT or REPLACE
      * </a>
      */

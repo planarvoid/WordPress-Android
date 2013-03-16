@@ -7,8 +7,13 @@ import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.Content;
 
-public class TrackDAO {
+public class TrackDAO extends BaseDAO<Track> {
+
+    protected TrackDAO(ContentResolver contentResolver) {
+        super(contentResolver);
+    }
 
     public static Uri insert(Track track, ContentResolver contentResolver) {
         track.insertDependencies(contentResolver);
@@ -40,5 +45,10 @@ public class TrackDAO {
         } finally {
             if (cursor != null) cursor.close();
         }
+    }
+
+    @Override
+    public Content getContent() {
+        return Content.TRACKS;
     }
 }

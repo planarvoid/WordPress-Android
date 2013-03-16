@@ -28,6 +28,7 @@ import java.util.List;
 public class ScModelManagerTest {
     ScModelManager manager;
     ContentResolver resolver;
+    PlaylistDAO playlistDAO;
     final static long USER_ID = 1L;
 
     @Before
@@ -35,6 +36,7 @@ public class ScModelManagerTest {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
         manager = new ScModelManager(Robolectric.application, TestHelper.getObjectMapper());
         resolver = Robolectric.application.getContentResolver();
+        playlistDAO = new PlaylistDAO(resolver);
     }
 
     @Test
@@ -380,7 +382,7 @@ public class ScModelManagerTest {
         expect(p).not.toBeNull();
         final Uri uri = p.toUri();
 
-        Uri myPlaylistUri = PlaylistDAO.insertAsMyPlaylist(DefaultTestRunner.application.getContentResolver(), p);
+        Uri myPlaylistUri = playlistDAO.insertAsMyPlaylist(p);
 
         expect(myPlaylistUri).not.toBeNull();
         expect(Content.match(myPlaylistUri)).toBe(Content.ME_PLAYLIST);
@@ -390,7 +392,7 @@ public class ScModelManagerTest {
         expect(p2.tracks).toEqual(tracks);
         expect(p2.sharing).toBe(isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC);
 
-        List<Playlist> playlists = PlaylistDAO.getLocalPlaylists(DefaultTestRunner.application.getContentResolver());
+        List<Playlist> playlists = playlistDAO.getLocalPlaylists();
         expect(playlists.size()).toBe(1);
     }
 
@@ -404,7 +406,7 @@ public class ScModelManagerTest {
         int i = 0;
         for (Track track : tracks){
             expect(track.insert(resolver)).not.toBeNull();
-            final Uri insert = PlaylistDAO.addTrackToPlaylist(resolver, p, track.id, 100 * i);
+            final Uri insert = playlistDAO.addTrackToPlaylist(p, track.id, 100 * i);
             expect(insert).not.toBeNull();
             i++;
         }

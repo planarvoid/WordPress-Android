@@ -9,6 +9,7 @@ import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -143,10 +144,11 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(track, ScResource.CacheUpdateMode.FULL);
 
             //request to update my collection
-            LocalCollectionDAO.forceToStale(Content.ME_TRACKS.uri, api.getContext().getContentResolver());
+            new SyncStateManager(api.getContext().getContentResolver()).forceToStale(Content.ME_TRACKS.uri);
+
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + track);
 
-            mUpload.onUploaded(api.getContext().getContentResolver());
+            mUpload.setUploaded(api.getContext().getContentResolver());
             broadcast(UploadService.TRANSFER_SUCCESS, track);
         } catch (IOException e) {
             onUploadFailed(e);

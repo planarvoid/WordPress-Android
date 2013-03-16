@@ -12,8 +12,8 @@ import com.soundcloud.android.audio.TrimPreview;
 import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
+import com.soundcloud.android.dao.RecordingDAO;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.record.RecordAppWidgetProvider;
 import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.tracking.Event;
@@ -206,7 +206,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
 
         if (mRecording != null) {
-            if (deleteRecording) mRecording.delete(mContext.getContentResolver());
+            if (deleteRecording) RecordingDAO.delete(mRecording, mContext.getContentResolver());
             mRecording = null;
         }
     }
@@ -485,7 +485,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             }
 
             mRecording.setPlaybackStream(mPlaybackStream);
-            final Uri uri = mRecording.insert(mContext.getContentResolver(),false);
+            final Uri uri = RecordingDAO.insert(mRecording, mContext.getContentResolver(), false);
             if (uri != null) {
                 mRecording.id = Long.parseLong(uri.getLastPathSegment());
                 return mRecording;

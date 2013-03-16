@@ -10,7 +10,12 @@ import java.util.List;
 
 import static com.soundcloud.android.Expect.expect;
 
-public class SearchDAOTest extends BaseDAOTest {
+public class SearchDAOTest extends BaseDAOTest<SearchDAO> {
+
+    public SearchDAOTest() {
+        super(new SearchDAO(Robolectric.application.getContentResolver()));
+    }
+
     @Test
     public void shouldInsertWithResolver() throws Exception {
         Search s = Search.forSounds("blaz");

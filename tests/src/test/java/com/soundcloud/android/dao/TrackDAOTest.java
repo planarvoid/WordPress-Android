@@ -6,11 +6,17 @@ import com.soundcloud.android.model.TrackTest;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 
 import static com.soundcloud.android.Expect.expect;
 
-public class TrackDAOTest extends BaseDAOTest {
+public class TrackDAOTest extends BaseDAOTest<TrackDAO> {
+
+    public TrackDAOTest() {
+        super(new TrackDAO(Robolectric.application.getContentResolver()));
+    }
+
     @Test
     public void shouldPersistAndLoadCorrectly() throws Exception {
         DefaultTestRunner.application.setCurrentUserId(100L);

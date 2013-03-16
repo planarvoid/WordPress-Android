@@ -2,13 +2,13 @@ package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.model.ScModelManager.validateResponse;
 
-import com.soundcloud.android.dao.ActivitiesDAO;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
-import com.soundcloud.android.dao.LocalCollectionDAO;
+import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistDAO;
+import com.soundcloud.android.dao.SoundAssociationsDAO;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
@@ -62,11 +62,17 @@ public class ApiSyncer {
     private final AndroidCloudAPI mApi;
     private final ContentResolver mResolver;
     private final Context mContext;
+    private final SyncStateManager mSyncStateManager;
+    private final ActivitiesStorage mActivitiesStorage;
+    private final PlaylistDAO mPlaylistDAO;
 
     public ApiSyncer(Context context) {
         mApi = (AndroidCloudAPI) context.getApplicationContext();
         mResolver = context.getContentResolver();
         mContext = context;
+        mSyncStateManager = new SyncStateManager(mResolver);
+        mActivitiesStorage = new ActivitiesStorage(mResolver);
+        mPlaylistDAO = new PlaylistDAO(mResolver);
     }
 
     public Result syncContent(Uri uri, String action) throws IOException {
@@ -140,7 +146,7 @@ public class ApiSyncer {
                     result = syncMyConnections();
                     if (result.change == Result.CHANGED){
                         // connections changed so make sure friends gets auto synced next opportunity
-                        LocalCollectionDAO.forceToStale(Content.ME_FRIENDS.uri, mResolver);
+                        mSyncStateManager.forceToStale(Content.ME_FRIENDS.uri);
                     }
                     break;
             }
@@ -188,10 +194,8 @@ public class ApiSyncer {
             Playlist playlist = (Playlist) resource;
             soundAssociationHolder.collection.add(new SoundAssociation(playlist, playlist.created_at, SoundAssociation.Type.PLAYLIST));
             boolean onWifi = IOUtils.isWifiConnected(mContext);
-
                 // if we have never synced the playlist or are on wifi and past the stale time, fetch the tracks
-                final LocalCollection localCollection = LocalCollectionDAO.fromContentUri(playlist.toUri(), mResolver, true);
-                if (localCollection == null) continue;
+                final LocalCollection localCollection = mSyncStateManager.fromContent(playlist.toUri());
 
                 final boolean playlistStale = (localCollection.shouldAutoRefresh() && onWifi) || localCollection.last_sync_success <= 0;
 
@@ -215,7 +219,7 @@ public class ApiSyncer {
     /* package */ int pushLocalPlaylists() throws IOException {
 
         // check for local playlists that need to be pushed
-        List<Playlist> playlistsToUpload = PlaylistDAO.getLocalPlaylists(mResolver);
+        List<Playlist> playlistsToUpload = mPlaylistDAO.getLocalPlaylists();
         if (!playlistsToUpload.isEmpty()) {
 
             for (Playlist p : playlistsToUpload) {
@@ -247,16 +251,12 @@ public class ApiSyncer {
 
                 // update local state
                 p.localToGlobal(mContext, added);
-                PlaylistDAO.insertAsMyPlaylist(mResolver, added);
+                mPlaylistDAO.insertAsMyPlaylist(added);
 
-                LocalCollection lc = LocalCollectionDAO.fromContentUri(p.toUri(), mResolver, true);
-                if (lc != null) {
-                    lc.updateLastSyncSuccessTime(System.currentTimeMillis(), mResolver);
-                }
+                mSyncStateManager.updateLastSyncSuccessTime(p.toUri(), System.currentTimeMillis());
 
                 // remove all traces of the old temporary playlist
-                PlaylistDAO.removePlaylist(mResolver, toDelete);
-
+                mPlaylistDAO.removePlaylist(toDelete);
             }
         }
         return playlistsToUpload.size();
@@ -273,7 +273,7 @@ public class ApiSyncer {
     }
 
     private Result syncLocalSoundAssocationsToHolder(Uri uri, SoundAssociationHolder holder) {
-        boolean changed = holder.syncToLocal(mResolver, uri);
+        boolean changed = SoundAssociationsDAO.syncToLocal(holder, mResolver, uri);
 
         Result result = new Result(uri);
         result.change =  changed ? Result.CHANGED : Result.UNCHANGED;
@@ -290,7 +290,7 @@ public class ApiSyncer {
         final int inserted;
         Activities activities;
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
-            final Activity lastActivity = ActivitiesDAO.getLastActivity(c, mResolver);
+            final Activity lastActivity = mActivitiesStorage.getLastActivity(c);
             Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
             if (lastActivity != null) request.add("cursor", lastActivity.toGUID());
             activities = Activities.fetch(mApi, request);
@@ -298,10 +298,11 @@ public class ApiSyncer {
                 // this can happen at the end of the list
                 inserted = 0;
             } else {
-                inserted = ActivitiesDAO.insert(c, mResolver, activities);
+                inserted = mActivitiesStorage.insert(c, activities);
             }
         } else {
-            String future_href = LocalCollectionDAO.getExtraFromUri(uri, mResolver);
+            String future_href = mSyncStateManager.getExtraFromUri(uri);
+
             Request request = future_href == null ? c.request() : Request.to(future_href);
             activities = Activities.fetchRecent(mApi, request, MAX_LOOKUP_COUNT);
 
@@ -310,11 +311,11 @@ public class ApiSyncer {
                 mResolver.delete(c.uri, null, null);
             }
 
-            if (activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(ActivitiesDAO.getFirstActivity(c, mResolver)))) {
+            if (activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(mActivitiesStorage.getFirstActivity(c)))) {
                 // this can happen at the beginning of the list if the api returns the first item incorrectly
                 inserted = 0;
             } else {
-                inserted = ActivitiesDAO.insert(c, mResolver, activities);
+                inserted = mActivitiesStorage.insert(c, activities);
             }
             result.setSyncData(System.currentTimeMillis(), activities.size(), activities.future_href);
         }
@@ -431,7 +432,7 @@ public class ApiSyncer {
             int i = 0;
             while (i < itemDeletions.size()) {
                 List<Long> batch = itemDeletions.subList(i, Math.min(i + SoundCloudDB.RESOLVER_BATCH_SIZE, itemDeletions.size()));
-                mResolver.delete(content.uri, DBHelper.getWhereInClause(DBHelper.CollectionItems.ITEM_ID, batch), ScModelManager.longListToStringArr(batch));
+                mResolver.delete(content.uri, SoundCloudDB.getWhereInClause(DBHelper.CollectionItems.ITEM_ID, batch), ScModelManager.longListToStringArr(batch));
                 i += SoundCloudDB.RESOLVER_BATCH_SIZE;
             }
         }
@@ -517,7 +518,7 @@ public class ApiSyncer {
                     toRemove.add(storedConnection.id);
                 }
                 if (!toRemove.isEmpty()) {
-                    mResolver.delete(Content.ME_CONNECTIONS.uri, DBHelper.getWhereInClause(DBHelper.Connections._ID, toRemove), ScModelManager.longListToStringArr(toRemove));
+                    mResolver.delete(Content.ME_CONNECTIONS.uri, SoundCloudDB.getWhereInClause(DBHelper.Connections._ID, toRemove), ScModelManager.longListToStringArr(toRemove));
                 }
             }
 
@@ -548,7 +549,7 @@ public class ApiSyncer {
 
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
             log("Received a 404 on playlist, deleting " + contentUri.toString());
-            PlaylistDAO.removePlaylist(mResolver, contentUri);
+            mPlaylistDAO.removePlaylist(contentUri);
             result.setSyncData(true, System.currentTimeMillis(), 0, Result.CHANGED);
             return result;
         }
@@ -591,14 +592,14 @@ public class ApiSyncer {
             log("inserted " + insertedUri.toString());
             result.setSyncData(true, System.currentTimeMillis(), 1, Result.CHANGED);
         } else {
-            log("failed to insert to " + contentUri);
+            log("failed to create to " + contentUri);
             result.success = false;
         }
         return result;
     }
 
     /**
-     * Fetch a single resource from the api and insert it into the content provider.
+     * Fetch a single resource from the api and create it into the content provider.
      * @param contentUri the content point to get the request and content provider destination from.
      *                   see {@link Content}
      * @return the result of the operation
@@ -613,14 +614,14 @@ public class ApiSyncer {
             log("inserted " + insertedUri.toString());
             result.setSyncData(true, System.currentTimeMillis(), 1, Result.CHANGED);
         } else {
-            log("failed to insert to " + contentUri);
+            log("failed to create to " + contentUri);
             result.success = false;
         }
         return result;
     }
 
     /**
-     * Fetch Api Resources and insert them into the content provider. Plain resource inserts, no extra
+     * Fetch Api Resources and create them into the content provider. Plain resource inserts, no extra
      * content values will be inserted
      * @throws IOException
      */
@@ -643,9 +644,9 @@ public class ApiSyncer {
 
 
     /**
-     * Fetch Api Resources and insert them into the content provider using a specific content uri
+     * Fetch Api Resources and create them into the content provider using a specific content uri
      * that may require special handling in {@link SoundCloudDB#insertCollection(ContentResolver, List, Uri, long)}
-     * @param uri contentUri to insert to
+     * @param uri contentUri to create to
      * @param userId logged in user (only used in associations, e.g. followers)
      * @return the result of the operation
      * @throws IOException
