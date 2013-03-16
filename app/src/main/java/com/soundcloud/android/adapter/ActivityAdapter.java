@@ -108,8 +108,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
         if (mData.size() > 0) {
             Activity first = getItem(0);
             Activity last  = getItem(getItemCount() -1);
-            params.timestamp = refresh ? (first == null ? 0 : first.created_at.getTime())
-                    : (last == null ? System.currentTimeMillis() : last.created_at.getTime());
+            params.timestamp = refresh ? first.created_at.getTime() : last.created_at.getTime();
         }
         return params;
     }
