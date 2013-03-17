@@ -268,6 +268,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         }
     }
 
+    //TODO: item click handling does NOT belong in an adapter...
     public abstract int handleListItemClick(int position, long id);
 
     public interface ItemClickResults {

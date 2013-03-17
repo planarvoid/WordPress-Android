@@ -21,8 +21,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 
-public class ReactiveListFragment extends Fragment implements PullToRefreshBase.OnRefreshListener {
+public class ReactiveListFragment extends Fragment implements PullToRefreshBase.OnRefreshListener,
+        AdapterView.OnItemClickListener {
 
     private static final int PROGRESS_DELAY_MILLIS = 250;
 
@@ -65,6 +67,7 @@ public class ReactiveListFragment extends Fragment implements PullToRefreshBase.
 
         mListView = (ScListView) layout.findViewById(R.id.list);
         mListView.setAdapter(mAdapter);
+        mListView.setOnItemClickListener(this);
         mListView.setOnRefreshListener(this);
 
         mEmptyView = (EmptyListView) layout.findViewById(android.R.id.empty);
@@ -106,6 +109,13 @@ public class ReactiveListFragment extends Fragment implements PullToRefreshBase.
     public void onRefresh(PullToRefreshBase refreshView) {
         showProgressHandler.postDelayed(showProgress, PROGRESS_DELAY_MILLIS);
         mScheduler.syncActivities(Content.ME_SOUND_STREAM.uri).subscribe(mActivitiesObserver);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        //TODO: item click handling does NOT belong in an adapter...
+        int itemPosition = position - mListView.getRefreshableView().getHeaderViewsCount();
+        mAdapter.handleListItemClick(itemPosition, id);
     }
 
     private class LoadActivitiesObserver implements Observer<Activities> {
