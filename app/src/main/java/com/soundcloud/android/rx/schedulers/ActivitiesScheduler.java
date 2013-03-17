@@ -34,6 +34,10 @@ public class ActivitiesScheduler extends ReactiveScheduler<Activities> {
         mLocalCollectionsDao = new LocalCollectionDAO(resolver);
     }
 
+    public Observable<Activities> loadActivities(final Uri contentUri) {
+        return loadActivitiesSince(contentUri, 0);
+    }
+
     public Observable<Activities> loadActivitiesSince(final Uri contentUri, final long timestamp) {
         return Observable.create(newBackgroundJob(new ObservedRunnable<Activities>() {
             @Override
@@ -131,7 +135,7 @@ public class ActivitiesScheduler extends ReactiveScheduler<Activities> {
                         log("Sync successful; data changed: " + dataChanged);
 
                         if (dataChanged) {
-                            Activities activities = loadActivitiesSince(contentUri, 0).last();
+                            Activities activities = loadActivities(contentUri).last();
                             observer.onNext(activities);
                         } else {
                             observer.onNext(Activities.EMPTY);
