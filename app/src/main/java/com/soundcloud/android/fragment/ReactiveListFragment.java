@@ -8,13 +8,13 @@ import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.schedulers.ActivitiesScheduler;
 import com.soundcloud.android.rx.observers.ContextObserver;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.ScListView;
 import rx.Observer;
 import rx.Subscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,19 +34,19 @@ public class ReactiveListFragment extends Fragment {
 
         @Override
         public void onCompleted() {
-            Log.d(TAG, "onCompleted t=" + Thread.currentThread().getName());
-            Log.d(TAG, "done=" + mActivitiesObserver.isCompleted());
+            Log.d(this, "onCompleted t=" + Thread.currentThread().getName());
+            Log.d(this, "done=" + mActivitiesObserver.isCompleted());
         }
 
         @Override
         public void onError(Exception e) {
-            Log.d(TAG, "onError: " + e + "; t=" + Thread.currentThread().getName());
+            Log.d(this, "onError: " + e + "; t=" + Thread.currentThread().getName());
             e.printStackTrace();
         }
 
         @Override
         public void onNext(Activities activities) {
-            Log.d(TAG, "onNext: " + activities.size() + "; t=" + Thread.currentThread().getName());
+            Log.d(this, "onNext: " + activities.size() + "; t=" + Thread.currentThread().getName());
             mAdapter.addItems(activities);
             mAdapter.notifyDataSetChanged();
         }
@@ -56,14 +56,14 @@ public class ReactiveListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(TAG, "onCreate");
+        Log.d(this, "onCreate");
 
         mAdapter = new ActivityAdapter(getActivity(), null);
 
         mScheduler = new ActivitiesScheduler(getActivity());
 
         if (savedInstanceState == null) {
-            Log.d(TAG, "first start, scheduling possible sync");
+            Log.d(this, "first start, scheduling possible sync");
             mScheduler.addPendingObservable(mScheduler.syncIfNecessary(Content.ME_SOUND_STREAM.uri));
         }
 
@@ -83,24 +83,24 @@ public class ReactiveListFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        Log.d(TAG, "onStart");
+        Log.d(this, "onStart");
 
         // TODO: check for events that may have changed the underlying data
         if (mAdapter.isEmpty()) {
-            Log.d(TAG, "Adapter is empty, scheduling possible local refresh");
+            Log.d(this, "Adapter is empty, scheduling possible local refresh");
             mScheduler.addPendingObservable(pending(mScheduler.loadActivitiesSince(Content.ME_SOUND_STREAM.uri, 0)));
         }
 
         mActivitiesObserver = new ContextObserver<Activities>(new LoadActivitiesObserver());
         mSubscription = mScheduler.scheduleFirstPendingObservable(mActivitiesObserver);
 
-        Log.d(TAG, "onStart: done=" + mActivitiesObserver.isCompleted());
+        Log.d(this, "onStart: done=" + mActivitiesObserver.isCompleted());
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        Log.d(TAG, "onStop: done=" + mActivitiesObserver.isCompleted());
+        Log.d(this, "onStop: done=" + mActivitiesObserver.isCompleted());
         mSubscription.unsubscribe();
 
     }
