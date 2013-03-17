@@ -7,11 +7,13 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.rx.event.Events;
 import com.soundcloud.android.rx.observers.ContextObserver;
 import com.soundcloud.android.rx.schedulers.ActivitiesScheduler;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.ScListView;
+import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 
@@ -33,8 +35,10 @@ public class ReactiveListFragment extends Fragment implements PullToRefreshBase.
     private ActivityAdapter mAdapter;
 
     private ActivitiesScheduler mScheduler;
-    private Subscription mSubscription;
+    private Subscription mLoadActivitiesSubscription;
+    private Subscription mLikeSubscription;
     private ContextObserver<Activities> mActivitiesObserver;
+    private Observable<Activities> mLoadActivities;
 
     private Handler showProgressHandler = new Handler();
     private Runnable showProgress = new Runnable() {
@@ -53,6 +57,10 @@ public class ReactiveListFragment extends Fragment implements PullToRefreshBase.
         mAdapter = new ActivityAdapter(getActivity(), null);
 
         mScheduler = new ActivitiesScheduler(getActivity());
+        mActivitiesObserver = new ContextObserver<Activities>(new LoadActivitiesObserver());
+        mLoadActivities = mScheduler.loadActivities(Content.ME_SOUND_STREAM.uri);
+
+        mLikeSubscription = Events.subscribe(Events.LIKE_CHANGED, mLoadActivities, mActivitiesObserver);
 
         if (savedInstanceState == null) {
             Log.d(this, "first start, scheduling possible sync");
@@ -84,11 +92,10 @@ public class ReactiveListFragment extends Fragment implements PullToRefreshBase.
         // TODO: check for events that may have changed the underlying data
         if (mAdapter.isEmpty()) {
             Log.d(this, "Adapter is empty, scheduling possible local refresh");
-            mScheduler.addPendingObservable(pending(mScheduler.loadActivitiesSince(Content.ME_SOUND_STREAM.uri, 0)));
+            mScheduler.addPendingObservable(pending(mLoadActivities));
         }
 
-        mActivitiesObserver = new ContextObserver<Activities>(new LoadActivitiesObserver());
-        mSubscription = mScheduler.scheduleFirstPendingObservable(mActivitiesObserver);
+        mLoadActivitiesSubscription = mScheduler.scheduleFirstPendingObservable(mActivitiesObserver);
 
         Log.d(this, "onStart: done=" + mActivitiesObserver.isCompleted());
 
@@ -101,8 +108,14 @@ public class ReactiveListFragment extends Fragment implements PullToRefreshBase.
     public void onStop() {
         super.onStop();
         Log.d(this, "onStop: done=" + mActivitiesObserver.isCompleted());
-        mSubscription.unsubscribe();
+        mLoadActivitiesSubscription.unsubscribe();
+    }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(this, "onDestroy");
+        mLikeSubscription.unsubscribe();
     }
 
     @Override

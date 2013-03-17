@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.event.Events;
 import com.soundcloud.android.task.AddAssociationTask;
 import com.soundcloud.android.task.AssociatedSoundTask;
 import com.soundcloud.android.task.RemoveAssociationTask;
@@ -100,6 +101,8 @@ public class AssociationManager {
             }
             onLikeStatusSet(playable, isAssociated);
             updateLocalState(playable, Content.ME_LIKES.uri, isAssociated);
+
+            Events.fire(Events.LIKE_CHANGED);
         }
     };
 
@@ -116,6 +119,8 @@ public class AssociationManager {
             }
             onRepostStatusSet(playable, isAssociated);
             updateLocalState(playable, Content.ME_REPOSTS.uri, isAssociated);
+
+            Events.fire(Events.REPOST_CHANGED);
         }
     };
 
