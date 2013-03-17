@@ -2,6 +2,7 @@ package com.soundcloud.android.fragment;
 
 import static com.soundcloud.android.rx.ScObservables.pending;
 
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.model.act.Activities;
@@ -21,7 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class ReactiveListFragment extends Fragment {
+public class ReactiveListFragment extends Fragment implements PullToRefreshBase.OnRefreshListener {
 
     private static final int PROGRESS_DELAY_MILLIS = 250;
 
@@ -64,6 +65,7 @@ public class ReactiveListFragment extends Fragment {
 
         mListView = (ScListView) layout.findViewById(R.id.list);
         mListView.setAdapter(mAdapter);
+        mListView.setOnRefreshListener(this);
 
         mEmptyView = (EmptyListView) layout.findViewById(android.R.id.empty);
 
@@ -100,6 +102,12 @@ public class ReactiveListFragment extends Fragment {
 
     }
 
+    @Override
+    public void onRefresh(PullToRefreshBase refreshView) {
+        showProgressHandler.postDelayed(showProgress, PROGRESS_DELAY_MILLIS);
+        mScheduler.syncActivities(Content.ME_SOUND_STREAM.uri).subscribe(mActivitiesObserver);
+    }
+
     private class LoadActivitiesObserver implements Observer<Activities> {
 
         @Override
@@ -109,6 +117,10 @@ public class ReactiveListFragment extends Fragment {
 
             showProgressHandler.removeCallbacks(showProgress);
             mEmptyView.setStatus(EmptyListView.Status.OK);
+
+            if (mListView.isRefreshing()) {
+                mListView.onRefreshComplete();
+            }
         }
 
         @Override
@@ -122,11 +134,12 @@ public class ReactiveListFragment extends Fragment {
         @Override
         public void onNext(Activities activities) {
             Log.d(this, "onNext: " + activities.size() + "; t=" + Thread.currentThread().getName());
-            mAdapter.addItems(activities);
-            mAdapter.notifyDataSetChanged();
+            if (!activities.isEmpty()) {
+                mAdapter.addItems(activities);
+                mAdapter.notifyDataSetChanged();
+            }
         }
     }
-
 
 
 }
