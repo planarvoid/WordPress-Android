@@ -340,6 +340,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     protected void onResume() {
         super.onResume();
         setPlaybackState();
+        setBufferingState();
     }
 
     @Override
@@ -556,13 +557,18 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         final PlayQueueManager playQueueManager = getPlaylistManager();
 
         mTrackPager.configureFromService(this, playQueueManager, queuePosition);
-        // set buffering state of current track
-        if (mPlaybackService != null && mPlaybackService.isBuffering()){
-            final PlayerTrackView playerTrackView = getTrackViewById(CloudPlaybackService.getCurrentTrackId());
-            if (playerTrackView != null) playerTrackView.onBuffering();
-        }
+        setBufferingState();
+
         setCommentMode(false);
         setPlaybackState();
+    }
+
+    private void setBufferingState() {
+        final PlayerTrackView playerTrackView = getTrackViewById(CloudPlaybackService.getCurrentTrackId());
+        if (playerTrackView != null) {
+            // set buffering state of current track
+            playerTrackView.setBufferingState(CloudPlaybackService.isBuffering());
+        }
     }
 
 

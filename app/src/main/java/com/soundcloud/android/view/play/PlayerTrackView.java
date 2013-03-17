@@ -13,7 +13,6 @@ import com.soundcloud.android.dialog.MyPlaylistsDialogFragment;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.LoadCommentsTask;
@@ -181,7 +180,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             hideUnplayable();
         } else {
             showUnplayable(mTrack);
-            mWaveformController.onBufferingStop();
+            mWaveformController.setBufferingState(false);
         }
 
         if (changed) {
@@ -511,9 +510,9 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             }
 
         } else if (CloudPlaybackService.BUFFERING.equals(action)) {
-            onBuffering();
+            setBufferingState(true);
         } else if (CloudPlaybackService.BUFFERING_COMPLETE.equals(action)) {
-            mWaveformController.onBufferingStop();
+            setBufferingState(false);
             mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
                     intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
 
@@ -536,7 +535,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     }
 
     private void onUnplayable(Intent intent, Track track) {
-        mWaveformController.onBufferingStop();
+        mWaveformController.setBufferingState(false);
         mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
                 intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
 
@@ -573,13 +572,15 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         mWaveformController.onStop(killLoading);
     }
 
-    public void onBuffering() {
-        final Track track = getTrack();
-        if (track != null) {
-            track.last_playback_error = -1;
+    public void setBufferingState(boolean isBuffering) {
+        mWaveformController.setBufferingState(isBuffering);
+
+        if (isBuffering){
             hideUnplayable();
-            mWaveformController.onBufferingStart();
             mWaveformController.stopSmoothProgress();
+
+            // TODO: this needs to happen in the service, this should be UI only here
+            getTrack().last_playback_error = -1;
         }
     }
 

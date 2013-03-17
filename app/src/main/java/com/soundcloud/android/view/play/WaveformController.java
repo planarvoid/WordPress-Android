@@ -172,7 +172,7 @@ public class WaveformController extends TouchLayout {
         }
         if (!isPlaying) {
             mWaitingForSeekComplete = false;
-            onBufferingStop();
+            setBufferingState(false);
         }
     }
 
@@ -243,14 +243,11 @@ public class WaveformController extends TouchLayout {
         }
     }
 
-    public void onBufferingStart() {
-        mIsBuffering = true;
-        showWaiting();
-    }
-
-    public void onBufferingStop() {
-        mIsBuffering = false;
-        if (mWaveformState != WaveformState.LOADING && !mWaitingForSeekComplete){
+    public void setBufferingState(boolean isBuffering) {
+        mIsBuffering = isBuffering;
+        if (mIsBuffering){
+            showWaiting();
+        } else if (mWaveformState != WaveformState.LOADING && !mWaitingForSeekComplete){
             hideWaiting();
         }
     }
