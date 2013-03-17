@@ -3,17 +3,13 @@ package com.soundcloud.android.activity.landing;
 import static com.soundcloud.android.SoundCloudApplication.MODEL_MANAGER;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.auth.EmailConfirm;
-import com.soundcloud.android.activity.auth.SignupVia;
-import com.soundcloud.android.fragment.HomeListFragment;
-import com.soundcloud.android.fragment.ScListFragment;
+import com.soundcloud.android.fragment.ReactiveListFragment;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.auth.AuthenticatorService;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.ChangeLog;
@@ -22,15 +18,9 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import net.hockeyapp.android.UpdateManager;
 
-import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-
-import java.io.IOException;
 
 public class Home extends ScActivity implements ScLandingPage {
     private FetchUserTask mFetchUserTask;
@@ -43,7 +33,7 @@ public class Home extends ScActivity implements ScLandingPage {
         if (app.getAccount() != null) {
             if (state == null) {
                 getSupportFragmentManager().beginTransaction()
-                        .add(mRootView.getContentHolderId(), new HomeListFragment())
+                        .add(mRootView.getContentHolderId(), new ReactiveListFragment())
                         .commit();
 
                 if (SoundCloudApplication.BETA_MODE){
