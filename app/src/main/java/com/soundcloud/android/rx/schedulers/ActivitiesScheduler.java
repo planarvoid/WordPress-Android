@@ -130,8 +130,12 @@ public class ActivitiesScheduler extends ReactiveScheduler<Activities> {
                         final boolean dataChanged = resultData != null && resultData.getBoolean(contentUri.toString());
                         log("Sync successful; data changed: " + dataChanged);
 
-                        Activities activities = loadActivitiesSince(contentUri, 0).last();
-                        observer.onNext(activities);
+                        if (dataChanged) {
+                            Activities activities = loadActivitiesSince(contentUri, 0).last();
+                            observer.onNext(activities);
+                        } else {
+                            observer.onNext(Activities.EMPTY);
+                        }
                         observer.onCompleted();
 
                         break;
