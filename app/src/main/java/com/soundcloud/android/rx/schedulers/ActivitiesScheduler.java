@@ -85,7 +85,7 @@ public class ActivitiesScheduler extends ReactiveScheduler<Activities> {
                 }
                 log("Sync required: " + syncRequired);
 
-                if (true) {
+                if (syncRequired) {
                     observer.onNext(syncActivities(contentUri));
                 } else {
                     observer.onNext(ScObservables.EMPTY);
