@@ -121,7 +121,7 @@ public class ReactiveListFragment extends Fragment implements PullToRefreshBase.
     @Override
     public void onRefresh(PullToRefreshBase refreshView) {
         showProgressHandler.postDelayed(showProgress, PROGRESS_DELAY_MILLIS);
-        mScheduler.syncActivities(Content.ME_SOUND_STREAM.uri).subscribe(mActivitiesObserver);
+        mScheduler.syncNow(Content.ME_SOUND_STREAM.uri).subscribe(mActivitiesObserver);
     }
 
     @Override

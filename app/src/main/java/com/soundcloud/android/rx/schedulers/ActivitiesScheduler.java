@@ -90,7 +90,7 @@ public class ActivitiesScheduler extends ReactiveScheduler<Activities> {
                 log("Sync required: " + syncRequired);
 
                 if (syncRequired) {
-                    observer.onNext(syncActivities(contentUri));
+                    observer.onNext(syncNow(contentUri));
                 } else {
                     observer.onNext(ScObservables.EMPTY);
                 }
@@ -100,7 +100,7 @@ public class ActivitiesScheduler extends ReactiveScheduler<Activities> {
         }));
     }
 
-    public Observable<Activities> syncActivities(final Uri contentUri) {
+    public Observable<Activities> syncNow(final Uri contentUri) {
         return Observable.create(new Func1<Observer<Activities>, Subscription>() {
             @Override
             public Subscription call(final Observer<Activities> observer) {
