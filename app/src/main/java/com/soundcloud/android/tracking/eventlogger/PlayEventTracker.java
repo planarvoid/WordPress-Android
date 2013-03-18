@@ -34,7 +34,9 @@ public class PlayEventTracker {
     private static final int INSERT_TOKEN = 0;
     private static final int FLUSH_TOKEN = 1;
     private static final int FINISH_TOKEN = 0xDEADBEEF;
-    public static final int FLUSH_DELAY   = 60 * 1000;
+
+    // service stop delay is 60s, this is bigger to avoid simultaneous flushes
+    public static final int FLUSH_DELAY   = 90 * 1000;
     public static final int BATCH_SIZE    = 10;
 
     private TrackerHandler handler;
