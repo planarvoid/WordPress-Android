@@ -1265,6 +1265,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 mResumeTime = targetPosition;
                 errorListener.onError(mp, MediaPlayer.MEDIA_ERROR_UNKNOWN, Errors.STAGEFRIGHT_ERROR_BUFFER_EMPTY);
             } else if (!state.isError()) {
+                trackStopEvent();
                 track(Media.fromTrack(currentTrack), Media.Action.Stop);
                 mPlayerHandler.sendEmptyMessage(TRACK_ENDED);
             } else {
