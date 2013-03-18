@@ -74,8 +74,8 @@ public class PlayEventTracker {
         }
     }
 
-    public Cursor eventsCursor() {
-        return getTrackingDb().query(EVENTS_TABLE, null, null, null, null, null, null);
+    /* package */ Cursor eventsCursor() {
+        return trackingDbHelper.getWritableDatabase().query(EVENTS_TABLE, null, null, null, null, null, null);
     }
 
     public void stop() {
@@ -94,57 +94,57 @@ public class PlayEventTracker {
             return true;
         }
 
-        Cursor cursor = getTrackingDb().query(EVENTS_TABLE, null, null, null, null, null,
-                TrackingEvents.TIMESTAMP+" DESC",
-                String.valueOf(BATCH_SIZE));
+        final List<Pair<Long, String>> urls = new ArrayList<Pair<Long, String>>();
+        DbLender.executeUsing(trackingDbHelper, new DbLender.ExecuteBlock() {
+            @Override
+            public void call(SQLiteDatabase database) {
+                Cursor cursor = database.query(EVENTS_TABLE, null, null, null, null, null,
+                        TrackingEvents.TIMESTAMP + " DESC",
+                        String.valueOf(BATCH_SIZE));
 
-        List<Pair<String,String>> urls = null; // pair represents [id, url] of the play event
-        if (cursor != null) {
-            urls = new ArrayList<Pair<String,String>>(cursor.getCount());
-            while (cursor.moveToNext()) {
-                final String eventId = String.valueOf(cursor.getInt(cursor.getColumnIndex(TrackingEvents._ID)));
-                try {
-                    urls.add(new Pair<String, String>(eventId, mTrackingApi.buildUrl(cursor)));
-                } catch (UnsupportedEncodingException e) {
-                    Log.w(TAG, "Failed to encode play event ", e);
+                if (cursor != null) {
+                    while (cursor.moveToNext()) {
+                        final long eventId = cursor.getLong(cursor.getColumnIndex(TrackingEvents._ID));
+                        try {
+                            urls.add(Pair.create(eventId, mTrackingApi.buildUrl(cursor)));
+                        } catch (UnsupportedEncodingException e) {
+                            Log.w(TAG, "Failed to encode play event ", e);
+                        }
+                    }
+                    cursor.close();
                 }
             }
-            cursor.close();
-        }
-        closeTrackingDb(); // close connection to minimize locking crashes when threads overlap
+        });
 
-
-        if (urls != null && !urls.isEmpty()) {
-            String[] submitted = mTrackingApi.pushToRemote(urls);
+        if (!urls.isEmpty()) {
+            final String[] submitted = mTrackingApi.pushToRemote(urls);
             if (submitted.length > 0) {
 
-                StringBuilder query = new StringBuilder(submitted.length * 2 - 1);
-                query.append(TrackingEvents._ID).append(" IN (?");
-                for (int i = 1; i < submitted.length; i++) query.append(",?");
-                query.append(")");
+                DbLender.executeUsing(trackingDbHelper, new DbLender.ExecuteBlock() {
+                    @Override
+                    public void call(SQLiteDatabase database) {
+                        StringBuilder query = new StringBuilder(submitted.length * 2 - 1);
+                        query.append(TrackingEvents._ID).append(" IN (?");
+                        for (int i = 1; i < submitted.length; i++) query.append(",?");
+                        query.append(")");
 
-                final int deleted = getTrackingDb().delete(EVENTS_TABLE, query.toString(), submitted);
-                if (deleted != submitted.length) {
-                    Log.w(TAG, "error deleting events (deleted="+deleted+")");
-                } else {
-                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "submitted "+deleted+ " events");
-                }
-                closeTrackingDb();
+                        final int deleted = database.delete(EVENTS_TABLE, query.toString(), submitted);
+                        if (deleted != submitted.length) {
+                            Log.w(TAG, "error deleting events (deleted=" + deleted + ")");
+                        } else {
+                            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "submitted " + deleted + " events");
+                        }
+                    }
+                });
+
             }
         }
-        boolean flushedAll = false;
-        if (urls != null) {
-            flushedAll = urls.size() < BATCH_SIZE;
-        }
-        return flushedAll;
+
+        return urls.size() < BATCH_SIZE;
     }
 
-    /* package */ SQLiteDatabase getTrackingDb() throws SQLiteException {
-        return trackingDbHelper.getWritableDatabase();
-    }
-
-    /* package */ void closeTrackingDb() throws SQLiteException {
-        trackingDbHelper.close();
+    /* package */ TrackingDbHelper getTrackingDbHelper() throws SQLiteException {
+        return trackingDbHelper;
     }
 
     public interface TrackingEvents extends BaseColumns {
@@ -263,12 +263,15 @@ public class PlayEventTracker {
                 case INSERT_TOKEN:
                     final TrackingParams params = (TrackingParams) msg.obj;
 
-                    long id = getTrackingDb().insert(EVENTS_TABLE, null, params.toContentValues());
-                    closeTrackingDb();
-
-                    if (id < 0) {
-                        Log.w(TAG, "error inserting tracking event");
-                    }
+                    DbLender.executeUsing(trackingDbHelper, new DbLender.ExecuteBlock() {
+                        @Override
+                        public void call(SQLiteDatabase database) {
+                            long id = database.insert(EVENTS_TABLE, null, params.toContentValues());
+                            if (id < 0) {
+                                Log.w(TAG, "error inserting tracking event");
+                            }
+                        }
+                    });
 
                     removeMessages(FLUSH_TOKEN);
                     sendMessageDelayed(obtainMessage(FLUSH_TOKEN), FLUSH_DELAY);
@@ -288,4 +291,17 @@ public class PlayEventTracker {
             }
         }
     }
+
+    public static class DbLender {
+        public interface ExecuteBlock {
+    		void call(SQLiteDatabase database);
+    	}
+    	public static void executeUsing(SQLiteOpenHelper dbHelper, ExecuteBlock block){
+            final SQLiteDatabase writableDatabase = dbHelper.getWritableDatabase();
+            block.call(writableDatabase);
+    		dbHelper.close();
+    	}
+    }
+
+
 }

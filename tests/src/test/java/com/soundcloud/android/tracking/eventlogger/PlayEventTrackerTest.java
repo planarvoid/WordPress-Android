@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 @RunWith(DefaultTestRunner.class)
 @DatabaseConfig.UsingDatabaseMap(PlayEventTrackerTest.PlayEventFileDatabaseMap.class)
@@ -25,8 +26,12 @@ public class PlayEventTrackerTest {
     public void before() {
         api = mock(PlayEventTrackingApi.class);
         tracker = new PlayEventTracker(DefaultTestRunner.application, api);
-        tracker.getTrackingDb().delete(PlayEventTracker.TrackingDbHelper.EVENTS_TABLE, null, null);
-        tracker.closeTrackingDb();
+        PlayEventTracker.DbLender.executeUsing(tracker.getTrackingDbHelper(),new PlayEventTracker.DbLender.ExecuteBlock(){
+            @Override
+            public void call(SQLiteDatabase database) {
+                database.delete(PlayEventTracker.TrackingDbHelper.EVENTS_TABLE, null, null);
+            }
+        });
     }
 
     @Test

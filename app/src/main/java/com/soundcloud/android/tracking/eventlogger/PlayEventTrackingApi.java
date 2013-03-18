@@ -32,16 +32,17 @@ public class PlayEventTrackingApi {
 
     /**
      * Submit play events to the server using the given urls
+     *
      * @param urlPairs pair [id, url] of the event to push
      * @return  a list of successfully submitted ids
      */
-    public String[] pushToRemote(List<Pair<String, String>> urlPairs) {
+    public String[] pushToRemote(List<Pair<Long, String>> urlPairs) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Pushing " + urlPairs.size() + " new tracking events");
 
         List<String> successes = new ArrayList<String>(urlPairs.size());
         HttpURLConnection connection = null;
 
-        for (Pair<String,String> urlPair : urlPairs){
+        for (Pair<Long,String> urlPair : urlPairs){
             try {
                 final String url = urlPair.second;
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "logging "+url);
@@ -55,7 +56,7 @@ public class PlayEventTrackingApi {
                 final int response = connection.getResponseCode();
 
                 if (response == HttpStatus.SC_OK) {
-                    successes.add(urlPair.first);
+                    successes.add(String.valueOf(urlPair.first));
                 } else {
                     Log.w(TAG, "unexpected status code: " + response);
                 }
