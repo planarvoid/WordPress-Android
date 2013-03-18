@@ -27,6 +27,7 @@ public class PlayEventTracker {
     private static final String TAG = PlayEventTracker.class.getSimpleName();
 
     private static final int INSERT_TOKEN = 0;
+    private static final int FLUSH_TOKEN = 1;
     private static final int FINISH_TOKEN = 0xDEADBEEF;
     public static final int FLUSH_DELAY   = 60 * 1000;
     public static final int BATCH_SIZE    = 10;
@@ -248,25 +249,23 @@ public class PlayEventTracker {
                         Log.w(TAG, "error inserting tracking event");
                     }
 
-                    synchronized (lock) {
-                        if (handler != null) {
-                            handler.removeMessages(FINISH_TOKEN);
-                            handler.sendMessageDelayed(handler.obtainMessage(FINISH_TOKEN), FLUSH_DELAY);
-                        }
-                    }
+                    removeMessages(FLUSH_TOKEN);
+                    sendMessageDelayed(obtainMessage(FLUSH_TOKEN), FLUSH_DELAY);
                     break;
-                case FINISH_TOKEN:
+
+                case FLUSH_TOKEN:
                     flushPlaybackTrackingEvents();
-                    synchronized (lock) {
-                        if (handler != null) {
-                            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Shutting down.");
-                            handler.getLooper().quit();
-                            handler = null;
-                            if (trackingDb != null) {
-                                trackingDb.close();
-                                trackingDb = null;
-                            }
-                        }
+                    break;
+
+                case FINISH_TOKEN:
+                    removeMessages(FLUSH_TOKEN);
+                    flushPlaybackTrackingEvents();
+
+                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Shutting down.");
+                    getLooper().quit();
+                    if (trackingDb != null) {
+                        trackingDb.close();
+                        trackingDb = null;
                     }
                     break;
             }
