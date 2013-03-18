@@ -143,7 +143,7 @@ public class PlayEventTracker {
         return urls.size() < BATCH_SIZE;
     }
 
-    /* package */ TrackingDbHelper getTrackingDbHelper() throws SQLiteException {
+    /* package */ TrackingDbHelper getTrackingDbHelper() {
         return trackingDbHelper;
     }
 
