@@ -26,7 +26,7 @@ public class PlayEventTrackerTest {
     public void before() {
         api = mock(PlayEventTrackingApi.class);
         tracker = new PlayEventTracker(DefaultTestRunner.application, api);
-        PlayEventTracker.DbLender.executeUsing(tracker.getTrackingDbHelper(),new PlayEventTracker.DbLender.ExecuteBlock(){
+        tracker.getTrackingDbHelper().execute(new PlayEventTracker.TrackingDbHelper.ExecuteBlock() {
             @Override
             public void call(SQLiteDatabase database) {
                 database.delete(PlayEventTracker.TrackingDbHelper.EVENTS_TABLE, null, null);

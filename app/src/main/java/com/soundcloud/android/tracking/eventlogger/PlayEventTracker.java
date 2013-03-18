@@ -95,7 +95,7 @@ public class PlayEventTracker {
         }
 
         final List<Pair<Long, String>> urls = new ArrayList<Pair<Long, String>>();
-        DbLender.executeUsing(trackingDbHelper, new DbLender.ExecuteBlock() {
+        trackingDbHelper.execute(new TrackingDbHelper.ExecuteBlock() {
             @Override
             public void call(SQLiteDatabase database) {
                 Cursor cursor = database.query(EVENTS_TABLE, null, null, null, null, null,
@@ -120,7 +120,7 @@ public class PlayEventTracker {
             final String[] submitted = mTrackingApi.pushToRemote(urls);
             if (submitted.length > 0) {
 
-                DbLender.executeUsing(trackingDbHelper, new DbLender.ExecuteBlock() {
+                trackingDbHelper.execute(new TrackingDbHelper.ExecuteBlock() {
                     @Override
                     public void call(SQLiteDatabase database) {
                         StringBuilder query = new StringBuilder(submitted.length * 2 - 1);
@@ -214,6 +214,11 @@ public class PlayEventTracker {
         private static final int DATABASE_VERSION = 1;
         static final String EVENTS_TABLE = "events";
 
+        public interface ExecuteBlock {
+            void call(SQLiteDatabase database);
+        }
+
+
         /**
          * Play duration tracking
          */
@@ -242,6 +247,12 @@ public class PlayEventTracker {
         @Override
         public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int currentVersion) {
         }
+
+        public void execute(ExecuteBlock block) {
+            final SQLiteDatabase writableDatabase = getWritableDatabase();
+            block.call(writableDatabase);
+            close();
+        }
     }
 
     public class TrackerHandler extends Handler {
@@ -263,7 +274,7 @@ public class PlayEventTracker {
                 case INSERT_TOKEN:
                     final TrackingParams params = (TrackingParams) msg.obj;
 
-                    DbLender.executeUsing(trackingDbHelper, new DbLender.ExecuteBlock() {
+                    trackingDbHelper.execute(new TrackingDbHelper.ExecuteBlock() {
                         @Override
                         public void call(SQLiteDatabase database) {
                             long id = database.insert(EVENTS_TABLE, null, params.toContentValues());
@@ -291,17 +302,4 @@ public class PlayEventTracker {
             }
         }
     }
-
-    public static class DbLender {
-        public interface ExecuteBlock {
-    		void call(SQLiteDatabase database);
-    	}
-    	public static void executeUsing(SQLiteOpenHelper dbHelper, ExecuteBlock block){
-            final SQLiteDatabase writableDatabase = dbHelper.getWritableDatabase();
-            block.call(writableDatabase);
-    		dbHelper.close();
-    	}
-    }
-
-
 }
