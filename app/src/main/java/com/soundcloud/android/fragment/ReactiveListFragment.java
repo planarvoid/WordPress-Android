@@ -151,7 +151,9 @@ public class ReactiveListFragment extends Fragment implements PullToRefreshBase.
             Log.d(this, "onError: " + e + "; t=" + Thread.currentThread().getName());
             e.printStackTrace();
             showProgressHandler.removeCallbacks(showProgress);
-            mEmptyView.setStatus(EmptyListView.Status.ERROR);
+            // TODO: need to check if this is really always a connection error? do we treat errors from reading/writing
+            // from and to local storage as connection errors too?
+            mEmptyView.setStatus(EmptyListView.Status.CONNECTION_ERROR);
         }
 
         @Override
