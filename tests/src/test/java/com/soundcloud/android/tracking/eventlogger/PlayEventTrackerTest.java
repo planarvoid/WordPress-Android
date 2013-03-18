@@ -90,6 +90,11 @@ public class PlayEventTrackerTest {
         expect(tracker.flushPlaybackTrackingEvents()).toBeTrue();
     }
 
+    /*
+    The play event tracker opens/closes databases during each operation to avoid locking issues, so
+    the file database is to prevent data loss from roboelectric's in-memory database shortcomings.
+    see : http://stackoverflow.com/questions/7320820/testing-sqlite-database-in-robolectric
+     */
     public static class PlayEventFileDatabaseMap extends SQLiteMap {
         @Override
         public String getConnectionString() {
