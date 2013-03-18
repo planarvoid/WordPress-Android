@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociationHolder;
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.Robolectric;
@@ -36,6 +37,10 @@ public class TestHelper {
 
     public static ObjectMapper getObjectMapper() {
         return AndroidCloudAPI.Wrapper.buildObjectMapper();
+    }
+
+    public static Activities getActivities(String path) throws IOException {
+        return TestHelper.readJson(Activities.class, path);
     }
 
     public static <T> T readJson(Class<T> klazz, String path) throws IOException {

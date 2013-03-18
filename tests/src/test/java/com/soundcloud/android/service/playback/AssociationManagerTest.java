@@ -1,8 +1,5 @@
 package com.soundcloud.android.service.playback;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
-
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.dao.ActivitiesStorage;
@@ -14,13 +11,15 @@ import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.service.sync.ApiSyncServiceTest;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import static com.soundcloud.android.Expect.expect;
+import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
 @RunWith(DefaultTestRunner.class)
 public class AssociationManagerTest {
@@ -163,7 +162,8 @@ public class AssociationManagerTest {
 
     @Test
     public void shouldRemoveRepostActivity() throws Exception {
-        Activities a = modelManager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_playlist_repost.json"), false);
+        Activities a = TestHelper.readJson(Activities.class, "/com/soundcloud/android/service/sync/e1_playlist_repost.json");
+
         a.get(0).getUser().id = USER_ID; // needs to be the logged in user
 
         Playlist playlist = (Playlist) a.get(0).getPlayable();

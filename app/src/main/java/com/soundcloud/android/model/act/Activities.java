@@ -1,12 +1,11 @@
 package com.soundcloud.android.model.act;
 
-import static com.soundcloud.android.SoundCloudApplication.InvalidTokenException;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
+import android.content.ContentValues;
+import android.text.TextUtils;
+import android.util.Log;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Playable;
@@ -19,10 +18,6 @@ import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.ContentValues;
-import android.text.TextUtils;
-import android.util.Log;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +29,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.soundcloud.android.SoundCloudApplication.InvalidTokenException;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Activities extends CollectionHolder<Activity> {
     public static final int MAX_REQUESTS = 5;
@@ -214,7 +212,7 @@ public class Activities extends CollectionHolder<Activity> {
         final int status = response.getStatusLine().getStatusCode();
         switch (status) {
             case HttpStatus.SC_OK: {
-                Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(response.getEntity().getContent());
+                Activities a = api.getMapper().readValue(response.getEntity().getContent(), Activities.class);
                 if (a.size() < max && a.hasMore() && !a.isEmpty() && requestNumber < MAX_REQUESTS) {
                     /* should not happen in theory, but backend might limit max number per requests */
                     return a.merge(fetchRecent(api, a.getNextRequest(), max - a.size(), requestNumber+1));
@@ -238,7 +236,7 @@ public class Activities extends CollectionHolder<Activity> {
                                    final Request request) throws IOException {
         HttpResponse response = api.get(request);
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            return SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(response.getEntity().getContent());
+            return api.getMapper().readValue(response.getEntity().getContent(), Activities.class);
         } else {
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Got no content response (204)");

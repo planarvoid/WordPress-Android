@@ -2,6 +2,7 @@ package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.provider.ScContentProvider.Parameter.*;
+import static com.soundcloud.android.robolectric.TestHelper.getActivities;
 import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
 import com.soundcloud.android.SoundCloudApplication;
@@ -156,7 +157,8 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldCleanupSoundStream() throws Exception {
-        Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_stream.json"));
+        Activities a = getActivities("/com/soundcloud/android/service/sync/e1_stream.json");
+
         expect(activitiesStorage.insert(Content.ME_SOUND_STREAM, a)).toBe(50);
         expect(Content.ME_SOUND_STREAM).toHaveCount(50);
         expect(resolver.update(Uri.parse(Content.SOUND_STREAM_CLEANUP.uri.toString() + "?limit=10"), null, null, null)).toBe(40);
@@ -164,7 +166,8 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldCleanupActivities() throws Exception {
-        Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities.json"));
+        Activities a = getActivities("/com/soundcloud/android/service/sync/e1_activities.json");
+
         expect(activitiesStorage.insert(Content.ME_ACTIVITIES, a)).toBe(17);
         expect(Content.ME_ACTIVITIES).toHaveCount(17);
         expect(resolver.update(Uri.parse(Content.ACTIVITIES_CLEANUP.uri.toString() + "?limit=5"), null, null, null)).toBe(12);
@@ -172,8 +175,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldIncludeUserPermalinkInTrackView() throws Exception {
-        Activities activities = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(
-                ApiSyncServiceTest.class.getResourceAsStream("e1_stream_1.json"));
+        Activities activities = getActivities("/com/soundcloud/android/service/sync/e1_stream_1.json");
 
         for (Playable t : activities.getUniquePlayables()) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
@@ -496,4 +498,7 @@ public class ScContentProviderTest {
 
         expect(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))).toEqual("http://soundcloud.com/foo/artwork");
     }
+
+
+
 }

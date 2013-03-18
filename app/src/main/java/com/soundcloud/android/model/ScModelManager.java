@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.ModelCache;
-import com.soundcloud.android.model.act.Activities;
-import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -51,30 +49,6 @@ public class ScModelManager {
         mContext = c;
         mResolver = c.getContentResolver();
         mMapper = mapper;
-    }
-
-    public Activity getActivityFromCursor(Cursor cursor) {
-        return Activity.Type.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE))).fromCursor(cursor);
-    }
-
-    public Activities getActivitiesFromCursor(Cursor cursor) {
-        Activities activities = new Activities();
-        while (cursor != null && cursor.moveToNext()) {
-            final Activity activityFromCursor = getActivityFromCursor(cursor);
-            if (activityFromCursor != null) activities.add(activityFromCursor);
-        }
-        if (cursor != null) cursor.close();
-        return activities;
-    }
-
-    public @Nullable Activities getActivitiesFromJson(InputStream is) throws IOException {
-        return getActivitiesFromJson(is, CACHE_AFTER_DESERIALIZATION);
-    }
-
-    public @Nullable Activities getActivitiesFromJson(InputStream is, boolean cacheDependencies) throws IOException {
-        Activities activities = mMapper.readValue(is, Activities.class);
-        if (activities != null && cacheDependencies) for (Activity a : activities) a.cacheDependencies();
-        return activities;
     }
 
     /**
@@ -196,15 +170,6 @@ public class ScModelManager {
         return user;
     }
 
-    public User getUserFromActivityCursor(Cursor itemsCursor) {
-        final long id = itemsCursor.getLong(itemsCursor.getColumnIndex(DBHelper.ActivityView.USER_ID));
-        User user = mUserCache.get(id);
-        if (user == null) {
-            user = User.fromActivityView(itemsCursor);
-            mUserCache.put(user);
-        }
-        return user;
-    }
 
     public @Nullable Track getTrack(Uri uri) {
         return (Track) getModel(uri);

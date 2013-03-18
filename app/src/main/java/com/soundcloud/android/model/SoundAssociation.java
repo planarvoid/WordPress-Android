@@ -57,13 +57,7 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
         associationType = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE));
         created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP)));
         user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID);
-
-        if (Playable.isTrackCursor(cursor)){
-            playable = SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor, DBHelper.SoundAssociationView._ID);
-        } else {
-            playable = SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(cursor, DBHelper.SoundAssociationView._ID);
-        }
-
+        playable = Playable.fromCursor(cursor);
     }
 
     public SoundAssociation(Playable playable, Date created_at, Type typeEnum) {

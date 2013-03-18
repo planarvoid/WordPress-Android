@@ -396,7 +396,15 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         return user != null ? user.username : "";
     }
 
-    public static boolean isTrackCursor(Cursor cursor){
+    public static Playable fromCursor(Cursor cursor) {
+        if (isTrackCursor(cursor)) {
+            return new Track(cursor);
+        } else {
+            return new Playlist(cursor);
+        }
+    }
+
+    private static boolean isTrackCursor(Cursor cursor){
         return cursor.getInt(cursor.getColumnIndex(DBHelper.Sounds._TYPE)) == DB_TYPE_TRACK;
     }
 }

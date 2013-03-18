@@ -1,9 +1,7 @@
 package com.soundcloud.android.model.act;
 
-import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.fromString;
-import static com.soundcloud.android.Expect.expect;
-
-import com.soundcloud.android.dao.ActivityDAO;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModelManager;
@@ -20,13 +18,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+
+import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.fromString;
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.getActivities;
 
 @RunWith(DefaultTestRunner.class)
 public class ActivitiesTest {
@@ -52,7 +51,7 @@ public class ActivitiesTest {
 
     @Test
     public void testIsEmptyParsed() throws Exception {
-        Activities a = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("activities_empty.json"));
+        Activities a = TestHelper.readJson(Activities.class, "/com/soundcloud/android/service/sync/activities_empty.json");
         expect(a.isEmpty()).toBeTrue();
     }
 
@@ -87,7 +86,7 @@ public class ActivitiesTest {
 
     @Test
     public void testFromJSON() throws Exception {
-        Activities a = getActivities();
+        Activities a = getDefaultActivities();
         expect(a.size()).toEqual(17);
         expect(a.getUniquePlayables().size()).toEqual(4);
         expect(a.getUniqueUsers().size()).toEqual(12);
@@ -95,25 +94,25 @@ public class ActivitiesTest {
 
     @Test
     public void testFavoritings() throws Exception {
-        Activities trackLikes = getActivities().trackLikes();
+        Activities trackLikes = getDefaultActivities().trackLikes();
         expect(trackLikes.size()).toEqual(4);
     }
 
     @Test
     public void testTracks() throws Exception {
-        Activities tracks = getActivities().tracks();
+        Activities tracks = getDefaultActivities().tracks();
         expect(tracks.size()).toEqual(4); // includes the 4 track likes
     }
 
     @Test
     public void testSharings() throws Exception {
-        Activities sharings = getActivities().sharings();
+        Activities sharings = getDefaultActivities().sharings();
         expect(sharings.size()).toEqual(0);
     }
 
     @Test
     public void testComments() throws Exception {
-        Activities comments = getActivities().comments();
+        Activities comments = getDefaultActivities().comments();
         expect(comments.size()).toEqual(5);
     }
 
@@ -125,7 +124,7 @@ public class ActivitiesTest {
 
     @Test
     public void testGroupedByTrack() throws Exception {
-        Map<Playable,Activities> grouped = getActivities().groupedByPlayable();
+        Map<Playable,Activities> grouped = getDefaultActivities().groupedByPlayable();
         expect(grouped.size()).toEqual(5);
         for (Map.Entry<Playable,Activities> entry : grouped.entrySet()) {
             expect(entry.getValue().isEmpty()).toEqual(false);
@@ -140,19 +139,19 @@ public class ActivitiesTest {
         expect(activities.getCursor()).toEqual("dada");
     }
 
-    private Activities getActivities() throws IOException {
-        return manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities.json"));
+    private static Activities getDefaultActivities() throws IOException {
+        return getActivities("/com/soundcloud/android/service/sync/e1_activities.json");
     }
 
-    private Activities getActivitiesWithRepost() throws IOException {
-        return manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_with_repost.json"));
+    private static Activities getActivitiesWithRepost() throws IOException {
+        return getActivities("/com/soundcloud/android/service/sync/e1_activities_with_repost.json");
     }
 
     @Test
     public void testMerge() throws Exception {
-        Activities a1 = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_1.json"));
-        Activities a2 = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_2.json"));
-        Activities all = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities.json"));
+        Activities a1 = getActivities("/com/soundcloud/android/service/sync/e1_activities_1.json");
+        Activities a2 = getActivities("/com/soundcloud/android/service/sync/e1_activities_2.json");
+        Activities all = getActivities("/com/soundcloud/android/service/sync/e1_activities.json");
 
         Activities merged = a2.merge(a1);
         expect(merged.size()).toEqual(all.size());
@@ -164,13 +163,13 @@ public class ActivitiesTest {
 
     @Test
     public void testMergeWithEmpty() throws Exception {
-        Activities a1 = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_1.json"));
+        Activities a1 = getActivities("/com/soundcloud/android/service/sync/e1_activities_1.json");
         expect(a1.merge(Activities.EMPTY)).toBe(a1);
     }
 
     @Test
     public void testFilter() throws Exception {
-        Activities a2 = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_2.json"));
+        Activities a2 = getActivities("/com/soundcloud/android/service/sync/e1_activities_2.json");
         Date start = fromString("2012/05/10 12:39:28 +0000");
 
         Activities filtered = a2.filter(start);
@@ -180,7 +179,7 @@ public class ActivitiesTest {
 
     @Test
     public void testGetNextRequest() throws Exception {
-        Activities a1 = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_1.json"));
+        Activities a1 = getActivities("/com/soundcloud/android/service/sync/e1_activities_1.json");
         expect(a1.hasMore()).toBeTrue();
         expect(a1.getNextRequest().toUrl()).toEqual("/e1/me/activities?cursor=79fd0100-07e7-11e2-8aa5-5d4327b064fb");
     }
@@ -223,7 +222,7 @@ public class ActivitiesTest {
 
     @Test
     public void shouldBuildContentValues() throws Exception {
-        Activities a = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_activities_1.json"));
+        Activities a = getActivities("/com/soundcloud/android/service/sync/e1_activities_1.json");
         ContentValues[] cv = a.buildContentValues(-1);
         expect(cv.length).toEqual(a.size());
     }
@@ -232,8 +231,7 @@ public class ActivitiesTest {
 
     @Test
     public void shouldGetArtworkUrls() throws Exception {
-        Activities a = manager.getActivitiesFromJson(
-                ApiSyncServiceTest.class.getResourceAsStream("e1_one_of_each_activity.json"));
+        Activities a = getActivities("/com/soundcloud/android/service/sync/e1_one_of_each_activity.json");
 
         Set<String> urls = a.artworkUrls();
         expect(urls.size()).toEqual(6);
@@ -279,9 +277,7 @@ public class ActivitiesTest {
 
     @Test @Ignore
     public void shouldNotCreateNewUserObjectsIfObjectIdIsTheSame() throws Exception {
-
-        Activities a = manager.getActivitiesFromJson(
-                Activities.class.getResourceAsStream("two_activities_by_same_user.json"));
+        Activities a = getActivities("/com/soundcloud/android/model/act/two_activities_by_same_user.json");
         // two comments by same user
         User u1 = a.get(0).getUser();
         User u2 = a.get(1).getUser();

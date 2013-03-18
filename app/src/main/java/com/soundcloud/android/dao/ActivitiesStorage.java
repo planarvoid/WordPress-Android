@@ -5,8 +5,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.util.Log;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
@@ -45,7 +45,7 @@ public class ActivitiesStorage {
         } else {
             c = mResolver.query(contentUri, null, null, null, null);
         }
-        return SoundCloudApplication.MODEL_MANAGER.getActivitiesFromCursor(c);
+        return mActivitiesDAO.getActivitiesFromCursor(c);
     }
 
     public Activities getSince(Content content, long before)  {
@@ -65,7 +65,7 @@ public class ActivitiesStorage {
                 new String[] { String.valueOf(content.id) },
                 DBHelper.ActivityView.CREATED_AT + " ASC LIMIT 1");
         if (c != null && c.moveToFirst()){
-            a = SoundCloudApplication.MODEL_MANAGER.getActivityFromCursor(c);
+            a = mActivitiesDAO.getActivityFromCursor(c);
         }
         if (c != null) c.close();
         return a;
@@ -79,7 +79,7 @@ public class ActivitiesStorage {
                 new String[] { String.valueOf(content.id) },
                 DBHelper.ActivityView.CREATED_AT + " DESC LIMIT 1");
         if (c != null && c.moveToFirst()) {
-            a = SoundCloudApplication.MODEL_MANAGER.getActivityFromCursor(c);
+            a = mActivitiesDAO.getActivityFromCursor(c);
         }
         if (c != null) c.close();
         return a;
@@ -99,7 +99,7 @@ public class ActivitiesStorage {
             c = mResolver.query(contentUri, null, null, null, null);
         }
 
-        return SoundCloudApplication.MODEL_MANAGER.getActivitiesFromCursor(c);
+        return mActivitiesDAO.getActivitiesFromCursor(c);
     }
 
     public int getCountSince(long since, Content content){
@@ -133,5 +133,11 @@ public class ActivitiesStorage {
 
     public int insert(Content content, Activities activities) {
         return mActivitiesDAO.insert(content, activities);
+    }
+
+
+    public User getUserFromActivityCursor(Cursor itemsCursor) {
+        final long id = itemsCursor.getLong(itemsCursor.getColumnIndex(DBHelper.ActivityView.USER_ID));
+        return User.fromActivityView(itemsCursor);
     }
 }
