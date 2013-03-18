@@ -33,7 +33,7 @@ public class UserDAO extends BaseDAO<User> {
         Cursor cursor = resolver.query(uri, null, null, null, null);
         try {
             if (cursor != null && cursor.moveToFirst()) {
-                return SoundCloudApplication.MODEL_MANAGER.getUserFromCursor(cursor);
+                return new User(cursor);
             } else if (createDummy && id >= 0) {
                 return new User(id);
             } else {

@@ -78,10 +78,6 @@ public class CollectionHolder<T> implements Iterable<T> {
         return size() == 0;
     }
 
-    public int insert(ContentResolver resolver) {
-        return 0;
-    }
-
     public String getCursor() {
         if (next_href != null) {
             List<NameValuePair> params = URLEncodedUtils.parse(URI.create(next_href), "UTF-8");

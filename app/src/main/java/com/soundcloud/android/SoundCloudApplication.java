@@ -15,6 +15,7 @@ import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.imageloader.PrefetchHandler;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -61,6 +62,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 
 @ReportsCrashes(
@@ -443,6 +445,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public Context getContext() {
         return this;
+    }
+
+    public <T extends ScResource> T read(InputStream is) throws IOException {
+        return mCloudApi.read(is);
     }
 
     public Token authorizationCode(String code, String... scopes) throws IOException {

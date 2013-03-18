@@ -6,6 +6,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
+import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -107,7 +108,9 @@ public class SyncAdapterService extends Service {
     }
 
     /**
-     * @return true if a sync has been started
+     * Perform sync, already called aon a background thread.
+     *
+     * @return true if a sync has been started.
      */
     /* package */ static boolean performSync(final SoundCloudApplication app,
                                             Account account,
@@ -130,8 +133,9 @@ public class SyncAdapterService extends Service {
 
         final SyncStateManager syncStateManager = new SyncStateManager(app.getContentResolver());
         final PlaylistStorage playlistStorage = new PlaylistStorage(app.getContentResolver());
+        final UserStorage userStorage = new UserStorage(app.getContentResolver());
 
-        final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, playlistStorage);
+        final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, userStorage, playlistStorage);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
             // ServiceResultReceiver does most of the work
             syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new SyncServiceResultReceiver(app, syncResult, extras) {
@@ -154,13 +158,14 @@ public class SyncAdapterService extends Service {
 
     private static Intent getSyncIntent(SoundCloudApplication app, Bundle extras,
                                         SyncStateManager syncStateManager,
+                                        UserStorage userStorage,
                                         PlaylistStorage playlistStorage) {
 
 
         final Intent syncIntent = new Intent(app, ApiSyncService.class);
         switch (PushEvent.fromExtras(extras)) {
             case FOLLOWER:
-                if (!handleFollowerEvent(app, extras)) {
+                if (!handleFollowerEvent(app, extras, userStorage)) {
                     Log.w(TAG, "unhandled follower event:" + extras);
                 }
 
@@ -229,13 +234,14 @@ public class SyncAdapterService extends Service {
     }
 
 
-    private static boolean handleFollowerEvent(SoundCloudApplication app, Bundle extras) {
+    private static boolean handleFollowerEvent(SoundCloudApplication app, Bundle extras, UserStorage userStorage) {
         if (PreferenceManager.getDefaultSharedPreferences(app).getBoolean(Consts.PrefKeys.NOTIFICATIONS_FOLLOWERS, true)
                 && extras.containsKey(SyncAdapterService.EXTRA_PUSH_EVENT_URI)) {
             final long id = PushEvent.getIdFromUri(extras.getString(SyncAdapterService.EXTRA_PUSH_EVENT_URI));
             if (id != -1) {
-                User u = SoundCloudApplication.MODEL_MANAGER.getUser(id);
-                if (u != null && !u.isStale()){
+                User u = userStorage.getUser(id);
+
+                if (u != null && !u.isStale()) {
                     NotificationMessage.showNewFollower(app, u);
                     return true;
                 } else {
@@ -243,9 +249,12 @@ public class SyncAdapterService extends Service {
                         HttpResponse resp = app.get(Request.to(Endpoints.USERS + "/" + id));
                         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                             u = app.getMapper().readValue(resp.getEntity().getContent(), User.class);
-                            SoundCloudApplication.MODEL_MANAGER.write(u);
+                            userStorage.createOrUpdate(u);
+
                             NotificationMessage.showNewFollower(app, u);
                             return true;
+                        } else {
+                            // Nothing?
                         }
                     } catch (IOException e) {
                         Log.w(TAG, "error fetching user", e);
@@ -255,6 +264,8 @@ public class SyncAdapterService extends Service {
         }
         return false;
     }
+
+
 
 
     // only used for debugging

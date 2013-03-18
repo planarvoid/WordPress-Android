@@ -50,7 +50,6 @@ public class SoundCloudDB {
             throw new IllegalArgumentException("need valid ownerId for collection");
         }
 
-        final Content match = Content.match(collectionUri);
         BulkInsertMap map = new BulkInsertMap();
         for (int i=0; i < resources.size(); i++) {
             ScResource r = resources.get(i);
@@ -58,7 +57,7 @@ public class SoundCloudDB {
                 r.putFullContentValues(map);
                 long id = r.id;
                 ContentValues contentValues = new ContentValues();
-                switch (match) {
+                switch (Content.match(collectionUri)) {
                     case PLAY_QUEUE:
                         contentValues.put(DBHelper.PlayQueue.POSITION, i);
                         contentValues.put(DBHelper.PlayQueue.TRACK_ID, id);

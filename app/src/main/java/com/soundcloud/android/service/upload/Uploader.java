@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.LocalCollectionDAO;
+import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -32,6 +33,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     private Recording mUpload;
     private volatile boolean mCanceled;
     private LocalBroadcastManager mBroadcastManager;
+    private TrackStorage mStorage;
 
     private static final int MAX_TRIES = 1;
 
@@ -40,6 +42,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         mUpload = recording;
         mBroadcastManager = LocalBroadcastManager.getInstance(api.getContext());
         mBroadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
+        mStorage = new TrackStorage(api.getContext().getContentResolver());
     }
 
     public boolean isCancelled() {
@@ -140,8 +143,8 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
     private void onUploadSuccess(HttpResponse response) {
         try {
-            Track track = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(response.getEntity().getContent(), Track.class);
-            SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(track, ScResource.CacheUpdateMode.FULL);
+            Track track = api.read(response.getEntity().getContent());
+            mStorage.createOrUpdate(track);
 
             //request to update my collection
             new SyncStateManager(api.getContext().getContentResolver()).forceToStale(Content.ME_TRACKS.uri);

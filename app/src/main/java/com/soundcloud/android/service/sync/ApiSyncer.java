@@ -65,6 +65,8 @@ public class ApiSyncer {
     private final SyncStateManager mSyncStateManager;
     private final ActivitiesStorage mActivitiesStorage;
     private final PlaylistStorage mPlaylistStorage;
+    private final SoundAssociationsDAO mSoundAssociationDAO;
+
 
     public ApiSyncer(Context context) {
         mApi = (AndroidCloudAPI) context.getApplicationContext();
@@ -73,6 +75,7 @@ public class ApiSyncer {
         mSyncStateManager = new SyncStateManager(mResolver);
         mActivitiesStorage = new ActivitiesStorage(mResolver);
         mPlaylistStorage = new PlaylistStorage(mResolver);
+        mSoundAssociationDAO = new SoundAssociationsDAO(mResolver);
     }
 
     public Result syncContent(Uri uri, String action) throws IOException {
@@ -247,7 +250,7 @@ public class ApiSyncer {
                 Request r = Request.to(TempEndpoints.PLAYLISTS).withContent(content, "application/json");
                 InputStream is = validateResponse(mApi.post(r)).getEntity().getContent();
 
-                Playlist added = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is);
+                Playlist added = mApi.read(is);
 
                 // update local state
                 p.localToGlobal(mContext, added);
@@ -273,7 +276,7 @@ public class ApiSyncer {
     }
 
     private Result syncLocalSoundAssocationsToHolder(Uri uri, SoundAssociationHolder holder) {
-        boolean changed = SoundAssociationsDAO.syncToLocal(holder, mResolver, uri);
+        boolean changed = mSoundAssociationDAO.syncToLocal(holder, uri);
 
         Result result = new Result(uri);
         result.change =  changed ? Result.CHANGED : Result.UNCHANGED;
@@ -555,10 +558,7 @@ public class ApiSyncer {
         }
 
         InputStream is = validateResponse(response).getEntity().getContent();
-
-        // todo, one call
-        Playlist p = (Playlist) SoundCloudApplication.MODEL_MANAGER.cache(
-                SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is), ScResource.CacheUpdateMode.FULL);
+        Playlist p = mApi.read(is);
 
         Cursor c = mResolver.query(
                 Content.PLAYLIST_TRACKS.forId(p.id), new String[]{DBHelper.PlaylistTracksView._ID},
@@ -583,8 +583,7 @@ public class ApiSyncer {
             is.close();
 
             is = validateResponse(mApi.put(r)).getEntity().getContent();
-            p = (Playlist) SoundCloudApplication.MODEL_MANAGER.cache(
-                            SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is), ScResource.CacheUpdateMode.FULL);
+            p = mApi.read(is);
         }
 
         final Uri insertedUri = p.insert(mResolver);
@@ -609,7 +608,8 @@ public class ApiSyncer {
         Result result = new Result(contentUri);
         InputStream is = validateResponse(mApi.get(Content.match(contentUri).request(contentUri))).getEntity().getContent();
 
-        final Uri insertedUri = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is).insert(mResolver);
+        final Uri insertedUri = mApi.read(is).insert(mResolver);
+
         if (insertedUri != null){
             log("inserted " + insertedUri.toString());
             result.setSyncData(true, System.currentTimeMillis(), 1, Result.CHANGED);

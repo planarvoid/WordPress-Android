@@ -84,6 +84,7 @@ public abstract class ScResource extends ScModel implements ModelLike {
         destination.add(getBulkInsertUri(), buildContentValues());
     }
 
+    @Deprecated
     public Uri insert(ContentResolver contentResolver) {
         insertDependencies(contentResolver);
         return contentResolver.insert(toUri(),buildContentValues());

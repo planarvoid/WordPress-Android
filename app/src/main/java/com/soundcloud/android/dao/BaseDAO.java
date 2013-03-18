@@ -34,6 +34,10 @@ public abstract class BaseDAO<T extends ModelLike> {
         }
     }
 
+    public long createOrUpdate(T resource) {
+        return createOrUpdate(resource.getId(), resource.buildContentValues());
+    }
+
     public long createOrUpdate(long id, ContentValues values) {
         T obj = queryForId(id);
         if (obj == null) {

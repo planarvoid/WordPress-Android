@@ -1,7 +1,6 @@
 package com.soundcloud.android.model;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -25,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Deprecated
@@ -74,17 +72,6 @@ public class ScModelManager {
         return holder;
     }
 
-    public
-    @NotNull
-    <T extends ScResource> T getModelFromStream(InputStream is, Class<T> modelClass) throws IOException {
-        return mMapper.readValue(is, modelClass);
-    }
-
-    public
-    @NotNull
-    <T extends ScResource> T getModelFromStream(InputStream is) throws IOException {
-        return (T) getModelFromStream(is, ScResource.class);
-    }
 
     public Track getCachedTrackFromCursor(Cursor cursor){
         return getCachedTrackFromCursor(cursor, DBHelper.Sounds._ID);
@@ -160,7 +147,7 @@ public class ScModelManager {
         return holder;
     }
 
-    public User getUserFromCursor(Cursor itemsCursor) {
+    private User getUserFromCursor(Cursor itemsCursor) {
         final long id = itemsCursor.getLong(itemsCursor.getColumnIndex(DBHelper.Users._ID));
         User user = mUserCache.get(id);
         if (user == null) {
@@ -170,14 +157,6 @@ public class ScModelManager {
         return user;
     }
 
-
-    public @Nullable Track getTrack(Uri uri) {
-        return (Track) getModel(uri);
-    }
-
-    public @Nullable User getUser(Uri uri) {
-            return (User) getModel(uri);
-    }
 
     public @Nullable Playlist getPlaylist(Uri uri) {
         return (Playlist) getModel(uri);
@@ -210,7 +189,7 @@ public class ScModelManager {
      * @param cache optional cache to lookup object in and cache to
      * @return the resource found, or null if no resource found
      */
-    public @Nullable ScModel getModel(Uri uri, @Nullable ModelCache cache) {
+    @Nullable ScModel getModel(Uri uri, @Nullable ModelCache cache) {
         ScModel resource = null;
 
         if (cache != null) resource = cache.get(UriUtils.getLastSegmentAsLong(uri));
@@ -370,20 +349,6 @@ public class ScModelManager {
         }
     }
 
-    public boolean markTrackAsPlayed(Track track) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(DBHelper.TrackMetadata._ID, track.id);
-        return mResolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
-    }
-
-    /**
-     * Write this resource to the database
-     * @param resource
-     * @return the number of resources written, including dependencies
-     */
-    public Uri write(ScResource resource) {
-        return resource.insert(mResolver);
-    }
 
     public ScResource cacheAndWrite(ScResource resource, ScResource.CacheUpdateMode mode) {
         if (resource instanceof Track) {
@@ -400,7 +365,7 @@ public class ScModelManager {
         if (track != null) {
             if (mode == ScResource.CacheUpdateMode.FULL) track.setUpdated();
             track = cache(track, mode);
-            write(track);
+            track.insert(mResolver);
         }
         return track;
     }
@@ -408,7 +373,7 @@ public class ScModelManager {
     public User cacheAndWrite(User user, ScResource.CacheUpdateMode mode) {
         if (user != null) {
             user = cache(user, mode);
-            write(user);
+            user.insert(mResolver);
         }
         return user;
     }
@@ -416,7 +381,7 @@ public class ScModelManager {
     public Playlist cacheAndWrite(Playlist playlist, ScResource.CacheUpdateMode mode) {
         if (playlist != null) {
             playlist = cache(playlist, mode);
-            write(playlist);
+            playlist.insert(mResolver);
         }
         return playlist;
     }
@@ -529,14 +494,5 @@ public class ScModelManager {
     public void clear() {
         mTrackCache.clear();
         mUserCache.clear();
-    }
-
-    public int writeCollection(CollectionHolder<? extends ScResource> models,
-                               ScResource.CacheUpdateMode mode) {
-        if (models.isEmpty()) return 0;
-        for (ScResource m : models) {
-            cache(m, mode);
-        }
-        return models.insert(mResolver);
     }
 }

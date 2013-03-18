@@ -25,8 +25,4 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
     public SoundAssociationHolder(List<SoundAssociation> collection) {
         super(collection);
     }
-
-    public int insert(ContentResolver resolver) {
-        return SoundAssociationsDAO.insert(this, resolver);
-    }
 }

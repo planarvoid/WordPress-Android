@@ -209,4 +209,9 @@ public class PlaylistStorage {
         }
         return null;
     }
+
+    public Playlist getPlaylist(long id) {
+        return mPlaylistDAO.queryForId(id);
+
+    }
 }
