@@ -123,32 +123,4 @@ public class SyncContentTest {
         urisToSync = syncStateManager.getCollectionsDueForSync(Robolectric.application, false);
         expect(urisToSync.size()).toEqual(ACTIVE_SYNC_ENDPOINTS-1);
     }
-
-    @Test
-    public void shouldSyncChangesToExistingPlaylists() throws Exception {
-        final Playlist playlist = new Playlist(12345);
-        expect(playlistDAO.addTrackToPlaylist(playlist, 10696200, System.currentTimeMillis())).not.toBeNull();
-        // local unpushed playlists (those with a negative timestamp) are not part of this sync step
-        expect(playlistDAO.addTrackToPlaylist(new Playlist(-34243), 10696200, System.currentTimeMillis())).not.toBeNull();
-
-        Set<Uri> urisToSync = SyncContent.getPlaylistsDueForSync(Robolectric.application.getContentResolver());
-        expect(urisToSync.size()).toEqual(1);
-        expect(urisToSync.contains(Content.PLAYLIST.forId(playlist.id))).toBeTrue();
-    }
-
-    @Test
-    public void shouldSyncMultiplePlaylists() throws Exception {
-        final Playlist playlist1 = new Playlist(12345);
-        final Playlist playlist2 = new Playlist(544321);
-
-        expect(playlistDAO.addTrackToPlaylist(playlist1, 10696200, System.currentTimeMillis())).not.toBeNull();
-        expect(playlistDAO.addTrackToPlaylist(playlist2, 10696200, System.currentTimeMillis())).not.toBeNull();
-
-        Set<Uri> urisToSync = SyncContent.getPlaylistsDueForSync(Robolectric.application.getContentResolver());
-        expect(urisToSync.size()).toEqual(2);
-        expect(urisToSync.contains(Content.PLAYLIST.forId(playlist1.id))).toBeTrue();
-        expect(urisToSync.contains(Content.PLAYLIST.forId(playlist2.id))).toBeTrue();
-
-
-    }
 }

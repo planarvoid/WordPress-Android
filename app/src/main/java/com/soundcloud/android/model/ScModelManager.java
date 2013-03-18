@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Deprecated
 public class ScModelManager {
 
     private static final int API_LOOKUP_BATCH_SIZE = 200;
@@ -303,18 +304,6 @@ public class ScModelManager {
             return p;
         }
 
-    public @Nullable Playlist getPlaylistWithTracks(Uri uri) {
-        Playlist playlist = (Playlist) getModel(uri);
-        if (playlist != null) playlist.tracks = loadPlaylistTracks(mResolver, Long.parseLong(uri.getLastPathSegment()));
-        return playlist;
-    }
-
-    public @Nullable Playlist getPlaylistWithTracks(long playlistId) {
-        Playlist playlist = (Playlist) getModel(Content.PLAYLIST.forId(playlistId));
-        if (playlist != null) playlist.tracks = loadPlaylistTracks(mResolver, playlistId);
-
-        return playlist;
-    }
 
     public List<Track> loadPlaylistTracks(ContentResolver resolver, long playlistId){
         return loadLocalContent(resolver,Track.class,Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId))).collection;
@@ -584,23 +573,5 @@ public class ScModelManager {
             cache(m, mode);
         }
         return models.insert(mResolver);
-    }
-
-    public Playlist createPlaylist(User user, String title, boolean isPrivate, long... trackIds) {
-        Playlist p = new Playlist(-System.currentTimeMillis());
-        p.user = user;
-        p.title = title;
-        p.sharing = isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC;
-        p.created_at = new Date(System.currentTimeMillis());
-        p.setTrackCount(trackIds.length);
-        p.tracks = new ArrayList<Track>();
-
-        for (long trackId : trackIds){
-            Track track = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(trackId);
-            p.tracks.add(track == null ? new Track(trackId) : track);
-        }
-        p.insert(mResolver);
-        cache(p);
-        return p;
     }
 }

@@ -5,7 +5,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.dao.ActivitiesStorage;
-import com.soundcloud.android.dao.PlaylistDAO;
+import com.soundcloud.android.dao.PlaylistStorage;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -128,7 +128,10 @@ public class SyncAdapterService extends Service {
             ContentStats.setLastSeen(app, Content.ME_ACTIVITIES, now);
         }
 
-        final Intent syncIntent = getSyncIntent(app, extras);
+        final SyncStateManager syncStateManager = new SyncStateManager(app.getContentResolver());
+        final PlaylistStorage playlistStorage = new PlaylistStorage(app.getContentResolver());
+
+        final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, playlistStorage);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
             // ServiceResultReceiver does most of the work
             syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new SyncServiceResultReceiver(app, syncResult, extras) {
@@ -149,8 +152,10 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    private static Intent getSyncIntent(SoundCloudApplication app, Bundle extras) {
-        final SyncStateManager syncStateManager = new SyncStateManager(app.getContentResolver());
+    private static Intent getSyncIntent(SoundCloudApplication app, Bundle extras,
+                                        SyncStateManager syncStateManager,
+                                        PlaylistStorage playlistStorage) {
+
 
         final Intent syncIntent = new Intent(app, ApiSyncService.class);
         switch (PushEvent.fromExtras(extras)) {
@@ -196,12 +201,12 @@ public class SyncAdapterService extends Service {
                 }
 
                 // see if there are any local playlists that need to be pushed
-                if (new PlaylistDAO(app.getContentResolver()).hasLocalPlaylists()){
+                if (new PlaylistStorage(app.getContentResolver()).hasLocalPlaylists()){
                     urisToSync.add(Content.ME_PLAYLISTS.uri);
                 }
 
                 // see if there are any playlists with un-pushed track changes
-                final Set<Uri> playlistsDueForSync = SyncContent.getPlaylistsDueForSync(app.getContentResolver());
+                final Set<Uri> playlistsDueForSync = playlistStorage.getPlaylistsDueForSync();
                 if (playlistsDueForSync != null) urisToSync.addAll(playlistsDueForSync);
 
                 final List<Uri> dueForSync = SyncCleanups.getCleanupsDueForSync(app, manual);

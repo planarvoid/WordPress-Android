@@ -7,11 +7,10 @@ import android.net.Uri;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ActivitiesStorage;
-import com.soundcloud.android.dao.PlaylistDAO;
+import com.soundcloud.android.dao.PlaylistStorage;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScModelManagerTest;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -41,7 +40,7 @@ public class ApiSyncerTest {
     ContentResolver resolver;
     SyncStateManager syncStateManager;
     ActivitiesStorage activitiesStorage;
-    PlaylistDAO playlistDAO;
+    PlaylistStorage playlistStorage;
 
     @Before
     public void before() {
@@ -49,7 +48,7 @@ public class ApiSyncerTest {
         resolver = DefaultTestRunner.application.getContentResolver();
         syncStateManager = new SyncStateManager(resolver);
         activitiesStorage = new ActivitiesStorage(resolver);
-        playlistDAO = new PlaylistDAO(resolver);
+        playlistStorage = new PlaylistStorage(resolver);
     }
 
     @Test
@@ -252,19 +251,15 @@ public class ApiSyncerTest {
     public void shouldPushNewPlaylist() throws Exception {
         populateMeSounds();
 
+        Playlist playlist = TestHelper.readResource("/com/soundcloud/android/service/sync/playlist.json");
         TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
 
-        final ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
-        Playlist p = ScModelManagerTest.createNewPlaylist(contentResolver,
-                SoundCloudApplication.MODEL_MANAGER);
+        Playlist p = playlistStorage.createNewPlaylist(playlist.user, false, playlist.tracks);
 
-        expect(p).not.toBeNull();
+        expect(playlistStorage.insertAsMyPlaylist(p)).not.toBeNull();
 
-        expect(playlistDAO.insertAsMyPlaylist(p)).not.toBeNull();
-        expect(Content.TRACKS).toHaveCount(50);
         expect(Content.ME_SOUNDS).toHaveCount(51);
-
-        expect(new ApiSyncer(Robolectric.application).pushLocalPlaylists()).toBe(1);
+        expect(new ApiSyncer(Robolectric.application).pushLocalPlaylists()).toEqual(1);
         expect(Content.ME_SOUNDS).toHaveCount(51);
 
         expect(syncStateManager.fromContent(p.toUri()).shouldAutoRefresh()).toBeFalse();
@@ -284,7 +279,9 @@ public class ApiSyncerTest {
         expect(result.change).toEqual(Result.CHANGED);
         expect(Content.PLAYLISTS).toHaveCount(1);
 
-        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylistWithTracks(2524386l);
+        Playlist p = playlistStorage.getPlaylistWithTracks(2524386l);
+
+
         expect(p.title).toEqual("fall into fall");
         expect(p.getTrackCount()).toEqual(41);
         expect(p.tracks).not.toBeNull();
@@ -319,8 +316,8 @@ public class ApiSyncerTest {
 
         final Playlist playlist = new Playlist(2524386);
 
-        expect(playlistDAO.addTrackToPlaylist(playlist, 10696200, System.currentTimeMillis())).not.toBeNull();
-        expect(playlistDAO.addTrackToPlaylist(playlist, 10853436, System.currentTimeMillis() + 100)).not.toBeNull();
+        expect(playlistStorage.addTrackToPlaylist(playlist, 10696200, System.currentTimeMillis())).not.toBeNull();
+        expect(playlistStorage.addTrackToPlaylist(playlist, 10853436, System.currentTimeMillis() + 100)).not.toBeNull();
 
         TestHelper.addPendingHttpResponse(getClass(), "playlist.json", "playlist_added.json");
 
@@ -330,7 +327,7 @@ public class ApiSyncerTest {
         expect(result.change).toEqual(Result.CHANGED);
         expect(Content.TRACKS).toHaveCount(44);
 
-        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylistWithTracks(playlist.id);
+        Playlist p = playlistStorage.getPlaylistWithTracks(playlist.id);
         expect(p.tracks.size()).toBe(43);
         expect(p.tracks.get(1).title).toEqual("recording on thursday afternoon");
     }

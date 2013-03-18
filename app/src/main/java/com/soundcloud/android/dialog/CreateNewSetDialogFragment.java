@@ -89,8 +89,8 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
             @Override
             public void run() {
                 // create and create playlist
-                mPlaylistDAO.insertAsMyPlaylist(
-                    SoundCloudApplication.MODEL_MANAGER.createPlaylist(
+                getPlaylistStorage().insertAsMyPlaylist(
+                    getPlaylistStorage().createPlaylist(
                             loggedInUser,
                             String.valueOf(text),
                             isPrivate,
