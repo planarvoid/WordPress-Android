@@ -1,25 +1,37 @@
 package com.soundcloud.android.tracking.eventlogger;
 
-import android.database.Cursor;
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents;
+import static org.mockito.Mockito.*;
+
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.xtremelabs.robolectric.util.DatabaseConfig;
+import com.xtremelabs.robolectric.util.SQLiteMap;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import android.database.Cursor;
 
 @RunWith(DefaultTestRunner.class)
+@DatabaseConfig.UsingDatabaseMap(PlayEventTrackerTest.PlayEventFileDatabaseMap.class)
 public class PlayEventTrackerTest {
+    PlayEventTracker tracker;
+    PlayEventTrackingApi api;
+
+    @Before
+    public void before() {
+        api = mock(PlayEventTrackingApi.class);
+        tracker = new PlayEventTracker(DefaultTestRunner.application, api);
+        tracker.getTrackingDb().delete(PlayEventTracker.TrackingDbHelper.EVENTS_TABLE, null, null);
+        tracker.closeTrackingDb();
+    }
 
     @Test
     public void shouldInsertTrackingEventsIntoDatabase() throws Exception {
-        PlayEventTrackingApi api = mock(PlayEventTrackingApi.class);
 
-        PlayEventTracker tracker = new PlayEventTracker(DefaultTestRunner.application, api);
         Track track = new Track();
         track.duration = 123;
         track.id = 10;
@@ -49,11 +61,8 @@ public class PlayEventTrackerTest {
 
     @Test
     public void shouldFlushEventsToApi() throws Exception {
-        PlayEventTrackingApi api = mock(PlayEventTrackingApi.class);
+        when(api.pushToRemote(anyList())).thenReturn(new String[]{"1"});
 
-        when(api.pushToRemote(any(Cursor.class))).thenReturn(new String[] {"1"} );
-
-        PlayEventTracker tracker = new PlayEventTracker(DefaultTestRunner.application, api);
         tracker.trackEvent(new Track(), Action.PLAY, 1l, "originUrl", "level");
         tracker.trackEvent(new Track(), Action.STOP, 2l, "originUrl", "level");
 
@@ -69,8 +78,6 @@ public class PlayEventTrackerTest {
 
     @Test
     public void shouldNotFlushIfNoActiveNetwork() throws Exception {
-        PlayEventTrackingApi api = mock(PlayEventTrackingApi.class);
-        PlayEventTracker tracker = new PlayEventTracker(DefaultTestRunner.application, api);
         tracker.trackEvent(new Track(), Action.PLAY, 1l, "originUrl", "level");
 
         TestHelper.simulateOffline();
@@ -79,7 +86,14 @@ public class PlayEventTrackerTest {
 
         TestHelper.simulateOnline();
 
-        when(api.pushToRemote(any(Cursor.class))).thenReturn(new String[]{"1"});
+        when(api.pushToRemote(anyList())).thenReturn(new String[]{"1"});
         expect(tracker.flushPlaybackTrackingEvents()).toBeTrue();
+    }
+
+    public static class PlayEventFileDatabaseMap extends SQLiteMap {
+        @Override
+        public String getConnectionString() {
+            return "jdbc:sqlite:tests-play-events.sqlite";
+        }
     }
 }

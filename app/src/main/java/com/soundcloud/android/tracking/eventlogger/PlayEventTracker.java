@@ -12,12 +12,17 @@ import android.os.Looper;
 import android.os.Message;
 import android.provider.BaseColumns;
 import android.util.Log;
+import android.util.Pair;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static android.os.Process.THREAD_PRIORITY_LOWEST;
@@ -32,9 +37,9 @@ public class PlayEventTracker {
     public static final int FLUSH_DELAY   = 60 * 1000;
     public static final int BATCH_SIZE    = 10;
 
-    private SQLiteDatabase trackingDb;
     private TrackerHandler handler;
 
+    private TrackingDbHelper trackingDbHelper;
     private final Object lock = new Object();
     private Context mContext;
 
@@ -43,6 +48,7 @@ public class PlayEventTracker {
     public PlayEventTracker(Context context, PlayEventTrackingApi api) {
         mContext = context;
         mTrackingApi = api;
+        trackingDbHelper = new TrackingDbHelper(mContext);
     }
 
     public void trackEvent(final @Nullable Track track, final Action action, final long userId, final String originUrl,
@@ -86,46 +92,57 @@ public class PlayEventTracker {
             return true;
         }
 
-        SQLiteDatabase db = getTrackingDb();
-
-        db.beginTransaction();
-        Cursor cursor = db.query(EVENTS_TABLE, null, null, null, null, null,
+        Cursor cursor = getTrackingDb().query(EVENTS_TABLE, null, null, null, null, null,
                 TrackingEvents.TIMESTAMP+" DESC",
                 String.valueOf(BATCH_SIZE));
 
-        if (cursor != null && cursor.getCount() > 0) {
-            String[] submitted = mTrackingApi.pushToRemote(cursor);
+        List<Pair<String,String>> urls = null; // pair represents [id, url] of the play event
+        if (cursor != null) {
+            urls = new ArrayList<Pair<String,String>>(cursor.getCount());
+            while (cursor.moveToNext()) {
+                final String eventId = String.valueOf(cursor.getInt(cursor.getColumnIndex(TrackingEvents._ID)));
+                try {
+                    urls.add(new Pair<String, String>(eventId, mTrackingApi.buildUrl(cursor)));
+                } catch (UnsupportedEncodingException e) {
+                    Log.w(TAG, "Failed to encode play event ", e);
+                }
+            }
+            cursor.close();
+        }
+        closeTrackingDb(); // close connection to minimize locking crashes when threads overlap
+
+
+        if (urls != null && !urls.isEmpty()) {
+            String[] submitted = mTrackingApi.pushToRemote(urls);
             if (submitted.length > 0) {
+
                 StringBuilder query = new StringBuilder(submitted.length * 2 - 1);
                 query.append(TrackingEvents._ID).append(" IN (?");
                 for (int i = 1; i < submitted.length; i++) query.append(",?");
                 query.append(")");
 
-                final int deleted = db.delete(EVENTS_TABLE, query.toString(), submitted);
+                final int deleted = getTrackingDb().delete(EVENTS_TABLE, query.toString(), submitted);
                 if (deleted != submitted.length) {
                     Log.w(TAG, "error deleting events (deleted="+deleted+")");
                 } else {
                     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "submitted "+deleted+ " events");
                 }
+                closeTrackingDb();
             }
         }
         boolean flushedAll = false;
-        if (cursor != null) {
-            flushedAll = cursor.getCount() < BATCH_SIZE;
-            cursor.close();
+        if (urls != null) {
+            flushedAll = urls.size() < BATCH_SIZE;
         }
-
-        db.setTransactionSuccessful();
-        db.endTransaction();
         return flushedAll;
     }
 
-    private SQLiteDatabase getTrackingDb() throws SQLiteException {
-        if (trackingDb == null) {
-            TrackingDbHelper helper = new TrackingDbHelper(mContext);
-            trackingDb = helper.getWritableDatabase();
-        }
-        return trackingDb;
+    /* package */ SQLiteDatabase getTrackingDb() throws SQLiteException {
+        return trackingDbHelper.getWritableDatabase();
+    }
+
+    /* package */ void closeTrackingDb() throws SQLiteException {
+        trackingDbHelper.close();
     }
 
     public interface TrackingEvents extends BaseColumns {
@@ -243,7 +260,9 @@ public class PlayEventTracker {
             switch (msg.what) {
                 case INSERT_TOKEN:
                     final TrackingParams params = (TrackingParams) msg.obj;
+
                     long id = getTrackingDb().insert(EVENTS_TABLE, null, params.toContentValues());
+                    closeTrackingDb();
 
                     if (id < 0) {
                         Log.w(TAG, "error inserting tracking event");
@@ -263,10 +282,6 @@ public class PlayEventTracker {
 
                     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Shutting down.");
                     getLooper().quit();
-                    if (trackingDb != null) {
-                        trackingDb.close();
-                        trackingDb = null;
-                    }
                     break;
             }
         }
