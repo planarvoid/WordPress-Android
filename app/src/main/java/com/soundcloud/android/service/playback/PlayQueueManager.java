@@ -11,6 +11,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.ParallelAsyncTask;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,6 +37,7 @@ public class PlayQueueManager {
     private final Context mContext;
 
     private long mUserId;
+    private AsyncTask mLoadTask;
 
     public static class PlayQueueItem {
         public final Track track;
@@ -60,6 +62,10 @@ public class PlayQueueManager {
     }
     public int length() {
         return mPlayQueue.size();
+    }
+
+    public boolean needsItems() {
+        return isEmpty() && AndroidUtils.isTaskFinished(mLoadTask);
     }
 
     public boolean isEmpty() {
@@ -91,14 +97,6 @@ public class PlayQueueManager {
     public Track getTrackAt(int pos) {
         if (pos >= 0 && pos < mPlayQueue.size()) {
             return mPlayQueue.get(pos).track;
-        } else {
-            return null;
-        }
-    }
-
-    public PlayQueueItem getItemAt(int pos) {
-        if (pos >= 0 && pos < mPlayQueue.size()) {
-            return mPlayQueue.get(pos).setPosition(pos);
         } else {
             return null;
         }
@@ -199,6 +197,10 @@ public class PlayQueueManager {
      * @param initialPlayPos    initial play position for initial queue.
      */
     public void loadUri(Uri uri, int position, List<? extends PlayableHolder> initialPlayQueue, int initialPlayPos) {
+        if (mLoadTask != null && !AndroidUtils.isTaskFinished(mLoadTask)){
+            mLoadTask.cancel(false);
+        }
+
         if (initialPlayQueue != null) {
             setPlayQueue(initialPlayQueue, initialPlayPos);
         } else {
@@ -207,8 +209,6 @@ public class PlayQueueManager {
             mPlayPos = 0;
         }
 
-
-
         mPlayQueueUri = new PlayQueueUri(uri);
 
         // if playlist, adjust load uri to request the tracks instead of meta_data
@@ -216,7 +216,7 @@ public class PlayQueueManager {
             uri = Content.PLAYLIST_TRACKS.forQuery(uri.getLastPathSegment());
         }
         if (uri != null) {
-            loadCursor(uri, position);
+            mLoadTask = loadCursor(uri, position);
         }
     }
 
@@ -232,7 +232,7 @@ public class PlayQueueManager {
                 }
                 boolean isActivityCursor = Content.match(uri).isActivitiesItem();
                 ArrayList<PlayQueueItem> newQueue = null;
-                if (cursor != null) {
+                if (cursor != null && !isCancelled()) {
                     newQueue = new ArrayList<PlayQueueItem>();
                     if (cursor.moveToFirst()){
                         do {
@@ -254,8 +254,7 @@ public class PlayQueueManager {
 
             }
             @Override protected void onPostExecute(List<PlayQueueItem> newQueue) {
-                // make sure this cursor is valid and still wanted
-                if (newQueue != null){
+                if (newQueue != null && !isCancelled()){
                     long playingId = getCurrentTrackId();
                     mPlayQueue = newQueue;
                     final Track t = getTrackAt(position);

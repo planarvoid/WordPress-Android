@@ -277,7 +277,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         // before stopping the service, so that pause/resume isn't slow.
         // Also delay stopping the service if we're transitioning between
         // tracks.
-        } else if (!mPlayQueueManager.isEmpty() || mPlayerHandler.hasMessages(TRACK_ENDED)) {
+        } else if (!mPlayQueueManager.needsItems() || mPlayerHandler.hasMessages(TRACK_ENDED)) {
             mDelayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
             return true;
 
@@ -296,7 +296,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
         if (intent != null) {
 
-            if (!PLAY_ACTION.equals(intent.getAction()) && mPlayQueueManager.isEmpty()){
+            if (!PLAY_ACTION.equals(intent.getAction()) && mPlayQueueManager.needsItems()){
                 configureLastPlaylist();
             }
             mIntentReceiver.onReceive(this, intent);
@@ -1071,7 +1071,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 mPlayQueueManager.setPlayQueue(playlistXfer, position);
                 playlistXfer = null;
                 openCurrent();
-            } else if (!mPlayQueueManager.isEmpty() || configureLastPlaylist()){
+            } else if (!mPlayQueueManager.needsItems() || configureLastPlaylist()){
                 // random play intent, play whatever we had last
                 play();
             }

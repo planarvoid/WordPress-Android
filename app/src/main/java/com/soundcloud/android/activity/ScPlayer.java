@@ -301,12 +301,12 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
             // this will configure the playlist from the service
             final PlayQueueManager playQueueManager = CloudPlaybackService.getPlaylistManager();
-            if (playQueueManager != null && !playQueueManager.isEmpty()) {
+            if (playQueueManager != null && !playQueueManager.needsItems()) {
                 // everything is fine, configure from service
                 onMetaChanged(playQueueManager.getPosition());
 
             } else {
-                // service doesn't exist, start it, it will reload queue and broadcast changes
+                // service doesn't exist or playqueue is empty, start it, it will reload queue and broadcast changes
                 startService(new Intent(this, CloudPlaybackService.class));
             }
 
