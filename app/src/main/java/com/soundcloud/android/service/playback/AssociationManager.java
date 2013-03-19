@@ -102,7 +102,7 @@ public class AssociationManager {
             onLikeStatusSet(playable, isAssociated);
             updateLocalState(playable, Content.ME_LIKES.uri, isAssociated);
 
-            Events.fire(Events.LIKE_CHANGED);
+            Events.LIKE_CHANGED.fire(playable);
         }
     };
 
@@ -120,7 +120,7 @@ public class AssociationManager {
             onRepostStatusSet(playable, isAssociated);
             updateLocalState(playable, Content.ME_REPOSTS.uri, isAssociated);
 
-            Events.fire(Events.REPOST_CHANGED);
+            Events.REPOST_CHANGED.fire(playable);
         }
     };
 

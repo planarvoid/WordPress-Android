@@ -8,6 +8,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.fragment.PlaylistTracksFragment2;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.rx.event.Events;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.utils.ImageUtils;
@@ -16,6 +17,8 @@ import com.soundcloud.android.view.PlayableActionButtonsController;
 import com.soundcloud.android.view.adapter.PlayableBar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.Subscription;
+import rx.util.functions.Action1;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -34,6 +37,9 @@ public class PlaylistActivity2 extends ScActivity {
     private PlayableActionButtonsController mActionButtons;
 
     private PlaylistTracksFragment2 mFragment;
+
+    private Subscription mPlaylistLikeSubscription;
+    private Subscription mPlaylistRepostSubscription;
 
     //TODO: replace with Observable event
     //Alos, can't this be in the fragment?
@@ -70,6 +76,26 @@ public class PlaylistActivity2 extends ScActivity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
         registerReceiver(mPlaybackStatusListener, intentFilter);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Action1<Playlist> playlistAssociationChanged = new Action1<Playlist>() {
+            @Override
+            public void call(Playlist playlist) {
+                mActionButtons.update(playlist);
+            }
+        };
+        mPlaylistLikeSubscription = Events.LIKE_CHANGED.subscribe(playlistAssociationChanged);
+        mPlaylistRepostSubscription = Events.REPOST_CHANGED.subscribe(playlistAssociationChanged);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mPlaylistLikeSubscription.unsubscribe();
+        mPlaylistRepostSubscription.unsubscribe();
     }
 
     @Override

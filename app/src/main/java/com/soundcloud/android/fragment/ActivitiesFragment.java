@@ -41,7 +41,7 @@ public class ActivitiesFragment extends ReactiveListFragment {
         mContentUri = (Uri) getArguments().get(EXTRA_STREAM_URI);
         mScheduler = new ActivitiesScheduler(getActivity());
         mLoadActivities = mScheduler.loadFromLocalStorage(mContentUri);
-        mLikeSubscription = Events.subscribe(Events.LIKE_CHANGED, mLoadActivities, mLoadItemsObserver);
+        mLikeSubscription = Events.LIKE_CHANGED.subscribe(mLoadActivities, mLoadItemsObserver);
 
         if (savedInstanceState == null) {
             Log.d(this, "first start, scheduling possible sync");

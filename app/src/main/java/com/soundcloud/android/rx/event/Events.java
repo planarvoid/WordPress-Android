@@ -6,24 +6,35 @@ import rx.Subscription;
 import rx.subjects.Subject;
 import rx.util.functions.Action1;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+public enum Events {
 
-public class Events {
+    LIKE_CHANGED,
+    REPOST_CHANGED;
 
-    public static final Subject<Observable<?>> LIKE_CHANGED = Subject.create();
-    public static final Subject<Observable<?>> REPOST_CHANGED = Subject.create();
+    private final Subject<Object> event = Subject.create();
 
-    public static void fire(Subject<?> event) {
+    public void fire() {
         event.onNext(null);
     }
 
-    public static <T> Subscription subscribe(final Subject<?> event, final Observable<T> observable, final Observer<T> observer) {
-        return event.subscribe(new Action1<Void>() {
+    public void fire(Object data) {
+        event.onNext(data);
+    }
+
+    public <T> Subscription subscribe(final Observable<T> observable, final Observer<T> observer) {
+        return event.subscribe(new Action1<Object>() {
             @Override
-            public void call(Void nil) {
+            public void call(Object data) {
                 observable.subscribe(observer);
+            }
+        });
+    }
+
+    public <T> Subscription subscribe(final Action1<T> action) {
+        return event.subscribe(new Action1<T>() {
+            @Override
+            public void call(T data) {
+                action.call(data);
             }
         });
     }
