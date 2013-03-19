@@ -4,12 +4,9 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:paddingTop="@dimen/list_item_padding_top"
-                android:paddingLeft="@dimen/list_item_padding_left"
-                android:paddingRight="@dimen/list_item_padding_right"
-                android:paddingBottom="@dimen/list_item_padding_bottom">
+                style="@style/ListItemContainer">
 
-    <ImageView android:id="@+id/icon"
+    <com.soundcloud.android.view.OptimisedImageView android:id="@+id/icon"
                android:src="@drawable/avatar_badge"
                android:layout_width="@dimen/list_icon_width"
                android:layout_height="@dimen/list_icon_height"
@@ -26,7 +23,7 @@
         <TextView android:id="@+id/username"
                   android:layout_height="wrap_content"
                   style="@style/txt_list_main"
-                  android:ellipsize="marquee"
+                  android:ellipsize="end"
                   android:text="@string/username"
                   android:textSize="@dimen/list_txt_main_size"
                   android:lines="1"
@@ -78,12 +75,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="0dp">
         <ToggleButton
-                android:id="@id/toggle_btn_follow"
                 android:duplicateParentState="true"
                 android:layout_marginLeft="10dp"
                 android:layout_width="wrap_content"
-                android:textOn="@string/btn_following"
-                android:textOff="@string/btn_follow"
-                style="@style/UserListFollow"/>
+                style="@style/UserBrowser.ToggleButton.Follow"/>
     </RelativeLayout>
 </RelativeLayout>

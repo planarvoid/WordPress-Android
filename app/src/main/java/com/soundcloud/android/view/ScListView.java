@@ -12,7 +12,6 @@ import android.util.AttributeSet;
 import android.view.View;
 
 public class ScListView extends PullToRefreshListView implements PullToRefreshBase.OnConfigureHeaderListener {
-    private View mEmptyView;
     private long mLastUpdated;
 
     public ScListView(Context context) {
@@ -29,7 +28,6 @@ public class ScListView extends PullToRefreshListView implements PullToRefreshBa
     private void init() {
         final Resources res = getResources();
 
-        mEmptyView = new EmptyListView(getContext());
         getRefreshableView().setFadingEdgeLength((int) (2 * res.getDisplayMetrics().density));
         getRefreshableView().setSelector(R.drawable.list_selector_background);
         getRefreshableView().setLongClickable(false);
@@ -47,21 +45,6 @@ public class ScListView extends PullToRefreshListView implements PullToRefreshBa
     @Override
     public int getSolidColor() {
         return 0x666666;
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
-        if (changed) {
-            configEmptyViewDimensions();
-        }
-    }
-
-    private void configEmptyViewDimensions() {
-        if (getHeight() > 0 && mEmptyView != null && mEmptyView.findViewById(R.id.sizer) != null) {
-        mEmptyView.findViewById(R.id.sizer).setMinimumHeight(getHeight());
-        mEmptyView.findViewById(R.id.sizer).requestLayout();
-        }
     }
 
     @Override

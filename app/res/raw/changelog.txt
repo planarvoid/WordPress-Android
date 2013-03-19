@@ -1,13 +1,62 @@
-$ 53
+$ 57
   % v current
-  _ 2013-10-01
-  ! ??
-    * fixed some endless loading conditions
-    * fixed some empty screens not showing up
-    * fixed some error messaging
-    * respecting pauses during buffering and seeking
-    * Pull-to-Refresh upgraded to 2.1.1
+  _ 2013-03-19
+  ! Sets RC 3
+  - Sets sync fixes
+  - Add to set now appends instead of prepending
+  - fixed some deeplinks
+  - Fixed add to playlist locking bug
+  - Fixed erratic liked/reposted state on stream items
+  - Changed refresh logic to account for private sounds in sets
+  - Various bug and UI fixes
+  - Search functionality added to sets
+  - Set creation is done in the background
+  - Listen to Sets in the Android App
+  - Create and add to new sets on the go
+
+$ 56
+  % v 2.4.7
+  _ 2013-03-01
+  ! Maintenance
+  - tracking bug fixes
+  - support library bump to r12
+  - crop library bump to 1.1.6
+  - various BugSense bug fixes
+
+$ 55
+  % v 2.4.6
+  _ 2013-02-26
+  ! Maintenance
+  * Fixed language/local based IO problems
+  * No longer deleting external uploads
+  * Locale and data fixes for Arabic
+  * Fixed visibility with unplayable likes
+  - Add play duration tracking
+
+$ 54
+  % v 2.4.5
+  _ 2013-01-25
+  ! Maintenance
+  * Image cropping bugs fixed
+  * Resolving urls will now fall back to a webview
+  * Fixed track positioning when Stream updates
+  * Various other bug fixes
+  - Fixed some Image Cropping issues
+
+$ 53
+  % v 2.4.4
+  _ 2013-01-14
+  ! Maintenance
+    * Improved accessibility support
+    * Fixed waveform rendering
+    * Resolved various smaller issues
+    - Bugfixes
+    - fixed some endless loading conditions
+    - fixed some empty screens not showing up
     - Optimized image loading in lists
+    - Fixed some error messaging
+    - respecting pauses during buffering and seeking
+    - Pull-to-Refresh upgraded to 2.1.1
     - Disabling transport bars and list beginning / end
     - Comment count increases when comment is added
     - refreshing list timestamps after loaded

@@ -33,10 +33,10 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Scroller;
 
-/*
-    Touch Handling pulled from the Android ICS ScrollView class
-
-
+/**
+ * Container for all activity content views plus the fly-in menu.
+ *
+ * Touch Handling pulled from the Android ICS ScrollView class
 */
 public class RootView extends ViewGroup {
     private static final float MAXIMUM_MINOR_VELOCITY   = 150.0f;
@@ -148,8 +148,7 @@ public class RootView extends ViewGroup {
 
         View.inflate(context, R.layout.root_view, this);
 
-        // TODO. GET A REAL ID
-        setId(101010101);
+        setId(R.id.root_view_id);
 
         mBlocker = findViewById(R.id.blocker);
         mBlocker.setVisibility(View.GONE);

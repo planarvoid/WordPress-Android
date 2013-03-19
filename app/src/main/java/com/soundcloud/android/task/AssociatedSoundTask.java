@@ -2,7 +2,7 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.model.Sound;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
@@ -13,12 +13,13 @@ import java.io.IOException;
 public abstract class AssociatedSoundTask extends AsyncTask<String, String, Boolean> {
     protected AndroidCloudAPI mApi;
     private AssociatedListener mAssociatedListener;
+    protected boolean mChanged;
 
-    protected Sound sound;
+    protected Playable playable;
 
-    public AssociatedSoundTask(AndroidCloudAPI api, Sound sound) {
+    public AssociatedSoundTask(AndroidCloudAPI api, Playable playable) {
         this.mApi = api;
-        this.sound = sound;
+        this.playable = playable;
     }
 
     public void setOnAssociatedListener(AssociatedListener likeListener){
@@ -28,7 +29,7 @@ public abstract class AssociatedSoundTask extends AsyncTask<String, String, Bool
     @Override
     protected Boolean doInBackground(String... params) {
         try {
-            return isAssociated(executeResponse(Request.to(params[0], sound.id)));
+            return isAssociated(executeResponse(Request.to(params[0], playable.id)));
         } catch (IOException e) {
             return isAssociated(HttpStatus.SC_NOT_MODIFIED);
         }
@@ -43,11 +44,11 @@ public abstract class AssociatedSoundTask extends AsyncTask<String, String, Bool
     @Override
     protected void onPostExecute(Boolean associated) {
         if (mAssociatedListener != null) {
-            mAssociatedListener.onNewStatus(sound, associated);
+            mAssociatedListener.onNewStatus(playable, associated, mChanged);
         }
     }
 
     public interface AssociatedListener {
-        void onNewStatus(Sound sound, boolean isAssociated);
+        void onNewStatus(Playable playable, boolean isAssociated, boolean changed);
     }
 }

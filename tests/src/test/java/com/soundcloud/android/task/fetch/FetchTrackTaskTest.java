@@ -5,13 +5,11 @@ import static com.soundcloud.android.utils.IOUtils.readInputStream;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,11 +17,9 @@ import org.junit.runner.RunWith;
 
 @RunWith(DefaultTestRunner.class)
 public class FetchTrackTaskTest {
-    FetchTrackTask.FetchTrackListener listener;
-
     @Test
     public void testFetchTrack() throws Exception {
-        FetchTrackTask task = new FetchTrackTask(DefaultTestRunner.application, 0);
+        FetchTrackTask task = new FetchTrackTask(DefaultTestRunner.application);
 
         addHttpResponseRule("GET", "/tracks/12345",
                 new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("../track.json"))));
@@ -34,14 +30,14 @@ public class FetchTrackTaskTest {
         SoundCloudApplication.MODEL_MANAGER.cache(t);
 
         final Track[] track = {null};
-        listener = new FetchTrackTask.FetchTrackListener() {
+        FetchModelTask.Listener<Track> listener = new FetchModelTask.Listener<Track>() {
             @Override
-            public void onSuccess(Track t, String action) {
+            public void onSuccess(Track t) {
                 track[0] = t;
             }
 
             @Override
-            public void onError(long modelId) {
+            public void onError(Object context) {
             }
         };
 

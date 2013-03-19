@@ -1,31 +1,31 @@
 
 package com.soundcloud.android.model.act;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.model.Creation;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Refreshable;
-import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SharingNote;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.utils.ScTextUtils;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.PlayableHolder;
+import com.soundcloud.android.model.Refreshable;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SharingNote;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,7 +47,7 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = CommentActivity.class, name = "comment")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class Activity extends ScModel implements Parcelable, Refreshable, Comparable<Activity>, Creation {
+public abstract class Activity extends ScModel implements Parcelable, Refreshable, Comparable<Activity>, PlayableHolder {
     @JsonProperty public String uuid;
     @JsonProperty public Date created_at;
     @JsonProperty public String tags;
@@ -149,8 +149,11 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         }
 
         if (getUser() != null) cv.put(DBHelper.Activities.USER_ID, getUser().id);
-        if (getTrack() != null) cv.put(DBHelper.Activities.SOUND_ID, getTrack().id);
 
+        if (getPlayable() != null){
+            cv.put(DBHelper.Activities.SOUND_ID, getPlayable().id);
+            cv.put(DBHelper.Activities.SOUND_TYPE, getType().isPlaylistActivity() ? Playable.DB_TYPE_PLAYLIST : Playable.DB_TYPE_TRACK);
+        }
         return cv;
     }
 
@@ -203,17 +206,9 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         out.writeLong(sharing_note == null ? -1l : sharing_note.created_at.getTime());
     }
 
-    public abstract Type getType();
-
-    public abstract Track getTrack();
-
-    public abstract User getUser();
-
-    public abstract Playlist getPlaylist();
-
-    public abstract void setCachedTrack(Track track);
-
-    public abstract void setCachedUser(User user);
+    public abstract Type        getType();
+    public abstract User        getUser();
+    public abstract void        cacheDependencies();
 
 
     public List<ScResource> getDependentModels() {
@@ -221,22 +216,13 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         final User user = getUser();
         if (user != null)  models.add(user);
 
-        final Track track = getTrack();
-        if (track != null) {
-            models.add(track);
-            if (track.user != null && track.user != user){
-                models.add(track.user);
+        final Playable playable = getPlayable();
+        if (playable != null)  {
+            models.add(playable);
+            if (playable.user != null){
+                models.add(playable.user);
             }
         }
-
-        final Playlist playlist = getPlaylist();
-        if (playlist != null) {
-            models.add(playlist);
-            if (playlist.user != null && playlist.user != user) {
-                models.add(playlist.user);
-            }
-        }
-
         return models;
     }
 
@@ -253,7 +239,7 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         COMMENT("comment", CommentActivity.class),
         AFFILIATION("affiliation", AffiliationActivity.class);
 
-        public static final Type[] PLAYLIST_TYPES = new Type[] { PLAYLIST, PLAYLIST_LIKE, PLAYLIST_REPOST, PLAYLIST_SHARING };
+        public static final EnumSet<Type> PLAYLIST_TYPES = EnumSet.of(PLAYLIST, PLAYLIST_LIKE, PLAYLIST_REPOST, PLAYLIST_SHARING);
 
         Type(String type, Class<? extends Activity> activityClass) {
             this.type = type;
@@ -271,7 +257,7 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
             }
         }
 
-        public static Type fromString(String type) {
+        public static Type fromString(@NotNull String type) {
             for (Type t : values()) {
                 if (t.type.equals(type)) {
                     return t;
@@ -284,15 +270,21 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         public String toString() {
             return type;
         }
+
+        public boolean isPlaylistActivity() {
+            return PLAYLIST_TYPES.contains(this);
+        }
     }
 
     public static String getDbPlaylistTypesForQuery() {
         String types = "";
-        for (int i = 0; i < Activity.Type.PLAYLIST_TYPES.length; i++) {
-            types += "'" + Activity.Type.PLAYLIST_TYPES[i].type + "'";
-            if (i < Activity.Type.PLAYLIST_TYPES.length - 1) {
+        int i = 0;
+        for (Type t : Activity.Type.PLAYLIST_TYPES) {
+            types += "'" + t.type + "'";
+            if (i < Activity.Type.PLAYLIST_TYPES.size() - 1) {
                 types += ",";
             }
+            i++;
         }
         return types;
     }
@@ -300,5 +292,10 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    @Override
+    public boolean isIncomplete() {
+        return false;
     }
 }

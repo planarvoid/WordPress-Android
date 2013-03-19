@@ -35,6 +35,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.concurrent.ExecutionException;
@@ -131,7 +132,7 @@ public class StreamProxy implements Runnable {
                 client.setKeepAlive(true);
                 client.setSendBufferSize(storage.chunkSize);
 
-                Log.d(LOG_TAG, "client connected");
+                Log.d(LOG_TAG, "client connected: "+client.getRemoteSocketAddress());
                 try {
                     final HttpUriRequest request = readRequest(client.getInputStream());
                     new Thread("handle-proxy-request") {
@@ -244,7 +245,7 @@ public class StreamProxy implements Runnable {
         final String nextUrl = uri.getQueryParameter(PARAM_NEXT_STREAM_URL);
 
         if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG,
-                String.format("processRequest: url=%s, port=%d", streamUrl, client.getPort()));
+                String.format("processRequest: url=%s, port=%d, firstByte=%d", streamUrl, client.getPort(), firstRequestedByte(request)));
 
         setUserAgent(request);
 
@@ -352,7 +353,7 @@ public class StreamProxy implements Runnable {
 
                     if (startByte != 0) {
                         headers.put("Content-Range",
-                                String.format("%d-%d/%d", startByte, length - 1, length));
+                                String.format(Locale.ENGLISH, "%d-%d/%d", startByte, length - 1, length));
                     }
                     ByteBuffer header = getHeader(startByte, headers);
                     channel.write(header);
@@ -373,8 +374,10 @@ public class StreamProxy implements Runnable {
                     throw e;
                 }
 
-                offset += channel.write(buffer);
-                if (offset >= stream.item.getContentLength()) {
+                final int written = channel.write(buffer);
+
+                offset += written;
+                if (written == 0 || offset >= stream.item.getContentLength()) {
                     if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG,
                             String.format("reached end of stream (%d > %d)", offset, stream.item.getContentLength()));
                     break;

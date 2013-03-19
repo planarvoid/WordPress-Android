@@ -7,18 +7,14 @@
               android:id="@+id/container">
 
     <RelativeLayout android:background="@color/playerControlBackground"
+                  style="@style/ListItemContainer"
                   android:layout_height="wrap_content"
-                  android:paddingTop="@dimen/list_item_padding_top"
-                  android:paddingLeft="@dimen/list_item_padding_left"
-                  android:paddingRight="@dimen/list_item_padding_right"
-                  android:paddingBottom="@dimen/list_item_padding_bottom"
                   android:gravity="center_vertical"
-                  android:orientation="horizontal"
                   android:layout_width="fill_parent">
 
         <ImageView android:id="@+id/user_icon"
-                android:layout_width="67dip"
-                android:layout_height="67dip"
+                android:layout_width="@dimen/user_page_icon_size"
+                android:layout_height="@dimen/user_page_icon_size"
                 android:layout_marginRight="@dimen/list_icon_margin_right"
                 android:scaleType="fitCenter"
                 android:src="@drawable/avatar_badge_large"
@@ -111,7 +107,7 @@
             />
     <android.support.v4.view.ViewPager
             android:id="@+id/pager"
-            android:background="@color/white"
+            android:background="@android:color/white"
             android:layout_width="fill_parent"
             android:layout_height="0dp"
             android:layout_weight="1"

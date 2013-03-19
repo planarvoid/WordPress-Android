@@ -15,7 +15,6 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -104,7 +103,7 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     }
 
     @Override
-    public Sound getSound() {
+    public Playable getPlayable() {
         return null;
     }
 
@@ -248,4 +247,10 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
         result = 31 * result + (service != null ? service.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public Uri toUri() {
+        return Content.ME_CONNECTIONS.forId(id);
+    }
+
 }

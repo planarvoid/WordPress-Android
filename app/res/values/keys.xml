@@ -4,6 +4,10 @@
 
     <!-- new credential for 2.2.10 -->
     <string name='client_id'>40ccfee680a844780a41fbe23ea89934</string>
+
+    <!-- http://soundcloud.com/apps/android -->
+    <string name='app_id'>3152</string>
+
     <!-- client_secret: 26a5240f7ee0ee2d4fa9956ed80616c2 -->
 
     <string name='sandbox_client_id'>0000000cRqnBaKamtp2ACbjvFdtJQx13</string>

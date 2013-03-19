@@ -19,6 +19,7 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.util.Locale;
 import java.util.Random;
 import java.util.regex.Pattern;
 
@@ -92,16 +93,16 @@ public class ScTextUtils {
     }
 
     public static String hexString(byte[] bytes) {
-        return String.format("%0" + (bytes.length << 1) + "x", new BigInteger(1, bytes));
+        return String.format(Locale.ENGLISH, "%0" + (bytes.length << 1) + "x", new BigInteger(1, bytes));
     }
 
     /**
-     * @param pos play position in ms
+     * @param msecs duration or time in ms
      * @return formatted time string in the form of 0.05 or 2.12.04
      */
-    public static String formatTimestamp(long pos){
+    public static String formatTimestamp(long msecs){
         StringBuilder builder = new StringBuilder();
-        int secs = (int) (pos / 1000);
+        int secs = (int) (msecs / 1000);
         int minutes = secs  / 60;
         int hours = minutes / 60;
         if (hours > 0) {

@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Lots of style re-use between Theme.Next and Theme.Next.Dark, don't know how else to share these other than duplication -->
     <style name="Theme.Next" parent="@style/Theme.Sherlock.Light.DarkActionBar">
-        <item name="android:windowBackground">@color/white</item>
+
+        <item name="android:windowSoftInputMode">adjustPan</item>
+        <item name="android:windowBackground">@android:color/white</item>
 
         <item name="actionBarItemBackground">@drawable/action_bar_item_selector</item>
         <item name="android:actionBarItemBackground">@drawable/action_bar_item_selector</item>
+
+        <item name="android:listDivider">@drawable/abs__list_divider_holo_light</item>
 
         <item name="android:windowAnimationStyle">@style/Theme.Next.Animation.Activity</item>
         <item name="android:popupAnimationStyle">@style/Theme.Next.Animation.Popup</item>
@@ -19,35 +24,63 @@
         <item name="dropDownListViewStyle">@style/next_DropDownListView</item>
         <item name="android:dropDownListViewStyle">@style/next_DropDownListView</item>
 
-        <item name="android:actionBarTabStyle">@style/next_ActionBarTabStyle</item>
-        <item name="android:actionBarStyle">@style/next_solid_ActionBar</item>
-
         <item name="actionBarStyle">@style/next_solid_ActionBar</item>
-        <item name="actionBarTabStyle">@style/next_ActionBarTabStyle</item>
-
-        <!--<item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>-->
-
-        <!-- Compatibility issues when this is set. Check on more devices -->
-        <!--<item name="android:panelBackground">@drawable/menu_hardkey_panel_next</item>-->
+        <item name="android:actionBarStyle">@style/next_solid_ActionBar</item>
 
         <!-- Light.DarkActionBar specific -->
         <item name="actionBarWidgetTheme">@style/Theme.next.widget</item>
         <item name="android:actionBarWidgetTheme">@style/Theme.next.widget</item>
 
-        <!-- Using these spinners overrides all app spinners. Use default spinners for now, come back to this -->
-        <!--<item name="spinnerDropDownItemStyle">@style/next_DropDownItem</item>
-        <item name="android:spinnerDropDownItemStyle">@style/next_DropDownItem</item>
-        <item name="spinnerItemStyle">@style/next_SpinnerItem</item>
-        <item name="android:spinnerItemStyle">@style/next_SpinnerItem</item>-->
-
+        <!-- PullToRefresh specific -->
         <item name="ptrAnimationStyle">flip</item>
 
+        <!-- ViewPager -->
         <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
 
         <item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>
 
     </style>
+
+    <style name="Theme.Next.Dark" parent="@style/Theme.Sherlock">
+
+        <item name="android:windowSoftInputMode">adjustPan</item>
+
+        <item name="actionBarItemBackground">@drawable/action_bar_item_selector</item>
+        <item name="android:actionBarItemBackground">@drawable/action_bar_item_selector</item>
+
+        <item name="android:listDivider">@drawable/abs__list_divider_holo_light</item>
+
+        <item name="android:windowAnimationStyle">@style/Theme.Next.Animation.Activity</item>
+        <item name="android:popupAnimationStyle">@style/Theme.Next.Animation.Popup</item>
+
+        <item name="popupMenuStyle">@style/next_PopupMenu</item>
+        <item name="android:popupMenuStyle">@style/next_PopupMenu</item>
+
+        <item name="actionDropDownStyle">@style/next_DropDownNav</item>
+        <item name="android:actionDropDownStyle">@style/next_DropDownNav</item>
+
+        <item name="dropDownListViewStyle">@style/next_DropDownListView</item>
+        <item name="android:dropDownListViewStyle">@style/next_DropDownListView</item>
+
+        <item name="actionBarStyle">@style/next_solid_ActionBar</item>
+        <item name="android:actionBarStyle">@style/next_solid_ActionBar</item>
+
+        <!-- Light.DarkActionBar specific -->
+        <item name="actionBarWidgetTheme">@style/Theme.next.widget</item>
+        <item name="android:actionBarWidgetTheme">@style/Theme.next.widget</item>
+
+        <!-- PullToRefresh specific -->
+        <item name="ptrAnimationStyle">flip</item>
+
+        <!-- ViewPager -->
+        <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
+        <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
+
+        <item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>
+
+    </style>
+
     <style name="Theme.Next.Settings" parent="Theme.Sherlock.Light.NoActionBar"/>
     <style name="Theme.Next.NoActionBar" parent="Theme.Sherlock.NoActionBar"/>
     <style name="Theme.ScDialog" parent="android:Theme.Dialog"/>
@@ -56,8 +89,8 @@
         <item name="android:windowBackground">@null</item>
     </style>
 
-    <style name="Theme.Next.Dark" parent="Theme.Next">
-        <item name="android:windowBackground">@color/darkBg</item>
+    <style name="Theme.Next.Dark.NoBg" parent="Theme.Next.Dark">
+        <item name="android:windowBackground">@null</item>
     </style>
 
     <style name="Theme.ScMenu" parent="Theme.Next">
@@ -71,19 +104,19 @@
         <item name="android:windowSoftInputMode">adjustResize</item>
     </style>
 
-    <style name="Theme.ScCreate" parent="Theme.Next">
+    <style name="Theme.ScCreate" parent="Theme.Next.Dark">
         <item name="android:windowBackground">@drawable/bg_rec</item>
     </style>
 
-    <style name="Theme.Next.Animation.Popup">
+    <style name="Theme.Next.Animation.Popup" parent="Theme.Next">
         <item name="@android:windowEnterAnimation">@anim/fade_in</item>
         <item name="@android:windowExitAnimation">@anim/fade_out</item>
     </style>
 
-    <style name="Theme.Next.Animation">
+    <style name="Theme.Next.Animation" parent="Theme.Next">
     </style>
 
-    <style name="Theme.Next.Animation.Activity">
+    <style name="Theme.Next.Animation.Activity" parent="Theme.Next">
         <item name="android:activityOpenEnterAnimation">@anim/activity_open_enter</item>
         <item name="android:activityOpenExitAnimation">@anim/activity_open_exit</item>
         <item name="android:activityCloseEnterAnimation">@anim/activity_close_enter</item>
@@ -180,7 +213,7 @@
     <style name="Widget.ScTitlePageIndicator">
         <item name="android:background">@drawable/action_bar_background</item>
         <item name="android:textSize">13dp</item>
-        <item name="selectedColor">@color/black</item>
+        <item name="selectedColor">@android:color/black</item>
 
         <item name="android:textColor">#666666</item>
         <item name="footerColor">#ff6600</item>

@@ -1,14 +1,13 @@
 package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.provider.ScContentProvider.Parameter.CACHED;
-import static com.soundcloud.android.provider.ScContentProvider.Parameter.LIMIT;
-import static com.soundcloud.android.provider.ScContentProvider.Parameter.RANDOM;
+import static com.soundcloud.android.provider.ScContentProvider.Parameter.*;
 import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Like;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Shortcut;
 import com.soundcloud.android.model.SoundAssociation;
@@ -21,6 +20,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
+import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,7 +69,7 @@ public class ScContentProviderTest {
 
         collection.insert(resolver);
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(2); // actually 3, playlist filered
+        expect(c.getCount()).toEqual(3);
 
         List<Like> likes = new ArrayList<Like>();
         while (c.moveToNext()) {
@@ -77,8 +77,8 @@ public class ScContentProviderTest {
             likes.add(like);
         }
 
-        expect(likes.get(0).getTrack().title).toEqual("freddie evans at Excel Exhibition Centre");
-        expect(likes.get(1).getTrack().title).toEqual("sing-a-long time at London 2012 Live Site - Hyde Park");
+        expect(likes.get(0).getPlayable().title).toEqual("LOL");
+        expect(likes.get(1).getPlayable().title).toEqual("freddie evans at Excel Exhibition Centre");
     }
 
     @Test
@@ -86,10 +86,10 @@ public class ScContentProviderTest {
         SoundAssociationHolder collection = readJson(SoundAssociationHolder.class,
                 "/com/soundcloud/android/service/sync/e1_likes.json");
 
-        expect(collection.insert(resolver)).toEqual(4);
+        expect(collection.insert(resolver)).toEqual(3);
 
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(2);
+        expect(c.getCount()).toEqual(3);
 
         List<Like> likes = new ArrayList<Like>();
         while (c.moveToNext()) {
@@ -97,10 +97,10 @@ public class ScContentProviderTest {
             likes.add(like);
         }
         expect(resolver.delete(Content.ME_LIKES.uri, DBHelper.CollectionItems.ITEM_ID + " = ?",
-                new String[]{String.valueOf(likes.get(0).getTrack().id)})).toEqual(1);
+                new String[]{String.valueOf(likes.get(0).getPlayable().id)})).toEqual(1);
 
         c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(1);
+        expect(c.getCount()).toEqual(2);
     }
 
     @Test
@@ -108,7 +108,7 @@ public class ScContentProviderTest {
         SoundAssociationHolder collection = readJson(SoundAssociationHolder.class,
                 "/com/soundcloud/android/provider/e1_sounds.json");
 
-        expect(collection.insert(resolver)).toEqual(51);
+        expect(collection.insert(resolver)).toEqual(50);
         Cursor c = resolver.query(Content.ME_SOUNDS.uri, null, null, null, null);
         expect(c.getCount()).toEqual(50);
 
@@ -118,8 +118,8 @@ public class ScContentProviderTest {
         }
         expect(associations).toNumber(50);
 
-        expect(associations.get(0).getTrack().title).toEqual("A trimmed test upload");
-        expect(associations.get(1).getTrack().title).toEqual("A faded + trimmed test upload");
+        expect(associations.get(0).getPlayable().title).toEqual("A trimmed test upload");
+        expect(associations.get(1).getPlayable().title).toEqual("A faded + trimmed test upload");
     }
 
     @Test
@@ -155,7 +155,7 @@ public class ScContentProviderTest {
     public void shouldCleanupSoundStream() throws Exception {
         Activities a = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_stream.json"));
         expect(a.insert(Content.ME_SOUND_STREAM, resolver)).toBe(50);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(46); // 4 playlists, otherwise 50
+        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
         expect(resolver.update(Uri.parse(Content.SOUND_STREAM_CLEANUP.uri.toString() + "?limit=10"), null, null, null)).toBe(40);
     }
 
@@ -172,13 +172,13 @@ public class ScContentProviderTest {
         Activities activities = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(
                 ApiSyncServiceTest.class.getResourceAsStream("e1_stream_1.json"));
 
-        for (Track t : activities.getUniqueTracks()) {
+        for (Playable t : activities.getUniquePlayables()) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
             expect(resolver.insert(Content.TRACK.uri, t.buildContentValues())).not.toBeNull();
         }
 
         expect(Content.TRACK).toHaveCount(20);
-        expect(Content.USERS).toHaveCount(9);
+        expect(Content.USERS).toHaveCount(11);
         Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(61350393l);
 
         expect(t).not.toBeNull();
@@ -357,7 +357,7 @@ public class ScContentProviderTest {
         ApiSyncService svc = new ApiSyncService();
         TestHelper.addPendingHttpResponse(ApiSyncServiceTest.class, "e1_stream_2_oldest.json");
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(26);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(28);
 
         ContentValues cv = new ContentValues();
         final long firstId = 18508668l;
@@ -383,7 +383,7 @@ public class ScContentProviderTest {
         ApiSyncService svc = new ApiSyncService();
         TestHelper.addPendingHttpResponse(ApiSyncServiceTest.class, "e1_stream_2_oldest.json");
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(26);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(28);
 
         ContentValues cv = new ContentValues();
         final long cachedId = 61467451l;
@@ -433,7 +433,7 @@ public class ScContentProviderTest {
     @Test
     public void shouldDeleteRecordings() throws Exception {
         Recording r = Recording.create();
-        expect(SoundCloudDB.upsertRecording(resolver, r, null)).not.toBeNull();
+        expect(r.insert(resolver)).not.toBeNull();
         resolver.delete(Content.RECORDINGS.uri, null, null);
         Cursor cursor = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
         expect(cursor.getCount()).toEqual(0);

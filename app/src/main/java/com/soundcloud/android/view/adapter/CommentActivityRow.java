@@ -23,18 +23,8 @@ import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 public class CommentActivityRow extends ActivityRow {
     private Comment mComment;
 
-    public CommentActivityRow(Context context, ScBaseAdapter adapter) {
-        super(context, adapter);
-    }
-
-    @Override
-    protected void init() {
-        // do nothing
-    }
-
-    @Override
-    protected Track getTrack() {
-        return mComment.track;
+    public CommentActivityRow(Context context) {
+        super(context);
     }
 
     @Override
@@ -80,7 +70,7 @@ public class CommentActivityRow extends ActivityRow {
         builder.append(" ");
         builder.append(getContext().getResources().getString(R.string.accessibility_infix_commented));
         builder.append(" ");
-        builder.append(mActivity.getTrack().title);
+        builder.append(mActivity.getPlayable().title);
         builder.append(": ");
         builder.append(mComment.body);
         builder.append(". ");

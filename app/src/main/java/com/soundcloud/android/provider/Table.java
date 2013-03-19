@@ -14,6 +14,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public enum Table {
     SOUNDS("Sounds", false, DBHelper.DATABASE_CREATE_SOUNDS, DBHelper.Sounds.ALL_FIELDS),
@@ -37,7 +38,8 @@ public enum Table {
     // views
     SOUND_VIEW("SoundView", true, DBHelper.DATABASE_CREATE_SOUND_VIEW),
     ACTIVITY_VIEW("ActivityView", true, DBHelper.DATABASE_CREATE_ACTIVITY_VIEW),
-    SOUND_ASSOCIATION_VIEW("SoundAssociationView", true, DBHelper.DATABASE_CREATE_SOUND_ASSOCIATION_VIEW);
+    SOUND_ASSOCIATION_VIEW("SoundAssociationView", true, DBHelper.DATABASE_CREATE_SOUND_ASSOCIATION_VIEW),
+    PLAYLIST_TRACKS_VIEW("PlaylistTracksView", true, DBHelper.DATABASE_CREATE_PLAYLIST_TRACKS_VIEW);
 
 
     public final String name;
@@ -162,7 +164,7 @@ public enum Table {
         final String fromCols = TextUtils.join(",", fromAppendCols);
 
         // copy current data to tmp table
-        final String sql = String.format("INSERT INTO %s (%s) SELECT %s from %s", tmpTable, toCols, fromCols, table);
+        final String sql = String.format(Locale.ENGLISH, "INSERT INTO %s (%s) SELECT %s from %s", tmpTable, toCols, fromCols, table);
 
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "executing "+sql);
         db.execSQL(sql);
@@ -172,7 +174,7 @@ public enum Table {
         db.execSQL(createString);
 
         // and copy old data from tmp
-        final String copy = String.format("INSERT INTO %s (%s) SELECT %s from %s", table, toCols, toCols, tmpTable);
+        final String copy = String.format(Locale.ENGLISH, "INSERT INTO %s (%s) SELECT %s from %s", table, toCols, toCols, tmpTable);
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "executing "+copy);
         db.execSQL(copy);
         db.execSQL("DROP table "+tmpTable);

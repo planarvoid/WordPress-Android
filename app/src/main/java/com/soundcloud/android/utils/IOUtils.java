@@ -33,6 +33,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
@@ -121,7 +122,11 @@ public final class IOUtils {
     }
 
     public static byte[] readInputStreamAsBytes(InputStream in) throws IOException {
-        byte[] b = new byte[BUFFER_SIZE];
+        return readInputStreamAsBytes(in, BUFFER_SIZE);
+    }
+
+    public static byte[] readInputStreamAsBytes(InputStream in, final int contentLength) throws IOException {
+        byte[] b = new byte[contentLength];
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         if (!(in instanceof BufferedInputStream)) {
             in = new BufferedInputStream(in);
@@ -133,6 +138,19 @@ public final class IOUtils {
         bos.close();
         in.close();
         return bos.toByteArray();
+    }
+
+    public static void consumeStream(@Nullable HttpURLConnection connection) {
+        try {
+            if (connection != null) {
+                final int contentLength = connection.getContentLength();
+                if (contentLength > 0) {
+                    readInputStreamAsBytes(connection.getInputStream(), contentLength);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static boolean mkdirs(File d) {
@@ -450,6 +468,10 @@ public final class IOUtils {
 
     public static boolean isStatusCodeError(int code) {
         return code >= 400 && code < 600;
+    }
+
+    public static boolean isStatusCodeClientError(int code) {
+        return code >= 400 && code < 500;
     }
 
     public static boolean isStatusCodeServerError(int code) {

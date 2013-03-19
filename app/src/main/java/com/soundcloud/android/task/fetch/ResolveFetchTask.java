@@ -2,9 +2,12 @@ package com.soundcloud.android.task.fetch;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.task.ResolveTask;
+import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.api.Request;
+import org.jetbrains.annotations.NotNull;
 
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -12,12 +15,13 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
     private static final String TAG = ResolveFetchTask.class.getSimpleName();
-    private WeakReference<FetchModelTask.FetchModelListener<ScResource>> mListener;
+
+    private WeakReference<FetchModelTask.Listener<ScResource>> mListener;
     private AndroidCloudAPI mApi;
+    private Uri mUnresolvedUrl;
 
     public ResolveFetchTask(AndroidCloudAPI api) {
         mApi = api;
@@ -25,7 +29,16 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
 
     @Override
     protected ScResource doInBackground(Uri... params) {
-        final Uri uri = fixClickTrackingUrl(fixUri(params[0]));
+        Uri uri = fixUri(params[0]);
+
+        // first resolve any click tracking urls
+        if (isClickTrackingUrl(uri)) {
+            Uri resolved = HttpUtils.getRedirectUri(mApi.getHttpClient(), uri);
+            if (resolved == null) {
+                resolved = extractClickTrackingRedirectUrl(uri);
+            }
+            uri = resolved;
+        }
 
         ScResource resource = resolveLocally(uri);
         if (resource != null) {
@@ -34,62 +47,55 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
         }
 
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "resolving uri "+uri+" remotely");
+
         Uri resolvedUri = new ResolveTask(mApi).resolve(uri);
-
         if (resolvedUri != null) {
-            List<String> segments = resolvedUri.getPathSegments();
-            if (segments.size() >= 2) {
-                FetchModelTask<?> task;
-                final String path = segments.get(0);
-                if ("tracks".equalsIgnoreCase(path)) {
-                    task = new FetchTrackTask(mApi);
-                } else if ("users".equalsIgnoreCase(path)) {
-                    task = new FetchUserTask(mApi);
-                } else {
-                    return null;
-                }
+            final Request request = Request.to(resolvedUri.getPath() +
+                (resolvedUri.getQuery() != null ? ("?"+resolvedUri.getQuery()) : ""));
 
-                final Request request = Request.to(resolvedUri.getPath() +
-                        (resolvedUri.getQuery() != null ? ("?"+resolvedUri.getQuery()) : ""));
-
-
-                return task.resolve(request);
-            } else {
-                return null;
-            }
-        } else return null;
+            return new FetchModelTask(mApi).resolve(request);
+        } else {
+            mUnresolvedUrl = uri;
+            return null;
+        }
     }
 
     @Override
     protected void onPostExecute(ScResource resource) {
-        resource = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(resource, ScResource.CacheUpdateMode.FULL);
+        if (resource != null) {
+            resource = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(resource, ScResource.CacheUpdateMode.FULL);
+        }
 
-        FetchModelTask.FetchModelListener<ScResource> listener = getListener();
+        FetchModelTask.Listener<ScResource> listener = getListener();
         if (listener != null) {
             if (resource != null) {
-                listener.onSuccess(resource, null);
+                listener.onSuccess(resource);
             } else {
-                listener.onError(0);
+                listener.onError(mUnresolvedUrl);
             }
         }
     }
 
-    public void setListener(FetchModelTask.FetchModelListener<ScResource> listener) {
-        mListener = new WeakReference<FetchModelTask.FetchModelListener<ScResource>>(listener);
+    public void setListener(FetchModelTask.Listener<ScResource> listener) {
+        mListener = new WeakReference<FetchModelTask.Listener<ScResource>>(listener);
     }
 
-    private FetchModelTask.FetchModelListener<ScResource> getListener() {
+    private FetchModelTask.Listener<ScResource> getListener() {
         return mListener == null ? null : mListener.get();
     }
 
-    static Uri fixClickTrackingUrl(Uri data) {
-        if ("soundcloud.com".equals(data.getHost()) && data.getPath().startsWith("/-/t/click")) {
-            String url = data.getQueryParameter("url");
+    static boolean isClickTrackingUrl(Uri uri) {
+        return "soundcloud.com".equals(uri.getHost()) && uri.getPath().startsWith("/-/t/click");
+    }
+
+    static @NotNull Uri extractClickTrackingRedirectUrl(Uri uri) {
+        if (isClickTrackingUrl(uri)) {
+            String url = uri.getQueryParameter("url");
             if (!TextUtils.isEmpty(url)) {
                 return Uri.parse(url);
             }
         }
-        return data;
+        return uri;
     }
 
     //only handle the first 3 path segments (resource only for now, actions to be implemented later)
@@ -112,7 +118,7 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
     }
 
     private ScResource resolveLocally(Uri uri) {
-        if (uri != null && "soundcloud".equalsIgnoreCase(uri.getScheme())) {
+        if (uri != null && ClientUri.SCHEME.equalsIgnoreCase(uri.getScheme())) {
             final String specific = uri.getSchemeSpecificPart();
             final String[] components = specific.split(":", 2);
             if (components != null && components.length == 2) {
@@ -122,9 +128,11 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
                 if (type != null && id != null) {
                     try {
                         long _id = Long.parseLong(id);
-                        if ("tracks".equalsIgnoreCase(type)) {
+                        if (ClientUri.TRACKS_TYPE.equalsIgnoreCase(type)) {
                             return SoundCloudApplication.MODEL_MANAGER.getTrack(_id);
-                        } else if ("users".equalsIgnoreCase(type)) {
+                        } else if (ClientUri.PLAYLISTS_TYPE.equalsIgnoreCase(type)) {
+                            return SoundCloudApplication.MODEL_MANAGER.getPlaylist(_id);
+                        } else if (ClientUri.USERS_TYPE.equalsIgnoreCase(type)) {
                             return SoundCloudApplication.MODEL_MANAGER.getUser(_id);
                         }
                     } catch (NumberFormatException ignored) {

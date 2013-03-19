@@ -1,6 +1,5 @@
 package com.soundcloud.android.fragment;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -11,18 +10,20 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.adapter.CommentAdapter;
+import com.soundcloud.android.adapter.DefaultPlayableAdapter;
 import com.soundcloud.android.adapter.FriendAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.PlayableAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.adapter.SearchAdapter;
 import com.soundcloud.android.adapter.SoundAssociationAdapter;
-import com.soundcloud.android.adapter.TrackAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -67,8 +68,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                                                             AbsListView.OnScrollListener,
                                                             ImageLoader.LoadBlocker {
     private static final int CONNECTIVITY_MSG = 0;
+    public static final String TAG = ScListFragment.class.getSimpleName();
 
     @Nullable private ScListView mListView;
+    private ScBaseAdapter<?> mAdapter;
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
     protected @Nullable EmptyListView mEmptyListView;
@@ -78,11 +81,13 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private @Nullable CollectionTask mRefreshTask;
     private @Nullable LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
-    private boolean mIgnorePlaybackStatus, mKeepGoing, mPendingSync;
+    private boolean mIgnorePlaybackStatus, mKeepGoing, mPendingSync, mShouldListenForPlaylistChanges;
     private CollectionTask mAppendTask;
     protected String mNextHref;
 
     protected int mStatusCode;
+
+    private @Nullable BroadcastReceiver mPlaylistChangedReceiver;
 
     public static ScListFragment newInstance(Content content) {
         return newInstance(content.uri);
@@ -117,6 +122,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);
             refreshSyncData();
         }
+
+        mShouldListenForPlaylistChanges = setupListAdapter();
     }
 
     @Override
@@ -136,6 +143,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         generalIntentFilter.addAction(Actions.LOGGING_OUT);
         getActivity().registerReceiver(mGeneralIntentListener, generalIntentFilter);
 
+        if (mShouldListenForPlaylistChanges) {
+            listenForPlaylistChanges();
+        }
+
         final ScBaseAdapter listAdapter = getListAdapter();
         if (listAdapter instanceof PlayableAdapter) listAdapter.notifyDataSetChanged();
     }
@@ -145,6 +156,9 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         super.onStop();
         getActivity().unregisterReceiver(mPlaybackStatusListener);
         getActivity().unregisterReceiver(mGeneralIntentListener);
+        if (mShouldListenForPlaylistChanges && mPlaylistChangedReceiver != null) {
+            getActivity().unregisterReceiver(mPlaylistChangedReceiver);
+        }
         mIgnorePlaybackStatus = false;
     }
 
@@ -175,17 +189,14 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         }
     }
 
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        ScBaseAdapter<?> adapter;
+    private boolean setupListAdapter() {
+        boolean listenForPlaylistChanges = false;
         if (getListAdapter() == null && mContent != null) {
             switch (mContent) {
                 case ME_SOUND_STREAM:
                 case ME_ACTIVITIES:
-                    adapter = new ActivityAdapter(getActivity(), mContentUri);
+                    mAdapter = new ActivityAdapter(getActivity(), mContentUri);
+                    listenForPlaylistChanges = true;
                     break;
                 case ME_FOLLOWERS:
                 case ME_FOLLOWINGS:
@@ -193,30 +204,36 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 case USER_FOLLOWERS:
                 case TRACK_LIKERS:
                 case TRACK_REPOSTERS:
+                case PLAYLIST_LIKERS:
+                case PLAYLIST_REPOSTERS:
                 case SUGGESTED_USERS:
-                    adapter = new UserAdapter(getActivity(), mContentUri);
+                    mAdapter = new UserAdapter(getActivity(), mContentUri);
                     break;
                 case ME_FRIENDS:
-                    adapter = new FriendAdapter(getActivity(), mContentUri);
+                    mAdapter = new FriendAdapter(getActivity(), mContentUri);
                     break;
                 case ME_SOUNDS:
-                    adapter = new MyTracksAdapter(getScActivity(), mContentUri);
+                    mAdapter = new MyTracksAdapter(getScActivity(), mContentUri);
                     break;
                 case ME_LIKES:
                 case USER_LIKES:
                 case USER_SOUNDS:
-                    adapter = new SoundAssociationAdapter(getActivity(), mContentUri);
+                    mAdapter = new SoundAssociationAdapter(getActivity(), mContentUri);
+                    listenForPlaylistChanges = true;
                     break;
                 case SEARCH:
-                    adapter = new SearchAdapter(getActivity(), Content.SEARCH.uri);
+                    mAdapter = new SearchAdapter(getActivity(), Content.SEARCH.uri);
                     break;
                 case TRACK_COMMENTS:
-                    adapter = new CommentAdapter(getActivity(), mContentUri);
+                    mAdapter = new CommentAdapter(getActivity(), mContentUri);
                     break;
-                 default:
-                     adapter = new TrackAdapter(getActivity(), mContentUri);
+                case ME_PLAYLISTS:
+                case USER_PLAYLISTS:
+                    listenForPlaylistChanges = true;
+                default:
+                    mAdapter = new DefaultPlayableAdapter(getActivity(), mContentUri);
             }
-            setListAdapter(adapter);
+            setListAdapter(mAdapter);
             configureEmptyView();
             if (canAppend()) {
                 append(false);
@@ -224,8 +241,37 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 mKeepGoing = false;
             }
         }
+
+        return listenForPlaylistChanges;
     }
 
+    private void listenForPlaylistChanges() {
+        mPlaylistChangedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (mAdapter != null) {
+                    PlayableAdapter playableAdapter = (PlayableAdapter) mAdapter;
+
+                    long playlistId = intent.getLongExtra(Playlist.EXTRA_ID, -1);
+                    int newTracksCount = intent.getIntExtra(Playlist.EXTRA_TRACKS_COUNT, -1);
+
+                    for (int i=0; i < mAdapter.getCount(); i++) {
+                        Playable playable = playableAdapter.getPlayable(i);
+                        if (playable instanceof Playlist && playable.id == playlistId) {
+                            Playlist playlist = (Playlist) playable;
+                            // TODO: this should be updated by the model manager
+
+                            playlist.setTrackCount(newTracksCount);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+                }
+            }
+        };
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Playlist.ACTION_CONTENT_CHANGED);
+        getActivity().registerReceiver(mPlaylistChangedReceiver, intentFilter);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -298,6 +344,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             case ApiSyncService.STATUS_SYNC_ERROR: {
 
                 final boolean nothingChanged = resultData != null && !resultData.getBoolean(mContentUri.toString());
+                log("Returned from sync. Change: " + !nothingChanged);
                 if (nothingChanged && !isRefreshTaskActive()) {
                     doneRefreshing();
                     checkAllowInitalAppend();
@@ -305,7 +352,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 } else if (!nothingChanged) {
                     // something was changed by the sync, if we aren't refreshing already, do it
                     if (!isRefreshTaskActive()) {
+                        log("Something changed, Refreshing....");
                         executeRefreshTask();
+                    } else {
+                        log("Something changed, Already Refreshing, skipping refresh.");
                     }
                 }
                 break;
@@ -318,6 +368,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
      * {@link this#waitingOnInitialSync())} was true earlier, suppressing it.
      */
     private void checkAllowInitalAppend() {
+        log("Should allow initial appending: [waitingOnInitialSync:" + waitingOnInitialSync() + ",mKeepGoing:" + mKeepGoing + "]"  );
         final ScBaseAdapter adapter = getListAdapter();
         if (!mKeepGoing && !waitingOnInitialSync() && adapter != null && adapter.getItemCount() == 0) {
             mKeepGoing = true;
@@ -327,6 +378,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     @Override
     public void onLocalCollectionChanged() {
+        log("Local collection changed " + mLocalCollection);
         // do not autorefresh me_followings based on observing because this would refresh everytime you use the in list toggles
         if (mContent != Content.ME_FOLLOWINGS) refreshSyncData();
     }
@@ -350,7 +402,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         }
 
         mKeepGoing = data.keepGoing;
-
         adapter.handleTaskReturnData(data);
         configureEmptyView(data.responseCode);
 
@@ -363,6 +414,15 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             // this can happen if we manually filter out the entire collection (e.g. all playlists)
             append(true);
         }
+
+        // show unauthorized dialog if applicable
+        if (data.responseCode == HttpStatus.SC_UNAUTHORIZED) {
+            final FragmentActivity activity = getActivity();
+            if (activity != null) {
+                activity.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
+            }
+        }
+
     }
 
     @Override
@@ -399,10 +459,13 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     protected boolean canAppend() {
+        log("Can Append [mKeepGoing: " + mKeepGoing + ", waitingOnInitialSync: "+waitingOnInitialSync()+"]");
         return mKeepGoing && !waitingOnInitialSync();
     }
 
     protected void refresh(final boolean userRefresh) {
+        log("Refresh [userRefresh: " + userRefresh + "]");
+
         // this needs to happen regardless of context/adapter availability, it will setup a pending sync if needed
         if (isSyncable()) {
             requestSync();
@@ -445,6 +508,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     protected void configureEmptyView(int statusCode) {
         final boolean wait = canAppend() || isRefreshing() || waitingOnInitialSync();
+        log("Configure empty view [waiting:" + wait + "]");
         mStatusCode = wait ? EmptyListView.Status.WAITING : statusCode;
         if (mEmptyListView != null) {
             mEmptyListView.setStatus(mStatusCode);
@@ -487,13 +551,16 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
 
     private void requestSync() {
+
         if (getActivity() != null && mContent != null) {
+            log("Requesting Sync");
             Intent intent = new Intent(getActivity(), ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                     .setData(mContent.uri);
             getActivity().startService(intent);
         } else {
+            log("Bypassing sync request, no context");
             mPendingSync = true;
         }
     }
@@ -546,10 +613,14 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     private void onContentChanged() {
         final ScBaseAdapter listAdapter = getListAdapter();
-        if (listAdapter instanceof ActivityAdapter && ((ActivityAdapter) listAdapter).isExpired(mLocalCollection)) {
+        if (listAdapter instanceof ActivityAdapter && !((ActivityAdapter) listAdapter).isExpired(mLocalCollection)) {
+            log("Activity content has changed, no newer items, skipping refresh");
+        } else {
+            log("Content changed, adding newer items.");
             executeRefreshTask();
         }
     }
+
 
     private CollectionTask buildTask(Context context) {
         return new CollectionTask(SoundCloudApplication.fromContext(context), this);
@@ -576,6 +647,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (isSyncable() && mLocalCollection != null) {
             setListLastUpdated();
             if (mLocalCollection.shouldAutoRefresh()) {
+                log("Auto refreshing content");
                 if (!isRefreshing()) {
                     refresh(false);
                     // this is to show the user something at the initial load
@@ -584,6 +656,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                     }
                 }
             } else {
+                log("Skipping auto refresh");
                 checkAllowInitalAppend();
             }
         }
@@ -592,25 +665,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private void clearRefreshTask() {
         if (mRefreshTask != null && !AndroidUtils.isTaskFinished(mRefreshTask)) mRefreshTask.cancel(true);
         mRefreshTask = null;
-    }
-
-    private boolean handleResponseCode(int responseCode) {
-        switch (responseCode) {
-            case HttpStatus.SC_CONTINUE: // do nothing
-            case HttpStatus.SC_OK: // do nothing
-            case HttpStatus.SC_NOT_MODIFIED:
-                return true;
-
-            case HttpStatus.SC_UNAUTHORIZED:
-                final FragmentActivity activity = getActivity();
-                if (activity != null && !activity.isFinishing()) {
-                    activity.showDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
-                }
-                //noinspection fallthrough
-            default:
-                Log.w(TAG, "unexpected responseCode " + responseCode);
-                return false;
-        }
     }
 
     private final Handler connHandler = new Handler() {
@@ -682,4 +736,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             }
         }
     };
+
+    private static void log(String msg){
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, msg);
+    }
 }

@@ -56,9 +56,7 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, Uri> {
             warn("error resolving url", e);
             return null;
         }
-
     }
-
 
     public void setListener(ResolveListener listener) {
         mListener = new WeakReference<ResolveListener>(listener);
@@ -89,7 +87,6 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, Uri> {
 
     public interface ResolveListener {
         void onUrlResolved(Uri uri, String action);
-
         void onUrlError();
     }
 

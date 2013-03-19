@@ -10,7 +10,7 @@ import android.test.InstrumentationTestCase;
 public class ApiSyncerTest extends InstrumentationTestCase {
 
     public void testUserCleanup() throws Exception {
-        ApiSyncer syncer = new ApiSyncer(getInstrumentation().getContext());
+        ApiSyncer syncer = new ApiSyncer(getInstrumentation().getTargetContext());
         long start = System.currentTimeMillis();
         syncer.syncContent(Content.USERS_CLEANUP.uri, Intent.ACTION_SYNC);
         long duration = System.currentTimeMillis() - start;
@@ -19,7 +19,7 @@ public class ApiSyncerTest extends InstrumentationTestCase {
 
 
     public void testTrackCleanup() throws Exception {
-        ApiSyncer syncer = new ApiSyncer(getInstrumentation().getContext());
+        ApiSyncer syncer = new ApiSyncer(getInstrumentation().getTargetContext());
         long start = System.currentTimeMillis();
         syncer.syncContent(Content.TRACK_CLEANUP.uri, Intent.ACTION_SYNC);
         long duration = System.currentTimeMillis() - start;

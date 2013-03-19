@@ -2,14 +2,14 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.model.Sound;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.api.Request;
 
 import java.io.IOException;
 
 public class RemoveAssociationTask extends AssociatedSoundTask {
-    public RemoveAssociationTask(AndroidCloudAPI api, Sound sound) {
-        super(api, sound);
+    public RemoveAssociationTask(AndroidCloudAPI api, Playable playable) {
+        super(api, playable);
     }
 
     @Override
@@ -19,6 +19,7 @@ public class RemoveAssociationTask extends AssociatedSoundTask {
 
     @Override
     protected boolean isAssociated(int responseCode) {
-        return !((responseCode >= 200 && responseCode < 300) || responseCode == 404);
+        mChanged = responseCode >= 200 && responseCode < 300;
+        return !(mChanged || responseCode == 404);
     }
 }

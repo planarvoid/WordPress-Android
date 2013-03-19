@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Connection;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
@@ -65,7 +66,7 @@ public class ConnectionItem extends RelativeLayout {
     public void progress(boolean finished) {
         TextView configure = (TextView) findViewById(R.id.txt_configure);
         configure.setTextColor(finished ?
-                getResources().getColor(R.color.white) :
+                Color.WHITE :
                 getResources().getColor(R.color.darker_gray)
         );
     }

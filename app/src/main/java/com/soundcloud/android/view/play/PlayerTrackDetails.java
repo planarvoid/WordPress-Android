@@ -1,11 +1,10 @@
 package com.soundcloud.android.view.play;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.track.TrackComments;
-import com.soundcloud.android.activity.track.TrackLikers;
-import com.soundcloud.android.activity.track.TrackReposters;
+import com.soundcloud.android.activity.track.TrackInteractionActivity;
 import com.soundcloud.android.activity.track.TracksByTag;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.FlowLayout;
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +24,8 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.util.List;
+
+import static com.soundcloud.android.activity.track.PlayableInteractionActivity.EXTRA_INTERACTION_TYPE;
 
 public class PlayerTrackDetails extends RelativeLayout {
     private final ViewGroup mTrackTags;
@@ -53,10 +54,7 @@ public class PlayerTrackDetails extends RelativeLayout {
         mLikersRow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mTrackId > 0) {
-                    getContext().startActivity(
-                            new Intent(getContext(), TrackLikers.class).putExtra(Track.EXTRA_ID, mTrackId));
-                }
+                openInteractionActivity(Activity.Type.TRACK_LIKE);
             }
         });
 
@@ -70,10 +68,7 @@ public class PlayerTrackDetails extends RelativeLayout {
         mRepostersRow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mTrackId > 0) {
-                    getContext().startActivity(
-                        new Intent(getContext(), TrackReposters.class).putExtra(Track.EXTRA_ID, mTrackId));
-                }
+                openInteractionActivity(Activity.Type.TRACK_REPOST);
             }
         });
 
@@ -87,10 +82,7 @@ public class PlayerTrackDetails extends RelativeLayout {
         mCommentersRow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mTrackId > 0) {
-                    getContext().startActivity(
-                        new Intent(getContext(), TrackComments.class).putExtra(Track.EXTRA_ID, mTrackId));
-                }
+                openInteractionActivity(Activity.Type.COMMENT);
             }
         });
 
@@ -191,6 +183,12 @@ public class PlayerTrackDetails extends RelativeLayout {
                 mTrackTags.addView(txt, flowLP);
             }
         }
+    }
+
+    private void openInteractionActivity(Activity.Type interactionType) {
+        getContext().startActivity(new Intent(getContext(), TrackInteractionActivity.class)
+                .putExtra(Track.EXTRA_ID, mTrackId)
+                .putExtra(EXTRA_INTERACTION_TYPE, interactionType));
     }
 
 

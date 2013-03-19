@@ -13,6 +13,7 @@ import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.fragment.UserDetailsFragment;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -57,7 +58,7 @@ import android.widget.ToggleButton;
 
 public class UserBrowser extends ScActivity implements
         FollowStatus.Listener,
-        EventAware, ActionBar.OnNavigationListener, FetchModelTask.FetchModelListener<User> {
+        EventAware, ActionBar.OnNavigationListener, FetchModelTask.Listener<User> {
 
     public static final String EXTRA_USER_ID = "userId";
     public static final String EXTRA_USER = "user";
@@ -80,6 +81,20 @@ public class UserBrowser extends ScActivity implements
     private boolean mDelayContent;
 
     private UserDetailsFragment mUserDetailsFragment;
+
+    public static boolean startFromPlayable(Context context, Playable playable) {
+        if (playable != null && playable.getUserId() >= 0) {
+            if (playable.user != null) {
+                SoundCloudApplication.MODEL_MANAGER.cache(playable.user, ScResource.CacheUpdateMode.NONE);
+            }
+
+            context.startActivity(
+                    new Intent(context, UserBrowser.class)
+                            .putExtra("userId", playable.getUserId()));
+            return true;
+        }
+        return false;
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -225,61 +240,6 @@ public class UserBrowser extends ScActivity implements
         return false;
     }
 
-
-    class UserFragmentAdapter extends FragmentPagerAdapter {
-        public UserFragmentAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            if (Tab.values()[position] == Tab.details){
-                return mUserDetailsFragment;
-            } else {
-                ScListFragment listFragment = ScListFragment.newInstance(isYou() ?
-                        Tab.values()[position].youContent.uri : Tab.values()[position].userContent.forId(mUser.id));
-                listFragment.setEmptyCollection(getEmptyScreenFromContent(position));
-                return listFragment;
-            }
-        }
-
-        @Override
-        public int getCount() {
-            return Tab.values().length;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return Tab.getTitle(getResources(),position,isYou());
-        }
-    }
-
-    class TempAdapter extends PagerAdapter {
-        @Override
-        public int getCount() {
-            return Tab.values().length;
-        }
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return Tab.getTitle(getResources(),position,isYou());
-        }
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            final View v = View.inflate(UserBrowser.this, R.layout.empty_list,null);
-            container.addView(v);
-            return v;
-        }
-        @Override
-        public boolean isViewFromObject(View view, Object object) {
-            return object == view;
-        }
-
-        @Override
-        public void destroyItem(View collection, int position, Object view) {
-            ((ViewPager) collection).removeView((View) view);
-        }
-    }
-
     private EmptyListView getEmptyScreenFromContent(int position) {
         switch (isYou() ? Tab.values()[position].youContent : Tab.values()[position].userContent){
             case ME_SOUNDS:
@@ -385,7 +345,7 @@ public class UserBrowser extends ScActivity implements
 
     private void loadDetails() {
         if (mLoadUserTask == null && mUser != null) {
-            mLoadUserTask = new FetchUserTask(getApp(), mUser.id);
+            mLoadUserTask = new FetchUserTask(getApp());
             mLoadUserTask.addListener(this);
             mLoadUserTask.execute(Request.to(Endpoints.USER_DETAILS, mUser.id));
         }
@@ -428,7 +388,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     @Override
-    public void onSuccess(User user, String action) {
+    public void onSuccess(User user) {
 
         user.last_updated = System.currentTimeMillis();
         // update user locally and ensure 1 instance
@@ -439,7 +399,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     @Override
-    public void onError(long userId) {
+    public void onError(Object context) {
         mUserDetailsFragment.onError();
     }
 
@@ -541,6 +501,7 @@ public class UserBrowser extends ScActivity implements
     public enum Tab {
         details(Actions.YOUR_INFO, Page.Users_info, Page.You_info, Content.USER, Content.ME, R.string.tab_title_user_info, R.string.tab_title_my_info),
         tracks(Actions.YOUR_SOUNDS,Page.Users_sounds, Page.You_sounds, Content.USER_SOUNDS, Content.ME_SOUNDS, R.string.tab_title_user_sounds, R.string.tab_title_my_sounds),
+        sets(Actions.YOUR_SETS,Page.Users_sets, Page.You_sets, Content.USER_PLAYLISTS, Content.ME_PLAYLISTS, R.string.tab_title_user_sets, R.string.tab_title_my_sets),
         likes(Actions.YOUR_LIKES,Page.Users_likes, Page.You_likes, Content.USER_LIKES, Content.ME_LIKES, R.string.tab_title_user_likes, R.string.tab_title_my_likes),
         followings(Actions.YOUR_FOLLOWINGS,Page.Users_following, Page.You_following, Content.USER_FOLLOWINGS, Content.ME_FOLLOWINGS, R.string.tab_title_user_followings, R.string.tab_title_my_followings),
         followers(Actions.YOUR_FOLLOWERS, Page.Users_followers, Page.You_followers, Content.USER_FOLLOWERS, Content.ME_FOLLOWERS, R.string.tab_title_user_followers, R.string.tab_title_my_followers);
@@ -581,6 +542,60 @@ public class UserBrowser extends ScActivity implements
 
         public static String getTitle(Resources resources, int position, boolean isYou){
             return resources.getString(isYou ? Tab.values()[position].youTitle : Tab.values()[position].userTitle);
+        }
+    }
+
+    class UserFragmentAdapter extends FragmentPagerAdapter {
+        public UserFragmentAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            if (Tab.values()[position] == Tab.details){
+                return mUserDetailsFragment;
+            } else {
+                ScListFragment listFragment = ScListFragment.newInstance(isYou() ?
+                        Tab.values()[position].youContent.uri : Tab.values()[position].userContent.forId(mUser.id));
+                listFragment.setEmptyCollection(getEmptyScreenFromContent(position));
+                return listFragment;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return Tab.values().length;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return Tab.getTitle(getResources(),position,isYou());
+        }
+    }
+
+    class TempAdapter extends PagerAdapter {
+        @Override
+        public int getCount() {
+            return Tab.values().length;
+        }
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return Tab.getTitle(getResources(),position,isYou());
+        }
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            final View v = View.inflate(UserBrowser.this, R.layout.empty_list,null);
+            container.addView(v);
+            return v;
+        }
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return object == view;
+        }
+
+        @Override
+        public void destroyItem(View collection, int position, Object view) {
+            ((ViewPager) collection).removeView((View) view);
         }
     }
 }

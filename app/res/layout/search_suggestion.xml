@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              style="@style/side_menu_item">
+              style="@style/side_search_item">
 
     <ImageView android:id="@+id/icon"
                style="@style/side_menu_item_icon"
                android:src="@drawable/cloud_no_logo_sm" />
 
     <TextView android:id="@+id/title"
-              style="@style/search_suggestion_text"
+              style="@style/searchSuggestionText"
               android:text="@string/track"
               android:layout_width="0dp"
               android:layout_height="wrap_content"

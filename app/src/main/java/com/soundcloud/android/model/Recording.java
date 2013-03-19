@@ -11,6 +11,7 @@ import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.audio.reader.WavReader;
+import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Recordings;
@@ -127,8 +128,18 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     @Override
-    public Track getSound() {
+    public Track getPlayable() {
         return null;
+    }
+
+    public Uri insert(ContentResolver contentResolver) {
+        return insert(contentResolver,true);
+    }
+
+    public Uri insert(ContentResolver contentResolver, boolean fullValues) {
+        insertDependencies(contentResolver);
+        // insert parent resource, with possible partial values
+        return contentResolver.insert(toUri(), fullValues ? buildContentValues() : buildBaseContentValues());
     }
 
     public static interface Status {
@@ -199,6 +210,11 @@ public class Recording extends ScResource implements Comparable<Recording> {
 
     public File getAmplitudeFile() {
         return IOUtils.changeExtension(audio_path, AmplitudeData.EXTENSION);
+    }
+
+    @Override
+    public void putDependencyValues(BulkInsertMap destination) {
+        if (recipient != null) recipient.putDependencyValues(destination);
     }
 
     /**
@@ -520,8 +536,10 @@ public class Recording extends ScResource implements Comparable<Recording> {
      */
     public void onUploaded(ContentResolver resolver) {
         upload_status = Status.UPLOADED;
-        IOUtils.deleteFile(getEncodedFile());
-        IOUtils.deleteFile(getFile());
+        if (!external_upload) {
+            IOUtils.deleteFile(getFile());
+            IOUtils.deleteFile(getEncodedFile());
+        }
         IOUtils.deleteFile(resized_artwork_path);
         updateStatus(resolver);
     }

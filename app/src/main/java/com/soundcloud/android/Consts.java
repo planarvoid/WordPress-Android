@@ -199,6 +199,7 @@ public final class Consts {
 
     public interface GeneralIntents {
         String ACTIVITIES_UNSEEN_CHANGED = Activities.class.getSimpleName() + ".unseen_changed";
+        String UNAUTHORIZED = SoundCloudApplication.class.getSimpleName() + ".unauthorized";
     }
 
     // these need to be unique across app
@@ -211,9 +212,10 @@ public final class Consts {
     }
 
     public interface ResourceStaleTimes {
-        long user =    86400000;    //24*60*60*1000 = 24hr
-        long track =   3600000l;    //60*60*1000 = 1hr
-        long activity = 600000l;    //30*60*1000 = 10 mins
+        long user       =   86400000l;    //24*60*60*1000 = 24hr
+        long track      =   14400000l;    //4*60*60*1000  = 4hr
+        long playlist   =   14400000l;    //4*60*60*1000  = 4hr
+        long activity   =   1200000l;     //20*60*1000    = 20 mins
     }
 
     public interface PrefKeys {

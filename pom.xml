@@ -4,7 +4,7 @@
 
     <groupId>com.soundcloud.android</groupId>
     <artifactId>parent</artifactId>
-    <version>2.4.4-BETA3</version>
+    <version>2.5.0-BETA6</version>
     <packaging>pom</packaging>
 
     <name>Parent</name>
@@ -15,6 +15,15 @@
         <name>SoundCloud Ltd.</name>
         <url>http://soundcloud.com</url>
     </organization>
+
+    <properties>
+        <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
+        <keystore.alias>beta-key</keystore.alias>
+        <keystore.password />
+        <keystore.keypass />
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <androidApiLevel>16</androidApiLevel>
+    </properties>
 
     <build>
         <pluginManagement>
@@ -33,11 +42,27 @@
                 <artifactId>android-maven-plugin</artifactId>
                 <configuration>
                     <sdk>
-                        <platform>14</platform>
+                        <platform>${androidApiLevel}</platform>
                     </sdk>
                     <undeployBeforeDeploy>true</undeployBeforeDeploy>
                 </configuration>
                 <extensions>true</extensions>
+            </plugin>
+
+            <!-- use intellij's @NotNull bytecode instrumentation in maven as well -->
+            <plugin>
+                <groupId>com.electriccloud</groupId>
+                <artifactId>javac2-maven-plugin</artifactId>
+                <version>1.0.1</version>
+                <executions>
+                    <execution>
+                        <id>@NotNull Instrumentation</id>
+                        <goals>
+                            <goal>instrument</goal>
+                        </goals>
+                        <phase>process-classes</phase>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -82,13 +107,13 @@
         </repository>
     </repositories>
 
-    <properties>
-      <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
-      <keystore.alias>beta-key</keystore.alias>
-      <keystore.password />
-      <keystore.keypass />
-      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>soundcloud.internal.thirdparty.releases</id>
+            <name>SoundCloud Internal thirdparty</name>
+            <url>http://maven.int.s-cloud.net/content/repositories/thirdparty_releases</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <scm>
         <connection>scm:git:https://github.com/soundcloud/SoundCloud-Android.git</connection>
@@ -102,6 +127,6 @@
 
     <ciManagement>
         <system>jenkins</system>
-        <url>http://builder.soundcloud.com/view/Android/</url>
+        <url>http://builder.int.s-cloud.net/view/Android/</url>
     </ciManagement>
 </project>

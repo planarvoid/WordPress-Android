@@ -220,7 +220,6 @@
   <string name="error_loading_title">Error en la red</string>
   <string name="error_loading_user">Ocurrió un problema al cargar el usuario</string>
   <string name="error_recording_message">Ocurrió un error en la grabación.\n Puede que su dispositivo no soporte la configuración actual de grabación. Puede cambiar la configuración en los ajustes de la aplicación.</string>
-  <string name="error_resolving_url">Ocurrió un problema al resolver la URL</string>
   <string name="error_unauthorized_message">SoundCloud está experimentando problemas al autorizar a esta aplicación el uso de su cuenta. Si el problema continúa, por favor, cierre sesión desde el menú de ajustes para volver a autorizar.</string>
   <string name="error_unauthorized_title">No autorizado</string>
   <string name="facebook_authentication_error_no_connection_message">Por favor, inténtelo de nuevo en unos minutos o inicie sesión con su nombre de usuario y contraseña.</string>
@@ -272,7 +271,6 @@
   <string name="menu_incoming">Entrante</string>
   <string name="menu_load_more">Cargar más</string>
   <string name="menu_refresh">Actualizar</string>
-  <string name="side_menu_settings">Ajustes</string>
   <string name="title_settings">Ajustes</string>
   <string name="menu_stream_setting">Configuración Stream</string>
   <string name="menu_view_current_track">Reproductor</string>
@@ -383,11 +381,6 @@
   <string name="sounds_from">Sonidos desde %s</string>
   <string name="suggested_users_msg">Bienvenido. Gracias por unirse a SoundCloud. Encuentre a sus amigos en Facebook y siga la lista de personas sugeridas para escuchar sus sonidos.</string>
   <string name="suggested_users_no_friends_msg">Es el primero de sus amigos que se une a SoundClud. Pruebe nuevos sonidos de nuestra lista de personas sugeridas.</string>
-  <string name="side_menu_activity">Actividad</string>
-  <string name="side_menu_record">Grabar</string>
-  <string name="title_search">Buscar</string>
-  <string name="side_menu_stream">Stream</string>
-  <string name="side_menu_you">Usted</string>
   <string name="take_new_picture">Tomar una nueva foto</string>
   <string name="take_new_picture_error">No pudiste tomar una foto</string>
   <string name="this_user">este usuario</string>

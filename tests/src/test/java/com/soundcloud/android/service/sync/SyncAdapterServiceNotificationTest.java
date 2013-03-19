@@ -34,7 +34,7 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
         expect(result.getInfo().getContentText().toString()).toEqual(
                 "from Bad Panda Records, The Takeaway and others");
         expect(result.getInfo().getContentTitle().toString()).toEqual(
-                "20 new sounds");
+                "22 new sounds");
         expect(result.getIntent().getAction()).toEqual(Actions.STREAM);
     }
 
@@ -60,7 +60,7 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
         expect(notifications.size()).toEqual(1);
         NotificationInfo n = notifications.get(0);
         expect(n.info.getContentTitle().toString())
-                .toEqual("20 new sounds");
+                .toEqual("22 new sounds");
 
         expect(n.info.getContentText().toString())
                 .toEqual("from Bad Panda Records, The Takeaway and others");
@@ -76,7 +76,7 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
         expect(notifications.size()).toEqual(2);
 
         expect(notifications.get(0).info.getContentTitle().toString())
-                .toEqual("20 new sounds");
+                .toEqual("22 new sounds");
         expect(notifications.get(0).info.getContentText().toString())
                 .toEqual("from Bad Panda Records, The Takeaway and others");
 

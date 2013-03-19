@@ -3,6 +3,7 @@ package com.soundcloud.android;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -48,7 +49,6 @@ import java.util.TimeZone;
 public interface AndroidCloudAPI extends CloudAPI {
     String TAG = AndroidCloudAPI.class.getSimpleName();
 
-    public static final ObjectMapper Mapper = Wrapper.Mapper;
     URI REDIRECT_URI = URI.create("soundcloud://auth");
 
     String getUserAgent();
@@ -60,22 +60,28 @@ public interface AndroidCloudAPI extends CloudAPI {
     Context getContext();
 
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
-        public static final ObjectMapper Mapper;
         /**
          * the parameter which we use to tell the API that this is a non-interactive request (e.g. background
          * syncing. actual parameter name TBD.
          */
         public static final String BACKGROUND_PARAMETER = "_behavior[non_interactive]";
 
-        static {
-            Mapper = createMapper();
-        }
-
+        private ObjectMapper mObjectMapper;
         private Context mContext;
         private String userAgent;
 
         public static Wrapper create(Context context, @Nullable Token initialToken) {
-            return new Wrapper(context, context.getString(R.string.client_id), getClientSecret(true), REDIRECT_URI, initialToken);
+            ObjectMapper objectMapper = buildObjectMapper();
+            String clientId = context.getString(R.string.client_id);
+            return new Wrapper(context, objectMapper, clientId, getClientSecret(true), REDIRECT_URI, initialToken);
+        }
+
+        public static ObjectMapper buildObjectMapper() {
+            return new ObjectMapper().
+                    configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false).
+                    configure(SerializationFeature.WRAP_ROOT_VALUE, true).
+                    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).
+                    setDateFormat(new CloudDateFormat());
         }
 
         /* package */ static String getClientSecret(boolean production) {
@@ -96,12 +102,14 @@ public interface AndroidCloudAPI extends CloudAPI {
             return ScTextUtils.deobfuscate(production ? prod2 : sandbox);
         }
 
-        public Wrapper(Context context, String clientId, String clientSecret, URI redirectUri, Token token) {
+        public Wrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret, URI redirectUri, Token token) {
             super(clientId, clientSecret, redirectUri, token);
             // context can be null in tests
             if (context == null) return;
 
             mContext = context;
+            mObjectMapper = mapper;
+
             userAgent = "SoundCloud Android ("+ AndroidUtils.getAppVersion(context, "unknown")+")";
             final IntentFilter filter = new IntentFilter();
             filter.addAction(Actions.CHANGE_PROXY_ACTION);
@@ -118,6 +126,8 @@ public interface AndroidCloudAPI extends CloudAPI {
                         PreferenceManager.getDefaultSharedPreferences(context).getString(Consts.PrefKeys.DEV_HTTP_PROXY, null);
                 setProxy(TextUtils.isEmpty(proxy) ? null : URI.create(proxy));
             }
+
+            setDefaultAcceptEncoding("gzip");
         }
 
         @Override
@@ -154,7 +164,7 @@ public interface AndroidCloudAPI extends CloudAPI {
         }
 
         @Override public ObjectMapper getMapper() {
-            return Mapper;
+            return mObjectMapper;
         }
 
         @Override
@@ -180,16 +190,6 @@ public interface AndroidCloudAPI extends CloudAPI {
             } else {
                 ApiWrapper.clearDefaultParameters();
             }
-        }
-
-        public static ObjectMapper createMapper() {
-            return new ObjectMapper() {
-                {
-                    configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
-                    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                    setDateFormat(new CloudDateFormat());
-                }
-            };
         }
 
         // accepts all certificates - don't use in production

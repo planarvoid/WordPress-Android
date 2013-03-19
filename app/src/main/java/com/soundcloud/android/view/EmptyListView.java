@@ -14,6 +14,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +35,7 @@ public class EmptyListView extends RelativeLayout {
     private TextView mTxtMessage;
     private TextView mTxtLink;
     @Nullable private ImageView mImage;
-    @Nullable private LinearLayout mError;
+    @Nullable private View mErrorView;
     protected Button mBtnAction;
 
     private int     mMessageResource, mLinkResource, mImageResource, mActionTextResource;
@@ -45,15 +47,20 @@ public class EmptyListView extends RelativeLayout {
 
     public interface Status extends HttpStatus {
         int WAITING = -1;
-        int ERROR = SC_BAD_REQUEST; //generic error
+        int ERROR = -2; //generic error
+        int CONNECTION_ERROR = -3;
         int OK = SC_OK; //generic OK
     }
-
-
 
     public EmptyListView(final Context context, final Intent... intents) {
         super(context);
         setActionListener(context, intents);
+        init();
+    }
+
+    public EmptyListView(final Context context, AttributeSet attributeSet) {
+        super(context, attributeSet);
+        setActionListener(context);
         init();
     }
 
@@ -96,23 +103,21 @@ public class EmptyListView extends RelativeLayout {
                 // don't show empty screen, show progress
                 mProgressBar.setVisibility(View.VISIBLE);
                 if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
-                if (mError != null) mError.setVisibility(View.GONE);
+                if (mErrorView != null) mErrorView.setVisibility(View.GONE);
                 return true;
 
-            } else if (IOUtils.isStatusCodeOk(code)) {
+            } else if (IOUtils.isStatusCodeOk(code))  {
                 // at rest, no error
                 mProgressBar.setVisibility(View.GONE);
                 showEmptyLayout();
                 return true;
 
-            } else if (IOUtils.isStatusCodeError(code)) {
-                // server or client error,
+            } else {
+                // error,
                 mProgressBar.setVisibility(View.GONE);
                 showError(code);
                 return true;
 
-            } else {
-                return false; // handled elsewhere
             }
 
         }
@@ -120,21 +125,30 @@ public class EmptyListView extends RelativeLayout {
     }
 
     private void showError(int responseCode){
-        if (mError == null) {
-            mError = (LinearLayout) View.inflate(getContext(), R.layout.empty_list_error, null);
-            mEmptyViewHolder.addView(mError);
+        if (mErrorView == null) {
+            mErrorView = View.inflate(getContext(), R.layout.empty_list_error, null);
+            mEmptyViewHolder.addView(mErrorView);
         } else {
-            mError.setVisibility(View.VISIBLE);
+            mErrorView.setVisibility(View.VISIBLE);
         }
         if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
 
-        final TextView errorTextView = (TextView) mError.findViewById(R.id.txt_message);
-        if (responseCode == HttpStatus.SC_SERVICE_UNAVAILABLE){
+
+        final TextView errorTextView = (TextView) mErrorView.findViewById(R.id.txt_message);
+        if (responseCode == HttpStatus.SC_SERVICE_UNAVAILABLE) {
             errorTextView.setText(R.string.error_soundcloud_is_down);
-        } else if (IOUtils.isStatusCodeServerError(responseCode)){
+
+        } else if (IOUtils.isStatusCodeError(responseCode)) {
             errorTextView.setText(R.string.error_soundcloud_server_problems);
-        } else {
+
+        } else if (responseCode == Status.CONNECTION_ERROR) {
             errorTextView.setText(R.string.no_internet_connection);
+
+        } else if (responseCode == Status.ERROR) {
+            errorTextView.setText("");
+        } else {
+            errorTextView.setText("");
+            Log.w(SoundCloudApplication.TAG,"Unhandled response code: " + responseCode);
         }
     }
 
@@ -187,7 +201,7 @@ public class EmptyListView extends RelativeLayout {
         }
 
 
-        if (mError != null) mError.setVisibility(View.GONE);
+        if (mErrorView != null) mErrorView.setVisibility(View.GONE);
     }
 
     protected int getEmptyViewLayoutId() {

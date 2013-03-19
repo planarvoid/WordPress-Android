@@ -1,10 +1,13 @@
 package com.soundcloud.android.task.collection;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ApiSyncer;
+import com.soundcloud.api.CloudAPI;
+import org.apache.http.HttpStatus;
 
 import android.content.ContentResolver;
 import android.util.Log;
@@ -30,8 +33,13 @@ public class ActivitiesLoader extends CollectionLoader<Activity> {
                 ApiSyncer.Result result = null;
                 try {
                     result = new ApiSyncer(api.getContext()).syncContent(params.contentUri, ApiSyncService.ACTION_APPEND);
+                } catch (CloudAPI.InvalidTokenException e) {
+                    // TODO, move this once we centralize our error handling
+                    // InvalidTokenException should expose the response code so we don't have to hardcode it here
+                    returnData.responseCode = HttpStatus.SC_UNAUTHORIZED;
+                    returnData.success = false;
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.w(SoundCloudApplication.TAG, e);
                     returnData.success = false;
                 }
 
@@ -45,7 +53,7 @@ public class ActivitiesLoader extends CollectionLoader<Activity> {
             a.resolve(api.getContext());
         }
 
-        returnData.keepGoing = newActivities.size() > 0;
+        returnData.keepGoing = returnData.success && newActivities.size() > 0;
         returnData.newItems = newActivities;
         return returnData;
     }

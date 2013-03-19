@@ -7,6 +7,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.EmbossMaskFilter;
 import android.graphics.Paint;
 import android.util.AttributeSet;
@@ -119,7 +120,7 @@ public class PlayerTime extends RelativeLayout {
             mCommentInstructions.setVisibility(View.VISIBLE);
         } else if (!commenting && mCommenting) {
             mCommenting = false;
-            mCurrentTime.setTextColor(getResources().getColor(R.color.black));
+            mCurrentTime.setTextColor(Color.BLACK);
             mCommentInstructions.setVisibility(View.GONE);
         }
 

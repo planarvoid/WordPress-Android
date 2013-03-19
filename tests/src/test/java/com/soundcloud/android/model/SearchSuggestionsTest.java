@@ -14,17 +14,20 @@ import org.junit.runner.RunWith;
 import android.app.SearchManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
-import android.net.Uri;
 import android.provider.BaseColumns;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 @RunWith(DefaultTestRunner.class)
 public class SearchSuggestionsTest {
     @Test
     public void shouldDeserializeCorrectly() throws Exception {
         SearchSuggestions suggestions = TestHelper.readJson(SearchSuggestions.class,
-                "/com/soundcloud/android/model/suggest.json");
+                "/com/soundcloud/android/model/suggest_users.json");
 
         expect(suggestions.tx_id).toEqual("92dbb484c0d144afa6c193ece99514f3");
         expect(suggestions.query_time_in_millis).toEqual(1l);
@@ -113,7 +116,7 @@ public class SearchSuggestionsTest {
         });
         SearchSuggestions local = new SearchSuggestions(cursor);
         SearchSuggestions remote = TestHelper.readJson(SearchSuggestions.class,
-                "/com/soundcloud/android/model/suggest.json");
+                "/com/soundcloud/android/model/suggest_users.json");
 
         SearchSuggestions merged = local.merge(remote);
 
@@ -127,6 +130,27 @@ public class SearchSuggestionsTest {
         expect(it.next().isLocal()).toBeFalse();
         expect(it.next().isLocal()).toBeFalse();
         expect(it.hasNext()).toBeFalse();
+    }
+
+    @Test
+    public void shouldConvertHighlightsToCursorFormat() {
+        SearchSuggestions suggestions = new SearchSuggestions();
+        Query suggestion = new Query();
+        ArrayList<Map<String, Integer>> highlights = new ArrayList<Map<String, Integer>>(1);
+        highlights.add(new HashMap<String, Integer>());
+        highlights.add(new HashMap<String, Integer>());
+        highlights.get(0).put("pre", 0);
+        highlights.get(0).put("post", 3);
+        highlights.get(1).put("pre", 6);
+        highlights.get(1).put("post", 9);
+
+        suggestion.kind = "user";
+        suggestion.highlights = highlights;
+        suggestions.add(suggestion);
+
+        Cursor c = suggestions.asCursor();
+        expect(c.moveToNext()).toBeTrue();
+        expect(c.getString(c.getColumnIndex(SuggestionsAdapter.HIGHLIGHTS))).toEqual("0,3;6,9");
     }
 
     @Test
@@ -148,5 +172,53 @@ public class SearchSuggestionsTest {
         expect(c.getString(c.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual(Content.USER.forId(123).toString());
         expect(c.getString(c.getColumnIndex(DBHelper.Suggestions.ICON_URL))).toEqual("http://i1.sndcdn.com/avatars-000002315321-2z3mh1-large.jpg");
         expect(c.moveToNext()).toBeFalse();
+    }
+
+    @Test
+    public void shouldIgnoreUnsupportedTypes() throws IOException {
+        SearchSuggestions suggestions = TestHelper.readJson(SearchSuggestions.class,
+                "/com/soundcloud/android/model/suggest_mixed.json");
+
+        expect(suggestions.asCursor().getCount()).toBe(3); // ignore playlists for now
+        expect(suggestions.suggestions.get(0).kind).toEqual(Query.KIND_USER);
+        expect(suggestions.suggestions.get(1).kind).toEqual(Query.KIND_TRACK);
+        expect(suggestions.suggestions.get(2).kind).toEqual(Query.KIND_TRACK);
+    }
+
+    @Test
+    public void testResolveKindFromContentUri() {
+        expect(Query.kindFromContentUri(Content.TRACK.uri)).toEqual(Query.KIND_TRACK);
+        expect(Query.kindFromContentUri(Content.TRACKS.uri)).toEqual(Query.KIND_TRACK);
+        expect(Query.kindFromContentUri(Content.USER.uri)).toEqual(Query.KIND_USER);
+        expect(Query.kindFromContentUri(Content.USERS.uri)).toEqual(Query.KIND_USER);
+        expect(Query.kindFromContentUri(Content.PLAYLIST.uri)).toEqual(Query.KIND_PLAYLIST);
+        expect(Query.kindFromContentUri(Content.PLAYLISTS.uri)).toEqual(Query.KIND_PLAYLIST);
+    }
+
+    @Test
+    public void shouldResolveToClientUri() throws IOException {
+        SearchSuggestions suggestions = TestHelper.readJson(SearchSuggestions.class,
+                "/com/soundcloud/android/model/suggest_mixed.json");
+
+        expect(suggestions.suggestions.get(0).getClientUri()).toEqual(new ClientUri("soundcloud:users:2097360"));
+        expect(suggestions.suggestions.get(1).getClientUri()).toEqual(new ClientUri("soundcloud:tracks:196380"));
+        expect(suggestions.suggestions.get(2).getClientUri()).toEqual(new ClientUri("soundcloud:tracks:196381"));
+        expect(suggestions.suggestions.get(3).getClientUri()).toEqual(new ClientUri("soundcloud:playlists:324731"));
+    }
+
+    @Test
+    public void shouldAddRemoteResourceIdsForPrefetching() throws IOException {
+        ArrayList<Long> trackIds = new ArrayList<Long>();
+        ArrayList<Long> playlistIds = new ArrayList<Long>();
+        ArrayList<Long> userIds = new ArrayList<Long>();
+
+        SearchSuggestions suggestions = TestHelper.readJson(SearchSuggestions.class,
+                "/com/soundcloud/android/model/suggest_mixed.json");
+
+        suggestions.putRemoteIds(trackIds, userIds, playlistIds);
+
+        expect(trackIds.contains(196380L)).toBeTrue();
+        expect(userIds.contains(2097360L)).toBeTrue();
+        expect(playlistIds.contains(324731L)).toBeTrue();
     }
 }

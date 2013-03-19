@@ -264,6 +264,12 @@ public class PlayerTrackPager extends ViewPager {
         }
 
         @Override
+        public int getItemPosition(Object object) {
+            // this will force the empty view to get tossed out if we dont need it anymore
+            return mViews == null || mViews.indexOf(object) == -1 ? POSITION_NONE : POSITION_UNCHANGED;
+        }
+
+        @Override
         public Parcelable saveState() {
             return null;
         }

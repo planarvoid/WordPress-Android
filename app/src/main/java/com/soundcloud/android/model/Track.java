@@ -19,7 +19,6 @@ import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
@@ -40,7 +39,6 @@ import android.util.Log;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -49,7 +47,7 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends Sound implements Playable {
+public class Track extends Playable implements PlayableHolder {
     public static final String EXTRA = "track";
     public static final String EXTRA_ID = "track_id";
 
@@ -69,9 +67,6 @@ public class Track extends Sound implements Playable {
     @JsonView(Views.Full.class) public int playback_count = NOT_SET;
     @JsonView(Views.Full.class) public int download_count = NOT_SET;
     @JsonView(Views.Full.class) public int comment_count  = NOT_SET;
-
-    @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
-    public int shared_to_count = NOT_SET;
 
     @JsonView(Views.Full.class) public String original_format;
 
@@ -131,31 +126,13 @@ public class Track extends Sound implements Playable {
         return Content.TRACKS.forId(id);
     }
 
-    @Override @JsonIgnore
-    public Track getSound() {
-        return this;
-    }
-
-    public Track getTrack() {
-        return this;
-    }
-
-    @Override
-    public Date getCreatedAt() {
-        return created_at;
-    }
-
-    @Override @JsonIgnore
-    public User getUser() {
-        return user;
-    }
-
     @JsonIgnore
     public boolean isWaitingOnState() {
         return state == null;
     }
 
     @JsonIgnore
+    @Override
     public boolean isStreamable() {
         return !TextUtils.isEmpty(stream_url) && (state == null || state.isStreamable());
     }
@@ -170,18 +147,6 @@ public class Track extends Sound implements Playable {
 
     public boolean isFailed() {
         return state != null && state.isFailed();
-    }
-
-    public boolean isPublic() {
-        return sharing == null || sharing.isPublic();
-    }
-
-    public String getArtwork() {
-        if (shouldLoadIcon() || (user != null && user.shouldLoadIcon())) {
-            return TextUtils.isEmpty(artwork_url) ? user.avatar_url : artwork_url;
-        } else {
-            return null;
-        }
     }
 
     @Override
@@ -247,7 +212,7 @@ public class Track extends Sound implements Playable {
         try {
 
             if (cursor != null && cursor.moveToFirst()) {
-                return SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor);
+                return SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor);
             } else if (createDummy && id >= 0) {
                 return SoundCloudApplication.MODEL_MANAGER.cache(new Track(id));
             } else {
@@ -312,7 +277,7 @@ public class Track extends Sound implements Playable {
     }
 
     public Track(long id) {
-        this.id = id;
+        super(id);
     }
 
     public Track(Parcel in) {
@@ -418,7 +383,7 @@ public class Track extends Sound implements Playable {
     }
 
     // TODO, THIS SUCKS
-    public FetchModelTask<Track> refreshInfoAsync(AndroidCloudAPI api, FetchModelTask.FetchModelListener<Track> listener) {
+    public FetchModelTask<Track> refreshInfoAsync(AndroidCloudAPI api, FetchModelTask.Listener<Track> listener) {
         if (load_info_task == null && AndroidUtils.isTaskFinished(load_info_task)) {
             load_info_task = new FetchTrackTask(api, id);
         }
@@ -528,14 +493,6 @@ public class Track extends Sound implements Playable {
                 '}';
     }
 
-    public boolean hasAvatar() {
-        return user != null && !TextUtils.isEmpty(user.avatar_url);
-    }
-
-    public String getAvatarUrl() {
-        return user == null ? null : user.avatar_url;
-    }
-
     public @Nullable URL getWaveformDataURL() {
         if (TextUtils.isEmpty(waveform_url)) {
             return null;
@@ -563,18 +520,9 @@ public class Track extends Sound implements Playable {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.track;
     }
 
-    public @Nullable Intent getShareIntent() {
-        if (sharing == null || !sharing.isPublic()) return null;
-
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_SUBJECT,
-                title +
-                (user != null ? " by " + user.username : "") + " on SoundCloud");
-        intent.putExtra(android.content.Intent.EXTRA_TEXT, permalink_url);
-
-        return intent;
+    @Override
+    public Intent getViewIntent() {
+        return getPlayIntent();
     }
 
     public Intent getPlayIntent() {
@@ -589,6 +537,7 @@ public class Track extends Sound implements Playable {
         super.updateFrom(updatedItem,cacheUpdateMode);
         stream_url = updatedItem.stream_url;
         if (cacheUpdateMode == CacheUpdateMode.FULL){
+            user_like = updatedItem.user_like;
             commentable = updatedItem.commentable;
             state = updatedItem.state;
             waveform_url = updatedItem.waveform_url;
@@ -599,16 +548,12 @@ public class Track extends Sound implements Playable {
         return this;
     }
 
-    public boolean shouldLoadIcon() {
-        return ImageUtils.checkIconShouldLoad(artwork_url);
-    }
-
     public String userTrackPermalink() {
         if (permalink == null) return null;
         return (user != null ? TextUtils.isEmpty(user.permalink) ? "" : user.permalink+"/" : "") + permalink;
     }
 
-    public static Track fromIntent(Intent intent, ContentResolver resolver) {
+    public static Track fromIntent(Intent intent) {
         if (intent == null) throw new IllegalArgumentException("intent is null");
         Track t = intent.getParcelableExtra(EXTRA);
         if (t == null) {

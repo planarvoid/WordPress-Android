@@ -15,6 +15,9 @@
 
     <!-- change before release -->
     <issue id="MissingTranslation" severity="ignore"/>
+    <issue id="DuplicateDefinition" severity="warning"/>
+    <issue id="Suspicious0dp" severity="warning"/>
+    <issue id="WrongCall" severity="warning"/>
 
     <!-- should probably re-enable later once more important things are fixed -->
     <issue id="ContentDescription" severity="ignore"/>
@@ -59,6 +62,8 @@
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsAdapterView.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsProgressBar.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/ActionBarView$HomeView.class"/>
+      <ignore path="res/values/styles_next.xml"/>
+      <ignore path="res/values/themes.xml"/>
     </issue>
 
     <issue id="FloatMath">

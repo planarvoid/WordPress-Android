@@ -1,0 +1,64 @@
+{
+  "future_href": "https://api.soundcloud.com/e1/me/activities?uuid%5Bto%5D=3d22f400-0699-11e2-919a-b494be7979e7",
+  "next_href": "https://api.soundcloud.com/e1/me/activities?uuid%5Bto%5D=next_href",
+  "collection": [
+       {
+         "uuid": "75e9d700-0819-11e2-81bb-70dbfa89bdb9",
+         "tags": "affiliated",
+         "user": {
+           "uri": "https://api.soundcloud.com/users/3160",
+           "avatar_url": "https://i1.sndcdn.com/avatars-000002875212-3p9g6x-large.jpg?04ad178",
+           "id": 3160,
+           "permalink_url": "http://soundcloud.com/mr-squirrel",
+           "username": "Mr. Squirrel",
+           "permalink": "mr-squirrel",
+           "kind": "user"
+         },
+         "type": "playlist-repost",
+         "created_at": "2012/07/02 20:33:42 +0000",
+         "playlist": {
+           "uri": "https://api.soundcloud.com/playlists/2492621",
+           "streamable": true,
+           "label_id": null,
+           "purchase_url": "http://www.beatport.com/release/small-moves-ep/966857",
+           "license": "cc-by",
+           "label_name": "Retrometro",
+           "ean": "",
+           "title": "Small Moves EP [Retrometro]",
+           "release": "RMD018",
+           "description": "Retrometro gets down to business on this release. Adam Gillett delivers an EP chock full of industrial grind. Every track comes hissing and snarling out of the blocks, and at the heart of the action is Technology Stress, a focused lurching groove - lean and dangerous.\r\nAnother no-nonsense bruiser of an EP from the label that always digs deep.",
+           "id": 2492621,
+           "tracks_uri": "https://api.soundcloud.com/playlists/2492621/tracks",
+           "user": {
+             "uri": "https://api.soundcloud.com/users/19651",
+             "avatar_url": "https://i1.sndcdn.com/avatars-000000106164-fidr8g-large.jpg?04ad178",
+             "id": 19651,
+             "permalink_url": "http://soundcloud.com/adamgillett",
+             "username": "Adam Gillett",
+             "permalink": "adamgillett",
+             "kind": "user"
+           },
+           "permalink_url": "http://soundcloud.com/adamgillett/sets/small-moves-ep-retrometro",
+           "genre": "Techno",
+           "playlist_type": "ep single",
+           "type": "ep single",
+           "downloadable": false,
+           "user_id": 19651,
+           "release_day": 24,
+           "artwork_url": "https://i1.sndcdn.com/artworks-000030469015-kjcklr-large.jpg?04ad178",
+           "purchase_title": null,
+           "embeddable_by": "all",
+           "duration": 2542626,
+           "created_at": "2012/09/17 08:22:43 +0000",
+           "likes_count": 1,
+           "release_year": 2012,
+           "reposts_count": 1,
+           "release_month": 9,
+           "permalink": "small-moves-ep-retrometro",
+           "tag_list": "",
+           "sharing": "public",
+           "kind": "playlist"
+         }
+       }
+  ]
+}

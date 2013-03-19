@@ -12,6 +12,13 @@ import android.net.Uri;
  * @see <a href="https://soundcloudnet-main.pbworks.com/w/page/53336406/Client%20URL%20Scheme">Client URL Scheme</a>
  */
 public class ClientUri {
+
+    public static final String SCHEME = "soundcloud";
+    public static final String SOUNDS_TYPE = "sounds";
+    public static final String TRACKS_TYPE = "tracks";
+    public static final String PLAYLISTS_TYPE = "playlists";
+    public static final String USERS_TYPE = "users";
+
     public @NotNull final Uri uri;
     public @NotNull final String type;
     public @NotNull final String id;
@@ -22,7 +29,7 @@ public class ClientUri {
     }
 
     public ClientUri(Uri uri) {
-        if (!"soundcloud".equalsIgnoreCase(uri.getScheme())) {
+        if (!SCHEME.equalsIgnoreCase(uri.getScheme())) {
             throw new IllegalArgumentException("not a soundcloud uri");
         }
         final String specific = uri.getSchemeSpecificPart();
@@ -47,15 +54,15 @@ public class ClientUri {
     }
 
     public boolean isSound() {
-        return "tracks".equalsIgnoreCase(type) || "sounds".equalsIgnoreCase(type);
-    }
-
-    public boolean isUser() {
-        return "users".equalsIgnoreCase(type);
+        return TRACKS_TYPE.equalsIgnoreCase(type) || PLAYLISTS_TYPE.equalsIgnoreCase(type) || SOUNDS_TYPE.equalsIgnoreCase(type);
     }
 
     public Uri contentProviderUri() {
-        return isUser() ? Content.USER.forId(numericId) : Content.TRACK.forId(numericId);
+        if (SOUNDS_TYPE.equals(type)) return Content.TRACK.forId(numericId);
+        else if (TRACKS_TYPE.equals(type)) return Content.TRACK.forId(numericId);
+        else if (USERS_TYPE.equals(type)) return Content.USER.forId(numericId);
+        else if (PLAYLISTS_TYPE.equals(type)) return Content.PLAYLIST.forId(numericId);
+        else throw new IllegalStateException("Unsupported content type: " + type);
     }
 
     public Uri imageUri() {
@@ -79,7 +86,7 @@ public class ClientUri {
     }
 
     public static Uri forTrack(long id) {
-        return Uri.parse("soundcloud:tracks:"+id);
+        return Uri.parse("soundcloud:sounds:"+id);
     }
 
     public static Uri forUser(long id) {

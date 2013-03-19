@@ -3,7 +3,7 @@
     <string name="legal">Legal</string>
     <string name="legal_summary">Legal information</string>
 
-    <string name="terms_of_service">Terms of Service</string>
+    <string name="terms_of_service">Terms of Use</string>
     <string name="privacy_policy">Privacy Policy</string>
 
     <string name="dialog_transcoding_failed_title">Transcoding failed</string>
@@ -165,4 +165,30 @@
     <string name="accessibility_next_track">Next track</string>
     <string name="accessibility_toggle_playback">Toggle playback</string>
     <string name="accessibility_previous_track">Previous Track</string>
+
+    <string name="accessibility_action_bar_set">Go back to the current playing set</string>
+
+    <string name="playlist_info_header_text">This set contains %1$s, total time: %2$s</string>
+    <string name="imprint">Imprint</string>
+
+    <plurals name="number_of_sounds">
+        <item quantity="one">one sound</item>
+        <item quantity="other">%d sounds</item>
+    </plurals>
+
+    <string name="add_track_to_set">Add to set...</string>
+    <string name="creating_set">Creating set \'%s\'</string>
+    <string name="create_new_set">Create new set</string>
+    <string name="error_new_set_blank_title">Please enter a valid title</string>
+    <string name="error_creating_new_set">There was an error creating the set, please try again later.</string>
+    <string name="add_set_private">Private</string>
+    <string name="add_set_public">Public</string>
+
+    <string name="tab_title_my_sets">Your Sets</string>
+    <string name="tab_title_user_sets">Sets</string>
+
+    <string name="side_menu_sets">Your Sets</string>
+    <string name="empty_playlist">This set has no sounds yet</string>
+
+    <string name="playlist_removed">This set was not found on SoundCloud</string>
 </resources>

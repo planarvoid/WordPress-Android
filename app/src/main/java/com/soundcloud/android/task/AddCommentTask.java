@@ -3,7 +3,7 @@ package com.soundcloud.android.task;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Sound;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
@@ -84,7 +84,7 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
                     app.sendBroadcast(new Intent(Actions.CONNECTION_ERROR));
                 }
             }
-            app.sendBroadcast(new Intent(Sound.COMMENTS_UPDATED).putExtra("id", t.id));
+            app.sendBroadcast(new Intent(Playable.COMMENTS_UPDATED).putExtra("id", t.id));
         }
     }
 }

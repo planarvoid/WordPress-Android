@@ -1,6 +1,7 @@
 package com.soundcloud.android.audio;
 
 import com.soundcloud.android.record.RemainingTimeCalculator;
+import org.jetbrains.annotations.NotNull;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -70,8 +71,29 @@ public enum AudioConfig {
         return new ScAudioTrack(this, bufferSize);
     }
 
-    public AudioRecord createAudioRecord(int bufferSize) {
+    private AudioRecord createAudioRecord(int bufferSize) {
         return new AudioRecord(source, sampleRate, getChannelConfig(true), getFormat(), bufferSize);
+    }
+
+    public @NotNull AudioRecord createAudioRecord() {
+        AudioRecord record = null;
+        for (final int factor : new int[] { 64, 32, 16, 8, 4, 1 }) {
+            try {
+                record = createAudioRecord(getRecordMinBufferSize() * factor);
+                if (record.getState() == AudioRecord.STATE_INITIALIZED) {
+                    return record;
+                } else {
+                    Log.w(AudioConfig.class.getSimpleName(), "audiorecord "+record+" in state "+record.getState());
+                }
+            } catch (Exception e) {
+                Log.w(AudioConfig.class.getSimpleName(), e);
+            }
+        }
+        if (record != null) {
+            return record;
+        } else {
+            throw new RuntimeException("Could not create AudioRecord");
+        }
     }
 
     public WavHeader createHeader() {
