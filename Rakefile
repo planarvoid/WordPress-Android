@@ -12,7 +12,8 @@ DEFAULT_LEVELS = %w(
    StreamProxy StreamLoader StreamStorage C2DMReceiver SyncAdapterService ScContentProvider DBHelper
    ApiSyncService ApiSyncer UploadService SoundCloudApplication VorbisEncoder VorbisEncoderNative
    VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener
-   PlayEventTracker PlayEventTrackerApi
+   PlayEventTracker PlayEventTrackerApi ReactiveScheduler ScObservables ReactiveListFragment ObservedRunnable
+   BackgroundJob SyncingScheduler DetachableObserver
 )
 DISABLED_LEVELS = %w()
 
