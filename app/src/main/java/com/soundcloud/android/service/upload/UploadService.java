@@ -269,7 +269,7 @@ public class UploadService extends Service {
                 new Poller(createLooper("poller_" + upload.track.id, Process.THREAD_PRIORITY_BACKGROUND),
                             (AndroidCloudAPI) getApplication(),
                             upload.track.id,
-                            Content.ME_TRACKS.uri).start();
+                            Content.ME_SOUNDS.uri).start();
 
                 mBroadcastManager.sendBroadcast(new Intent(UPLOAD_SUCCESS)
                         .putExtra(UploadService.EXTRA_RECORDING, recording));

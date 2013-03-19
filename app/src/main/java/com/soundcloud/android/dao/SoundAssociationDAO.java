@@ -1,25 +1,23 @@
 package com.soundcloud.android.dao;
 
-import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.SoundAssociationHolder;
-import com.soundcloud.android.provider.BulkInsertMap;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.provider.BulkInsertMap;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SoundAssociationsDAO extends BaseDAO<SoundAssociation> {
-    public SoundAssociationsDAO(ContentResolver contentResolver) {
+public class SoundAssociationDAO extends BaseDAO<SoundAssociation> {
+    public SoundAssociationDAO(ContentResolver contentResolver) {
         super(contentResolver);
     }
 

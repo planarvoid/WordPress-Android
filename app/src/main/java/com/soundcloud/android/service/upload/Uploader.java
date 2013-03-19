@@ -147,7 +147,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             mStorage.createOrUpdate(track);
 
             //request to update my collection
-            new SyncStateManager(api.getContext().getContentResolver()).forceToStale(Content.ME_TRACKS.uri);
+            new SyncStateManager(api.getContext().getContentResolver()).forceToStale(Content.ME_SOUNDS.uri);
 
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + track);
 

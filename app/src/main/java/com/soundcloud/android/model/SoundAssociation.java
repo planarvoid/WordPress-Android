@@ -21,7 +21,7 @@ import android.util.Log;
 import java.util.Date;
 
 /**
- * Maps to stream item on backend
+ * Maps to <code>stream_item</code> item on backend.
  */
 public class SoundAssociation extends ScResource implements PlayableHolder, Refreshable {
 
@@ -84,7 +84,7 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
 
     @Override
     public boolean isIncomplete() {
-        return playable != null && playable.isIncomplete();
+        return playable.isIncomplete();
     }
 
     public SoundAssociation(Parcel in) {
@@ -136,7 +136,7 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     }
 
     @Override
-    public Playable getPlayable() {
+    @NotNull public Playable getPlayable() {
         return playable;
     }
 

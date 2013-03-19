@@ -114,6 +114,8 @@ public class ScContentProvider extends ContentProvider {
 
                 makeSoundAssociationSelection(qb, String.valueOf(userId),
                         new int[]{CollectionItemTypes.TRACK, CollectionItemTypes.REPOST, CollectionItemTypes.PLAYLIST});
+
+
                 _sortOrder = makeCollectionSort(uri, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC");
 
                 break;
@@ -127,7 +129,6 @@ public class ScContentProvider extends ContentProvider {
                 _sortOrder = makeCollectionSort(uri, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC");
                 break;
 
-            case ME_TRACKS:
             case ME_LIKES:
             case ME_REPOSTS:
                 qb.setTables(soundAssociationJoin);
@@ -148,7 +149,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
             case SUGGESTED_USERS:
-                /* XXX special case for now. we need to not join in the users table on an id only request, because
+                /* XXX special case for now. we  need to not join in the users table on an id only request, because
                 it is an inner join and will not return ids with missing users. Switching to a left join is possible
                 but not 4 days before major release*/
                 if ("1".equals(uri.getQueryParameter(Parameter.IDS_ONLY))) {
@@ -611,7 +612,6 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_LIKES:
             case ME_PLAYLISTS:
-            case ME_TRACKS:
             case ME_REPOSTS:
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
@@ -788,7 +788,6 @@ public class ScContentProvider extends ContentProvider {
                 table = Table.COLLECTION_ITEMS;
                 break;
 
-            case ME_TRACKS:
             case USER_TRACKS:
             case ME_LIKES:
             case USER_LIKES:

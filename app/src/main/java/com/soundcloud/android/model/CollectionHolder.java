@@ -109,9 +109,9 @@ public class CollectionHolder<T> implements Iterable<T> {
         }
     }
 
-    public @NotNull static <T, C extends CollectionHolder<T>> List<T> fetchAllResourcesHolder(AndroidCloudAPI api,
-                                                Request request,
-                                                Class<C> ch) throws IOException {
+    public @NotNull static <T, C extends CollectionHolder<T>> List<T> fetchAllResources(AndroidCloudAPI api,
+                                                                                        Request request,
+                                                                                        Class<C> ch) throws IOException {
         List<T> objects = new ArrayList<T>();
         C holder = null;
         do {

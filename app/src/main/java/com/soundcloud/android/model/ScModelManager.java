@@ -4,11 +4,13 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.ModelCache;
+import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -29,8 +31,9 @@ import java.util.List;
 @Deprecated
 public class ScModelManager {
 
+    public  static final int RESOLVER_BATCH_SIZE = 100;
     private static final int API_LOOKUP_BATCH_SIZE = 200;
-    public static final int DEFAULT_CACHE_CAPACITY = 100;
+    private static final int DEFAULT_CACHE_CAPACITY = 100;
 
     private ContentResolver mResolver;
     private ObjectMapper mMapper;
@@ -435,7 +438,7 @@ public class ScModelManager {
         List<Long> ids = new ArrayList<Long>(modelIds);
 
         if (!ignoreStored) {
-            ids.removeAll(SoundCloudDB.getStoredIdsBatched(mResolver, modelIds, content));
+            ids.removeAll(getStoredIdsBatched(mResolver, modelIds, content));
         }
 
         List<Long> fetchIds = (maxToFetch > -1) ? new ArrayList<Long>(ids.subList(0, Math.min(ids.size(), maxToFetch)))
@@ -445,6 +448,24 @@ public class ScModelManager {
                 // XXX this has to be abstracted more. Hesitant to do so until the api is more final
                 Track.class.equals(content.modelType) || SoundAssociation.class.equals(content.modelType)
                         ? Content.TRACKS.remoteUri : Content.USERS.remoteUri));
+    }
+
+    /**
+     * @return a list of all ids for which objects are store in the database
+     */
+    private static List<Long> getStoredIdsBatched(ContentResolver resolver, List<Long> ids, Content content) {
+        int i = 0;
+        List<Long> storedIds = new ArrayList<Long>();
+        while (i < ids.size()) {
+            List<Long> batch = ids.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, ids.size()));
+            storedIds.addAll(ResolverHelper.idCursorToList(
+                    resolver.query(content.uri, new String[]{BaseColumns._ID},
+                            ResolverHelper.getWhereInClause(BaseColumns._ID, batch.size()) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0"
+                            , ResolverHelper.longListToStringArr(batch), null)
+            ));
+            i += RESOLVER_BATCH_SIZE;
+        }
+        return storedIds;
     }
 
 
@@ -470,14 +491,10 @@ public class ScModelManager {
         return SoundCloudDB.insertCollection(mResolver, items, localUri, userId);
     }
 
-    public List<Long> getLocalIds(Content content, long userId) {
-        return getLocalIds(content, userId, -1, -1);
-    }
-
 
     public List<Long> getLocalIds(Content content, long userId, int startIndex, int limit) {
-        return SoundCloudDB.idCursorToList(mResolver.query(
-                SoundCloudDB.addPagingParams(Content.COLLECTION_ITEMS.uri, startIndex, limit).build(),
+        return ResolverHelper.idCursorToList(mResolver.query(
+                ResolverHelper.addPagingParams(Content.COLLECTION_ITEMS.uri, startIndex, limit).build(),
                 new String[]{DBHelper.CollectionItems.ITEM_ID},
                 DBHelper.CollectionItems.COLLECTION_TYPE + " = ? AND " + DBHelper.CollectionItems.USER_ID + " = ?",
                 new String[]{String.valueOf(content.collectionType), String.valueOf(userId)},

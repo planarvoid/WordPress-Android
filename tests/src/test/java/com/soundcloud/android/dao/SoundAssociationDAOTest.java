@@ -19,10 +19,10 @@ import java.util.Date;
 import static com.soundcloud.android.Expect.expect;
 
 @RunWith(DefaultTestRunner.class)
-public class SoundAssociationDAOTest extends BaseDAOTest<SoundAssociationsDAO> {
+public class SoundAssociationDAOTest extends BaseDAOTest<SoundAssociationDAO> {
 
     public SoundAssociationDAOTest() {
-        super(new SoundAssociationsDAO(Robolectric.application.getContentResolver()));
+        super(new SoundAssociationDAO(Robolectric.application.getContentResolver()));
     }
 
     @Before

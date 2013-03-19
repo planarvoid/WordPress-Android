@@ -32,7 +32,6 @@ import java.util.Map;
 
 public enum Content  {
     ME("me", Endpoints.MY_DETAILS, 100, User.class, -1, Table.USERS),
-    @Deprecated ME_TRACKS("me/tracks", Endpoints.MY_TRACKS, 101, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.COLLECTION_ITEMS),
     ME_COMMENTS("me/comments", null, 102, Comment.class, -1, Table.COMMENTS),
     ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, User.class, FOLLOWING, Table.COLLECTION_ITEMS),
     ME_FOLLOWING("me/followings/#", null, 104, User.class, -1, null),
@@ -162,6 +161,7 @@ public enum Content  {
         this.table = table;
     }
 
+    /** one of {@link com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes} */
     public final int collectionType;
     public final int id;
     public final
@@ -182,6 +182,13 @@ public enum Content  {
     public static final EnumSet<Content> ACTIVITIES = EnumSet.of(
             Content.ME_ACTIVITIES,
             Content.ME_SOUND_STREAM
+    );
+
+
+    public static final EnumSet<Content> ID_BASED = EnumSet.of(
+            Content.ME_FOLLOWING,
+            Content.ME_FOLLOWERS,
+            Content.ME_FRIENDS
     );
 
     static {

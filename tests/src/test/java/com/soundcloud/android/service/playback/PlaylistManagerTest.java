@@ -3,7 +3,7 @@ package com.soundcloud.android.service.playback;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
-import com.soundcloud.android.dao.SoundAssociationsDAO;
+import com.soundcloud.android.dao.SoundAssociationDAO;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociationHolder;
@@ -342,7 +342,7 @@ public class PlaylistManagerTest {
                 ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
                 SoundAssociationHolder.class);
 
-        new SoundAssociationsDAO(resolver).insert(Content.ME_LIKES.uri, old.collection);
+        new SoundAssociationDAO(resolver).insert(Content.ME_LIKES.uri, old.collection);
 
 //        expect(SoundCloudApplication.MODEL_MANAGER.writeCollection(old.collection, Content.ME_LIKES.uri, USER_ID,
 //                ScResource.CacheUpdateMode.NONE)).toEqual(18); // 2 tracks, 1 playlist

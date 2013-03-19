@@ -1,27 +1,23 @@
 package com.soundcloud.android.model;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
-
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.database.Cursor;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
 
 @RunWith(DefaultTestRunner.class)
 public class ScModelManagerTest {
@@ -35,7 +31,6 @@ public class ScModelManagerTest {
         manager = new ScModelManager(Robolectric.application, TestHelper.getObjectMapper());
         resolver = Robolectric.application.getContentResolver();
     }
-
 
 
     @Test
@@ -52,7 +47,7 @@ public class ScModelManagerTest {
 
         resolver.bulkInsert(Content.ME_LIKES.uri, cv);
 
-        expect(manager.getLocalIds(Content.ME_LIKES, USER_ID).size()).toEqual(107);
+        expect(manager.getLocalIds(Content.ME_LIKES, USER_ID, -1, -1).size()).toEqual(107);
         List<Long> localIds = manager.getLocalIds(Content.ME_LIKES, USER_ID, 50, -1);
 
         expect(localIds.size()).toEqual(57);
