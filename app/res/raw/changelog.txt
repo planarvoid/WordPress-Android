@@ -3,10 +3,11 @@ $ 57
   _ 2013-03-19
   ! Sets RC 3
   * Fixed stuck buffering UI
+  * Fixed db cleanup for sets
+  - fixed play queue reload/overwrite bug
   - Sets sync fixes
   - Add to set now appends instead of prepending
   - fixed some deeplinks
-
   - Fixed add to playlist locking bug
   - Fixed erratic liked/reposted state on stream items
   - Changed refresh logic to account for private sounds in sets
