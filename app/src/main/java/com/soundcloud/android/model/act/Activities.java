@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.type.SimpleType;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.CollectionHolder;
@@ -212,7 +213,7 @@ public class Activities extends CollectionHolder<Activity> {
         final int status = response.getStatusLine().getStatusCode();
         switch (status) {
             case HttpStatus.SC_OK: {
-                Activities a = api.getMapper().readValue(response.getEntity().getContent(), Activities.class);
+                Activities a = api.getMapper().readValue(response.getEntity().getContent(), SimpleType.constructUnsafe(Activities.class));
                 if (a.size() < max && a.hasMore() && !a.isEmpty() && requestNumber < MAX_REQUESTS) {
                     /* should not happen in theory, but backend might limit max number per requests */
                     return a.merge(fetchRecent(api, a.getNextRequest(), max - a.size(), requestNumber+1));
