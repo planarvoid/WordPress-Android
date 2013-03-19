@@ -4,7 +4,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.provider.SoundCloudDB;
 
@@ -40,7 +39,7 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
                     keepGoing = false;
                 }
         }
-        CollectionHolder<T> newItems = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver, params.loadModel, params.getPagedUri());
+        List<T> newItems = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver, params.loadModel, params.getPagedUri());
         if (keepGoing) keepGoing = newItems.size() > 0;
         return new ReturnData<T>(newItems, params, null, keepGoing, true);
     }

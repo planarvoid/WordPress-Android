@@ -121,7 +121,7 @@ public class ScModelManager {
         return user;
     }
 
-    public <T extends ScModel> CollectionHolder<T> loadLocalContent(ContentResolver resolver, Class<T> resourceType, Uri localUri) {
+    public <T extends ScModel> List<T> loadLocalContent(ContentResolver resolver, Class<T> resourceType, Uri localUri) {
         Cursor itemsCursor = resolver.query(localUri, null, null, null, null);
         List<ScModel> items = new ArrayList<ScModel>();
         if (itemsCursor != null) {
@@ -142,9 +142,11 @@ public class ScModelManager {
         }
         if (itemsCursor != null) itemsCursor.close();
 
-        CollectionHolder<T> holder = new CollectionHolder<T>((List<T>) items);
-        holder.resolve(mContext);
-        return holder;
+        // meeded?
+        for (ScModel m : items) {
+            m.resolve(mContext);
+        }
+        return  (List<T>) items;
     }
 
     private User getUserFromCursor(Cursor itemsCursor) {
@@ -250,7 +252,7 @@ public class ScModelManager {
 
 
     public List<Track> loadPlaylistTracks(ContentResolver resolver, long playlistId){
-        return loadLocalContent(resolver,Track.class,Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId))).collection;
+        return loadLocalContent(resolver,Track.class,Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId)));
     }
 
     public Track getCachedTrack(long id) {
@@ -445,21 +447,12 @@ public class ScModelManager {
                         ? Content.TRACKS.remoteUri : Content.USERS.remoteUri));
     }
 
-    public static String[] longListToStringArr(List<Long> deletions) {
-        int i = 0;
-        String[] idList = new String[deletions.size()];
-        for (Long id : deletions) {
-            idList[i] = String.valueOf(id);
-            i++;
-        }
-        return idList;
-    }
 
     public int writeCollectionFromStream(InputStream is, ScResource.CacheUpdateMode updateMode) throws IOException {
         return writeCollection(getCollectionFromStream(is).collection, updateMode);
     }
 
-    public <T extends ScResource> int writeCollection(List<T> items, ScResource.CacheUpdateMode updateMode) {
+    <T extends ScResource> int writeCollection(List<T> items, ScResource.CacheUpdateMode updateMode) {
         for (T item : items) {
             cache(item, updateMode);
         }

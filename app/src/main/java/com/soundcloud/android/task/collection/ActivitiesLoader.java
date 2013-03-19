@@ -54,7 +54,7 @@ public class ActivitiesLoader extends CollectionLoader<Activity> {
         }
 
         returnData.keepGoing = returnData.success && newActivities.size() > 0;
-        returnData.newItems = newActivities;
+        returnData.newItems = newActivities.collection;
         return returnData;
     }
 

@@ -7,7 +7,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.track.PlaylistInteractionActivity;
 import com.soundcloud.android.activity.track.TrackInteractionActivity;
-import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
@@ -29,6 +28,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import java.util.Collections;
+import java.util.List;
 
 public class ActivityAdapter extends ScBaseAdapter<Activity> implements PlayableAdapter {
     private ActivitiesStorage mActivitiesStorage;
@@ -116,7 +116,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
 
 
     @Override
-    public void addItems(CollectionHolder<Activity> newItems) {
+    public void addItems(List<Activity> newItems) {
         for (Activity newItem : newItems){
             if (!mData.contains(newItem))mData.add(newItem);
         }

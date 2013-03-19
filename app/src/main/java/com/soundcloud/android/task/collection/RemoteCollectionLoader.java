@@ -42,7 +42,7 @@ public class RemoteCollectionLoader<T extends ScResource> extends CollectionLoad
             }
             holder.collection.removeAll(toRemove);
 
-            return new ReturnData<T>(holder, params, nextHref, responseCode, !TextUtils.isEmpty(nextHref), true);
+            return new ReturnData<T>(holder.collection, params, nextHref, responseCode, !TextUtils.isEmpty(nextHref), true);
         } catch (IOException e) {
             Log.e(TAG, "error", e);
         }

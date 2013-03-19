@@ -111,7 +111,7 @@ public class SoundCloudDB {
             storedIds.addAll(idCursorToList(
                     resolver.query(content.uri, new String[]{BaseColumns._ID},
                             getWhereInClause(BaseColumns._ID, batch) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0"
-                            , ScModelManager.longListToStringArr(batch), null)
+                            , longListToStringArr(batch), null)
             ));
             i += RESOLVER_BATCH_SIZE;
         }
@@ -132,4 +132,15 @@ public class SoundCloudDB {
         sb.append(")");
         return sb.toString();
     }
+
+    public static String[] longListToStringArr(List<Long> deletions) {
+        int i = 0;
+        String[] idList = new String[deletions.size()];
+        for (Long id : deletions) {
+            idList[i] = String.valueOf(id);
+            i++;
+        }
+        return idList;
+    }
+
 }

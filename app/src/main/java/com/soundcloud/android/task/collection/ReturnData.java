@@ -1,13 +1,13 @@
 package com.soundcloud.android.task.collection;
 
-import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.view.EmptyListView;
-import org.apache.http.HttpStatus;
+
+import java.util.List;
 
 public class ReturnData<T extends ScModel> {
 
-    public CollectionHolder<T> newItems;
+    public List<T> newItems;
     public String nextHref;
     public int responseCode = EmptyListView.Status.OK;
     public boolean keepGoing;
@@ -18,7 +18,7 @@ public class ReturnData<T extends ScModel> {
         this.wasRefresh = params.isRefresh;
     }
 
-    public ReturnData(CollectionHolder<T> newItems,
+    public ReturnData(List<T> newItems,
                       CollectionParams<T> params,
                       String nextHref,
                       boolean keepGoing,
@@ -31,7 +31,7 @@ public class ReturnData<T extends ScModel> {
         this.success = success;
     }
 
-    public ReturnData(CollectionHolder<T> newItems,
+    public ReturnData(List<T> newItems,
                       CollectionParams<T> params,
                       String nextHref,
                       int responseCode,

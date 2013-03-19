@@ -8,8 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
-import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.Playlist;
+    import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -27,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.*;
@@ -302,9 +302,9 @@ public class ApiSyncerTest {
         expect(result.change).toEqual(Result.CHANGED);
         expect(Content.TRACKS).toHaveCount(41);
 
-        CollectionHolder<Track> trackHolder = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver,Track.class, localUri);
-        expect(trackHolder.collection.size()).toBe(41);
-        expect(trackHolder.collection.get(1).title).toEqual("Keaton Henson - All Things Must Pass");
+        List<Track> tracks = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver,Track.class, localUri);
+        expect(tracks.size()).toBe(41);
+        expect(tracks.get(1).title).toEqual("Keaton Henson - All Things Must Pass");
     }
 
     @Test
