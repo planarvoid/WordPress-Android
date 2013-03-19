@@ -306,7 +306,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 onMetaChanged(playQueueManager.getPosition());
 
             } else {
-                // service doesn't exist, start it, it will reload queue and broadcast changes
+                /* service doesn't exist or playqueue is empty and not loading.
+                   start it, it will reload queue and broadcast changes */
                 startService(new Intent(this, CloudPlaybackService.class));
             }
 
