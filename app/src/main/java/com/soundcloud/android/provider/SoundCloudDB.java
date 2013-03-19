@@ -118,9 +118,9 @@ public class SoundCloudDB {
         return storedIds;
     }
 
-    public static List<Long> getStoredIds(ContentResolver resolver, Uri uri, int offset, int limit) {
-        return idCursorToList(resolver.query(SoundCloudDB.addPagingParams(uri, offset, limit)
-                .appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY, "1").build(),
+    public static List<Long> getStoredIds(ContentResolver resolver, Uri uri) {
+        return idCursorToList(resolver.query(
+                uri.buildUpon().appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY, "1").build(),
                 null, null, null, null));
     }
 

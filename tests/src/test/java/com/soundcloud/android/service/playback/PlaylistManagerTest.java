@@ -342,7 +342,7 @@ public class PlaylistManagerTest {
                 ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
                 SoundAssociationHolder.class);
 
-        new SoundAssociationsDAO(resolver).insert(Content.ME_LIKES.uri, old);
+        new SoundAssociationsDAO(resolver).insert(Content.ME_LIKES.uri, old.collection);
 
 //        expect(SoundCloudApplication.MODEL_MANAGER.writeCollection(old.collection, Content.ME_LIKES.uri, USER_ID,
 //                ScResource.CacheUpdateMode.NONE)).toEqual(18); // 2 tracks, 1 playlist

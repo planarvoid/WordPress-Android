@@ -36,11 +36,11 @@ public class SoundAssociationDAOTest extends BaseDAOTest<SoundAssociationsDAO> {
                 SoundAssociationTest.class.getResourceAsStream("sounds.json"),
                 SoundAssociationHolder.class);
 
-        expect(getDAO().syncToLocal(old, Content.ME_SOUNDS.uri)).toBeTrue();
+        expect(getDAO().syncToLocal(old.collection, Content.ME_SOUNDS.uri)).toBeTrue();
         expect(Content.ME_SOUNDS).toHaveCount(38);
 
         // expect no change, syncing to itself
-        expect(getDAO().syncToLocal(old, Content.ME_SOUNDS.uri)).toBeFalse();
+        expect(getDAO().syncToLocal(old.collection, Content.ME_SOUNDS.uri)).toBeFalse();
         expect(Content.ME_SOUNDS).toHaveCount(38);
 
         // expect change, syncing with 2 items
@@ -49,12 +49,12 @@ public class SoundAssociationDAOTest extends BaseDAOTest<SoundAssociationsDAO> {
         holder.collection.add(createAssociation(66376067l, SoundAssociation.Type.TRACK_REPOST.type));
         holder.collection.add(createAssociation(66376067l, SoundAssociation.Type.TRACK.type));
 
-        expect(getDAO().syncToLocal(holder, Content.ME_SOUNDS.uri)).toBeTrue();
+        expect(getDAO().syncToLocal(holder.collection, Content.ME_SOUNDS.uri)).toBeTrue();
         expect(Content.ME_SOUNDS).toHaveCount(2);
 
         // remove the repost and make sure it gets removed locally
         holder.collection.remove(0);
-        expect(getDAO().syncToLocal(holder, Content.ME_SOUNDS.uri)).toBeTrue();
+        expect(getDAO().syncToLocal(holder.collection, Content.ME_SOUNDS.uri)).toBeTrue();
         expect(Content.ME_SOUNDS).toHaveCount(1);
     }
 
@@ -64,18 +64,18 @@ public class SoundAssociationDAOTest extends BaseDAOTest<SoundAssociationsDAO> {
                 ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
                 SoundAssociationHolder.class);
 
-        expect(getDAO().syncToLocal(old, Content.ME_LIKES.uri)).toBeTrue();
+        expect(getDAO().syncToLocal(old.collection, Content.ME_LIKES.uri)).toBeTrue();
         expect(Content.ME_LIKES).toHaveCount(3);
 
         // expect no change, syncing to itself
-        expect(getDAO().syncToLocal(old, Content.ME_LIKES.uri)).toBeFalse();
+        expect(getDAO().syncToLocal(old.collection, Content.ME_LIKES.uri)).toBeFalse();
         expect(Content.ME_LIKES).toHaveCount(3);
 
         SoundAssociationHolder holder = new SoundAssociationHolder();
         holder.collection = new ArrayList<SoundAssociation>();
         holder.collection.add(createAssociation(56143158l, SoundAssociation.Type.TRACK_LIKE.type));
 
-        expect(getDAO().syncToLocal(holder, Content.ME_LIKES.uri)).toBeTrue();
+        expect(getDAO().syncToLocal(holder.collection, Content.ME_LIKES.uri)).toBeTrue();
         expect(Content.ME_LIKES).toHaveCount(1);
     }
 

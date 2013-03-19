@@ -30,7 +30,7 @@ public class SoundAssociationsDAO extends BaseDAO<SoundAssociation> {
      * @param contentUri
      * @return whether any items were added or removed
      */
-    public boolean syncToLocal(SoundAssociationHolder soundAssociations, Uri contentUri) {
+    public boolean syncToLocal(List<SoundAssociation> soundAssociations, Uri contentUri) {
         // get current local id and types for this uri
         Cursor c = mResolver.query(contentUri,
                 new String[]{DBHelper.CollectionItems.ITEM_ID, DBHelper.CollectionItems.RESOURCE_TYPE,
@@ -77,16 +77,13 @@ public class SoundAssociationsDAO extends BaseDAO<SoundAssociation> {
             }
         }
 
-        insert(soundAssociations);
+        insert(getContent().uri, soundAssociations);
         return changed;
     }
 
-    public int insert(CollectionHolder<? extends ScResource> resources) {
-        return insert(getContent().uri, resources);
-    }
 
-    public int insert(Uri uri, CollectionHolder<? extends ScResource> resources) {
-        return insert(uri, resources.collection);
+    public int insert(List<? extends ScResource> resources) {
+        return insert(getContent().uri, resources);
     }
 
     public int insert(Uri uri, List<? extends ScResource> resources) {

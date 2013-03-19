@@ -30,7 +30,7 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
                 // these don't sync with mini representations. we might only have ids
-                List<Long> storedIds = SoundCloudDB.getStoredIds(resolver, params.contentUri, params.startIndex, params.maxToLoad);
+                List<Long> storedIds = SoundCloudDB.getStoredIds(resolver, params.getPagedUri());
                 // if we already have all the data, this is a NOP
                 try {
                     SoundCloudApplication.MODEL_MANAGER.fetchMissingCollectionItems(api, storedIds, params.getContent(), false, -1);

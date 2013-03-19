@@ -69,10 +69,10 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldInsertAndQueryLikes() throws Exception {
-        SoundAssociationHolder collection = readJson(SoundAssociationHolder.class,
+        SoundAssociationHolder holder = readJson(SoundAssociationHolder.class,
                 "/com/soundcloud/android/service/sync/e1_likes.json");
 
-        expect(soundAssociationDAO.insert(collection)).toEqual(3);
+        expect(soundAssociationDAO.insert(holder.collection)).toEqual(3);
 
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(3);
@@ -89,10 +89,10 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldInsertQueryAndDeleteLikes() throws Exception {
-        SoundAssociationHolder collection = readJson(SoundAssociationHolder.class,
+        SoundAssociationHolder holder = readJson(SoundAssociationHolder.class,
                 "/com/soundcloud/android/service/sync/e1_likes.json");
 
-        expect(soundAssociationDAO.insert(collection)).toEqual(3);
+        expect(soundAssociationDAO.insert(holder.collection)).toEqual(3);
 
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(3);
@@ -111,10 +111,10 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldQuerySounds() throws Exception {
-        SoundAssociationHolder collection = readJson(SoundAssociationHolder.class,
+        SoundAssociationHolder holder = readJson(SoundAssociationHolder.class,
                 "/com/soundcloud/android/provider/e1_sounds.json");
 
-        expect(soundAssociationDAO.insert(collection)).toEqual(50);
+        expect(soundAssociationDAO.insert(holder.collection)).toEqual(50);
 
         Cursor c = resolver.query(Content.ME_SOUNDS.uri, null, null, null, null);
         expect(c.getCount()).toEqual(50);
