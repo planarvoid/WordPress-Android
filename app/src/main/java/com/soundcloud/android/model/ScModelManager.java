@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.SimpleType;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.ModelCache;
@@ -72,7 +73,7 @@ public class ScModelManager {
     }
 
     public @Nullable Activities getActivitiesFromJson(InputStream is, boolean cacheDependencies) throws IOException {
-        Activities activities = mMapper.readValue(is, Activities.class);
+        Activities activities = mMapper.readValue(is, SimpleType.constructUnsafe(Activities.class));
         if (activities != null && cacheDependencies) for (Activity a : activities) a.cacheDependencies();
         return activities;
     }

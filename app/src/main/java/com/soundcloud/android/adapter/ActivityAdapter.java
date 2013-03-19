@@ -29,6 +29,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import java.util.Collections;
+import java.util.List;
 
 public class ActivityAdapter extends ScBaseAdapter<Activity> implements PlayableAdapter {
     private ActivitiesStorage mActivitiesStorage;
@@ -115,7 +116,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
 
 
     @Override
-    public void addItems(CollectionHolder<Activity> newItems) {
+    public void addItems(List<Activity> newItems) {
         for (Activity newItem : newItems){
             if (!mData.contains(newItem))mData.add(newItem);
         }
