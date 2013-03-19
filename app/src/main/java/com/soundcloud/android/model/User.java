@@ -320,10 +320,6 @@ public class User extends ScResource implements Refreshable {
         return this;
     }
 
-    public void resolve(Context context) {
-        refreshListAvatarUri(context);
-    }
-
     public void setAppFields(User u) {
         user_follower = u.user_follower;
         user_following = u.user_following;

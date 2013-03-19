@@ -17,6 +17,8 @@ import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 
+import java.util.List;
+
 import static com.soundcloud.android.Expect.expect;
 
 public class ActivitiesDAOTest extends BaseDAOTest<ActivityDAO> {
@@ -47,7 +49,7 @@ public class ActivitiesDAOTest extends BaseDAOTest<ActivityDAO> {
 
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(7);
 
-        Activities activities = getDAO().queryAll();
+        List<Activity> activities = getDAO().queryAll();
         expect(activities.size()).toEqual(7);
 
         TrackActivity trackActivity = (TrackActivity) activities.get(0);

@@ -5,76 +5,35 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.text.TextUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.ModelCache;
 import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.UriUtils;
-import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 @Deprecated
 public class ScModelManager {
-
     public  static final int RESOLVER_BATCH_SIZE = 100;
-    private static final int API_LOOKUP_BATCH_SIZE = 200;
     private static final int DEFAULT_CACHE_CAPACITY = 100;
 
     private ContentResolver mResolver;
-    private ObjectMapper mMapper;
 
     private ModelCache<Track> mTrackCache = new ModelCache<Track>(DEFAULT_CACHE_CAPACITY * 4);
     private ModelCache<User> mUserCache = new ModelCache<User>(DEFAULT_CACHE_CAPACITY * 2);
     private ModelCache<Playlist> mPlaylistCache = new ModelCache<Playlist>(DEFAULT_CACHE_CAPACITY);
 
-    private Context mContext;
 
-    private static boolean CACHE_AFTER_DESERIALIZATION = SoundCloudApplication.DALVIK;
-
-    public ScModelManager(Context c, ObjectMapper mapper) {
-        mContext = c;
+    public ScModelManager(Context c) {
         mResolver = c.getContentResolver();
-        mMapper = mapper;
     }
-
-    /**
-     * Turn an input stream into a collection of objects, using the cache to ensure that there is only one instance
-     * of each resource object in memory
-     *
-     * @return the Resource Collection
-     * @throws IOException
-     */
-
-    public @NotNull <T extends ScResource> CollectionHolder<T> getCollectionFromStream(InputStream is) throws IOException {
-        return getCollectionFromStream(is, CACHE_AFTER_DESERIALIZATION);
-    }
-
-    public <T extends ScResource> CollectionHolder<T> getCollectionFromStream(InputStream is, boolean cacheResults) throws IOException {
-        List<ScResource> items = new ArrayList<ScResource>();
-        CollectionHolder holder = mMapper.readValue(is, ScResource.ScResourceHolder.class);
-        for (ScResource m : (ScResource.ScResourceHolder) holder) {
-            items.add(cacheResults ? cache(m, ScResource.CacheUpdateMode.FULL) : m); // TODO, do not rely on Dalvik
-        }
-        holder.collection = items;
-        holder.resolve(mContext);
-        return holder;
-    }
-
 
     public Track getCachedTrackFromCursor(Cursor cursor){
         return getCachedTrackFromCursor(cursor, DBHelper.Sounds._ID);
@@ -145,10 +104,6 @@ public class ScModelManager {
         }
         if (itemsCursor != null) itemsCursor.close();
 
-        // meeded?
-        for (ScModel m : items) {
-            m.resolve(mContext);
-        }
         return  (List<T>) items;
     }
 
@@ -391,35 +346,7 @@ public class ScModelManager {
         return playlist;
     }
 
-    private List<ScResource> doBatchLookup(AndroidCloudAPI api, List<Long> ids, String path) throws IOException {
-        List<ScResource> resources = new ArrayList<ScResource>();
-        int i = 0;
-        while (i < ids.size()) {
-            List<Long> batch = ids.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, ids.size()));
-            InputStream is = validateResponse(
-                    api.get(
-                            Request.to(path)
-                                    .add("linked_partitioning", "1")
-                                    .add("limit", API_LOOKUP_BATCH_SIZE)
-                                    .add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
 
-            resources.addAll(getCollectionFromStream(is).collection);
-
-            i += API_LOOKUP_BATCH_SIZE;
-        }
-        return resources;
-    }
-
-    public static HttpResponse validateResponse(HttpResponse response) throws IOException {
-        final int code = response.getStatusLine().getStatusCode();
-        if (code == HttpStatus.SC_UNAUTHORIZED) {
-            throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
-                    response.getStatusLine().getReasonPhrase());
-        } else if (!IOUtils.isStatusCodeOk(code)) {
-            throw new IOException("Invalid response: " + response.getStatusLine());
-        }
-        return response;
-    }
 
     /**
      * @param modelIds     a list of model ids
@@ -444,11 +371,13 @@ public class ScModelManager {
         List<Long> fetchIds = (maxToFetch > -1) ? new ArrayList<Long>(ids.subList(0, Math.min(ids.size(), maxToFetch)))
                     : ids;
 
-        return SoundCloudDB.bulkInsertResources(mResolver, doBatchLookup(api, fetchIds,
-                // XXX this has to be abstracted more. Hesitant to do so until the api is more final
-                Track.class.equals(content.modelType) || SoundAssociation.class.equals(content.modelType)
-                        ? Content.TRACKS.remoteUri : Content.USERS.remoteUri));
+        // XXX this has to be abstracted more. Hesitant to do so until the api is more final
+        Request request = Track.class.equals(content.modelType) ||
+               SoundAssociation.class.equals(content.modelType) ? Content.TRACKS.request() : Content.USERS.request();
+
+        return SoundCloudDB.bulkInsertResources(mResolver, api.readListFromIds(request, fetchIds));
     }
+
 
     /**
      * @return a list of all ids for which objects are store in the database
@@ -469,10 +398,6 @@ public class ScModelManager {
     }
 
 
-    public int writeCollectionFromStream(InputStream is, ScResource.CacheUpdateMode updateMode) throws IOException {
-        return writeCollection(getCollectionFromStream(is).collection, updateMode);
-    }
-
     <T extends ScResource> int writeCollection(List<T> items, ScResource.CacheUpdateMode updateMode) {
         for (T item : items) {
             cache(item, updateMode);
@@ -481,7 +406,7 @@ public class ScModelManager {
     }
 
 
-    public <T extends ScResource> int writeCollection(List<T> items, Uri localUri, long userId, ScResource.CacheUpdateMode updateMode) {
+    <T extends ScResource> int writeCollection(List<T> items, Uri localUri, long userId, ScResource.CacheUpdateMode updateMode) {
         if (items.isEmpty()) return 0;
 
         for (T item : items) {

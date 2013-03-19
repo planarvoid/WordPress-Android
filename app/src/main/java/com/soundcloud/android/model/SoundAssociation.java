@@ -60,7 +60,7 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
         playable = Playable.fromCursor(cursor);
     }
 
-    public SoundAssociation(Playable playable, Date created_at, Type typeEnum) {
+    public SoundAssociation(@NotNull Playable playable, Date created_at, Type typeEnum) {
         this.playable = playable;
         this.created_at = created_at;
         this.associationType = typeEnum.collectionType;

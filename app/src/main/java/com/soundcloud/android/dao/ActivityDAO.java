@@ -50,24 +50,17 @@ public class ActivityDAO extends BaseDAO<Activity> {
         return mResolver.bulkInsert(content.uri, activities.buildContentValues(content.id));
     }
 
-    public Activities queryAll() {
-        Cursor c = mResolver.query(getContent().uri, null, null, null, null);
-        return getActivitiesFromCursor(c);
-    }
-
-
-    public Activity getActivityFromCursor(Cursor cursor) {
+    @Override protected  Activity objFromCursor(Cursor cursor) {
         return Activity.Type.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE))).fromCursor(cursor);
     }
 
     public Activities getActivitiesFromCursor(Cursor cursor) {
         Activities activities = new Activities();
         while (cursor != null && cursor.moveToNext()) {
-            final Activity activityFromCursor = getActivityFromCursor(cursor);
+            final Activity activityFromCursor = objFromCursor(cursor);
             if (activityFromCursor != null) activities.add(activityFromCursor);
         }
         if (cursor != null) cursor.close();
         return activities;
     }
-
 }

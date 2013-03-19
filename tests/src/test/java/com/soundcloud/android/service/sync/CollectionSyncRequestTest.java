@@ -3,7 +3,7 @@ package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -16,7 +16,7 @@ import java.net.URLEncoder;
 public class CollectionSyncRequestTest {
 
     static final String NON_INTERACTIVE =
-            "&"+ URLEncoder.encode(AndroidCloudAPI.Wrapper.BACKGROUND_PARAMETER) + "=1";
+            "&"+ URLEncoder.encode(Wrapper.BACKGROUND_PARAMETER) + "=1";
 
     @Test
     public void shouldHaveEquals() throws Exception {

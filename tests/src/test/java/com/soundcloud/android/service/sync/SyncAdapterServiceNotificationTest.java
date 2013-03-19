@@ -4,13 +4,12 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.getActivities;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
 
 import java.util.List;
@@ -237,7 +236,7 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
 
         // user has already seen some stuff
         ContentStats.setLastSeen(DefaultTestRunner.application, Content.ME_ACTIVITIES,
-                AndroidCloudAPI.CloudDateFormat.fromString("2011/07/23 11:51:29 +0000").getTime());
+                Wrapper.CloudDateFormat.fromString("2011/07/23 11:51:29 +0000").getTime());
 
         addCannedActivities("empty_events.json", "e1_activities_2.json");
         SyncOutcome second = doPerformSync(DefaultTestRunner.application, false, null);

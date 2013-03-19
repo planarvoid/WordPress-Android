@@ -8,7 +8,6 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -66,17 +65,9 @@ public class LoadCommentsTask extends AsyncApiTask<Long, Void, List<Comment>> {
         void onCommentsLoaded(long track_id, List<Comment> comments);
     }
 
-
     private List<Comment> list(Request path) {
         try {
-            HttpResponse response = mApi.get(path);
-
-            if (response.getStatusLine().getStatusCode() == SC_OK) {
-                return mApi.readList(response.getEntity().getContent());
-            } else {
-                Log.w(TAG, "invalid response code " + response.getStatusLine());
-                return null;
-            }
+            return mApi.readList(path);
         } catch (IOException e) {
             Log.w(TAG, "error fetching JSON", e);
             return null;

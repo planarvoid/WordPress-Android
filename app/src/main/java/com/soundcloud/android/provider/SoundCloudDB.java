@@ -1,15 +1,11 @@
 package com.soundcloud.android.provider;
 
-import com.soundcloud.android.dao.ResolverHelper;
-import com.soundcloud.android.model.ScResource;
-import org.jetbrains.annotations.NotNull;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.net.Uri;
-import android.provider.BaseColumns;
+import com.soundcloud.android.model.ScResource;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Deprecated

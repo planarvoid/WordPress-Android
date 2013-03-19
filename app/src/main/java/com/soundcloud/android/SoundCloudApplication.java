@@ -13,6 +13,7 @@ import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.imageloader.DownloadBitmapHandler;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.imageloader.PrefetchHandler;
+import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
@@ -62,7 +63,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
@@ -112,7 +112,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi = Wrapper.create(this, account == null ? null : getToken(account));
         mCloudApi.setTokenListener(this);
 
-        MODEL_MANAGER = new ScModelManager(this, mCloudApi.getMapper());
+        MODEL_MANAGER = new ScModelManager(this);
 
         if (account != null) {
             if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
@@ -448,13 +448,33 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return this;
     }
 
-    public <T extends ScResource> T read(InputStream is) throws IOException {
-        return mCloudApi.read(is);
+    public <T extends ScResource> T read(Request req) throws IOException {
+        return mCloudApi.read(req);
     }
 
-    @Override
-    public <T extends ScResource> List<T> readList(InputStream is) throws IOException {
-        return mCloudApi.readList(is);
+    public <T extends ScResource> T update(Request request) throws NotFoundException, IOException {
+        return mCloudApi.update(request);
+    }
+
+    public <T extends ScResource> T create(Request request) throws IOException {
+        return mCloudApi.create(request);
+    }
+
+    public <T extends ScResource> List<T> readList(Request req) throws IOException {
+        return mCloudApi.readList(req);
+    }
+
+    public <T extends ScResource> ScResource.ScResourceHolder<T> readCollection(Request req) throws IOException {
+        return mCloudApi.readCollection(req);
+    }
+
+    @NotNull public <T, C extends CollectionHolder<T>> List<T> readFullCollection(Request request, Class<C> ch) throws IOException {
+        return mCloudApi.readFullCollection(request, ch);
+    }
+
+
+    public <T extends ScResource> List<T> readListFromIds(Request request, List<Long> ids) throws IOException {
+        return mCloudApi.readListFromIds(request, ids);
     }
 
     public Token authorizationCode(String code, String... scopes) throws IOException {

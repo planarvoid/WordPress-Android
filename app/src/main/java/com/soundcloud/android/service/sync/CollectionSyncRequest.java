@@ -1,7 +1,7 @@
 package com.soundcloud.android.service.sync;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.api.CloudAPI;
 
@@ -51,7 +51,7 @@ import java.io.IOException;
         if (localCollection == null) throw new IllegalStateException("request has not been queued");
 
         // make sure all requests going out on this thread have the background parameter set
-        AndroidCloudAPI.Wrapper.setBackgroundMode(!isUI);
+        Wrapper.setBackgroundMode(!isUI);
 
         ApiSyncer syncer = new ApiSyncer(context);
 
@@ -75,7 +75,7 @@ import java.io.IOException;
             result = ApiSyncer.Result.fromIOException(contentUri);
         } finally {
             // should be taken care of when thread dies, but needed for tests
-            AndroidCloudAPI.Wrapper.setBackgroundMode(false);
+            Wrapper.setBackgroundMode(false);
         }
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
