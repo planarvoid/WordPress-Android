@@ -561,11 +561,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             mWaveformController.setProgress(0);
             mWaveformController.setSecondaryProgress(0);
         }
-
-        // Onboard showing smooth progress if we already aren't
-        if (!mWaveformController.showingSmoothProgress() && showSmoothProgress){
-            mWaveformController.startSmoothProgress();
-        }
+        mWaveformController.setSmoothProgress(showSmoothProgress);
     }
 
     public void onStop(boolean killLoading) {
@@ -577,7 +573,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
         if (isBuffering){
             hideUnplayable();
-            mWaveformController.stopSmoothProgress();
 
             // TODO: this needs to happen in the service, this should be UI only here
             getTrack().last_playback_error = -1;
