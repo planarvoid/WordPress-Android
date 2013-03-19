@@ -1,5 +1,6 @@
 package com.soundcloud.android.task;
 
+import android.util.Log;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -7,12 +8,17 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+import org.apache.http.HttpResponse;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoadCommentsTask extends LoadJsonTask<Long, Comment> {
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+public class LoadCommentsTask extends AsyncApiTask<Long, Void, List<Comment>> {
+
     private List<WeakReference<LoadCommentsListener>> mListenerRefs;
     private long mTrackId;
 
@@ -32,7 +38,7 @@ public class LoadCommentsTask extends LoadJsonTask<Long, Comment> {
     protected List<Comment> doInBackground(Long... params) {
         mTrackId = params[0];
         return list(Request.to(Endpoints.TRACK_COMMENTS, mTrackId)
-                           .add("limit", Consts.MAX_COMMENTS_TO_LOAD), Comment.class);
+                           .add("limit", Consts.MAX_COMMENTS_TO_LOAD));
     }
 
     @Override
@@ -58,5 +64,22 @@ public class LoadCommentsTask extends LoadJsonTask<Long, Comment> {
      // Define our custom Listener interface
     public interface LoadCommentsListener {
         void onCommentsLoaded(long track_id, List<Comment> comments);
+    }
+
+
+    private List<Comment> list(Request path) {
+        try {
+            HttpResponse response = mApi.get(path);
+
+            if (response.getStatusLine().getStatusCode() == SC_OK) {
+                return mApi.readList(response.getEntity().getContent());
+            } else {
+                Log.w(TAG, "invalid response code " + response.getStatusLine());
+                return null;
+            }
+        } catch (IOException e) {
+            Log.w(TAG, "error fetching JSON", e);
+            return null;
+        }
     }
 }

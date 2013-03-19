@@ -64,6 +64,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.List;
 
 @ReportsCrashes(
         formUri = "https://bugsense.appspot.com/api/acra?api_key=231805c4",
@@ -449,6 +450,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public <T extends ScResource> T read(InputStream is) throws IOException {
         return mCloudApi.read(is);
+    }
+
+    @Override
+    public <T extends ScResource> List<T> readList(InputStream is) throws IOException {
+        return mCloudApi.readList(is);
     }
 
     public Token authorizationCode(String code, String... scopes) throws IOException {

@@ -37,7 +37,7 @@ public class SignupTask extends AsyncApiTask<String, Void, User> {
             int statusCode = resp.getStatusLine().getStatusCode();
             switch (statusCode) {
                 case SC_CREATED:
-                    return mApi.getMapper().readValue(resp.getEntity().getContent(), User.class);
+                    return mApi.read(resp.getEntity().getContent());
                 case SC_UNPROCESSABLE_ENTITY:
                     extractErrors(resp);
                     break;

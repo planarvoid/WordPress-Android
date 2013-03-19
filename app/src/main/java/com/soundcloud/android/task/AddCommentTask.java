@@ -44,7 +44,7 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
             try {
                 final HttpResponse response = app.post(request);
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
-                    Comment created  = app.getMapper().readValue(response.getEntity().getContent(), Comment.class);
+                    Comment created  = app.read(response.getEntity().getContent());
                     publishProgress(comment, created);
                     return created;
                 } // else fall-through

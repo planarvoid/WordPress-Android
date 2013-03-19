@@ -1,6 +1,5 @@
 package com.soundcloud.android;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,6 +45,7 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -63,6 +63,8 @@ public interface AndroidCloudAPI extends CloudAPI {
     Context getContext();
 
     <T extends ScResource> T read(InputStream is) throws IOException;
+
+    <T extends ScResource> List<T> readList(InputStream is) throws IOException;
 
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         /**
@@ -180,6 +182,12 @@ public interface AndroidCloudAPI extends CloudAPI {
         @Override
         public <T extends ScResource> T read(InputStream is) throws IOException {
             return (T) getMapper().readValue(is, ScResource.class);
+        }
+
+        @Override
+        public <T extends ScResource> List<T> readList(InputStream is) throws IOException {
+            return getMapper().readValue(is,
+                   getMapper().getTypeFactory().constructCollectionType(List.class, ScResource.class));
         }
 
         @Override

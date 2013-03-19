@@ -206,8 +206,7 @@ public class ApiSyncer {
                     try {
                         HttpResponse resp = mApi.get(Request.to(TempEndpoints.PLAYLIST_TRACKS, playlist.id));
                         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                            playlist.tracks = mApi.getMapper().readValue(resp.getEntity().getContent(),
-                                    mApi.getMapper().getTypeFactory().constructCollectionType(List.class, Track.class));
+                            playlist.tracks = mApi.readList(resp.getEntity().getContent());
                         }
                     } catch (IOException e) {
                         // don't let the track fetch fail the sync, it is just an optimization
@@ -468,11 +467,10 @@ public class ApiSyncer {
         final Request request = c.request();
         HttpResponse resp = mApi.get(request);
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            List<ScModel> models = mApi.getMapper().readValue(resp.getEntity().getContent(),
-                    mApi.getMapper().getTypeFactory().constructCollectionType(List.class, c.modelType));
+            List<ScResource> models = mApi.readList(resp.getEntity().getContent());
 
             List<ContentValues> cvs = new ArrayList<ContentValues>(models.size());
-            for (ScModel model : models) {
+            for (ScResource model : models) {
                 ContentValues cv = model.buildContentValues();
                 if (cv != null) cvs.add(cv);
             }
@@ -497,10 +495,9 @@ public class ApiSyncer {
         Result result = new Result(Content.ME_CONNECTIONS.uri);
         HttpResponse resp = mApi.get(Content.ME_CONNECTIONS.request());
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-
             // compare local vs remote connections
-            HashSet<Connection> remoteConnections = mApi.getMapper().readValue(resp.getEntity().getContent(),
-                    mApi.getMapper().getTypeFactory().constructCollectionType(Set.class, Content.ME_CONNECTIONS.modelType));
+            HashSet<ScResource> remoteConnections =
+                    new HashSet<ScResource>(mApi.readList(resp.getEntity().getContent()));
 
             Cursor c = mResolver.query(Content.ME_CONNECTIONS.uri, null, null, null, null);
             HashSet<Connection> storedConnections = new HashSet<Connection>();
@@ -527,7 +524,7 @@ public class ApiSyncer {
 
             // write anyways to update connections
             List<ContentValues> cvs = new ArrayList<ContentValues>(remoteConnections.size());
-            for (Connection connection : remoteConnections) {
+            for (ScResource connection : remoteConnections) {
                 ContentValues cv = connection.buildContentValues();
                 if (cv != null) cvs.add(cv);
             }

@@ -248,7 +248,7 @@ public class SyncAdapterService extends Service {
                     try {
                         HttpResponse resp = app.get(Request.to(Endpoints.USERS + "/" + id));
                         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                            u = app.getMapper().readValue(resp.getEntity().getContent(), User.class);
+                            u = app.read(resp.getEntity().getContent());
                             userStorage.createOrUpdate(u);
 
                             NotificationMessage.showNewFollower(app, u);
