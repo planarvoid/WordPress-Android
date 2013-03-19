@@ -7,6 +7,7 @@ import org.apache.http.HttpStatus;
 
 import android.database.Cursor;
 import android.util.Log;
+import android.util.Pair;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -30,19 +31,20 @@ public class PlayEventTrackingApi {
     }
 
     /**
-     * @param trackingData a cursor with the tracking data to be submitted
-     * @return a list of successfully submitted ids
+     * Submit play events to the server using the given urls
+     *
+     * @param urlPairs pair [id, url] of the event to push
+     * @return  a list of successfully submitted ids
      */
-    public String[] pushToRemote(Cursor trackingData) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Pushing " + trackingData.getCount() + " new tracking events");
+    public String[] pushToRemote(List<Pair<Long, String>> urlPairs) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Pushing " + urlPairs.size() + " new tracking events");
 
-        List<String> successes = new ArrayList<String>(trackingData.getCount());
-        String url = null;
+        List<String> successes = new ArrayList<String>(urlPairs.size());
         HttpURLConnection connection = null;
 
-        while (trackingData.moveToNext()) {
+        for (Pair<Long,String> urlPair : urlPairs){
             try {
-                url = buildUrl(trackingData);
+                final String url = urlPair.second;
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "logging "+url);
                 connection = (HttpURLConnection) new URL(url).openConnection();
 
@@ -54,12 +56,12 @@ public class PlayEventTrackingApi {
                 final int response = connection.getResponseCode();
 
                 if (response == HttpStatus.SC_OK) {
-                    successes.add(trackingData.getString(trackingData.getColumnIndex(PlayEventTracker.TrackingEvents._ID)));
+                    successes.add(String.valueOf(urlPair.first));
                 } else {
                     Log.w(TAG, "unexpected status code: " + response);
                 }
             } catch (IOException e) {
-                Log.w(TAG, "Failed pushing play event " + url);
+                Log.w(TAG, "Failed pushing play event " + urlPair);
             }
         }
 
