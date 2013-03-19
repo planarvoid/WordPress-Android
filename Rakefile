@@ -115,6 +115,15 @@ end
           package.to_s+'.tests/'+test_runner.call]
     end
 
+    desc "runs the monkey [COUNT=x] [SEED=y]"
+    task :monkey do
+      adb['shell', 'monkey', '-p', package.to_s, '-v',
+          '--throttle', '250',
+          '-s', ENV['SEED'] || Time.now.to_i.to_s,
+          ENV['COUNT'] || '10000'
+      ]
+    end
+
     task :anr do
       adb["pull /data/anr/traces.txt"]
     end

@@ -4,6 +4,7 @@ import static com.soundcloud.android.imageloader.ImageLoader.Options;
 import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
+import android.app.ActivityManager;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -221,6 +222,9 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     }
 
     private void updateArtwork(boolean postAtFront) {
+        // this will cause OOMs
+        if (ActivityManager.isUserAMonkey()) return;
+
         ImageLoader.get(getContext()).unbind(mArtwork);
         if (TextUtils.isEmpty(mTrack.getArtwork())) {
             // no artwork
