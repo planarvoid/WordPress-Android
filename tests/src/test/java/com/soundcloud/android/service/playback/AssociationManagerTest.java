@@ -1,11 +1,10 @@
 package com.soundcloud.android.service.playback;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
-
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.dao.ActivitiesStorage;
+import com.soundcloud.android.dao.PlaylistStorage;
+import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
@@ -14,7 +13,6 @@ import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.service.sync.ApiSyncServiceTest;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -22,16 +20,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static com.soundcloud.android.Expect.expect;
+import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
+
 @RunWith(DefaultTestRunner.class)
 public class AssociationManagerTest {
     AssociationManager associationManager;
-    ScModelManager modelManager;
+    TrackStorage trackStorage;
+    PlaylistStorage playlistStorage;
+
     static final long USER_ID = 1L;
 
     @Before
     public void before() {
-        modelManager = SoundCloudApplication.MODEL_MANAGER;
-        associationManager = new AssociationManager(Robolectric.application, modelManager);
+        associationManager = new AssociationManager(Robolectric.application,  SoundCloudApplication.MODEL_MANAGER);
+        trackStorage = new TrackStorage(Robolectric.application.getContentResolver());
+        playlistStorage = new PlaylistStorage(Robolectric.application.getContentResolver());
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
     }
 
@@ -43,12 +47,8 @@ public class AssociationManagerTest {
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(201, "OK"));
         associationManager.setLike(t, true);
 
-        expect(modelManager.getTrack(t.id).user_like).toBeTrue();
-        expect(modelManager.getTrack(t.id).likes_count).toEqual(likesCount + 1);
-
-        Track trackFromDb = (Track) modelManager.getModel(t.toUri(), null);
-        expect(trackFromDb.user_like).toBeTrue();
-        expect(trackFromDb.likes_count).toEqual(likesCount + 1);
+        expect(trackStorage.getTrack(t.id).user_like).toBeTrue();
+        expect(trackStorage.getTrack(t.id).likes_count).toEqual(likesCount + 1);
     }
 
     @Test
@@ -60,12 +60,8 @@ public class AssociationManagerTest {
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
         associationManager.setLike(t, true);
 
-        expect(modelManager.getTrack(t.id).user_like).toBeTrue();
-        expect(modelManager.getTrack(t.id).likes_count).toEqual(likesCount);
-
-        Track trackFromDb = (Track) modelManager.getModel(t.toUri(), null);
-        expect(trackFromDb.user_like).toBeTrue();
-        expect(trackFromDb.likes_count).toEqual(likesCount);
+        expect(trackStorage.getTrack(t.id).user_like).toBeTrue();
+        expect(trackStorage.getTrack(t.id).likes_count).toEqual(likesCount);
     }
 
     @Test
@@ -77,12 +73,8 @@ public class AssociationManagerTest {
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(404, "FAIL"));
         associationManager.setLike(t, true);
 
-        expect(modelManager.getTrack(t.id).user_like).toBeFalse();
-        expect(modelManager.getTrack(t.id).likes_count).toEqual(likesCount);
-
-        Track trackFromDb = (Track) modelManager.getModel(t.toUri(), null);
-        expect(trackFromDb.user_like).toBeFalse();
-        expect(trackFromDb.likes_count).toEqual(likesCount);
+        expect(trackStorage.getTrack(t.id).user_like).toBeFalse();
+        expect(trackStorage.getTrack(t.id).likes_count).toEqual(likesCount);
     }
 
     @Test
@@ -92,22 +84,17 @@ public class AssociationManagerTest {
 
         DefaultTestRunner.application.getContentResolver().insert(Content.ME_LIKES.uri, t.buildContentValues());
 
-        expect(((Track) modelManager.getModel(t.toUri(), null)).user_like).toBeTrue(); // make sure db has liked state
-
         addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
         associationManager.setLike(t, false);
 
-        expect(modelManager.getTrack(t.id).user_like).toBeFalse();
-        expect(modelManager.getTrack(t.id).likes_count).toEqual(likesCount - 1);
-
-        Track trackFromDb = (Track) modelManager.getModel(t.toUri(), null);
-        expect(trackFromDb.user_like).toBeFalse();
-        expect(trackFromDb.likes_count).toEqual(likesCount - 1);
+        expect(trackStorage.getTrack(t.id).user_like).toBeFalse();
+        expect(trackStorage.getTrack(t.id).likes_count).toEqual(likesCount - 1);
     }
 
     @Test
     public void removingLikeForTrackShouldNotRemoteLikeForPlaylistWithSameId() {
         Track t = createTrack();
+
         DefaultTestRunner.application.getContentResolver().insert(Content.ME_LIKES.uri, t.buildContentValues());
 
         Playlist p = new Playlist(t.id);
@@ -117,12 +104,8 @@ public class AssociationManagerTest {
         addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
         associationManager.setLike(t, false);
 
-        expect(modelManager.getPlaylist(p.id).user_like).toBeTrue();
-        expect(modelManager.getPlaylist(p.id).likes_count).toEqual(1);
-
-        Playlist playlistFromDb = (Playlist) modelManager.getModel(p.toUri(), null);
-        expect(playlistFromDb.user_like).toBeTrue();
-        expect(playlistFromDb.likes_count).toEqual(1);
+        expect(playlistStorage.getPlaylist(p.id).user_like).toBeTrue();
+        expect(playlistStorage.getPlaylist(p.id).likes_count).toEqual(1);
     }
 
     @Test
@@ -135,12 +118,8 @@ public class AssociationManagerTest {
         associationManager.setRepost(t, true);
 
         expect(t.user_repost).toBeTrue();
-        expect(modelManager.getTrack(t.id).user_repost).toBeTrue();
-        expect(modelManager.getTrack(t.id).reposts_count).toEqual(repostsCount + 1);
-
-        Track trackFromDb = (Track) modelManager.getModel(t.toUri(), null);
-        expect(trackFromDb.user_repost).toBeTrue();
-        expect(trackFromDb.reposts_count).toEqual(repostsCount + 1);
+        expect(trackStorage.getTrack(t.id).user_repost).toBeTrue();
+        expect(trackStorage.getTrack(t.id).reposts_count).toEqual(repostsCount + 1);
     }
 
     @Test
@@ -153,17 +132,14 @@ public class AssociationManagerTest {
         associationManager.setRepost(p, true);
 
         expect(p.user_repost).toBeTrue();
-        expect(modelManager.getPlaylist(p.id).user_repost).toBeTrue();
-        expect(modelManager.getPlaylist(p.id).reposts_count).toEqual(repostsCount + 1);
-
-        Playlist playlistFromDb = (Playlist) modelManager.getModel(p.toUri(), null);
-        expect(playlistFromDb.user_repost).toBeTrue();
-        expect(playlistFromDb.reposts_count).toEqual(repostsCount + 1);
+        expect(playlistStorage.getPlaylist(p.id).user_repost).toBeTrue();
+        expect(playlistStorage.getPlaylist(p.id).reposts_count).toEqual(repostsCount + 1);
     }
 
     @Test
     public void shouldRemoveRepostActivity() throws Exception {
-        Activities a = modelManager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_playlist_repost.json"), false);
+        Activities a = TestHelper.readJson(Activities.class, "/com/soundcloud/android/service/sync/e1_playlist_repost.json");
+
         a.get(0).getUser().id = USER_ID; // needs to be the logged in user
 
         Playlist playlist = (Playlist) a.get(0).getPlayable();

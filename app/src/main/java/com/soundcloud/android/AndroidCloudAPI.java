@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.ApiWrapper;
@@ -31,6 +32,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.net.URI;
 import java.security.GeneralSecurityException;
@@ -43,6 +45,7 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -58,6 +61,10 @@ public interface AndroidCloudAPI extends CloudAPI {
     ObjectMapper getMapper();
 
     Context getContext();
+
+    <T extends ScResource> T read(InputStream is) throws IOException;
+
+    <T extends ScResource> List<T> readList(InputStream is) throws IOException;
 
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         /**
@@ -170,6 +177,17 @@ public interface AndroidCloudAPI extends CloudAPI {
         @Override
         public Context getContext() {
             return  mContext;
+        }
+
+        @Override
+        public <T extends ScResource> T read(InputStream is) throws IOException {
+            return (T) getMapper().readValue(is, ScResource.class);
+        }
+
+        @Override
+        public <T extends ScResource> List<T> readList(InputStream is) throws IOException {
+            return getMapper().readValue(is,
+                   getMapper().getTypeFactory().constructCollectionType(List.class, ScResource.class));
         }
 
         @Override

@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
+import org.jetbrains.annotations.Nullable;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -84,6 +85,7 @@ public abstract class ScResource extends ScModel implements ModelLike {
         destination.add(getBulkInsertUri(), buildContentValues());
     }
 
+    @Deprecated
     public Uri insert(ContentResolver contentResolver) {
         insertDependencies(contentResolver);
         return contentResolver.insert(toUri(),buildContentValues());
@@ -101,7 +103,7 @@ public abstract class ScResource extends ScModel implements ModelLike {
 
     public abstract User getUser();
 
-    public abstract Playable getPlayable();
+    @Nullable public abstract Playable getPlayable();
 
     public Intent getViewIntent(){
         return null;

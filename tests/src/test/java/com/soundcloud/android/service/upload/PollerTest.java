@@ -112,7 +112,7 @@ public class PollerTest {
         ht.start();
 
         Scheduler scheduler = Robolectric.shadowOf(ht.getLooper()).getScheduler();
-        new Poller(ht.getLooper(), DefaultTestRunner.application, id, Content.ME_TRACKS.uri, 1).start();
+        new Poller(ht.getLooper(), DefaultTestRunner.application, id, Content.SOUNDS.uri, 1).start();
 
         // make sure all messages have been consumed
         do {

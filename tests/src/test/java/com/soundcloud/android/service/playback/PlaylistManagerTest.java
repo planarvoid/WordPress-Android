@@ -1,12 +1,11 @@
 package com.soundcloud.android.service.playback;
 
-import static com.soundcloud.android.Expect.expect;
-
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.dao.PlayQueueManagerDAO;
+import android.content.ContentResolver;
+import android.database.Cursor;
+import android.net.Uri;
+import com.soundcloud.android.dao.SoundAssociationDAO;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -14,19 +13,16 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
-import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.ContentResolver;
-import android.database.Cursor;
-import android.net.Uri;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.soundcloud.android.Expect.expect;
 
 @RunWith(DefaultTestRunner.class)
 public class PlaylistManagerTest {
@@ -302,7 +298,8 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldRespondToUriChanges() throws Exception {
-        Playlist p = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(SyncAdapterServiceTest.class.getResourceAsStream("playlist.json"));
+        Playlist p = TestHelper.readResource("/com/soundcloud/android/service/sync/playlist.json");
+
         Uri playlistUri = p.insert(resolver);
         expect(playlistUri).toEqual(Content.PLAYLIST.forQuery(String.valueOf(2524386)));
 
@@ -345,9 +342,11 @@ public class PlaylistManagerTest {
                 ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
                 SoundAssociationHolder.class);
 
-        expect(SoundCloudApplication.MODEL_MANAGER.writeCollection(old.collection,Content.ME_LIKES.uri,USER_ID,
-                ScResource.CacheUpdateMode.NONE)).toEqual(18); // 2 tracks, 1 playlist
+        new SoundAssociationDAO(resolver).insert(Content.ME_LIKES.uri, old.collection);
 
+//        expect(SoundCloudApplication.MODEL_MANAGER.writeCollection(old.collection, Content.ME_LIKES.uri, USER_ID,
+//                ScResource.CacheUpdateMode.NONE)).toEqual(18); // 2 tracks, 1 playlist
+//
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(3); // 2 tracks, 1 playlist
     }
@@ -364,7 +363,7 @@ public class PlaylistManagerTest {
             t.title = "track #"+(startPos+i);
             t.user = user;
             t.stream_url = streamable ? "http://www.soundcloud.com/sometrackurl" : null;
-            SoundCloudApplication.MODEL_MANAGER.write(t);
+            t.insert(resolver);
             list.add(t);
         }
         return list;

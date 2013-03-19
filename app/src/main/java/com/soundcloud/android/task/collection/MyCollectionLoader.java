@@ -4,7 +4,8 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.dao.UserAssociationStore;
+import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.provider.SoundCloudDB;
 
@@ -31,7 +32,8 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
                 // these don't sync with mini representations. we might only have ids
-                List<Long> storedIds = SoundCloudDB.getStoredIds(resolver, params.contentUri, params.startIndex, params.maxToLoad);
+                List<Long> storedIds = new UserAssociationStore(resolver).getStoredIds(params.getPagedUri());
+
                 // if we already have all the data, this is a NOP
                 try {
                     SoundCloudApplication.MODEL_MANAGER.fetchMissingCollectionItems(api, storedIds, params.getContent(), false, -1);
@@ -40,7 +42,8 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
                     keepGoing = false;
                 }
         }
-        CollectionHolder<T> newItems = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver, params.loadModel, params.getPagedUri());
+
+        List<T> newItems = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver, params.loadModel, params.getPagedUri());
         if (keepGoing) keepGoing = newItems.size() > 0;
         return new ReturnData<T>(newItems, params, null, keepGoing, true);
     }

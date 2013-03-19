@@ -77,7 +77,7 @@ public class FetchModelTask<Model extends ScResource> extends ParallelAsyncTask<
 
             switch (resp.getStatusLine().getStatusCode()) {
                 case HttpStatus.SC_OK: {
-                    return (Model) mApi.getMapper().readValue(resp.getEntity().getContent(), ScResource.class);
+                    return (Model) mApi.read(resp.getEntity().getContent());
                 }
 
                 case HttpStatus.SC_NOT_FOUND: return null;

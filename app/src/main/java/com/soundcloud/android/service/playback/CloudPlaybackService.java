@@ -10,6 +10,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
+import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
@@ -520,7 +521,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         new Thread() {
             @Override
             public void run() {
-                SoundCloudApplication.MODEL_MANAGER.markTrackAsPlayed(currentTrack);
+                new TrackStorage(getContentResolver()).markTrackAsPlayed(currentTrack);
             }
         }.start();
         startTrack(track);

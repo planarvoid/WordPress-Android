@@ -3,7 +3,6 @@ package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.addCannedResponse;
-import static com.soundcloud.android.robolectric.TestHelper.addIdResponse;
 
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
@@ -48,7 +47,7 @@ public class ApiSyncServiceTest {
     @Test
     public void shouldProvideFeedbackViaResultReceiver() throws Exception {
         ApiSyncService svc = new ApiSyncService();
-        Intent intent = new Intent(Intent.ACTION_SYNC, Content.ME_TRACKS.uri);
+        Intent intent = new Intent(Intent.ACTION_SYNC, Content.ME_SOUNDS.uri);
 
         final LinkedHashMap<Integer, Bundle> received = new LinkedHashMap<Integer, Bundle>();
         intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler(Looper.myLooper())) {
@@ -58,10 +57,7 @@ public class ApiSyncServiceTest {
             }
         });
 
-        addIdResponse("/me/tracks/ids?linked_partitioning=1"+ CollectionSyncRequestTest.NON_INTERACTIVE, 1, 2, 3);
-        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3"+ CollectionSyncRequestTest.NON_INTERACTIVE,
-                "tracks.json");
-
+        TestHelper.addPendingHttpResponse(getClass(), "me_sounds_mini.json");
         svc.onStart(intent, 0);
 
         expect(received.size()).toBe(1);
@@ -92,7 +88,7 @@ public class ApiSyncServiceTest {
 
         Intent intent = new Intent(Intent.ACTION_SYNC);
         ArrayList<Uri> urisToSync = new ArrayList<Uri>();
-        urisToSync.add(Content.ME_TRACKS.uri);
+        urisToSync.add(Content.ME_SOUNDS.uri);
         urisToSync.add(Content.ME_LIKES.uri);
         urisToSync.add(Content.ME_FOLLOWERS.uri);
 
@@ -112,7 +108,7 @@ public class ApiSyncServiceTest {
 
         // make sure favorites is queued on front
         expect(svc.mPendingRequests.peek().contentUri).toBe(Content.ME_LIKES.uri);
-        expect(svc.mPendingRequests.get(1).contentUri).toBe(Content.ME_TRACKS.uri);
+        expect(svc.mPendingRequests.get(1).contentUri).toBe(Content.ME_SOUNDS.uri);
 
         SyncIntent request4 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
         svc.enqueueRequest(request4);
@@ -210,9 +206,8 @@ public class ApiSyncServiceTest {
     @Test
     public void shouldClearSyncStatuses() throws Exception {
         ApiSyncService svc = new ApiSyncService();
-        ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
         svc.onDestroy();
-        expect(syncStateManager.fromContent(Content.ME_TRACKS).sync_state).toEqual(LocalCollection.SyncState.IDLE);
+        expect(syncStateManager.fromContent(Content.ME_SOUNDS).sync_state).toEqual(LocalCollection.SyncState.IDLE);
     }
 
     private void addResourceResponse(String url, String resource) throws IOException {

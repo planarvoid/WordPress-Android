@@ -4,11 +4,11 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,6 +52,22 @@ public class ActivityDAO extends BaseDAO<Activity> {
 
     public Activities queryAll() {
         Cursor c = mResolver.query(getContent().uri, null, null, null, null);
-        return SoundCloudApplication.MODEL_MANAGER.getActivitiesFromCursor(c);
+        return getActivitiesFromCursor(c);
     }
+
+
+    public Activity getActivityFromCursor(Cursor cursor) {
+        return Activity.Type.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE))).fromCursor(cursor);
+    }
+
+    public Activities getActivitiesFromCursor(Cursor cursor) {
+        Activities activities = new Activities();
+        while (cursor != null && cursor.moveToNext()) {
+            final Activity activityFromCursor = getActivityFromCursor(cursor);
+            if (activityFromCursor != null) activities.add(activityFromCursor);
+        }
+        if (cursor != null) cursor.close();
+        return activities;
+    }
+
 }

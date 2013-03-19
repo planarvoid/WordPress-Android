@@ -1,14 +1,17 @@
 package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.model.ScModelManager.validateResponse;
+import static com.soundcloud.android.model.SoundAssociation.Type;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.dao.ActivitiesStorage;
+import com.soundcloud.android.dao.ConnectionDAO;
 import com.soundcloud.android.dao.PlaylistStorage;
-import com.soundcloud.android.dao.SoundAssociationsDAO;
+import com.soundcloud.android.dao.ResolverHelper;
+import com.soundcloud.android.dao.SoundAssociationDAO;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
@@ -65,6 +68,8 @@ public class ApiSyncer {
     private final SyncStateManager mSyncStateManager;
     private final ActivitiesStorage mActivitiesStorage;
     private final PlaylistStorage mPlaylistStorage;
+    private final SoundAssociationDAO mSoundAssociationDAO;
+
 
     public ApiSyncer(Context context) {
         mApi = (AndroidCloudAPI) context.getApplicationContext();
@@ -73,6 +78,7 @@ public class ApiSyncer {
         mSyncStateManager = new SyncStateManager(mResolver);
         mActivitiesStorage = new ActivitiesStorage(mResolver);
         mPlaylistStorage = new PlaylistStorage(mResolver);
+        mSoundAssociationDAO = new SoundAssociationDAO(mResolver);
     }
 
     public Result syncContent(Uri uri, String action) throws IOException {
@@ -107,11 +113,10 @@ public class ApiSyncer {
                     result = syncSoundAssociations(c, uri, userId);
                     break;
 
-                case ME_TRACKS:
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
                 case ME_FRIENDS:
-                    result = syncContent(c, userId);
+                    result = syncIdBasedContent(c, userId);
                     result.success = true;
                     break;
 
@@ -185,14 +190,15 @@ public class ApiSyncer {
         final Request request = Request.to(Content.ME_PLAYLISTS.remoteUri)
                 .add("representation", "compact").with("limit", 200);
 
-        ScResource.ScResourceHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
+        List<ScResource> resources = CollectionHolder.fetchAllResources(mApi,
                 request, ScResource.ScResourceHolder.class);
 
         // manually build the sound association holder
-        SoundAssociationHolder soundAssociationHolder = new SoundAssociationHolder(new ArrayList<SoundAssociation>());
-        for (ScResource resource : holder) {
+        List<SoundAssociation> associations = new ArrayList<SoundAssociation>();
+
+        for (ScResource resource : resources) {
             Playlist playlist = (Playlist) resource;
-            soundAssociationHolder.collection.add(new SoundAssociation(playlist, playlist.created_at, SoundAssociation.Type.PLAYLIST));
+            associations.add(new SoundAssociation(playlist, playlist.created_at, Type.PLAYLIST));
             boolean onWifi = IOUtils.isWifiConnected(mContext);
                 // if we have never synced the playlist or are on wifi and past the stale time, fetch the tracks
                 final LocalCollection localCollection = mSyncStateManager.fromContent(playlist.toUri());
@@ -203,17 +209,16 @@ public class ApiSyncer {
                     try {
                         HttpResponse resp = mApi.get(Request.to(TempEndpoints.PLAYLIST_TRACKS, playlist.id));
                         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                            playlist.tracks = mApi.getMapper().readValue(resp.getEntity().getContent(),
-                                    mApi.getMapper().getTypeFactory().constructCollectionType(List.class, Track.class));
+                            playlist.tracks = mApi.readList(resp.getEntity().getContent());
                         }
                     } catch (IOException e) {
                         // don't let the track fetch fail the sync, it is just an optimization
                         Log.e(TAG,"Failed to fetch playlist tracks for playlist " + playlist, e);
                     }
                 }
-                soundAssociationHolder.add(new SoundAssociation(playlist, playlist.created_at, SoundAssociation.Type.PLAYLIST));
+                associations.add(new SoundAssociation(playlist, playlist.created_at, Type.PLAYLIST));
             }
-        return syncLocalSoundAssocationsToHolder(Content.ME_PLAYLISTS.uri, soundAssociationHolder);
+        return syncLocalSoundAssocations(Content.ME_PLAYLISTS.uri, associations);
     }
 
     /* package */ int pushLocalPlaylists() throws IOException {
@@ -247,7 +252,7 @@ public class ApiSyncer {
                 Request r = Request.to(TempEndpoints.PLAYLISTS).withContent(content, "application/json");
                 InputStream is = validateResponse(mApi.post(r)).getEntity().getContent();
 
-                Playlist added = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is);
+                Playlist added = mApi.read(is);
 
                 // update local state
                 p.localToGlobal(mContext, added);
@@ -265,19 +270,19 @@ public class ApiSyncer {
     private Result syncSoundAssociations(Content content, Uri uri, long userId) throws IOException {
         log("syncSoundAssociations(" + uri + ")");
 
-        SoundAssociationHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
+        List<SoundAssociation> associations = CollectionHolder.fetchAllResources(mApi,
                 Request.to(content.remoteUri, userId).with("limit", 200).with("representation", "mini"),
                 SoundAssociationHolder.class);
 
-        return syncLocalSoundAssocationsToHolder(uri, holder);
+        return syncLocalSoundAssocations(uri, associations);
     }
 
-    private Result syncLocalSoundAssocationsToHolder(Uri uri, SoundAssociationHolder holder) {
-        boolean changed = SoundAssociationsDAO.syncToLocal(holder, mResolver, uri);
+    private Result syncLocalSoundAssocations(Uri uri, List<SoundAssociation> associations) {
+        boolean changed = mSoundAssociationDAO.syncToLocal(associations, uri);
 
         Result result = new Result(uri);
         result.change =  changed ? Result.CHANGED : Result.UNCHANGED;
-        result.setSyncData(System.currentTimeMillis(), holder.collection.size(), null);
+        result.setSyncData(System.currentTimeMillis(), associations.size(), null);
         result.success = true;
         return result;
     }
@@ -325,10 +330,11 @@ public class ApiSyncer {
         return result;
     }
 
-    private Result syncContent(Content content, final long userId) throws IOException {
+    private Result syncIdBasedContent(Content content, final long userId) throws IOException {
         Result result = new Result(content.uri);
+        if (!Content.ID_BASED.contains(content)) return result;
 
-        List<Long> local = SoundCloudApplication.MODEL_MANAGER.getLocalIds(content, userId);
+        List<Long> local  = SoundCloudApplication.MODEL_MANAGER.getLocalIds(content, userId, -1, -1);
         List<Long> remote = CollectionHolder.fetchAllResources(mApi, Request.to(content.remoteUri + "/ids"), IdHolder.class);
 
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
@@ -338,7 +344,7 @@ public class ApiSyncer {
         handleDeletions(content, local, remote);
 
         int startPosition = 1;
-        int added;
+        int added = 0;
         switch (content) {
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
@@ -369,16 +375,6 @@ public class ApiSyncer {
                         Content.USERS,
                         false,
                         -1
-                );
-                break;
-            default:
-                // ensure the first couple of pages of items for quick loading
-                added = SoundCloudApplication.MODEL_MANAGER.fetchMissingCollectionItems(
-                        mApi,
-                        remote,
-                        Track.class.equals(content.modelType) ? Content.TRACKS : Content.USERS,
-                        false,
-                        MAX_LOOKUP_COUNT
                 );
                 break;
         }
@@ -431,9 +427,12 @@ public class ApiSyncer {
             log("Need to remove " + itemDeletions.size() + " items");
             int i = 0;
             while (i < itemDeletions.size()) {
-                List<Long> batch = itemDeletions.subList(i, Math.min(i + SoundCloudDB.RESOLVER_BATCH_SIZE, itemDeletions.size()));
-                mResolver.delete(content.uri, SoundCloudDB.getWhereInClause(DBHelper.CollectionItems.ITEM_ID, batch), ScModelManager.longListToStringArr(batch));
-                i += SoundCloudDB.RESOLVER_BATCH_SIZE;
+                List<Long> batch = itemDeletions.subList(i, Math.min(i + ScModelManager.RESOLVER_BATCH_SIZE, itemDeletions.size()));
+                mResolver.delete(content.uri,
+                        ResolverHelper.getWhereInClause(DBHelper.CollectionItems.ITEM_ID, batch.size()),
+                        ResolverHelper.longListToStringArr(batch));
+
+                i += ScModelManager.RESOLVER_BATCH_SIZE;
             }
         }
         return itemDeletions;
@@ -494,10 +493,9 @@ public class ApiSyncer {
         Result result = new Result(Content.ME_CONNECTIONS.uri);
         HttpResponse resp = mApi.get(Content.ME_CONNECTIONS.request());
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-
             // compare local vs remote connections
-            HashSet<Connection> remoteConnections = mApi.getMapper().readValue(resp.getEntity().getContent(),
-                    mApi.getMapper().getTypeFactory().constructCollectionType(Set.class, Content.ME_CONNECTIONS.modelType));
+            HashSet<ScResource> remoteConnections =
+                    new HashSet<ScResource>(mApi.readList(resp.getEntity().getContent()));
 
             Cursor c = mResolver.query(Content.ME_CONNECTIONS.uri, null, null, null, null);
             HashSet<Connection> storedConnections = new HashSet<Connection>();
@@ -513,18 +511,12 @@ public class ApiSyncer {
                 result.change = Result.CHANGED;
                 // remove unneeded connections
                 storedConnections.removeAll(remoteConnections);
-                List<Long> toRemove = new ArrayList<Long>();
-                for (Connection storedConnection : storedConnections) {
-                    toRemove.add(storedConnection.id);
-                }
-                if (!toRemove.isEmpty()) {
-                    mResolver.delete(Content.ME_CONNECTIONS.uri, SoundCloudDB.getWhereInClause(DBHelper.Connections._ID, toRemove), ScModelManager.longListToStringArr(toRemove));
-                }
+                new ConnectionDAO(mResolver).deleteAll(storedConnections);
             }
 
             // write anyways to update connections
             List<ContentValues> cvs = new ArrayList<ContentValues>(remoteConnections.size());
-            for (Connection connection : remoteConnections) {
+            for (ScResource connection : remoteConnections) {
                 ContentValues cv = connection.buildContentValues();
                 if (cv != null) cvs.add(cv);
             }
@@ -555,10 +547,7 @@ public class ApiSyncer {
         }
 
         InputStream is = validateResponse(response).getEntity().getContent();
-
-        // todo, one call
-        Playlist p = (Playlist) SoundCloudApplication.MODEL_MANAGER.cache(
-                SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is), ScResource.CacheUpdateMode.FULL);
+        Playlist p = mApi.read(is);
 
         Cursor c = mResolver.query(
                 Content.PLAYLIST_TRACKS.forId(p.id), new String[]{DBHelper.PlaylistTracksView._ID},
@@ -583,8 +572,7 @@ public class ApiSyncer {
             is.close();
 
             is = validateResponse(mApi.put(r)).getEntity().getContent();
-            p = (Playlist) SoundCloudApplication.MODEL_MANAGER.cache(
-                            SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is), ScResource.CacheUpdateMode.FULL);
+            p = mApi.read(is);
         }
 
         final Uri insertedUri = p.insert(mResolver);
@@ -609,7 +597,8 @@ public class ApiSyncer {
         Result result = new Result(contentUri);
         InputStream is = validateResponse(mApi.get(Content.match(contentUri).request(contentUri))).getEntity().getContent();
 
-        final Uri insertedUri = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(is).insert(mResolver);
+        final Uri insertedUri = mApi.read(is).insert(mResolver);
+
         if (insertedUri != null){
             log("inserted " + insertedUri.toString());
             result.setSyncData(true, System.currentTimeMillis(), 1, Result.CHANGED);
@@ -634,11 +623,11 @@ public class ApiSyncer {
             HttpUtils.addQueryParams(request, "representation", "compact");
         }
 
-        ScResource.ScResourceHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
+        List<ScResource> resources = CollectionHolder.fetchAllResources(mApi,
                 request, ScResource.ScResourceHolder.class);
 
-        SoundCloudDB.bulkInsertResources(mResolver, holder.collection);
-        result.setSyncData(true, System.currentTimeMillis(), holder.collection.size(), Result.CHANGED);
+        SoundCloudDB.bulkInsertResources(mResolver, resources);
+        result.setSyncData(true, System.currentTimeMillis(), resources.size(), Result.CHANGED);
         return result;
     }
 
@@ -655,11 +644,11 @@ public class ApiSyncer {
            Result result = new Result(uri);
            log("fetchAndInsertCollectionToUri(" + uri + ")");
 
-           ScResource.ScResourceHolder holder = CollectionHolder.fetchAllResourcesHolder(mApi,
+           List<ScResource> resources = CollectionHolder.fetchAllResources(mApi,
                    Content.match(uri).request(uri).add("linked_partitioning", "1"), ScResource.ScResourceHolder.class);
 
-        SoundCloudDB.insertCollection(mResolver, holder.collection, uri, userId);
-        result.setSyncData(true, System.currentTimeMillis(), holder.collection.size(), Result.CHANGED);
+        SoundCloudDB.insertCollection(mResolver, resources, uri, userId);
+        result.setSyncData(true, System.currentTimeMillis(), resources.size(), Result.CHANGED);
         return result;
        }
 

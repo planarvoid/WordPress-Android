@@ -8,8 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
-import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.Playlist;
+    import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -27,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.*;
@@ -144,7 +144,7 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncSounds() throws Exception {
-        Result result = populateMeSounds();
+        Result result = syncMeSounds();
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
@@ -187,7 +187,7 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncSoundsAndLikes() throws Exception {
-        Result result = populateMeSounds();
+        Result result = syncMeSounds();
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
@@ -249,7 +249,7 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldPushNewPlaylist() throws Exception {
-        populateMeSounds();
+        syncMeSounds();
 
         Playlist playlist = TestHelper.readResource("/com/soundcloud/android/service/sync/playlist.json");
         TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
@@ -265,7 +265,7 @@ public class ApiSyncerTest {
         expect(syncStateManager.fromContent(p.toUri()).shouldAutoRefresh()).toBeFalse();
     }
 
-    private Result populateMeSounds() throws IOException {
+    private Result syncMeSounds() throws IOException {
         addResourceResponse("/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
         return sync(Content.ME_SOUNDS.uri);
     }
@@ -302,9 +302,9 @@ public class ApiSyncerTest {
         expect(result.change).toEqual(Result.CHANGED);
         expect(Content.TRACKS).toHaveCount(41);
 
-        CollectionHolder<Track> trackHolder = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver,Track.class, localUri);
-        expect(trackHolder.collection.size()).toBe(41);
-        expect(trackHolder.collection.get(1).title).toEqual("Keaton Henson - All Things Must Pass");
+        List<Track> tracks = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver,Track.class, localUri);
+        expect(tracks.size()).toBe(41);
+        expect(tracks.get(1).title).toEqual("Keaton Henson - All Things Must Pass");
     }
 
     @Test
@@ -373,63 +373,27 @@ public class ApiSyncerTest {
     }
 
     @Test
-    public void shouldReturnUnchangedIfLocalStateEqualsRemote() throws Exception {
-        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+    public void shouldReturnReorderedForUsersIfLocalStateEqualsRemote() throws Exception {
+        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
+        addCannedResponse(getClass(), "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
 
-        Result result = sync(Content.ME_TRACKS.uri);
-        expect(result.success).toBe(true);
-        expect(result.change).toEqual(Result.CHANGED);
+        Result result = sync(Content.ME_FOLLOWERS.uri);
+        expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
-        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+        // make sure tracks+users got written
+        expect(Content.USERS).toHaveCount(3);
+        expect(Content.ME_FOLLOWERS).toHaveCount(3);
+        assertFirstIdToBe(Content.ME_FOLLOWERS, 308291);
 
-        result = sync(Content.ME_TRACKS.uri);
+
+        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
+        addCannedResponse(getClass(), "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
+        result = sync(Content.ME_FOLLOWERS.uri);
         expect(result.success).toBe(true);
-        expect(result.change).toEqual(Result.UNCHANGED);
+        expect(result.change).toEqual(Result.REORDERED);
         expect(result.synced_at).toBeGreaterThan(0l);
         expect(result.extra).toBeNull();
-    }
-
-    @Test
-    public void shouldNotOverwriteDataFromPreviousSyncRuns() throws Exception {
-        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
-
-        sync(Content.ME_TRACKS.uri);
-        expect(Content.TRACKS).toHaveCount(3);
-
-        // sync activities concerning these tracks
-        sync(Content.ME_ACTIVITIES.uri, "tracks_activities.json");
-
-        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(10853436L);
-        expect(t).not.toBeNull();
-        expect(t.duration).toEqual(782);
-        // title should get changed from the activity json
-        expect(t.title).toEqual("recording on sunday night (edit)");
-
-        User u = SoundCloudApplication.MODEL_MANAGER.getUser(3135930L);
-        expect(u).not.toBeNull();
-        expect(u.username).toEqual("I'm your father");
-        // permalink was set in first sync run, not present in second
-        expect(u.permalink).toEqual("soundcloud-android-mwc");
-    }
-
-    @Test
-    public void shouldNotOverwriteDataFromPreviousSyncRuns2() throws Exception {
-        sync(Content.ME_ACTIVITIES.uri, "tracks_activities.json");
-
-        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
-
-        sync(Content.ME_TRACKS.uri);
-
-        expect(Content.TRACKS).toHaveCount(3);
-
-        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(10853436L);
-        expect(t).not.toBeNull();
-        expect(t.duration).toEqual(782);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.getActivities;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
@@ -9,6 +10,7 @@ import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
 
 import java.util.List;
@@ -19,7 +21,7 @@ import java.util.List;
 public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBase {
     @Test
     public void testIncomingNotificationMessage() throws Exception {
-        Activities activities = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(getClass().getResourceAsStream("e1_stream.json"));
+        Activities activities = getActivities("/com/soundcloud/android/service/sync/e1_stream.json");
         String message = NotificationMessage.getIncomingNotificationMessage(
                 DefaultTestRunner.application, activities);
 

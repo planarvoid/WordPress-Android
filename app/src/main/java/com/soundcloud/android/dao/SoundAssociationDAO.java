@@ -1,34 +1,36 @@
 package com.soundcloud.android.dao;
 
-import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.SoundAssociationHolder;
-import com.soundcloud.android.provider.BulkInsertMap;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.provider.BulkInsertMap;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SoundAssociationsDAO {
+public class SoundAssociationDAO extends BaseDAO<SoundAssociation> {
+    public SoundAssociationDAO(ContentResolver contentResolver) {
+        super(contentResolver);
+    }
+
     /**
      * Sync this collection to the local database by removing any stale items and
      * inserting the sound associations (which will replace the existing items)
      * @param soundAssociations
-     * @param resolver
      * @param contentUri
      * @return whether any items were added or removed
      */
-    public static boolean syncToLocal(SoundAssociationHolder soundAssociations, ContentResolver resolver, Uri contentUri) {
+    public boolean syncToLocal(List<SoundAssociation> soundAssociations, Uri contentUri) {
         // get current local id and types for this uri
-        Cursor c = resolver.query(contentUri,
+        Cursor c = mResolver.query(contentUri,
                 new String[]{DBHelper.CollectionItems.ITEM_ID, DBHelper.CollectionItems.RESOURCE_TYPE,
                         DBHelper.CollectionItems.COLLECTION_TYPE}, null, null, null);
 
@@ -65,7 +67,7 @@ public class SoundAssociationsDAO {
             } else {
                 for (Integer type : deletions.keySet()) {
                     for (Long id : deletions.get(type)) {
-                        resolver.delete(contentUri,
+                        mResolver.delete(contentUri,
                                 DBHelper.CollectionItems.ITEM_ID + " = ? AND " + DBHelper.CollectionItems.RESOURCE_TYPE + " = ?",
                                 new String[]{String.valueOf(id), String.valueOf(type)});
                     }
@@ -73,20 +75,34 @@ public class SoundAssociationsDAO {
             }
         }
 
-        insert(soundAssociations, resolver);
+        insert(getContent().uri, soundAssociations);
         return changed;
     }
 
-    public static int insert(SoundAssociationHolder soundAssociations, ContentResolver resolver) {
 
+    public int insert(List<? extends ScResource> resources) {
+        return insert(getContent().uri, resources);
+    }
+
+    public int insert(Uri uri, List<? extends ScResource> resources) {
         List<ContentValues> items = new ArrayList<ContentValues>();
         BulkInsertMap map = new BulkInsertMap();
 
-        for (SoundAssociation soundAssociation : soundAssociations) {
-            soundAssociation.putDependencyValues(map);
-            items.add(soundAssociation.buildContentValues());
+        for (ScResource resource : resources) {
+            resource.putDependencyValues(map);
+            items.add(resource.buildContentValues());
         }
-        map.insert(resolver); // dependencies
-        return resolver.bulkInsert(Content.COLLECTION_ITEMS.uri, items.toArray(new ContentValues[items.size()]));
+        map.insert(mResolver); // dependencies
+        return mResolver.bulkInsert(uri, items.toArray(new ContentValues[items.size()]));
+    }
+
+
+    public int writeCollection(CollectionHolder<? extends ScResource> models) {
+        return insert(getContent().uri, models.collection);
+    }
+
+    @Override
+    public Content getContent() {
+        return Content.COLLECTION_ITEMS;
     }
 }

@@ -1,7 +1,6 @@
 package com.soundcloud.android.task.auth;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.api.Params;
@@ -37,7 +36,7 @@ public class AddUserInfoTask extends AsyncApiTask<Pair<User,File>, Void, User> {
             HttpResponse resp = mApi.put(updateMe);
             switch (resp.getStatusLine().getStatusCode()) {
                 case SC_OK:
-                    return SoundCloudApplication.MODEL_MANAGER.getModelFromStream(resp.getEntity().getContent());
+                    return mApi.read(resp.getEntity().getContent());
                 case SC_UNPROCESSABLE_ENTITY:
                     extractErrors(resp);
                 default:

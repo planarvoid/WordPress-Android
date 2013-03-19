@@ -4,10 +4,16 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import com.soundcloud.android.model.ModelLike;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class BaseDAO<T extends ModelLike> {
     protected final ContentResolver mResolver;
@@ -31,6 +37,24 @@ public abstract class BaseDAO<T extends ModelLike> {
             }
         } else {
             throw new DAOException();
+        }
+    }
+
+    public long createOrUpdate(T resource) {
+        return createOrUpdate(resource.getId(), resource.buildContentValues());
+    }
+
+    public int deleteAll(Collection<T> resources) {
+        Set<Long> toRemove = new HashSet<Long>(resources.size());
+        for (T res : resources) {
+            toRemove.add(res.getId());
+        }
+        if (!toRemove.isEmpty()) {
+            return mResolver.delete(getContent().uri,
+                ResolverHelper.getWhereInClause(BaseColumns._ID, toRemove.size()),
+                ResolverHelper.longListToStringArr(toRemove));
+        } else {
+            return 0;
         }
     }
 

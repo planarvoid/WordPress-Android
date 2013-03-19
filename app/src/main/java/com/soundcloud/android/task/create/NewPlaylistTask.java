@@ -22,7 +22,7 @@ public class NewPlaylistTask extends AsyncApiTask<Request, Void, Playlist> {
         try {
             HttpResponse response = mApi.post(request);
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
-                return SoundCloudApplication.MODEL_MANAGER.getModelFromStream(response.getEntity().getContent());
+                return mApi.read(response.getEntity().getContent());
             } else {
                 warn("error creating connection", response);
                 return null;

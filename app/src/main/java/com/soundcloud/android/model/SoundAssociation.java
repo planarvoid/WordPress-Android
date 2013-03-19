@@ -21,7 +21,7 @@ import android.util.Log;
 import java.util.Date;
 
 /**
- * Maps to stream item on backend
+ * Maps to <code>stream_item</code> item on backend.
  */
 public class SoundAssociation extends ScResource implements PlayableHolder, Refreshable {
 
@@ -57,13 +57,7 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
         associationType = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE));
         created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP)));
         user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID);
-
-        if (Playable.isTrackCursor(cursor)){
-            playable = SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor, DBHelper.SoundAssociationView._ID);
-        } else {
-            playable = SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(cursor, DBHelper.SoundAssociationView._ID);
-        }
-
+        playable = Playable.fromCursor(cursor);
     }
 
     public SoundAssociation(Playable playable, Date created_at, Type typeEnum) {
@@ -90,7 +84,7 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
 
     @Override
     public boolean isIncomplete() {
-        return playable != null && playable.isIncomplete();
+        return playable.isIncomplete();
     }
 
     public SoundAssociation(Parcel in) {
@@ -142,7 +136,7 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     }
 
     @Override
-    public Playable getPlayable() {
+    @NotNull public Playable getPlayable() {
         return playable;
     }
 

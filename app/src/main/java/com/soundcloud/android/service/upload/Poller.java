@@ -60,7 +60,7 @@ public class Poller extends Handler {
         try {
             HttpResponse resp = mApi.get(mRequest);
             if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                track = mApi.getMapper().readValue(resp.getEntity().getContent(), Track.class);
+                track = mApi.read(resp.getEntity().getContent());
             } else {
                 Log.w(TAG, "unexpected response " + resp.getStatusLine());
             }

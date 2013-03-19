@@ -1,6 +1,5 @@
 package com.soundcloud.android.model;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.text.TextUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -155,10 +154,6 @@ public class CollectionHolder<T> implements List<T> {
         return collection.isEmpty();
     }
 
-    public int insert(ContentResolver resolver) {
-        return 0;
-    }
-
     public String getCursor() {
         if (next_href != null) {
             List<NameValuePair> params = URLEncodedUtils.parse(URI.create(next_href), "UTF-8");
@@ -206,9 +201,9 @@ public class CollectionHolder<T> implements List<T> {
         }
     }
 
-    public @NotNull static <T, C extends CollectionHolder<T>> C fetchAllResourcesHolder(AndroidCloudAPI api,
-                                                Request request,
-                                                Class<C> ch) throws IOException {
+    public @NotNull static <T, C extends CollectionHolder<T>> List<T> fetchAllResources(AndroidCloudAPI api,
+                                                                                        Request request,
+                                                                                        Class<C> ch) throws IOException {
         List<T> objects = new ArrayList<T>();
         C holder = null;
         do {
@@ -222,16 +217,7 @@ public class CollectionHolder<T> implements List<T> {
             }
         } while (holder.next_href != null);
 
-        holder.collection = objects;
-        return holder;
-    }
-
-    public static <T, C extends CollectionHolder<T>> List<T> fetchAllResources(AndroidCloudAPI api,
-                                                Request request,
-                                                Class<C> ch) throws IOException {
-
-        C holder = fetchAllResourcesHolder(api, request, ch);
-        return holder.collection;
+        return objects;
     }
 }
 
