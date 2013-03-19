@@ -323,10 +323,10 @@ public class PlaylistManagerTest {
         pm.saveQueue(1235);
 
         PlayQueueManager.clearState(Robolectric.application);
-        expect(pm.reloadQueue()).toEqual(0L);
+        expect(pm.reloadQueue()).toEqual(-1L);
 
         PlayQueueManager pm2 = new PlayQueueManager(Robolectric.application, USER_ID);
-        expect(pm2.reloadQueue()).toEqual(0L);
+        expect(pm2.reloadQueue()).toEqual(-1L);
         expect(pm2.getPosition()).toEqual(0);
         expect(pm2.length()).toEqual(0);
     }
