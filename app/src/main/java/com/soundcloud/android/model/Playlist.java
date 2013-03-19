@@ -1,5 +1,22 @@
 package com.soundcloud.android.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.track.PlaylistActivity2;
+import com.soundcloud.android.json.Views;
+import com.soundcloud.android.provider.BulkInsertMap;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.api.Params;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,22 +28,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRootName;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.track.PlaylistActivity;
-import com.soundcloud.android.json.Views;
-import com.soundcloud.android.provider.BulkInsertMap;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.service.playback.PlayQueueManager;
-import com.soundcloud.api.Params;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -186,7 +187,7 @@ public class Playlist extends Playable {
 
     @Override
     public Intent getViewIntent() {
-        return PlaylistActivity.getIntent(this);
+        return PlaylistActivity2.getIntent(this);
     }
 
     public static final Creator<Playlist> CREATOR = new Creator<Playlist>() {

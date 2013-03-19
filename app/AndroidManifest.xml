@@ -295,7 +295,7 @@
         <activity android:name=".activity.track.TrackInteractionActivity" />
         <activity android:name=".activity.track.TracksByTag" />
 
-        <activity android:name=".activity.track.PlaylistActivity"
+        <activity android:name=".activity.track.PlaylistActivity2"
                   android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.PLAYLIST"/>
