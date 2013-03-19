@@ -277,7 +277,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         // before stopping the service, so that pause/resume isn't slow.
         // Also delay stopping the service if we're transitioning between
         // tracks.
-        } else if (!mPlayQueueManager.needsItems() || mPlayerHandler.hasMessages(TRACK_ENDED)) {
+        } else if (!mPlayQueueManager.isEmpty() || mPlayerHandler.hasMessages(TRACK_ENDED)) {
             mDelayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
             return true;
 
@@ -296,7 +296,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
         if (intent != null) {
 
-            if (!PLAY_ACTION.equals(intent.getAction()) && mPlayQueueManager.needsItems()){
+            if (!PLAY_ACTION.equals(intent.getAction()) && mPlayQueueManager.isEmpty()){
                 configureLastPlaylist();
             }
             mIntentReceiver.onReceive(this, intent);
@@ -308,13 +308,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     public boolean configureLastPlaylist() {
-        if (state.isSupposedToBePlaying()) {
-            togglePlayback();
-        }
-
         mResumeTime = mPlayQueueManager.reloadQueue();
-        currentTrack = mPlayQueueManager.getCurrentTrack();
-        if (currentTrack != null && mResumeTime > 0) {
+        if (mResumeTime > -1){
+            if (state.isSupposedToBePlaying()) togglePlayback();
+            currentTrack = mPlayQueueManager.getCurrentTrack();
             mResumeTrackId = currentTrack.id;
             return true;
         } else {
@@ -1071,7 +1068,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 mPlayQueueManager.setPlayQueue(playlistXfer, position);
                 playlistXfer = null;
                 openCurrent();
-            } else if (!mPlayQueueManager.needsItems() || configureLastPlaylist()){
+            } else if (!mPlayQueueManager.isEmpty() || configureLastPlaylist()){
                 // random play intent, play whatever we had last
                 play();
             }

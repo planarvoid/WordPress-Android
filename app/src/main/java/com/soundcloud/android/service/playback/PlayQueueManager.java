@@ -64,10 +64,6 @@ public class PlayQueueManager {
         return mPlayQueue.size();
     }
 
-    public boolean needsItems() {
-        return isEmpty() && AndroidUtils.isTaskFinished(mLoadTask);
-    }
-
     public boolean isEmpty() {
         return mPlayQueue.size() == 0;
     }
@@ -374,14 +370,14 @@ public class PlayQueueManager {
     }
 
     /**
-     * @return last stored seek pos of the current track in queue
+     * @return last stored seek pos of the current track in queue, or -1 if there is no reload
      */
     public long reloadQueue() {
         // TODO : StrictMode policy violation; ~duration=139 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=23 violation=2
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
         final String lastUri = preferences.getString(Consts.PrefKeys.SC_PLAYQUEUE_URI, null);
 
-        if (!TextUtils.isEmpty(lastUri)) {
+        if (AndroidUtils.isTaskFinished(mLoadTask) && !TextUtils.isEmpty(lastUri)) {
             PlayQueueUri playQueueUri = new PlayQueueUri(lastUri);
             long seekPos      = playQueueUri.getSeekPos();
             final int trackId = playQueueUri.getTrackId();
@@ -397,7 +393,7 @@ public class PlayQueueManager {
             }
             return seekPos;
         } else {
-            return 0; // seekpos
+            return -1; // seekpos
         }
     }
 
