@@ -156,6 +156,7 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
         public void onNext(List<T> items) {
             Log.d(this, "onNext: " + items.size() + "; t=" + Thread.currentThread().getName());
             if (!items.isEmpty()) {
+                mAdapter.clearData();
                 mAdapter.addItems(items);
                 mAdapter.notifyDataSetChanged();
             }
