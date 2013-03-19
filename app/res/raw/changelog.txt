@@ -1,11 +1,12 @@
 $ 57
   % v current
-  _ 2013-03-11
-  ! Sets RC 2
+  _ 2013-03-19
+  ! Sets RC 3
   * Fixed stuck buffering UI
-  * Sets sync fixes
-  * Add to set now appends instead of prepending
-  * fixed some deeplinks
+  - Sets sync fixes
+  - Add to set now appends instead of prepending
+  - fixed some deeplinks
+
   - Fixed add to playlist locking bug
   - Fixed erratic liked/reposted state on stream items
   - Changed refresh logic to account for private sounds in sets

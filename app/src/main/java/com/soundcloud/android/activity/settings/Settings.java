@@ -8,6 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ActionBarController;
+import com.soundcloud.android.activity.Launch;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -270,6 +271,7 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
                                             public void run() {
                                                 progress.dismiss();
                                                 a.finish();
+                                                a.startActivity(new Intent(a, Launch.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
                                             }
                                         },
                                         new Runnable() {
