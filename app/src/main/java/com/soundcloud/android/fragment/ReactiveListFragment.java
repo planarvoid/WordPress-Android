@@ -4,12 +4,10 @@ import static com.soundcloud.android.rx.ScObservables.pending;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.ActivityAdapter;
-import com.soundcloud.android.model.act.Activities;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.rx.event.Events;
+import com.soundcloud.android.adapter.ScBaseAdapter;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.rx.observers.ContextObserver;
-import com.soundcloud.android.rx.schedulers.ActivitiesScheduler;
+import com.soundcloud.android.rx.schedulers.ReactiveScheduler;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.ScListView;
@@ -25,22 +23,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 
-public class ReactiveListFragment extends Fragment implements PullToRefreshBase.OnRefreshListener,
+import java.util.List;
+
+public abstract class ReactiveListFragment<T extends ScModel> extends Fragment implements PullToRefreshBase.OnRefreshListener,
         AdapterView.OnItemClickListener {
 
     private static final int PROGRESS_DELAY_MILLIS = 250;
 
-    private ScListView mListView;
-    private EmptyListView mEmptyView;
-    private ActivityAdapter mAdapter;
-
-    private ActivitiesScheduler mScheduler;
-    private Subscription mLoadActivitiesSubscription;
-    private Subscription mLikeSubscription;
-    private ContextObserver<Activities> mActivitiesObserver;
-    private Observable<Activities> mLoadActivities;
-
-    private Handler showProgressHandler = new Handler();
+    private Handler mShowProgressHandler = new Handler();
     private Runnable showProgress = new Runnable() {
         @Override
         public void run() {
@@ -48,26 +38,24 @@ public class ReactiveListFragment extends Fragment implements PullToRefreshBase.
         }
     };
 
+    protected ContextObserver<List<T>> mLoadItemsObserver;
+    protected Subscription mLoadItemsSubscription;
+
+    protected ScListView mListView;
+    protected EmptyListView mEmptyView;
+    protected ScBaseAdapter<T> mAdapter;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Log.d(this, "onCreate");
 
-        mAdapter = new ActivityAdapter(getActivity(), null);
-
-        mScheduler = new ActivitiesScheduler(getActivity());
-        mActivitiesObserver = new ContextObserver<Activities>(new LoadActivitiesObserver());
-        mLoadActivities = mScheduler.loadActivities(Content.ME_SOUND_STREAM.uri);
-
-        mLikeSubscription = Events.subscribe(Events.LIKE_CHANGED, mLoadActivities, mActivitiesObserver);
-
-        if (savedInstanceState == null) {
-            Log.d(this, "first start, scheduling possible sync");
-            mScheduler.addPendingObservable(mScheduler.syncIfNecessary(Content.ME_SOUND_STREAM.uri));
-        }
-
+        mAdapter = newAdapter();
+        mLoadItemsObserver = new ContextObserver<List<T>>(new LoadItemsObserver());
     }
+
+    protected abstract ScBaseAdapter<T> newAdapter();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -90,38 +78,41 @@ public class ReactiveListFragment extends Fragment implements PullToRefreshBase.
         Log.d(this, "onStart");
 
         // TODO: check for events that may have changed the underlying data
+        // TODO: this fires when the adapter is empty because the user simply has no sounds, but shouldn't.
         if (mAdapter.isEmpty()) {
             Log.d(this, "Adapter is empty, scheduling possible local refresh");
-            mScheduler.addPendingObservable(pending(mLoadActivities));
+            getListItemsScheduler().addPendingObservable(pending(getListItemsObservable()));
         }
 
-        mLoadActivitiesSubscription = mScheduler.scheduleFirstPendingObservable(mActivitiesObserver);
+        mLoadItemsSubscription = getListItemsScheduler().scheduleFirstPendingObservable(mLoadItemsObserver);
 
-        Log.d(this, "onStart: done=" + mActivitiesObserver.isCompleted());
+        Log.d(this, "onStart: done=" + mLoadItemsObserver.isCompleted());
 
         mEmptyView.setStatus(EmptyListView.Status.OK);
 
-        showProgressHandler.postDelayed(showProgress, PROGRESS_DELAY_MILLIS);
+        mShowProgressHandler.postDelayed(showProgress, PROGRESS_DELAY_MILLIS);
     }
+
+    protected abstract ReactiveScheduler<List<T>> getListItemsScheduler();
+
+    protected abstract Observable<List<T>> getListItemsObservable();
 
     @Override
     public void onStop() {
         super.onStop();
-        Log.d(this, "onStop: done=" + mActivitiesObserver.isCompleted());
-        mLoadActivitiesSubscription.unsubscribe();
+        Log.d(this, "onStop: done=" + mLoadItemsObserver.isCompleted());
+        mLoadItemsSubscription.unsubscribe();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d(this, "onDestroy");
-        mLikeSubscription.unsubscribe();
     }
 
     @Override
     public void onRefresh(PullToRefreshBase refreshView) {
-        showProgressHandler.postDelayed(showProgress, PROGRESS_DELAY_MILLIS);
-        mScheduler.syncNow(Content.ME_SOUND_STREAM.uri).subscribe(mActivitiesObserver);
+        mShowProgressHandler.postDelayed(showProgress, PROGRESS_DELAY_MILLIS);
     }
 
     @Override
@@ -131,14 +122,17 @@ public class ReactiveListFragment extends Fragment implements PullToRefreshBase.
         mAdapter.handleListItemClick(itemPosition, id);
     }
 
-    private class LoadActivitiesObserver implements Observer<Activities> {
+    public ScBaseAdapter<T> getListAdapter() {
+        return mAdapter;
+    }
+
+    protected class LoadItemsObserver implements Observer<List<T>> {
 
         @Override
         public void onCompleted() {
             Log.d(this, "onCompleted t=" + Thread.currentThread().getName());
-            Log.d(this, "done=" + mActivitiesObserver.isCompleted());
 
-            showProgressHandler.removeCallbacks(showProgress);
+            mShowProgressHandler.removeCallbacks(showProgress);
             mEmptyView.setStatus(EmptyListView.Status.OK);
 
             if (mListView.isRefreshing()) {
@@ -150,17 +144,19 @@ public class ReactiveListFragment extends Fragment implements PullToRefreshBase.
         public void onError(Exception e) {
             Log.d(this, "onError: " + e + "; t=" + Thread.currentThread().getName());
             e.printStackTrace();
-            showProgressHandler.removeCallbacks(showProgress);
+
+            onCompleted();
+
             // TODO: need to check if this is really always a connection error? do we treat errors from reading/writing
             // from and to local storage as connection errors too?
             mEmptyView.setStatus(EmptyListView.Status.CONNECTION_ERROR);
         }
 
         @Override
-        public void onNext(Activities activities) {
-            Log.d(this, "onNext: " + activities.size() + "; t=" + Thread.currentThread().getName());
-            if (!activities.isEmpty()) {
-                mAdapter.addItems(activities);
+        public void onNext(List<T> items) {
+            Log.d(this, "onNext: " + items.size() + "; t=" + Thread.currentThread().getName());
+            if (!items.isEmpty()) {
+                mAdapter.addItems(items);
                 mAdapter.notifyDataSetChanged();
             }
         }

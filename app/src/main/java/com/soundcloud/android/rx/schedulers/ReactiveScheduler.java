@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ReactiveScheduler<T> {
+public abstract class ReactiveScheduler<T> {
 
     protected Context mContext;
     protected ExecutorService mExecutor;
@@ -61,6 +61,8 @@ public class ReactiveScheduler<T> {
     protected <T> BackgroundJob<T> newBackgroundJob(final ObservedRunnable<T> runnable, final Subscription subscription) {
         return new BackgroundJob<T>(runnable, mExecutor, subscription);
     }
+
+    public abstract Observable<T> loadFromLocalStorage(final long id);
 
     protected void log(String msg) {
         Log.d(this, msg + " (thread: " + Thread.currentThread().getName() + ")");
