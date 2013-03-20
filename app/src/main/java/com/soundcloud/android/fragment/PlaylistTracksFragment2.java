@@ -9,12 +9,14 @@ import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.ScFunctions;
+import com.soundcloud.android.rx.event.Events;
 import com.soundcloud.android.rx.schedulers.PlaylistTracksScheduler;
 import com.soundcloud.android.rx.schedulers.PlaylistsScheduler;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import rx.Observable;
 import rx.Observer;
+import rx.Subscription;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,6 +36,9 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
     private PlaylistsScheduler mPlaylistsScheduler;
     private PlaylistTracksScheduler mTracksScheduler;
     private PlaylistObserver mPlaylistObserver;
+
+    private Observable<List<Track>> mLoadTracks;
+    private Subscription mTrackAssocChangedSubscription;
 
     private TextView mInfoHeaderText;
 
@@ -57,6 +62,10 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
         mPlaylistsScheduler = new PlaylistsScheduler(getActivity());
         mTracksScheduler = new PlaylistTracksScheduler(getActivity());
         mPlaylistObserver = new PlaylistObserver();
+
+        mLoadTracks = mTracksScheduler.loadFromLocalStorage(mPlaylist.getId());
+
+        mTrackAssocChangedSubscription = Events.anyOf(Events.LIKE_CHANGED, Events.REPOST_CHANGED).subscribe(mLoadTracks, mLoadItemsObserver);
 
         // since we need to sync the playlist first, but the list fragment is modeled around a playlist's tracks,
         // so we need to map the sync operation to return the playlist's tracks first
@@ -85,13 +94,19 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mTrackAssocChangedSubscription.unsubscribe();
+    }
+
+    @Override
     protected PlaylistTracksScheduler getListItemsScheduler() {
         return mTracksScheduler;
     }
 
     @Override
     protected Observable<List<Track>> getListItemsObservable() {
-        return mTracksScheduler.loadFromLocalStorage(mPlaylist.getId());
+        return mLoadTracks;
     }
 
     @Override

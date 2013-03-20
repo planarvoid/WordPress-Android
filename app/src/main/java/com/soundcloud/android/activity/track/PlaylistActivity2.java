@@ -38,8 +38,7 @@ public class PlaylistActivity2 extends ScActivity {
 
     private PlaylistTracksFragment2 mFragment;
 
-    private Subscription mPlaylistLikeSubscription;
-    private Subscription mPlaylistRepostSubscription;
+    private Subscription mAssocChangedSubscription;
 
     //TODO: replace with Observable event
     //Alos, can't this be in the fragment?
@@ -87,15 +86,13 @@ public class PlaylistActivity2 extends ScActivity {
                 mActionButtons.update(playlist);
             }
         };
-        mPlaylistLikeSubscription = Events.LIKE_CHANGED.subscribe(playlistAssociationChanged);
-        mPlaylistRepostSubscription = Events.REPOST_CHANGED.subscribe(playlistAssociationChanged);
+        mAssocChangedSubscription = Events.anyOf(Events.LIKE_CHANGED, Events.REPOST_CHANGED).subscribe(playlistAssociationChanged);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mPlaylistLikeSubscription.unsubscribe();
-        mPlaylistRepostSubscription.unsubscribe();
+        mAssocChangedSubscription.unsubscribe();
     }
 
     @Override

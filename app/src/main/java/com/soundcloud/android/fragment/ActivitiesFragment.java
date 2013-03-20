@@ -21,7 +21,7 @@ public class ActivitiesFragment extends ReactiveListFragment {
     private Uri mContentUri;
 
     private ActivitiesScheduler mScheduler;
-    private Subscription mLikeSubscription;
+    private Subscription mAssocChangedSubscription;
     private Observable<Activities> mLoadActivities;
 
 
@@ -41,7 +41,8 @@ public class ActivitiesFragment extends ReactiveListFragment {
         mContentUri = (Uri) getArguments().get(EXTRA_STREAM_URI);
         mScheduler = new ActivitiesScheduler(getActivity());
         mLoadActivities = mScheduler.loadFromLocalStorage(mContentUri);
-        mLikeSubscription = Events.LIKE_CHANGED.subscribe(mLoadActivities, mLoadItemsObserver);
+
+        mAssocChangedSubscription = Events.anyOf(Events.LIKE_CHANGED, Events.REPOST_CHANGED).subscribe(mLoadActivities, mLoadItemsObserver);
 
         if (savedInstanceState == null) {
             Log.d(this, "first start, scheduling possible sync");
@@ -53,7 +54,7 @@ public class ActivitiesFragment extends ReactiveListFragment {
     public void onDestroy() {
         super.onDestroy();
         Log.d(this, "onDestroy");
-        mLikeSubscription.unsubscribe();
+        mAssocChangedSubscription.unsubscribe();
     }
 
     @Override
