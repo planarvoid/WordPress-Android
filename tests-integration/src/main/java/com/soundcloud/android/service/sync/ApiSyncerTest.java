@@ -21,7 +21,7 @@ public class ApiSyncerTest extends InstrumentationTestCase {
     public void testTrackCleanup() throws Exception {
         ApiSyncer syncer = new ApiSyncer(getInstrumentation().getTargetContext());
         long start = System.currentTimeMillis();
-        syncer.syncContent(Content.TRACK_CLEANUP.uri, Intent.ACTION_SYNC);
+        syncer.syncContent(Content.PLAYABLE_CLEANUP.uri, Intent.ACTION_SYNC);
         long duration = System.currentTimeMillis() - start;
         assertTrue("query ran too long ("+duration+")", duration < 5000);
     }

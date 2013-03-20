@@ -138,7 +138,7 @@ public enum Content  {
 
     SOUND_STREAM_CLEANUP("cleanup/soundstream", null, 9996, null, -1, null),
     ACTIVITIES_CLEANUP("cleanup/activities", null, 9997, null, -1, null),
-    TRACK_CLEANUP("cleanup/tracks", null, 9998, null, -1, null),
+    PLAYABLE_CLEANUP("cleanup/tracks", null, 9998, null, -1, null),
     USERS_CLEANUP("cleanup/users", null, 9999, null, -1, null),
 
     //Android global search
