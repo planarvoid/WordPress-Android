@@ -5,6 +5,7 @@ import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
 import android.app.ActivityManager;
+import android.view.animation.AnimationUtils;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -351,12 +352,12 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                 mTrackDetailsView.fillTrackDetails(mTrack);
             }
 
-            trackFlipper.setInAnimation(AnimUtils.inFromRightAnimation(new AccelerateDecelerateInterpolator()));
-            trackFlipper.setOutAnimation(AnimUtils.outToLeftAnimation(new AccelerateDecelerateInterpolator()));
+            trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.fade_in));
+            trackFlipper.setOutAnimation(null);
             trackFlipper.showNext();
         } else if (!showDetails && trackFlipper.getDisplayedChild() == 1){
-            trackFlipper.setInAnimation(AnimUtils.inFromLeftAnimation(new AccelerateDecelerateInterpolator()));
-            trackFlipper.setOutAnimation(AnimUtils.outToRightAnimation(new AccelerateDecelerateInterpolator()));
+            trackFlipper.setInAnimation(null);
+            trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.fade_out));
             trackFlipper.showPrevious();
         }
         if (mToggleInfo != null) mToggleInfo.setChecked(showDetails);
