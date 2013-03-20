@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.util.Locale;
 
 /**
  * This class represents the header of a WAVE format audio file, which usually
@@ -346,7 +347,7 @@ public class WavHeader {
 
     @Override
     public String toString() {
-        return String.format(
+        return String.format(Locale.ENGLISH,
                 "WaveHeader format=%d numChannels=%d sampleRate=%d bitsPerSample=%d numBytes=%d",
                 mFormat, mNumChannels, mSampleRate, mBitsPerSample, mNumBytes);
     }
