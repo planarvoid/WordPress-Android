@@ -3,6 +3,7 @@ package com.soundcloud.android.activity.settings;
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.annotation.TargetApi;
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -254,6 +255,7 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
         return super.onCreateDialog(id);
     }
 
+    @TargetApi(11)
     public static AlertDialog createLogoutDialog(final Activity a) {
         final SoundCloudApplication app = (SoundCloudApplication) a.getApplication();
         app.track(Click.Log_out_log_out);
