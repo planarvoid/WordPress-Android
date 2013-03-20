@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public enum Events {
+public enum Event {
 
     LIKE_CHANGED,
     REPOST_CHANGED;
@@ -43,12 +43,12 @@ public enum Events {
         });
     }
 
-    public static SubscriptionBuilder anyOf(Events... events) {
+    public static SubscriptionBuilder anyOf(Event... events) {
         return new SubscriptionBuilder(Arrays.asList(events));
     }
 
     public static class SubscriptionBuilder {
-        private List<Events> mEvents;
+        private List<Event> mEvents;
         private List<Subscription> mSubscriptions;
 
         private Subscription mCollectiveSubscription = new Subscription() {
@@ -60,20 +60,20 @@ public enum Events {
             }
         };
 
-        public SubscriptionBuilder(List<Events> events) {
+        public SubscriptionBuilder(List<Event> events) {
             mEvents = events;
             mSubscriptions = new ArrayList<Subscription>(mEvents.size());
         }
 
         public <T> Subscription subscribe(final Observable<T> observable, final Observer<T> observer) {
-            for (Events e : mEvents) {
+            for (Event e : mEvents) {
                 mSubscriptions.add(e.subscribe(observable, observer));
             }
             return mCollectiveSubscription;
         }
 
         public <T> Subscription subscribe(final Action1<T> action) {
-            for (Events e : mEvents) {
+            for (Event e : mEvents) {
                 mSubscriptions.add(e.subscribe(action));
             }
             return mCollectiveSubscription;

@@ -5,7 +5,7 @@ import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.rx.event.Events;
+import com.soundcloud.android.rx.event.Event;
 import com.soundcloud.android.rx.schedulers.ActivitiesScheduler;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
@@ -42,7 +42,7 @@ public class ActivitiesFragment extends ReactiveListFragment {
         mScheduler = new ActivitiesScheduler(getActivity());
         mLoadActivities = mScheduler.loadFromLocalStorage(mContentUri);
 
-        mAssocChangedSubscription = Events.anyOf(Events.LIKE_CHANGED, Events.REPOST_CHANGED).subscribe(mLoadActivities, mLoadItemsObserver);
+        mAssocChangedSubscription = Event.anyOf(Event.LIKE_CHANGED, Event.REPOST_CHANGED).subscribe(mLoadActivities, mLoadItemsObserver);
 
         if (savedInstanceState == null) {
             Log.d(this, "first start, scheduling possible sync");

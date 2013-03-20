@@ -8,7 +8,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.fragment.PlaylistTracksFragment2;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.rx.event.Events;
+import com.soundcloud.android.rx.event.Event;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.utils.ImageUtils;
@@ -86,7 +86,7 @@ public class PlaylistActivity2 extends ScActivity {
                 mActionButtons.update(playlist);
             }
         };
-        mAssocChangedSubscription = Events.anyOf(Events.LIKE_CHANGED, Events.REPOST_CHANGED).subscribe(playlistAssociationChanged);
+        mAssocChangedSubscription = Event.anyOf(Event.LIKE_CHANGED, Event.REPOST_CHANGED).subscribe(playlistAssociationChanged);
     }
 
     @Override
