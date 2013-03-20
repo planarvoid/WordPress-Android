@@ -309,8 +309,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     public boolean configureLastPlaylist() {
         mResumeTime = mPlayQueueManager.reloadQueue();
-        if (mResumeTime > -1){
-            if (state.isSupposedToBePlaying()) togglePlayback();
+        if (mResumeTime > -1) {
+            if (state.isSupposedToBePlaying()) pause();
             currentTrack = mPlayQueueManager.getCurrentTrack();
             mResumeTrackId = currentTrack.id;
             return true;
