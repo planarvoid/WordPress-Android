@@ -57,29 +57,23 @@ import java.util.List;
 
 public class CloudPlaybackService extends Service implements IAudioManager.MusicFocusable, Tracker {
     public static final String TAG = "CloudPlaybackService";
+
     public @Nullable static List<Track> playlistXfer;
-
-    private static @Nullable Track currentTrack;
-    public  static @Nullable Track getCurrentTrack()  { return currentTrack; }
-    public static long getCurrentTrackId() { return currentTrack == null ? -1 : currentTrack.id; }
-    public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
-
-    public static @Nullable CloudPlaybackService getInstance() { return instance; }
-    public static @Nullable PlayQueueManager getPlaylistManager() { return instance == null ? null : instance.getPlayQueueManager(); }
-    public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
-    public static int getLoadingPercent() { return instance == null ? -1 : instance.loadPercent(); }
-    public static Uri getUri(){
-        if (instance == null) return null;
-        return instance.getPlayQueueManager().getUri();
-    }
-
-    public static State getState() { return state; }
-    public static boolean isBuffering() {
-        return state == PAUSED_FOR_BUFFERING || state == PREPARING || (instance != null && instance.mWaitingForSeek);
-    }
-
     private static @Nullable CloudPlaybackService instance;
     private static State state = STOPPED;
+    private static @Nullable Track currentTrack;
+
+    // static convenience accessors
+    public static @Nullable Track getCurrentTrack()  { return currentTrack; }
+    public static long getCurrentTrackId() { return currentTrack == null ? -1 : currentTrack.id; }
+    public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
+    public static @Nullable PlayQueueManager getPlaylistManager() { return instance == null ? null : instance.getPlayQueueManager(); }
+    public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
+    public static int getLoadingPercent()   { return instance == null ? -1 : instance.loadPercent(); }
+    public static Uri getUri()     { return instance == null ? null : instance.getPlayQueueManager().getUri(); }
+    public static State getState() { return state; }
+    public static boolean isBuffering() {  return instance != null && instance._isBuffering(); }
+
 
     // public service actions
     public static final String PLAY_ACTION          = "com.soundcloud.android.playback.start";
@@ -370,7 +364,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             .putExtra(BroadcastExtras.username, getUserName())
             .putExtra(BroadcastExtras.isPlaying, isPlaying())
             .putExtra(BroadcastExtras.isSupposedToBePlaying, state.isSupposedToBePlaying())
-            .putExtra(BroadcastExtras.isBuffering, isBuffering())
+            .putExtra(BroadcastExtras.isBuffering, _isBuffering())
             .putExtra(BroadcastExtras.position, getProgress())
             .putExtra(BroadcastExtras.queuePosition, mPlayQueueManager.getPosition())
             .putExtra(BroadcastExtras.isLike, getIsLike())
@@ -802,6 +796,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     /* package */ int getDuration() {
         return currentTrack == null ? -1 : currentTrack.duration;
+    }
+
+    /* package */ boolean _isBuffering() {
+        return state == PAUSED_FOR_BUFFERING || state == PREPARING || mWaitingForSeek;
     }
 
     /*

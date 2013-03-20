@@ -6,7 +6,6 @@ $ 57
   - Sets sync fixes
   - Add to set now appends instead of prepending
   - fixed some deeplinks
-
   - Fixed add to playlist locking bug
   - Fixed erratic liked/reposted state on stream items
   - Changed refresh logic to account for private sounds in sets
