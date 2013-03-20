@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.ModelLike;
+import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class BaseDAO<T extends ModelLike> {
+public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     protected final ContentResolver mResolver;
 
     protected BaseDAO(ContentResolver contentResolver) {
@@ -28,6 +29,14 @@ public abstract class BaseDAO<T extends ModelLike> {
 
     public long create(T resource) {
         return create(resource.buildContentValues());
+    }
+
+    public int create(Collection<T> resources) {
+        BulkInsertMap map = new BulkInsertMap();
+        for (T r : resources) {
+            r.putFullContentValues(map);
+        }
+        return map.insert(mResolver);
     }
 
     @Deprecated

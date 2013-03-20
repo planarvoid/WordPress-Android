@@ -5,7 +5,9 @@ import android.util.Log;
 import android.widget.BaseAdapter;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.dao.BaseDAO;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.utils.HttpUtils;
@@ -53,7 +55,13 @@ public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Bool
                 .add("ids", TextUtils.join(",", mResourceIds));
 
             List<ScResource> resources = mApi.readList(HttpUtils.addQueryParams(request, params));
-            SoundCloudDB.bulkInsertResources(mApi.getContext().getContentResolver(), resources);
+
+            new BaseDAO<ScResource>(mApi.getContext().getContentResolver()) {
+                @Override public Content getContent() {
+                    return Content.COLLECTIONS;
+                }
+            }.create(resources);
+
             return true;
         } catch (IOException e) {
             Log.w(TAG, e);

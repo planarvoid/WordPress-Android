@@ -7,6 +7,8 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 
+import java.util.Collection;
+
 public class TrackStorage {
     private TrackDAO mTrackDAO;
     private final ContentResolver mResolver;
@@ -34,6 +36,10 @@ public class TrackStorage {
 
     public Track getTrack(long id) {
         return mTrackDAO.queryForId(id);
+    }
+
+    public int insert(Collection<Track> tracks, Content content) {
+        return 0;
     }
 }
 

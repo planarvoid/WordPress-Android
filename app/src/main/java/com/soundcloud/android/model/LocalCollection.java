@@ -1,6 +1,8 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.dao.ContentValuesProvider;
 import com.soundcloud.android.model.act.Activity;
+import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncer;
@@ -14,12 +16,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.text.TextUtils;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents the state of a local collection sync, including last sync and size.
  * See {@link DBHelper.Collections}.
  */
-public class LocalCollection implements ModelLike {
+public class LocalCollection implements ModelLike, ContentValuesProvider {
     public final int id;
     public final Uri uri;
 
@@ -115,6 +118,10 @@ public class LocalCollection implements ModelLike {
         if (!TextUtils.isEmpty(extra)) cv.put(DBHelper.Collections.EXTRA, extra);
         cv.put(DBHelper.Collections.URI, uri.toString());
         return cv;
+    }
+
+    @Override
+    public void putFullContentValues(@NotNull BulkInsertMap destination) {
     }
 
     public boolean shouldAutoRefresh() {

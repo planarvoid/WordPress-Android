@@ -1,6 +1,7 @@
 package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.Expect.expect;
+import static junit.framework.Assert.fail;
 
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -29,8 +30,9 @@ public class SoundCloudDBTest {
 
     @Test
     public void shouldBulkInsert() throws Exception {
-        List<ScResource> items = createParcelables();
-        expect(SoundCloudDB.bulkInsertResources(resolver, items)).toEqual(3);
+//        List<ScResource> items = createParcelables();
+//        expect(SoundCloudDB.bulkInsertResources(resolver, items)).toEqual(3);
+        fail("move me");
     }
 
     @Test

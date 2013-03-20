@@ -5,11 +5,14 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.dao.ContentValuesProvider;
+import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.api.Request;
+import org.jetbrains.annotations.NotNull;
 
-public class Search implements ModelLike {
+public class Search implements ModelLike, ContentValuesProvider {
     public static final int ALL = 0;
     public static final int SOUNDS = 1;
     public static final int USERS  = 2;
@@ -90,6 +93,9 @@ public class Search implements ModelLike {
         return cv;
     }
 
+    @Override
+    public void putFullContentValues(@NotNull BulkInsertMap destination) {
+    }
 
     @SuppressWarnings("RedundantIfStatement")
     @Override

@@ -8,11 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.Wrapper;
-import com.soundcloud.android.dao.ActivitiesStorage;
-import com.soundcloud.android.dao.ConnectionDAO;
-import com.soundcloud.android.dao.PlaylistStorage;
-import com.soundcloud.android.dao.ResolverHelper;
-import com.soundcloud.android.dao.SoundAssociationDAO;
+import com.soundcloud.android.dao.*;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
@@ -592,7 +588,7 @@ public class ApiSyncer {
      * content values will be inserted
      * @throws IOException
      */
-    private Result fetchAndInsertCollection(Content content, Uri contentUri) throws IOException {
+    private Result fetchAndInsertCollection(final Content content, Uri contentUri) throws IOException {
         Result result = new Result(contentUri);
         log("fetchAndInsertCollection(" + contentUri + ")");
 
@@ -603,7 +599,12 @@ public class ApiSyncer {
         }
 
         List<ScResource> resources = mApi.readFullCollection(request, ScResource.ScResourceHolder.class);
-        SoundCloudDB.bulkInsertResources(mResolver, resources);
+
+        new BaseDAO<ScResource>(mResolver) {
+            @Override public Content getContent() {
+                return content;
+            }
+        }.create(resources);
         result.setSyncData(true, System.currentTimeMillis(), resources.size(), Result.CHANGED);
         return result;
     }
