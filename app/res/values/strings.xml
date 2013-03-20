@@ -193,6 +193,6 @@
     <string name="playlist_removed">This set was not found on SoundCloud</string>
 
     <string name="list_empty_user_sets_message">%1$s currently has no sets.</string>
-    <string name="list_empty_you_sets_message">You currently have no sets</string>
+    <string name="list_empty_you_sets_message">Create a set to share a collection of your favorite sounds.</string>
 
 </resources>
