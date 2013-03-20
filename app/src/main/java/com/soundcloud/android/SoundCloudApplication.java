@@ -80,7 +80,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static boolean DEV_MODE, BETA_MODE;
     private ImageLoader mImageLoader;
 
-    public static ScModelManager MODEL_MANAGER;
+    @Deprecated public static ScModelManager MODEL_MANAGER;
 
     private ATTracker mTracker;
 
