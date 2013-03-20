@@ -33,6 +33,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class EmailPicker extends ListActivity {
     public static final String BUNDLE_KEY = "emails";
@@ -157,7 +158,7 @@ public class EmailPicker extends ListActivity {
                                 ContactsContract.CommonDataKinds.Email.DATA
                         }, "UPPER(" + ContactsContract.Contacts.DISPLAY_NAME + ") GLOB ?",
                         new String[]{
-                                constraint.toString().toUpperCase() + "*"
+                                constraint.toString().toUpperCase(Locale.getDefault()) + "*"
                         }, ContactsContract.Contacts.DISPLAY_NAME + " ASC");
             } else {
                 return super.runQueryOnBackgroundThread(constraint);

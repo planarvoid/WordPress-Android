@@ -24,6 +24,7 @@
 
     <!-- flag NewApi as error -->
     <issue id="NewApi" severity="error"/>
+    <issue id="InlinedApi" severity="error"/>
 
     <!-- ABS + ViewPagerIndicator -->
     <issue id="NewApi">

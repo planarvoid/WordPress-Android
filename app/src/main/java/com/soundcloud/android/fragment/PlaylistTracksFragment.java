@@ -70,7 +70,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         mLocalCollection = getLocalCollection();
 
         if (mLocalCollection == null) {
-            Toast.makeText(getActivity(), R.string.playlist_removed, Toast.LENGTH_SHORT);
+            Toast.makeText(getActivity(), R.string.playlist_removed, Toast.LENGTH_SHORT).show();
             getActivity().finish();
         } else {
             mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext());

@@ -2,6 +2,7 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.annotation.TargetApi;
 import com.soundcloud.android.Consts;
 import org.apache.http.HttpHost;
 import org.jetbrains.annotations.NotNull;
@@ -469,10 +470,11 @@ public final class IOUtils {
      *
      * @see <a href="http://code.google.com/p/android/issues/detail?id=9781">http://code.google.com/p/android/issues/detail?id=9781</a>
      */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
     public static WifiManager.WifiLock createHiPerfWifiLock(Context context, String tag) {
         return ((WifiManager) context.getSystemService(Context.WIFI_SERVICE))
                 .createWifiLock(
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD ?
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1 ?
                         WifiManager.WIFI_MODE_FULL_HIGH_PERF : WifiManager.WIFI_MODE_FULL,
                         tag
                 );
