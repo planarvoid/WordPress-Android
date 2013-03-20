@@ -3,11 +3,9 @@ package com.soundcloud.android.robolectric;
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.*;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
@@ -30,13 +28,14 @@ import android.provider.Settings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class TestHelper {
     private TestHelper() {}
 
     public static ObjectMapper getObjectMapper() {
-        return AndroidCloudAPI.Wrapper.buildObjectMapper();
+        return Wrapper.buildObjectMapper();
     }
 
     public static Activities getActivities(String path) throws IOException {
@@ -47,6 +46,12 @@ public class TestHelper {
         InputStream is = TestHelper.class.getResourceAsStream(path);
         expect(is).not.toBeNull();
         return getObjectMapper().readValue(is, klazz);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends ScResource> List<T> readResourceList(String path) throws IOException {
+        return getObjectMapper().readValue(TestHelper.class.getResourceAsStream(path),
+                ScResource.ScResourceHolder.class).collection;
     }
 
     @SuppressWarnings("unchecked")

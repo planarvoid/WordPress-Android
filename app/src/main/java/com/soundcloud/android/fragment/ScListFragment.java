@@ -7,6 +7,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.adapter.CommentAdapter;
@@ -637,7 +638,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private Request buildRequest(boolean isRefresh) {
         Request request = getRequest(isRefresh);
         if (request != null) {
-            request.add("linked_partitioning", "1");
+            request.add(Wrapper.LINKED_PARTITIONING, "1");
             request.add("limit", Consts.COLLECTION_PAGE_SIZE);
         }
         return request;

@@ -13,7 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.toTime;
+import static com.soundcloud.android.Wrapper.CloudDateFormat.toTime;
 import static com.soundcloud.android.Expect.expect;
 
 @RunWith(DefaultTestRunner.class)

@@ -65,7 +65,7 @@ public class ActivitiesStorage {
                 new String[] { String.valueOf(content.id) },
                 DBHelper.ActivityView.CREATED_AT + " ASC LIMIT 1");
         if (c != null && c.moveToFirst()){
-            a = mActivitiesDAO.getActivityFromCursor(c);
+            a = mActivitiesDAO.objFromCursor(c);
         }
         if (c != null) c.close();
         return a;
@@ -79,7 +79,7 @@ public class ActivitiesStorage {
                 new String[] { String.valueOf(content.id) },
                 DBHelper.ActivityView.CREATED_AT + " DESC LIMIT 1");
         if (c != null && c.moveToFirst()) {
-            a = mActivitiesDAO.getActivityFromCursor(c);
+            a = mActivitiesDAO.objFromCursor(c);
         }
         if (c != null) c.close();
         return a;

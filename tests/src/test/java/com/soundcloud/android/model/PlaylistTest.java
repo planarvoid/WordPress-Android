@@ -1,7 +1,6 @@
 package com.soundcloud.android.model;
 
 import android.os.Parcel;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
@@ -29,7 +28,7 @@ public class PlaylistTest {
 
     @Test
     public void shouldParcelAndUnparcelCorrectly() throws Exception {
-        Playlist playlist = AndroidCloudAPI.Wrapper.buildObjectMapper().readValue(
+        Playlist playlist = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("e1_playlist.json"),
                 Playlist.class);
 
@@ -42,7 +41,7 @@ public class PlaylistTest {
 
     @Test
     public void shouldProvideCreateJson() throws Exception {
-        Playlist playlist = AndroidCloudAPI.Wrapper.buildObjectMapper().readValue(
+        Playlist playlist = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("e1_playlist.json"),
                 Playlist.class);
 
@@ -55,7 +54,7 @@ public class PlaylistTest {
 
     @Test
     public void shouldProvideUpdateJson() throws Exception {
-        Playlist playlist = AndroidCloudAPI.Wrapper.buildObjectMapper().readValue(
+        Playlist playlist = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("e1_playlist.json"),
                 Playlist.class);
 

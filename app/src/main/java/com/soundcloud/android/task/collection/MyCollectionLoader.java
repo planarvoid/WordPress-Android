@@ -11,6 +11,9 @@ import com.soundcloud.android.provider.SoundCloudDB;
 
 import android.content.ContentResolver;
 import android.util.Log;
+import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.api.CloudAPI;
+import org.apache.http.HttpStatus;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,6 +31,8 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
     public ReturnData<T> load(AndroidCloudAPI api, CollectionParams<T> params) {
         ContentResolver resolver = api.getContext().getContentResolver();
         boolean keepGoing = true;
+        int responseCode = EmptyListView.Status.OK;
+
         switch (params.getContent()){
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
@@ -37,14 +42,23 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
                 // if we already have all the data, this is a NOP
                 try {
                     SoundCloudApplication.MODEL_MANAGER.fetchMissingCollectionItems(api, storedIds, params.getContent(), false, -1);
+                } catch (CloudAPI.InvalidTokenException e) {
+                    // TODO, move this once we centralize our error handling
+                    // InvalidTokenException should expose the response code so we don't have to hardcode it here
+                    responseCode = HttpStatus.SC_UNAUTHORIZED;
                 } catch (IOException e) {
                     Log.e(TAG, "error", e);
                     keepGoing = false;
                 }
         }
 
-        List<T> newItems = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver, params.loadModel, params.getPagedUri());
+        List<T> newItems = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver,
+                params.loadModel,
+                params.getPagedUri());
+
+
         if (keepGoing) keepGoing = newItems.size() > 0;
-        return new ReturnData<T>(newItems, params, null, keepGoing, true);
+
+        return new ReturnData<T>(newItems, params, null, responseCode, keepGoing, true);
     }
 }

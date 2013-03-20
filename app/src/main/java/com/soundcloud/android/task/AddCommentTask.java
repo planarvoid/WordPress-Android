@@ -1,5 +1,7 @@
 package com.soundcloud.android.task;
 
+import android.content.Intent;
+import android.os.AsyncTask;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
@@ -8,12 +10,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
-
-import android.content.Intent;
-import android.os.AsyncTask;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,12 +39,9 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
             if (comment.reply_to_id > 0) request.add(Params.Comment.REPLY_TO, comment.reply_to_id);
 
             try {
-                final HttpResponse response = app.post(request);
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
-                    Comment created  = app.read(response.getEntity().getContent());
-                    publishProgress(comment, created);
-                    return created;
-                } // else fall-through
+                Comment created = app.create(request);
+                publishProgress(comment, created);
+                return created;
             } catch (IOException e) {
                 exception = e;
             }

@@ -1,25 +1,42 @@
 package com.soundcloud.android.tracking.eventlogger;
 
-import android.database.Cursor;
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents;
+import static org.mockito.Mockito.*;
+
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.xtremelabs.robolectric.util.DatabaseConfig;
+import com.xtremelabs.robolectric.util.SQLiteMap;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 @RunWith(DefaultTestRunner.class)
+@DatabaseConfig.UsingDatabaseMap(PlayEventTrackerTest.PlayEventFileDatabaseMap.class)
 public class PlayEventTrackerTest {
+    PlayEventTracker tracker;
+    PlayEventTrackingApi api;
+
+    @Before
+    public void before() {
+        api = mock(PlayEventTrackingApi.class);
+        tracker = new PlayEventTracker(DefaultTestRunner.application, api);
+        tracker.getTrackingDbHelper().execute(new PlayEventTracker.TrackingDbHelper.ExecuteBlock() {
+            @Override
+            public void call(SQLiteDatabase database) {
+                database.delete(PlayEventTracker.TrackingDbHelper.EVENTS_TABLE, null, null);
+            }
+        });
+    }
 
     @Test
     public void shouldInsertTrackingEventsIntoDatabase() throws Exception {
-        PlayEventTrackingApi api = mock(PlayEventTrackingApi.class);
 
-        PlayEventTracker tracker = new PlayEventTracker(DefaultTestRunner.application, api);
         Track track = new Track();
         track.duration = 123;
         track.id = 10;
@@ -49,11 +66,8 @@ public class PlayEventTrackerTest {
 
     @Test
     public void shouldFlushEventsToApi() throws Exception {
-        PlayEventTrackingApi api = mock(PlayEventTrackingApi.class);
+        when(api.pushToRemote(anyList())).thenReturn(new String[]{"1"});
 
-        when(api.pushToRemote(any(Cursor.class))).thenReturn(new String[] {"1"} );
-
-        PlayEventTracker tracker = new PlayEventTracker(DefaultTestRunner.application, api);
         tracker.trackEvent(new Track(), Action.PLAY, 1l, "originUrl", "level");
         tracker.trackEvent(new Track(), Action.STOP, 2l, "originUrl", "level");
 
@@ -69,8 +83,6 @@ public class PlayEventTrackerTest {
 
     @Test
     public void shouldNotFlushIfNoActiveNetwork() throws Exception {
-        PlayEventTrackingApi api = mock(PlayEventTrackingApi.class);
-        PlayEventTracker tracker = new PlayEventTracker(DefaultTestRunner.application, api);
         tracker.trackEvent(new Track(), Action.PLAY, 1l, "originUrl", "level");
 
         TestHelper.simulateOffline();
@@ -79,7 +91,19 @@ public class PlayEventTrackerTest {
 
         TestHelper.simulateOnline();
 
-        when(api.pushToRemote(any(Cursor.class))).thenReturn(new String[]{"1"});
+        when(api.pushToRemote(anyList())).thenReturn(new String[]{"1"});
         expect(tracker.flushPlaybackTrackingEvents()).toBeTrue();
+    }
+
+    /*
+    The play event tracker opens/closes databases during each operation to avoid locking issues, so
+    the file database is to prevent data loss from roboelectric's in-memory database shortcomings.
+    see : http://stackoverflow.com/questions/7320820/testing-sqlite-database-in-robolectric
+     */
+    public static class PlayEventFileDatabaseMap extends SQLiteMap {
+        @Override
+        public String getConnectionString() {
+            return "jdbc:sqlite:tests-play-events.sqlite";
+        }
     }
 }

@@ -31,9 +31,6 @@ public class ActivitiesScheduler extends SyncingScheduler<Activities> {
                 if (activities == null) {
                     activities = new Activities();
                 }
-                for (Activity a : activities) {
-                    a.resolve(mContext);
-                }
 
                 log("Found activities: " + activities.size());
 

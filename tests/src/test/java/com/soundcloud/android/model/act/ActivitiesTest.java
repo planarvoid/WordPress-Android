@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.fromString;
+import static com.soundcloud.android.Wrapper.CloudDateFormat.fromString;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.getActivities;
 

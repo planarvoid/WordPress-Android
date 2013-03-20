@@ -1,15 +1,5 @@
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.ScTextUtils;
-import org.apache.http.HttpStatus;
-import org.jetbrains.annotations.Nullable;
-
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -21,10 +11,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.utils.ScTextUtils;
+import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.Nullable;
 
 public class EmptyListView extends RelativeLayout {
     protected ProgressBar mProgressBar;
@@ -106,7 +104,7 @@ public class EmptyListView extends RelativeLayout {
                 if (mErrorView != null) mErrorView.setVisibility(View.GONE);
                 return true;
 
-            } else if (IOUtils.isStatusCodeOk(code))  {
+            } else if (Wrapper.isStatusCodeOk(code))  {
                 // at rest, no error
                 mProgressBar.setVisibility(View.GONE);
                 showEmptyLayout();
@@ -138,7 +136,7 @@ public class EmptyListView extends RelativeLayout {
         if (responseCode == HttpStatus.SC_SERVICE_UNAVAILABLE) {
             errorTextView.setText(R.string.error_soundcloud_is_down);
 
-        } else if (IOUtils.isStatusCodeError(responseCode)) {
+        } else if (Wrapper.isStatusCodeError(responseCode)) {
             errorTextView.setText(R.string.error_soundcloud_server_problems);
 
         } else if (responseCode == Status.CONNECTION_ERROR) {

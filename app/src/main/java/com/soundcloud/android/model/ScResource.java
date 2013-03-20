@@ -109,7 +109,7 @@ public abstract class ScResource extends ScModel implements ModelLike {
         return null;
     }
 
-    public static class ScResourceHolder extends CollectionHolder<ScResource> {
+    public static class ScResourceHolder<T extends ScResource> extends CollectionHolder<T> {
 
         /**
          * Insert the collection resources using a given URI along with dependencies

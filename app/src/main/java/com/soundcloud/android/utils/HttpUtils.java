@@ -99,7 +99,7 @@ public final class HttpUtils {
      * @param request the SoundCloud API request
      * @param params null, empty array, or key-value pairs
      */
-    public static void addQueryParams(Request request, String... params) {
+    public static Request addQueryParams(Request request, String... params) {
         if (params != null) {
             if (params.length % 2 != 0) {
                 throw new IllegalArgumentException("Query params must be passed in k/v pairs");
@@ -108,5 +108,6 @@ public final class HttpUtils {
                 request.add(params[i], params[i + 1]);
             }
         }
+        return request;
     }
 }

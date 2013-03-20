@@ -337,13 +337,6 @@ public class Track extends Playable implements PlayableHolder {
         return Content.TRACKS.uri;
     }
 
-    @Override
-    public void resolve(Context context) {
-
-        refreshTimeSinceCreated(context);
-        refreshListArtworkUri(context);
-    }
-
     public void setAppFields(Track t) {
         comments = t.comments;
     }

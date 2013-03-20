@@ -8,6 +8,7 @@ import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ApiSyncer;
+import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.api.CloudAPI;
 import org.apache.http.HttpStatus;
 
@@ -15,47 +16,38 @@ import java.io.IOException;
 
 public class ActivitiesLoader extends CollectionLoader<Activity> {
     @Override
-    public ReturnData<Activity> load(AndroidCloudAPI api, CollectionParams params) {
+    public ReturnData<Activity> load(AndroidCloudAPI api, CollectionParams<Activity> params) {
         final ActivitiesStorage storage = new ActivitiesStorage(api.getContext().getContentResolver());
-        ReturnData<Activity> returnData = new ReturnData<Activity>(params);
-        returnData.success = true;
 
+        boolean keepGoing, success = false;
+        int responseCode = EmptyListView.Status.OK;
         Activities newActivities;
 
         if (params.isRefresh) {
             newActivities = storage.getSince(params.contentUri, params.timestamp);
-            returnData.keepGoing = newActivities.size() >= params.maxToLoad;
-
+            success = true;
         } else {
             newActivities = getOlderActivities(storage, params);
             if (newActivities.size() < params.maxToLoad) {
-
-                ApiSyncer.Result result = null;
                 try {
-                    result = new ApiSyncer(api.getContext()).syncContent(params.contentUri, ApiSyncService.ACTION_APPEND);
+                    ApiSyncer.Result result  = new ApiSyncer(api.getContext()).syncContent(params.contentUri, ApiSyncService.ACTION_APPEND);
+                    if (result.success) {
+                        success = true;
+                        newActivities = getOlderActivities(storage, params);
+                    }
                 } catch (CloudAPI.InvalidTokenException e) {
                     // TODO, move this once we centralize our error handling
                     // InvalidTokenException should expose the response code so we don't have to hardcode it here
-                    returnData.responseCode = HttpStatus.SC_UNAUTHORIZED;
-                    returnData.success = false;
+                    responseCode = HttpStatus.SC_UNAUTHORIZED;
                 } catch (IOException e) {
                     Log.w(SoundCloudApplication.TAG, e);
-                    returnData.success = false;
                 }
-
-                if (result != null && result.success) {
-                    newActivities = getOlderActivities(storage, params);
-                }
+            } else {
+                success = true;
             }
         }
-
-        for (Activity a : newActivities) {
-            a.resolve(api.getContext());
-        }
-
-        returnData.keepGoing = returnData.success && newActivities.size() > 0;
-        returnData.newItems = newActivities.collection;
-        return returnData;
+        keepGoing = success && newActivities.size() > 0;
+        return new ReturnData<Activity>(newActivities.collection, params, null, responseCode,  keepGoing, success);
     }
 
     private Activities getOlderActivities(ActivitiesStorage storage, CollectionParams params) {

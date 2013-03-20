@@ -36,7 +36,7 @@ public class AddUserInfoTask extends AsyncApiTask<Pair<User,File>, Void, User> {
             HttpResponse resp = mApi.put(updateMe);
             switch (resp.getStatusLine().getStatusCode()) {
                 case SC_OK:
-                    return mApi.read(resp.getEntity().getContent());
+                    return mApi.getMapper().readValue(resp.getEntity().getContent(), User.class);
                 case SC_UNPROCESSABLE_ENTITY:
                     extractErrors(resp);
                 default:

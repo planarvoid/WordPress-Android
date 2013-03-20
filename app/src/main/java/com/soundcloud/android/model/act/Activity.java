@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.model.ModelLike;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
@@ -104,14 +104,9 @@ public abstract class Activity extends ScModel implements Parcelable,
         _elapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
     }
 
-    @Override
-    public void resolve(Context context) {
-        refreshTimeSinceCreated(context);
-    }
-
     public String getDateString() {
         return created_at == null ? null :
-                AndroidCloudAPI.CloudDateFormat.formatDate(created_at.getTime());
+                Wrapper.CloudDateFormat.formatDate(created_at.getTime());
     }
 
     public UUID toUUID() {

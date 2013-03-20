@@ -1,13 +1,14 @@
 package com.soundcloud.android.service.upload;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.SyncStateManager;
@@ -17,16 +18,11 @@ import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.entity.mime.content.FileBody;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Uploader extends BroadcastReceiver implements Runnable {
     private AndroidCloudAPI api;
@@ -143,7 +139,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
     private void onUploadSuccess(HttpResponse response) {
         try {
-            Track track = api.read(response.getEntity().getContent());
+            Track track = api.getMapper().readValue(response.getEntity().getContent(), Track.class);
             mStorage.createOrUpdate(track);
 
             //request to update my collection

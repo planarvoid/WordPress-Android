@@ -1,8 +1,8 @@
 package com.soundcloud.android.service.sync;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
@@ -67,7 +67,7 @@ public class SyncAdapterService extends Service {
             public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
                 if (DEBUG_CANCEL) DebugUtils.setLogLevels();
 
-                AndroidCloudAPI.Wrapper.setBackgroundMode(true);
+                Wrapper.setBackgroundMode(true);
 
                 // delegate to the ApiSyncService, use a looper + ResultReceiver to wait for the result
                 Looper.prepare();
@@ -82,7 +82,7 @@ public class SyncAdapterService extends Service {
                 })) {
                     Looper.loop(); // wait for results to come in
                 }
-                AndroidCloudAPI.Wrapper.setBackgroundMode(false);
+                Wrapper.setBackgroundMode(false);
             }
 
             @Override
@@ -234,9 +234,12 @@ public class SyncAdapterService extends Service {
     }
 
 
-    private static boolean handleFollowerEvent(SoundCloudApplication app, Bundle extras, UserStorage userStorage) {
+    private static boolean handleFollowerEvent(SoundCloudApplication app,
+                                               Bundle extras,
+                                               UserStorage userStorage) {
         if (PreferenceManager.getDefaultSharedPreferences(app).getBoolean(Consts.PrefKeys.NOTIFICATIONS_FOLLOWERS, true)
                 && extras.containsKey(SyncAdapterService.EXTRA_PUSH_EVENT_URI)) {
+
             final long id = PushEvent.getIdFromUri(extras.getString(SyncAdapterService.EXTRA_PUSH_EVENT_URI));
             if (id != -1) {
                 User u = userStorage.getUser(id);
@@ -246,16 +249,10 @@ public class SyncAdapterService extends Service {
                     return true;
                 } else {
                     try {
-                        HttpResponse resp = app.get(Request.to(Endpoints.USERS + "/" + id));
-                        if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                            u = app.read(resp.getEntity().getContent());
-                            userStorage.createOrUpdate(u);
-
-                            NotificationMessage.showNewFollower(app, u);
-                            return true;
-                        } else {
-                            // Nothing?
-                        }
+                        u = app.read(Request.to(Endpoints.USERS + "/" + id));
+                        userStorage.createOrUpdate(u);
+                        NotificationMessage.showNewFollower(app, u);
+                        return true;
                     } catch (IOException e) {
                         Log.w(TAG, "error fetching user", e);
                     }
@@ -264,9 +261,6 @@ public class SyncAdapterService extends Service {
         }
         return false;
     }
-
-
-
 
     // only used for debugging
     public static void requestNewSync(SoundCloudApplication app, int clearMode) {

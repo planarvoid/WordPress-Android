@@ -7,7 +7,6 @@ import static com.soundcloud.android.robolectric.TestHelper.readJson;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.*;
-import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Like;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Recording;
@@ -317,8 +316,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveFavoriteEndpointWhichOnlyReturnsCachedItems() throws Exception {
-        CollectionHolder<Track> tracks = SoundCloudApplication.MODEL_MANAGER.getCollectionFromStream(getClass().getResourceAsStream("user_favorites.json"));
-
+        List<Track> tracks = TestHelper.readResourceList("/com/soundcloud/android/provider/user_favorites.json");
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
             expect(resolver.insert(Content.ME_LIKES.uri, t.buildContentValues())).not.toBeNull();

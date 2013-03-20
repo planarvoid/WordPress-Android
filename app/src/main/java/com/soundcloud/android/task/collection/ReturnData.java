@@ -7,28 +7,15 @@ import java.util.List;
 
 public class ReturnData<T extends ScModel> {
 
-    public List<T> newItems;
-    public String nextHref;
-    public int responseCode = EmptyListView.Status.OK;
-    public boolean keepGoing;
-    public boolean success;
-    public boolean wasRefresh;
+    public final List<T> newItems;
+    public final String nextHref;
+    public final int responseCode;
+    public final boolean keepGoing;
+    public final boolean success;
+    public final boolean wasRefresh;
 
-    public ReturnData(CollectionParams params) {
-        this.wasRefresh = params.isRefresh;
-    }
-
-    public ReturnData(List<T> newItems,
-                      CollectionParams<T> params,
-                      String nextHref,
-                      boolean keepGoing,
-                      boolean success) {
-
-        this(params);
-        this.newItems = newItems;
-        this.nextHref = nextHref;
-        this.keepGoing = keepGoing;
-        this.success = success;
+    public ReturnData(CollectionParams<T> params) {
+        this(null, params, null, EmptyListView.Status.OK, false, false);
     }
 
     public ReturnData(List<T> newItems,
@@ -38,7 +25,11 @@ public class ReturnData<T extends ScModel> {
                       boolean keepGoing,
                       boolean success) {
 
-        this(newItems, params, nextHref, keepGoing, success);
+        this.wasRefresh = params.isRefresh;
+        this.newItems = newItems;
+        this.nextHref = nextHref;
+        this.keepGoing = keepGoing;
+        this.success = success;
         this.responseCode = responseCode;
     }
 
@@ -52,5 +43,12 @@ public class ReturnData<T extends ScModel> {
                 ", wasRefresh=" + wasRefresh +
                 ", success=" + success +
                 '}';
+    }
+
+
+    public  static class Error<T extends ScModel> extends ReturnData<T> {
+        public Error() {
+            super(null, null, null, EmptyListView.Status.CONNECTION_ERROR, false, false);
+        }
     }
 }

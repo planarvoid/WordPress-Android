@@ -1,28 +1,21 @@
 package com.soundcloud.android.model;
 
-import android.content.Context;
-import android.text.TextUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
+import android.text.TextUtils;
+
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-
-import static com.soundcloud.android.model.ScModelManager.validateResponse;
 
 
 /**
@@ -32,7 +25,6 @@ import static com.soundcloud.android.model.ScModelManager.validateResponse;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CollectionHolder<T> implements List<T> {
-    public static final String LINKED_PARTITIONING = "linked_partitioning";
 
     @JsonProperty
     @JsonView(Views.Mini.class)
@@ -191,33 +183,6 @@ public class CollectionHolder<T> implements List<T> {
     @Override
     public <T1 extends Object> T1[] toArray(T1[] array) {
         return collection.toArray(array);
-    }
-
-    public void resolve(Context context) {
-        for (T m : this) {
-            if (m instanceof ScModel) {
-                ((ScModel)m).resolve(context);
-            }
-        }
-    }
-
-    public @NotNull static <T, C extends CollectionHolder<T>> List<T> fetchAllResources(AndroidCloudAPI api,
-                                                                                        Request request,
-                                                                                        Class<C> ch) throws IOException {
-        List<T> objects = new ArrayList<T>();
-        C holder = null;
-        do {
-            Request r = holder == null ? request : Request.to(holder.next_href);
-            HttpResponse resp = validateResponse(api.get(r.with(LINKED_PARTITIONING, "1")));
-            holder = api.getMapper().readValue(resp.getEntity().getContent(), ch);
-            if (holder == null) throw new IOException("invalid data");
-
-            if (holder.collection != null) {
-                objects.addAll(holder.collection);
-            }
-        } while (holder.next_href != null);
-
-        return objects;
     }
 }
 

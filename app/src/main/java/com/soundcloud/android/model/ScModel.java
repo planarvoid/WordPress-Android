@@ -13,7 +13,6 @@ import android.os.Parcelable;
 import android.provider.BaseColumns;
 
 public class ScModel implements Parcelable {
-
     public static final int NOT_SET = -1;
     @JsonView(Views.Mini.class) public long id = NOT_SET;
 
@@ -27,10 +26,6 @@ public class ScModel implements Parcelable {
         ContentValues cv = new ContentValues();
         if (id != ScResource.NOT_SET) cv.put(BaseColumns._ID, id);
         return cv;
-    }
-
-    public void resolve(Context context) {
-
     }
 
     @Override
@@ -48,7 +43,7 @@ public class ScModel implements Parcelable {
     }
 
     @JsonIgnore
-    public long getListItemId(){
+    public long getListItemId() {
         return id;
     }
 

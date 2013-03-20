@@ -5,14 +5,18 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.ModelLike;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public abstract class BaseDAO<T extends ModelLike> {
@@ -80,16 +84,35 @@ public abstract class BaseDAO<T extends ModelLike> {
         return mResolver.delete(resource.toUri(), null, null) == 1;
     }
 
+    public List<T> queryAll() {
+        Cursor c = mResolver.query(getContent().uri, null, null, null, null);
+        if (c != null) {
+            List<T> objects = new ArrayList<T>(c.getCount());
+            while (c.moveToNext()) {
+                objects.add(objFromCursor(c));
+            }
+            c.close();
+            return objects;
+        } else {
+            //noinspection unchecked
+            return Collections.EMPTY_LIST;
+        }
+    }
+
     public @Nullable T queryForId(long id) {
         Cursor cursor = mResolver.query(getContent().forId(id), null, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
-            try {
-                return getModelClass().getConstructor(Cursor.class).newInstance(cursor);
-            } catch (Exception e) {
-                throw new AssertionError("Could not find constructor for resource. id: " + id);
-            }
+            return objFromCursor(cursor);
         } else {
             return null;
+        }
+    }
+
+    protected T objFromCursor(Cursor cursor) {
+        try {
+            return getModelClass().getConstructor(Cursor.class).newInstance(cursor);
+        } catch (Exception e) {
+            throw new AssertionError("Could not find constructor for resource.");
         }
     }
 
