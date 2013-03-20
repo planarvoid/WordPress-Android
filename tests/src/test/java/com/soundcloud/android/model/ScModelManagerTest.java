@@ -2,13 +2,10 @@ package com.soundcloud.android.model;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.database.Cursor;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
-import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,11 +71,6 @@ public class ScModelManagerTest {
 //        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
 //        expect(c.getCount()).toEqual(2);
         fail("move me");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldNotBulkInsertWithoutOwnerId() throws Exception {
-        manager.writeCollection(createModels(), Content.ME_LIKES.uri, -1, ScResource.CacheUpdateMode.NONE);
     }
 
     private List<ScResource> createModels() {

@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.PlayQueueManagerDAO;
+import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlayQueueManager {
-    private List<PlayQueueItem> mPlayQueue = new ArrayList<PlayQueueItem>();
+    private List<Track> mPlayQueue = new ArrayList<Track>();
     private PlayQueueUri mPlayQueueUri = new PlayQueueUri();
 
     private int mPlayPos;
@@ -33,23 +34,6 @@ public class PlayQueueManager {
 
     private long mUserId;
     private AsyncTask mLoadTask;
-
-    public static class PlayQueueItem {
-        public final Track track;
-        public int position;
-        public final boolean manuallyAdded;
-
-
-        public PlayQueueItem(Track track, boolean manuallyAdded) {
-            this.track = track;
-            this.manuallyAdded = manuallyAdded;
-        }
-        public PlayQueueItem setPosition(int position){
-            this.position = position;
-            return this;
-        }
-
-    }
 
     public PlayQueueManager(Context context, long userId) {
         mContext = context;
@@ -87,7 +71,7 @@ public class PlayQueueManager {
 
     public Track getTrackAt(int pos) {
         if (pos >= 0 && pos < mPlayQueue.size()) {
-            return mPlayQueue.get(pos).track;
+            return mPlayQueue.get(pos);
         } else {
             return null;
         }
@@ -155,7 +139,7 @@ public class PlayQueueManager {
     public void setTrack(Track toBePlayed, boolean saveQueue) {
         SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScResource.CacheUpdateMode.NONE);
         mPlayQueue.clear();
-        mPlayQueue.add(new PlayQueueItem(toBePlayed, false));
+        mPlayQueue.add(toBePlayed);
         mPlayQueueUri = new PlayQueueUri();
         mPlayPos = 0;
 
@@ -212,12 +196,12 @@ public class PlayQueueManager {
     }
 
     private AsyncTask loadCursor(final Uri uri, final int position) {
-        return new ParallelAsyncTask<Uri,Void,List<PlayQueueItem>>() {
-            @Override protected List<PlayQueueItem> doInBackground(Uri... params) {
-                return PlayQueueManagerDAO.getItems(mContext.getContentResolver(), params[0]);
+        return new ParallelAsyncTask<Uri,Void,List<Track>>() {
+            @Override protected List<Track> doInBackground(Uri... params) {
+                return new TrackStorage(mContext.getContentResolver()).getTracksForUri(params[0]);
             }
 
-            @Override protected void onPostExecute(List<PlayQueueItem> newQueue) {
+            @Override protected void onPostExecute(List<Track> newQueue) {
                 if (newQueue != null && !isCancelled()){
                     long playingId = getCurrentTrackId();
                     mPlayQueue = newQueue;
@@ -258,7 +242,7 @@ public class PlayQueueManager {
         if (playQueue != null) {
             for (PlayableHolder playable : playQueue) {
                 if (playable.getPlayable() instanceof Track){
-                    mPlayQueue.add(new PlayQueueItem((Track) playable.getPlayable(), false));
+                    mPlayQueue.add((Track) playable.getPlayable());
                 }
             }
         }
@@ -276,9 +260,10 @@ public class PlayQueueManager {
             @Override
             protected Void doInBackground(Void... params) {
                 final List<Track> tracks = new ArrayList<Track>();
-                for (PlayQueueItem item : mPlayQueue){
-                    tracks.add(item.track);
+                for (Track item : mPlayQueue){
+                    tracks.add(item);
                 }
+
                 SoundCloudDB.insertCollection(mContext.getContentResolver(), tracks, Content.PLAY_QUEUE.uri, mUserId);
                 return null;
             }

@@ -402,16 +402,6 @@ public class ScModelManager {
         return storedIds;
     }
 
-    <T extends ScResource> int writeCollection(List<T> items, Uri localUri, long userId, ScResource.CacheUpdateMode updateMode) {
-        if (items.isEmpty()) return 0;
-
-        for (T item : items) {
-            cache(item, updateMode);
-        }
-
-        return SoundCloudDB.insertCollection(mResolver, items, localUri, userId);
-    }
-
 
     public List<Long> getLocalIds(Content content, long userId, int startIndex, int limit) {
         return ResolverHelper.idCursorToList(mResolver.query(
