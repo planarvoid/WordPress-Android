@@ -253,6 +253,15 @@ public class UserBrowser extends ScActivity implements
                         mUser == null || mUser.username == null ? getString(R.string.this_user)
                                 : mUser.username));
 
+            case ME_PLAYLISTS:
+                return new EmptyListView(this).setMessageText(R.string.list_empty_you_sets_message);
+
+            case USER_PLAYLISTS:
+                return new EmptyListView(this)
+                        .setMessageText(getString(R.string.list_empty_user_sets_message,
+                                mUser == null || mUser.username == null ? getString(R.string.this_user)
+                                        : mUser.username));
+
             case ME_LIKES:
                 return new EmptyListView(this,
                         new Intent(Actions.WHO_TO_FOLLOW),
