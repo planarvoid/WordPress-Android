@@ -70,7 +70,7 @@
     <style name="PlayerAction.Button.Info">
         <item name="android:background">@null</item>
         <item name="android:drawablePadding">0dp</item>
-        <item name="android:textSize">14dp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:layout_width">45dp</item>
         <item name="android:gravity">center</item>
         <item name="android:textColor">@drawable/toggle_txt_player_info_states</item>
@@ -152,7 +152,7 @@
         <item name="android:paddingBottom">1sp</item>
 
         <item name="android:textColor">#FFFFFF</item>
-        <item name="android:textSize">16dp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:antialias">true</item>
 
         <item name="jagged_background">#CC000000</item>
@@ -166,7 +166,7 @@
     <style name="Tour.Headline.Base" parent="Tour.CallToAction">
         <item name="android:paddingTop">1sp</item>
 
-        <item name="android:textSize">22dp</item>
+        <item name="android:textSize">22sp</item>
         <item name="android:textStyle">bold</item>
 
         <item name="custom_font">fonts/Interstate-Regular.ttf</item>
@@ -286,7 +286,7 @@
         <item name="android:gravity">center</item>
 
         <item name="android:textColor">@drawable/txt_list_secondary_states</item>
-        <item name="android:textSize">16dp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
 
         <item name="custom_font">fonts/Interstate-Regular.ttf</item>
