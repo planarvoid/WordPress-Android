@@ -8,6 +8,8 @@ $ 57
   * Miscellaneous bug-fixes and stability improvements
   - Deeplinks in manifest for marketing emails (stream, people, search, upload)
   - Fixed stuck buffering UI when resuming player
+  - Tracking stop event on complete and DB locking fixes
+  - Cleanup fixes for reposts
 
 $ 56
   % v 2.4.7
