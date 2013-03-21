@@ -35,6 +35,7 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
         @Override
         public void run() {
             mEmptyView.setStatus(EmptyListView.Status.WAITING);
+            mEmptyView.setVisibility(View.VISIBLE);
         }
     };
 
@@ -61,15 +62,18 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ViewGroup layout = (ViewGroup) inflater.inflate(R.layout.basic_list_fragment, container, false);
 
+        mEmptyView = (EmptyListView) layout.findViewById(android.R.id.empty);
+        configureEmptyListView(mEmptyView);
+
         mListView = (ScListView) layout.findViewById(R.id.list);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(this);
         mListView.setOnRefreshListener(this);
 
-        mEmptyView = (EmptyListView) layout.findViewById(android.R.id.empty);
-
         return layout;
     }
+
+    protected abstract void configureEmptyListView(EmptyListView emptyView);
 
     @Override
     public void onStart() {
@@ -86,10 +90,8 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
 
         if (scheduler.hasPendingObservables()) {
             mLoadItemsSubscription = scheduler.scheduleFirstPendingObservable(mLoadItemsObserver);
-            mShowProgressHandler.postDelayed(showProgress, PROGRESS_DELAY_MILLIS);
+            showProgressSpinner();
         }
-
-        mEmptyView.setStatus(EmptyListView.Status.OK);
     }
 
     protected abstract ReactiveScheduler<List<T>> getListItemsScheduler();
@@ -111,6 +113,10 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
 
     @Override
     public void onRefresh(PullToRefreshBase refreshView) {
+        showProgressSpinner();
+    }
+
+    private void showProgressSpinner() {
         mShowProgressHandler.postDelayed(showProgress, PROGRESS_DELAY_MILLIS);
     }
 
@@ -132,7 +138,6 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
             Log.d(this, "onCompleted t=" + Thread.currentThread().getName());
 
             mShowProgressHandler.removeCallbacks(showProgress);
-            mEmptyView.setStatus(EmptyListView.Status.OK);
 
             if (mListView.isRefreshing()) {
                 mListView.onRefreshComplete();
@@ -154,7 +159,10 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
         @Override
         public void onNext(List<T> items) {
             Log.d(this, "onNext: " + items.size() + "; t=" + Thread.currentThread().getName());
-            if (!items.isEmpty()) {
+            if (items.isEmpty()) {
+                mEmptyView.setStatus(EmptyListView.Status.OK);
+            } else {
+                mEmptyView.setVisibility(View.GONE);
                 mAdapter.clearData();
                 mAdapter.addItems(items);
                 mAdapter.notifyDataSetChanged();

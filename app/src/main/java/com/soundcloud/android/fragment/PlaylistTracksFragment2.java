@@ -14,6 +14,7 @@ import com.soundcloud.android.rx.schedulers.PlaylistTracksScheduler;
 import com.soundcloud.android.rx.schedulers.PlaylistsScheduler;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
@@ -91,6 +92,11 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
         updateHeaderInfo();
 
         return layout;
+    }
+
+    @Override
+    protected void configureEmptyListView(EmptyListView emptyView) {
+        emptyView.setMessageText(getActivity().getString(R.string.empty_playlist));
     }
 
     @Override
