@@ -3,19 +3,25 @@ package com.soundcloud.android.dao;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.net.Uri;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.soundcloud.android.dao.ResolverHelper.addPagingParams;
 import static com.soundcloud.android.dao.ResolverHelper.idCursorToList;
 
 public class CollectionStorage {
-
     private final ContentResolver mResolver;
 
     public CollectionStorage(ContentResolver resolver) {
@@ -52,5 +58,52 @@ public class CollectionStorage {
                 DBHelper.CollectionItems.SORT_ORDER
             )
         );
+    }
+
+    /**
+     * @param api           the api
+     * @param modelIds      a list of model ids
+     * @param content       the content to fetch for
+     * @param ignoreStored  if it should ignore stored ids
+     * @return how many entries where stored in the db
+     * @throws java.io.IOException
+     */
+    // TODO really pass in api as parameter?
+    public int fetchAndStoreMissingCollectionItems(AndroidCloudAPI api,
+                                                   @NotNull List<Long> modelIds,
+                                                   final Content content,
+                                                   boolean ignoreStored) throws IOException {
+        if (modelIds.isEmpty()) return 0;
+        return getDaoForContent(content).create(fetchMissingCollectionItems(api, modelIds, content, ignoreStored));
+    }
+
+    // TODO really pass in api as parameter?
+    private List<ScResource> fetchMissingCollectionItems(AndroidCloudAPI api,
+                                                        @NotNull List<Long> modelIds,
+                                                        final Content content,
+                                                        boolean ignoreStored) throws IOException {
+
+        if (modelIds.isEmpty()) return Collections.emptyList();
+
+        BaseDAO<ScResource> dao = getDaoForContent(content);
+        // copy so we don't modify the original
+        List<Long> ids = new ArrayList<Long>(modelIds);
+        if (!ignoreStored) {
+            ids.removeAll(dao.getStoredIds(modelIds));
+        }
+        // TODO this has to be abstracted more. Hesitant to do so until the api is more final
+        Request request = Track.class.equals(content.modelType) ||
+               SoundAssociation.class.equals(content.modelType) ? Content.TRACKS.request() : Content.USERS.request();
+
+        return api.readListFromIds(request, ids);
+    }
+
+    private BaseDAO<ScResource> getDaoForContent(final Content content) {
+        return new BaseDAO<ScResource>(mResolver) {
+            @Override
+            public Content getContent() {
+                return content;
+            }
+        };
     }
 }

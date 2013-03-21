@@ -353,12 +353,11 @@ public class ApiSyncer {
                 break;
             case ME_FRIENDS:
                 // sync all friends. It is the only way ordering works properly
-                added = SoundCloudApplication.MODEL_MANAGER.fetchMissingCollectionItems(
+                added = mCollectionStorage.fetchAndStoreMissingCollectionItems(
                         mApi,
                         remote,
                         Content.USERS,
-                        false,
-                        -1
+                        false
                 );
                 break;
         }

@@ -4,17 +4,12 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.cache.ModelCache;
-import com.soundcloud.android.dao.BaseDAO;
-import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.UriUtils;
-import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +28,7 @@ public class ScModelManager {
         mResolver = c.getContentResolver();
     }
 
-    public Track getCachedTrackFromCursor(Cursor cursor){
+    public Track getCachedTrackFromCursor(Cursor cursor) {
         return getCachedTrackFromCursor(cursor, DBHelper.Sounds._ID);
     }
 
@@ -67,7 +62,7 @@ public class ScModelManager {
     }
 
     public User getCachedUserFromCursor(Cursor cursor) {
-        return getCachedUserFromCursor(cursor,DBHelper.SoundView.USER_ID);
+        return getCachedUserFromCursor(cursor, DBHelper.SoundView.USER_ID);
     }
 
     public User getCachedUserFromCursor(Cursor cursor, String col) {
@@ -102,7 +97,7 @@ public class ScModelManager {
         }
         if (itemsCursor != null) itemsCursor.close();
 
-        return  (List<T>) items;
+        return (List<T>) items;
     }
 
     private User getUserFromCursor(Cursor itemsCursor) {
@@ -116,38 +111,50 @@ public class ScModelManager {
     }
 
 
-    public @Nullable Playlist getPlaylist(Uri uri) {
+    public
+    @Nullable
+    Playlist getPlaylist(Uri uri) {
         return (Playlist) getModel(uri);
     }
 
-    public @Nullable void removeFromCache(Uri uri) {
+    public
+    @Nullable
+    void removeFromCache(Uri uri) {
         final ModelCache cacheFromUri = getCacheFromUri(uri);
-        if (cacheFromUri != null){
+        if (cacheFromUri != null) {
             cacheFromUri.remove(UriUtils.getLastSegmentAsLong(uri));
         }
     }
 
-    public @Nullable
+    public
+    @Nullable
     ModelCache getCacheFromUri(Uri uri) {
-        switch (Content.match(uri)){
-            case TRACK:     return mTrackCache;
-            case USER:      return mUserCache;
-            case PLAYLIST:  return mPlaylistCache;
+        switch (Content.match(uri)) {
+            case TRACK:
+                return mTrackCache;
+            case USER:
+                return mUserCache;
+            case PLAYLIST:
+                return mPlaylistCache;
         }
         return null;
     }
 
-    public @Nullable ScModel getModel(Uri uri) {
+    public
+    @Nullable
+    ScModel getModel(Uri uri) {
         return getModel(uri, getCacheFromUri(uri));
     }
 
     /**
      * Gets a resource from local storage, optionally from a cache if one is provided
-     * @param uri resource lookup uri {@link Content}
+     *
+     * @param uri   resource lookup uri {@link Content}
      * @param cache optional cache to lookup object in and cache to
      * @return the resource found, or null if no resource found
      */
-    @Nullable ScModel getModel(Uri uri, @Nullable ModelCache cache) {
+    @Nullable
+    ScModel getModel(Uri uri, @Nullable ModelCache cache) {
         ScModel resource = null;
 
         if (cache != null) resource = cache.get(UriUtils.getLastSegmentAsLong(uri));
@@ -172,7 +179,9 @@ public class ScModelManager {
         return resource;
     }
 
-    public @Nullable Track getTrack(long id) {
+    public
+    @Nullable
+    Track getTrack(long id) {
         if (id < 0) return null;
 
         Track t = mTrackCache.get(id);
@@ -183,28 +192,32 @@ public class ScModelManager {
         return t;
     }
 
-    public @Nullable User getUser(long id) {
-            if (id < 0) return null;
+    public
+    @Nullable
+    User getUser(long id) {
+        if (id < 0) return null;
 
-            User u = mUserCache.get(id);
-            if (u == null) {
-                u = (User) getModel(Content.USER.forId(id));
-                if (u != null) mUserCache.put(u);
-            }
-            return u;
+        User u = mUserCache.get(id);
+        if (u == null) {
+            u = (User) getModel(Content.USER.forId(id));
+            if (u != null) mUserCache.put(u);
         }
+        return u;
+    }
 
 
-        public @Nullable Playlist getPlaylist(long id) {
-            if (id < 0) return null;
+    public
+    @Nullable
+    Playlist getPlaylist(long id) {
+        if (id < 0) return null;
 
-            Playlist p = mPlaylistCache.get(id);
-            if (p == null) {
-                p = (Playlist) getModel(Content.PLAYLIST.forId(id));
-                if (p != null) mPlaylistCache.put(p);
-            }
-            return p;
+        Playlist p = mPlaylistCache.get(id);
+        if (p == null) {
+            p = (Playlist) getModel(Content.PLAYLIST.forId(id));
+            if (p != null) mPlaylistCache.put(p);
         }
+        return p;
+    }
 
 
     public Track getCachedTrack(long id) {
@@ -259,21 +272,21 @@ public class ScModelManager {
         }
     }
 
-    public Playlist cache(@Nullable Playlist playlist, ScResource.CacheUpdateMode updateMode){
+    public Playlist cache(@Nullable Playlist playlist, ScResource.CacheUpdateMode updateMode) {
         if (playlist == null) return null;
 
-        if (playlist.user != null){
+        if (playlist.user != null) {
             playlist.user = cache(playlist.user, updateMode);
         }
 
-        if (playlist.tracks != null){
-            for (int i = 0; i < playlist.tracks.size(); i++){
-                playlist.tracks.set(i, cache(playlist.tracks.get(i),updateMode));
+        if (playlist.tracks != null) {
+            for (int i = 0; i < playlist.tracks.size(); i++) {
+                playlist.tracks.set(i, cache(playlist.tracks.get(i), updateMode));
             }
         }
 
-        if (mPlaylistCache.containsKey(playlist.id)){
-            if (updateMode.shouldUpdate()){
+        if (mPlaylistCache.containsKey(playlist.id)) {
+            if (updateMode.shouldUpdate()) {
                 return mPlaylistCache.get(playlist.id).updateFrom(playlist, updateMode);
             } else {
                 return mPlaylistCache.get(playlist.id);
@@ -340,38 +353,6 @@ public class ScModelManager {
         return playlist;
     }
 
-    /**
-     * @param modelIds     a list of model ids
-     * @param ignoreStored if it should ignore stored ids
-     * @return a list of models which are not stored in the database
-     * @throws java.io.IOException
-     */
-    public int fetchMissingCollectionItems(AndroidCloudAPI api,
-                                           List<Long> modelIds,
-                                           final Content content,
-                                           boolean ignoreStored, int maxToFetch) throws IOException {
-
-        if (modelIds == null || modelIds.isEmpty()) return 0;
-        BaseDAO<ScResource> dao = new BaseDAO<ScResource>(mResolver) {
-            @Override
-            public Content getContent() {
-                return content;
-            }
-        };
-        // copy so we don't modify the original
-        List<Long> ids = new ArrayList<Long>(modelIds);
-        if (!ignoreStored) {
-            ids.removeAll(dao.getStoredIds(modelIds));
-        }
-
-        List<Long> fetchIds = (maxToFetch > -1) ? ids.subList(0, Math.min(ids.size(), maxToFetch)) : ids;
-
-        // XXX this has to be abstracted more. Hesitant to do so until the api is more final
-        Request request = Track.class.equals(content.modelType) ||
-               SoundAssociation.class.equals(content.modelType) ? Content.TRACKS.request() : Content.USERS.request();
-
-        return dao.create(api.readListFromIds(request, fetchIds));
-    }
 
 
     public void clear() {
