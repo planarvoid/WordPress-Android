@@ -1,6 +1,8 @@
 package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.AndroidCloudAPI.NotFoundException;
+import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
+import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
 import static com.soundcloud.android.model.SoundAssociation.Type;
 
 import com.soundcloud.android.AndroidCloudAPI;
@@ -14,7 +16,6 @@ import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
@@ -23,7 +24,6 @@ import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -65,6 +65,7 @@ public class ApiSyncer {
     private final ActivitiesStorage mActivitiesStorage;
     private final PlaylistStorage mPlaylistStorage;
     private final SoundAssociationDAO mSoundAssociationDAO;
+    private final CollectionStorage mCollectionStorage;
 
 
     public ApiSyncer(Context context) {
@@ -75,6 +76,7 @@ public class ApiSyncer {
         mActivitiesStorage = new ActivitiesStorage(mResolver);
         mPlaylistStorage = new PlaylistStorage(mResolver);
         mSoundAssociationDAO = new SoundAssociationDAO(mResolver);
+        mCollectionStorage = new CollectionStorage(mResolver);
     }
 
     public @NotNull Result syncContent(Uri uri, String action) throws IOException {
@@ -125,11 +127,6 @@ public class ApiSyncer {
                 case ME_PLAYLISTS:
                     result = syncMyPlaylists();
                     break;
-
-                case PLAYLIST_TRACKS:
-                    result = fetchAndInsertCollectionToUri(uri, userId);
-                    break;
-
                 case TRACK:
                 case USER:
                     result = doResourceFetchAndInsert(uri);
@@ -326,7 +323,7 @@ public class ApiSyncer {
         Result result = new Result(content.uri);
         if (!Content.ID_BASED.contains(content)) return result;
 
-        List<Long> local  = SoundCloudApplication.MODEL_MANAGER.getLocalIds(content, userId, -1, -1);
+        List<Long> local  = mCollectionStorage.getLocalIds(content, userId, -1, -1);
         List<Long> remote = mApi.readFullCollection(Request.to(content.remoteUri + "/ids"), IdHolder.class);
 
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
@@ -346,7 +343,7 @@ public class ApiSyncer {
                         .add(Wrapper.LINKED_PARTITIONING, "1")
                         .add("limit", Consts.COLLECTION_PAGE_SIZE));
 
-                added = SoundCloudDB.insertCollection(mResolver, resources, content.uri, userId);
+                added = mCollectionStorage.insertCollection(resources, content.uri, userId);
 
                 // remove items from master remote list and adjust start index
                 for (ScResource u : resources) {
@@ -356,12 +353,11 @@ public class ApiSyncer {
                 break;
             case ME_FRIENDS:
                 // sync all friends. It is the only way ordering works properly
-                added = SoundCloudApplication.MODEL_MANAGER.fetchMissingCollectionItems(
+                added = mCollectionStorage.fetchAndStoreMissingCollectionItems(
                         mApi,
                         remote,
                         Content.USERS,
-                        false,
-                        -1
+                        false
                 );
                 break;
         }
@@ -379,6 +375,7 @@ public class ApiSyncer {
         mResolver.bulkInsert(content.uri, cv);
         return result;
     }
+
 
     private boolean checkUnchanged(Content content, Result result, List<Long> local, List<Long> remote) {
         switch (content) {
@@ -409,18 +406,13 @@ public class ApiSyncer {
     private List<Long> handleDeletions(Content content, List<Long> local, List<Long> remote) {
         // This only works when items are unique in a collection, fine for now
         List<Long> itemDeletions = new ArrayList<Long>(local);
+
         itemDeletions.removeAll(remote);
         if (!itemDeletions.isEmpty()) {
             log("Need to remove " + itemDeletions.size() + " items");
-            int i = 0;
-            while (i < itemDeletions.size()) {
-                List<Long> batch = itemDeletions.subList(i, Math.min(i + ScModelManager.RESOLVER_BATCH_SIZE, itemDeletions.size()));
-                mResolver.delete(content.uri,
-                        ResolverHelper.getWhereInClause(DBHelper.CollectionItems.ITEM_ID, batch.size()),
-                        ResolverHelper.longListToStringArr(batch));
-
-                i += ScModelManager.RESOLVER_BATCH_SIZE;
-            }
+            mResolver.delete(content.uri,
+                getWhereInClause(DBHelper.CollectionItems.ITEM_ID, itemDeletions.size()),
+                longListToStringArr(itemDeletions));
         }
         return itemDeletions;
     }
@@ -608,28 +600,6 @@ public class ApiSyncer {
         result.setSyncData(true, System.currentTimeMillis(), resources.size(), Result.CHANGED);
         return result;
     }
-
-
-    /**
-     * Fetch Api Resources and create them into the content provider using a specific content uri
-     * that may require special handling in {@link SoundCloudDB#insertCollection(ContentResolver, List, Uri, long)}
-     * @param uri contentUri to create to
-     * @param userId logged in user (only used in associations, e.g. followers)
-     * @return the result of the operation
-     * @throws IOException
-     */
-    private Result fetchAndInsertCollectionToUri(Uri uri, long userId) throws IOException {
-           Result result = new Result(uri);
-           log("fetchAndInsertCollectionToUri(" + uri + ")");
-
-        Request request = Content.match(uri).request(uri);
-        List<ScResource> resources = mApi.readFullCollection(request, ScResource.ScResourceHolder.class);
-        SoundCloudDB.insertCollection(mResolver, resources, uri, userId);
-
-        result.setSyncData(true, System.currentTimeMillis(), resources.size(), Result.CHANGED);
-        return result;
-       }
-
 
     public static class Result {
         public static final int UNCHANGED = 0;

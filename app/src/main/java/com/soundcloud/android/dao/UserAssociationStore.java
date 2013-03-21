@@ -14,8 +14,13 @@ public class UserAssociationStore {
     }
 
     public List<Long> getStoredIds(Uri uri) {
-        return ResolverHelper.idCursorToList(mResolver.query(
-                uri.buildUpon().appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY, "1").build(),
-                null, null, null, null));
+        return ResolverHelper.idCursorToList(
+            mResolver.query(
+            uri.buildUpon().appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY, "1").build(),
+            null,
+            null,
+            null,
+            null)
+        );
     }
 }

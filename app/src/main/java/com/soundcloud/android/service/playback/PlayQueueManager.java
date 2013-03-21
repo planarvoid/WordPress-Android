@@ -10,13 +10,12 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.dao.PlayQueueManagerDAO;
+import com.soundcloud.android.dao.PlayQueueManagerStore;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
@@ -28,6 +27,7 @@ import java.util.List;
 public class PlayQueueManager {
     private List<Track> mPlayQueue = new ArrayList<Track>();
     private PlayQueueUri mPlayQueueUri = new PlayQueueUri();
+    private final PlayQueueManagerStore mPlayQueueDAO;
 
     private int mPlayPos;
     private final Context mContext;
@@ -38,6 +38,8 @@ public class PlayQueueManager {
     public PlayQueueManager(Context context, long userId) {
         mContext = context;
         mUserId = userId;
+        mPlayQueueDAO = new PlayQueueManagerStore(mContext.getContentResolver());
+
     }
     public int length() {
         return mPlayQueue.size();
@@ -211,7 +213,7 @@ public class PlayQueueManager {
                     int adjustedPosition = -1;
                     if (t != null && t.id != playingId) {
                         if (Content.match(uri).isCollectionItem()){
-                            adjustedPosition = PlayQueueManagerDAO.getPlayQueuePositionFromUri(mContext.getContentResolver(), uri, playingId);
+                            adjustedPosition = mPlayQueueDAO.getPlayQueuePositionFromUri(uri, playingId);
                         } else {
                             /* adjust for deletions or new items. find the original track
                              this is a really dumb sequential search. If there are duplicates in the list, it will probably
@@ -259,12 +261,8 @@ public class PlayQueueManager {
         new ParallelAsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                final List<Track> tracks = new ArrayList<Track>();
-                for (Track item : mPlayQueue){
-                    tracks.add(item);
-                }
-
-                SoundCloudDB.insertCollection(mContext.getContentResolver(), tracks, Content.PLAY_QUEUE.uri, mUserId);
+                final List<Track> tracks = new ArrayList<Track>(mPlayQueue);
+                mPlayQueueDAO.insertQueue(tracks, mUserId);
                 return null;
             }
         }.executeOnThreadPool((Void[]) null);
@@ -339,7 +337,7 @@ public class PlayQueueManager {
                 loadUri(playQueueUri.uri, playQueueUri.getPos(), t);
                 // adjust play position if it has changed
                 if (getCurrentTrack() != null && getCurrentTrack().id != trackId && playQueueUri.isCollectionUri()) {
-                    final int newPos = PlayQueueManagerDAO.getPlayQueuePositionFromUri(mContext.getContentResolver(), playQueueUri.uri, trackId);
+                    final int newPos = mPlayQueueDAO.getPlayQueuePositionFromUri(playQueueUri.uri, trackId);
                     if (newPos == -1) seekPos = 0;
                     setPosition(Math.max(newPos, 0));
                 }
@@ -351,11 +349,9 @@ public class PlayQueueManager {
     }
 
     public static void clearState(Context context) {
-        PlayQueueManagerDAO.clearState(context.getContentResolver());
-        PlayQueueManager.clearLastPlayed(context);
+        new PlayQueueManagerStore(context.getContentResolver()).clearState();
+        clearLastPlayed(context);
     }
-
-
 
     public static void clearLastPlayed(Context context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit()

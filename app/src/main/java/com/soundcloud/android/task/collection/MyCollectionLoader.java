@@ -4,10 +4,9 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dao.CollectionStorage;
 import com.soundcloud.android.dao.UserAssociationStore;
-import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.provider.SoundCloudDB;
 
 import android.content.ContentResolver;
 import android.util.Log;
@@ -41,7 +40,7 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
 
                 // if we already have all the data, this is a NOP
                 try {
-                    SoundCloudApplication.MODEL_MANAGER.fetchMissingCollectionItems(api, storedIds, params.getContent(), false, -1);
+                    new CollectionStorage(resolver).fetchAndStoreMissingCollectionItems(api, storedIds, params.getContent(), false);
                 } catch (CloudAPI.InvalidTokenException e) {
                     // TODO, move this once we centralize our error handling
                     // InvalidTokenException should expose the response code so we don't have to hardcode it here
