@@ -10,8 +10,9 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.ScFunctions;
 import com.soundcloud.android.rx.event.Event;
-import com.soundcloud.android.rx.schedulers.PlaylistTracksScheduler;
-import com.soundcloud.android.rx.schedulers.PlaylistsScheduler;
+import com.soundcloud.android.rx.schedulers.LoadPlaylistStrategy;
+import com.soundcloud.android.rx.schedulers.LoadPlaylistTracksStrategy;
+import com.soundcloud.android.rx.schedulers.SyncManager;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyListView;
@@ -34,9 +35,9 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
 
     private Playlist mPlaylist;
 
-    private PlaylistsScheduler mPlaylistsScheduler;
-    private PlaylistTracksScheduler mTracksScheduler;
+    private LoadPlaylistTracksStrategy mTracksStorage;
     private PlaylistObserver mPlaylistObserver;
+    private SyncManager<Playlist> mSyncManager;
 
     private Observable<List<Track>> mLoadTracks;
     private Subscription mTrackAssocChangedSubscription;
@@ -60,19 +61,19 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
 
         mPlaylist = Playlist.fromBundle(getArguments());
 
-        mPlaylistsScheduler = new PlaylistsScheduler(getActivity());
-        mTracksScheduler = new PlaylistTracksScheduler(getActivity());
+        mTracksStorage = new LoadPlaylistTracksStrategy(getActivity());
+        mSyncManager = new SyncManager<Playlist>(getActivity(), new LoadPlaylistStrategy(getActivity()));
         mPlaylistObserver = new PlaylistObserver();
 
-        mLoadTracks = mTracksScheduler.loadFromLocalStorage(mPlaylist.getId());
+        mLoadTracks = mTracksStorage.loadFromContentUri(mPlaylist.toUri());
 
         mTrackAssocChangedSubscription = Event.anyOf(Event.LIKE_CHANGED, Event.REPOST_CHANGED).subscribe(mLoadTracks, mLoadItemsObserver);
 
         // since we need to sync the playlist first, but the list fragment is modeled around a playlist's tracks,
         // so we need to map the sync operation to return the playlist's tracks first
         if (savedInstanceState == null) {
-            mTracksScheduler.addPendingObservable(
-                    mPlaylistsScheduler.syncIfNecessary(mPlaylist).map(ScFunctions.PLAYLIST_OBS_TO_TRACKS_OBS));
+            mScheduler.addPendingObservable(
+                    mSyncManager.syncIfNecessary(mPlaylist.toUri()).map(ScFunctions.PLAYLIST_OBS_TO_TRACKS_OBS));
         }
     }
 
@@ -106,11 +107,6 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
     }
 
     @Override
-    protected PlaylistTracksScheduler getListItemsScheduler() {
-        return mTracksScheduler;
-    }
-
-    @Override
     protected Observable<List<Track>> getListItemsObservable() {
         return mLoadTracks;
     }
@@ -128,8 +124,8 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
     public void onRefresh(PullToRefreshBase refreshView) {
         super.onRefresh(refreshView);
         // sync the playlist, then reload its tracks and update the synced playlist instance
-        Observable.zip(mPlaylistsScheduler.syncNow(mPlaylist),
-                       mTracksScheduler.loadFromLocalStorage(mPlaylist.getId()),
+        Observable.zip(mSyncManager.syncNow(mPlaylist.toUri()),
+                       mTracksStorage.loadFromContentUri(mPlaylist.toUri()),
                        ScFunctions.FOLD_TRACKS_INTO_PLAYLIST)
                 .subscribe(mPlaylistObserver);
     }

@@ -4,6 +4,7 @@ import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.rx.observers.DetachableObserver;
+import com.soundcloud.android.utils.Log;
 import rx.Observable;
 
 import android.content.ContentResolver;
@@ -14,18 +15,17 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class ActivitiesScheduler extends SyncingScheduler<List<Activity>> {
+public class LoadActivitiesStrategy implements SyncManager.LocalStorageStrategy<List<Activity>> {
 
     private final ActivitiesStorage mStorage;
 
-    public ActivitiesScheduler(Context context) {
-        super(context);
+    public LoadActivitiesStrategy(Context context) {
         ContentResolver resolver = context.getContentResolver();
         mStorage = new ActivitiesStorage(resolver);
     }
 
     public Observable<List<Activity>> loadActivitiesSince(final Uri contentUri, final long timestamp) {
-        return Observable.create(newBackgroundJob(new ObservedRunnable<List<Activity>>() {
+        return Observable.create(ReactiveScheduler.newBackgroundJob(new ObservedRunnable<List<Activity>>() {
             @Override
             protected void run(DetachableObserver<List<Activity>> observer) {
                 log("Loading activities since " + timestamp);
@@ -47,7 +47,7 @@ public class ActivitiesScheduler extends SyncingScheduler<List<Activity>> {
     }
 
     public Observable<Activities> loadActivitiesBefore(final Uri contentUri, final long timestamp, final int limit) {
-        return Observable.create(newBackgroundJob(new ObservedRunnable<Activities>() {
+        return Observable.create(ReactiveScheduler.newBackgroundJob(new ObservedRunnable<Activities>() {
             @Override
             protected void run(DetachableObserver<Activities> observer) {
                 // TODO: remove possibility of NULL, throw and propagate exception instead
@@ -61,19 +61,13 @@ public class ActivitiesScheduler extends SyncingScheduler<List<Activity>> {
         }));
     }
 
+    protected void log(String msg) {
+        Log.d(this, msg + " (thread: " + Thread.currentThread().getName() + ")");
+    }
+
     @Override
-    public Observable<List<Activity>> loadFromLocalStorage(Uri contentUri) {
+    public Observable<List<Activity>> loadFromContentUri(Uri contentUri) {
         return loadActivitiesSince(contentUri, 0);
-    }
-
-    @Override
-    public Observable<List<Activity>> loadFromLocalStorage(long id) {
-        throw new UnsupportedOperationException("Activities must still be loaded using content URIs");
-    }
-
-    @Override
-    protected List<Activity> emptyResult() {
-        return Collections.emptyList();
     }
 
 //    public ScObservables.ConditionalObservable<Activities> pagingRequest(final Uri contentUri, final long since, final int limit) {

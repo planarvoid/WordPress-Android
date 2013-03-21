@@ -1,13 +1,8 @@
 package com.soundcloud.android.fragment;
 
-import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.IScAdapter;
-import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.SoundAssociationAdapter;
-import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.rx.schedulers.ReactiveScheduler;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 
@@ -45,11 +40,6 @@ public class SoundsFragment extends ReactiveListFragment<ScResource> {
 
     @Override
     protected void configureEmptyListView(EmptyListView emptyView) {
-    }
-
-    @Override
-    protected ReactiveScheduler<List<ScResource>> getListItemsScheduler() {
-        return null;
     }
 
     @Override

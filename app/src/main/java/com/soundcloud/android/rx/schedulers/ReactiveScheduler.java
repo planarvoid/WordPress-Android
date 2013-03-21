@@ -2,7 +2,6 @@ package com.soundcloud.android.rx.schedulers;
 
 import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.rx.ScObservables;
-import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
@@ -15,16 +14,20 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public abstract class ReactiveScheduler<T> {
+public class ReactiveScheduler<T> {
+
+    private static final ExecutorService sExecutor;
+
+    static {
+        sExecutor = Executors.newSingleThreadExecutor();
+    }
 
     protected Context mContext;
-    protected ExecutorService mExecutor;
 
     private List<Observable<Observable<T>>> mPendingObservables;
 
     public ReactiveScheduler(Context context) {
         mContext = context.getApplicationContext();
-        mExecutor = Executors.newSingleThreadExecutor();
         mPendingObservables = new ArrayList<Observable<Observable<T>>>();
     }
 
@@ -58,18 +61,12 @@ public abstract class ReactiveScheduler<T> {
         return schedulePendingObservables(observer, 1);
     }
 
-    protected <T> BackgroundJob<T> newBackgroundJob(final ObservedRunnable<T> runnable) {
-        return new BackgroundJob<T>(runnable, mExecutor);
+    public static <T> BackgroundJob<T> newBackgroundJob(final ObservedRunnable<T> runnable) {
+        return new BackgroundJob<T>(runnable, sExecutor);
     }
 
-    protected <T> BackgroundJob<T> newBackgroundJob(final ObservedRunnable<T> runnable, final Subscription subscription) {
-        return new BackgroundJob<T>(runnable, mExecutor, subscription);
-    }
-
-    public abstract Observable<T> loadFromLocalStorage(final long id);
-
-    protected void log(String msg) {
-        Log.d(this, msg + " (thread: " + Thread.currentThread().getName() + ")");
+    public static <T> BackgroundJob<T> newBackgroundJob(final ObservedRunnable<T> runnable, final Subscription subscription) {
+        return new BackgroundJob<T>(runnable, sExecutor, subscription);
     }
 
 }

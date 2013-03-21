@@ -5,6 +5,7 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.rx.ScObservables;
 import com.soundcloud.android.rx.observers.DetachableObserver;
 import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
@@ -18,14 +19,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
-public abstract class SyncingScheduler<T> extends ReactiveScheduler<T> {
+public class SyncManager<T> {
 
+    private final Context mContext;
+    private final LocalStorageStrategy<T> mLocalStorage;
     private final LocalCollectionDAO mLocalCollectionsDao; //TODO: replace with storage facade
 
-    public SyncingScheduler(Context context) {
-        super(context);
-        ContentResolver resolver = context.getContentResolver();
-        mLocalCollectionsDao = new LocalCollectionDAO(resolver);
+    public SyncManager(Context context, LocalStorageStrategy<T> localStorageStrategy) {
+        mContext = context.getApplicationContext();
+        mLocalStorage = localStorageStrategy;
+        mLocalCollectionsDao = new LocalCollectionDAO(context.getContentResolver());
     }
 
     public Observable<Observable<T>> syncIfNecessary(final Uri contentUri) {
@@ -33,7 +36,7 @@ public abstract class SyncingScheduler<T> extends ReactiveScheduler<T> {
     }
 
     public Observable<Observable<T>> syncIfNecessary(final Uri contentUri, final Observable<T> syncAction) {
-        return Observable.create(newBackgroundJob(new ObservedRunnable<Observable<T>>() {
+        return Observable.create(ReactiveScheduler.newBackgroundJob(new ObservedRunnable<Observable<T>>() {
             @Override
             public void run(DetachableObserver<Observable<T>> observer) {
                 LocalCollection mLocalCollection = mLocalCollectionsDao.fromContentUri(contentUri, true);
@@ -90,7 +93,7 @@ public abstract class SyncingScheduler<T> extends ReactiveScheduler<T> {
                     case ApiSyncService.STATUS_SYNC_FINISHED: {
                         log("Sync successful!");
 
-                        T result = loadFromLocalStorage(contentUri).last();
+                        T result = mLocalStorage.loadFromContentUri(contentUri).last();
                         observer.onNext(result);
 
                         break;
@@ -105,8 +108,12 @@ public abstract class SyncingScheduler<T> extends ReactiveScheduler<T> {
         });
     }
 
-    @Deprecated
-    public abstract Observable<T> loadFromLocalStorage(final Uri contentUri);
+    protected void log(String msg) {
+        Log.d(this, msg + " (thread: " + Thread.currentThread().getName() + ")");
+    }
 
-    protected abstract T emptyResult();
+    public static interface LocalStorageStrategy<T> {
+        @Deprecated
+        Observable<T> loadFromContentUri(final Uri contentUri);
+    }
 }

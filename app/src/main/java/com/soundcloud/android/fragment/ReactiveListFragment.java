@@ -38,6 +38,7 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
         }
     };
 
+    protected ReactiveScheduler<List<T>> mScheduler;
     protected ContextObserver<List<T>> mLoadItemsObserver;
     protected Subscription mLoadItemsSubscription;
 
@@ -52,6 +53,7 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
         Log.d(this, "onCreate");
 
         mAdapter = newAdapter();
+        mScheduler = new ReactiveScheduler<List<T>>(getActivity());
         mLoadItemsObserver = new ContextObserver<List<T>>(new LoadItemsObserver());
     }
 
@@ -80,20 +82,17 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
 
         Log.d(this, "onStart");
 
-        ReactiveScheduler<List<T>> scheduler = getListItemsScheduler();
         // TODO: this fires when the adapter is empty because the user simply has no sounds, but shouldn't.
         if (mAdapter.isEmpty()) {
             Log.d(this, "Adapter is empty, scheduling possible local refresh");
-            scheduler.addPendingObservable(pending(getListItemsObservable()));
+            mScheduler.addPendingObservable(pending(getListItemsObservable()));
         }
 
-        if (scheduler.hasPendingObservables()) {
-            mLoadItemsSubscription = scheduler.scheduleFirstPendingObservable(mLoadItemsObserver);
+        if (mScheduler.hasPendingObservables()) {
+            mLoadItemsSubscription = mScheduler.scheduleFirstPendingObservable(mLoadItemsObserver);
             showProgressSpinner();
         }
     }
-
-    protected abstract ReactiveScheduler<List<T>> getListItemsScheduler();
 
     protected abstract Observable<List<T>> getListItemsObservable();
 
