@@ -21,9 +21,9 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
+import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -341,7 +341,7 @@ public class ApiSyncer {
                         .add(Wrapper.LINKED_PARTITIONING, "1")
                         .add("limit", Consts.COLLECTION_PAGE_SIZE));
 
-                added = SoundCloudDB.insertCollection(mResolver, resources, content.uri, userId);
+                added = insertCollection(resources, content.uri, userId);
 
                 // remove items from master remote list and adjust start index
                 for (ScResource u : resources) {
@@ -373,6 +373,27 @@ public class ApiSyncer {
         }
         mResolver.bulkInsert(content.uri, cv);
         return result;
+    }
+
+    public int insertCollection(@NotNull List<? extends ScResource> resources,
+                                @NotNull Uri collectionUri,
+                                long ownerId) {
+        if (ownerId < 0) throw new IllegalArgumentException("need valid ownerId for collection");
+
+        BulkInsertMap map = new BulkInsertMap();
+        for (int i = 0; i < resources.size(); i++) {
+            ScResource r = resources.get(i);
+            if (r == null) continue;
+
+            r.putFullContentValues(map);
+            ContentValues contentValues = new ContentValues();
+
+            contentValues.put(DBHelper.CollectionItems.POSITION, i);
+            contentValues.put(DBHelper.CollectionItems.ITEM_ID, r.id);
+            contentValues.put(DBHelper.CollectionItems.USER_ID, ownerId);
+            map.add(collectionUri, contentValues);
+        }
+        return map.insert(mResolver);
     }
 
     private boolean checkUnchanged(Content content, Result result, List<Long> local, List<Long> remote) {

@@ -10,13 +10,12 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.dao.PlayQueueManagerDAO;
+import com.soundcloud.android.dao.PlayQueueManagerStore;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
@@ -28,7 +27,7 @@ import java.util.List;
 public class PlayQueueManager {
     private List<Track> mPlayQueue = new ArrayList<Track>();
     private PlayQueueUri mPlayQueueUri = new PlayQueueUri();
-    private final PlayQueueManagerDAO mPlayQueueDAO;
+    private final PlayQueueManagerStore mPlayQueueDAO;
 
     private int mPlayPos;
     private final Context mContext;
@@ -39,7 +38,7 @@ public class PlayQueueManager {
     public PlayQueueManager(Context context, long userId) {
         mContext = context;
         mUserId = userId;
-        mPlayQueueDAO = new PlayQueueManagerDAO(mContext.getContentResolver());
+        mPlayQueueDAO = new PlayQueueManagerStore(mContext.getContentResolver());
 
     }
     public int length() {
@@ -350,7 +349,7 @@ public class PlayQueueManager {
     }
 
     public static void clearState(Context context) {
-        new PlayQueueManagerDAO(context.getContentResolver()).clearState();
+        new PlayQueueManagerStore(context.getContentResolver()).clearState();
         clearLastPlayed(context);
     }
 

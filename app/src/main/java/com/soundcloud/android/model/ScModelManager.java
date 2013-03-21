@@ -11,7 +11,6 @@ import com.soundcloud.android.dao.BaseDAO;
 import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;

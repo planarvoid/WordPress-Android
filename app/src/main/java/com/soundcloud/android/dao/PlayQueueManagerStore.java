@@ -1,20 +1,22 @@
 package com.soundcloud.android.dao;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.SoundCloudDB;
 
 import java.util.List;
 
-public class PlayQueueManagerDAO {
+public class PlayQueueManagerStore {
     private final ContentResolver mResolver;
+    private final TrackDAO mTrackDAO;
 
-    public PlayQueueManagerDAO(ContentResolver resolver) {
+    public PlayQueueManagerStore(ContentResolver resolver) {
         mResolver = resolver;
+        mTrackDAO = new TrackDAO(resolver);
     }
 
     public void clearState() {
@@ -38,6 +40,16 @@ public class PlayQueueManagerDAO {
     }
 
     public void insertQueue(List<Track> tracks, long userId) {
-        SoundCloudDB.insertCollection(mResolver, tracks, Content.PLAY_QUEUE.uri, userId);
+        mTrackDAO.create(tracks);
+        ContentValues[] contentValues = new ContentValues[tracks.size()];
+        for (int i=0; i<tracks.size(); i++) {
+            ContentValues cv = new ContentValues();
+            cv.put(DBHelper.PlayQueue.POSITION, i);
+            cv.put(DBHelper.PlayQueue.TRACK_ID, tracks.get(i).getId());
+            cv.put(DBHelper.CollectionItems.USER_ID, userId);
+
+            contentValues[i] = cv;
+        }
+        mResolver.bulkInsert(Content.PLAY_QUEUE.uri, contentValues);
     }
 }

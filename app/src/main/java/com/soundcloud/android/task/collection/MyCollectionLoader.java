@@ -5,9 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.UserAssociationStore;
-import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.provider.SoundCloudDB;
 
 import android.content.ContentResolver;
 import android.util.Log;

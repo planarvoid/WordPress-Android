@@ -8,7 +8,6 @@ import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.dao.BaseDAO;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.api.Request;
