@@ -5,7 +5,6 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Creation;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Refreshable;
@@ -35,7 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter implements IScAdapter {
+public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter implements IScAdapter<T> {
     protected Context mContext;
     protected Content mContent;
     protected Uri mContentUri;
@@ -137,6 +136,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     protected abstract View createRow(int position);
 
+    @Override
     public void clearData() {
         mData.clear();
         mPage = 0;
@@ -183,6 +183,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         return !mIsLoadingData && lastItemReached;
     }
 
+    @Override
     public void addItems(List<T> newItems) {
         mData.addAll(newItems);
     }
@@ -267,9 +268,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
             task.executeOnThreadPool("representation", "compact");
         }
     }
-
-    //TODO: item click handling does NOT belong in an adapter...
-    public abstract int handleListItemClick(int position, long id);
 
     public interface ItemClickResults {
         int IGNORE = 0;

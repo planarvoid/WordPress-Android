@@ -11,7 +11,7 @@ import com.soundcloud.android.view.quickaction.QuickTrackMenu;
 import android.content.Context;
 import android.net.Uri;
 
-public class DefaultPlayableAdapter extends ScBaseAdapter<Playable> implements PlayableAdapter {
+public class DefaultPlayableAdapter extends ScBaseAdapter<Playable> {
     private QuickAction mQuickActionMenu;
 
     public DefaultPlayableAdapter(Context context, Uri uri) {
@@ -31,17 +31,8 @@ public class DefaultPlayableAdapter extends ScBaseAdapter<Playable> implements P
 
     @Override
     public int handleListItemClick(int position, long id) {
-        PlayUtils.playFromAdapter(mContext, this, mData, position);
+        Uri streamUri = mContent.isMine() ? mContentUri : null;
+        PlayUtils.playFromAdapter(mContext, mData, position, streamUri);
         return ItemClickResults.LEAVING;
-    }
-
-    @Override
-    public Uri getPlayableUri() {
-        return mContent.isMine() ? mContentUri : null;
-    }
-
-    @Override
-    public Playable getPlayable(int position) {
-        return getItem(position);
     }
 }

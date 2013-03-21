@@ -4,8 +4,7 @@ import static com.soundcloud.android.rx.ScObservables.pending;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.ScBaseAdapter;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.rx.observers.ContextObserver;
 import com.soundcloud.android.rx.schedulers.ReactiveScheduler;
 import com.soundcloud.android.utils.Log;
@@ -25,7 +24,7 @@ import android.widget.AdapterView;
 
 import java.util.List;
 
-public abstract class ReactiveListFragment<T extends ScModel> extends Fragment implements PullToRefreshBase.OnRefreshListener,
+public abstract class ReactiveListFragment<T> extends Fragment implements PullToRefreshBase.OnRefreshListener,
         AdapterView.OnItemClickListener {
 
     private static final int PROGRESS_DELAY_MILLIS = 250;
@@ -44,7 +43,7 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
 
     protected ScListView mListView;
     protected EmptyListView mEmptyView;
-    protected ScBaseAdapter<T> mAdapter;
+    protected IScAdapter<T> mAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,7 +55,7 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
         mLoadItemsObserver = new ContextObserver<List<T>>(new LoadItemsObserver());
     }
 
-    protected abstract ScBaseAdapter<T> newAdapter();
+    protected abstract IScAdapter<T> newAdapter();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -127,7 +126,7 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
         mAdapter.handleListItemClick(itemPosition, id);
     }
 
-    public ScBaseAdapter<T> getListAdapter() {
+    public IScAdapter<T> getListAdapter() {
         return mAdapter;
     }
 

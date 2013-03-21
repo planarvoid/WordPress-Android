@@ -3,8 +3,8 @@ package com.soundcloud.android.fragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.PlaylistTracksAdapter2;
-import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
@@ -77,7 +77,7 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
     }
 
     @Override
-    protected ScBaseAdapter<Track> newAdapter() {
+    protected IScAdapter<Track> newAdapter() {
         return new PlaylistTracksAdapter2(getActivity(), (Uri) getArguments().get(Playlist.EXTRA_URI));
     }
 

@@ -2,13 +2,12 @@ package com.soundcloud.android.adapter;
 
 import static com.soundcloud.android.activity.track.PlayableInteractionActivity.EXTRA_INTERACTION_TYPE;
 
-import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.track.PlaylistInteractionActivity;
 import com.soundcloud.android.activity.track.TrackInteractionActivity;
+import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activity;
@@ -30,7 +29,7 @@ import android.util.Log;
 import java.util.Collections;
 import java.util.List;
 
-public class ActivityAdapter extends ScBaseAdapter<Activity> implements PlayableAdapter {
+public class ActivityAdapter extends ScBaseAdapter<Activity> {
     private ActivitiesStorage mActivitiesStorage;
 
 
@@ -136,7 +135,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
             case TRACK_SHARING:
             case PLAYLIST:
             case PLAYLIST_SHARING:
-                PlayUtils.playFromAdapter(mContext, this, mData, position);
+                PlayUtils.playFromAdapter(mContext, mData, position, mContentUri);
                 return ItemClickResults.LEAVING;
 
             case COMMENT:
@@ -148,7 +147,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
                             .putExtra(Track.EXTRA, getItem(position).getPlayable())
                             .putExtra(EXTRA_INTERACTION_TYPE, type));
                 } else {
-                    PlayUtils.playFromAdapter(mContext, this, mData, position);
+                    PlayUtils.playFromAdapter(mContext, mData, position, mContentUri);
                 }
                 return ItemClickResults.LEAVING;
             case PLAYLIST_LIKE:
@@ -159,7 +158,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
                             .putExtra(Playlist.EXTRA, getItem(position).getPlayable())
                             .putExtra(EXTRA_INTERACTION_TYPE, type));
                 } else {
-                    PlayUtils.playFromAdapter(mContext, this, mData, position);
+                    PlayUtils.playFromAdapter(mContext, mData, position, mContentUri);
                 }
                 return ItemClickResults.LEAVING;
 
@@ -174,13 +173,4 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
         return ItemClickResults.IGNORE;
     }
 
-    @Override
-    public Uri getPlayableUri() {
-        return mContentUri;
-    }
-
-    @Override
-    public Playable getPlayable(int position) {
-        return getItem(position).getPlayable();
-    }
 }
