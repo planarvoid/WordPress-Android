@@ -17,7 +17,7 @@ import static com.soundcloud.android.AndroidCloudAPI.NotFoundException;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class FetchModelTask<Model extends ScResource> extends ParallelAsyncTask<Request, Void, Model> {
-    private AndroidCloudAPI mApi;
+    protected AndroidCloudAPI mApi;
     private Set<WeakReference<Listener<Model>>> mListenerWeakReferences;
 
     private Exception  mException;
@@ -69,7 +69,9 @@ public class FetchModelTask<Model extends ScResource> extends ParallelAsyncTask<
     public Model resolve(Request request) {
         try {
             if (isCancelled()) return null;
-            return mApi.read(request);
+            Model model = mApi.read(request);
+            persist(model);
+            return model;
         } catch (NotFoundException e) {
             return null;
         } catch (IOException e) {
@@ -77,6 +79,10 @@ public class FetchModelTask<Model extends ScResource> extends ParallelAsyncTask<
             Log.e(TAG, "error", e);
             return null;
         }
+    }
+
+    protected void persist(Model model) {
+        // TODO: this should update the local storage and set the last_updated flag
     }
 
     public boolean wasError() {

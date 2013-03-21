@@ -507,7 +507,8 @@ public class ScContentProviderTest {
         expect(Content.USERS).toHaveCount(318);
         expect(Content.TRACKS).toHaveCount(143);
 
-        User u = UserDAO.fromUri(Content.USER.forId(9), resolver, false);
+        User u = new UserDAO(resolver).queryForId(9);
+
         expect(u).not.toBeNull();
         expect(u.username).toEqual("Katharina");
         expect(u.avatar_url).toEqual("https://i1.sndcdn.com/avatars-000013690441-hohfv1-tiny.jpg?2479809");

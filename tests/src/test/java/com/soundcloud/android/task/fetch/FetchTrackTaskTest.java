@@ -46,8 +46,6 @@ public class FetchTrackTaskTest {
         expect(track[0]).not.toBeNull();
         expect(track[0].title).toEqual("recording on sunday night");
 
-        SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(track[0], ScResource.CacheUpdateMode.FULL);
-
         t = SoundCloudApplication.MODEL_MANAGER.getTrack(12345);
         expect(t).not.toBeNull();
         expect(t.title).toEqual("recording on sunday night");

@@ -478,8 +478,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private FetchModelTask.Listener<Track> mInfoListener = new FetchModelTask.Listener<Track>() {
         @Override
         public void onSuccess(Track track) {
-            track.setUpdated();
-            track = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(track, ScResource.CacheUpdateMode.FULL);
+            // TODO
+            // this used to write the track back to storage - this should happen as
+            // part of the sync/task
             sendBroadcast(new Intent(Playable.ACTION_SOUND_INFO_UPDATED)
                                         .putExtra(CloudPlaybackService.BroadcastExtras.id, track.id));
 

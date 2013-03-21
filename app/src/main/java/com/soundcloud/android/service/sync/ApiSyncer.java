@@ -66,6 +66,7 @@ public class ApiSyncer {
     private final PlaylistStorage mPlaylistStorage;
     private final SoundAssociationDAO mSoundAssociationDAO;
     private final CollectionStorage mCollectionStorage;
+    private final UserStorage mUserStorage;
 
 
     public ApiSyncer(Context context) {
@@ -77,6 +78,7 @@ public class ApiSyncer {
         mPlaylistStorage = new PlaylistStorage(mResolver);
         mSoundAssociationDAO = new SoundAssociationDAO(mResolver);
         mCollectionStorage = new CollectionStorage(mResolver);
+        mUserStorage = new UserStorage(mResolver);
     }
 
     public @NotNull Result syncContent(Uri uri, String action) throws IOException {
@@ -422,7 +424,7 @@ public class ApiSyncer {
         User user = new FetchUserTask(mApi).resolve(c.request());
         result.synced_at = System.currentTimeMillis();
         if (user != null) {
-            SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
+            mUserStorage.createOrUpdate(user);
             result.change = Result.CHANGED;
             result.success = true;
         }

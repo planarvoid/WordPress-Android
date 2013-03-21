@@ -9,6 +9,7 @@ import com.soundcloud.android.model.ModelLike;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -117,6 +118,10 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         } else {
             return null;
         }
+    }
+
+    public @Nullable T queryForUri(Uri uri) {
+        return queryForId(UriUtils.getLastSegmentAsLong(uri));
     }
 
     protected T objFromCursor(Cursor cursor) {
