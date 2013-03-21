@@ -77,20 +77,19 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
 
         Log.d(this, "onStart");
 
-        // TODO: check for events that may have changed the underlying data
+        ReactiveScheduler<List<T>> scheduler = getListItemsScheduler();
         // TODO: this fires when the adapter is empty because the user simply has no sounds, but shouldn't.
         if (mAdapter.isEmpty()) {
             Log.d(this, "Adapter is empty, scheduling possible local refresh");
-            getListItemsScheduler().addPendingObservable(pending(getListItemsObservable()));
+            scheduler.addPendingObservable(pending(getListItemsObservable()));
         }
 
-        mLoadItemsSubscription = getListItemsScheduler().scheduleFirstPendingObservable(mLoadItemsObserver);
-
-        Log.d(this, "onStart: done=" + mLoadItemsObserver.isCompleted());
+        if (scheduler.hasPendingObservables()) {
+            mLoadItemsSubscription = scheduler.scheduleFirstPendingObservable(mLoadItemsObserver);
+            mShowProgressHandler.postDelayed(showProgress, PROGRESS_DELAY_MILLIS);
+        }
 
         mEmptyView.setStatus(EmptyListView.Status.OK);
-
-        mShowProgressHandler.postDelayed(showProgress, PROGRESS_DELAY_MILLIS);
     }
 
     protected abstract ReactiveScheduler<List<T>> getListItemsScheduler();

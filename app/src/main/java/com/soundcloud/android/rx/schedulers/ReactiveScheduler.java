@@ -36,6 +36,10 @@ public abstract class ReactiveScheduler<T> {
         mPendingObservables.add(observable);
     }
 
+    public boolean hasPendingObservables() {
+        return !mPendingObservables.isEmpty();
+    }
+
     public Subscription schedulePendingObservables(Observer<T> observer, @Nullable Integer limit) {
         Observable<Observable<T>> observable = ScObservables.pendingObservables(mPendingObservables);
         if (limit != null) {
