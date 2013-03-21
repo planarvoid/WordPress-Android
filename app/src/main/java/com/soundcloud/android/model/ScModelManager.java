@@ -373,14 +373,6 @@ public class ScModelManager {
         return dao.create(api.readListFromIds(request, fetchIds));
     }
 
-    public List<Long> getLocalIds(Content content, long userId, int startIndex, int limit) {
-        return ResolverHelper.idCursorToList(mResolver.query(
-                ResolverHelper.addPagingParams(Content.COLLECTION_ITEMS.uri, startIndex, limit).build(),
-                new String[]{DBHelper.CollectionItems.ITEM_ID},
-                DBHelper.CollectionItems.COLLECTION_TYPE + " = ? AND " + DBHelper.CollectionItems.USER_ID + " = ?",
-                new String[]{String.valueOf(content.collectionType), String.valueOf(userId)},
-                DBHelper.CollectionItems.SORT_ORDER));
-    }
 
     public void clear() {
         mTrackCache.clear();

@@ -22,7 +22,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
-import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.task.fetch.FetchUserTask;
@@ -66,6 +65,7 @@ public class ApiSyncer {
     private final ActivitiesStorage mActivitiesStorage;
     private final PlaylistStorage mPlaylistStorage;
     private final SoundAssociationDAO mSoundAssociationDAO;
+    private final CollectionStorage mCollectionStorage;
 
 
     public ApiSyncer(Context context) {
@@ -76,6 +76,7 @@ public class ApiSyncer {
         mActivitiesStorage = new ActivitiesStorage(mResolver);
         mPlaylistStorage = new PlaylistStorage(mResolver);
         mSoundAssociationDAO = new SoundAssociationDAO(mResolver);
+        mCollectionStorage = new CollectionStorage(mResolver);
     }
 
     public @NotNull Result syncContent(Uri uri, String action) throws IOException {
@@ -322,7 +323,7 @@ public class ApiSyncer {
         Result result = new Result(content.uri);
         if (!Content.ID_BASED.contains(content)) return result;
 
-        List<Long> local  = SoundCloudApplication.MODEL_MANAGER.getLocalIds(content, userId, -1, -1);
+        List<Long> local  = mCollectionStorage.getLocalIds(content, userId, -1, -1);
         List<Long> remote = mApi.readFullCollection(Request.to(content.remoteUri + "/ids"), IdHolder.class);
 
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
@@ -342,7 +343,7 @@ public class ApiSyncer {
                         .add(Wrapper.LINKED_PARTITIONING, "1")
                         .add("limit", Consts.COLLECTION_PAGE_SIZE));
 
-                added = insertCollection(resources, content.uri, userId);
+                added = mCollectionStorage.insertCollection(resources, content.uri, userId);
 
                 // remove items from master remote list and adjust start index
                 for (ScResource u : resources) {
@@ -376,26 +377,6 @@ public class ApiSyncer {
         return result;
     }
 
-    public int insertCollection(@NotNull List<? extends ScResource> resources,
-                                @NotNull Uri collectionUri,
-                                long ownerId) {
-        if (ownerId < 0) throw new IllegalArgumentException("need valid ownerId for collection");
-
-        BulkInsertMap map = new BulkInsertMap();
-        for (int i = 0; i < resources.size(); i++) {
-            ScResource r = resources.get(i);
-            if (r == null) continue;
-
-            r.putFullContentValues(map);
-            ContentValues contentValues = new ContentValues();
-
-            contentValues.put(DBHelper.CollectionItems.POSITION, i);
-            contentValues.put(DBHelper.CollectionItems.ITEM_ID, r.id);
-            contentValues.put(DBHelper.CollectionItems.USER_ID, ownerId);
-            map.add(collectionUri, contentValues);
-        }
-        return map.insert(mResolver);
-    }
 
     private boolean checkUnchanged(Content content, Result result, List<Long> local, List<Long> remote) {
         switch (content) {
