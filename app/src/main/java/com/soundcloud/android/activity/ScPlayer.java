@@ -307,7 +307,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 onMetaChanged(playQueueManager.getPosition());
 
             } else {
-                // service doesn't exist, start it, it will reload queue and broadcast changes
+                /* service doesn't exist or playqueue is empty and not loading.
+                   start it, it will reload queue and broadcast changes */
                 startService(new Intent(this, CloudPlaybackService.class));
             }
 
@@ -341,6 +342,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     protected void onResume() {
         super.onResume();
         setPlaybackState();
+        setBufferingState();
     }
 
     @Override
@@ -557,15 +559,19 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         final PlayQueueManager playQueueManager = getPlaylistManager();
 
         mTrackPager.configureFromService(this, playQueueManager, queuePosition);
-        // set buffering state of current track
-        if (mPlaybackService != null && mPlaybackService.isBuffering()){
-            final PlayerTrackView playerTrackView = getTrackViewById(CloudPlaybackService.getCurrentTrackId());
-            if (playerTrackView != null) playerTrackView.onBuffering();
-        }
+        setBufferingState();
+
         setCommentMode(false);
         setPlaybackState();
     }
 
+    private void setBufferingState() {
+        final PlayerTrackView playerTrackView = getTrackViewById(CloudPlaybackService.getCurrentTrackId());
+        if (playerTrackView != null) {
+            // set buffering state of current track
+            playerTrackView.setBufferingState(CloudPlaybackService.isBuffering());
+        }
+    }
 
     private int getCurrentDisplayedTrackPosition() {
         final PlayerTrackView currentTrackView = mTrackPager.getCurrentTrackView();

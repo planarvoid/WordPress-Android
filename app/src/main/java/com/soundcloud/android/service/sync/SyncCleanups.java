@@ -11,7 +11,7 @@ import java.util.List;
 enum SyncCleanups {
     SoundStreamCleanup    (Content.SOUND_STREAM_CLEANUP,     SyncConfig.DEFAULT_STREAM_ITEMS_TO_KEEP),
     ActivitiesCleanup (Content.ACTIVITIES_CLEANUP,  SyncConfig.DEFAULT_ACTIVITY_ITEMS_TO_KEEP),
-    TracksCleanup (Content.TRACK_CLEANUP,  -1),
+    TracksCleanup (Content.PLAYABLE_CLEANUP,  -1),
     UsersCleanup (Content.USERS_CLEANUP,  -1);
 
     SyncCleanups(Content content, int toKeep) {

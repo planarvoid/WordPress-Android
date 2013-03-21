@@ -3,6 +3,7 @@ package com.soundcloud.android;
 import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
+import android.app.ActivityManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
@@ -80,7 +81,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static boolean DEV_MODE, BETA_MODE;
     private ImageLoader mImageLoader;
 
-    public static ScModelManager MODEL_MANAGER;
+    @Deprecated public static ScModelManager MODEL_MANAGER;
 
     private ATTracker mTracker;
 
@@ -96,7 +97,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         DEV_MODE = isDevMode();
         BETA_MODE = isBetaMode();
 
-        if (DEV_MODE) {
+        if (DEV_MODE && !ActivityManager.isUserAMonkey()) {
             setupStrictMode();
         }
 

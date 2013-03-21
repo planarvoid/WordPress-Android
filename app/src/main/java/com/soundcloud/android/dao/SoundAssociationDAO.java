@@ -96,7 +96,6 @@ public class SoundAssociationDAO extends BaseDAO<SoundAssociation> {
         return mResolver.bulkInsert(uri, items.toArray(new ContentValues[items.size()]));
     }
 
-
     public int writeCollection(CollectionHolder<? extends ScResource> models) {
         return insert(getContent().uri, models.collection);
     }

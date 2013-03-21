@@ -3,6 +3,7 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.soundcloud.android.dao.ContentValuesProvider;
 import com.soundcloud.android.provider.BulkInsertMap;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +26,9 @@ import org.jetbrains.annotations.Nullable;
         @JsonSubTypes.Type(value = Connection.class, name = "connection"),
         @JsonSubTypes.Type(value = Like.class, name = "like"),
         @JsonSubTypes.Type(value = Friend.class, name = "friend")})
-public abstract class ScResource extends ScModel implements ModelLike {
+public abstract class ScResource
+        extends ScModel
+        implements ModelLike, ContentValuesProvider {
 
     @JsonIgnore
     public long last_updated = NOT_SET;
@@ -85,10 +88,25 @@ public abstract class ScResource extends ScModel implements ModelLike {
         destination.add(getBulkInsertUri(), buildContentValues());
     }
 
+    /**
+     * Insert to this objects uri field
+     * @param contentResolver
+     * @return
+     */
     @Deprecated
     public Uri insert(ContentResolver contentResolver) {
+        return insert(contentResolver,toUri());
+    }
+
+    /**
+     * insert to a specific URI, e.g. ME_LIKES.uri
+     * @param contentResolver
+     * @param uri
+     * @return
+     */
+    public Uri insert(ContentResolver contentResolver, Uri uri) {
         insertDependencies(contentResolver);
-        return contentResolver.insert(toUri(),buildContentValues());
+        return contentResolver.insert(uri, buildContentValues());
     }
 
     public void insertDependencies(ContentResolver contentResolver) {

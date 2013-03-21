@@ -4,6 +4,8 @@ import static com.soundcloud.android.imageloader.ImageLoader.Options;
 import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
+import android.app.ActivityManager;
+import android.view.animation.AnimationUtils;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -13,7 +15,6 @@ import com.soundcloud.android.dialog.MyPlaylistsDialogFragment;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.LoadCommentsTask;
@@ -181,7 +182,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             hideUnplayable();
         } else {
             showUnplayable(mTrack);
-            mWaveformController.onBufferingStop();
+            mWaveformController.setBufferingState(false);
         }
 
         if (changed) {
@@ -222,6 +223,9 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     }
 
     private void updateArtwork(boolean postAtFront) {
+        // this will cause OOMs
+        if (ActivityManager.isUserAMonkey()) return;
+
         ImageLoader.get(getContext()).unbind(mArtwork);
         if (TextUtils.isEmpty(mTrack.getArtwork())) {
             // no artwork
@@ -347,12 +351,12 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                 mTrackDetailsView.fillTrackDetails(mTrack);
             }
 
-            trackFlipper.setInAnimation(AnimUtils.inFromRightAnimation(new AccelerateDecelerateInterpolator()));
-            trackFlipper.setOutAnimation(AnimUtils.outToLeftAnimation(new AccelerateDecelerateInterpolator()));
+            trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.fade_in));
+            trackFlipper.setOutAnimation(null);
             trackFlipper.showNext();
         } else if (!showDetails && trackFlipper.getDisplayedChild() == 1){
-            trackFlipper.setInAnimation(AnimUtils.inFromLeftAnimation(new AccelerateDecelerateInterpolator()));
-            trackFlipper.setOutAnimation(AnimUtils.outToRightAnimation(new AccelerateDecelerateInterpolator()));
+            trackFlipper.setInAnimation(null);
+            trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.fade_out));
             trackFlipper.showPrevious();
         }
         if (mToggleInfo != null) mToggleInfo.setChecked(showDetails);
@@ -511,9 +515,9 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             }
 
         } else if (CloudPlaybackService.BUFFERING.equals(action)) {
-            onBuffering();
+            setBufferingState(true);
         } else if (CloudPlaybackService.BUFFERING_COMPLETE.equals(action)) {
-            mWaveformController.onBufferingStop();
+            setBufferingState(false);
             mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
                     intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
 
@@ -536,7 +540,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     }
 
     private void onUnplayable(Intent intent, Track track) {
-        mWaveformController.onBufferingStop();
+        mWaveformController.setBufferingState(false);
         mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
                 intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
 
@@ -562,24 +566,21 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             mWaveformController.setProgress(0);
             mWaveformController.setSecondaryProgress(0);
         }
-
-        // Onboard showing smooth progress if we already aren't
-        if (!mWaveformController.showingSmoothProgress() && showSmoothProgress){
-            mWaveformController.startSmoothProgress();
-        }
+        mWaveformController.setSmoothProgress(showSmoothProgress);
     }
 
     public void onStop(boolean killLoading) {
         mWaveformController.onStop(killLoading);
     }
 
-    public void onBuffering() {
-        final Track track = getTrack();
-        if (track != null) {
-            track.last_playback_error = -1;
+    public void setBufferingState(boolean isBuffering) {
+        mWaveformController.setBufferingState(isBuffering);
+
+        if (isBuffering){
             hideUnplayable();
-            mWaveformController.onBufferingStart();
-            mWaveformController.stopSmoothProgress();
+
+            // TODO: this needs to happen in the service, this should be UI only here
+            getTrack().last_playback_error = -1;
         }
     }
 

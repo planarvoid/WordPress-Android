@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.cache.ModelCache;
+import com.soundcloud.android.dao.BaseDAO;
 import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -357,7 +358,7 @@ public class ScModelManager {
      */
     public int fetchMissingCollectionItems(AndroidCloudAPI api,
                                            List<Long> modelIds,
-                                           Content content,
+                                           final Content content,
                                            boolean ignoreStored, int maxToFetch) throws IOException {
         if (modelIds == null || modelIds.isEmpty()) {
             return 0;
@@ -376,7 +377,11 @@ public class ScModelManager {
         Request request = Track.class.equals(content.modelType) ||
                SoundAssociation.class.equals(content.modelType) ? Content.TRACKS.request() : Content.USERS.request();
 
-        return SoundCloudDB.bulkInsertResources(mResolver, api.readListFromIds(request, fetchIds));
+        return new BaseDAO<ScResource>(mResolver) {
+            @Override public Content getContent() {
+                return content;
+            }
+        }.create(api.readListFromIds(request, fetchIds));
     }
 
 
@@ -396,25 +401,6 @@ public class ScModelManager {
             i += RESOLVER_BATCH_SIZE;
         }
         return storedIds;
-    }
-
-
-    <T extends ScResource> int writeCollection(List<T> items, ScResource.CacheUpdateMode updateMode) {
-        for (T item : items) {
-            cache(item, updateMode);
-        }
-        return SoundCloudDB.bulkInsertResources(mResolver, items);
-    }
-
-
-    <T extends ScResource> int writeCollection(List<T> items, Uri localUri, long userId, ScResource.CacheUpdateMode updateMode) {
-        if (items.isEmpty()) return 0;
-
-        for (T item : items) {
-            cache(item, updateMode);
-        }
-
-        return SoundCloudDB.insertCollection(mResolver, items, localUri, userId);
     }
 
 

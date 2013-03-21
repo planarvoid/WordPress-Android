@@ -308,4 +308,7 @@
     <string name="empty_playlist">Esta lista aún no tiene sonidos</string>
 
     <string name="playlist_removed">No se ha encontrado esta lista en SoundCloud</string>
+
+    <string name="list_empty_user_sets_message">%1$s no tiene actualmente ninguna sets.</string>
+    <string name="list_empty_you_sets_message">Crear un conjunto de compartir una colección de sus canciones favoritas.</string>
 </resources>

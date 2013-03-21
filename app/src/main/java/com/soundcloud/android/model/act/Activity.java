@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.dao.ContentValuesProvider;
 import com.soundcloud.android.model.ModelLike;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
@@ -21,6 +22,7 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SharingNote;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +55,8 @@ public abstract class Activity extends ScModel implements Parcelable,
         Refreshable,
         Comparable<Activity>,
         PlayableHolder,
-        ModelLike {
+        ModelLike,
+        ContentValuesProvider {
 
     @JsonProperty public String uuid;
     @JsonProperty public Date created_at;
@@ -157,6 +160,10 @@ public abstract class Activity extends ScModel implements Parcelable,
             cv.put(DBHelper.Activities.SOUND_TYPE, getType().isPlaylistActivity() ? Playable.DB_TYPE_PLAYLIST : Playable.DB_TYPE_TRACK);
         }
         return cv;
+    }
+
+    @Override
+    public void putFullContentValues(@NotNull BulkInsertMap destination) {
     }
 
     @Override

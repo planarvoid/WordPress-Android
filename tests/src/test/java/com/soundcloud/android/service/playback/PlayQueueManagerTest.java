@@ -25,7 +25,7 @@ import java.util.List;
 import static com.soundcloud.android.Expect.expect;
 
 @RunWith(DefaultTestRunner.class)
-public class PlaylistManagerTest {
+public class PlayQueueManagerTest {
     ContentResolver resolver;
     PlayQueueManager pm;
     static final long USER_ID = 1L;
@@ -189,18 +189,21 @@ public class PlaylistManagerTest {
     }
 
     @Test
-    public void shouldLoadFavoritesAsPlaylist() throws Exception {
+    public void shouldLoadLikesAsPlaylist() throws Exception {
         insertLikes();
         pm.loadUri(Content.ME_LIKES.uri, 1, 56142962);
+
+        expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().id).toEqual(56142962l);
         expect(pm.next()).toBeTrue();
         expect(pm.getCurrentTrack().id).toEqual(56143158l);
     }
 
     @Test
-    public void shouldSaveAndRestoreFavoritesAsPlaylist() throws Exception {
+    public void shouldSaveAndRestoreLikesAsPlaylist() throws Exception {
         insertLikes();
         pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
+        expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().id).toEqual(56142962l);
         expect(pm.getPosition()).toEqual(0);
         pm.saveQueue(1000l);
@@ -210,9 +213,10 @@ public class PlaylistManagerTest {
     }
 
     @Test
-    public void shouldSaveAndRestoreFavoritesAsPlaylistTwice() throws Exception {
+    public void shouldSaveAndRestoreLikesAsPlaylistTwice() throws Exception {
         insertLikes();
         pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
+        expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().id).toEqual(56142962l);
         pm.saveQueue(1000l);
         expect(pm.reloadQueue()).toEqual(1000l);
@@ -229,7 +233,7 @@ public class PlaylistManagerTest {
     }
 
     @Test
-    public void shouldSaveAndRestoreFavoritesAsPlaylistWithMovedTrack() throws Exception {
+    public void shouldSaveAndRestoreLikesAsPlaylistWithMovedTrack() throws Exception {
         insertLikes();
         pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
         expect(pm.getCurrentTrack().id).toEqual(56142962l);
@@ -321,10 +325,10 @@ public class PlaylistManagerTest {
         pm.saveQueue(1235);
 
         PlayQueueManager.clearState(Robolectric.application);
-        expect(pm.reloadQueue()).toEqual(0L);
+        expect(pm.reloadQueue()).toEqual(-1L);
 
         PlayQueueManager pm2 = new PlayQueueManager(Robolectric.application, USER_ID);
-        expect(pm2.reloadQueue()).toEqual(0L);
+        expect(pm2.reloadQueue()).toEqual(-1L);
         expect(pm2.getPosition()).toEqual(0);
         expect(pm2.length()).toEqual(0);
     }

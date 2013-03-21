@@ -2,8 +2,6 @@ package com.soundcloud.android.model;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.database.Cursor;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -17,6 +15,7 @@ import java.util.List;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
+import static junit.framework.Assert.fail;
 
 @RunWith(DefaultTestRunner.class)
 public class ScModelManagerTest {
@@ -59,22 +58,19 @@ public class ScModelManagerTest {
 
     @Test
     public void shouldBulkInsert() throws Exception {
-        List<ScResource> items = createModels();
-        expect(manager.writeCollection(items, ScResource.CacheUpdateMode.MINI)).toEqual(3);
+//        List<ScResource> items = createModels();
+//        expect(manager.writeCollection(items, ScResource.CacheUpdateMode.MINI)).toEqual(3);
+        fail("move me");
     }
 
     @Test
     public void shouldBulkInsertWithCollections() throws Exception {
-        List<Track> items = createTracks();
-        expect(manager.writeCollection(items, Content.ME_LIKES.uri, USER_ID, ScResource.CacheUpdateMode.MINI)).toEqual(6);
-
-        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(2);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldNotBulkInsertWithoutOwnerId() throws Exception {
-        manager.writeCollection(createModels(), Content.ME_LIKES.uri, -1, ScResource.CacheUpdateMode.NONE);
+//        List<Track> items = createTracks();
+//        expect(manager.writeCollection(items, Content.ME_LIKES.uri, USER_ID, ScResource.CacheUpdateMode.MINI)).toEqual(6);
+//
+//        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
+//        expect(c.getCount()).toEqual(2);
+        fail("move me");
     }
 
     private List<ScResource> createModels() {
@@ -141,8 +137,9 @@ public class ScModelManagerTest {
             ids.add(i);
         }
 
-        expect(manager.writeCollection(users, ScResource.CacheUpdateMode.MINI)).toEqual(2);
-        expect(manager.fetchMissingCollectionItems((AndroidCloudAPI) Robolectric.application, ids, Content.USERS, false, 5)).toEqual(5);
+//        expect(manager.writeCollection(users, ScResource.CacheUpdateMode.MINI)).toEqual(2);
+//        expect(manager.fetchMissingCollectionItems((AndroidCloudAPI) Robolectric.application, ids, Content.USERS, false, 5)).toEqual(5);
+        fail("move me");
     }
 
     private User createUserWithId(long id){

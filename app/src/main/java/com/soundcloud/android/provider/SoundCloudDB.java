@@ -10,22 +10,6 @@ import java.util.List;
 
 @Deprecated
 public class SoundCloudDB {
-
-    /**
-     * Inserts a list of resources into the database
-     * @param resolver
-     * @param resources
-     * @return
-     */
-    public static int bulkInsertResources(ContentResolver resolver, List<? extends ScResource> resources) {
-        if (resources == null) return 0;
-        BulkInsertMap map = new BulkInsertMap();
-        for (ScResource resource : resources) {
-            if (resource != null) resource.putFullContentValues(map);
-        }
-        return map.insert(resolver);
-    }
-
     /**
      * Inserts a list of resources and their corresponding dependencies to a given URI.
      * Contains special handling based on Content requirements.

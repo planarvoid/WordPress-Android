@@ -371,7 +371,7 @@
   </plurals>
   <string name="settings_error_revoking_account_message">There was a problem logging out. Please try again.</string>
   <string name="share_encoding">Encoding...</string>
-  <string name="share_fail_message">Ok, that went wrong.</string>
+  <string name="share_fail_message">OK, that went wrong.</string>
   <string name="share_log_out">Log out</string>
   <string name="share_retry_upload">Retry upload</string>
   <string name="share_success_message">Yay, that worked!</string>
