@@ -22,6 +22,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -290,21 +291,6 @@ public class ApiSyncerTest {
         expect(track.title).toEqual("Mozart Parties - Where Has Everybody Gone (Regal Safari Remix)");
         expect(track.user).not.toBeNull();
         expect(track.user.username).toEqual("Regal Safari");
-    }
-
-    @Test
-    public void shouldSyncPlaylistTracks() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "playlist_tracks.json");
-        final Uri localUri = Content.PLAYLIST_TRACKS.forId(2524386l);
-        Result result = sync(localUri);
-        expect(result.success).toBe(true);
-        expect(result.synced_at).toBeGreaterThan(0l);
-        expect(result.change).toEqual(Result.CHANGED);
-        expect(Content.TRACKS).toHaveCount(41);
-
-        List<Track> tracks = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver,Track.class, localUri);
-        expect(tracks.size()).toBe(41);
-        expect(tracks.get(1).title).toEqual("Keaton Henson - All Things Must Pass");
     }
 
     @Test

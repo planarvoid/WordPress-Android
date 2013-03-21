@@ -125,11 +125,6 @@ public class ApiSyncer {
                 case ME_PLAYLISTS:
                     result = syncMyPlaylists();
                     break;
-
-                case PLAYLIST_TRACKS:
-                    result = fetchAndInsertCollectionToUri(uri, userId);
-                    break;
-
                 case TRACK:
                 case USER:
                     result = doResourceFetchAndInsert(uri);
@@ -608,28 +603,6 @@ public class ApiSyncer {
         result.setSyncData(true, System.currentTimeMillis(), resources.size(), Result.CHANGED);
         return result;
     }
-
-
-    /**
-     * Fetch Api Resources and create them into the content provider using a specific content uri
-     * that may require special handling in {@link SoundCloudDB#insertCollection(ContentResolver, List, Uri, long)}
-     * @param uri contentUri to create to
-     * @param userId logged in user (only used in associations, e.g. followers)
-     * @return the result of the operation
-     * @throws IOException
-     */
-    private Result fetchAndInsertCollectionToUri(Uri uri, long userId) throws IOException {
-           Result result = new Result(uri);
-           log("fetchAndInsertCollectionToUri(" + uri + ")");
-
-        Request request = Content.match(uri).request(uri);
-        List<ScResource> resources = mApi.readFullCollection(request, ScResource.ScResourceHolder.class);
-        SoundCloudDB.insertCollection(mResolver, resources, uri, userId);
-
-        result.setSyncData(true, System.currentTimeMillis(), resources.size(), Result.CHANGED);
-        return result;
-       }
-
 
     public static class Result {
         public static final int UNCHANGED = 0;
