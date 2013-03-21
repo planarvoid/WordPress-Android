@@ -296,6 +296,7 @@ public class EmptyListView extends RelativeLayout {
         void onSecondaryAction();
     }
 
+    @Deprecated
     public static EmptyListView fromContent(final Context context, final Content content) {
         switch (content) {
             case ME_SOUND_STREAM:
