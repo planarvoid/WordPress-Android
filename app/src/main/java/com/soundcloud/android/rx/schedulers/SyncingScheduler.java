@@ -88,16 +88,10 @@ public abstract class SyncingScheduler<T> extends ReactiveScheduler<T> {
             private void handleSyncResult(int resultCode, Bundle resultData, Observer<T> observer) {
                 switch (resultCode) {
                     case ApiSyncService.STATUS_SYNC_FINISHED: {
-                        final boolean dataChanged = resultData != null && resultData.getBoolean(contentUri.toString());
-                        log("Sync successful; data changed: " + dataChanged);
+                        log("Sync successful!");
 
-                        if (dataChanged) {
-                            T result = loadFromLocalStorage(contentUri).last();
-                            observer.onNext(result);
-                        } else {
-                            observer.onNext(emptyResult());
-                        }
-                        observer.onCompleted();
+                        T result = loadFromLocalStorage(contentUri).last();
+                        observer.onNext(result);
 
                         break;
                     }
