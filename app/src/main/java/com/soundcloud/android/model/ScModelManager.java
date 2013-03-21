@@ -10,9 +10,6 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Deprecated
 public class ScModelManager {
     private static final int DEFAULT_CACHE_CAPACITY = 100;
@@ -75,41 +72,6 @@ public class ScModelManager {
         }
         return user;
     }
-
-    public <T extends ScModel> List<T> loadLocalContent(ContentResolver resolver, Class<T> resourceType, Uri localUri) {
-        Cursor itemsCursor = resolver.query(localUri, null, null, null, null);
-        List<ScModel> items = new ArrayList<ScModel>();
-        if (itemsCursor != null) {
-            while (itemsCursor.moveToNext())
-                if (Track.class.equals(resourceType)) {
-                    items.add(getCachedTrackFromCursor(itemsCursor));
-                } else if (User.class.equals(resourceType)) {
-                    items.add(getUserFromCursor(itemsCursor));
-                } else if (Friend.class.equals(resourceType)) {
-                    items.add(new Friend(getUserFromCursor(itemsCursor)));
-                } else if (SoundAssociation.class.equals(resourceType)) {
-                    items.add(new SoundAssociation(itemsCursor));
-                } else if (Playlist.class.equals(resourceType)) {
-                    items.add(getCachedPlaylistFromCursor(itemsCursor));
-                } else {
-                    throw new IllegalArgumentException("NOT HANDLED YET " + resourceType);
-                }
-        }
-        if (itemsCursor != null) itemsCursor.close();
-
-        return (List<T>) items;
-    }
-
-    private User getUserFromCursor(Cursor itemsCursor) {
-        final long id = itemsCursor.getLong(itemsCursor.getColumnIndex(DBHelper.Users._ID));
-        User user = mUserCache.get(id);
-        if (user == null) {
-            user = new User(itemsCursor);
-            mUserCache.put(user);
-        }
-        return user;
-    }
-
 
     public
     @Nullable
@@ -352,8 +314,6 @@ public class ScModelManager {
         }
         return playlist;
     }
-
-
 
     public void clear() {
         mTrackCache.clear();

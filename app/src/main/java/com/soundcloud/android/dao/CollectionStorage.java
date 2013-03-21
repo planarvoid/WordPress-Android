@@ -74,7 +74,10 @@ public class CollectionStorage {
                                                    final Content content,
                                                    boolean ignoreStored) throws IOException {
         if (modelIds.isEmpty()) return 0;
-        return getDaoForContent(content).create(fetchMissingCollectionItems(api, modelIds, content, ignoreStored));
+
+        return getDaoForContent(content).create(
+            fetchMissingCollectionItems(api, modelIds, content, ignoreStored)
+        );
     }
 
     // TODO really pass in api as parameter?
