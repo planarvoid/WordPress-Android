@@ -56,8 +56,7 @@ public class TrackStorage {
         } catch (IllegalArgumentException e) {
             // in case we load a deprecated URI, just don't load the playlist
             Log.e(PlayQueueManager.class.getSimpleName(), "Tried to load an invalid uri " + uri);
-            //noinspection unchecked
-            return (List<Track>) Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         if (cursor != null) {
             List<Track> newQueue = new ArrayList<Track>(cursor.getCount());
@@ -73,8 +72,7 @@ public class TrackStorage {
             cursor.close();
             return newQueue;
         } else {
-            //noinspection unchecked
-            return (List<Track>) Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 }

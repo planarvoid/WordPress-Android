@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.ModelLike;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
@@ -19,6 +18,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
+import static com.soundcloud.android.dao.ResolverHelper.idCursorToList;
+import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
 
 public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     protected final ContentResolver mResolver;
@@ -64,8 +67,8 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         }
         if (!toRemove.isEmpty()) {
             return mResolver.delete(getContent().uri,
-                ResolverHelper.getWhereInClause(BaseColumns._ID, toRemove.size()),
-                ResolverHelper.longListToStringArr(toRemove));
+                getWhereInClause(BaseColumns._ID, toRemove.size()),
+                longListToStringArr(toRemove));
         } else {
             return 0;
         }
@@ -103,8 +106,7 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
             c.close();
             return objects;
         } else {
-            //noinspection unchecked
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 
@@ -132,5 +134,21 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         Class<T> klass = (Class<T>) getContent().modelType;
         if (klass == null) throw new DAOException("No modelclass defined");
         return klass;
+    }
+
+
+    /**
+     * @return a list of all ids for which objects are stored in the db.
+     */
+    public List<Long> getStoredIds(List<Long> ids) {
+        return idCursorToList(
+                mResolver.query(
+                    getContent().uri,
+                    new String[]{BaseColumns._ID},
+                    getWhereInClause(BaseColumns._ID, ids.size()) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0",
+                    longListToStringArr(ids),
+                    null
+                )
+        );
     }
 }

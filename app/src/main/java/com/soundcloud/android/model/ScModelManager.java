@@ -4,7 +4,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.BaseColumns;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.cache.ModelCache;
 import com.soundcloud.android.dao.BaseDAO;
@@ -21,7 +20,6 @@ import java.util.List;
 
 @Deprecated
 public class ScModelManager {
-    public  static final int RESOLVER_BATCH_SIZE = 100;
     private static final int DEFAULT_CACHE_CAPACITY = 100;
 
     private ContentResolver mResolver;
@@ -209,10 +207,6 @@ public class ScModelManager {
         }
 
 
-    public List<Track> loadPlaylistTracks(ContentResolver resolver, long playlistId){
-        return loadLocalContent(resolver,Track.class,Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId)));
-    }
-
     public Track getCachedTrack(long id) {
         return mTrackCache.get(id);
     }
@@ -346,8 +340,6 @@ public class ScModelManager {
         return playlist;
     }
 
-
-
     /**
      * @param modelIds     a list of model ids
      * @param ignoreStored if it should ignore stored ids
@@ -358,49 +350,28 @@ public class ScModelManager {
                                            List<Long> modelIds,
                                            final Content content,
                                            boolean ignoreStored, int maxToFetch) throws IOException {
-        if (modelIds == null || modelIds.isEmpty()) {
-            return 0;
-        }
+
+        if (modelIds == null || modelIds.isEmpty()) return 0;
+        BaseDAO<ScResource> dao = new BaseDAO<ScResource>(mResolver) {
+            @Override
+            public Content getContent() {
+                return content;
+            }
+        };
         // copy so we don't modify the original
         List<Long> ids = new ArrayList<Long>(modelIds);
-
         if (!ignoreStored) {
-            ids.removeAll(getStoredIdsBatched(mResolver, modelIds, content));
+            ids.removeAll(dao.getStoredIds(modelIds));
         }
 
-        List<Long> fetchIds = (maxToFetch > -1) ? new ArrayList<Long>(ids.subList(0, Math.min(ids.size(), maxToFetch)))
-                    : ids;
+        List<Long> fetchIds = (maxToFetch > -1) ? ids.subList(0, Math.min(ids.size(), maxToFetch)) : ids;
 
         // XXX this has to be abstracted more. Hesitant to do so until the api is more final
         Request request = Track.class.equals(content.modelType) ||
                SoundAssociation.class.equals(content.modelType) ? Content.TRACKS.request() : Content.USERS.request();
 
-        return new BaseDAO<ScResource>(mResolver) {
-            @Override public Content getContent() {
-                return content;
-            }
-        }.create(api.readListFromIds(request, fetchIds));
+        return dao.create(api.readListFromIds(request, fetchIds));
     }
-
-
-    /**
-     * @return a list of all ids for which objects are store in the database
-     */
-    private static List<Long> getStoredIdsBatched(ContentResolver resolver, List<Long> ids, Content content) {
-        int i = 0;
-        List<Long> storedIds = new ArrayList<Long>();
-        while (i < ids.size()) {
-            List<Long> batch = ids.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, ids.size()));
-            storedIds.addAll(ResolverHelper.idCursorToList(
-                    resolver.query(content.uri, new String[]{BaseColumns._ID},
-                            ResolverHelper.getWhereInClause(BaseColumns._ID, batch.size()) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0"
-                            , ResolverHelper.longListToStringArr(batch), null)
-            ));
-            i += RESOLVER_BATCH_SIZE;
-        }
-        return storedIds;
-    }
-
 
     public List<Long> getLocalIds(Content content, long userId, int startIndex, int limit) {
         return ResolverHelper.idCursorToList(mResolver.query(

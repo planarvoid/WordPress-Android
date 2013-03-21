@@ -1,6 +1,8 @@
 package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.AndroidCloudAPI.NotFoundException;
+import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
+import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
 import static com.soundcloud.android.model.SoundAssociation.Type;
 
 import com.soundcloud.android.AndroidCloudAPI;
@@ -14,7 +16,6 @@ import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
@@ -425,18 +426,13 @@ public class ApiSyncer {
     private List<Long> handleDeletions(Content content, List<Long> local, List<Long> remote) {
         // This only works when items are unique in a collection, fine for now
         List<Long> itemDeletions = new ArrayList<Long>(local);
+
         itemDeletions.removeAll(remote);
         if (!itemDeletions.isEmpty()) {
             log("Need to remove " + itemDeletions.size() + " items");
-            int i = 0;
-            while (i < itemDeletions.size()) {
-                List<Long> batch = itemDeletions.subList(i, Math.min(i + ScModelManager.RESOLVER_BATCH_SIZE, itemDeletions.size()));
-                mResolver.delete(content.uri,
-                        ResolverHelper.getWhereInClause(DBHelper.CollectionItems.ITEM_ID, batch.size()),
-                        ResolverHelper.longListToStringArr(batch));
-
-                i += ScModelManager.RESOLVER_BATCH_SIZE;
-            }
+            mResolver.delete(content.uri,
+                getWhereInClause(DBHelper.CollectionItems.ITEM_ID, itemDeletions.size()),
+                longListToStringArr(itemDeletions));
         }
         return itemDeletions;
     }
