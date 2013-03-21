@@ -24,7 +24,7 @@ import java.util.ListIterator;
  * @param <T>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CollectionHolder<T> implements List<T> {
+public class CollectionHolder<T> implements Iterable<T> {
 
     @JsonProperty
     @JsonView(Views.Mini.class)
@@ -47,87 +47,12 @@ public class CollectionHolder<T> implements List<T> {
         return collection != null ?  collection.iterator() : (Iterator<T>) Collections.EMPTY_LIST.iterator();
     }
 
-    @Override
-    public int lastIndexOf(Object object) {
-        return collection.lastIndexOf(object);
-    }
-
-    @Override
-    public ListIterator<T> listIterator() {
-        return collection.listIterator();
-    }
-
-    @Override
-    public ListIterator<T> listIterator(int location) {
-        return collection.listIterator(location);
-    }
-
-    @Override
-    public T remove(int location) {
-        return collection.remove(location);
-    }
-
-    @Override
-    public boolean remove(Object object) {
-        return collection.remove(object);
-    }
-
-    @Override
-    public boolean removeAll(Collection<?> thatCollection) {
-        return collection.removeAll(thatCollection);
-    }
-
-    @Override
-    public boolean retainAll(Collection<?> thatCollection) {
-        return collection.retainAll(thatCollection);
-    }
-
-    @Override
-    public T set(int location, T object) {
-        return collection.set(location, object);
+    public boolean add(T item) {
+        return collection.add(item);
     }
 
     public T get(int index) {
         return collection.get(index);
-    }
-
-    @Override
-    public int indexOf(Object object) {
-        return collection.indexOf(object);
-    }
-
-    @Override
-    public void add(int location, T object) {
-        collection.add(location, object);
-    }
-
-    public boolean add(T e) {
-        return collection.add(e);
-    }
-
-    @Override
-    public boolean addAll(int location, Collection<? extends T> thatCollection) {
-        return collection.addAll(location, thatCollection);
-    }
-
-    @Override
-    public boolean addAll(Collection<? extends T> thatCollection) {
-        return collection.addAll(thatCollection);
-    }
-
-    @Override
-    public void clear() {
-        collection.clear();
-    }
-
-    @Override
-    public boolean contains(Object object) {
-        return collection.contains(object);
-    }
-
-    @Override
-    public boolean containsAll(Collection<?> thatCollection) {
-        return collection.containsAll(thatCollection);
     }
 
     public boolean hasMore() {
@@ -170,19 +95,5 @@ public class CollectionHolder<T> implements List<T> {
         return collection != null ? collection.size() : 0;
     }
 
-    @Override
-    public List<T> subList(int start, int end) {
-        return collection.subList(start, end);
-    }
-
-    @Override
-    public Object[] toArray() {
-        return collection.toArray();
-    }
-
-    @Override
-    public <T1 extends Object> T1[] toArray(T1[] array) {
-        return collection.toArray(array);
-    }
 }
 

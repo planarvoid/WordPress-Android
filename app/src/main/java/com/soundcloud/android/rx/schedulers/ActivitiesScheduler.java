@@ -10,8 +10,11 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 
+import java.util.Collections;
+import java.util.List;
 
-public class ActivitiesScheduler extends SyncingScheduler<Activities> {
+
+public class ActivitiesScheduler extends SyncingScheduler<List<Activity>> {
 
     private final ActivitiesStorage mStorage;
 
@@ -21,20 +24,23 @@ public class ActivitiesScheduler extends SyncingScheduler<Activities> {
         mStorage = new ActivitiesStorage(resolver);
     }
 
-    public Observable<Activities> loadActivitiesSince(final Uri contentUri, final long timestamp) {
-        return Observable.create(newBackgroundJob(new ObservedRunnable<Activities>() {
+    public Observable<List<Activity>> loadActivitiesSince(final Uri contentUri, final long timestamp) {
+        return Observable.create(newBackgroundJob(new ObservedRunnable<List<Activity>>() {
             @Override
-            protected void run(DetachableObserver<Activities> observer) {
+            protected void run(DetachableObserver<List<Activity>> observer) {
                 log("Loading activities since " + timestamp);
+                List<Activity> result;
                 // TODO: remove possibility of NULL, throw and propagate exception instead
                 Activities activities = mStorage.getSince(contentUri, timestamp);
                 if (activities == null) {
-                    activities = new Activities();
+                    result = Collections.emptyList();
+                } else {
+                    result = activities.collection;
                 }
 
-                log("Found activities: " + activities.size());
+                log("Found activities: " + result.size());
 
-                observer.onNext(activities);
+                observer.onNext(result);
                 observer.onCompleted();
             }
         }));
@@ -56,18 +62,18 @@ public class ActivitiesScheduler extends SyncingScheduler<Activities> {
     }
 
     @Override
-    public Observable<Activities> loadFromLocalStorage(Uri contentUri) {
+    public Observable<List<Activity>> loadFromLocalStorage(Uri contentUri) {
         return loadActivitiesSince(contentUri, 0);
     }
 
     @Override
-    public Observable<Activities> loadFromLocalStorage(long id) {
+    public Observable<List<Activity>> loadFromLocalStorage(long id) {
         throw new UnsupportedOperationException("Activities must still be loaded using content URIs");
     }
 
     @Override
-    protected Activities emptyResult() {
-        return Activities.EMPTY;
+    protected List<Activity> emptyResult() {
+        return Collections.emptyList();
     }
 
 //    public ScObservables.ConditionalObservable<Activities> pagingRequest(final Uri contentUri, final long since, final int limit) {

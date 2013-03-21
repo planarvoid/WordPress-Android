@@ -3,7 +3,7 @@ package com.soundcloud.android.fragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
-import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.event.Event;
 import com.soundcloud.android.rx.schedulers.ActivitiesScheduler;
@@ -14,7 +14,9 @@ import rx.Subscription;
 import android.net.Uri;
 import android.os.Bundle;
 
-public class ActivitiesFragment extends ReactiveListFragment {
+import java.util.List;
+
+public class ActivitiesFragment extends ReactiveListFragment<Activity> {
 
     public static final String EXTRA_STREAM_URI = "stream_uri";
 
@@ -22,7 +24,7 @@ public class ActivitiesFragment extends ReactiveListFragment {
 
     private ActivitiesScheduler mScheduler;
     private Subscription mAssocChangedSubscription;
-    private Observable<Activities> mLoadActivities;
+    private Observable<List<Activity>> mLoadActivities;
 
 
     public static ActivitiesFragment create(final Content streamContent) {
@@ -64,7 +66,7 @@ public class ActivitiesFragment extends ReactiveListFragment {
     }
 
     @Override
-    protected ScBaseAdapter newAdapter() {
+    protected ScBaseAdapter<Activity> newAdapter() {
         return new ActivityAdapter(getActivity(), null);
     }
 
@@ -74,7 +76,7 @@ public class ActivitiesFragment extends ReactiveListFragment {
     }
 
     @Override
-    protected Observable getListItemsObservable() {
+    protected Observable<List<Activity>> getListItemsObservable() {
         return mLoadActivities;
     }
 }
