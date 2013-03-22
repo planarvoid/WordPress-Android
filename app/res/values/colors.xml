@@ -21,16 +21,12 @@
     <color name="darkBg">#FF333333</color>
 
     <color name="listTxtHeader">#777777</color>
-    <color name="listBgHeader">#DEEFEFEF</color>
-
     <color name="commentLine">#AAD7D7D7</color>
     <color name="activeCommentLine">#CCe36711</color>
 
     <color name="portraitPlayerCommentLine">#FFEF5002</color>
 
     <color name="playerControlBackground">#FFF2F2F2</color>
-    <color name="playerControlBackgroundDark">#FFc8c8c8</color>
-
     <color name="playerControlAlphaBackground">#AAF2F2F2</color>
 
     <color name="commentGray">#ff9c9c9c</color>

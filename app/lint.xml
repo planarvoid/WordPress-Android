@@ -32,6 +32,7 @@
         <ignore path="res/values/keys.xml"/>
         <ignore path="res/values/sigs.xml"/>
         <ignore path="res/layout/abs__search_view.xml"/> <!-- overrides default abs searchview -->
+        <ignore path="res/values/strings_record_tips.xml"/>
     </issue>
 
     <!-- ABS + ViewPagerIndicator -->
