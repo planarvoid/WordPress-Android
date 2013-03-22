@@ -49,8 +49,6 @@
     <dimen name="player_avatar_bar_height">10dip</dimen>
     <dimen name="player_avatar_bar_height_land">32dip</dimen>
 
-    <dimen name="player_comment_bar_height">35dip</dimen>
-    <dimen name="player_comment_bar_toggle_margin_right">0dip</dimen>
     <dimen name="player_comment_bar_txt_size">16sp</dimen>
 
     <dimen name="share_user_header_height">30dip</dimen>

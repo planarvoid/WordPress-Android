@@ -31,6 +31,7 @@
     <issue id="UnusedResources">
         <ignore path="res/values/keys.xml"/>
         <ignore path="res/values/sigs.xml"/>
+        <ignore path="res/layout/abs__search_view.xml"/> <!-- overrides default abs searchview -->
     </issue>
 
     <!-- ABS + ViewPagerIndicator -->

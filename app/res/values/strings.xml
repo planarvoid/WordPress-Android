@@ -159,6 +159,7 @@
 
     <string name="add_track_to_set">Add to set...</string>
     <string name="creating_set">Creating set \'%s\'</string>
+    <string name="create_new_set">Create new set</string>
     <string name="error_new_set_blank_title">Please enter a valid title</string>
     <string name="add_set_private">Private</string>
 
