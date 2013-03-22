@@ -309,11 +309,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         if (mResumeTime > -1) {
             if (state.isSupposedToBePlaying()) pause();
             currentTrack = mPlayQueueManager.getCurrentTrack();
-            mResumeTrackId = currentTrack.id;
-            return true;
-        } else {
-            return false;
+            if (currentTrack != null) {
+                mResumeTrackId = currentTrack.id;
+                return true;
+            }
         }
+        return false;
     }
 
     @Override
