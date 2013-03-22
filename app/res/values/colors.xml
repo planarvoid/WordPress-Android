@@ -17,7 +17,6 @@
 
     <color name="listTxtDarkValue">#FFFFFFFF</color>
     <color name="listTxtDarkValuePressed">#88FFFFFF</color>
-    <color name="listTxtDarkValueInactive">#FFa9a9a9</color>
 
     <color name="darkBg">#FF333333</color>
 
@@ -74,8 +73,6 @@
 
     <color name="cloudProgressRoundBorder">#4b504c</color>
 
-    <color name="listSeperator">#FF333333</color>
-
     <color name="tour_overlay">#CC000000</color>
     <color name="signup_separator">#999999</color>
 
@@ -87,8 +84,6 @@
 
     <color name="upload_monitor_text">#ff000000</color>
     <color name="upload_monitor_text_inactive">#ff9e9e9e</color>
-
-    <color name="authButtonSeparator">#ff000000</color>
 
     <color name="fim_item_text_color">#ffffff</color>
 

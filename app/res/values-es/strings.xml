@@ -133,9 +133,6 @@
     <string name="yes">Sí</string>
     <string name="no">No</string>
 
-    <string name="waiting_for_sync">Esperando sincronización...</string>
-
-    <string name="tab_title_my_sound_stream">Tu canal</string>
     <string name="tab_title_my_info">Tu información</string>
     <string name="tab_title_my_sounds">Tus sonidos</string>
     <string name="tab_title_my_likes">Tus votos positivos</string>
@@ -154,13 +151,6 @@
     <string name="following_spam_warning">Has llegado al límite de usuarios a los que puedes seguir y esta opción queda temporalmente desactivada para tu cuenta.
     </string>
 
-    <string name="action_bar_like">Dar voto positivo</string>
-    <string name="action_bar_search">Buscar</string>
-    <string name="action_bar_repost">Volver a publicar</string>
-    <string name="action_bar_comment">Comentar</string>
-    <string name="action_bar_share">Compartir</string>
-    <string name="action_bar_info">Información</string>
-
     <string name="side_menu_activity">Actividad</string>
     <string name="side_menu_record">Grabar</string>
     <string name="title_search">Buscar</string>
@@ -169,15 +159,11 @@
     <string name="side_menu_settings">Ajustes</string>
 
     <string name="side_menu_likes">Tus votos positivos</string>
-    <string name="side_menu_followings">Gente a la que sigues</string>
     <string name="side_menu_friend_finder">Encontrar amigos</string>
     <string name="side_menu_suggested_users">A quién seguir</string>
 
     <string name="action_bar_follow">Seguir</string>
     <string name="action_bar_unfollow">Dejar de seguir</string>
-
-    <string name="find_friends_on_facebook">Encontrar amigos en Facebook</string>
-    <string name="connect_to_facebook">Conectarse a Facebook</string>
 
     <!--
      no longer used !
@@ -239,7 +225,6 @@
     <string name="crop_image_error">Se ha producido un error recortar la imagen.</string>
     <string name="add_comment_no_connection">No se puede agregar comentario. Por favor, compruebe su conexión de datos y vuelva a intentarlo.</string>
 
-    <string name="error_server_problems_title">Error del servidor</string>
     <string name="error_server_problems_message">Hubo un problema al procesar tu solicitud. Por favor, inténtelo de nuevo más tarde.</string>
     <string name="error_soundcloud_is_down">SoundCloud parece estar teniendo problemas con el servidor. Estamos trabajando en ello!</string>
     <string name="error_soundcloud_server_problems">SoundCloud tenido problemas para procesar su solicitud.</string>
@@ -278,7 +263,6 @@
     <string name="accessibility_like_action">Me gusta</string>
     <string name="accessibility_repost_action">Republicar</string>
     <string name="accessibility_comment_action">Comentar</string>
-    <string name="accessibility_stats_user_commented">Has comentado</string>
     <string name="accessibility_next_track">Siguiente pista</string>
     <string name="accessibility_toggle_playback">Activar repetición</string>
     <string name="accessibility_previous_track">Pista anterior</string>
@@ -294,12 +278,9 @@
     </plurals>
 
     <string name="add_track_to_set">Añadir a lista...</string>
-    <string name="creating_set">Creando lista \'%s\'</string>
     <string name="create_new_set">Crear nueva lista</string>
     <string name="error_new_set_blank_title">Escribe un título válido</string>
-    <string name="error_creating_new_set">Ha habido un error al crear la lista, vuelve a intentarlo más tarde.</string>
     <string name="add_set_private">Privada</string>
-    <string name="add_set_public">Pública</string>
 
     <string name="tab_title_my_sets">Tus listas</string>
     <string name="tab_title_user_sets">Listas</string>

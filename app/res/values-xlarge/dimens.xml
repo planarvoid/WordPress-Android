@@ -26,9 +26,6 @@
 
     <dimen name="player_time_text_size">15sp</dimen>
 
-    <dimen name="play_track_info_button_width">80dip</dimen>
-    <dimen name="play_track_info_button_height">80dip</dimen>
-
     <dimen name="player_avatar_bar_height">100dip</dimen>
     <dimen name="player_avatar_bar_height_land">100dip</dimen>
 
@@ -37,6 +34,4 @@
     <dimen name="player_comment_bar_txt_size">22sp</dimen>
 
     <dimen name="rec_toggle_fade_margin_top">30dp</dimen>
-
-    <dimen name="txt_empty_msg_size">20sp</dimen>
 </resources>

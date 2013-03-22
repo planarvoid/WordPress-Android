@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
+     
     <issue id="MissingTranslation">
         <ignore path="res/values/dev.xml" />
         <ignore path="res/values/keys.xml" />
@@ -25,6 +26,12 @@
     <!-- flag NewApi as error -->
     <issue id="NewApi" severity="error"/>
     <issue id="InlinedApi" severity="error"/>
+
+
+    <issue id="UnusedResources">
+        <ignore path="res/values/keys.xml"/>
+        <ignore path="res/values/sigs.xml"/>
+    </issue>
 
     <!-- ABS + ViewPagerIndicator -->
     <issue id="NewApi">
