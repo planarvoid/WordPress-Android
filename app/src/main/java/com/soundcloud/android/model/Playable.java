@@ -372,7 +372,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
     }
 
     public @Nullable Intent getShareIntent() {
-        if (sharing == null || !sharing.isPublic()) return null;
+        if (!sharing.isPublic()) return null;
 
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
