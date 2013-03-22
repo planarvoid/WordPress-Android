@@ -54,6 +54,7 @@ public class FollowStatus {
         mContext = c;
         mSyncStateManager = new SyncStateManager(c.getContentResolver());
 
+
         mFollowingCollectionState = mSyncStateManager.fromContent(Content.ME_FOLLOWINGS);
         mFollowingCollectionState.startObservingSelf(mContext.getContentResolver(), new LocalCollection.OnChangeListener() {
             @Override

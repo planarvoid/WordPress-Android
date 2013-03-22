@@ -75,7 +75,7 @@ public class CollectionStorage {
                                                    boolean ignoreStored) throws IOException {
         if (modelIds.isEmpty()) return 0;
 
-        return getDaoForContent(content).create(
+        return getDaoForContent(content).createCollection(
             fetchMissingCollectionItems(api, modelIds, content, ignoreStored)
         );
     }

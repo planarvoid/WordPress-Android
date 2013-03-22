@@ -474,9 +474,8 @@ public class ApiSyncer {
 
         Result result = new Result(Content.ME_CONNECTIONS.uri);
         // compare local vs remote connections
-        Set<ScResource> remoteConnections =
-                new HashSet<ScResource>(mApi.readList(Content.ME_CONNECTIONS.request()));
-
+        List<Connection> list = mApi.readList(Content.ME_CONNECTIONS.request());
+        Set<Connection> remoteConnections = new HashSet<Connection>(list);
         ConnectionDAO connectionDAO = new ConnectionDAO(mResolver);
         Set<Connection> storedConnections = new HashSet<Connection>(connectionDAO.queryAll());
 
@@ -488,20 +487,7 @@ public class ApiSyncer {
             storedConnections.removeAll(remoteConnections);
             connectionDAO.deleteAll(storedConnections);
         }
-
-        // write anyways to update connections
-        List<ContentValues> cvs = new ArrayList<ContentValues>(remoteConnections.size());
-        for (ScResource connection : remoteConnections) {
-            ContentValues cv = connection.buildContentValues();
-            if (cv != null) cvs.add(cv);
-        }
-
-        int inserted = 0;
-        if (!cvs.isEmpty()) {
-            inserted = mResolver.bulkInsert(Content.ME_CONNECTIONS.uri, cvs.toArray(new ContentValues[cvs.size()]));
-            log("inserted " + inserted + " generic models");
-        }
-
+        int inserted = connectionDAO.createCollection(remoteConnections);
         result.setSyncData(System.currentTimeMillis(), inserted, null);
         result.success = true;
         return result;
@@ -598,7 +584,7 @@ public class ApiSyncer {
             @Override public Content getContent() {
                 return content;
             }
-        }.create(resources);
+        }.createCollection(resources);
         result.setSyncData(true, System.currentTimeMillis(), resources.size(), Result.CHANGED);
         return result;
     }

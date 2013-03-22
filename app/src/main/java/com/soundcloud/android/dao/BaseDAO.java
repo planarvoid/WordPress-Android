@@ -35,7 +35,7 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         return create(resource.buildContentValues());
     }
 
-    public int create(Collection<T> resources) {
+    public int createCollection(Collection<T> resources) {
         BulkInsertMap map = new BulkInsertMap();
         for (T r : resources) {
             r.putFullContentValues(map);
