@@ -1,9 +1,7 @@
 package com.soundcloud.android.dao;
 
-import android.net.Uri;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackTest;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -26,11 +24,13 @@ public class TrackDAOTest extends BaseDAOTest<TrackDAO> {
                 TrackTest.class.getResourceAsStream("track.json"),
                 Track.class);
 
-        Uri uri = TrackDAO.insert(t, resolver);
-        expect(uri).not.toBeNull();
+        long id = getDAO().create(t);
+
+        expect(id).toEqual(t.getId());
         expect(Content.TRACKS).toHaveCount(1);
 
-        Track t2 = TrackDAO.fromUri(uri, resolver, false);
+        Track t2 = getDAO().queryForId(id);
+        expect(t2).not.toBeNull();
 
         compareTracks(t, t2);
         expect(t2.last_updated).toBeGreaterThan(t.last_updated);

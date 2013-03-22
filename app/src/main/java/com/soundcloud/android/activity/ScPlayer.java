@@ -260,7 +260,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             } else if (Intent.ACTION_VIEW.equals(action)) {
                 // Play from a View Intent, this probably came from quicksearch
                 if (intent.getData() != null) {
-                    displayTrack = TrackDAO.fromUri(intent.getData(), getContentResolver(), true);
+                    displayTrack = new TrackDAO(getContentResolver()).queryForUri(intent.getData());
                     if (displayTrack != null) {
                         startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(Track.EXTRA, displayTrack));
                     }

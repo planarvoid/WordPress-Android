@@ -32,7 +32,11 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     }
 
     public long create(T resource) {
-        return create(resource.buildContentValues());
+        final BulkInsertMap dependencies = new BulkInsertMap();
+        resource.putFullContentValues(dependencies);
+        dependencies.insert(mResolver);
+        // TODO this will insert twice
+        return create(resource.toUri(), resource.buildContentValues());
     }
 
     public int createCollection(Collection<T> resources) {
@@ -43,12 +47,16 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         return map.insert(mResolver);
     }
 
-    @Deprecated
     public long create(ContentValues values) {
-        Uri uri = mResolver.insert(getContent().uri, values);
-        if (uri != null) {
+        return create(getContent().uri, values);
+    }
+
+    @Deprecated
+    public long create(Uri uri, ContentValues values) {
+        Uri objUri = mResolver.insert(uri,  values);
+        if (objUri != null) {
             try {
-                return Long.parseLong(uri.getLastPathSegment());
+                return Long.parseLong(objUri.getLastPathSegment());
             } catch (NumberFormatException e) {
                 throw new DAOException(e);
             }
