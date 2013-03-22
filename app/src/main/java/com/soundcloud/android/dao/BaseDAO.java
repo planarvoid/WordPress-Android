@@ -114,7 +114,9 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     public @Nullable T queryForId(long id) {
         Cursor cursor = mResolver.query(getContent().forId(id), null, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
-            return objFromCursor(cursor);
+            T obj = objFromCursor(cursor);
+            cursor.close();
+            return obj;
         } else {
             return null;
         }
