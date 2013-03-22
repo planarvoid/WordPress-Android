@@ -359,7 +359,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
     }
 
     public boolean isPrivate() {
-        return sharing.isPrivate();
+        return sharing != null && sharing.isPrivate();
     }
 
     public boolean hasAvatar() {
