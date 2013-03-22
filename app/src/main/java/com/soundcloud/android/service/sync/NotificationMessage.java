@@ -216,22 +216,23 @@ class NotificationMessage {
 
     /* package */ static String getIncomingNotificationMessage(SoundCloudApplication app, Activities activites) {
         List<User> users = activites.getUniqueUsers();
-        if (!users.isEmpty()){
-            switch (users.size()) {
-                case 1:
-                    return String.format(
-                            app.getString(R.string.dashboard_notifications_message_incoming),
-                            users.get(0).username);
-                case 2:
-                    return String.format(
-                            app.getString(R.string.dashboard_notifications_message_incoming_2),
-                            users.get(0).username, users.get(1).username);
-                default:
-                    return String.format(
-                            app.getString(R.string.dashboard_notifications_message_incoming_others),
-                            users.get(0).username, users.get(1).username);
+        switch (users.size()) {
+            case 0:
+                return ""; // should not get this far, but in case
 
-            }
+            case 1:
+                return String.format(
+                        app.getString(R.string.dashboard_notifications_message_incoming),
+                        users.get(0).username);
+            case 2:
+                return String.format(
+                        app.getString(R.string.dashboard_notifications_message_incoming_2),
+                        users.get(0).username, users.get(1).username);
+            default:
+                return String.format(
+                        app.getString(R.string.dashboard_notifications_message_incoming_others),
+                        users.get(0).username, users.get(1).username);
+
         }
     }
 }
