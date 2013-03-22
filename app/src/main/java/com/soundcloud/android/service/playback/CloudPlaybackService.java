@@ -591,13 +591,15 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private void releaseMediaPlayer(boolean refresh) {
         Log.w(TAG, "stuck in preparing state!");
         final MediaPlayer old = mMediaPlayer;
-        new Thread() {
-            @Override
-            public void run() {
-                old.reset();
-                old.release();
-            }
-        }.start();
+        if (old != null){
+            new Thread() {
+                @Override
+                public void run() {
+                    old.reset();
+                    old.release();
+                }
+            }.start();
+        }
         mMediaPlayer = refresh ? new MediaPlayer() : null;
     }
 
@@ -1116,8 +1118,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                         if (mCurrentVolume > 0f) {
                             sendEmptyMessageDelayed(FADE_OUT, 10);
                         } else {
+                            if (mMediaPlayer != null) mMediaPlayer.pause();
                             mCurrentVolume = 0f;
-                            mMediaPlayer.pause();
                             state = PAUSED_FOCUS_LOST;
                         }
                         setVolume(mCurrentVolume);
