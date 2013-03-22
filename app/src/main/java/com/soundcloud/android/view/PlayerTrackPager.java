@@ -94,9 +94,12 @@ public class PlayerTrackPager extends ViewPager {
                                 }
                                 mViews.getFirst().addView(lastView);
 
-                                final int pos = currentView.getPlayPosition() - 1;
-                                Track track = playQueueManager == null ? null : playQueueManager.getTrackAt(pos);
-                                if (track != null) lastView.setTrack(track, pos, true, false);
+                                if (playQueueManager != null){
+                                    final int pos = currentView.getPlayPosition() - 1;
+                                    final Track track = playQueueManager.getTrackAt(pos);
+                                    if (track != null) lastView.setTrack(track, pos, true, false);
+
+                                }
 
                                 lastView.setOnScreen(false);
                                 mPlayerTrackViews.add(0, mPlayerTrackViews.remove(mPlayerTrackViews.size() - 1));
@@ -117,9 +120,12 @@ public class PlayerTrackPager extends ViewPager {
                                 }
                                 mViews.getLast().addView(firstView);
 
-                                final int pos = currentView.getPlayPosition() + 1;
-                                Track track = playQueueManager == null ? null : playQueueManager.getTrackAt(pos);
-                                if (track != null) firstView.setTrack(track, pos, true, false);
+                                if (playQueueManager != null){
+                                    final int pos = currentView.getPlayPosition() + 1;
+                                    final Track track = playQueueManager.getTrackAt(pos);
+                                    if (track != null) firstView.setTrack(track, pos, true, false);
+                                }
+
 
                                 firstView.setOnScreen(false);
                                 mPlayerTrackViews.add(mPlayerTrackViews.remove(0));
