@@ -13,6 +13,7 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Endpoints;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
@@ -73,7 +74,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
     @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
     public int shared_to_count = NOT_SET;
     @JsonView(Views.Full.class) public String tag_list;
-    @JsonView(Views.Full.class) public Sharing sharing;  //  public | private
+    @JsonView(Views.Full.class) @NotNull public Sharing sharing = Sharing.UNDEFINED;  //  public | private
 
     // app fields
     @JsonIgnore protected CharSequence mElapsedTime;
@@ -229,7 +230,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         b.putInt("likes_count", likes_count);
         b.putInt("reposts_count", reposts_count);
         b.putString("tag_list", tag_list);
-        b.putString("sharing", sharing != null ? sharing.value() : null);
+        b.putString("sharing", sharing.value());
         b.putCharSequence("elapsedTime", mElapsedTime);
         b.putString("list_artwork_uri", mArtworkUri);
         return b;
@@ -292,7 +293,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         if (artwork_url != null) cv.put(DBHelper.Sounds.ARTWORK_URL, artwork_url);
         if (downloadable) cv.put(DBHelper.Sounds.DOWNLOADABLE, downloadable);
         if (streamable) cv.put(DBHelper.Sounds.STREAMABLE, streamable);
-        if (sharing != null) cv.put(DBHelper.Sounds.SHARING, sharing.value);
+        if (sharing != Sharing.UNDEFINED) cv.put(DBHelper.Sounds.SHARING, sharing.value);
         if (license != null) cv.put(DBHelper.Sounds.LICENSE, license);
         if (genre != null) cv.put(DBHelper.Sounds.GENRE, genre);
         if (likes_count != -1) cv.put(DBHelper.Sounds.LIKES_COUNT, likes_count);
@@ -355,11 +356,11 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
     public abstract boolean isStreamable();
 
     public boolean isPublic() {
-        return sharing == null || sharing.isPublic();
+        return sharing.isPublic();
     }
 
     public boolean isPrivate() {
-        return sharing != null && sharing.isPrivate();
+        return sharing.isPrivate();
     }
 
     public boolean hasAvatar() {
