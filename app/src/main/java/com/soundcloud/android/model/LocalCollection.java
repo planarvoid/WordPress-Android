@@ -142,6 +142,7 @@ public class LocalCollection implements ModelLike, ContentValuesProvider {
         return System.currentTimeMillis() - last_sync_success > staleTime;
     }
 
+    @Deprecated
     public void startObservingSelf(ContentResolver contentResolver, OnChangeListener listener) {
         mContentResolver = contentResolver;
         mChangeObserver = new ChangeObserver();

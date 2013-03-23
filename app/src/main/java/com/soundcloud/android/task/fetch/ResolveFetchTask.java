@@ -62,10 +62,6 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
 
     @Override
     protected void onPostExecute(ScResource resource) {
-        if (resource != null) {
-            resource = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(resource, ScResource.CacheUpdateMode.FULL);
-        }
-
         FetchModelTask.Listener<ScResource> listener = getListener();
         if (listener != null) {
             if (resource != null) {

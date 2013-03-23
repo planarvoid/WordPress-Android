@@ -14,35 +14,8 @@ import java.util.EnumSet;
 
 public class UserDAO extends BaseDAO<User> {
 
-    protected UserDAO(ContentResolver contentResolver) {
+    public UserDAO(ContentResolver contentResolver) {
         super(contentResolver);
-    }
-
-    public static User fromUri(Uri uri, ContentResolver resolver, boolean createDummy) {
-        long id = -1l;
-        try {
-            //check the cache first
-            id = Long.parseLong(uri.getLastPathSegment());
-            final User u = SoundCloudApplication.MODEL_MANAGER.getCachedUser(id);
-            if (u != null) return u;
-
-        } catch (NumberFormatException e) {
-            Log.e(UserBrowser.class.getSimpleName(), "Unexpected User uri: " + uri.toString());
-        }
-
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        try {
-            if (cursor != null && cursor.moveToFirst()) {
-                return new User(cursor);
-            } else if (createDummy && id >= 0) {
-                return new User(id);
-            } else {
-                return null;
-            }
-
-        } finally {
-            if (cursor != null) cursor.close();
-        }
     }
 
     // TODO doesn't belong here

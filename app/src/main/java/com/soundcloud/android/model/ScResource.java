@@ -127,22 +127,5 @@ public abstract class ScResource
         return null;
     }
 
-    public static class ScResourceHolder<T extends ScResource> extends CollectionHolder<T> {
-
-        /**
-         * Insert the collection resources using a given URI along with dependencies
-         * @param resolver
-         * @param contentUri
-         * @return the total resources inserted, including dependencies
-         */
-        public int insert(ContentResolver resolver, @NotNull Uri contentUri) {
-            BulkInsertMap map = new BulkInsertMap();
-            for (ScResource r : this) {
-                r.putDependencyValues(map);
-                map.add(contentUri, r.buildContentValues());
-            }
-            return map.insert(resolver);
-        }
-    }
-
+    public static class ScResourceHolder<T extends ScResource> extends CollectionHolder<T> {}
 }

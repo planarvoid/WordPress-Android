@@ -66,6 +66,7 @@ public class ApiSyncer {
     private final PlaylistStorage mPlaylistStorage;
     private final SoundAssociationDAO mSoundAssociationDAO;
     private final CollectionStorage mCollectionStorage;
+    private final UserStorage mUserStorage;
 
 
     public ApiSyncer(Context context) {
@@ -77,6 +78,7 @@ public class ApiSyncer {
         mPlaylistStorage = new PlaylistStorage(mResolver);
         mSoundAssociationDAO = new SoundAssociationDAO(mResolver);
         mCollectionStorage = new CollectionStorage(mResolver);
+        mUserStorage = new UserStorage(mResolver);
     }
 
     public @NotNull Result syncContent(Uri uri, String action) throws IOException {
@@ -422,7 +424,7 @@ public class ApiSyncer {
         User user = new FetchUserTask(mApi).resolve(c.request());
         result.synced_at = System.currentTimeMillis();
         if (user != null) {
-            SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
+            mUserStorage.createOrUpdate(user);
             result.change = Result.CHANGED;
             result.success = true;
         }
@@ -472,9 +474,8 @@ public class ApiSyncer {
 
         Result result = new Result(Content.ME_CONNECTIONS.uri);
         // compare local vs remote connections
-        Set<ScResource> remoteConnections =
-                new HashSet<ScResource>(mApi.readList(Content.ME_CONNECTIONS.request()));
-
+        List<Connection> list = mApi.readList(Content.ME_CONNECTIONS.request());
+        Set<Connection> remoteConnections = new HashSet<Connection>(list);
         ConnectionDAO connectionDAO = new ConnectionDAO(mResolver);
         Set<Connection> storedConnections = new HashSet<Connection>(connectionDAO.queryAll());
 
@@ -486,20 +487,7 @@ public class ApiSyncer {
             storedConnections.removeAll(remoteConnections);
             connectionDAO.deleteAll(storedConnections);
         }
-
-        // write anyways to update connections
-        List<ContentValues> cvs = new ArrayList<ContentValues>(remoteConnections.size());
-        for (ScResource connection : remoteConnections) {
-            ContentValues cv = connection.buildContentValues();
-            if (cv != null) cvs.add(cv);
-        }
-
-        int inserted = 0;
-        if (!cvs.isEmpty()) {
-            inserted = mResolver.bulkInsert(Content.ME_CONNECTIONS.uri, cvs.toArray(new ContentValues[cvs.size()]));
-            log("inserted " + inserted + " generic models");
-        }
-
+        int inserted = connectionDAO.createCollection(remoteConnections);
         result.setSyncData(System.currentTimeMillis(), inserted, null);
         result.success = true;
         return result;
@@ -596,7 +584,7 @@ public class ApiSyncer {
             @Override public Content getContent() {
                 return content;
             }
-        }.create(resources);
+        }.createCollection(resources);
         result.setSyncData(true, System.currentTimeMillis(), resources.size(), Result.CHANGED);
         return result;
     }

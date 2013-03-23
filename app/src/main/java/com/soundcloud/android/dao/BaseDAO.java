@@ -9,6 +9,7 @@ import com.soundcloud.android.model.ModelLike;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,10 +32,14 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     }
 
     public long create(T resource) {
-        return create(resource.buildContentValues());
+        final BulkInsertMap dependencies = new BulkInsertMap();
+        resource.putFullContentValues(dependencies);
+        dependencies.insert(mResolver);
+        // TODO this will insert twice
+        return create(resource.toUri(), resource.buildContentValues());
     }
 
-    public int create(Collection<T> resources) {
+    public int createCollection(Collection<T> resources) {
         BulkInsertMap map = new BulkInsertMap();
         for (T r : resources) {
             r.putFullContentValues(map);
@@ -42,12 +47,16 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         return map.insert(mResolver);
     }
 
-    @Deprecated
     public long create(ContentValues values) {
-        Uri uri = mResolver.insert(getContent().uri, values);
-        if (uri != null) {
+        return create(getContent().uri, values);
+    }
+
+    @Deprecated
+    public long create(Uri uri, ContentValues values) {
+        Uri objUri = mResolver.insert(uri,  values);
+        if (objUri != null) {
             try {
-                return Long.parseLong(uri.getLastPathSegment());
+                return Long.parseLong(objUri.getLastPathSegment());
             } catch (NumberFormatException e) {
                 throw new DAOException(e);
             }
@@ -113,10 +122,16 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     public @Nullable T queryForId(long id) {
         Cursor cursor = mResolver.query(getContent().forId(id), null, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
-            return objFromCursor(cursor);
+            T obj = objFromCursor(cursor);
+            cursor.close();
+            return obj;
         } else {
             return null;
         }
+    }
+
+    public @Nullable T queryForUri(Uri uri) {
+        return queryForId(UriUtils.getLastSegmentAsLong(uri));
     }
 
     protected T objFromCursor(Cursor cursor) {

@@ -59,7 +59,7 @@ public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Bool
                 @Override public Content getContent() {
                     return Content.COLLECTIONS;
                 }
-            }.create(resources);
+            }.createCollection(resources);
 
             return true;
         } catch (IOException e) {

@@ -66,7 +66,7 @@ public interface AndroidCloudAPI extends CloudAPI {
      * @return a resource holder containing resources
      * @throws IOException
      */
-    <T extends ScResource> ScResource.ScResourceHolder<T> readCollection(Request request) throws IOException;
+    <T extends ScResource> CollectionHolder<T> readCollection(Request request) throws IOException;
 
     /**
      * Fetches all resources for the given request until the cursor has been completely read.

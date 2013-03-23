@@ -11,9 +11,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Deprecated
 public class ScModelManager {
     private static final int DEFAULT_CACHE_CAPACITY = 100;
@@ -33,8 +30,7 @@ public class ScModelManager {
         return getCachedTrackFromCursor(cursor, DBHelper.Sounds._ID);
     }
 
-
-    public Track getCachedTrackFromCursor(Cursor cursor, String idCol) {
+    private Track getCachedTrackFromCursor(Cursor cursor, String idCol) {
         final long id = cursor.getLong(cursor.getColumnIndex(idCol));
         Track track = mTrackCache.get(id);
 
@@ -50,7 +46,7 @@ public class ScModelManager {
         return getCachedPlaylistFromCursor(cursor, DBHelper.Sounds._ID);
     }
 
-    public Playlist getCachedPlaylistFromCursor(Cursor cursor, String idCol) {
+    private Playlist getCachedPlaylistFromCursor(Cursor cursor, String idCol) {
         final long id = cursor.getLong(cursor.getColumnIndex(idCol));
         Playlist playlist = mPlaylistCache.get(id);
 
@@ -77,41 +73,6 @@ public class ScModelManager {
         return user;
     }
 
-    public <T extends ScModel> List<T> loadLocalContent(ContentResolver resolver, Class<T> resourceType, Uri localUri) {
-        Cursor itemsCursor = resolver.query(localUri, null, null, null, null);
-        List<ScModel> items = new ArrayList<ScModel>();
-        if (itemsCursor != null) {
-            while (itemsCursor.moveToNext())
-                if (Track.class.equals(resourceType)) {
-                    items.add(getCachedTrackFromCursor(itemsCursor));
-                } else if (User.class.equals(resourceType)) {
-                    items.add(getUserFromCursor(itemsCursor));
-                } else if (Friend.class.equals(resourceType)) {
-                    items.add(new Friend(getUserFromCursor(itemsCursor)));
-                } else if (SoundAssociation.class.equals(resourceType)) {
-                    items.add(new SoundAssociation(itemsCursor));
-                } else if (Playlist.class.equals(resourceType)) {
-                    items.add(getCachedPlaylistFromCursor(itemsCursor));
-                } else {
-                    throw new IllegalArgumentException("NOT HANDLED YET " + resourceType);
-                }
-        }
-        if (itemsCursor != null) itemsCursor.close();
-
-        return (List<T>) items;
-    }
-
-    private User getUserFromCursor(Cursor itemsCursor) {
-        final long id = itemsCursor.getLong(itemsCursor.getColumnIndex(DBHelper.Users._ID));
-        User user = mUserCache.get(id);
-        if (user == null) {
-            user = new User(itemsCursor);
-            mUserCache.put(user);
-        }
-        return user;
-    }
-
-
     public
     @Nullable
     Playlist getPlaylist(Uri uri) {
@@ -125,9 +86,7 @@ public class ScModelManager {
         }
     }
 
-    public
-    @Nullable
-    ModelCache getCacheFromUri(Uri uri) {
+    private @Nullable ModelCache getCacheFromUri(Uri uri) {
         switch (Content.match(uri)) {
             case TRACK:
                 return mTrackCache;
@@ -152,8 +111,7 @@ public class ScModelManager {
      * @param cache optional cache to lookup object in and cache to
      * @return the resource found, or null if no resource found
      */
-    @Nullable
-    ScModel getModel(Uri uri, @Nullable ModelCache cache) {
+    private @Nullable ScModel getModel(Uri uri, @Nullable ModelCache cache) {
         ScModel resource = null;
 
         if (cache != null) resource = cache.get(UriUtils.getLastSegmentAsLong(uri));
@@ -314,45 +272,6 @@ public class ScModelManager {
             return user;
         }
     }
-
-
-    public ScResource cacheAndWrite(ScResource resource, ScResource.CacheUpdateMode mode) {
-        if (resource instanceof Track) {
-            return cacheAndWrite(((Track) resource), mode);
-        } else if (resource instanceof User) {
-            return cacheAndWrite(((User) resource), mode);
-        } else if (resource instanceof Playlist) {
-            return cacheAndWrite(((Playlist) resource), mode);
-        }
-        return resource;
-    }
-
-    public Track cacheAndWrite(Track track, ScResource.CacheUpdateMode mode) {
-        if (track != null) {
-            if (mode == ScResource.CacheUpdateMode.FULL) track.setUpdated();
-            track = cache(track, mode);
-            track.insert(mResolver);
-        }
-        return track;
-    }
-
-    public User cacheAndWrite(User user, ScResource.CacheUpdateMode mode) {
-        if (user != null) {
-            user = cache(user, mode);
-            user.insert(mResolver);
-        }
-        return user;
-    }
-
-    public Playlist cacheAndWrite(Playlist playlist, ScResource.CacheUpdateMode mode) {
-        if (playlist != null) {
-            playlist = cache(playlist, mode);
-            playlist.insert(mResolver);
-        }
-        return playlist;
-    }
-
-
 
     public void clear() {
         mTrackCache.clear();

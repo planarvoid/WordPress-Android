@@ -40,7 +40,7 @@ public class PlayQueueManagerStore {
     }
 
     public void insertQueue(List<Track> tracks, long userId) {
-        mTrackDAO.create(tracks);
+        mTrackDAO.createCollection(tracks);
         ContentValues[] contentValues = new ContentValues[tracks.size()];
         for (int i=0; i<tracks.size(); i++) {
             ContentValues cv = new ContentValues();
