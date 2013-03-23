@@ -14,7 +14,7 @@ import java.io.IOException;
 
 import static com.soundcloud.android.Expect.expect;
 
-public class RecordingDAOTest extends BaseDAOTest<RecordingDAO> {
+public class RecordingDAOTest extends AbstractDAOTest<RecordingDAO> {
 
     public RecordingDAOTest() {
         super(new RecordingDAO(Robolectric.application.getContentResolver()));

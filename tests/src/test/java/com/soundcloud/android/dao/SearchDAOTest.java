@@ -10,7 +10,7 @@ import java.util.List;
 
 import static com.soundcloud.android.Expect.expect;
 
-public class SearchDAOTest extends BaseDAOTest<SearchDAO> {
+public class SearchDAOTest extends AbstractDAOTest<SearchDAO> {
 
     public SearchDAOTest() {
         super(new SearchDAO(Robolectric.application.getContentResolver()));

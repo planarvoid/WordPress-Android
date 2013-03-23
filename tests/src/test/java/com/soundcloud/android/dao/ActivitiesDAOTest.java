@@ -21,7 +21,7 @@ import java.util.List;
 
 import static com.soundcloud.android.Expect.expect;
 
-public class ActivitiesDAOTest extends BaseDAOTest<ActivityDAO> {
+public class ActivitiesDAOTest extends AbstractDAOTest<ActivityDAO> {
 
     public ActivitiesDAOTest() {
         super(new ActivityDAO(Robolectric.application.getContentResolver()));

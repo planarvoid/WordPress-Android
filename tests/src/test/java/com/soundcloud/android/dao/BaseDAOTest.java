@@ -1,30 +1,47 @@
 package com.soundcloud.android.dao;
 
-import android.content.ContentResolver;
-import com.soundcloud.android.model.ModelLike;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
+
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
-import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+
 @RunWith(DefaultTestRunner.class)
-public abstract class BaseDAOTest<T extends BaseDAO> {
-    protected static final long USER_ID = 133201L;
-    protected  ContentResolver resolver;
+public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
 
-    protected T baseDAO;
-
-    public BaseDAOTest(T baseDAO) {
-        this.baseDAO = baseDAO;
+    public BaseDAOTest() {
+        super(new TestDAO(mock(ContentResolver.class)));
     }
 
-    @Before
-    public void before() {
-        resolver = Robolectric.application.getContentResolver();
-        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+    //TODO 3/23/13 When gotten rid of ContentProvider, verify interaction against DB instead
+    @Test
+    public void shouldStoreSingleRecord() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+        Track record = new Track();
+
+        when(resolverMock.insert(eq(record.toUri()), any(ContentValues.class))).thenReturn(record.toUri());
+
+        getDAO().create(record);
+
+        verify(resolverMock).insert(eq(record.toUri()), any(ContentValues.class));
     }
 
-    protected T getDAO() {
-        return baseDAO;
+    private static class TestDAO extends BaseDAO<Track> {
+
+        protected TestDAO(ContentResolver contentResolver) {
+            super(contentResolver);
+        }
+
+        @Override
+        public Content getContent() {
+            return Content.TRACKS;
+        }
     }
 }

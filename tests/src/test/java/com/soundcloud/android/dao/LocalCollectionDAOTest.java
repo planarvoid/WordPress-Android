@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import static com.soundcloud.android.Expect.expect;
 
-public class LocalCollectionDAOTest extends BaseDAOTest<LocalCollectionDAO> {
+public class LocalCollectionDAOTest extends AbstractDAOTest<LocalCollectionDAO> {
     public LocalCollectionDAOTest() {
         super(new LocalCollectionDAO(Robolectric.application.getContentResolver()));
     }

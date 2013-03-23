@@ -144,6 +144,13 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
 
     public abstract Content getContent();
 
+    // I'd like to keep this for now in order to verify DB interaction in tests;
+    // Once we've removed ContentProvider, those interaction tests should be replaced
+    // with mocked calls to the actual DB
+    /* package */ ContentResolver getContentResolver() {
+        return mResolver;
+    }
+
     public @NotNull Class<T> getModelClass() {
         @SuppressWarnings("unchecked")
         Class<T> klass = (Class<T>) getContent().modelType;
