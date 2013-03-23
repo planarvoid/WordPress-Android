@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
 
 import static com.soundcloud.android.Expect.expect;
 
@@ -105,7 +106,7 @@ public class RecordingDAOTest extends AbstractDAOTest<RecordingDAO> {
     }
 
     private Recording createRecording() throws IOException {
-        File tmp = new File("/tmp/recording");
+        File tmp = createRecordingFile("wav");
 
         Recording r = new Recording(tmp);
         r.latitude = 32.3;
@@ -117,7 +118,7 @@ public class RecordingDAOTest extends AbstractDAOTest<RecordingDAO> {
         r.genre = "speed blues ";
         r.duration = 86 * 1000;
         r.user_id = USER_ID;
-        r.  recipient_user_id = 300L;
+        r.recipient_user_id = 300L;
         r.recipient_username = "foo";
         r.shared_emails = "foo@example.com";
         r.shared_ids = "1,2,3,4";
@@ -125,7 +126,20 @@ public class RecordingDAOTest extends AbstractDAOTest<RecordingDAO> {
         r.artwork_path = r.getFile();
         r.resized_artwork_path = r.artwork_path;
         r.tip_key = "something";
+
         return r;
+    }
+
+    private File createRecordingFile(String extension) throws IOException {
+        File tmp = File.createTempFile("recording-test", extension);
+        tmp.createNewFile();
+        expect(tmp.exists()).toBeTrue();
+
+        Calendar c = Calendar.getInstance();
+        //noinspection MagicConstant
+        c.set(2001, 1, 15, 14, 31, 1);  // 14:31:01, 15/02/2011
+        tmp.setLastModified(c.getTimeInMillis());
+        return tmp;
     }
 
     @Test
