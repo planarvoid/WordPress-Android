@@ -109,22 +109,6 @@ public class RecordingTest {
     }
 
     @Test
-    public void shouldDeleteRecording() throws Exception {
-        Recording r = createRecording();
-        expect(r.exists()).toBeTrue();
-        expect(RecordingDAO.delete(r, null)).toBeTrue();
-        expect(r.exists()).toBeFalse();
-    }
-
-    @Test
-    public void shouldNotDeleteRecordingIfExternal() throws Exception {
-        Recording r = createRecording();
-        r.external_upload = true;
-        expect(RecordingDAO.delete(r, null)).toBeFalse();
-        expect(r.exists()).toBeTrue();
-    }
-
-    @Test
     public void existsShouldCheckForRawAndEncodedFile() throws Exception {
         Recording r = createRecording();
         expect(r.getEncodedFile().createNewFile()).toBeTrue();

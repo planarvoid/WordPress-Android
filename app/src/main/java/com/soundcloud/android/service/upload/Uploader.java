@@ -1,17 +1,20 @@
 package com.soundcloud.android.service.upload;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.dao.RecordingDAO;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.SyncStateManager;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -143,11 +146,23 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             mStorage.createOrUpdate(track);
 
             //request to update my collection
-            new SyncStateManager(api.getContext().getContentResolver()).forceToStale(Content.ME_SOUNDS.uri);
+            ContentResolver resolver = api.getContext().getContentResolver();
+            new SyncStateManager(resolver).forceToStale(Content.ME_SOUNDS.uri);
 
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + track);
 
-            mUpload.setUploaded(api.getContext().getContentResolver());
+            mUpload.markUploaded();
+            if (!mUpload.external_upload) {
+                IOUtils.deleteFile(mUpload.getFile());
+                IOUtils.deleteFile(mUpload.getEncodedFile());
+            }
+            File artworkPath = mUpload.resized_artwork_path;
+            if (artworkPath != null) {
+                IOUtils.deleteFile(artworkPath);
+            }
+
+            new RecordingDAO(resolver).updateStatus(mUpload);
+
             broadcast(UploadService.TRANSFER_SUCCESS, track);
         } catch (IOException e) {
             onUploadFailed(e);

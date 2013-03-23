@@ -107,7 +107,8 @@ public class ScUpload extends ScActivity {
                 track(Click.Record_Share_Record_Another);
 
                 if (mRecording.external_upload){
-                    RecordingDAO.delete(mRecording, getContentResolver());
+                    //FIXME 3/23/13 database access on UI thread
+                    new RecordingDAO(getContentResolver()).delete(mRecording);
                 } else {
                     setResult(RESULT_OK, new Intent().setData(mRecording.toUri()));
                 }
@@ -209,7 +210,7 @@ public class ScUpload extends ScActivity {
     private void saveRecording() {
         mapToRecording(mRecording);
         if (mRecording != null) {
-            RecordingDAO.insert(mRecording, getContentResolver());
+            new RecordingDAO(getContentResolver()).insert(mRecording);
         }
     }
 

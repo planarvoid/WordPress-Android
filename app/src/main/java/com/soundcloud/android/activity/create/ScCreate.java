@@ -462,8 +462,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         Recording.clearRecordingFromIntent(intent);
 
         if (newState == CreateState.IDLE_RECORD) {
-            mUnsavedRecordings = Recording.getUnsavedRecordings(
-                    getContentResolver(),
+            RecordingDAO recordings = new RecordingDAO(getContentResolver());
+            mUnsavedRecordings = recordings.getUnsavedRecordings(
                     SoundRecorder.RECORD_DIR,
                     mRecorder.getRecording(),
                     getCurrentUserId());
@@ -900,12 +900,13 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         .setPositiveButton(R.string.btn_save,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
+                                    RecordingDAO dao = new RecordingDAO(getContentResolver());
                                     for (int i = 0; i < recordings.size(); i++) {
                                         if (checked[i]) {
                                             DeprecatedRecordingProfile.migrate(recordings.get(i)); // migrate deprecated format, otherwise this is harmless
-                                            RecordingDAO.insert(recordings.get(i), getContentResolver());
+                                            dao.insert(recordings.get(i));
                                         } else {
-                                            RecordingDAO.delete(recordings.get(i), null);
+                                            dao.delete(recordings.get(i));
                                         }
                                     }
                                     mUnsavedRecordings = null;
