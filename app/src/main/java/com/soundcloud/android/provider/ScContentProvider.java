@@ -416,6 +416,7 @@ public class ScContentProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         final Content content = Content.match(uri);
         switch (content) {
+            case COLLECTION:
             case COLLECTIONS:
                 id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();

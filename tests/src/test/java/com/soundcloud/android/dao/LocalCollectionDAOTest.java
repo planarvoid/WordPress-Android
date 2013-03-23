@@ -16,7 +16,7 @@ public class LocalCollectionDAOTest extends AbstractDAOTest<LocalCollectionDAO> 
     @Test
     public void shouldInsertCollection() throws Exception {
         final Uri uri = Uri.parse("foo");
-        LocalCollection c = new LocalCollection(-1, uri, -1, -1, 0, -1, null);
+        LocalCollection c = new LocalCollection(1, uri, -1, -1, 0, -1, null);
         expect(getDAO().create(c)).toBeGreaterThan(0L);
 
         expect(c.uri).toEqual(uri);
@@ -28,7 +28,7 @@ public class LocalCollectionDAOTest extends AbstractDAOTest<LocalCollectionDAO> 
     @Test
     public void shouldCreateCollection() throws Exception {
         final Uri foo = Uri.parse("foo");
-        LocalCollection lc = new LocalCollection(-1, foo, 0, 0, 0, 0, null);
+        LocalCollection lc = new LocalCollection(1, foo, 0, 0, 0, 0, null);
 
         expect(getDAO().create(lc)).toBeGreaterThan(0L);
         expect(getDAO().deleteUri(foo)).toBeTrue();
