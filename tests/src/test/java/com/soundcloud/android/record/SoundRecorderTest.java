@@ -88,8 +88,7 @@ public class SoundRecorderTest {
         expect(saved).not.toBeNull();
         expect(saved.isSaved()).toBeTrue();
 
-        Recording r2 = RecordingDAO.getRecordingByUri(DefaultTestRunner.application.getContentResolver(),
-                saved.toUri());
+        Recording r2 = new RecordingDAO(DefaultTestRunner.application.getContentResolver()).getRecordingByUri(saved.toUri());
 
         assert r2 != null;
         expect(r2).not.toBeNull();

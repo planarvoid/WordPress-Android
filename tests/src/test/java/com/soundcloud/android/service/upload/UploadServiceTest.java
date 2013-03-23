@@ -187,12 +187,14 @@ public class UploadServiceTest {
 
         svc.upload(recording);
 
-        Recording updated = RecordingDAO.getRecordingByUri(svc.getContentResolver(), recording.toUri());
+        RecordingDAO recordings = new RecordingDAO(svc.getContentResolver());
+
+        Recording updated = recordings.getRecordingByUri(recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADING);
 
         getUploadScheduler().unPause();
 
-        updated = RecordingDAO.getRecordingByUri(svc.getContentResolver(), recording.toUri());
+        updated = recordings.getRecordingByUri(recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADED);
     }
 
@@ -204,7 +206,7 @@ public class UploadServiceTest {
 
         svc.upload(recording);
 
-        Recording updated = RecordingDAO.getRecordingByUri(svc.getContentResolver(), recording.toUri());
+        Recording updated = new RecordingDAO(svc.getContentResolver()).getRecordingByUri(recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.ERROR);
     }
 
@@ -221,7 +223,7 @@ public class UploadServiceTest {
         expect(upload.isUploaded()).toBeTrue();
         expect(upload.resized_artwork_path).toEqual(upload.artwork_path);
 
-        Recording updated = RecordingDAO.getRecordingByUri(svc.getContentResolver(), upload.toUri());
+        Recording updated = new RecordingDAO(svc.getContentResolver()).getRecordingByUri(upload.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADED);
     }
 
@@ -273,10 +275,12 @@ public class UploadServiceTest {
     public void shouldCheckForStuckRecordingsOnStartup() throws Exception {
         Recording stuck = TestApplication.getValidRecording();
         stuck.upload_status = Recording.Status.UPLOADING;
-        RecordingDAO.insert(stuck, svc.getContentResolver());
+
+        RecordingDAO recordings = new RecordingDAO(svc.getContentResolver());
+        recordings.insert(stuck);
 
         UploadService service = startService();
-        Recording r = RecordingDAO.getRecordingByUri(svc.getContentResolver(), stuck.toUri());
+        Recording r = recordings.getRecordingByUri(stuck.toUri());
         expect(r.upload_status).toEqual(Recording.Status.NOT_YET_UPLOADED);
 //        expect(shadowOf(service).isStoppedBySelf()).toBeTrue();
     }

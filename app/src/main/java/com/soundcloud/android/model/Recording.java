@@ -35,7 +35,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.location.Location;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -112,7 +111,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
     public static final String TAG_SOURCE_ANDROID_RECORD          = "soundcloud:source=android-record";
     public static final String TAG_RECORDING_TYPE_DEDICATED       = "soundcloud:recording-type=dedicated";
     public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
-    public static String PROCESSED_APPEND = "_processed";
+    public static final String PROCESSED_APPEND = "_processed";
 
     public String getTitle(Resources r) {
         return TextUtils.isEmpty(title) ? sharingNote(r) : title;
@@ -571,6 +570,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
         }
     }
     // TODO , not sure where this belongs
+    // Yeah, because it's absolutely fucking terrible.
     public static @Nullable Recording fromIntent(@Nullable Intent intent, ContentResolver resolver, long userId) {
         if (intent == null) return null;
         final String action = intent.getAction();
@@ -611,38 +611,21 @@ public class Recording extends ScResource implements Comparable<Recording> {
                 return r;
             } else return null;
         } else if (intent.getData() != null) {
-            return Recording.fromUri(intent.getData(), resolver);
+            RecordingDAO dao = new RecordingDAO(resolver);
+            return dao.getRecordingByUri(intent.getData());
         } else {
             return null;
         }
     }
 
-    /**
-     * Gets called after successful upload. Clean any tmp files here.
-     */
-    public void setUploaded(ContentResolver resolver) {
+    public void markUploaded() {
         upload_status = Status.UPLOADED;
-        if (!external_upload) {
-            IOUtils.deleteFile(getFile());
-            IOUtils.deleteFile(getEncodedFile());
-        }
-        IOUtils.deleteFile(resized_artwork_path);
-        RecordingDAO.updateStatus(this, resolver);
     }
 
     public static void clearRecordingFromIntent(Intent intent) {
         intent.removeExtra(EXTRA);
         intent.removeExtra(Intent.EXTRA_STREAM);
         intent.setData(null);
-    }
-
-    public static Recording fromUri(Uri uri, ContentResolver resolver) {
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        try {
-            return cursor != null && cursor.moveToFirst() ? new Recording(cursor) : null;
-        } finally {
-            if (cursor != null) cursor.close();
-        }
     }
 
     public static @NotNull Recording create() {
@@ -847,45 +830,4 @@ public class Recording extends ScResource implements Comparable<Recording> {
         return trimmed;
     }
 
-    public static List<Recording> getUnsavedRecordings(ContentResolver resolver, File directory, Recording ignore, long userId) {
-        MediaPlayer mp = null;
-        List<Recording> unsaved = new ArrayList<Recording>();
-
-        Map<String,File> toCheck = new HashMap<String,File>();
-        final File[] list = IOUtils.nullSafeListFiles(directory, new RecordingFilter(ignore));
-        Arrays.sort(list); // we want .wav files taking precedence, so make sure they appear last (alpha order)
-        for (File f : list) {
-            if (getUserIdFromFile(f) != -1) continue; //TODO, what to do about private messages
-            toCheck.put(IOUtils.removeExtension(f).getAbsolutePath(), f);
-        }
-        for (File f : toCheck.values()) {
-            if (isAmplitudeFile(f.getName())) {
-                Log.d(TAG, "Deleting isolated amplitude file : " + f.getName() + " : " + f.delete());
-            } else {
-                Recording r = RecordingDAO.getRecordingByPath(resolver, f);
-                if (r == null) {
-                    r = new Recording(f);
-                    r.user_id = userId;
-                    try {
-                        if (mp == null) {
-                            mp = new MediaPlayer();
-                        }
-                        mp.reset();
-                        mp.setDataSource(f.getAbsolutePath());
-                        mp.prepare();
-                        r.duration = mp.getDuration();
-                    } catch (IOException e) {
-                        Log.e(TAG, "error", e);
-                    }
-                    if (r.duration <= 0 || f.getName().contains(PROCESSED_APPEND)) {
-                        Log.d(TAG, "Deleting unusable file : " + f.getName() + " : " + RecordingDAO.delete(r, resolver));
-                    } else {
-                        unsaved.add(r);
-                    }
-                }
-            }
-        }
-        Collections.sort(unsaved, null);
-        return unsaved;
-    }
 }

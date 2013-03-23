@@ -206,7 +206,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
 
         if (mRecording != null) {
-            if (deleteRecording) RecordingDAO.delete(mRecording, mContext.getContentResolver());
+            if (deleteRecording) new RecordingDAO(mContext.getContentResolver()).delete(mRecording);
             mRecording = null;
         }
     }
@@ -485,7 +485,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             }
 
             mRecording.setPlaybackStream(mPlaybackStream);
-            final Uri uri = RecordingDAO.insert(mRecording, mContext.getContentResolver(), false);
+            final Uri uri = new RecordingDAO(mContext.getContentResolver()).insert(mRecording, false);
             if (uri != null) {
                 mRecording.id = Long.parseLong(uri.getLastPathSegment());
                 return mRecording;

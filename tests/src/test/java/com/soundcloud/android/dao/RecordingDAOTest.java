@@ -43,10 +43,10 @@ public class RecordingDAOTest extends BaseDAOTest<RecordingDAO> {
     @Test
     public void shouldGetRecordingFromIntentViaDatabase() throws Exception {
         final ContentResolver contentResolver = Robolectric.application.getContentResolver();
-        Recording r = Recording.fromUri(RecordingDAO.insert(createRecording(), contentResolver), contentResolver);
+        Recording r = createRecording();
+        Uri uri = getDAO().insert(r);
 
-        assert r != null;
-        Intent i = new Intent().setData(r.toUri());
+        Intent i = new Intent().setData(uri);
 
         Recording r2 = Recording.fromIntent(i, contentResolver, -1);
         expect(r2).not.toBeNull();
@@ -127,4 +127,22 @@ public class RecordingDAOTest extends BaseDAOTest<RecordingDAO> {
         r.tip_key = "something";
         return r;
     }
+
+    @Test
+    public void shouldDeleteRecording() throws Exception {
+        Recording r = createRecording();
+        expect(r.exists()).toBeTrue();
+        expect(getDAO().delete(r)).toBeTrue();
+        expect(r.exists()).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotDeleteRecordingIfExternal() throws Exception {
+        Recording r = createRecording();
+        r.external_upload = true;
+        expect(getDAO().delete(r)).toBeFalse();
+        expect(r.exists()).toBeTrue();
+    }
+
+
 }

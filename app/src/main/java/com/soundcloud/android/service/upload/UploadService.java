@@ -290,8 +290,8 @@ public class UploadService extends Service {
                     || TRANSFER_CANCELLED.equals(action)
                     || TRANSFER_ERROR.equals(action);
             if (wasError) {
-                RecordingDAO
-                        .updateStatus(recording.setUploadFailed(PROCESSING_CANCELED.equals(action) || TRANSFER_CANCELLED.equals(action)), getContentResolver()); // for list state
+                new RecordingDAO(getContentResolver())
+                        .updateStatus(recording.setUploadFailed(PROCESSING_CANCELED.equals(action) || TRANSFER_CANCELLED.equals(action))); // for list state
 
                 releaseLocks();
                 mUploads.remove(recording.id);
@@ -400,8 +400,9 @@ public class UploadService extends Service {
             soundRecorder.gotoIdleState();
         }
 
+        RecordingDAO recordings = new RecordingDAO(getContentResolver());
         if (!recording.isSaved()){
-            Uri uri = RecordingDAO.insert(recording, getContentResolver());
+            Uri uri = recordings.insert(recording);
             if (uri != null) {
                 recording.id = Long.parseLong(uri.getLastPathSegment());
             }
@@ -409,7 +410,7 @@ public class UploadService extends Service {
 
         if (recording.isSaved()){
             recording.upload_status = Recording.Status.UPLOADING;
-            RecordingDAO.updateStatus(recording, getContentResolver());
+            recordings.updateStatus(recording);
         } else {
             Log.w(TAG, "could not create " + recording);
         }
