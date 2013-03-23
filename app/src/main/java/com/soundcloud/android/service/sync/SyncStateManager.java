@@ -23,10 +23,6 @@ public class SyncStateManager {
         mLocalCollectionDao = new LocalCollectionDAO(resolver);
     }
 
-    public LocalCollection insertLocalCollection(Uri contentUri) {
-        return insertLocalCollection(contentUri, 0, -1, -1, -1, null);
-    }
-
     public  LocalCollection insertLocalCollection(
             Uri contentUri,
             int syncState,

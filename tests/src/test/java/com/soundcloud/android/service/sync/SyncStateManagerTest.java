@@ -42,7 +42,7 @@ public class SyncStateManagerTest {
     @Test
     public void shouldUpdateLastSyncTime() throws Exception {
         final Uri uri = Uri.parse("foo");
-        syncStateManager.insertLocalCollection(uri);
+        insertLocalCollection(uri);
         syncStateManager.updateLastSyncSuccessTime(uri, 200);
         expect(syncStateManager.fromContent(uri).last_sync_success).toEqual(200L);
     }
@@ -50,7 +50,7 @@ public class SyncStateManagerTest {
     @Test
     public void shouldForceToStale() throws Exception {
         final Uri uri = Uri.parse("foo");
-        syncStateManager.insertLocalCollection(uri);
+        insertLocalCollection(uri);
         syncStateManager.updateLastSyncSuccessTime(uri, 200);
         expect(syncStateManager.fromContent(uri).last_sync_success).toEqual(200L);
 
@@ -66,4 +66,9 @@ public class SyncStateManagerTest {
         syncStateManager.updateSyncState(lc.id, LocalCollection.SyncState.SYNCING);
         expect(syncStateManager.fromContent(uri).shouldAutoRefresh()).toBeFalse();
     }
+
+    private LocalCollection insertLocalCollection(Uri contentUri) {
+        return syncStateManager.insertLocalCollection(contentUri, 0, -1, -1, -1, null);
+    }
+
 }
