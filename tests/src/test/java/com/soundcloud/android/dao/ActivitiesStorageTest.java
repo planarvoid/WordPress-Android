@@ -1,5 +1,6 @@
 package com.soundcloud.android.dao;
 
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
@@ -77,13 +78,14 @@ public class ActivitiesStorageTest {
         storage.insert(Content.ME_SOUND_STREAM, a);
         expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
-        new SyncStateManager(Robolectric.application.getContentResolver())
-                .insertLocalCollection(Content.ME_SOUND_STREAM.uri,
-                                       0,
-                                       System.currentTimeMillis(),
-                                       System.currentTimeMillis(),
-                                       a.size(),
-                                       a.future_href);
+        LocalCollection lc = new LocalCollection(
+                Content.ME_SOUND_STREAM.uri,
+                System.currentTimeMillis(),
+                System.currentTimeMillis(),
+                LocalCollection.SyncState.IDLE,
+                a.size(),
+                a.future_href);
+        new LocalCollectionDAO(DefaultTestRunner.application.getContentResolver()).create(lc);
 
         storage.clear(null);
 

@@ -14,9 +14,10 @@ public class LocalCollectionTest {
 
     @Test
     public void shouldSupportEqualsAndHashcode() throws Exception {
-        LocalCollection c1 = new LocalCollection(1, Uri.parse("foo"), 1, 1, 0, 0, null);
-        LocalCollection c2 = new LocalCollection(1, Uri.parse("foo"), 1, 1, 0, 0, null);
-        LocalCollection c3 = new LocalCollection(100, Uri.parse("foo"), 1, 1, 0, 0, null);
+        LocalCollection c1 = new LocalCollection(Uri.parse("foo"), 1, 1, 0, 0, null);
+        LocalCollection c2 = new LocalCollection(Uri.parse("foo"), 1, 1, 0, 0, null);
+        LocalCollection c3 = new LocalCollection(Uri.parse("foo"), 1, 1, 0, 0, null);
+        c3.setId(100);
         expect(c1).toEqual(c2);
         expect(c2).not.toEqual(c3);
     }
@@ -24,7 +25,7 @@ public class LocalCollectionTest {
 
     @Test
     public void shouldAutoRefreshFavorites() throws Exception {
-        LocalCollection lc = new LocalCollection(1,
+        LocalCollection lc = new LocalCollection(
                 Content.ME_LIKES.uri,
                 System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY,
                 0, 0, 100, null);
@@ -33,7 +34,7 @@ public class LocalCollectionTest {
 
     @Test
     public void shouldNotAutoRefreshFavorites() throws Exception {
-        LocalCollection lc = new LocalCollection(1,
+        LocalCollection lc = new LocalCollection(
                 Content.ME_LIKES.uri,
                 System.currentTimeMillis(),
                 0, 0, 100, null);
@@ -42,7 +43,7 @@ public class LocalCollectionTest {
 
     @Test
     public void shouldNotAutoRefreshFavorites2() throws Exception {
-        LocalCollection lc = new LocalCollection(1,
+        LocalCollection lc = new LocalCollection(
                 Content.ME_LIKES.uri,
                 System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY,
                 System.currentTimeMillis() - SyncConfig.TRACK_STALE_TIME + 10000,
@@ -52,13 +53,13 @@ public class LocalCollectionTest {
 
     @Test
     public void shouldAutoRefreshFollowings() throws Exception {
-        LocalCollection lc = new LocalCollection(1, Content.ME_FOLLOWINGS.uri, 1, 0, 0, 100, null);
+        LocalCollection lc = new LocalCollection(Content.ME_FOLLOWINGS.uri, 1, 0, 0, 100, null);
         expect(lc.shouldAutoRefresh()).toBeTrue();
     }
 
     @Test
     public void shouldNotAutoRefreshFollowings() throws Exception {
-        LocalCollection lc = new LocalCollection(1, Content.ME_FOLLOWINGS.uri, 0, 1, 0, 100, null);
+        LocalCollection lc = new LocalCollection(Content.ME_FOLLOWINGS.uri, 0, 1, 0, 100, null);
         expect(lc.shouldAutoRefresh()).toBeFalse();
     }
 }

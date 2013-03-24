@@ -23,28 +23,6 @@ public class SyncStateManager {
         mLocalCollectionDao = new LocalCollectionDAO(resolver);
     }
 
-    public  LocalCollection insertLocalCollection(
-            Uri contentUri,
-            int syncState,
-            long lastSyncAttempt,
-            long lastSyncSuccess,
-            int size,
-            String extra) {
-
-        // create if not there
-        ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Collections.URI, contentUri.toString());
-        if (lastSyncAttempt != -1) cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT, lastSyncAttempt);
-        if (lastSyncSuccess != -1) cv.put(DBHelper.Collections.LAST_SYNC, lastSyncSuccess);
-        if (size != -1)        cv.put(DBHelper.Collections.SIZE, size);
-        cv.put(DBHelper.Collections.SYNC_STATE, syncState);
-        cv.put(DBHelper.Collections.EXTRA, extra);
-
-        long id = mLocalCollectionDao.create(cv);
-        return new LocalCollection((int) id, contentUri, lastSyncAttempt,lastSyncSuccess, syncState, size, extra);
-    }
-
-
     public @NotNull LocalCollection fromContent(Content content) {
         return fromContent(content.uri);
     }

@@ -26,7 +26,7 @@ public class LocalCollectionDAO extends BaseDAO<LocalCollection> {
         if (c != null) c.close();
 
         if (lc == null && createIfNecessary){
-            lc = new LocalCollection(0, contentUri, -1, -1, 0, -1, null);
+            lc = new LocalCollection(contentUri);
             create(lc);
         }
         return lc;

@@ -1,7 +1,10 @@
 package com.soundcloud.android.service.sync;
 
 
+import android.content.ContentResolver;
 import android.net.Uri;
+
+import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -16,15 +19,19 @@ import static com.soundcloud.android.Expect.expect;
 public class SyncStateManagerTest {
 
     SyncStateManager syncStateManager;
+    ContentResolver resolver;
 
     @Before public void before() {
-        syncStateManager = new SyncStateManager(Robolectric.application.getContentResolver());
+        resolver = DefaultTestRunner.application.getContentResolver();
+        syncStateManager = new SyncStateManager(resolver);
     }
 
     @Test
     public void shouldGetLastSyncAttempt() throws Exception {
         final Uri uri = Uri.parse("foo");
-        LocalCollection c = syncStateManager.insertLocalCollection(uri, 1, 100, 1, 0, null);
+
+        LocalCollection c = new LocalCollection(uri, 100, 1, LocalCollection.SyncState.PENDING, 0, null);
+        new LocalCollectionDAO(resolver).create(c);
         expect(c).not.toBeNull();
         expect(syncStateManager.getLastSyncAttempt(uri)).toEqual(100L);
         expect(syncStateManager.getLastSyncAttempt(Uri.parse("notfound"))).toEqual(-1L);
@@ -33,7 +40,8 @@ public class SyncStateManagerTest {
     @Test
     public void shouldGetLastSyncSuccess() throws Exception {
         final Uri uri = Uri.parse("foo");
-        LocalCollection c = syncStateManager.insertLocalCollection(uri, 1, 1, 100, 0, null);
+        LocalCollection c = new LocalCollection(uri, 1, 100, LocalCollection.SyncState.PENDING, 0, null);
+        new LocalCollectionDAO(resolver).create(c);
         expect(c).not.toBeNull();
         expect(syncStateManager.getLastSyncSuccess(uri)).toEqual(100L);
         expect(syncStateManager.getLastSyncSuccess(Uri.parse("notfound"))).toEqual(-1L);
@@ -61,14 +69,17 @@ public class SyncStateManagerTest {
     @Test
     public void shouldChangeAutoRefresh() throws Exception {
         Uri uri = Content.ME_LIKES.uri;
-        LocalCollection lc = syncStateManager.insertLocalCollection(uri, 0, 1, 0, 100, null);
+        LocalCollection lc = new LocalCollection(uri, 100, 1, LocalCollection.SyncState.IDLE, 0, null);
+        new LocalCollectionDAO(resolver).create(lc);
         expect(lc.shouldAutoRefresh()).toBeTrue();
         syncStateManager.updateSyncState(lc.id, LocalCollection.SyncState.SYNCING);
         expect(syncStateManager.fromContent(uri).shouldAutoRefresh()).toBeFalse();
     }
 
     private LocalCollection insertLocalCollection(Uri contentUri) {
-        return syncStateManager.insertLocalCollection(contentUri, 0, -1, -1, -1, null);
+        LocalCollection collection = new LocalCollection(contentUri);
+        new LocalCollectionDAO(resolver).create(collection);
+        return collection;
     }
 
 }

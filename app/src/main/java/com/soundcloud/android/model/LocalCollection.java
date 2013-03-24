@@ -79,14 +79,20 @@ public class LocalCollection implements ModelLike, ContentValuesProvider {
         size = c.getInt(c.getColumnIndex(DBHelper.Collections.SIZE));
     }
 
-    public LocalCollection(int id, Uri uri, long lastSyncAttempt, long lastSyncSuccess, int syncState, int size, String extra) {
-        this.id = id;
+    public LocalCollection(Uri uri, long lastSyncAttempt, long lastSyncSuccess, int syncState, int size, String extra) {
         this.uri = uri;
         this.last_sync_attempt = lastSyncAttempt;
         this.last_sync_success = lastSyncSuccess;
         this.sync_state = syncState;
         this.size = size;
         this.extra = extra;
+    }
+
+    /**
+     * Creates a "blank" collection which is in {@link SyncState.IDLE} state
+     */
+    public LocalCollection(Uri uri) {
+        this(uri, -1, -1, SyncState.IDLE, 0, null);
     }
 
     public boolean isIdle(){
