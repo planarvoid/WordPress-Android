@@ -39,8 +39,7 @@ public class LocalCollectionDAOTest extends AbstractDAOTest<LocalCollectionDAO> 
     @Test
     public void shouldInsertCollectionWithParams() throws Exception {
         final Uri uri = Uri.parse("foo");
-        LocalCollection c = new LocalCollection(1, uri, 1, 1, 1, 2, "some-extra");
-        getDAO().create(c);
+        LocalCollection c = getDAO().insertLocalCollection(uri, 1, 1, 1, 2, "some-extra");
         expect(c.uri).toEqual(uri);
         expect(c.last_sync_attempt).toBe(1L);
         expect(c.last_sync_success).toBe(1L);
@@ -54,8 +53,7 @@ public class LocalCollectionDAOTest extends AbstractDAOTest<LocalCollectionDAO> 
     @Test
     public void shouldPersistLocalCollection() throws Exception {
         final Uri uri = Uri.parse("foo");
-        LocalCollection c = new LocalCollection(1, uri, 1, 100, 1, 0, "some-extra");
-        getDAO().create(c);
+        LocalCollection c = getDAO().insertLocalCollection(uri, 1, 1, 100, 0, "some-extra");
         LocalCollection c2 = getDAO().fromContentUri(uri, true);
 
         expect(c.id).toEqual(c2.id);
