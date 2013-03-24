@@ -60,6 +60,10 @@ public class CollectionStorage {
         );
     }
 
+    public int getLikesCount() {
+        return getDaoForContent(Content.ME_LIKES).count();
+    }
+
     /**
      * @param api           the api
      * @param modelIds      a list of model ids

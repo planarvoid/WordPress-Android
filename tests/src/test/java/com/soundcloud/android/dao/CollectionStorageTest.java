@@ -1,8 +1,9 @@
 package com.soundcloud.android.dao;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import com.soundcloud.android.model.ScResource;
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
+
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -13,12 +14,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
-import static junit.framework.Assert.fail;
 
 @RunWith(DefaultTestRunner.class)
 public class CollectionStorageTest {
@@ -63,64 +63,28 @@ public class CollectionStorageTest {
     public void shouldWriteMissingCollectionItems() throws Exception {
         addPendingHttpResponse(getClass(), "5_users.json");
 
-        List<ScResource> users = new ArrayList<ScResource>();
+        List<User> users = new ArrayList<User>();
         for (int i = 0; i < 2; i++){
             users.add(createUserWithId(i));
         }
+        new UserDAO(resolver).createCollection(users);
 
         ArrayList<Long> ids = new ArrayList<Long>();
         for (long i = 0; i < 10; i++){
             ids.add(i);
         }
 
-//        expect(manager.writeCollection(users, ScResource.CacheUpdateMode.MINI)).toEqual(2);
-//        expect(manager.fetchMissingCollectionItems((AndroidCloudAPI) Robolectric.application, ids, Content.USERS, false, 5)).toEqual(5);
-        fail("fix me");
-    }
-
-
-    @Test
-    public void shouldBulkInsert() throws Exception {
-//        List<ScResource> items = createModels();
-//        expect(manager.writeCollection(items, ScResource.CacheUpdateMode.MINI)).toEqual(3);
-        fail("fix me");
+        AndroidCloudAPI api = (AndroidCloudAPI) Robolectric.application;
+        int itemsStored = storage.fetchAndStoreMissingCollectionItems(api, ids, Content.USERS, false);
+        expect(itemsStored).toEqual(5);
     }
 
     @Test
     public void shouldBulkInsertWithCollections() throws Exception {
-//        List<Track> items = createTracks();
-//        expect(manager.writeCollection(items, Content.ME_LIKES.uri, USER_ID, ScResource.CacheUpdateMode.MINI)).toEqual(6);
-//
-//        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-//        expect(c.getCount()).toEqual(2);
-        fail("fix me");
+        List<Track> items = createTracks();
+        expect(storage.insertCollection(items, Content.ME_LIKES.uri, USER_ID)).toEqual(6);
+        expect(storage.getLikesCount()).toEqual(2);
     }
-
-    private List<ScResource> createModels() {
-        List<ScResource> items = new ArrayList<ScResource>();
-
-        User u1 = new User();
-        u1.permalink = "u1";
-        u1.id = 100L;
-
-        Track t = new Track();
-        t.id = 200L;
-        t.user = u1;
-
-        User u2 = new User();
-        u2.permalink = "u2";
-        u2.id = 300L;
-
-        User u2_ = new User();
-        u2_.permalink = "u2";
-        u2_.id = 300L;
-
-        items.add(u1);
-        items.add(t);
-        items.add(u2_);
-        return items;
-    }
-
 
     public static List<Track> createTracks() {
         List<Track> items = new ArrayList<Track>();
