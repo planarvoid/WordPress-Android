@@ -36,7 +36,9 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         resource.putFullContentValues(dependencies);
         dependencies.insert(mResolver);
         // TODO this will insert twice
-        return create(resource.toUri(), resource.buildContentValues());
+        long recordId = create(resource.toUri(), resource.buildContentValues());
+        resource.setId(recordId);
+        return recordId;
     }
 
     public int createCollection(Collection<T> resources) {
