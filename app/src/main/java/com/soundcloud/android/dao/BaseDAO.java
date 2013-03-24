@@ -136,6 +136,11 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         return queryForId(UriUtils.getLastSegmentAsLong(uri));
     }
 
+    public int count() {
+        Cursor cursor = mResolver.query(getContent().uri, null, null, null, null);
+        return cursor != null ? cursor.getCount() : 0;
+    }
+
     protected T objFromCursor(Cursor cursor) {
         try {
             return getModelClass().getConstructor(Cursor.class).newInstance(cursor);
