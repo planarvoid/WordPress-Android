@@ -162,6 +162,9 @@ public class AssociationManagerTest {
         t.id = 200L;
         t.user = u1;
         t.likes_count = t.reposts_count = 5;
+
+        trackStorage.createOrUpdate(t);
+
         return t;
     }
 
