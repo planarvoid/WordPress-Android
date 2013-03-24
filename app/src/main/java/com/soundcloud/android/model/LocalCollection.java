@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
  * See {@link DBHelper.Collections}.
  */
 public class LocalCollection implements ModelLike, ContentValuesProvider {
-    public final int id;
+    public long id;
     public final Uri uri;
 
     /** timestamp of last successful sync */
@@ -155,6 +155,11 @@ public class LocalCollection implements ModelLike, ContentValuesProvider {
         return id;
     }
 
+    @Override
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public Uri toUri() {
         return Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(id)).build();
     }
@@ -215,7 +220,7 @@ public class LocalCollection implements ModelLike, ContentValuesProvider {
 
     @Override
     public int hashCode() {
-        int result = id;
+        int result = (int) (id ^ (id >>> 32));
         result = 31 * result + (uri != null ? uri.hashCode() : 0);
         result = 31 * result + (int) (last_sync_attempt ^ (last_sync_attempt >>> 32));
         result = 31 * result + (int) (last_sync_success ^ (last_sync_success >>> 32));

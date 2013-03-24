@@ -18,7 +18,7 @@ public class Search implements ModelLike, ContentValuesProvider {
     public static final int USERS  = 2;
     public static final int PLAYLISTS = 3;
 
-    public int id;
+    public long id;
     public int search_type;
     public String query;
     public long created_at;
@@ -78,6 +78,11 @@ public class Search implements ModelLike, ContentValuesProvider {
     @Override
     public long getId() {
         return id;
+    }
+
+    @Override
+    public void setId(long id) {
+        this.id = id;
     }
 
     @Override
