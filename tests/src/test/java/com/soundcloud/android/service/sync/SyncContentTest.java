@@ -3,10 +3,7 @@ package com.soundcloud.android.service.sync;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.dao.LocalCollectionDAO;
-import com.soundcloud.android.dao.PlaylistDAO;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -17,13 +14,11 @@ import android.content.ContentResolver;
 import android.net.Uri;
 
 import java.util.List;
-import java.util.Set;
 
 @RunWith(DefaultTestRunner.class)
 public class SyncContentTest {
     ContentResolver resolver;
     SyncStateManager syncStateManager;
-    PlaylistDAO playlistDAO;
 
     private static final int ACTIVE_SYNC_ENDPOINTS = SyncContent.values().length - 1; /* follower disabled */
 
@@ -31,7 +26,6 @@ public class SyncContentTest {
     public void before() {
         resolver = Robolectric.application.getContentResolver();
         syncStateManager = new SyncStateManager(DefaultTestRunner.application);
-        playlistDAO = new PlaylistDAO(resolver);
 
         SyncContent.setAllSyncEnabledPrefs(Robolectric.application,true);
     }
