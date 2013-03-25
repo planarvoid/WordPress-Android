@@ -1,7 +1,6 @@
 package com.soundcloud.android.dao;
 
 import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 
 import android.content.ContentResolver;
