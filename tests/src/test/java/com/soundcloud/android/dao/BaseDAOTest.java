@@ -108,6 +108,49 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
     }
 
     @Test
+    public void shouldLimitResults() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+
+        getDAO().buildQuery().limit(1).queryAll();
+
+        verify(resolverMock).query(
+                eq(getDAO().getContent().uri),
+                isNull(String[].class),
+                isNull(String.class),
+                isNull(String[].class),
+                eq("LIMIT 1"));
+
+        // since limiting piggy-backs the LIMIT in the order clause, check that it doesn't fuck up ordering
+        getDAO().buildQuery().order("x ASC").limit(1).queryAll();
+
+        verify(resolverMock).query(
+                eq(getDAO().getContent().uri),
+                isNull(String[].class),
+                isNull(String.class),
+                isNull(String[].class),
+                eq("x ASC LIMIT 1"));
+    }
+
+    @Test
+    public void shouldQueryForFirstRecord() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+
+        // no results found
+        expect(getDAO().buildQuery().first()).toBeNull();
+
+        // one result found
+        Cursor query = resolverMock.query(
+                eq(getDAO().getContent().uri),
+                isNull(String[].class),
+                isNull(String.class),
+                isNull(String[].class),
+                eq("LIMIT 1"));
+
+        when(query).thenReturn(new CursorStub(1));
+        expect(getDAO().buildQuery().first()).toBeInstanceOf(Track.class);
+    }
+
+    @Test
     public void shouldQueryAllRecords() {
         ContentResolver resolverMock = getDAO().getContentResolver();
 

@@ -210,6 +210,7 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         private final Uri mContentUri;
         private String[] mProjection, mSelectionArgs;
         private String mSelection, mOrder;
+        private int mLimit;
 
         public QueryBuilder(Uri contentUri) {
             mContentUri = contentUri;
@@ -231,8 +232,30 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
             return this;
         }
 
+        public QueryBuilder limit(final int limit) {
+            mLimit = limit;
+            return this;
+        }
+
         public List<T> queryAll() {
-            return queryAllByUri(mContentUri, mProjection, mSelection, mSelectionArgs, mOrder);
+            String orderAndLimitClause = null;
+            if (mOrder != null || mLimit > 0) {
+                StringBuilder sb = new StringBuilder();
+                if (mOrder != null) sb.append(mOrder);
+                if (mLimit > 0) sb.append(" LIMIT " + mLimit);
+                orderAndLimitClause = sb.toString().trim();
+            }
+
+            return queryAllByUri(mContentUri, mProjection, mSelection, mSelectionArgs, orderAndLimitClause);
+        }
+
+        public @Nullable T first() {
+            List<T> all = limit(1).queryAll();
+            if (all.isEmpty()) {
+                return null;
+            } else {
+                return all.get(0);
+            }
         }
     }
 }
