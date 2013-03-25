@@ -46,6 +46,10 @@ public class TrackStorage {
         return mTrackDAO.queryForId(id);
     }
 
+    public Track getTrack(Uri uri) {
+        return mTrackDAO.queryForUri(uri);
+    }
+
     public int insert(Collection<Track> tracks, Content content) {
         return 0;
     }
