@@ -56,31 +56,17 @@ public class ActivitiesStorage {
 
 
     public @Nullable Activity getLastActivity(Content content) {
-        Activity a = null;
-        Cursor c = mResolver.query(content.uri,
-                null,
-                DBHelper.ActivityView.CONTENT_ID+" = ?",
-                new String[] { String.valueOf(content.id) },
-                DBHelper.ActivityView.CREATED_AT + " ASC LIMIT 1");
-        if (c != null && c.moveToFirst()){
-            a = mActivitiesDAO.objFromCursor(c);
-        }
-        if (c != null) c.close();
-        return a;
+        return mActivitiesDAO.buildQuery(content.uri)
+                .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
+                .order(DBHelper.ActivityView.CREATED_AT + " ASC")
+                .first();
     }
 
     public @Nullable Activity getFirstActivity(Content content) {
-        Activity a = null;
-        Cursor c = mResolver.query(content.uri,
-                null,
-                DBHelper.ActivityView.CONTENT_ID+" = ?",
-                new String[] { String.valueOf(content.id) },
-                DBHelper.ActivityView.CREATED_AT + " DESC LIMIT 1");
-        if (c != null && c.moveToFirst()) {
-            a = mActivitiesDAO.objFromCursor(c);
-        }
-        if (c != null) c.close();
-        return a;
+        return mActivitiesDAO.buildQuery(content.uri)
+                .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
+                .order(DBHelper.ActivityView.CREATED_AT + " DESC")
+                .first();
     }
 
     public Activities getBefore(Uri contentUri, long before)  {
