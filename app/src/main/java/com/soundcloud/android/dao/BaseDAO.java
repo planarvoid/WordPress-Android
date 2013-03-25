@@ -108,11 +108,19 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     }
 
     public List<T> queryAll() {
-        return queryAllByUri(getContent().uri);
+        return queryAllByUri(getContent().uri, null);
+    }
+
+    public List<T> queryAll(String where, String... whereArgs) {
+        return queryAllByUri(getContent().uri, where, whereArgs);
     }
 
     protected List<T> queryAllByUri(Uri contentUri) {
-        Cursor c = mResolver.query(contentUri, null, null, null, null);
+        return queryAllByUri(contentUri, null);
+    }
+
+    protected List<T> queryAllByUri(Uri contentUri, @Nullable String where, String... whereArgs) {
+        Cursor c = mResolver.query(contentUri, null, where, whereArgs, null);
         if (c != null) {
             List<T> objects = new ArrayList<T>(c.getCount());
             while (c.moveToNext()) {
@@ -141,8 +149,17 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     }
 
     public int count() {
-        Cursor cursor = mResolver.query(getContent().uri, null, null, null, null);
-        return cursor != null ? cursor.getCount() : 0;
+        return count(null);
+    }
+
+    public int count(@Nullable String where, String... whereArgs) {
+        Cursor cursor = mResolver.query(getContent().uri, null, where, whereArgs, null);
+        int count = 0;
+        if (cursor != null) {
+            count = cursor.getCount();
+            cursor.close();
+        }
+        return count;
     }
 
     protected T objFromCursor(Cursor cursor) {

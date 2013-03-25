@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
 
 import java.util.Arrays;
@@ -65,14 +66,77 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
     @Test
     public void shouldCountRecords() {
         ContentResolver resolverMock = getDAO().getContentResolver();
-        when(resolverMock.query(getDAO().getContent().uri, null, null, null, null)).thenReturn(new TestCursor() {
+        Cursor count = resolverMock.query(
+                eq(getDAO().getContent().uri),
+                isNull(String[].class),
+                isNull(String.class),
+                isA(String[].class),
+                isNull(String.class));
+
+        when(count).thenReturn(new TestCursor() {
             @Override
             public int getCount() {
                 return 2;
             }
+
+            @Override
+            public void close() {
+            }
         });
 
         expect(getDAO().count()).toBe(2);
+    }
+
+    @Test
+    public void shouldCountRecordsWithWhereClause() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+        Cursor filteredCount = resolverMock.query(
+                eq(getDAO().getContent().uri),
+                isNull(String[].class),
+                eq("x > ?"),
+                eq(new String[]{"5"}),
+                isNull(String.class));
+
+        when(filteredCount).thenReturn(new TestCursor() {
+            @Override
+            public int getCount() {
+                return 1;
+            }
+
+            @Override
+            public void close() {
+            }
+        });
+
+        expect(getDAO().count("x > ?", "5")).toBe(1);
+    }
+
+    @Test
+    public void shouldQueryAllRecords() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+
+        getDAO().queryAll();
+
+        verify(resolverMock).query(
+                eq(getDAO().getContent().uri),
+                isNull(String[].class),
+                isNull(String.class),
+                isA(String[].class),
+                isNull(String.class));
+    }
+
+    @Test
+    public void shouldQueryAllRecordsWithWhereClause() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+
+        getDAO().queryAll("a = ? AND b < ?", "foo", "2");
+
+        verify(resolverMock).query(
+                eq(getDAO().getContent().uri),
+                isNull(String[].class),
+                eq("a = ? AND b < ?"),
+                eq(new String[]{"foo", "2"}),
+                isNull(String.class));
     }
 
     private static class TestDAO extends BaseDAO<Track> {
