@@ -36,11 +36,12 @@ public class ActivitiesStorage {
         LocalCollection lc = mSyncStateManager.fromContent(contentUri);
         activities.future_href = lc.extra;
 
-        boolean validTimestamp = since > 0;
-        final String selection = validTimestamp ? DBHelper.ActivityView.CREATED_AT + "> ?" : null;
-        final String[] selectionArgs = validTimestamp ? new String[] { String.valueOf(since) } : null;
+        BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
+        if (since > 0) {
+            query.where(DBHelper.ActivityView.CREATED_AT + "> ?", String.valueOf(since));
+        }
 
-        activities.collection = mActivitiesDAO.buildQuery(contentUri).where(selection, selectionArgs).queryAll();
+        activities.collection = query.queryAll();
 
         return activities;
     }
@@ -86,12 +87,13 @@ public class ActivitiesStorage {
         if (Log.isLoggable(TAG, Log.DEBUG))
             Log.d(TAG, "Activities.getBefore("+contentUri+", before="+before+")");
 
-        boolean validTimestamp = before > 0;
-        final String selection = validTimestamp ? DBHelper.ActivityView.CREATED_AT + "< ?" : null;
-        final String[] selectionArgs = validTimestamp ? new String[] { String.valueOf(before) } : null;
+        BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
+        if (before > 0) {
+            query.where(DBHelper.ActivityView.CREATED_AT + "< ?", String.valueOf(before));
+        }
 
         Activities activities = new Activities();
-        activities.collection = mActivitiesDAO.buildQuery(contentUri).where(selection, selectionArgs).queryAll();
+        activities.collection = query.queryAll();
 
         return activities;
     }
