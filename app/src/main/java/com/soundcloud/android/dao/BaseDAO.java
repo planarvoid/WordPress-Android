@@ -108,7 +108,11 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     }
 
     public List<T> queryAll() {
-        Cursor c = mResolver.query(getContent().uri, null, null, null, null);
+        return queryAllByUri(getContent().uri);
+    }
+
+    protected List<T> queryAllByUri(Uri contentUri) {
+        Cursor c = mResolver.query(contentUri, null, null, null, null);
         if (c != null) {
             List<T> objects = new ArrayList<T>(c.getCount());
             while (c.moveToNext()) {

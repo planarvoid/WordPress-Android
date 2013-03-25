@@ -68,68 +68,6 @@ public class ScContentProviderTest {
     }
 
     @Test
-    public void shouldInsertAndQueryLikes() throws Exception {
-        SoundAssociationHolder holder = readJson(SoundAssociationHolder.class,
-                "/com/soundcloud/android/service/sync/e1_likes.json");
-
-        expect(soundAssociationDAO.insert(holder.collection)).toEqual(3);
-
-        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(3);
-
-        List<Like> likes = new ArrayList<Like>();
-        while (c.moveToNext()) {
-            Like like = new Like(c);
-            likes.add(like);
-        }
-
-        expect(likes.get(0).getPlayable().title).toEqual("LOL");
-        expect(likes.get(1).getPlayable().title).toEqual("freddie evans at Excel Exhibition Centre");
-    }
-
-    @Test
-    public void shouldInsertQueryAndDeleteLikes() throws Exception {
-        SoundAssociationHolder holder = readJson(SoundAssociationHolder.class,
-                "/com/soundcloud/android/service/sync/e1_likes.json");
-
-        expect(soundAssociationDAO.insert(holder.collection)).toEqual(3);
-
-        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(3);
-
-        List<Like> likes = new ArrayList<Like>();
-        while (c.moveToNext()) {
-            Like like = new Like(c);
-            likes.add(like);
-        }
-        expect(resolver.delete(Content.ME_LIKES.uri, DBHelper.CollectionItems.ITEM_ID + " = ?",
-                new String[]{String.valueOf(likes.get(0).getPlayable().id)})).toEqual(1);
-
-        c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(2);
-    }
-
-    @Test
-    public void shouldQuerySounds() throws Exception {
-        SoundAssociationHolder holder = readJson(SoundAssociationHolder.class,
-                "/com/soundcloud/android/provider/e1_sounds.json");
-
-        expect(soundAssociationDAO.insert(holder.collection)).toEqual(50);
-
-        Cursor c = resolver.query(Content.ME_SOUNDS.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(50);
-
-        List<SoundAssociation> associations = new ArrayList<SoundAssociation>();
-        while (c.moveToNext()) {
-            associations.add(new SoundAssociation(c));
-        }
-        expect(associations).toNumber(50);
-
-        expect(associations.get(0).getPlayable().title).toEqual("A trimmed test upload");
-        expect(associations.get(1).getPlayable().title).toEqual("A faded + trimmed test upload");
-    }
-
-    @Test
     public void shouldCleanupTracks() throws Exception {
         TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
         int i = 0;
