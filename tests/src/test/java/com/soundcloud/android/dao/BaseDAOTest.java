@@ -73,16 +73,7 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
                 isA(String[].class),
                 isNull(String.class));
 
-        when(count).thenReturn(new TestCursor() {
-            @Override
-            public int getCount() {
-                return 2;
-            }
-
-            @Override
-            public void close() {
-            }
-        });
+        when(count).thenReturn(new CursorStub(2));
 
         expect(getDAO().count()).toBe(2);
     }
@@ -97,16 +88,7 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
                 eq(new String[]{"5"}),
                 isNull(String.class));
 
-        when(filteredCount).thenReturn(new TestCursor() {
-            @Override
-            public int getCount() {
-                return 1;
-            }
-
-            @Override
-            public void close() {
-            }
-        });
+        when(filteredCount).thenReturn(new CursorStub(1));
 
         expect(getDAO().count("x > ?", "5")).toBe(1);
     }
@@ -114,6 +96,9 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
     @Test
     public void shouldQueryAllRecords() {
         ContentResolver resolverMock = getDAO().getContentResolver();
+
+        // we also stub this call with a result cursor to improve code coverage
+        when(resolverMock.query(getDAO().getContent().uri, null, null, null, null)).thenReturn(new CursorStub(1));
 
         getDAO().queryAll();
 
@@ -148,6 +133,36 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
         @Override
         public Content getContent() {
             return Content.TRACKS;
+        }
+
+        @Override
+        protected Track objFromCursor(Cursor cursor) {
+            return new Track();
+        }
+    }
+
+    private static class CursorStub extends TestCursor {
+        private int resultCount, itemsLeft;
+
+        private CursorStub(int resultCount) {
+            this.resultCount = resultCount;
+            this.itemsLeft = resultCount;
+        }
+
+        @Override
+        public int getCount() {
+            return resultCount;
+        }
+
+        @Override
+        public void close() {
+        }
+
+        @Override
+        public boolean moveToNext() {
+            if (itemsLeft == 0) return false;
+            itemsLeft -= 1;
+            return true;
         }
     }
 }
