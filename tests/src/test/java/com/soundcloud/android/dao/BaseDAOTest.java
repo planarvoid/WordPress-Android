@@ -94,6 +94,20 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
     }
 
     @Test
+    public void shouldAllowToBuildCustomQueries() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+
+        getDAO().buildQuery().select("ColA", "ColB").where("x = ?", "1").order("b ASC").queryAll();
+
+        verify(resolverMock).query(
+                eq(getDAO().getContent().uri),
+                eq(new String[]{"ColA", "ColB"}),
+                eq("x = ?"),
+                eq(new String[]{"1"}),
+                eq("b ASC"));
+    }
+
+    @Test
     public void shouldQueryAllRecords() {
         ContentResolver resolverMock = getDAO().getContentResolver();
 
@@ -102,19 +116,14 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
 
         getDAO().queryAll();
 
-        verify(resolverMock).query(
-                eq(getDAO().getContent().uri),
-                isNull(String[].class),
-                isNull(String.class),
-                isA(String[].class),
-                isNull(String.class));
+        verify(resolverMock).query(getDAO().getContent().uri, null, null, null, null);
     }
 
     @Test
     public void shouldQueryAllRecordsWithWhereClause() {
         ContentResolver resolverMock = getDAO().getContentResolver();
 
-        getDAO().queryAll("a = ? AND b < ?", "foo", "2");
+        getDAO().buildQuery().where("a = ? AND b < ?", "foo", "2").queryAll();
 
         verify(resolverMock).query(
                 eq(getDAO().getContent().uri),

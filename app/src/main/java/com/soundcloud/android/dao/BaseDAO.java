@@ -107,20 +107,24 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         return mResolver.delete(resource.toUri(), null, null) == 1;
     }
 
-    public List<T> queryAll() {
-        return queryAllByUri(getContent().uri, null);
+    public QueryBuilder buildQuery() {
+        return buildQuery(getContent().uri);
     }
 
-    public List<T> queryAll(String where, String... whereArgs) {
-        return queryAllByUri(getContent().uri, where, whereArgs);
+    public QueryBuilder buildQuery(Uri contentUri) {
+        return new QueryBuilder(contentUri);
+    }
+
+    public List<T> queryAll() {
+        return queryAllByUri(getContent().uri);
     }
 
     protected List<T> queryAllByUri(Uri contentUri) {
-        return queryAllByUri(contentUri, null);
+        return new QueryBuilder(contentUri).queryAll();
     }
 
-    protected List<T> queryAllByUri(Uri contentUri, @Nullable String where, String... whereArgs) {
-        Cursor c = mResolver.query(contentUri, null, where, whereArgs, null);
+    private List<T> queryAllByUri(Uri contentUri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String order) {
+        Cursor c = mResolver.query(contentUri, projection, selection, selectionArgs, order);
         if (c != null) {
             List<T> objects = new ArrayList<T>(c.getCount());
             while (c.moveToNext()) {
@@ -200,5 +204,35 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
                     null
                 )
         );
+    }
+
+    public final class QueryBuilder {
+        private final Uri mContentUri;
+        private String[] mProjection, mSelectionArgs;
+        private String mSelection, mOrder;
+
+        public QueryBuilder(Uri contentUri) {
+            mContentUri = contentUri;
+        }
+
+        public QueryBuilder where(@Nullable final String selection, @Nullable final String... selectionArgs) {
+            mSelection = selection;
+            mSelectionArgs = selectionArgs;
+            return this;
+        }
+
+        public QueryBuilder select(@Nullable final String... projection) {
+            mProjection = projection;
+            return this;
+        }
+
+        public QueryBuilder order(@Nullable final String order) {
+            mOrder = order;
+            return this;
+        }
+
+        public List<T> queryAll() {
+            return queryAllByUri(mContentUri, mProjection, mSelection, mSelectionArgs, mOrder);
+        }
     }
 }

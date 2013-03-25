@@ -40,7 +40,7 @@ public class ActivitiesStorage {
         final String selection = validTimestamp ? DBHelper.ActivityView.CREATED_AT + "> ?" : null;
         final String[] selectionArgs = validTimestamp ? new String[] { String.valueOf(since) } : null;
 
-        activities.collection = mActivitiesDAO.queryAllByUri(contentUri, selection, selectionArgs);
+        activities.collection = mActivitiesDAO.buildQuery(contentUri).where(selection, selectionArgs).queryAll();
 
         return activities;
     }
@@ -91,7 +91,7 @@ public class ActivitiesStorage {
         final String[] selectionArgs = validTimestamp ? new String[] { String.valueOf(before) } : null;
 
         Activities activities = new Activities();
-        activities.collection = mActivitiesDAO.queryAllByUri(contentUri, selection, selectionArgs);
+        activities.collection = mActivitiesDAO.buildQuery(contentUri).where(selection, selectionArgs).queryAll();
 
         return activities;
     }
