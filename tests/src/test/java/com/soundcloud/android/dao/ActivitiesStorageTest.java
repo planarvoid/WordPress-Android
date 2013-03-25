@@ -17,6 +17,8 @@ import org.junit.runner.RunWith;
 import static com.soundcloud.android.Wrapper.CloudDateFormat.toTime;
 import static com.soundcloud.android.Expect.expect;
 
+import java.io.IOException;
+
 @RunWith(DefaultTestRunner.class)
 public class ActivitiesStorageTest {
     ActivitiesStorage storage;
@@ -35,8 +37,21 @@ public class ActivitiesStorageTest {
                 storage.getSince(Content.ME_SOUND_STREAM,
                         toTime("2012/09/27 14:08:01 +0000")).size()
         ).toEqual(2);
+
+        expect(
+                storage.getBefore(Content.ME_SOUND_STREAM.uri,
+                        toTime("2012/09/26 15:00:00 +0000")).size()
+        ).toEqual(1);
     }
 
+    @Test
+    public void shouldCountActivitiesSinceGivenTime() throws IOException {
+        Activities a = TestHelper.readJson(Activities.class, SyncAdapterServiceTest.class,  "e1_stream_1.json");
+        storage.insert(Content.ME_SOUND_STREAM, a);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
+
+        expect(storage.getCountSince(toTime("2012/09/27 14:15:00 +0000"), Content.ME_SOUND_STREAM)).toBe(2);
+    }
 
     @Test
     public void shouldGetFirstAndLastActivity() throws Exception {
