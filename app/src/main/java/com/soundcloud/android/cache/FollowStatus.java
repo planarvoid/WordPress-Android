@@ -52,7 +52,7 @@ public class FollowStatus {
 
     protected FollowStatus(final Context c) {
         mContext = c;
-        mSyncStateManager = new SyncStateManager(c.getContentResolver());
+        mSyncStateManager = new SyncStateManager(c);
 
 
         mFollowingCollectionState = mSyncStateManager.fromContent(Content.ME_FOLLOWINGS);

@@ -130,6 +130,6 @@ public class PollerTest {
     }
 
     private Track getTrack(long id) {
-        return new TrackStorage(resolver).getTrack(id);
+        return new TrackStorage(DefaultTestRunner.application).getTrack(id);
     }
 }

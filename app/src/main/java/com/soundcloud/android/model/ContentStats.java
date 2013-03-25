@@ -36,7 +36,7 @@ public class ContentStats {
             protected Void doInBackground(Content... contents) {
                 for (Content content : contents) {
                     updateCount(context, content,
-                        new ActivitiesStorage(context.getContentResolver()).getCountSince(getLastSeen(context, content), content));
+                        new ActivitiesStorage(context).getCountSince(getLastSeen(context, content), content));
                 }
                 return null;
             }

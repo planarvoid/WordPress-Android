@@ -36,7 +36,7 @@ import java.io.IOException;
         this.action = action;
         this.result = new ApiSyncer.Result(contentUri);
         this.isUI = isUI;
-        mSyncStateManager = new SyncStateManager(context.getContentResolver());
+        mSyncStateManager = new SyncStateManager(context);
     }
 
     public void onQueued() {

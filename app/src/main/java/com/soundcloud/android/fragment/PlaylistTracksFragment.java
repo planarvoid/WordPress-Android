@@ -205,7 +205,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     private LocalCollection getLocalCollection() {
-        return new SyncStateManager(getActivity().getContentResolver()).fromContent(mPlaylist.toUri());
+        return new SyncStateManager(getActivity()).fromContent(mPlaylist.toUri());
     }
 
     public void scrollToPosition(int position) {

@@ -1,6 +1,7 @@
 package com.soundcloud.android.dao;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -21,10 +22,10 @@ public class ActivitiesStorage {
     private ActivityDAO mActivitiesDAO;
     private final ContentResolver mResolver;
 
-    public ActivitiesStorage(ContentResolver resolver) {
-        mResolver = resolver;
-        mSyncStateManager = new SyncStateManager(resolver);
-        mActivitiesDAO = new ActivityDAO(resolver);
+    public ActivitiesStorage(Context context) {
+        mResolver = context.getContentResolver();
+        mSyncStateManager = new SyncStateManager(context);
+        mActivitiesDAO = new ActivityDAO(mResolver);
     }
 
     public Activities getSince(Uri contentUri, long since)  {

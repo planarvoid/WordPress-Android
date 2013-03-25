@@ -2,8 +2,11 @@ package com.soundcloud.android.dao;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.v4.app.FragmentActivity;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
@@ -28,6 +31,11 @@ public class PlaylistStorage {
     private final PlaylistDAO mPlaylistDAO;
     private final TrackDAO mTrackDAO;
 
+    public PlaylistStorage(Context context) {
+        mResolver = context.getContentResolver();
+        mPlaylistDAO = new PlaylistDAO(mResolver);
+        mTrackDAO = new TrackDAO(mResolver);
+    }
 
     public long create(Playlist playlist) {
         long id = mPlaylistDAO.create(playlist);
@@ -41,12 +49,6 @@ public class PlaylistStorage {
 
     public boolean update(Playlist playlist) {
         return mPlaylistDAO.update(playlist);
-    }
-
-    public PlaylistStorage(ContentResolver resolver) {
-        mResolver = resolver;
-        mPlaylistDAO = new PlaylistDAO(resolver);
-        mTrackDAO = new TrackDAO(resolver);
     }
 
     public @Nullable Playlist getPlaylistWithTracks(long playlistId) {

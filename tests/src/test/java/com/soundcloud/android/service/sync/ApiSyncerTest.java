@@ -47,9 +47,9 @@ public class ApiSyncerTest {
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        syncStateManager = new SyncStateManager(resolver);
-        activitiesStorage = new ActivitiesStorage(resolver);
-        playlistStorage = new PlaylistStorage(resolver);
+        syncStateManager = new SyncStateManager(DefaultTestRunner.application);
+        activitiesStorage = new ActivitiesStorage(DefaultTestRunner.application);
+        playlistStorage = new PlaylistStorage(DefaultTestRunner.application);
     }
 
     @Test

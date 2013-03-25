@@ -23,6 +23,7 @@ import android.app.Service;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.net.Uri;
@@ -131,9 +132,9 @@ public class SyncAdapterService extends Service {
             ContentStats.setLastSeen(app, Content.ME_ACTIVITIES, now);
         }
 
-        final SyncStateManager syncStateManager = new SyncStateManager(app.getContentResolver());
-        final PlaylistStorage playlistStorage = new PlaylistStorage(app.getContentResolver());
-        final UserStorage userStorage = new UserStorage(app.getContentResolver());
+        final SyncStateManager syncStateManager = new SyncStateManager(app);
+        final PlaylistStorage playlistStorage = new PlaylistStorage(app);
+        final UserStorage userStorage = new UserStorage(app);
 
         final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, userStorage, playlistStorage);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
@@ -206,7 +207,7 @@ public class SyncAdapterService extends Service {
                 }
 
                 // see if there are any local playlists that need to be pushed
-                if (new PlaylistStorage(app.getContentResolver()).hasLocalPlaylists()){
+                if (new PlaylistStorage(app).hasLocalPlaylists()){
                     urisToSync.add(Content.ME_PLAYLISTS.uri);
                 }
 
@@ -267,12 +268,12 @@ public class SyncAdapterService extends Service {
         switch (clearMode) {
             case CLEAR_ALL:
                 ContentStats.clear(app);
-                clearActivities(app.getContentResolver());
+                clearActivities(app);
                 break;
             case REWIND_LAST_DAY:
                 final long rewindTime = 24 * 3600000L; // 1d
                 ContentStats.rewind(app, rewindTime);
-                clearActivities(app.getContentResolver());
+                clearActivities(app);
                 break;
             default:
         }
@@ -282,9 +283,9 @@ public class SyncAdapterService extends Service {
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, extras);
     }
 
-    private static void clearActivities(ContentResolver resolver){
+    private static void clearActivities(Context context) {
         // drop all activities before re-sync
-        int deleted =  new ActivitiesStorage(resolver).clear(null);
+        int deleted =  new ActivitiesStorage(context).clear(null);
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "deleted "+deleted+ " activities");
         }

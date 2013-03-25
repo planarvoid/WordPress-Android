@@ -98,7 +98,7 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
                     ));
 
                 // force to stale so we know to update the playlists next time it is viewed
-                new SyncStateManager(contentResolver).forceToStale(Content.ME_PLAYLISTS);
+                new SyncStateManager(getActivity()).forceToStale(Content.ME_PLAYLISTS);
 
                 // request sync to push playlist at next possible opportunity
                 ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, new Bundle());

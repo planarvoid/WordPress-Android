@@ -2,6 +2,7 @@ package com.soundcloud.android.dao;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.net.Uri;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.ScResource;
@@ -24,8 +25,8 @@ import static com.soundcloud.android.dao.ResolverHelper.idCursorToList;
 public class CollectionStorage {
     private final ContentResolver mResolver;
 
-    public CollectionStorage(ContentResolver resolver) {
-        mResolver = resolver;
+    public CollectionStorage(Context context) {
+        mResolver = context.getContentResolver();
     }
 
     public int insertCollection(@NotNull List<? extends ScResource> resources,

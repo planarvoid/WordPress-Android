@@ -56,7 +56,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
                 // notification related
                 if (SyncConfig.shouldUpdateDashboard(app)) {
 
-                    final ActivitiesStorage activitiesStorage = new ActivitiesStorage(app.getContentResolver());
+                    final ActivitiesStorage activitiesStorage = new ActivitiesStorage(app);
                     final long frequency = SyncConfig.getNotificationsFrequency(app);
                     final long delta = System.currentTimeMillis() - ContentStats.getLastNotified(app, Content.ME_SOUND_STREAM);
                     if (delta > frequency) {

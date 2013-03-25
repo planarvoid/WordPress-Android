@@ -27,7 +27,7 @@ public class PlaylistStorageTest {
 
     @Before
     public void before() throws IOException {
-        storage = new PlaylistStorage(Robolectric.application.getContentResolver());
+        storage = new PlaylistStorage(Robolectric.application);
         playlist = TestHelper.readResource("/com/soundcloud/android/service/sync/playlist.json");
         expect(playlist).not.toBeNull();
     }

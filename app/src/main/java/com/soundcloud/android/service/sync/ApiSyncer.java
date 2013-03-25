@@ -73,12 +73,12 @@ public class ApiSyncer {
         mApi = (AndroidCloudAPI) context.getApplicationContext();
         mResolver = context.getContentResolver();
         mContext = context;
-        mSyncStateManager = new SyncStateManager(mResolver);
-        mActivitiesStorage = new ActivitiesStorage(mResolver);
-        mPlaylistStorage = new PlaylistStorage(mResolver);
-        mSoundAssociationDAO = new SoundAssociationDAO(mResolver);
-        mCollectionStorage = new CollectionStorage(mResolver);
-        mUserStorage = new UserStorage(mResolver);
+        mSyncStateManager = new SyncStateManager(context);
+        mActivitiesStorage = new ActivitiesStorage(context);
+        mPlaylistStorage = new PlaylistStorage(context);
+        mSoundAssociationDAO = new SoundAssociationDAO(mResolver); // FIXME: should not access DAO directly
+        mCollectionStorage = new CollectionStorage(context);
+        mUserStorage = new UserStorage(context);
     }
 
     public @NotNull Result syncContent(Uri uri, String action) throws IOException {

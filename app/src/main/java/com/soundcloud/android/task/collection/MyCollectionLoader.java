@@ -1,6 +1,7 @@
 package com.soundcloud.android.task.collection;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -34,7 +35,8 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
 
     @Override
     public ReturnData<T> load(AndroidCloudAPI api, CollectionParams<T> params) {
-        ContentResolver resolver = api.getContext().getContentResolver();
+        final Context context = api.getContext();
+        ContentResolver resolver = context.getContentResolver();
         boolean keepGoing = true;
         int responseCode = EmptyListView.Status.OK;
 
@@ -42,11 +44,11 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
                 // these don't sync with mini representations. we might only have ids
-                List<Long> storedIds = new UserAssociationStore(resolver).getStoredIds(params.getPagedUri());
+                List<Long> storedIds = new UserAssociationStore(context).getStoredIds(params.getPagedUri());
 
                 // if we already have all the data, this is a NOP
                 try {
-                    new CollectionStorage(resolver).fetchAndStoreMissingCollectionItems(api, storedIds, params.getContent(), false);
+                    new CollectionStorage(context).fetchAndStoreMissingCollectionItems(api, storedIds, params.getContent(), false);
                 } catch (CloudAPI.InvalidTokenException e) {
                     // TODO, move this once we centralize our error handling
                     // InvalidTokenException should expose the response code so we don't have to hardcode it here

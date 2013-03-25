@@ -2,6 +2,7 @@ package com.soundcloud.android.dao;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -21,9 +22,9 @@ public class TrackStorage {
     private final ContentResolver mResolver;
 
 
-    public TrackStorage(ContentResolver resolver) {
-        mTrackDAO = new TrackDAO(resolver);
-        mResolver = resolver;
+    public TrackStorage(Context context) {
+        mResolver = context.getContentResolver();
+        mTrackDAO = new TrackDAO(mResolver);
     }
 
 

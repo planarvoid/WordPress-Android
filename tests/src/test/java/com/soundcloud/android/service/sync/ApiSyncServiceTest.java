@@ -36,7 +36,7 @@ public class ApiSyncServiceTest {
 
     @Before public void before() {
         resolver = Robolectric.application.getContentResolver();
-        syncStateManager = new SyncStateManager(resolver);
+        syncStateManager = new SyncStateManager(DefaultTestRunner.application);
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
     }
 

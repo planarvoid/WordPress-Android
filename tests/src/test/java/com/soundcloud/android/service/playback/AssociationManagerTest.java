@@ -34,8 +34,8 @@ public class AssociationManagerTest {
     @Before
     public void before() {
         associationManager = new AssociationManager(Robolectric.application,  SoundCloudApplication.MODEL_MANAGER);
-        trackStorage = new TrackStorage(Robolectric.application.getContentResolver());
-        playlistStorage = new PlaylistStorage(Robolectric.application.getContentResolver());
+        trackStorage = new TrackStorage(Robolectric.application);
+        playlistStorage = new PlaylistStorage(Robolectric.application);
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
     }
 
@@ -144,7 +144,7 @@ public class AssociationManagerTest {
 
         Playlist playlist = (Playlist) a.get(0).getPlayable();
 
-        expect(new ActivitiesStorage(Robolectric.application.getContentResolver()).insert(Content.ME_SOUND_STREAM, a)).toBe(1);
+        expect(new ActivitiesStorage(Robolectric.application).insert(Content.ME_SOUND_STREAM, a)).toBe(1);
         DefaultTestRunner.application.getContentResolver().insert(Content.ME_REPOSTS.uri, playlist.buildContentValues());
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
 

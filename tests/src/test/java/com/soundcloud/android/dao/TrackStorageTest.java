@@ -18,7 +18,7 @@ public class TrackStorageTest {
 
     @Before
     public void before() {
-        storage = new TrackStorage(Robolectric.application.getContentResolver());
+        storage = new TrackStorage(Robolectric.application);
     }
 
     @Test

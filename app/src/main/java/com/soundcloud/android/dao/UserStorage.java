@@ -1,6 +1,7 @@
 package com.soundcloud.android.dao;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -12,9 +13,9 @@ public class UserStorage {
     private UserDAO mUserDAO;
     private final ContentResolver mResolver;
 
-    public UserStorage(ContentResolver resolver) {
-        mResolver = resolver;
-        mUserDAO = new UserDAO(resolver);
+    public UserStorage(Context context) {
+        mResolver = context.getContentResolver();
+        mUserDAO = new UserDAO(mResolver);
     }
 
     public void createOrUpdate(User u) {

@@ -1,17 +1,16 @@
 package com.soundcloud.android.service.sync;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.preference.PreferenceManager;
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +18,8 @@ import java.util.List;
 public class SyncStateManager {
     private final LocalCollectionDAO mLocalCollectionDao;
 
-    public SyncStateManager(ContentResolver resolver) {
-        mLocalCollectionDao = new LocalCollectionDAO(resolver);
+    public SyncStateManager(Context context) {
+        mLocalCollectionDao = new LocalCollectionDAO(context.getContentResolver());
     }
 
     public @NotNull LocalCollection fromContent(Content content) {

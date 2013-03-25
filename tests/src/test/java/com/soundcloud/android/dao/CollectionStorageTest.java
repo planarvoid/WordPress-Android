@@ -30,8 +30,8 @@ public class CollectionStorageTest {
     @Before
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
-        resolver = Robolectric.application.getContentResolver();
-        storage = new CollectionStorage(resolver);
+        resolver = DefaultTestRunner.application.getContentResolver();
+        storage = new CollectionStorage(DefaultTestRunner.application);
     }
 
     @Test

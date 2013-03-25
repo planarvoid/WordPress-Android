@@ -337,7 +337,7 @@ public class User extends ScResource implements Refreshable {
         final ContentResolver resolver = context.getContentResolver();
 
         UserDAO.clearLoggedInUserFromStorage(resolver);
-        new ActivitiesStorage(resolver).clear(null);
+        new ActivitiesStorage(context).clear(null);
         PlayQueueManager.clearState(context);
         FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
         SearchDAO.clearState(resolver, SoundCloudApplication.getUserId());

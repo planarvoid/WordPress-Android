@@ -123,7 +123,7 @@ public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity
         result.putBoolean(Consts.Keys.WAS_SIGNUP, via != SignupVia.NONE);
         super.setAccountAuthenticatorResult(result);
 
-        new UserStorage(getContentResolver()).createOrUpdate(user);
+        new UserStorage(this).createOrUpdate(user);
 
         if (via != SignupVia.NONE) {
             // user has signed up, schedule sync of user data to possibly refresh image data

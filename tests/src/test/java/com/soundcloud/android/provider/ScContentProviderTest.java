@@ -51,7 +51,7 @@ public class ScContentProviderTest {
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        activitiesStorage = new ActivitiesStorage(resolver);
+        activitiesStorage = new ActivitiesStorage(DefaultTestRunner.application);
         soundAssociationDAO = new SoundAssociationDAO(resolver);
     }
 

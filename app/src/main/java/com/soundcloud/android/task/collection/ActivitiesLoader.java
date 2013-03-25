@@ -17,7 +17,7 @@ import java.io.IOException;
 public class ActivitiesLoader extends CollectionLoader<Activity> {
     @Override
     public ReturnData<Activity> load(AndroidCloudAPI api, CollectionParams<Activity> params) {
-        final ActivitiesStorage storage = new ActivitiesStorage(api.getContext().getContentResolver());
+        final ActivitiesStorage storage = new ActivitiesStorage(api.getContext());
 
         boolean keepGoing, success = false;
         int responseCode = EmptyListView.Status.OK;

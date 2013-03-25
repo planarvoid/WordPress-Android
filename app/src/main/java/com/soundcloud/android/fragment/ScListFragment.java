@@ -118,7 +118,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (mContent.isSyncable()) {
             final ContentResolver contentResolver = getActivity().getContentResolver();
             // TODO :  Move off the UI thread.
-            mLocalCollection = new SyncStateManager(contentResolver).fromContent(mContentUri);
+            mLocalCollection = new SyncStateManager(getActivity()).fromContent(mContentUri);
             mLocalCollection.startObservingSelf(contentResolver, this);
             mChangeObserver = new ChangeObserver();
             contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);

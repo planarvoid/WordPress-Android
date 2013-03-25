@@ -22,7 +22,7 @@ public class ActivitiesStorageTest {
     ActivitiesStorage storage;
 
     @Before public void before() {
-        storage = new ActivitiesStorage(Robolectric.application.getContentResolver());
+        storage = new ActivitiesStorage(Robolectric.application);
     }
 
     @Test

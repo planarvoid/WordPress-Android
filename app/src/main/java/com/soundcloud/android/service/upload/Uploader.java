@@ -41,7 +41,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         mUpload = recording;
         mBroadcastManager = LocalBroadcastManager.getInstance(api.getContext());
         mBroadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
-        mStorage = new TrackStorage(api.getContext().getContentResolver());
+        mStorage = new TrackStorage(api.getContext());
     }
 
     public boolean isCancelled() {
@@ -147,7 +147,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
             //request to update my collection
             ContentResolver resolver = api.getContext().getContentResolver();
-            new SyncStateManager(resolver).forceToStale(Content.ME_SOUNDS.uri);
+            new SyncStateManager(api.getContext()).forceToStale(Content.ME_SOUNDS.uri);
 
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + track);
 

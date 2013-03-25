@@ -30,7 +30,7 @@ public class SyncContentTest {
     @Before
     public void before() {
         resolver = Robolectric.application.getContentResolver();
-        syncStateManager = new SyncStateManager(resolver);
+        syncStateManager = new SyncStateManager(DefaultTestRunner.application);
         playlistDAO = new PlaylistDAO(resolver);
 
         SyncContent.setAllSyncEnabledPrefs(Robolectric.application,true);
