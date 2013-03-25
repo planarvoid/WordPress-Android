@@ -36,17 +36,13 @@ public class ActivitiesStorage {
         LocalCollection lc = mSyncStateManager.fromContent(contentUri);
         activities.future_href = lc.extra;
 
-        Cursor c;
-        if (since > 0) {
-            c = mResolver.query(contentUri,
-                    null,
-                    DBHelper.ActivityView.CREATED_AT+"> ?",
-                    new String[] { String.valueOf(since) },
-                    null);
-        } else {
-            c = mResolver.query(contentUri, null, null, null, null);
-        }
-        return mActivitiesDAO.getActivitiesFromCursor(c);
+        boolean validTimestamp = since > 0;
+        final String selection = validTimestamp ? DBHelper.ActivityView.CREATED_AT + "> ?" : null;
+        final String[] selectionArgs = validTimestamp ? new String[] { String.valueOf(since) } : null;
+
+        activities.collection = mActivitiesDAO.queryAllByUri(contentUri, selection, selectionArgs);
+
+        return activities;
     }
 
     public Activities getSince(Content content, long before)  {
@@ -89,27 +85,20 @@ public class ActivitiesStorage {
     public Activities getBefore(Uri contentUri, long before)  {
         if (Log.isLoggable(TAG, Log.DEBUG))
             Log.d(TAG, "Activities.getBefore("+contentUri+", before="+before+")");
-        Cursor c;
-        if (before > 0) {
-            c = mResolver.query(contentUri,
-                    null,
-                    DBHelper.ActivityView.CREATED_AT+"< ?",
-                    new String[] { String.valueOf(before) },
-                    null);
-        } else {
-            c = mResolver.query(contentUri, null, null, null, null);
-        }
 
-        return mActivitiesDAO.getActivitiesFromCursor(c);
+        boolean validTimestamp = before > 0;
+        final String selection = validTimestamp ? DBHelper.ActivityView.CREATED_AT + "< ?" : null;
+        final String[] selectionArgs = validTimestamp ? new String[] { String.valueOf(before) } : null;
+
+        Activities activities = new Activities();
+        activities.collection = mActivitiesDAO.queryAllByUri(contentUri, selection, selectionArgs);
+
+        return activities;
     }
 
-    public int getCountSince(long since, Content content){
-        Cursor c = mResolver.query(content.uri,
-                new String[]{"Count("+ BaseColumns._ID+") as unseen"},
-                DBHelper.ActivityView.CONTENT_ID + " = ? AND " + DBHelper.ActivityView.CREATED_AT + "> ?",
-                new String[]{String.valueOf(content.id), String.valueOf(since)},
-                null);
-        return c != null && c.moveToFirst() ? c.getInt(c.getColumnIndex("unseen")) : 0;
+    public int getCountSince(long since, Content content) {
+        String selection = DBHelper.ActivityView.CONTENT_ID + " = ? AND " + DBHelper.ActivityView.CREATED_AT + "> ?";
+        return mActivitiesDAO.count(selection, String.valueOf(content.id), String.valueOf(since));
     }
 
     public int clear(@Nullable Content content) {
@@ -136,9 +125,4 @@ public class ActivitiesStorage {
         return mActivitiesDAO.insert(content, activities);
     }
 
-
-    public User getUserFromActivityCursor(Cursor itemsCursor) {
-        final long id = itemsCursor.getLong(itemsCursor.getColumnIndex(DBHelper.ActivityView.USER_ID));
-        return User.fromActivityView(itemsCursor);
-    }
 }
