@@ -5,8 +5,10 @@ import static com.xtremelabs.robolectric.Robolectric.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.Robolectric;
@@ -16,6 +18,8 @@ import com.xtremelabs.robolectric.shadows.ShadowNetworkInfo;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -27,6 +31,8 @@ import android.provider.Settings;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -189,5 +195,26 @@ public class TestHelper {
 
     public static void disableSDCard() {
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_REMOVED);
+    }
+
+    public static int bulkInsert(Collection<ScResource> items) {
+        BulkInsertMap map = new BulkInsertMap();
+        for (ScResource m : items) {
+            m.putFullContentValues(map);
+        }
+        return map.insert(DefaultTestRunner.application.getContentResolver());
+    }
+
+    public static int bulkInsert(Uri uri, Collection<? extends ScResource> resources) {
+        List<ContentValues> items = new ArrayList<ContentValues>();
+        BulkInsertMap map = new BulkInsertMap();
+
+        for (ScResource resource : resources) {
+            resource.putDependencyValues(map);
+            items.add(resource.buildContentValues());
+        }
+        ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
+        map.insert(resolver); // dependencies
+        return resolver.bulkInsert(uri, items.toArray(new ContentValues[items.size()]));
     }
 }

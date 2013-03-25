@@ -82,7 +82,8 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
         SoundAssociationHolder holder = readJson(SoundAssociationHolder.class,
                 "/com/soundcloud/android/service/sync/e1_likes.json");
 
-        expect(getDAO().insert(holder.collection)).toEqual(3);
+        // 3 likes, 12 dependencies
+        expect(getDAO().createCollection(holder.collection)).toEqual(3 + 12);
 
         List<SoundAssociation> likes = getDAO().queryAll();
         expect(likes).toNumber(3);
@@ -96,7 +97,8 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
         SoundAssociationHolder holder = readJson(SoundAssociationHolder.class,
                 "/com/soundcloud/android/service/sync/e1_likes.json");
 
-        expect(getDAO().insert(holder.collection)).toEqual(3);
+        // 3 likes, 12 dependencies
+        expect(getDAO().createCollection(holder.collection)).toEqual(3 + 12);
 
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(3);
@@ -118,7 +120,8 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
         SoundAssociationHolder holder = readJson(SoundAssociationHolder.class,
                 "/com/soundcloud/android/provider/e1_sounds.json");
 
-        expect(getDAO().insert(holder.collection)).toEqual(50);
+        // 50 sounds, 100 dependencies
+        expect(getDAO().createCollection(holder.collection)).toEqual(50 + 100);
 
         Cursor c = resolver.query(Content.ME_SOUNDS.uri, null, null, null, null);
         expect(c.getCount()).toEqual(50);
@@ -133,54 +136,6 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
         expect(associations.get(1).getPlayable().title).toEqual("A faded + trimmed test upload");
     }
 
-    @Test
-    public void shouldSyncSoundAssociationsMeSounds() throws Exception {
-        SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
-                SoundAssociationTest.class.getResourceAsStream("sounds.json"),
-                SoundAssociationHolder.class);
-
-        expect(getDAO().syncToLocal(old.collection, Content.ME_SOUNDS.uri)).toBeTrue();
-        expect(Content.ME_SOUNDS).toHaveCount(38);
-
-        // expect no change, syncing to itself
-        expect(getDAO().syncToLocal(old.collection, Content.ME_SOUNDS.uri)).toBeFalse();
-        expect(Content.ME_SOUNDS).toHaveCount(38);
-
-        // expect change, syncing with 2 items
-        SoundAssociationHolder holder = new SoundAssociationHolder();
-        holder.collection = new ArrayList<SoundAssociation>();
-        holder.collection.add(createAssociation(66376067l, SoundAssociation.Type.TRACK_REPOST.type));
-        holder.collection.add(createAssociation(66376067l, SoundAssociation.Type.TRACK.type));
-
-        expect(getDAO().syncToLocal(holder.collection, Content.ME_SOUNDS.uri)).toBeTrue();
-        expect(Content.ME_SOUNDS).toHaveCount(2);
-
-        // remove the repost and make sure it gets removed locally
-        holder.collection.remove(0);
-        expect(getDAO().syncToLocal(holder.collection, Content.ME_SOUNDS.uri)).toBeTrue();
-        expect(Content.ME_SOUNDS).toHaveCount(1);
-    }
-
-    @Test
-    public void shouldSyncSoundAssociationsMeLikes() throws Exception {
-        SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
-                ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
-                SoundAssociationHolder.class);
-
-        expect(getDAO().syncToLocal(old.collection, Content.ME_LIKES.uri)).toBeTrue();
-        expect(Content.ME_LIKES).toHaveCount(3);
-
-        // expect no change, syncing to itself
-        expect(getDAO().syncToLocal(old.collection, Content.ME_LIKES.uri)).toBeFalse();
-        expect(Content.ME_LIKES).toHaveCount(3);
-
-        SoundAssociationHolder holder = new SoundAssociationHolder();
-        holder.collection = new ArrayList<SoundAssociation>();
-        holder.collection.add(createAssociation(56143158l, SoundAssociation.Type.TRACK_LIKE.type));
-
-        expect(getDAO().syncToLocal(holder.collection, Content.ME_LIKES.uri)).toBeTrue();
-        expect(Content.ME_LIKES).toHaveCount(1);
-    }
 
     /*
     @Test
@@ -232,14 +187,6 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
         expect(uri).toEqual(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/me/sounds/39"));
     }
     */
-
-    private SoundAssociation createAssociation(long id, String type) {
-        SoundAssociation soundAssociation1 = new SoundAssociation();
-        soundAssociation1.playable = new Track(id);
-        soundAssociation1.setType(type);
-        soundAssociation1.created_at = new Date(System.currentTimeMillis());
-        return soundAssociation1;
-    }
 
     private void insertTrack() {
         Track track = new Track(TRACK_ID);

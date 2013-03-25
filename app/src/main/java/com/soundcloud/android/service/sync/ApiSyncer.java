@@ -64,7 +64,7 @@ public class ApiSyncer {
     private final SyncStateManager mSyncStateManager;
     private final ActivitiesStorage mActivitiesStorage;
     private final PlaylistStorage mPlaylistStorage;
-    private final SoundAssociationDAO mSoundAssociationDAO;
+    private final SoundAssociationStorage mSoundAssociationStorage;
     private final CollectionStorage mCollectionStorage;
     private final UserStorage mUserStorage;
 
@@ -76,7 +76,7 @@ public class ApiSyncer {
         mSyncStateManager = new SyncStateManager(context);
         mActivitiesStorage = new ActivitiesStorage(context);
         mPlaylistStorage = new PlaylistStorage(context);
-        mSoundAssociationDAO = new SoundAssociationDAO(mResolver); // FIXME: should not access DAO directly
+        mSoundAssociationStorage = new SoundAssociationStorage(context);
         mCollectionStorage = new CollectionStorage(context);
         mUserStorage = new UserStorage(context);
     }
@@ -269,7 +269,7 @@ public class ApiSyncer {
     }
 
     private Result syncLocalSoundAssocations(Uri uri, List<SoundAssociation> associations) {
-        boolean changed = mSoundAssociationDAO.syncToLocal(associations, uri);
+        boolean changed = mSoundAssociationStorage.syncToLocal(associations, uri);
 
         Result result = new Result(uri);
         result.change =  changed ? Result.CHANGED : Result.UNCHANGED;

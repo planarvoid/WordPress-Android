@@ -45,14 +45,12 @@ public class ScContentProviderTest {
     static final long USER_ID = 100L;
     ContentResolver resolver;
     ActivitiesStorage activitiesStorage;
-    SoundAssociationDAO soundAssociationDAO;
 
     @Before
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
         activitiesStorage = new ActivitiesStorage(DefaultTestRunner.application);
-        soundAssociationDAO = new SoundAssociationDAO(resolver);
     }
 
     @Test

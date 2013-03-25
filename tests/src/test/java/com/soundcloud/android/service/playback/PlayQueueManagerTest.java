@@ -1,9 +1,7 @@
 package com.soundcloud.android.service.playback;
 
-import android.content.ContentResolver;
-import android.database.Cursor;
-import android.net.Uri;
-import com.soundcloud.android.dao.SoundAssociationDAO;
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociationHolder;
@@ -18,11 +16,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.ContentResolver;
+import android.database.Cursor;
+import android.net.Uri;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.soundcloud.android.Expect.expect;
 
 @RunWith(DefaultTestRunner.class)
 public class PlayQueueManagerTest {
@@ -346,7 +346,7 @@ public class PlayQueueManagerTest {
                 ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
                 SoundAssociationHolder.class);
 
-        new SoundAssociationDAO(resolver).insert(Content.ME_LIKES.uri, old.collection);
+        TestHelper.bulkInsert(Content.ME_LIKES.uri, old.collection);
 
 //        expect(SoundCloudApplication.MODEL_MANAGER.writeCollection(old.collection, Content.ME_LIKES.uri, USER_ID,
 //                ScResource.CacheUpdateMode.NONE)).toEqual(18); // 2 tracks, 1 playlist
