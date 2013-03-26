@@ -61,11 +61,11 @@ public class PlaylistStorageTest {
         expect(playlist.tracks.size()).toEqual(41);
         storage.create(playlist);
         List<Track> tracks = createTracks(2);
-        int i = 0;
+        TestHelper.bulkInsert(tracks);
+
         for (Track track : tracks){
-            final Uri insert = storage.addTrackToPlaylist(playlist, track.id, 100 * i);
+            final Uri insert = storage.addTrackToPlaylist(playlist, track.id, System.currentTimeMillis());
             expect(insert).not.toBeNull();
-            i++;
         }
 
         Playlist p2 = storage.getPlaylistWithTracks(playlist.id);
