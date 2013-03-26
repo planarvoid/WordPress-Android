@@ -333,16 +333,6 @@ public class User extends ScResource implements Refreshable {
         return Plan.fromApi(plan);
     }
 
-    public static void clearLoggedInUserFromStorage(Context context) {
-        final ContentResolver resolver = context.getContentResolver();
-
-        UserDAO.clearLoggedInUserFromStorage(resolver);
-        new ActivitiesStorage(context).clear(null);
-        PlayQueueManager.clearState(context);
-        FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
-        SearchDAO.clearState(resolver, SoundCloudApplication.getUserId());
-    }
-
     @Override
     public Uri getBulkInsertUri() {
         return Content.USERS.uri;

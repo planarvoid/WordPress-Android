@@ -18,18 +18,6 @@ public class UserDAO extends BaseDAO<User> {
         super(contentResolver);
     }
 
-    // TODO doesn't belong here
-    public static void clearLoggedInUserFromStorage(ContentResolver resolver) {
-        for (Content c : EnumSet.of(
-                Content.ME_SOUNDS,
-                Content.ME_LIKES,
-                Content.ME_FOLLOWINGS,
-                Content.ME_FOLLOWERS)) {
-            resolver.delete(Content.COLLECTIONS.uri,
-                    DBHelper.Collections.URI + " = ?", new String[]{ c.uri.toString() });
-        }
-    }
-
     @Override
     public Content getContent() {
         return Content.USERS;
