@@ -24,7 +24,7 @@ public class UserStorage {
     }
 
     public void createOrUpdate(User u) {
-       mUserDAO.createOrUpdate(u.id, u.buildContentValues());
+        mUserDAO.createOrUpdate(u.id, u.buildContentValues());
     }
 
     public User getUser(long id) {
