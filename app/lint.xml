@@ -25,6 +25,10 @@
     <!-- Px looks better in some cases -->
     <issue id="PxUsage" severity="ignore"/>
 
+    <!-- Allow exported content providers and receivers -->
+    <issue id="ExportedContentProvider" severity="ignore"/>
+    <issue id="ExportedReceiver" severity="ignore"/>
+
     <!-- flag NewApi as error -->
     <issue id="NewApi" severity="error"/>
     <issue id="InlinedApi" severity="error"/>
