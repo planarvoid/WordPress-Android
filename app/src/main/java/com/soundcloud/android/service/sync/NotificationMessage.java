@@ -216,9 +216,10 @@ class NotificationMessage {
 
     /* package */ static String getIncomingNotificationMessage(SoundCloudApplication app, Activities activites) {
         List<User> users = activites.getUniqueUsers();
-        assert !users.isEmpty();
-
         switch (users.size()) {
+            case 0:
+                return ""; // should not get this far, but in case
+
             case 1:
                 return String.format(
                         app.getString(R.string.dashboard_notifications_message_incoming),
