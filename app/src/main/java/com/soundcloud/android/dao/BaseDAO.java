@@ -32,9 +32,15 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     }
 
     public long create(T resource) {
-        final BulkInsertMap dependencies = new BulkInsertMap();
-        resource.putFullContentValues(dependencies);
-        dependencies.insert(mResolver);
+        return create(resource, true);
+    }
+
+    public long create(T resource, boolean storeDependencies) {
+        if (storeDependencies) {
+            final BulkInsertMap dependencies = new BulkInsertMap();
+            resource.putDependencyValues(dependencies);
+            dependencies.insert(mResolver);
+        }
         // TODO this will insert twice
         long recordId = create(resource.toUri(), resource.buildContentValues());
         resource.setId(recordId);

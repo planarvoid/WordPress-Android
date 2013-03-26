@@ -102,6 +102,10 @@ public class Search implements ModelLike, ContentValuesProvider {
     public void putFullContentValues(@NotNull BulkInsertMap destination) {
     }
 
+    @Override
+    public void putDependencyValues(@NotNull BulkInsertMap destination) {
+    }
+
     @SuppressWarnings("RedundantIfStatement")
     @Override
     public boolean equals(Object o) {

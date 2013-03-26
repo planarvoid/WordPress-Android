@@ -7,5 +7,6 @@ import org.jetbrains.annotations.NotNull;
 public interface ContentValuesProvider {
     ContentValues buildContentValues();
     void putFullContentValues(@NotNull BulkInsertMap destination);
+    void putDependencyValues(@NotNull BulkInsertMap destination);
 
 }

@@ -130,6 +130,10 @@ public class LocalCollection implements ModelLike, ContentValuesProvider {
     public void putFullContentValues(@NotNull BulkInsertMap destination) {
     }
 
+    @Override
+    public void putDependencyValues(@NotNull BulkInsertMap destination) {
+    }
+
     public boolean shouldAutoRefresh() {
         if (!isIdle()) return false;
         Content c = Content.match(uri);
