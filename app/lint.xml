@@ -22,6 +22,9 @@
     <!-- should probably re-enable later once more important things are fixed -->
     <issue id="ContentDescription" severity="ignore"/>
 
+    <!-- Px looks better in some cases -->
+    <issue id="PxUsage" severity="ignore"/>
+
     <!-- flag NewApi as error -->
     <issue id="NewApi" severity="error"/>
 
