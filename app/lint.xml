@@ -30,6 +30,10 @@
     <issue id="ExportedContentProvider" severity="ignore"/>
     <issue id="ExportedReceiver" severity="ignore"/>
 
+    <issue id="UseCompoundDrawables">
+        <ignore path="res/layout/location_picker_row.xml"/> <!-- User imageview here for resizing purposes -->
+    </issue>
+
     <!-- flag NewApi as error -->
     <issue id="NewApi" severity="error"/>
     <issue id="InlinedApi" severity="error"/>
