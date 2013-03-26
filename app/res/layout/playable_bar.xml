@@ -21,15 +21,11 @@
 
     <include layout="@layout/playable_metadata" />
 
-    <TextView android:id="@+id/playable_title" style="@style/PlayableTitle"/>
+    <TextView android:id="@+id/playable_title"
+              style="@style/PlayableTitle"/>
 
     <TextView android:id="@+id/playable_track_count"
-                      style="@style/txt_list_playable_track_count"
-                      android:layout_marginTop="5dp"
-                      android:layout_marginLeft="10dp"
-                      android:layout_alignParentRight="true"
-                      android:layout_below="@+id/playable_user_holder"
-                      android:visibility="gone"/>
+              style="@style/PlayableTrackCount" />
 
     <TextView android:id="@+id/playable_private_indicator"
               android:visibility="gone"
