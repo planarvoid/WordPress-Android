@@ -51,6 +51,16 @@
         <ignore path="src/main/java/com/soundcloud/android/activity/WebViewActivity.java"/>
     </issue>
 
+    <issue id="MergeRootFrame">
+        <!-- Tour layouts can't be merged -->
+        <ignore path="res/layout/tour_buttons.xml"/>
+        <ignore path="res/layout-normal-port/tour_buttons.xml"/>
+        <ignore path="res/layout-large-port/tour_buttons.xml"/>
+        <ignore path="res/layout/tour_radio_group.xml"/>
+    </issue>
+
+
+
     <!-- ABS + ViewPagerIndicator -->
     <issue id="NewApi">
       <ignore path="target/classes/com/viewpagerindicator/IcsLinearLayout.class"/>
