@@ -86,7 +86,7 @@ public class ActivitiesTest {
 
     @Test
     public void testAllActivityTypesHaveUsers() throws Exception {
-        Activities activities = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_one_of_each_activity.json"), false);
+        Activities activities = TestHelper.readJson(Activities.class, ApiSyncServiceTest.class, "e1_one_of_each_activity.json");
         for (Activity a : activities){
             expect(a.getUser()).not.toBeNull();
         }
