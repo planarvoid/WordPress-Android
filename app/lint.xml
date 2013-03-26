@@ -26,6 +26,13 @@
     <!-- Px looks better in some cases -->
     <issue id="PxUsage" severity="ignore"/>
 
+    <!-- Sometimes NestedWeights are necessities -->
+    <issue id="NestedWeights">
+        <ignore path="res/layout/abs__search_view.xml"/>
+        <ignore path="res/layout/appwidget_player.xml"/>
+        <ignore path="res/layout-land/sc_create.xml"/>
+    </issue>
+
     <!-- Allow exported content providers and receivers -->
     <issue id="ExportedContentProvider" severity="ignore"/>
     <issue id="ExportedReceiver" severity="ignore"/>
