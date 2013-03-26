@@ -29,6 +29,12 @@
     <issue id="NewApi" severity="error"/>
     <issue id="InlinedApi" severity="error"/>
 
+    <issue id="SetJavaScriptEnabled">
+        <ignore path="src/main/java/com/soundcloud/android/activity/auth/Connect.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/activity/auth/FacebookWebFlow.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/activity/WebViewActivity.java"/>
+    </issue>
+
     <!-- ABS + ViewPagerIndicator -->
     <issue id="NewApi">
       <ignore path="target/classes/com/viewpagerindicator/IcsLinearLayout.class"/>
