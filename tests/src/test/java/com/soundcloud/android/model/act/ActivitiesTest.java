@@ -85,6 +85,14 @@ public class ActivitiesTest {
     }
 
     @Test
+    public void testAllActivityTypesHaveUsers() throws Exception {
+        Activities activities = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_one_of_each_activity.json"), false);
+        for (Activity a : activities){
+            expect(a.getUser()).not.toBeNull();
+        }
+    }
+
+    @Test
     public void testFromJSON() throws Exception {
         Activities a = getDefaultActivities();
         expect(a.size()).toEqual(17);
