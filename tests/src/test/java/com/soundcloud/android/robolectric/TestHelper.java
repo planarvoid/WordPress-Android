@@ -197,7 +197,7 @@ public class TestHelper {
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_REMOVED);
     }
 
-    public static int bulkInsert(Collection<ScResource> items) {
+    public static int bulkInsert(Collection<? extends ScResource> items) {
         BulkInsertMap map = new BulkInsertMap();
         for (ScResource m : items) {
             m.putFullContentValues(map);
