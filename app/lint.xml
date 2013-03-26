@@ -23,16 +23,28 @@
     <!-- should probably re-enable later once more important things are fixed -->
     <issue id="ContentDescription" severity="ignore"/>
 
+    <!-- Px looks better in some cases -->
+    <issue id="PxUsage" severity="ignore"/>
+
+    <!-- Allow exported content providers and receivers -->
+    <issue id="ExportedContentProvider" severity="ignore"/>
+    <issue id="ExportedReceiver" severity="ignore"/>
+
     <!-- flag NewApi as error -->
     <issue id="NewApi" severity="error"/>
     <issue id="InlinedApi" severity="error"/>
-
 
     <issue id="UnusedResources">
         <ignore path="res/values/keys.xml"/>
         <ignore path="res/values/sigs.xml"/>
         <ignore path="res/layout/abs__search_view.xml"/> <!-- overrides default abs searchview -->
         <ignore path="res/values/strings_record_tips.xml"/>
+    </issue>
+
+    <issue id="SetJavaScriptEnabled">
+        <ignore path="src/main/java/com/soundcloud/android/activity/auth/Connect.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/activity/auth/FacebookWebFlow.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/activity/WebViewActivity.java"/>
     </issue>
 
     <!-- ABS + ViewPagerIndicator -->
