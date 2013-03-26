@@ -65,7 +65,7 @@ import java.io.IOException;
 import java.net.URI;
 
 @ReportsCrashes(
-        formUri = "https://bugsense.appspot.com/api/acra?api_key=231805c4",
+        formUri = "https://bugsense.appspot.com/api/acra?api_key=3e22e330",
         formKey= "",
         checkReportVersion = true,
         checkReportSender = true)

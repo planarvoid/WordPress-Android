@@ -15,7 +15,7 @@ public class Capitalizer implements TextWatcher {
     public void afterTextChanged(Editable s) {
         if (s.length() == 1
         && !s.toString().toUpperCase(Locale.getDefault()).equals(s.toString())) {
-            text.setTextKeepState(s.toString().toUpperCase());
+            text.setTextKeepState(s.toString().toUpperCase(Locale.getDefault()));
         }
     }
 

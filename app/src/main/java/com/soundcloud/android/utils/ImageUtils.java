@@ -3,6 +3,7 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.imageloader.ImageLoader.Options;
 
+import android.annotation.TargetApi;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cropimage.CropImageActivity;
@@ -394,6 +395,7 @@ public final class ImageUtils {
         return values[5];
     }
 
+    @TargetApi(9)
     public static boolean isScreenXL(Context context){
         return ((context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE);
     }

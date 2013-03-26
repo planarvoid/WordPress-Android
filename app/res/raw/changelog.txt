@@ -1,18 +1,22 @@
-$ 57
+$ 58
   % v current
-  _ 2013-03-19
-  ! Sets RC 3
-  - Sets sync fixes
-  - Add to set now appends instead of prepending
-  - fixed some deeplinks
-  - Fixed add to playlist locking bug
-  - Fixed erratic liked/reposted state on stream items
-  - Changed refresh logic to account for private sounds in sets
-  - Various bug and UI fixes
-  - Search functionality added to sets
-  - Set creation is done in the background
-  - Listen to Sets in the Android App
-  - Create and add to new sets on the go
+  _ 2013-03-22
+    ! Maintenance
+    * Fixed a playlist sync related crash
+    * Fixed player reload bug
+
+$ 57
+  % v 2.5.0
+  _ 2013-03-21
+  ! Sets
+  * Sets are here!  Sets (collections of tracks) appear in your stream when posted by others. Listen to sets posted by others, or create and share your own.
+  * Add tracks to sets: build collections of your favourite music & audio.
+  * Search for sets: new filter in the search tab lets you search specifically for sets.
+  * Miscellaneous bug-fixes and stability improvements
+  - Deeplinks in manifest for marketing emails (stream, people, search, upload)
+  - Fixed stuck buffering UI when resuming player
+  - Tracking stop event on complete and DB locking fixes
+  - Cleanup fixes for reposts
 
 $ 56
   % v 2.4.7
