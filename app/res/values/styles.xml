@@ -304,6 +304,7 @@
         <item name="android:layout_weight">1</item>
         <item name="android:imeOptions">actionNext</item>
         <item name="android:cursorVisible">true</item>
+        <item name="custom_font">fonts/Interstate-Light.ttf</item>
     </style>
 
     <style name="SignUp.EmailEntry" parent="SignUp.TextEntry">
