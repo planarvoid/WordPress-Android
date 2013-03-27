@@ -6,6 +6,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.tester.android.database.TestCursor;
@@ -31,12 +32,28 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
     public void shouldStoreSingleRecord() {
         ContentResolver resolverMock = getDAO().getContentResolver();
         Track record = new Track();
+        record.user = new User(); // should not be auto-inserted
+
+        when(resolverMock.insert(eq(record.toUri()), any(ContentValues.class))).thenReturn(record.toUri());
+
+        getDAO().create(record, false);
+
+        verify(resolverMock).insert(eq(record.toUri()), any(ContentValues.class));
+        verifyNoMoreInteractions(resolverMock);
+    }
+
+    @Test
+    public void shouldStoreSingleRecordWithDependencies() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+        Track record = new Track();
+        record.user = new User();
 
         when(resolverMock.insert(eq(record.toUri()), any(ContentValues.class))).thenReturn(record.toUri());
 
         getDAO().create(record);
 
         verify(resolverMock).insert(eq(record.toUri()), any(ContentValues.class));
+        verify(resolverMock).bulkInsert(eq(Content.USERS.uri), any(ContentValues[].class));
     }
 
     @Test
