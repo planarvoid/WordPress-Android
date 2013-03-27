@@ -21,7 +21,7 @@ import android.text.TextUtils;
  * See {@link DBHelper.Collections}.
  */
 public class LocalCollection {
-    public final int id;
+    public int id; /* not final, id may get updated if this is instantiated asynchronously */
     public final Uri uri;
 
     /** timestamp of last successful sync */
@@ -39,6 +39,10 @@ public class LocalCollection {
     private ContentObserver mChangeObserver;
 
     private OnChangeListener mChangeListener;
+
+    public LocalCollection(Uri contentUri) {
+        this.uri = contentUri;
+    }
 
 
     public boolean hasSyncedBefore() {
@@ -118,6 +122,12 @@ public class LocalCollection {
             lc = insertLocalCollection(contentUri,resolver);
         }
 
+        return lc;
+    }
+
+    public static @Nullable LocalCollection fromContentUriAsync(Uri contentUri, ContentResolver resolver) {
+        LocalCollection lc = new LocalCollection(contentUri);
+        lc.configureFromUri(resolver);
         return lc;
     }
 
@@ -246,7 +256,7 @@ public class LocalCollection {
     }
 
     public boolean shouldAutoRefresh() {
-        if (!isIdle()) return false;
+        if (!isIdle() || id <= 0) return false;
         Content c = Content.match(uri);
 
         // only auto refresh once every 30 mins at most, that we won't hammer their phone or the api if there are errors
@@ -266,8 +276,12 @@ public class LocalCollection {
     public void startObservingSelf(ContentResolver contentResolver, OnChangeListener listener) {
         mContentResolver = contentResolver;
         mChangeObserver = new ChangeObserver();
-        contentResolver.registerContentObserver(Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(id)).build(), true, mChangeObserver);
         mChangeListener = listener;
+
+        if (id > 0){
+            final Uri contentUri = Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(id)).build();
+            contentResolver.registerContentObserver(contentUri, true, mChangeObserver);
+        }
     }
     public void stopObservingSelf() {
         if (mChangeObserver != null) mContentResolver.unregisterContentObserver(mChangeObserver);
@@ -291,6 +305,12 @@ public class LocalCollection {
         }
     }
 
+    public void configureFromUri(ContentResolver resolver){
+            LocalCollectionQueryHandler handler = new LocalCollectionQueryHandler(resolver);
+            handler.startQuery(0, null, Content.COLLECTIONS.uri, null, "uri = ?", new String[]{uri.toString()}, null);
+        }
+
+
     private class LocalCollectionQueryHandler extends AsyncQueryHandler {
         public LocalCollectionQueryHandler(ContentResolver resolver) {
             super(resolver);
@@ -300,6 +320,18 @@ public class LocalCollection {
         protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
             if (cursor != null && cursor.moveToFirst()) {
                 setFromCursor(cursor);
+            } else {
+
+                /**
+                 *  this must have come from
+                 *  {@link fromContentUriAsync(Uri, ContentResolver)}
+                 */
+                id = insertLocalCollection(uri,mContentResolver).id;
+                if (mChangeListener != null) {
+                    mContentResolver.registerContentObserver(
+                            Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(id)).build(),
+                            true, mChangeObserver);
+                }
             }
             if (cursor != null) cursor.close();
             if (mChangeListener != null) mChangeListener.onLocalCollectionChanged();
