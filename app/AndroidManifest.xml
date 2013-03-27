@@ -38,6 +38,7 @@
                  android:theme="@style/Theme.Next"
                  android:configChanges="orientation|keyboardHidden|keyboard"
                  android:hardwareAccelerated="true"
+                 android:allowBackup="true"
                  android:name="SoundCloudApplication">
 
         <activity android:name=".activity.Launch"

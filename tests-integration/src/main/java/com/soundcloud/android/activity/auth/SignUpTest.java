@@ -55,7 +55,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
         solo.assertDialogClosed();
 
         // Find Friends
-        solo.assertText(R.string.suggested_users_msg);
+        solo.assertText(R.string.side_menu_suggested_users);
 
         solo.clickOnButtonResId(R.string.btn_done);
 
@@ -119,7 +119,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
     }
 
     public void testSignupWithoutInput() throws Exception {
-        solo.clickOnButtonResId(R.string.btn_signup);
+        solo.clickOnButtonResId(R.string.authentication_sign_up);
         solo.assertText(R.string.authentication_sign_up);
         solo.clickOnButtonResId(R.string.btn_done);
         solo.assertText(R.string.authentication_error_incomplete_fields);
@@ -140,7 +140,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
         solo.assertDialogClosed();
 
         // Find Friends
-        solo.assertText(R.string.suggested_users_msg);
+        solo.assertText(R.string.side_menu_suggested_users);
 
         solo.clickOnButtonResId(R.string.btn_done);
 
@@ -150,7 +150,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
 
         performSignup(email, "password", "password");
 
-        solo.assertText(R.string.authentication_signup_failure_title);
+        solo.assertText(R.string.authentication_signup_error_message);
         solo.clickOnOK();
     }
 
@@ -227,7 +227,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
     }
 
     private void performSignup(String email, String password, String passwordConfirm) {
-        solo.clickOnButtonResId(R.string.btn_signup);
+        solo.clickOnButtonResId(R.string.authentication_sign_up);
         solo.assertText(R.string.authentication_sign_up);
         EditText emailField = (EditText) solo.getView(R.id.txt_email_address);
         solo.typeText(emailField, email);
