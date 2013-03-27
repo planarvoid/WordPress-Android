@@ -302,12 +302,8 @@
     <style name="SignUp.TextEntry" parent="SignUp.Label">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
-
         <item name="android:imeOptions">actionNext</item>
         <item name="android:cursorVisible">true</item>
-        <item name="android:textCursorDrawable">@null</item>
-
-        <item name="custom_font">fonts/Interstate-Light.ttf</item>
     </style>
 
     <style name="SignUp.EmailEntry" parent="SignUp.TextEntry">
