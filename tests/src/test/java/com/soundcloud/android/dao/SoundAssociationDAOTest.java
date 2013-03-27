@@ -1,33 +1,31 @@
 package com.soundcloud.android.dao;
 
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes;
+import static com.soundcloud.android.robolectric.TestHelper.readJson;
+
 import com.soundcloud.android.model.Like;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.SoundAssociationHolder;
-import com.soundcloud.android.model.SoundAssociationTest;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.service.sync.ApiSyncerTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes;
-import static com.soundcloud.android.robolectric.TestHelper.readJson;
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO> {
@@ -75,6 +73,102 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
         insertPlaylistRepost();
 
         expect(getDAO().queryAll()).toNumber(6);
+    }
+
+    @Test
+    public void shouldInsertOwnTrack() {
+        expect(Content.ME_SOUNDS).toHaveCount(0);
+
+        Track track = new Track(1);
+        SoundAssociation sa = new SoundAssociation(track, new Date(), SoundAssociation.Type.TRACK);
+        sa.user = new User(USER_ID);
+        getDAO().create(sa);
+
+        expect(Content.ME_SOUNDS).toHaveCount(1);
+        expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView._ID, track.getId());
+        expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID, USER_ID);
+        expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE, CollectionItemTypes.TRACK);
+        expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView._TYPE, Playable.DB_TYPE_TRACK);
+    }
+
+    @Test
+    public void shouldInsertOwnPlaylist() {
+        expect(Content.ME_SOUNDS).toHaveCount(0);
+
+        Playlist playlist = new Playlist(1);
+        SoundAssociation sa = new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST);
+        sa.user = new User(USER_ID);
+        getDAO().create(sa);
+
+        expect(Content.ME_SOUNDS).toHaveCount(1);
+        expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView._ID, playlist.getId());
+        expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID, USER_ID);
+        expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE, CollectionItemTypes.PLAYLIST);
+        expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView._TYPE, Playable.DB_TYPE_PLAYLIST);
+    }
+
+    @Test
+    public void shouldInsertLikeForTrack() {
+        expect(Content.ME_LIKES).toHaveCount(0);
+
+        Track track = new Track(1);
+        SoundAssociation sa = new SoundAssociation(track, new Date(), SoundAssociation.Type.TRACK_LIKE);
+        sa.user = new User(USER_ID);
+        getDAO().create(sa);
+
+        expect(Content.ME_LIKES).toHaveCount(1);
+        expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView._ID, track.getId());
+        expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID, USER_ID);
+        expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE, CollectionItemTypes.LIKE);
+        expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView._TYPE, Playable.DB_TYPE_TRACK);
+    }
+
+    @Test
+    public void shouldInsertRepostForTrack() {
+        expect(Content.ME_REPOSTS).toHaveCount(0);
+
+        Track track = new Track(1);
+        SoundAssociation sa = new SoundAssociation(track, new Date(), SoundAssociation.Type.TRACK_REPOST);
+        sa.user = new User(USER_ID);
+        getDAO().create(sa);
+
+        expect(Content.ME_REPOSTS).toHaveCount(1);
+        expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView._ID, track.getId());
+        expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID, USER_ID);
+        expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE, CollectionItemTypes.REPOST);
+        expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView._TYPE, Playable.DB_TYPE_TRACK);
+    }
+
+    @Test
+    public void shouldInsertLikeForPlaylist() {
+        expect(Content.ME_LIKES).toHaveCount(0);
+
+        Playlist playlist = new Playlist(1);
+        SoundAssociation sa = new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST_LIKE);
+        sa.user = new User(USER_ID);
+        getDAO().create(sa);
+
+        expect(Content.ME_LIKES).toHaveCount(1);
+        expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView._ID, playlist.getId());
+        expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID, USER_ID);
+        expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE, CollectionItemTypes.LIKE);
+        expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView._TYPE, Playable.DB_TYPE_PLAYLIST);
+    }
+
+    @Test
+    public void shouldInsertRepostForPlaylist() {
+        expect(Content.ME_REPOSTS).toHaveCount(0);
+
+        Playlist playlist = new Playlist(1);
+        SoundAssociation sa = new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST_REPOST);
+        sa.user = new User(USER_ID);
+        getDAO().create(sa);
+
+        expect(Content.ME_REPOSTS).toHaveCount(1);
+        expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView._ID, playlist.getId());
+        expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID, USER_ID);
+        expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE, CollectionItemTypes.REPOST);
+        expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView._TYPE, Playable.DB_TYPE_PLAYLIST);
     }
 
     @Test
