@@ -1,12 +1,14 @@
 package com.soundcloud.android.robolectric;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.xtremelabs.robolectric.Robolectric.*;
+import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.Wrapper;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
@@ -29,10 +31,13 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.Settings;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -197,6 +202,24 @@ public class TestHelper {
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_REMOVED);
     }
 
+    public static Uri insertWithDependencies(Uri contentUri, ScResource resource) {
+        ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
+        final BulkInsertMap dependencies = new BulkInsertMap();
+        resource.putDependencyValues(dependencies);
+        dependencies.insert(resolver);
+
+        return resolver.insert(contentUri, resource.buildContentValues());
+    }
+
+    public static Uri insertWithDependencies(ScResource resource) {
+        return insertWithDependencies(resource.toUri(), resource);
+    }
+
+    public static Uri insertAsSoundAssociation(Playable playable, SoundAssociation.Type assocType) {
+        SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
+        return TestHelper.insertWithDependencies(like);
+    }
+
     public static int bulkInsert(Collection<? extends ScResource> items) {
         BulkInsertMap map = new BulkInsertMap();
         for (ScResource m : items) {
@@ -216,5 +239,43 @@ public class TestHelper {
         ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
         map.insert(resolver); // dependencies
         return resolver.bulkInsert(uri, items.toArray(new ContentValues[items.size()]));
+    }
+
+    public static Recording createRecording(long userId) throws IOException {
+        File tmp = createRecordingFile("wav");
+
+        Recording r = new Recording(tmp);
+        r.id = 1;
+        r.latitude = 32.3;
+        r.longitude = 23.1;
+        r.what_text = "somewhat";
+        r.where_text = "somehere";
+        r.four_square_venue_id = "foursquare";
+        r.description = "test recording";
+        r.genre = "speed blues ";
+        r.duration = 86 * 1000;
+        r.user_id = userId;
+        r.recipient_user_id = 300L;
+        r.recipient_username = "foo";
+        r.shared_emails = "foo@example.com";
+        r.shared_ids = "1,2,3,4";
+        r.upload_status = Recording.Status.NOT_YET_UPLOADED;
+        r.artwork_path = r.getFile();
+        r.resized_artwork_path = r.artwork_path;
+        r.tip_key = "something";
+
+        return r;
+    }
+
+    private static File createRecordingFile(String extension) throws IOException {
+        File tmp = File.createTempFile("recording-test", extension);
+        tmp.createNewFile();
+        expect(tmp.exists()).toBeTrue();
+
+        Calendar c = Calendar.getInstance();
+        //noinspection MagicConstant
+        c.set(2001, 1, 15, 14, 31, 1);  // 14:31:01, 15/02/2011
+        tmp.setLastModified(c.getTimeInMillis());
+        return tmp;
     }
 }
