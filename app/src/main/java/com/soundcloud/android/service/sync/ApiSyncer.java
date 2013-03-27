@@ -523,6 +523,7 @@ public class ApiSyncer {
                 Request r = Content.PLAYLIST.request(contentUri).withContent(content, "application/json");
                 p = mApi.update(r);
             }
+            if (c != null) c.close();
 
             final Uri insertedUri = p.insert(mResolver);
             if (insertedUri != null) {

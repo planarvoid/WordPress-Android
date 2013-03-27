@@ -233,16 +233,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         super.onResume();
 
         if (getApp().getAccount() == null) {
+            pausePlayback();
             finish();
             return;
         }
 
         mIsForeground = true;
-        if (getApp().getAccount() == null) {
-            pausePlayback();
-            finish();
-        }
-
         mRootView.onResume();
         if (mActionBarController != null) {
             mActionBarController.onResume();
@@ -448,10 +444,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         if (mActionBarController != null) {
             mActionBarController.onMenuOpenLeft();
         }
-    }
-
-    @Override
-    public void onMenuOpenRight() {
     }
 
     @Override

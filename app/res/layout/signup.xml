@@ -60,14 +60,12 @@
                 <Button style="@style/Tour.Button"
                         android:id="@+id/btn_cancel"
                         android:text="@string/cancel"
-                        android:layout_width="0dp"
                         android:layout_height="@dimen/tour_bottom_buttons_height"
                         android:layout_marginRight="10dip"/>
 
                 <Button style="@style/Tour.Button"
                         android:id="@+id/btn_signup"
                         android:text="@string/done"
-                        android:layout_width="0dp"
                         android:layout_height="@dimen/tour_bottom_buttons_height"/>
             </LinearLayout>
 
