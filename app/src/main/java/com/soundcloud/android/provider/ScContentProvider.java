@@ -107,7 +107,7 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_SOUNDS :
-                qb.setTables(soundAssociationJoin);
+                qb.setTables(Table.SOUND_ASSOCIATION_VIEW.name);
                 if ("1".equals(uri.getQueryParameter(Parameter.TYPE_IDS_ONLY))) {
                     _columns = new String[]{DBHelper.SoundAssociationView._TYPE, DBHelper.SoundAssociationView._ID};
                 } else if (_columns == null) _columns = formatWithUser(getSoundViewColumns(Table.SOUND_ASSOCIATION_VIEW), userId);
@@ -121,7 +121,7 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_PLAYLISTS :
-                qb.setTables(soundAssociationJoin);
+                qb.setTables(Table.SOUND_ASSOCIATION_VIEW.name);
                 if (_columns == null) _columns = formatWithUser(getSoundViewColumns(Table.SOUND_ASSOCIATION_VIEW), userId);
 
                 makeSoundAssociationSelection(qb, String.valueOf(userId),new int[]{CollectionItemTypes.PLAYLIST});
@@ -131,7 +131,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_LIKES:
             case ME_REPOSTS:
-                qb.setTables(soundAssociationJoin);
+                qb.setTables(Table.SOUND_ASSOCIATION_VIEW.name);
                 if ("1".equals(uri.getQueryParameter(Parameter.TYPE_IDS_ONLY))) {
                     _columns = new String[]{DBHelper.SoundAssociationView._TYPE, DBHelper.SoundAssociationView._ID};
                 } else if (_columns == null) _columns = formatWithUser(getSoundViewColumns(Table.SOUND_ASSOCIATION_VIEW), userId);
@@ -939,13 +939,6 @@ public class ScContentProvider extends ContentProvider {
         return b.toString();
     }
 
-    static String soundAssociationJoin = Table.SOUND_ASSOCIATION_VIEW.name + " INNER JOIN " + Table.COLLECTION_ITEMS.name +
-                " ON (" + Table.SOUND_ASSOCIATION_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID +
-                " AND " + DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE + " = " + DBHelper.CollectionItems.COLLECTION_TYPE +
-                " AND " + Table.SOUND_ASSOCIATION_VIEW.type + " = " + DBHelper.CollectionItems.RESOURCE_TYPE + ")";
-
-
-
     static String makeCollectionJoin(Table table) {
         String join = table.name + " LEFT JOIN " + Table.COLLECTION_ITEMS.name +
                 " ON (" + table.id + " = " + DBHelper.CollectionItems.ITEM_ID;
@@ -963,7 +956,7 @@ public class ScContentProvider extends ContentProvider {
     static SCQueryBuilder makeSoundAssociationSelection(SCQueryBuilder qb, String userId, int[] collectionType) {
         qb.appendWhere(Table.SOUND_ASSOCIATION_VIEW.name + "." + DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID + " = " + userId);
         for (int i = 0; i < collectionType.length; i++) {
-            qb.appendWhere((i == 0 ? " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" : ", ")
+            qb.appendWhere((i == 0 ? " AND " + DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE + " IN (" : ", ")
                     + collectionType[i]
                     + (i == collectionType.length - 1 ? ")" : ""));
         }

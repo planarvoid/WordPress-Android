@@ -33,8 +33,8 @@ public class SoundAssociationStorage {
     public boolean syncToLocal(List<SoundAssociation> soundAssociations, Uri contentUri) {
         // get current local id and types for this uri
         Cursor c = mResolver.query(contentUri,
-                new String[]{DBHelper.CollectionItems.ITEM_ID, DBHelper.CollectionItems.RESOURCE_TYPE,
-                        DBHelper.CollectionItems.COLLECTION_TYPE}, null, null, null);
+                new String[]{DBHelper.SoundAssociationView._ID, DBHelper.SoundAssociationView._TYPE,
+                        DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE}, null, null, null);
 
         boolean changed = true; // assume changed by default
         if (c != null) {
