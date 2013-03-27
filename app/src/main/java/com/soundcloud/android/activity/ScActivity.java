@@ -447,10 +447,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     @Override
-    public void onMenuOpenRight() {
-    }
-
-    @Override
     public void onMenuClosed() {
         if (mActionBarController != null) {
             mActionBarController.onMenuClosed();
