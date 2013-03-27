@@ -38,7 +38,7 @@
     <issue id="ExportedReceiver" severity="ignore"/>
 
     <issue id="UseCompoundDrawables">
-        <ignore path="res/layout/location_picker_row.xml"/> <!-- User imageview here for resizing purposes -->
+        <ignore path="res/layout/location_picker_row.xml"/> <!-- Use imageview here for resizing purposes -->
     </issue>
 
     <!-- flag NewApi as error -->
