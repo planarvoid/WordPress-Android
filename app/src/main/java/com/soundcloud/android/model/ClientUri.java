@@ -50,7 +50,7 @@ public class ClientUri {
     }
 
     private static String fixType(String type){
-        return type.replace("//","").replace(SOUNDS_TYPE, TRACKS_TYPE);
+        return type.replace("//","");
     }
 
     public Intent getViewIntent() {
