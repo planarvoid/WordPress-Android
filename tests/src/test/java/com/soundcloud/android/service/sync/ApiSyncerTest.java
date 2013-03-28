@@ -131,11 +131,14 @@ public class ApiSyncerTest {
         Result result = sync(Content.ME_FOLLOWERS.uri);
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
-
-        // make sure tracks+users got written
         expect(Content.USERS).toHaveCount(3);
-        expect(Content.ME_FOLLOWERS).toHaveCount(3);
-        assertFirstIdToBe(Content.ME_FOLLOWERS, 308291);
+
+        CollectionHolder<User> followers = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver,
+                User.class, Content.ME_FOLLOWERS.uri);
+        expect(followers.get(0).id).toEqual(308291l);
+        for (User u : followers){
+            expect(u.isStale()).toBeFalse();
+        }
     }
 
     @Test
