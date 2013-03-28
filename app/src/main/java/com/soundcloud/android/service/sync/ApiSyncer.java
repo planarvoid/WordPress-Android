@@ -60,9 +60,9 @@ public class ApiSyncer {
     private final ContentResolver mResolver;
     private final Context mContext;
 
-    public ApiSyncer(Context context) {
+    public ApiSyncer(Context context, ContentResolver resolver) {
         mApi = (AndroidCloudAPI) context.getApplicationContext();
-        mResolver = context.getContentResolver();
+        mResolver = resolver;
         mContext = context;
     }
 

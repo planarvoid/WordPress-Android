@@ -259,7 +259,7 @@ public class ApiSyncerTest {
         expect(Content.TRACKS).toHaveCount(50);
         expect(Content.ME_SOUNDS).toHaveCount(51);
 
-        expect(new ApiSyncer(Robolectric.application).pushLocalPlaylists()).toBe(1);
+        expect(new ApiSyncer(Robolectric.application, contentResolver).pushLocalPlaylists()).toBe(1);
         expect(Content.ME_SOUNDS).toHaveCount(51);
 
         expect(LocalCollection.fromContentUri(p.toUri(), contentResolver, true).shouldAutoRefresh()).toBeFalse();
@@ -500,7 +500,7 @@ public class ApiSyncerTest {
 
     private Result sync(Uri uri,  String... fixtures) throws IOException {
         addPendingHttpResponse(getClass(), fixtures);
-        ApiSyncer syncer = new ApiSyncer(Robolectric.application);
+        ApiSyncer syncer = new ApiSyncer(Robolectric.application, Robolectric.application.getContentResolver());
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
     }
 
