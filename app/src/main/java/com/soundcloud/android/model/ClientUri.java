@@ -35,7 +35,7 @@ public class ClientUri {
         final String specific = uri.getSchemeSpecificPart();
         final String[] components = specific.split(":", 2);
         if (components != null && components.length == 2) {
-            type = components[0];
+            type = fixType(components[0]);
             id = components[1];
             long n = -1;
             try {
@@ -47,6 +47,10 @@ public class ClientUri {
             throw new IllegalArgumentException("invalid uri: "+uri);
         }
         this.uri = uri;
+    }
+
+    private static String fixType(String type){
+        return type.replace("//","").replace(SOUNDS_TYPE, TRACKS_TYPE);
     }
 
     public Intent getViewIntent() {
