@@ -207,7 +207,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     private @Nullable LocalCollection getLocalCollection() {
-        return LocalCollection.fromContentUri(mPlaylist.toUri(), getActivity().getContentResolver(), true);
+        return mPlaylist == null ? null : LocalCollection.fromContentUri(mPlaylist.toUri(), getActivity().getContentResolver(), true);
     }
 
     public void scrollToPosition(int position) {

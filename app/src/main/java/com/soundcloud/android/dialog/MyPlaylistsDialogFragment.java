@@ -130,7 +130,8 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
 
         new Handler().postDelayed(new Runnable() {
             public void run() {
-                getDialog().dismiss();
+                final Dialog toDismiss = getDialog();
+                if (toDismiss != null) toDismiss.dismiss();
             }
         }, 500);
     }
