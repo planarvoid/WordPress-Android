@@ -389,37 +389,42 @@ public class ApiSyncer {
 
         log("Added " + added + " new items for this endpoint");
 
+        insertInBatches(content, userId, remote, startPosition);
+
+        return result;
+    }
+
+    private void insertInBatches(final Content content, final long userId, final List<Long> ids, final int startPosition) {
         int numBatches = 1;
-        int batchSize = remote.size();
-        if (remote.size() > mBulkInsertBatchSize) {
+        int batchSize = ids.size();
+        if (ids.size() > mBulkInsertBatchSize) {
             // split up the transaction into batches, so as to not block readers too long
-            numBatches = (int) Math.ceil((float) remote.size() / mBulkInsertBatchSize);
+            numBatches = (int) Math.ceil((float) ids.size() / mBulkInsertBatchSize);
             batchSize = mBulkInsertBatchSize;
         }
         log("numBatches: " + numBatches);
         log("batchSize: " + batchSize);
 
         // insert in batches so as to not hold a write lock in a single transaction for too long
+        int positionOffset = startPosition;
         for (int i = 0; i < numBatches; i++) {
             int batchStart = i * batchSize;
-            int batchEnd = Math.min(batchStart + batchSize, remote.size());
+            int batchEnd = Math.min(batchStart + batchSize, ids.size());
             log("batch " + i + ": start / end = " + batchStart + " / " + batchEnd);
 
-            List<Long> idBatch = remote.subList(batchStart, batchEnd);
+            List<Long> idBatch = ids.subList(batchStart, batchEnd);
             ContentValues[] cv = new ContentValues[idBatch.size()];
 
             for (int j = 0; j < idBatch.size(); j++) {
                 long id = idBatch.get(j);
                 cv[j] = new ContentValues();
-                cv[j].put(DBHelper.CollectionItems.POSITION, startPosition + j);
+                cv[j].put(DBHelper.CollectionItems.POSITION, positionOffset + j);
                 cv[j].put(DBHelper.CollectionItems.ITEM_ID, id);
                 cv[j].put(DBHelper.CollectionItems.USER_ID, userId);
             }
-            startPosition += idBatch.size();
+            positionOffset += idBatch.size();
             mResolver.bulkInsert(content.uri, cv);
         }
-
-        return result;
     }
 
     private boolean checkUnchanged(Content content, Result result, List<Long> local, List<Long> remote) {
