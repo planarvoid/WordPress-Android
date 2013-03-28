@@ -23,7 +23,7 @@ public class LoginTest extends ActivityTestCase<Onboard> {
     }
 
     public void testLogin() throws Exception {
-        solo.clickOnButtonResId(R.string.btn_login);
+        solo.clickOnButtonResId(R.string.authentication_log_in);
         solo.assertText(R.string.authentication_log_in);
 
         EditText userField = (EditText) solo.getView(R.id.txt_email_address);
@@ -56,7 +56,7 @@ public class LoginTest extends ActivityTestCase<Onboard> {
     }
 
     public void testLoginWithWrongCredentials() {
-        solo.clickOnButtonResId(R.string.btn_login);
+        solo.clickOnButtonResId(R.string.authentication_log_in);
         solo.assertText(R.string.authentication_log_in);
 
         EditText userField = (EditText) solo.getView(R.id.txt_email_address);
@@ -78,7 +78,7 @@ public class LoginTest extends ActivityTestCase<Onboard> {
 
     @FlakyTest
     public void testRecoverPassword() throws Throwable {
-        solo.clickOnButtonResId(R.string.btn_login);
+        solo.clickOnButtonResId(R.string.authentication_log_in);
         solo.clickOnView(R.id.txt_i_forgot_my_password);
         solo.assertActivity(Recover.class);
 
@@ -90,7 +90,7 @@ public class LoginTest extends ActivityTestCase<Onboard> {
     }
 
     public void testRecoverPasswordNoInput() throws Exception {
-        solo.clickOnButtonResId(R.string.btn_login);
+        solo.clickOnButtonResId(R.string.authentication_log_in);
         solo.clickOnView(R.id.txt_i_forgot_my_password);
         solo.assertActivity(Recover.class);
 

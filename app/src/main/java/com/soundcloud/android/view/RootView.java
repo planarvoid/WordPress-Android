@@ -52,15 +52,13 @@ public class RootView extends ViewGroup {
     private static final int MENU_TARGET_WIDTH          = 230;
     private static final int BEZEL_HIT_WIDTH            = 30;
     private static final int OFFSET_RIGHT               = 60;   // action bar home icon mRight
-    private static final int OFFSET_LEFT                = 60;   // whatever we want on the left
-    private static final int MAXIMUM_OVERLAY_ALPHA      = 180;  // max alpha of the player/menu dimmers
+    private static final int MAXIMUM_OVERLAY_ALPHA      = 180;  // max alpha of the menu dimmers
 
     private static final float PARALLAX_SPEED_RATIO = 0.5f;
 
     private static int mExpandedState; // YES, THIS NEEDS TO BE STATIC
     private static final int EXPANDED_LEFT              = 100000;
     private static final int COLLAPSED_FULL_CLOSED      = 100001;
-    private static final int EXPANDED_RIGHT             = 100002;
 
 
     public static final String EXTRA_ROOT_VIEW_STATE    = "fim_menu_state";
@@ -71,7 +69,6 @@ public class RootView extends ViewGroup {
 
     private boolean mIsBlocked;
     private MainMenu mMenu;
-    private @Nullable View mPlayer;
     private ViewGroup mContent;
     private View mBlocker;
 
@@ -98,7 +95,6 @@ public class RootView extends ViewGroup {
     private final int mVelocityUnits;
 
     private int mOffsetRight;
-    private final int mOffsetLeft;
     private final int mDrowShadoWidth;
     private final int mBezelHitWidth;
     private int mActivePointerId;
@@ -115,7 +111,6 @@ public class RootView extends ViewGroup {
          */
         public void onMenuOpenLeft();
 
-        public void onMenuOpenRight();
         /**
          * Invoked when the menu becomes fully closed.
          */
@@ -167,7 +162,6 @@ public class RootView extends ViewGroup {
 
         mContent = (ViewGroup) findViewById(R.id.content_frame);
         mContent.setBackgroundDrawable(contentBg);
-        //mPlayer = findViewById(R.id.player_frame);
 
         mScroller = new Scroller(context,new DecelerateInterpolator());
 
@@ -179,7 +173,6 @@ public class RootView extends ViewGroup {
         mVelocityUnits        = (int) (VELOCITY_UNITS * density + 0.5f);
 
         mOffsetRight   = (int) (OFFSET_RIGHT * density + 0.5f);
-        mOffsetLeft    = (int) (OFFSET_LEFT * density + 0.5f);
         mBezelHitWidth = (int) (BEZEL_HIT_WIDTH * density + 0.5f);
 
         mOverlayPaint = new Paint();
@@ -249,13 +242,6 @@ public class RootView extends ViewGroup {
     public int getContentHolderId() {
         if (mContent != null) {
             return mContent.getId();
-        }
-        return -1;
-    }
-
-    public int getPlayerHolderId(){
-        if (mPlayer != null) {
-            return mPlayer.getId();
         }
         return -1;
     }
@@ -332,16 +318,8 @@ public class RootView extends ViewGroup {
                 case EXPANDED_LEFT:
                     openLeft();
                     break;
-
-                case EXPANDED_RIGHT:
-                    openRight();
-                    break;
             }
         }
-    }
-
-    private boolean canOpenRight(){
-        return mPlayer != null;
     }
 
     @Override
@@ -387,12 +365,6 @@ public class RootView extends ViewGroup {
                     MeasureSpec.makeMeasureSpec(heightSpecSize, MeasureSpec.EXACTLY));
         }
 
-        if (mPlayer != null) {
-            int width = widthSpecSize - mOffsetLeft;
-            mPlayer.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(heightSpecSize, MeasureSpec.EXACTLY));
-        }
-
         mShadowLeftDrawable.setBounds(0, 0, mDrowShadoWidth, getHeight());
         mShadowRightDrawable.setBounds(0, 0, mDrowShadoWidth, getHeight());
 
@@ -415,9 +387,7 @@ public class RootView extends ViewGroup {
         final long drawingTime = getDrawingTime();
 
         final int width = getWidth();
-        float openRatio = mContent.getLeft() < 0 ?
-                          (float) -1 * mContent.getLeft() / (width - mOffsetLeft) :
-                          (float) mContent.getLeft() / (width - mOffsetRight) ;
+        float openRatio = (float) mContent.getLeft() / (width - mOffsetRight) ;
 
         float closedRatio = 1 - openRatio;
 
@@ -443,7 +413,6 @@ public class RootView extends ViewGroup {
                     canvas.restore();
                 }
 
-
                 // menuOverlay
                 if (alpha > 0) canvas.drawRect(0, 0, mMenu.getRight(), getHeight(), mOverlayPaint);
 
@@ -451,31 +420,6 @@ public class RootView extends ViewGroup {
                 canvas.save();
                 canvas.translate(mContent.getLeft() - mDrowShadoWidth, 0);
                 mShadowLeftDrawable.draw(canvas);
-                canvas.restore();
-
-
-            } else if (mContent.getLeft() < 0 && mPlayer != null) {
-
-                // player
-                final int offset = mOffsetLeft + (int) (closedRatio * (width - mOffsetLeft) * PARALLAX_SPEED_RATIO) - mPlayer.getLeft();
-                mPlayer.offsetLeftAndRight(offset);
-
-                final Bitmap playerCache = mPlayer.getDrawingCache();
-                if (playerCache != null) {
-                    canvas.drawBitmap(playerCache, mPlayer.getLeft(), 0, null);
-                } else {
-                    canvas.save();
-                    drawChild(canvas, mPlayer, drawingTime);
-                    canvas.restore();
-                }
-
-                // playerOverlay
-                if (alpha > 0) canvas.drawRect(mPlayer.getLeft(), 0, width, getHeight(), mOverlayPaint);
-
-                // gradient
-                canvas.save();
-                canvas.translate(mContent.getRight(), 0);
-                mShadowRightDrawable.draw(canvas);
                 canvas.restore();
             }
 
@@ -511,7 +455,6 @@ public class RootView extends ViewGroup {
         final int height = getHeight();
         mMenu.layout(0, 0, width, height);
         mContent.layout(mContent.getLeft(), 0, mContent.getLeft() + width, height);
-        if (mPlayer != null) mPlayer.layout(0, 0, width - mOffsetLeft, height);
         mBlocker.layout(0, 0, width, height);
     }
 
@@ -520,13 +463,10 @@ public class RootView extends ViewGroup {
         if (x >= mContent.getLeft() && x <= mContent.getRight()) {
             switch (mExpandedState) {
                 case COLLAPSED_FULL_CLOSED:
-                    return x < mContent.getLeft() + mBezelHitWidth || (canOpenRight() && x > mContent.getRight() - mBezelHitWidth);
+                    return x < mContent.getLeft() + mBezelHitWidth;
 
                 case EXPANDED_LEFT:
                     return x < getRight();
-
-                case EXPANDED_RIGHT:
-                    return x > getLeft();
             }
         }
         return false;
@@ -758,11 +698,6 @@ public class RootView extends ViewGroup {
         performFling(position, mMaximumAcceleration, 0);
     }
 
-    private void animatePlayerOpen(int position) {
-        prepareTracking(position);
-        performFling(position, mMaximumAcceleration, 2);
-    }
-
     private void performFling(int position, float velocity, int forceState) {
         final int motion;
         if (mExpandedState == EXPANDED_LEFT) {
@@ -778,34 +713,13 @@ public class RootView extends ViewGroup {
                 // We are expanded and are now going to animate away.
                 motion = -position;
             }
-        } else if (mExpandedState == EXPANDED_RIGHT) {
-
-
-            if (forceState == -1 && (velocity < -mMaximumMajorVelocity ||
-                    (position < -(getWidth() - mOffsetLeft)/2 && velocity < mMaximumMajorVelocity))) {
-                // We are expanded, but they didn't move sufficiently to cause
-                // us to retract.  Animate back to the expanded position.
-                motion = -getWidth() + mOffsetLeft - position;
-
-            } else {
-                // We are expanded and are now going to animate away.
-                motion = -position;
-            }
-
         } else {
             final boolean shouldOpenLeft = velocity > mMaximumMajorVelocity ||
                     (position > (getWidth() - mOffsetRight) / 2 &&
                             velocity > -mMaximumMajorVelocity);
 
-            final boolean shouldOpenRight = canOpenRight() && (velocity < -mMaximumMajorVelocity ||
-                                (position < -(getWidth() - mOffsetLeft) / 2 &&
-                                        velocity < mMaximumMajorVelocity));
-
             if (forceState == EXPANDED_LEFT || shouldOpenLeft){
                 motion = getWidth() - position - mOffsetRight;
-
-            } else if (forceState == EXPANDED_RIGHT || shouldOpenRight) {
-                motion = -getWidth() - position + mOffsetRight;
 
             } else  {
                 // We are collapsed, but they didn't move sufficiently to cause
@@ -840,9 +754,6 @@ public class RootView extends ViewGroup {
         if (position == EXPANDED_LEFT) {
             final int togo = expandedLeftContentPos - mContent.getLeft();
             mContent.offsetLeftAndRight(togo); //todo proper value
-        } else if (position == EXPANDED_RIGHT) {
-            final int togo = (-getMeasuredWidth() + mOffsetLeft) - mContent.getLeft();
-            mContent.offsetLeftAndRight(togo); //todo proper value
         } else if (position == COLLAPSED_FULL_CLOSED) {
             mContent.offsetLeftAndRight(0 - mContent.getLeft());
 
@@ -854,9 +765,6 @@ public class RootView extends ViewGroup {
             }
 
             int deltaX = position - left;
-            if (position < 0 && !canOpenRight()) {
-                deltaX = -left;
-            }
             mContent.offsetLeftAndRight(deltaX);
         }
         invalidate();
@@ -902,8 +810,6 @@ public class RootView extends ViewGroup {
             if (mAnimating && mScroller.isFinished()) {
                 if (mContent.getLeft() >= (getWidth() - mOffsetRight) / 2) {
                     openLeft();
-                } else if (mContent.getRight() < (getWidth() - mOffsetLeft) / 2 && canOpenRight()) {
-                    openRight();
                 } else {
                     setClosed();
                 }
@@ -966,8 +872,6 @@ public class RootView extends ViewGroup {
 
         mContent.setVisibility(View.VISIBLE);
         mMenu.setVisibility(View.GONE);
-        if (mPlayer != null) mPlayer.setVisibility(View.GONE);
-
         onScrollComplete();
 
         mExpandedState = COLLAPSED_FULL_CLOSED;
@@ -979,7 +883,6 @@ public class RootView extends ViewGroup {
         moveContent(EXPANDED_LEFT);
         mMenu.setVisibility(View.VISIBLE);
         mContent.setVisibility(View.GONE);
-        if (mPlayer != null) mPlayer.setVisibility(View.GONE);
         invalidate();
 
         onScrollComplete();
@@ -990,21 +893,6 @@ public class RootView extends ViewGroup {
 
     private void onScrollComplete() {
         if (mOnMenuStateListener != null) mOnMenuStateListener.onScrollEnded();
-    }
-
-    private void openRight() {
-        if (!canOpenRight()) return;
-        moveContent(EXPANDED_RIGHT);
-        mMenu.setVisibility(View.GONE);
-        mContent.setVisibility(View.GONE);
-        if (mPlayer != null) mPlayer.setVisibility(View.VISIBLE);
-        invalidate();
-
-        onScrollComplete();
-
-        if (mOnMenuStateListener != null) mOnMenuStateListener.onMenuOpenRight();
-        mExpandedState = EXPANDED_RIGHT;
-
     }
 
     /**

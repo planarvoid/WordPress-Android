@@ -17,21 +17,16 @@
 
     <color name="listTxtDarkValue">#FFFFFFFF</color>
     <color name="listTxtDarkValuePressed">#88FFFFFF</color>
-    <color name="listTxtDarkValueInactive">#FFa9a9a9</color>
 
     <color name="darkBg">#FF333333</color>
 
     <color name="listTxtHeader">#777777</color>
-    <color name="listBgHeader">#DEEFEFEF</color>
-
     <color name="commentLine">#AAD7D7D7</color>
     <color name="activeCommentLine">#CCe36711</color>
 
     <color name="portraitPlayerCommentLine">#FFEF5002</color>
 
     <color name="playerControlBackground">#FFF2F2F2</color>
-    <color name="playerControlBackgroundDark">#FFc8c8c8</color>
-
     <color name="playerControlAlphaBackground">#AAF2F2F2</color>
 
     <color name="commentGray">#ff9c9c9c</color>
@@ -74,21 +69,14 @@
 
     <color name="cloudProgressRoundBorder">#4b504c</color>
 
-    <color name="listSeperator">#FF333333</color>
-
     <color name="tour_overlay">#CC000000</color>
     <color name="signup_separator">#999999</color>
 
     <!-- For settings framework -->
     <color name="darker_gray">#aaa</color>
 
-    <color name="blue_gradient_1">#ffffff</color>
-    <color name="blue_gradient_2">#cae1fa</color>
-
     <color name="upload_monitor_text">#ff000000</color>
     <color name="upload_monitor_text_inactive">#ff9e9e9e</color>
-
-    <color name="authButtonSeparator">#ff000000</color>
 
     <color name="fim_item_text_color">#ffffff</color>
 
