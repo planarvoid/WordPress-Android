@@ -224,6 +224,7 @@ public class ScSearch extends ScActivity {
         if (mCurrentSearch != null) {
             mTxtQuery.setText(mCurrentSearch.query);
         }
+        mSearchFragment = (ScSearchFragment) getSupportFragmentManager().findFragmentById(R.id.results_holder);
     }
 
 
