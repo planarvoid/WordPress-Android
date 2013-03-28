@@ -3,6 +3,9 @@ package com.soundcloud.android.service.sync;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.*;
 import static com.soundcloud.android.service.sync.ApiSyncer.Result;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -11,7 +14,6 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManagerTest;
-import com.soundcloud.android.model.Sharing;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -26,8 +28,10 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -136,6 +140,36 @@ public class ApiSyncerTest {
         expect(Content.USERS).toHaveCount(3);
         expect(Content.ME_FOLLOWERS).toHaveCount(3);
         assertFirstIdToBe(Content.ME_FOLLOWERS, 308291);
+    }
+
+    @Test
+    public void shouldSyncFollowersInSingleBatchIfCollectionIsSmallEnough() throws Exception {
+        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
+        addCannedResponse(getClass(), "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "empty_collection.json");
+
+        ContentResolver resolver = Mockito.mock(ContentResolver.class);
+
+        ApiSyncer syncer = new ApiSyncer(Robolectric.application, resolver);
+
+        syncer.setBulkInsertBatchSize(Integer.MAX_VALUE);
+        syncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
+        verify(resolver).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
+        verifyNoMoreInteractions(resolver);
+    }
+
+    @Test
+    public void shouldSyncFollowersInBatchesIfCollectionTooLarge() throws Exception {
+        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
+        addCannedResponse(getClass(), "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "empty_collection.json");
+
+        ContentResolver resolver = Mockito.mock(ContentResolver.class);
+
+        ApiSyncer syncer = new ApiSyncer(Robolectric.application, resolver);
+
+        syncer.setBulkInsertBatchSize(2); // for 3 users, this should result in 2 batches being inserted
+        syncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
+        verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
+        verifyNoMoreInteractions(resolver);
     }
 
     @Test
