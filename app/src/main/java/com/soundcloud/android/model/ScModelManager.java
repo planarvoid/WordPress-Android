@@ -9,8 +9,6 @@ import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.api.CloudAPI;
@@ -432,6 +430,15 @@ public class ScModelManager {
      */
     public Uri write(ScResource resource) {
         return resource.insert(mResolver);
+    }
+
+    public void writeAsync(final ScResource resource) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                resource.insert(mResolver);
+            }
+        }).start();
     }
 
     public ScResource cacheAndWrite(ScResource resource, ScResource.CacheUpdateMode mode) {

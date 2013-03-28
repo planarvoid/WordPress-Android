@@ -400,10 +400,14 @@ public class UserBrowser extends ScActivity implements
     public void onSuccess(User user) {
 
         user.last_updated = System.currentTimeMillis();
-        // update user locally and ensure 1 instance
-        mUser = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
+
 
         setUser(user);
+
+        // update user locally and ensure 1 instance
+        mUser = SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.FULL);
+        SoundCloudApplication.MODEL_MANAGER.writeAsync(user);
+
         mUserDetailsFragment.onSuccess(mUser);
     }
 
