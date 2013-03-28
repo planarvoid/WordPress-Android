@@ -342,6 +342,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
             // these will get refreshed
             mElapsedTime = null;
             mArtworkUri = null;
+
+            last_updated = updatedItem.last_updated;
         }
 
         return this;

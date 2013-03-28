@@ -347,6 +347,10 @@ public class User extends ScResource implements Refreshable {
         if (user.myspace_name != null) this.myspace_name = user.myspace_name;
         if (user.description != null) this.description = user.description;
         if (user.primary_email_confirmed != null) this.primary_email_confirmed = user.primary_email_confirmed;
+
+        if (cacheUpdateMode == CacheUpdateMode.FULL){
+            last_updated = user.last_updated;
+        }
         return this;
     }
 

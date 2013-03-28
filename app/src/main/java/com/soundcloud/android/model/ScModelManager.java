@@ -93,6 +93,7 @@ public class ScModelManager {
         List<ScResource> items = new ArrayList<ScResource>();
         CollectionHolder holder = mMapper.readValue(is, ScResource.ScResourceHolder.class);
         for (ScResource m : (ScResource.ScResourceHolder) holder) {
+            m.setLastUpdated(System.currentTimeMillis());
             items.add(cacheResults ? cache(m, ScResource.CacheUpdateMode.FULL) : m); // TODO, do not rely on Dalvik
         }
         holder.collection = items;
