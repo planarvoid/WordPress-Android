@@ -494,6 +494,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mNextHref = "";
         mKeepGoing = true;
         clearRefreshTask();
+        clearAppendTask();
         configureEmptyView();
 
         final ScBaseAdapter adp = getListAdapter();
@@ -669,6 +670,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private void clearRefreshTask() {
         if (mRefreshTask != null && !AndroidUtils.isTaskFinished(mRefreshTask)) mRefreshTask.cancel(true);
         mRefreshTask = null;
+    }
+
+    private void clearAppendTask() {
+        if (mAppendTask != null && !AndroidUtils.isTaskFinished(mAppendTask)) mAppendTask.cancel(true);
+        mAppendTask = null;
     }
 
     private final Handler connHandler = new Handler() {
