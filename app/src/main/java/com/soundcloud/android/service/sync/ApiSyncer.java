@@ -411,10 +411,11 @@ public class ApiSyncer {
             for (int j = 0; j < idBatch.size(); j++) {
                 long id = idBatch.get(j);
                 cv[j] = new ContentValues();
-                cv[j].put(DBHelper.CollectionItems.POSITION, startPosition + i);
+                cv[j].put(DBHelper.CollectionItems.POSITION, startPosition + j);
                 cv[j].put(DBHelper.CollectionItems.ITEM_ID, id);
                 cv[j].put(DBHelper.CollectionItems.USER_ID, userId);
             }
+            startPosition += idBatch.size();
             mResolver.bulkInsert(content.uri, cv);
         }
 
