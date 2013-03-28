@@ -1,5 +1,12 @@
-$ 58
+$ 59
   % v current
+  _ 2013-03-28
+    ! Maintenance
+    * Handling more URI types for DeepLinks
+    * Fixed some performance issues related to background syncing and database IO
+
+$ 58
+  % v 2.5.1
   _ 2013-03-22
     ! Maintenance
     * Fixed a playlist sync related crash
