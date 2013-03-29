@@ -659,10 +659,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 log("Auto refreshing content");
                 if (!isRefreshing()) {
                     refresh(false);
-                    // this is to show the user something at the initial load
-                    if (!mLocalCollection.hasSyncedBefore() && mListView != null) {
-                        mListView.setRefreshing();
-                    }
+                    if (mListView != null) mListView.setRefreshing(false);
                 }
             } else {
                 log("Skipping auto refresh");
