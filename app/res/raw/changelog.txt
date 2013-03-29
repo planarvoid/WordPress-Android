@@ -1,10 +1,9 @@
 $ 59
   % v current
   _ 2013-03-29
-    ! Release Candidate
-    * fixed paging and loading bugs in search
-    * fixed a couple endless loading edge cases
-    - Handling more URI types for DeepLinks
+    ! Maintenance
+    * Fixed loading bugs in Search
+    * Added additional deeplink handling
     - Fixed some performance issues related to background syncing and database IO
 
 $ 58
