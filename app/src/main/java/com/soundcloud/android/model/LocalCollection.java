@@ -74,6 +74,7 @@ public class LocalCollection {
     }
 
     public void setFromCursor(Cursor c) {
+        if (id <= 0) id = c.getInt(c.getColumnIndex(DBHelper.Collections._ID));
         last_sync_attempt = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC_ATTEMPT));
         last_sync_success = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC));
         sync_state = c.getInt(c.getColumnIndex(DBHelper.Collections.SYNC_STATE));
@@ -327,6 +328,7 @@ public class LocalCollection {
                  *  {@link fromContentUriAsync(Uri, ContentResolver)}
                  */
                 id = insertLocalCollection(uri,mContentResolver).id;
+                sync_state = SyncState.IDLE;
                 if (mChangeListener != null) {
                     mContentResolver.registerContentObserver(
                             Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(id)).build(),
