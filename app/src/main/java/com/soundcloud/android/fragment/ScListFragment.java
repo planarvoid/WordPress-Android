@@ -456,10 +456,14 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         refresh(true);
     }
 
-
     protected Request getRequest(boolean isRefresh) {
-        if (mContent == null || !mContent.hasRequest()) return null;
-        return !(isRefresh) && !TextUtils.isEmpty(mNextHref) ? new Request(mNextHref) : mContent.request(mContentUri);
+        if (!isRefresh && !TextUtils.isEmpty(mNextHref)) {
+            return new Request(mNextHref);
+        } else if (mContent != null && mContent.hasRequest()) {
+            return mContent.request(mContentUri);
+        } else {
+            return null;
+        }
     }
 
     protected boolean canAppend() {
