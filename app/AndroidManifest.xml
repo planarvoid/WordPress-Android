@@ -80,7 +80,14 @@
                 <data android:scheme="https" android:host="snd.sc"/>
                 <data android:scheme="http" android:host="m.soundcloud.com"/>
                 <data android:scheme="https" android:host="m.soundcloud.com"/>
-                <data android:scheme="soundcloud" android:host="*"/>
+            </intent-filter>
+
+            <!-- kee this separate, if combined with above, Android accepts ALL urls -->
+            <intent-filter android:priority="1">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="soundcloud" android:host="*" />
             </intent-filter>
 
         </activity>
