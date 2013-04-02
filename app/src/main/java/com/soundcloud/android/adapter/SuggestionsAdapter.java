@@ -410,13 +410,12 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             try {
                 HttpResponse resp = mApi.get(Request.to("/search/suggest").with(
                         "q", constraint,
-                        "highlight", "true",
+                        "highlight_mode", "offsets",
                         "limit", MAX_REMOTE));
 
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(),
                             SearchSuggestions.class);
-
                     adapter.onRemoteSuggestions(constraint, searchSuggestions);
                     return;
                 } else {
