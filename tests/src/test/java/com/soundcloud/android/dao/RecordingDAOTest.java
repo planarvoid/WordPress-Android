@@ -1,19 +1,15 @@
 package com.soundcloud.android.dao;
 
-import android.content.ContentResolver;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Calendar;
-
-import static com.soundcloud.android.Expect.expect;
+import android.content.ContentResolver;
+import android.database.Cursor;
 
 public class RecordingDAOTest extends AbstractDAOTest<RecordingDAO> {
 
@@ -23,47 +19,23 @@ public class RecordingDAOTest extends AbstractDAOTest<RecordingDAO> {
 
     @Test
     public void shouldUpdateARecording() throws Exception {
-        Recording r = createRecording();
-        ContentResolver resolver = Robolectric.application.getContentResolver();
-        Uri u = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
+        Recording r = TestHelper.createRecording(USER_ID);
+        TestHelper.insertWithDependencies(r);
 
-        expect(u).not.toBeNull();
+        r.where_text = "changed";
+        getDAO().update(r);
 
-        final Cursor c = resolver.query(u, null, null, null, null);
+        final Cursor c = resolver.query(r.toUri(), null, null, null, null);
         expect(c.moveToNext()).toBeTrue();
-        Recording r2 = new Recording(c);
-        r2.where_text = "changed";
-        expect(resolver.update(u, r2.buildContentValues(), null, null)).toEqual(1);
-
-        final Cursor c2 = resolver.query(u, null, null, null, null);
-        expect(c2.moveToNext()).toBeTrue();
-        Recording r3 = new Recording(c2);
-        expect(r3.where_text).toEqual("changed");
-    }
-
-    @Test
-    public void shouldGetRecordingFromIntentViaDatabase() throws Exception {
-        final ContentResolver contentResolver = Robolectric.application.getContentResolver();
-        Recording r = createRecording();
-        Uri uri = getDAO().insert(r);
-
-        Intent i = new Intent().setData(uri);
-
-        Recording r2 = Recording.fromIntent(i, contentResolver, -1);
-        expect(r2).not.toBeNull();
-        expect(r2.description).toEqual(r.description);
-        expect(r2.is_private).toEqual(r.is_private);
-        expect(r2.where_text).toEqual(r.where_text);
-        expect(r2.what_text).toEqual(r.what_text);
+        expect(new Recording(c).where_text).toEqual("changed");
     }
 
     @Test
     public void shouldPersistAndLoadCorrectly() throws Exception {
-        Recording r = createRecording();
+        Recording r = TestHelper.createRecording(USER_ID);
         ContentResolver resolver = Robolectric.application.getContentResolver();
 
-        Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
-        expect(uri).not.toBeNull();
+        getDAO().create(r);
 
         // all recordings, with username joined in
         Cursor cursor = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
@@ -73,8 +45,7 @@ public class RecordingDAOTest extends AbstractDAOTest<RecordingDAO> {
 
         Recording r2 = new Recording(cursor);
 
-        expect(r2.id).not.toEqual(r.id);
-        expect(r2.id).toEqual(1L);
+        expect(r2.id).toEqual(r.id);
         expect(r2.latitude).toEqual(r.latitude);
         expect(r2.longitude).toEqual(r.longitude);
         expect(r2.what_text).toEqual(r.what_text);
@@ -87,14 +58,14 @@ public class RecordingDAOTest extends AbstractDAOTest<RecordingDAO> {
         expect(r2.tip_key).toEqual(r.tip_key);
 
         // just this recording
-        cursor = resolver.query(uri, null, null, null, null);
+        cursor = resolver.query(r.toUri(), null, null, null, null);
 
         expect(cursor).not.toBeNull();
         expect(cursor.getCount()).toEqual(1);
         expect(cursor.moveToFirst()).toBeTrue();
 
         Recording r3 = new Recording(cursor);
-        expect(r3.id).not.toEqual(r.id);
+        expect(r3.id).toEqual(r.id);
         expect(r3.latitude).toEqual(r.latitude);
         expect(r3.longitude).toEqual(r.longitude);
         expect(r3.what_text).toEqual(r.what_text);
@@ -104,59 +75,5 @@ public class RecordingDAOTest extends AbstractDAOTest<RecordingDAO> {
         expect(r3.user_id).toEqual(r.user_id);
         expect(r3.recipient_user_id).toEqual(r.recipient_user_id);
     }
-
-    private Recording createRecording() throws IOException {
-        File tmp = createRecordingFile("wav");
-
-        Recording r = new Recording(tmp);
-        r.latitude = 32.3;
-        r.longitude = 23.1;
-        r.what_text = "somewhat";
-        r.where_text = "somehere";
-        r.four_square_venue_id = "foursquare";
-        r.description = "test recording";
-        r.genre = "speed blues ";
-        r.duration = 86 * 1000;
-        r.user_id = USER_ID;
-        r.recipient_user_id = 300L;
-        r.recipient_username = "foo";
-        r.shared_emails = "foo@example.com";
-        r.shared_ids = "1,2,3,4";
-        r.upload_status = Recording.Status.NOT_YET_UPLOADED;
-        r.artwork_path = r.getFile();
-        r.resized_artwork_path = r.artwork_path;
-        r.tip_key = "something";
-
-        return r;
-    }
-
-    private File createRecordingFile(String extension) throws IOException {
-        File tmp = File.createTempFile("recording-test", extension);
-        tmp.createNewFile();
-        expect(tmp.exists()).toBeTrue();
-
-        Calendar c = Calendar.getInstance();
-        //noinspection MagicConstant
-        c.set(2001, 1, 15, 14, 31, 1);  // 14:31:01, 15/02/2011
-        tmp.setLastModified(c.getTimeInMillis());
-        return tmp;
-    }
-
-    @Test
-    public void shouldDeleteRecording() throws Exception {
-        Recording r = createRecording();
-        expect(r.exists()).toBeTrue();
-        expect(getDAO().delete(r)).toBeTrue();
-        expect(r.exists()).toBeFalse();
-    }
-
-    @Test
-    public void shouldNotDeleteRecordingIfExternal() throws Exception {
-        Recording r = createRecording();
-        r.external_upload = true;
-        expect(getDAO().delete(r)).toBeFalse();
-        expect(r.exists()).toBeTrue();
-    }
-
 
 }

@@ -8,7 +8,7 @@ import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.dao.RecordingDAO;
+import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
@@ -161,7 +161,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
                 IOUtils.deleteFile(artworkPath);
             }
 
-            new RecordingDAO(resolver).updateStatus(mUpload);
+            new RecordingStorage(api.getContext()).updateStatus(mUpload);
 
             broadcast(UploadService.TRANSFER_SUCCESS, track);
         } catch (IOException e) {

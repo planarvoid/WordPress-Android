@@ -37,9 +37,7 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
 
     public long create(T resource, boolean storeDependencies) {
         if (storeDependencies) {
-            final BulkInsertMap dependencies = new BulkInsertMap();
-            resource.putDependencyValues(dependencies);
-            dependencies.insert(mResolver);
+            createDependencies(resource);
         }
         // TODO this will insert twice
         long recordId = create(resource.toUri(), resource.buildContentValues());
@@ -55,12 +53,13 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         return map.insert(mResolver);
     }
 
+    @Deprecated
     public long create(ContentValues values) {
         return create(getContent().uri, values);
     }
 
     @Deprecated
-    public long create(Uri uri, ContentValues values) {
+    protected long create(Uri uri, ContentValues values) {
         Uri objUri = mResolver.insert(uri,  values);
         if (objUri != null) {
             try {
@@ -71,6 +70,12 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         } else {
             throw new DAOException();
         }
+    }
+
+    protected void createDependencies(T resource) {
+        final BulkInsertMap dependencies = new BulkInsertMap();
+        resource.putDependencyValues(dependencies);
+        dependencies.insert(mResolver);
     }
 
     public long createOrUpdate(T resource) {

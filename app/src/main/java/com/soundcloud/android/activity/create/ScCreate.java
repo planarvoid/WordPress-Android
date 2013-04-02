@@ -6,7 +6,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.audio.PlaybackStream;
-import com.soundcloud.android.dao.RecordingDAO;
+import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
@@ -422,7 +422,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             newState = CreateState.RECORD;
         } else {
 
-            Recording recording = Recording.fromIntent(intent, getContentResolver(), getCurrentUserId());
+            Recording recording = Recording.fromIntent(intent, this, getCurrentUserId());
             if (recording != null){
 
                 // failsafe, if they try to play an uploading recording
@@ -462,7 +462,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         Recording.clearRecordingFromIntent(intent);
 
         if (newState == CreateState.IDLE_RECORD) {
-            RecordingDAO recordings = new RecordingDAO(getContentResolver());
+            RecordingStorage recordings = new RecordingStorage(this);
             mUnsavedRecordings = recordings.getUnsavedRecordings(
                     SoundRecorder.RECORD_DIR,
                     mRecorder.getRecording(),
@@ -900,13 +900,13 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         .setPositiveButton(R.string.btn_save,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
-                                    RecordingDAO dao = new RecordingDAO(getContentResolver());
+                                    RecordingStorage storage = new RecordingStorage(ScCreate.this);
                                     for (int i = 0; i < recordings.size(); i++) {
                                         if (checked[i]) {
                                             DeprecatedRecordingProfile.migrate(recordings.get(i)); // migrate deprecated format, otherwise this is harmless
-                                            dao.insert(recordings.get(i));
+                                            storage.create(recordings.get(i));
                                         } else {
-                                            dao.delete(recordings.get(i));
+                                            storage.delete(recordings.get(i));
                                         }
                                     }
                                     mUnsavedRecordings = null;

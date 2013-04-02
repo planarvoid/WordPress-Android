@@ -9,7 +9,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.audio.PlaybackStream;
-import com.soundcloud.android.dao.RecordingDAO;
+import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -64,7 +64,7 @@ public class ScUpload extends ScActivity {
         setTitle(R.string.share);
 
         final Intent intent = getIntent();
-        if (intent != null && (mRecording = Recording.fromIntent(intent, getContentResolver(), getCurrentUserId())) != null) {
+        if (intent != null && (mRecording = Recording.fromIntent(intent, this, getCurrentUserId())) != null) {
             setContentView(mRecording.isPrivateMessage() ? R.layout.sc_message_upload : R.layout.sc_upload);
             mRecordingMetadata.setRecording(mRecording, false);
 
@@ -108,7 +108,7 @@ public class ScUpload extends ScActivity {
 
                 if (mRecording.external_upload){
                     //FIXME 3/23/13 database access on UI thread
-                    new RecordingDAO(getContentResolver()).delete(mRecording);
+                    new RecordingStorage(ScUpload.this).delete(mRecording);
                 } else {
                     setResult(RESULT_OK, new Intent().setData(mRecording.toUri()));
                 }
@@ -210,7 +210,7 @@ public class ScUpload extends ScActivity {
     private void saveRecording() {
         mapToRecording(mRecording);
         if (mRecording != null) {
-            new RecordingDAO(getContentResolver()).insert(mRecording);
+            new RecordingStorage(this).create(mRecording);
         }
     }
 
