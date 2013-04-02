@@ -123,7 +123,8 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
 
         new Handler().postDelayed(new Runnable() {
             public void run() {
-                getDialog().dismiss();
+                final Dialog toDismiss = getDialog();
+                if (toDismiss != null) toDismiss.dismiss();
             }
         }, 500);
     }

@@ -97,6 +97,8 @@
     <string name="side_menu_friend_finder">Encontrar amigos</string>
     <string name="side_menu_suggested_users">A quién seguir</string>
 
+    <string name="settings_logging_out">Cerrar la sesión</string>
+
     <!--
      no longer used !
     <string name="problem_getting_connections">Error al intentar conexión</string>
@@ -140,6 +142,7 @@
     <string name="tour_text_2">Todo tipo de música y audio \nde estilo nuevo y original</string>
 
     <string name="tour_title_3">Conectar y compartir</string>
+    <string name="tour_text_3">Encuentra música &amp; creadores de\naudio para escuchar y seguir,\ncompartir los sonidos que te gustan</string>
 
     <string name="search_for_query">Busca \'%s\'</string>
     <string name="done">Hecho</string>

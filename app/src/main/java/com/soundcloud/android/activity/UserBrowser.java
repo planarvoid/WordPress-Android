@@ -398,7 +398,19 @@ public class UserBrowser extends ScActivity implements
 
     @Override
     public void onSuccess(User user) {
+        user.last_updated = System.currentTimeMillis();
         setUser(user);
+
+        // update user locally and ensure 1 instance
+        mUser = SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.FULL);
+        //FIXME: I added this as-is here for now since this change came in as a hotfix from development, but was
+        //added to ScModelManager which is what we wanted to move away from.
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mUser.insert(getContentResolver());
+            }
+        }).start();
         mUserDetailsFragment.onSuccess(mUser);
     }
 

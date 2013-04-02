@@ -56,9 +56,10 @@ public class FollowStatus {
 
 
         mFollowingCollectionState = mSyncStateManager.fromContent(Content.ME_FOLLOWINGS);
-        mFollowingCollectionState.startObservingSelf(mContext.getContentResolver(), new LocalCollection.OnChangeListener() {
+        mSyncStateManager.addChangeListener(mFollowingCollectionState, new LocalCollection.OnChangeListener() {
             @Override
-            public void onLocalCollectionChanged() {
+            public void onLocalCollectionChanged(LocalCollection localCollection) {
+                mFollowingCollectionState = localCollection;
                 // if last sync has changed, do a new query
                 if (mFollowingCollectionState.last_sync_success != last_sync_success) {
                     last_sync_success = mFollowingCollectionState.last_sync_success;

@@ -33,7 +33,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
 
     @Test
     public void shouldFlagSoftErrorWhenIOError() throws Exception {
-        addCannedActivities("empty_events.json");
+        addCannedActivities("empty_collection.json");
         addPendingHttpResponse(500, "errors");
 
         SyncResult result = doPerformSync(DefaultTestRunner.application, false, null).result;
@@ -44,7 +44,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
     @Test
     public void shouldNotNotifyOnFirstSync() throws Exception {
         addCannedActivities(
-                "empty_events.json",
+                "empty_collection.json",
                 "e1_activities.json"
         );
         expect(doPerformSync(DefaultTestRunner.application, true, null).notifications).toBeEmpty();
@@ -57,8 +57,8 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
 
         // dashboard
         addCannedActivities(
-                "empty_events.json",
-                "empty_events.json");
+                "empty_collection.json",
+                "empty_collection.json");
 
         doPerformSync(DefaultTestRunner.application, false, null);
 
@@ -70,8 +70,8 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
 
         // reset sync time & rerun sync
         addCannedActivities(
-                "empty_events.json",
-                "empty_events.json");
+                "empty_collection.json",
+                "empty_collection.json");
 
 
         syncStateManager.updateLastSyncSuccessTime(Content.ME_SOUNDS, 0);

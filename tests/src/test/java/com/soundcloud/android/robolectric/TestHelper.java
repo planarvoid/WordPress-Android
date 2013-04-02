@@ -5,10 +5,15 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
@@ -34,6 +39,7 @@ import android.provider.Settings;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -239,6 +245,21 @@ public class TestHelper {
         ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
         map.insert(resolver); // dependencies
         return resolver.bulkInsert(uri, items.toArray(new ContentValues[items.size()]));
+    }
+
+    public static <T extends ScModel> List<T> loadLocalContent(final Uri contentUri, Class<T> modelClass) throws Exception {
+        Cursor itemsCursor = DefaultTestRunner.application.getContentResolver().query(contentUri, null, null, null, null);
+        List<T> items = new ArrayList<T>();
+        if (itemsCursor != null) {
+            Constructor<T> constructor = modelClass.getConstructor(Cursor.class);
+            while (itemsCursor.moveToNext()) {
+                items.add(constructor.newInstance(itemsCursor));
+            }
+        }
+        if (itemsCursor != null) itemsCursor.close();
+        //noinspection unchecked
+        return items;
+
     }
 
     public static Recording createRecording(long userId) throws IOException {

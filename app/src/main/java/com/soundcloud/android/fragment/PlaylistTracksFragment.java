@@ -15,6 +15,7 @@ import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.ScListView;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -53,6 +54,8 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
+    private SyncStateManager mSyncStateManager;
+
     public static PlaylistTracksFragment create(Uri playlistUri) {
         Bundle args = new Bundle();
         args.putParcelable(Playlist.EXTRA_URI, playlistUri);
@@ -73,6 +76,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
             Toast.makeText(getActivity(), R.string.playlist_removed, Toast.LENGTH_SHORT).show();
             getActivity().finish();
         } else {
+            mSyncStateManager = new SyncStateManager(getActivity());
             mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext());
             getLoaderManager().initLoader(TRACK_LIST_LOADER, null, this);
             mDetachableReceiver.setReceiver(this);
@@ -120,13 +124,13 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onStart() {
         super.onStart();
         // observe changes to the local collection to update the last updated timestamp
-        mLocalCollection.startObservingSelf(getActivity().getContentResolver(), this);
+        mSyncStateManager.addChangeListener(mLocalCollection, this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        mLocalCollection.stopObservingSelf();
+        mSyncStateManager.removeChangeListener(mLocalCollection);
     }
 
     @Override
@@ -193,7 +197,8 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     @Override
-    public void onLocalCollectionChanged() {
+    public void onLocalCollectionChanged(LocalCollection localCollection) {
+        mLocalCollection = localCollection;
         setListLastUpdated();
     }
 
@@ -204,8 +209,9 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         }
     }
 
+    @Nullable
     private LocalCollection getLocalCollection() {
-        return new SyncStateManager(getActivity()).fromContent(mPlaylist.toUri());
+        return mPlaylist == null ? null : new SyncStateManager(getActivity()).fromContent(mPlaylist.toUri());
     }
 
     public void scrollToPosition(int position) {
@@ -234,7 +240,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     private void syncPlaylist() {
         final FragmentActivity activity = getActivity();
         if (isAdded() && mLocalCollection.isIdle()) {
-            if (mListView != null) mListView.setRefreshing(true);
+            if (mListView != null) mListView.setRefreshing(false);
             activity.startService(new Intent(activity, ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, mDetachableReceiver)

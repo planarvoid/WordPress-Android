@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="2.5.1-BETA1"
+      android:versionName="2.5.2"
       android:installLocation="auto"
-      android:versionCode="58">
+      android:versionCode="59">
 
     <supports-screens android:anyDensity="true" />
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16"/>
@@ -80,7 +80,14 @@
                 <data android:scheme="https" android:host="snd.sc"/>
                 <data android:scheme="http" android:host="m.soundcloud.com"/>
                 <data android:scheme="https" android:host="m.soundcloud.com"/>
-                <data android:scheme="soundcloud"/>
+            </intent-filter>
+
+            <!-- kee this separate, if combined with above, Android accepts ALL urls -->
+            <intent-filter android:priority="1">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="soundcloud" android:host="*" />
             </intent-filter>
 
         </activity>

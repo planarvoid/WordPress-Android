@@ -30,7 +30,8 @@ public class ActivitiesLoader extends CollectionLoader<Activity> {
             newActivities = getOlderActivities(storage, params);
             if (newActivities.size() < params.maxToLoad) {
                 try {
-                    ApiSyncer.Result result  = new ApiSyncer(api.getContext()).syncContent(params.contentUri, ApiSyncService.ACTION_APPEND);
+                    ApiSyncer syncer = new ApiSyncer(api.getContext(), api.getContext().getContentResolver());
+                    ApiSyncer.Result result = syncer.syncContent(params.contentUri, ApiSyncService.ACTION_APPEND);
                     if (result.success) {
                         success = true;
                         newActivities = getOlderActivities(storage, params);

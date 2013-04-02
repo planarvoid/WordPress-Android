@@ -53,7 +53,7 @@ import java.io.IOException;
         // make sure all requests going out on this thread have the background parameter set
         Wrapper.setBackgroundMode(!isUI);
 
-        ApiSyncer syncer = new ApiSyncer(context);
+        ApiSyncer syncer = new ApiSyncer(context, context.getContentResolver());
 
         if (!mSyncStateManager.updateSyncState(localCollection.id, LocalCollection.SyncState.SYNCING)) {
             return this;

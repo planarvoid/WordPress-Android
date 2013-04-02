@@ -57,6 +57,7 @@ public class ApiSyncer {
     public static final String TAG = ApiSyncService.LOG_TAG;
     private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
     private static final int MAX_MY_PLAYLIST_TRACK_COUNT_SYNC = 100;
+    private static final int BULK_INSERT_BATCH_SIZE = 500;
 
     private final AndroidCloudAPI mApi;
     private final ContentResolver mResolver;
@@ -69,9 +70,11 @@ public class ApiSyncer {
     private final UserStorage mUserStorage;
 
 
-    public ApiSyncer(Context context) {
+    private int mBulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
+
+    public ApiSyncer(Context context, ContentResolver resolver) {
         mApi = (AndroidCloudAPI) context.getApplicationContext();
-        mResolver = context.getContentResolver();
+        mResolver = resolver;
         mContext = context;
         mSyncStateManager = new SyncStateManager(context);
         mActivitiesStorage = new ActivitiesStorage(context);
@@ -79,6 +82,11 @@ public class ApiSyncer {
         mSoundAssociationStorage = new SoundAssociationStorage(context);
         mCollectionStorage = new CollectionStorage(context);
         mUserStorage = new UserStorage(context);
+    }
+
+    // Tests want to override this value
+    /* package */ void setBulkInsertBatchSize(int batchSize) {
+        mBulkInsertBatchSize = batchSize;
     }
 
     public @NotNull Result syncContent(Uri uri, String action) throws IOException {
@@ -365,19 +373,44 @@ public class ApiSyncer {
         }
 
         log("Added " + added + " new items for this endpoint");
-        ContentValues[] cv = new ContentValues[remote.size()];
-        int i = 0;
-        for (Long id : remote) {
-            cv[i] = new ContentValues();
-            cv[i].put(DBHelper.CollectionItems.POSITION, startPosition + i);
-            cv[i].put(DBHelper.CollectionItems.ITEM_ID, id);
-            cv[i].put(DBHelper.CollectionItems.USER_ID, userId);
-            i++;
-        }
-        mResolver.bulkInsert(content.uri, cv);
+
+        insertInBatches(content, userId, remote, startPosition);
+
         return result;
     }
 
+    private void insertInBatches(final Content content, final long userId, final List<Long> ids, final int startPosition) {
+        int numBatches = 1;
+        int batchSize = ids.size();
+        if (ids.size() > mBulkInsertBatchSize) {
+            // split up the transaction into batches, so as to not block readers too long
+            numBatches = (int) Math.ceil((float) ids.size() / mBulkInsertBatchSize);
+            batchSize = mBulkInsertBatchSize;
+        }
+        log("numBatches: " + numBatches);
+        log("batchSize: " + batchSize);
+
+        // insert in batches so as to not hold a write lock in a single transaction for too long
+        int positionOffset = startPosition;
+        for (int i = 0; i < numBatches; i++) {
+            int batchStart = i * batchSize;
+            int batchEnd = Math.min(batchStart + batchSize, ids.size());
+            log("batch " + i + ": start / end = " + batchStart + " / " + batchEnd);
+
+            List<Long> idBatch = ids.subList(batchStart, batchEnd);
+            ContentValues[] cv = new ContentValues[idBatch.size()];
+
+            for (int j = 0; j < idBatch.size(); j++) {
+                long id = idBatch.get(j);
+                cv[j] = new ContentValues();
+                cv[j].put(DBHelper.CollectionItems.POSITION, positionOffset + j);
+                cv[j].put(DBHelper.CollectionItems.ITEM_ID, id);
+                cv[j].put(DBHelper.CollectionItems.USER_ID, userId);
+            }
+            positionOffset += idBatch.size();
+            mResolver.bulkInsert(content.uri, cv);
+        }
+    }
 
     private boolean checkUnchanged(Content content, Result result, List<Long> local, List<Long> remote) {
         switch (content) {

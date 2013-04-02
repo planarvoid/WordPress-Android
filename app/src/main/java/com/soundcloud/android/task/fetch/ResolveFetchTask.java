@@ -119,12 +119,12 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
             final String[] components = specific.split(":", 2);
             if (components != null && components.length == 2) {
                 final String type = components[0];
-                final String id = components[1];
+                final String id = components[1].replace("//","");;
 
                 if (type != null && id != null) {
                     try {
                         long _id = Long.parseLong(id);
-                        if (ClientUri.TRACKS_TYPE.equalsIgnoreCase(type)) {
+                        if (ClientUri.TRACKS_TYPE.equalsIgnoreCase(type) || ClientUri.SOUNDS_TYPE.equalsIgnoreCase(type)) {
                             return SoundCloudApplication.MODEL_MANAGER.getTrack(_id);
                         } else if (ClientUri.PLAYLISTS_TYPE.equalsIgnoreCase(type)) {
                             return SoundCloudApplication.MODEL_MANAGER.getPlaylist(_id);

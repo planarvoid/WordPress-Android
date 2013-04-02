@@ -40,6 +40,10 @@ public abstract class ScResource
         super(id);
     }
 
+    public void setLastUpdated(long time) {
+        last_updated = time;
+    }
+
     public enum CacheUpdateMode {
         NONE, MINI, FULL;
 
