@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 
@@ -24,42 +25,33 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
         super(collection);
     }
 
-    public Set<User> getUsers() {
-        Set<User> users = new HashSet<User>();
-        for (SoundAssociation a : this)  {
-            if (a.getUser() != null) users.add(a.getUser());
-        }
-        return users;
-    }
-
-    public Set<Track> getTracks() {
-        Set<Track> tracks = new HashSet<Track>();
-        for (SoundAssociation a : this)  {
-            if (a.getTrack() != null) tracks.add(a.getTrack());
-        }
-        return tracks;
-    }
 
     /**
-     * Delete any items from the content resolver that do not appear in this collection, for syncing
-     * TODO PLAYLISTS. This will not pull playlists, therefore they will not get deleted (yet)
+     * Sync this collection to the local database by removing any stale items and
+     * inserting the sound associations (which will replace the existing items)
+     * @param resolver
+     * @param contentUri
+     * @return whether any items were added or removed
      */
-    public int removeMissingLocallyStoredItems(ContentResolver resolver, Uri contentUri) {
+    public boolean syncToLocal(ContentResolver resolver, Uri contentUri) {
         // get current local id and types for this uri
         Cursor c = resolver.query(contentUri,
-                new String[]{DBHelper.CollectionItems.ITEM_ID, DBHelper.CollectionItems.RESOURCE_TYPE},
-                null, null, null);
+                new String[]{DBHelper.CollectionItems.ITEM_ID, DBHelper.CollectionItems.RESOURCE_TYPE,
+                        DBHelper.CollectionItems.COLLECTION_TYPE}, null, null, null);
 
-        int deleted = 0;
+        boolean changed = true; // assume changed by default
         if (c != null) {
+            final int localCount = c.getCount();
             Map<Integer, ArrayList<Long>> deletions = new HashMap<Integer, ArrayList<Long>>();
             while (c.moveToNext()) {
                 boolean found = false;
                 final long id = c.getLong(0);
                 final int resourceType = c.getInt(1);
+                final int associationType = c.getInt(2);
 
                 for (SoundAssociation a : this) {
-                    if (a.getSound().id == id && a.getResourceType() == resourceType) {
+                    if (a.getPlayable().id == id && a.getResourceType() == resourceType
+                            && a.associationType == associationType) {
                         found = true;
                         break;
                     }
@@ -74,41 +66,35 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
             }
             c.close();
 
-            for (Integer type : deletions.keySet()) {
-                for (Long id : deletions.get(type)) {
-                    deleted += resolver.delete(contentUri,
-                            DBHelper.CollectionItems.ITEM_ID + " = ? AND " + DBHelper.CollectionItems.RESOURCE_TYPE + " = ?",
-                            new String[]{String.valueOf(id), String.valueOf(type)});
+            if (deletions.isEmpty()) {
+                // user hasn't removed anything, and if size is consistent we can assume the collection hasn't changed
+                changed = localCount != size();
+            } else {
+                for (Integer type : deletions.keySet()) {
+                    for (Long id : deletions.get(type)) {
+                        resolver.delete(contentUri,
+                                DBHelper.CollectionItems.ITEM_ID + " = ? AND " + DBHelper.CollectionItems.RESOURCE_TYPE + " = ?",
+                                new String[]{String.valueOf(id), String.valueOf(type)});
+                    }
                 }
             }
         }
 
-        return deleted;
+        insert(resolver);
+        return changed;
     }
 
+
     public int insert(ContentResolver resolver) {
-        List<ContentValues> tracks = new ArrayList<ContentValues>();
-        List<ContentValues> users = new ArrayList<ContentValues>();
+
         List<ContentValues> items = new ArrayList<ContentValues>();
+        BulkInsertMap map = new BulkInsertMap();
 
-        for (SoundAssociation a : this) {
-            items.add(a.buildContentValues());
+        for (SoundAssociation soundAssociation : this) {
+            soundAssociation.putDependencyValues(map);
+            items.add(soundAssociation.buildContentValues());
         }
-        for (User u : getUsers()) {
-            users.add(u.buildContentValues());
-        }
-        for (Track t : getTracks()) {
-            tracks.add(t.buildContentValues());
-        }
-
-        int inserted = 0;
-        if (!tracks.isEmpty()) {
-            inserted += resolver.bulkInsert(Content.TRACKS.uri, tracks.toArray(new ContentValues[tracks.size()]));
-        }
-        if (!users.isEmpty())  {
-            inserted += resolver.bulkInsert(Content.USERS.uri, users.toArray(new ContentValues[users.size()]));
-        }
-        resolver.bulkInsert(Content.COLLECTION_ITEMS.uri, items.toArray(new ContentValues[items.size()]));
-        return inserted;
+        map.insert(resolver); // dependencies
+        return resolver.bulkInsert(Content.COLLECTION_ITEMS.uri, items.toArray(new ContentValues[items.size()]));
     }
 }

@@ -7,6 +7,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -36,7 +37,7 @@ class NotificationMessage {
 
         if (!reposts.isEmpty() && likes.isEmpty() && comments.isEmpty()) {
             // only reposts
-            List<Track> tracks = reposts.getUniqueTracks();
+            List<Playable> playables = reposts.getUniquePlayables();
             ticker = res.getQuantityString(
                     R.plurals.dashboard_notifications_activity_ticker_repost,
                     reposts.size(),
@@ -47,21 +48,21 @@ class NotificationMessage {
                     reposts.size(),
                     reposts.size());
 
-            if (tracks.size() == 1 && reposts.size() == 1) {
+            if (playables.size() == 1 && reposts.size() == 1) {
                 message = res.getString(R.string.dashboard_notifications_activity_message_repost,
                         reposts.get(0).getUser().username,
-                        reposts.get(0).getTrack().title);
+                        reposts.get(0).getPlayable().title);
             } else {
                 message = res.getQuantityString(R.plurals.dashboard_notifications_activity_message_repost,
-                        tracks.size(),
-                        tracks.get(0).title,
-                        (tracks.size() > 1 ? tracks.get(1).title : null));
+                        playables.size(),
+                        playables.get(0).title,
+                        (playables.size() > 1 ? playables.get(1).title : null));
 
 
             }
         } else if (!likes.isEmpty() && comments.isEmpty() && reposts.isEmpty()) {
             // only likes
-            List<Track> tracks = likes.getUniqueTracks();
+            List<Playable> playables = likes.getUniquePlayables();
             ticker = res.getQuantityString(
                     R.plurals.dashboard_notifications_activity_ticker_like,
                     likes.size(),
@@ -72,19 +73,19 @@ class NotificationMessage {
                     likes.size(),
                     likes.size());
 
-            if (tracks.size() == 1 && likes.size() == 1) {
+            if (playables.size() == 1 && likes.size() == 1) {
                 message = res.getString(R.string.dashboard_notifications_activity_message_likes,
                         likes.get(0).getUser().username,
-                        likes.get(0).getTrack().title);
+                        likes.get(0).getPlayable().title);
             } else {
                 message = res.getQuantityString(R.plurals.dashboard_notifications_activity_message_like,
-                        tracks.size(),
-                        tracks.get(0).title,
-                        (tracks.size() > 1 ? tracks.get(1).title : null));
+                        playables.size(),
+                        playables.get(0).title,
+                        (playables.size() > 1 ? playables.get(1).title : null));
             }
         } else if (!comments.isEmpty() && likes.isEmpty() && reposts.isEmpty()) {
             // only comments
-            List<Track> tracks = comments.getUniqueTracks();
+            List<Playable> playables = comments.getUniquePlayables();
             List<User> users = comments.getUniqueUsers();
 
             ticker = res.getQuantityString(
@@ -97,12 +98,12 @@ class NotificationMessage {
                     comments.size(),
                     comments.size());
 
-            if (tracks.size() == 1) {
+            if (playables.size() == 1) {
                 message = res.getQuantityString(
                         R.plurals.dashboard_notifications_activity_message_comment_single_track,
                         comments.size(),
                         comments.size(),
-                        tracks.get(0).title,
+                        playables.get(0).title,
                         comments.get(0).getUser().username,
                         comments.size() > 1 ? comments.get(1).getUser().username : null);
             } else {
@@ -113,7 +114,7 @@ class NotificationMessage {
             }
         } else {
            // mix of likes, comments, reposts
-            List<Track> tracks = activities.getUniqueTracks();
+            List<Playable> playables = activities.getUniquePlayables();
             List<User> users = activities.getUniqueUsers();
             ticker = res.getQuantityString(R.plurals.dashboard_notifications_activity_ticker_activity,
                     activities.size(),
@@ -125,7 +126,7 @@ class NotificationMessage {
 
             message = res.getQuantityString(R.plurals.dashboard_notifications_activity_message_activity,
                     users.size(),
-                    tracks.get(0).title,
+                    playables.get(0).title,
                     users.get(0).username,
                     users.size() > 1 ? users.get(1).username : null);
         }
@@ -215,9 +216,10 @@ class NotificationMessage {
 
     /* package */ static String getIncomingNotificationMessage(SoundCloudApplication app, Activities activites) {
         List<User> users = activites.getUniqueUsers();
-        assert !users.isEmpty();
-
         switch (users.size()) {
+            case 0:
+                return ""; // should not get this far, but in case
+
             case 1:
                 return String.format(
                         app.getString(R.string.dashboard_notifications_message_incoming),

@@ -81,7 +81,7 @@ public class UploadMonitorTest {
         when(r.isError()).thenReturn(false);
         setupMonitor(r);
         send(r, PROCESSING_STARTED, PROCESSING_PROGRESS, PROCESSING_ERROR);
-        expect(message.getText()).toEqual("Ok, that went wrong.");
+        expect(message.getText()).toEqual("OK, that went wrong.");
     }
 
     @Test

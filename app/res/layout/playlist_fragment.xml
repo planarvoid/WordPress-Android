@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <FrameLayout android:id="@+id/listContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+        <!-- don't use android:id/list here for now, since it conflicts with the PTR stuff -->
+        <!-- see https://github.com/soundcloud/SoundCloud-Android/issues/534 -->
+        <com.soundcloud.android.view.ScListView
+                android:id="@+id/list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        <com.soundcloud.android.view.EmptyListView
+                android:id="@android:id/empty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+    </FrameLayout>
+
+    <include layout="@layout/list_loading_item"
+             android:id="@android:id/progress"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"/>
+
+</FrameLayout>

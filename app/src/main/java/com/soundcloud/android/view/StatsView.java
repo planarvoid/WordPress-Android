@@ -1,6 +1,8 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 
 import android.content.Context;
@@ -178,14 +180,26 @@ public class StatsView extends View {
         if (changed) invalidate();
     }
 
-    public void updateWithTrack(Track track) {
-        mPlays    = track.playback_count;
-        mLikes    = track.likes_count;
-        mReposts  = track.reposts_count;
-        mComments = track.comment_count;
+    public void updateWithPlayable(Playable playable, boolean showFullStats) {
 
-        mReposted = track.user_repost;
-        mLiked    = track.user_like;
+        if (showFullStats){
+            mLikes    = playable.likes_count;
+            mReposts  = playable.reposts_count;
+            mReposted = playable.user_repost;
+            mLiked    = playable.user_like;
+        } else {
+            mLikes = 0;
+            mReposts = 0;
+        }
+
+        if (playable instanceof Track){
+            final Track track = (Track) playable;
+            mPlays = track.playback_count;
+            mComments = (showFullStats) ? track.comment_count : 0;
+        } else {
+            mPlays = 0;
+            mComments = 0;
+        }
 
         invalidate();
     }

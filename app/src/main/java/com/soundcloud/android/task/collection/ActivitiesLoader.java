@@ -32,7 +32,8 @@ public class ActivitiesLoader extends CollectionLoader<Activity> {
 
                 ApiSyncer.Result result = null;
                 try {
-                    result = new ApiSyncer(api.getContext()).syncContent(params.contentUri, ApiSyncService.ACTION_APPEND);
+                    ApiSyncer syncer = new ApiSyncer(api.getContext(), api.getContext().getContentResolver());
+                    result = syncer.syncContent(params.contentUri, ApiSyncService.ACTION_APPEND);
                 } catch (CloudAPI.InvalidTokenException e) {
                     // TODO, move this once we centralize our error handling
                     // InvalidTokenException should expose the response code so we don't have to hardcode it here

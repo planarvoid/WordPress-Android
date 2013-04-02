@@ -12,6 +12,7 @@ DEFAULT_LEVELS = %w(
    StreamProxy StreamLoader StreamStorage C2DMReceiver SyncAdapterService ScContentProvider DBHelper
    ApiSyncService ApiSyncer UploadService SoundCloudApplication VorbisEncoder VorbisEncoderNative
    VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener
+   PlayEventTracker PlayEventTrackerApi
 )
 DISABLED_LEVELS = %w()
 
@@ -74,8 +75,12 @@ end
       tmp_path = "/sdcard/SoundCloud.sqlite"
       desc "get db from #{t}"
         task :pull do
-          adb["shell su -c 'cp -f #{db_path} #{tmp_path}'"]
-          adb["pull #{tmp_path} ."]
+          case t
+            when :device;
+              adb["shell su -c 'cp -f #{db_path} #{tmp_path}'"]
+              adb["pull #{tmp_path} ."]
+            when :emu; adb["pull #{db_path} ."]
+          end
         end
     end
 
@@ -108,6 +113,15 @@ end
     task :test_single do
       adb['shell', 'am', 'instrument', '-r', '-w', '-e', 'class', ENV['CLASS'],
           package.to_s+'.tests/'+test_runner.call]
+    end
+
+    desc "runs the monkey [COUNT=x] [SEED=y]"
+    task :monkey do
+      adb['shell', 'monkey', '-p', package.to_s, '-v',
+          '--throttle', '250',
+          '-s', ENV['SEED'] || Time.now.to_i.to_s,
+          ENV['COUNT'] || '10000'
+      ]
     end
 
     task :anr do

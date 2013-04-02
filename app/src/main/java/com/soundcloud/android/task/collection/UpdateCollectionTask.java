@@ -6,6 +6,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.task.ParallelAsyncTask;
+import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -18,16 +19,18 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Set;
 
-public class UpdateCollectionTask extends ParallelAsyncTask<Set<Long>, String, Boolean> {
+public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Boolean> {
     private AndroidCloudAPI mApi;
     private String mEndpoint;
     private WeakReference<BaseAdapter> mAdapterReference;
+    private Set<Long> mResourceIds;
 
-    public UpdateCollectionTask(AndroidCloudAPI api, String endpoint) {
+    public UpdateCollectionTask(AndroidCloudAPI api, String endpoint, Set<Long> resourceIds) {
         if (TextUtils.isEmpty(endpoint)) throw new IllegalArgumentException("endpoint is empty");
 
         mApi = api;
         mEndpoint = endpoint;
+        mResourceIds = resourceIds;
     }
 
     public void setAdapter(BaseAdapter lazyEndlessAdapter) {
@@ -43,13 +46,14 @@ public class UpdateCollectionTask extends ParallelAsyncTask<Set<Long>, String, B
     }
 
     @Override
-    protected Boolean doInBackground(Set<Long>... params) {
-        Set<Long> ids = params[0];
-        Log.i(TAG,"Updating " + ids.size() + " items");
+    protected Boolean doInBackground(String... params) {
+        Log.i(TAG,"Updating " + mResourceIds.size() + " items");
         try {
-            HttpResponse resp = mApi.get(Request.to(mEndpoint)
+            Request request = Request.to(mEndpoint)
                     .add("linked_partitioning", "1")
-                    .add("ids", TextUtils.join(",", ids)));
+                    .add("ids", TextUtils.join(",", mResourceIds));
+            HttpUtils.addQueryParams(request, params);
+            HttpResponse resp = mApi.get(request);
 
             if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 throw new IOException("Invalid response: " + resp.getStatusLine());

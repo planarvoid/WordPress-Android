@@ -57,6 +57,7 @@ public class NowPlayingIndicator extends ProgressBar {
     private Rect mCanvasRect;
 
     private boolean mListening;
+    private Canvas mTempCanvas = new Canvas();
 
     private int mAdjustedWidth;
     private WaveformController.WaveformState mWaveformState;
@@ -227,7 +228,7 @@ public class NowPlayingIndicator extends ProgressBar {
     protected void onDraw(Canvas canvas) {
         if (mWaveformMask == null) return;
 
-        Canvas tmp = new Canvas(mWaveformMask);
+        mTempCanvas.setBitmap(mWaveformMask);
 
         float density = getResources().getDisplayMetrics().density;
 
@@ -236,9 +237,9 @@ public class NowPlayingIndicator extends ProgressBar {
         int separatorBottom = topPartHeight;
 
         // Grey
-        tmp.drawRect(0, 0,             mAdjustedWidth, getHeight(),     mTopGrey);
-        tmp.drawRect(0, topPartHeight, mAdjustedWidth, getHeight(),     mBottomGrey);
-        tmp.drawRect(0, separatorTop,  mAdjustedWidth, separatorBottom, mSeparatorGrey);
+        mTempCanvas.drawRect(0, 0,             mAdjustedWidth, getHeight(),     mTopGrey);
+        mTempCanvas.drawRect(0, topPartHeight, mAdjustedWidth, getHeight(),     mBottomGrey);
+        mTempCanvas.drawRect(0, separatorTop,  mAdjustedWidth, separatorBottom, mSeparatorGrey);
 
         float playedFraction = (float) getProgress() / (float) getMax();
         playedFraction = min(max(playedFraction, 0), getMax());
@@ -247,9 +248,9 @@ public class NowPlayingIndicator extends ProgressBar {
         int progressWidth = (int) max(mAdjustedWidth * playedFraction, density);
 
         // Orange
-        tmp.drawRect(0, 0,             progressWidth, getHeight(),     mTopOrange);
-        tmp.drawRect(0, topPartHeight, progressWidth, getHeight(),     mBottomOrange);
-        tmp.drawRect(0, separatorTop,  progressWidth, separatorBottom, mSeparatorOrange);
+        mTempCanvas.drawRect(0, 0,             progressWidth, getHeight(),     mTopOrange);
+        mTempCanvas.drawRect(0, topPartHeight, progressWidth, getHeight(),     mBottomOrange);
+        mTempCanvas.drawRect(0, separatorTop,  progressWidth, separatorBottom, mSeparatorOrange);
 
         canvas.drawBitmap(
             mWaveformMask,
@@ -261,6 +262,10 @@ public class NowPlayingIndicator extends ProgressBar {
 
     private void setWaveformMask() {
         this.mWaveformMask = createWaveformMask(mWaveformData, mAdjustedWidth, getHeight());
+    }
+
+    public BroadcastReceiver getStatusListener() {
+        return mStatusListener;
     }
 
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {

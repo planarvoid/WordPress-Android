@@ -1,6 +1,4 @@
 <resources>
-    <string name="menu_select_file">Seleccionar archivo</string>
-
     <string name="btn_revert_to_original">Volver a original</string>
 
     <string name="fade_toggle_on">Fundido de entrada/salida</string>
@@ -8,8 +6,6 @@
 
     <string name="optimize_toggle_on">Optimizado</string>
     <string name="optimize_toggle_off">No optimizado</string>
-
-    <string name="menu_private_message">Mensaje privado</string>
 
     <string name="pref_stream_cache_size">Tamaño de caché de transferencia</string>
     <string name="pref_stream_cache_size_desc">El tamaño de la caché de transferencia en porcentaje</string>
@@ -25,7 +21,6 @@
     <string name="btn_publish">Publicar</string>
     <string name="btn_apply">Aplicar</string>
 
-    <string name="process">Procesar</string>
     <string name="dialog_install_processor">Procesador de audio no instalado. ¿Instalar?</string>
 
     <string name="rec_your_sound_is_saved_locally_at">Tu sonido se ha guardado localmente</string>
@@ -35,27 +30,16 @@
     <string name="pref_crashlogs">Registro de errores</string>
     <string name="pref_crashlogs_desc">Al activar el registro de errores nos ayudas a mejorar considerablemente la aplicación. No recogemos ningún dato personal. Para obtener más detalles consulta nuestra Política de privacidad.</string>
 
-    <string name="crop_save_text">Guardar</string>
-    <string name="crop_discard_text">Descartar</string>
-    <string name="savingImage">Guardando imagen\u2026</string>
-
     <string name="playback_error_logging">Registro de errores de reproducción: %s</string>
     <string name="enabled">Activado</string>
     <string name="disabled">Desactivado</string>
     <string name="player_track_unavailable">Este sonido ya no está disponible</string>
 
-    <string name="sound_processed">Sonido procesado</string>
-    <string name="sound_processed_error">Error al procesar sonido: %s</string>
-    <string name="sound_processed_pick_app">Elige aplicación para procesar sonido</string>
-
     <string name="uploader_event_processing">Procesando</string>
     <string name="uploader_event_processing_percent">Procesando: %d%%</string>
     <string name="uploader_event_not_yet_uploading">Subida no iniciada aún</string>
-    <string name="uploader_event_uploading">Subiendo</string>
     <string name="uploader_event_uploading_percent">Subiendo: %d%%</string>
     <string name="uploader_event_cancelling">Cancelando</string>
-
-    <string name="uploader_event_processing_failed">Error en el proceso</string>
     <string name="uploader_event_processing_finished">Proceso finalizado</string>
 
     <string name="cancel">Cancelar</string>
@@ -68,55 +52,6 @@
     <string name="rec_title_playing">Pausa</string>
     <string name="rec_title_editing">Editar</string>
 
-    <string name="rectip_default">¿Por qué no grabas los sonidos de tu calle?</string>
-
-    <string name="rectip_memories_voice_notes">Graba notas de voz a modo de útiles recordatorios.</string>
-    <string name="rectip_memories_voice_blog">Usa el botón REC para crear un blog de voz: ¿qué vas a compartir hoy?</string>
-    <string name="rectip_memories_what_are_you_doing_right_now">¿Qué haces ahora mismo?</string>
-    <string name="rectip_memories_child_first_words">Captura el instante: las primeras palabras de un niño</string>
-    <string name="rectip_memories_sound_your_pet_makes">Captura el instante: los sonidos que hace tu mascota</string>
-    <string name="rectip_memories_voice_of_someone_you_care_about">Captura el instante: la voz de alguien que te importa</string>
-    <string name="rectip_memories_shopping_reminders">¿Vas a ir de compras? Grábate recordatorios para no olvidar lo que necesitas comprar.</string>
-    <string name="rectip_memories_great_idea">¿Has tenido una idea genial? Captúrala con el botón REC.</string>
-
-    <string name="rectip_social_good_joke">¿Te han contado un chiste muy bueno? ¡Compártelo!</string>
-    <string name="rectip_social_great_conversaion">¿Estás disfrutando de una excelente conversación? ¿Por qué no grabarla para la posteridad?</string>
-    <string name="rectip_social_hilarious_moment">Captura el sonido de un momento tronchante.</string>
-
-    <string name="rectip_general_did_you_know">¿Sabías que puedes guardar conversaciones privadas si no quieres compartirlas?</string>
-    <string name="rectip_general_best_recording_device">A veces el mejor dispositivo de grabación es el que llevas encima.</string>
-    <string name="rectip_general_unmute_yourself">¡Haz oír tu voz!</string>
-    <string name="rectip_general_unmute_internet">Da voz a Internet.</string>
-    <string name="rectip_general_unmute_the_world">Da voz al mundo.</string>
-    <string name="rectip_general_express_yourself">¡Exprésate!</string>
-
-    <string name="rectip_general_professional_minutes_of_meeting">¿Por qué no grabar cada minuto de tu siguiente reunión?</string>
-    <string name="rectip_general_professional_capture_ideas_for_later">Usa el botón REC para capturar ideas para más adelante.</string>
-    <string name="rectip_general_professional_study_aid">Usa el botón REC como ayuda para tus estudios: almacena tus notas sobre la marcha.</string>
-    <string name="rectip_general_professional_record_interviews_and_meetings">Puedes usar el botón REC para grabar entevistas y reuniones.</string>
-
-    <string name="rectip_environmental_ocean_waves">Graba el sonido de las olas del mar en la playa.</string>
-    <string name="rectip_environmental_vibrant_rush_hour">Captura los sonidos de una ciudad efervescente en hora punta.</string>
-    <string name="rectip_environmental_crazy_sound">¿Has oído un sonido curioso? ¡Captúralo con el botón REC!</string>
-
-    <string name="rectip_music_feel_inspired">¿Te ha venido la inspiración? Captura tu idea con el botón REC.</string>
-    <string name="rectip_music_track_idea">¿Tienes una idea para un tema nuevo? Guárdalo con el botón REC.</string>
-    <string name="rectip_music_tune_stuck">¿Se te ha metido una canción en la cabeza? Captúrala con el botón REC.</string>
-    <string name="rectip_music_song_lyric_ideas">¿Ideas para la letra de una canción? Captúralas al instante con el botón REC.</string>
-
-    <string name="rectip_events_whats_going_on">¿Qué pasa ahora mismo?</string>
-    <string name="rectip_events_current_events_as_they_happen">Graba los sucesos actuales en el momento en que ocurren y compártelos con el mundo.</string>
-    <string name="rectip_events_something_interesting">¿Está pasando algo interesante? Captura el instante en forma de audio.</string>
-    <string name="rectip_events_citizen_reporter">¿Reportero vocacional? Cuéntale al mundo lo que sucede allí donde estés.</string>
-
-    <string name="rectip_private_happy_birthday">Felicita un cumpleaños.</string>
-    <string name="rectip_private_record_a_message">¿Por qué no grabar un mensaje para %s?</string>
-    <string name="rectip_private_how_much_they_mean">Dile a %s lo mucho que significa para ti.</string>
-    <string name="rectip_private_send_reminder">Envía a %s un recordatorio.</string>
-    <string name="rectip_private_liked_their_sound">Dile a %s lo mucho que te ha gustado su sonido.</string>
-    <string name="rectip_private_leave_feedback">Deja algún comentario para %s.</string>
-
-    <string name="resolve_progress">Cargando</string>
     <string name="error_loading_url">Se ha producido un problema al cargar esa dirección</string>
 
     <string name="cloud_uploader_notification_transcoding_error_message">Se ha producido un error al transcodificar %s</string>
@@ -128,25 +63,11 @@
     <string name="dialog_transcoding_failed_title">Error de transcodificación</string>
     <string name="dialog_transcoding_failed_message">Vaya, algo ha salido mal y no se puede reproducir tu sonido. Puedes eliminar el sonido de tu lista a través de la página web. Para obtener más información, ponte en contacto con nuestro soporte.</string>
 
-    <string name="dialog_transcoding_processing_title">Procesando sonido</string>
-    <string name="dialog_transcoding_processing_message">Se está procesando tu sonido y en unos segundos se podrá reproducir.</string>
-
     <string name="visit_support">Visita Soporte</string>
-    <string name="following_spam_warning">Has alcanzado el límite de seguidores usuarios, se desactivará esta opción de tu cuenta de forma temporal.</string>
 
     <string name="yes">Sí</string>
     <string name="no">No</string>
 
-
-    <string name="dialog_transcoding_failed_title">Error en la transcodificación</string>
-    <string name="dialog_transcoding_failed_message">Huy, algo ha fallado y tu sonido no se puede reproducir. Puedes
-        eliminar el sonido de la lista mediante la página web. Para más información, contacta con nuestro servicio técnico.
-    </string>
-    <string name="visit_support">Visitar servicio técnico</string>
-
-    <string name="waiting_for_sync">Esperando sincronización...</string>
-
-    <string name="tab_title_my_sound_stream">Tu canal</string>
     <string name="tab_title_my_info">Tu información</string>
     <string name="tab_title_my_sounds">Tus sonidos</string>
     <string name="tab_title_my_likes">Tus votos positivos</string>
@@ -165,16 +86,6 @@
     <string name="following_spam_warning">Has llegado al límite de usuarios a los que puedes seguir y esta opción queda temporalmente desactivada para tu cuenta.
     </string>
 
-    <string name="yes">Sí</string>
-    <string name="no">No</string>
-
-    <string name="action_bar_like">Dar voto positivo</string>
-    <string name="action_bar_search">Buscar</string>
-    <string name="action_bar_repost">Volver a publicar</string>
-    <string name="action_bar_comment">Comentar</string>
-    <string name="action_bar_share">Compartir</string>
-    <string name="action_bar_info">Información</string>
-
     <string name="side_menu_activity">Actividad</string>
     <string name="side_menu_record">Grabar</string>
     <string name="title_search">Buscar</string>
@@ -183,15 +94,10 @@
     <string name="side_menu_settings">Ajustes</string>
 
     <string name="side_menu_likes">Tus votos positivos</string>
-    <string name="side_menu_followings">Gente a la que sigues</string>
     <string name="side_menu_friend_finder">Encontrar amigos</string>
     <string name="side_menu_suggested_users">A quién seguir</string>
 
-    <string name="action_bar_follow">Seguir</string>
-    <string name="action_bar_unfollow">Dejar de seguir</string>
-
-    <string name="find_friends_on_facebook">Encontrar amigos en Facebook</string>
-    <string name="connect_to_facebook">Conectarse a Facebook</string>
+    <string name="settings_logging_out">Cerrar la sesión</string>
 
     <!--
      no longer used !
@@ -236,9 +142,9 @@
     <string name="tour_text_2">Todo tipo de música y audio \nde estilo nuevo y original</string>
 
     <string name="tour_title_3">Conectar y compartir</string>
+    <string name="tour_text_3">Encuentra música &amp; creadores de\naudio para escuchar y seguir,\ncompartir los sonidos que te gustan</string>
 
     <string name="search_for_query">Busca \'%s\'</string>
-    <string name="authentication_recover_password_msg">Introduce tu dirección de correo electrónico y te enviaremos un enlace que te permitirá cambiar tu contraseña. ¿Problemas? Contacta con el servicio técnico.</string>
     <string name="done">Hecho</string>
     <string name="tour_signup_header">Regístrate con tu cuenta</string>
     <string name="email">Correo electrónico</string>
@@ -254,8 +160,71 @@
     <string name="crop_image_error">Se ha producido un error recortar la imagen.</string>
     <string name="add_comment_no_connection">No se puede agregar comentario. Por favor, compruebe su conexión de datos y vuelva a intentarlo.</string>
 
-    <string name="error_server_problems_title">Error del servidor</string>
     <string name="error_server_problems_message">Hubo un problema al procesar tu solicitud. Por favor, inténtelo de nuevo más tarde.</string>
     <string name="error_soundcloud_is_down">SoundCloud parece estar teniendo problemas con el servidor. Estamos trabajando en ello!</string>
     <string name="error_soundcloud_server_problems">SoundCloud tenido problemas para procesar su solicitud.</string>
+
+    <string name="accessibility_menu">Abrir menú</string>
+    <string name="accessibility_action_bar_waveform">Mostrar pista de reproducción actual</string>
+    <string name="accessibility_exit_search">Salir del modo búsqueda</string>
+    <string name="accessibility_infix_reposted">republicado</string>
+    <string name="accessibility_infix_liked">me ha gustado</string>
+    <string name="accessibility_infix_commented">comentado en</string>
+    <string name="accessibility_infix_reposted_by">republicado por</string>
+
+    <plurals name="accessibility_stats_comments">
+        <item quantity="one">1 comentario</item>
+        <item quantity="other">%d comentarios</item>
+    </plurals>
+
+    <plurals name="accessibility_stats_plays">
+        <item quantity="one">1 reproducción</item>
+        <item quantity="other">%d reproducciones</item>
+    </plurals>
+
+    <plurals name="accessibility_stats_likes">
+        <item quantity="one">1 me gusta</item>
+        <item quantity="other">%d me gusta</item>
+    </plurals>
+
+    <plurals name="accessibility_stats_reposts">
+        <item quantity="one">1 republicaciónt</item>
+        <item quantity="other">%d republicaciones</item>
+    </plurals>
+
+    <string name="accessibility_search">Buscar SoundCloud</string>
+    <string name="accessibility_stats_user_liked">Has dado a Me gusta</string>
+    <string name="accessibility_stats_user_reposted">Republicado por ti</string>
+    <string name="accessibility_like_action">Me gusta</string>
+    <string name="accessibility_repost_action">Republicar</string>
+    <string name="accessibility_comment_action">Comentar</string>
+    <string name="accessibility_next_track">Siguiente pista</string>
+    <string name="accessibility_toggle_playback">Activar repetición</string>
+    <string name="accessibility_previous_track">Pista anterior</string>
+
+    <string name="accessibility_action_bar_set">Volver a la lista de reproducción actual</string>
+
+    <string name="playlist_info_header_text">Esta lista contiene %1$s, tiempo total: %2$s</string>
+    <string name="imprint">Grabar</string>
+
+    <plurals name="number_of_sounds">
+        <item quantity="one">un sonido</item>
+        <item quantity="other">%d sonidos</item>
+    </plurals>
+
+    <string name="add_track_to_set">Añadir a lista...</string>
+    <string name="create_new_set">Crear nueva lista</string>
+    <string name="error_new_set_blank_title">Escribe un título válido</string>
+    <string name="add_set_private">Privada</string>
+
+    <string name="tab_title_my_sets">Tus listas</string>
+    <string name="tab_title_user_sets">Listas</string>
+
+    <string name="side_menu_sets">Tus listas</string>
+    <string name="empty_playlist">Esta lista aún no tiene sonidos</string>
+
+    <string name="playlist_removed">No se ha encontrado esta lista en SoundCloud</string>
+
+    <string name="list_empty_user_sets_message">%1$s no tiene actualmente ninguna sets.</string>
+    <string name="list_empty_you_sets_message">Crear un conjunto de compartir una colección de sus canciones favoritas.</string>
 </resources>

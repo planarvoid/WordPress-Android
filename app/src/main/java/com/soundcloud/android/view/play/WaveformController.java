@@ -174,16 +174,16 @@ public class WaveformController extends TouchLayout {
         }
         if (!isPlaying) {
             mWaitingForSeekComplete = false;
-            onBufferingStop();
+            setBufferingState(false);
         }
     }
 
-    public void startSmoothProgress(){
+    private void startSmoothProgress(){
         mShowingSmoothProgress = true;
         mHandler.postDelayed(mSmoothProgress, 0);
     }
 
-    public void stopSmoothProgress(){
+    private void stopSmoothProgress(){
         mShowingSmoothProgress = false;
         mHandler.removeCallbacks(mSmoothProgress);
     }
@@ -245,14 +245,12 @@ public class WaveformController extends TouchLayout {
         }
     }
 
-    public void onBufferingStart() {
-        mIsBuffering = true;
-        showWaiting();
-    }
-
-    public void onBufferingStop() {
-        mIsBuffering = false;
-        if (mWaveformState != WaveformState.LOADING && !mWaitingForSeekComplete){
+    public void setBufferingState(boolean isBuffering) {
+        mIsBuffering = isBuffering;
+        if (mIsBuffering){
+            stopSmoothProgress();
+            showWaiting();
+        } else if (mWaveformState != WaveformState.LOADING && !mWaitingForSeekComplete){
             hideWaiting();
         }
     }
@@ -359,8 +357,15 @@ public class WaveformController extends TouchLayout {
         }
     }
 
-    public boolean showingSmoothProgress(){
-        return  mShowingSmoothProgress;
+    public void setSmoothProgress(boolean showSmoothProgress){
+        if (mShowingSmoothProgress != showSmoothProgress){
+            mShowingSmoothProgress = showSmoothProgress;
+            if (mShowingSmoothProgress){
+                startSmoothProgress();
+            } else {
+                stopSmoothProgress();
+            }
+        }
     }
 
     protected void autoShowComment(Comment c) {

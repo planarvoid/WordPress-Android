@@ -24,13 +24,8 @@ import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 
 public class AffiliationActivityRow extends ActivityRow {
 
-    public AffiliationActivityRow(Context context, ScBaseAdapter adapter) {
-        super(context, adapter);
-    }
-
-    @Override
-    protected void init() {
-        // do nothing
+    public AffiliationActivityRow(Context context) {
+        super(context);
     }
 
     @Override

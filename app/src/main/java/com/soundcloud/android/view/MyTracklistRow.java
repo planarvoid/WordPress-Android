@@ -3,11 +3,10 @@ package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.adapter.TrackInfoBar;
+import com.soundcloud.android.view.adapter.PlayableRow;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -16,29 +15,29 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-public class MyTracklistRow extends TrackInfoBar {
-    private TextView mTitle;
-    private TextView mCreatedAt;
-    private TextView mPrivateIndicator;
+import java.io.IOException;
+
+// TODO: Ugly as FUCK. This class overrides practically everything from its super classes.
+// It doesn't even operate on a Playable. Could make nicer by wrapping the Recording in PlayableAdapter.
+public class MyTracklistRow extends PlayableRow {
     private Drawable mPrivateBgDrawable;
     private Drawable mVeryPrivateBgDrawable;
     private final int mTargetIconDimension;
 
-    public MyTracklistRow(Context activity, IScAdapter adapter) {
-        super(activity, adapter);
-        mTitle = (TextView) findViewById(R.id.track);
-        mCreatedAt = (TextView) findViewById(R.id.track_created_at);
-        mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
+    private Recording mRecording;
+
+    public MyTracklistRow(Context activity) {
+        super(activity);
         mTargetIconDimension = (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE);
     }
 
     @Override
-    protected View addContent() {
+    protected View addContent(AttributeSet attributeSet) {
         return View.inflate(getContext(), R.layout.record_list_item_row, this);
     }
 
@@ -58,31 +57,40 @@ public class MyTracklistRow extends TrackInfoBar {
         return mVeryPrivateBgDrawable;
     }
 
-     @Override
+    @Override
+    protected void setTitle() {
+        mTitle.setText(mRecording.sharingNote(getResources()));
+    }
+
+    @Override
+    public void setTitle(boolean pressed) {
+        setTitle();
+    }
+
+    @Override
     public void display(Cursor cursor) {
-        display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor));
+        display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor));
     }
     @Override
     public void display(int position, Parcelable p) {
         if (!(p instanceof Recording)) {
-            SoundCloudApplication.handleSilentException("item "+p+" at position " +position + " is not a recording, "+
-                    "adapter="+mAdapter, null);
+            SoundCloudApplication.handleSilentException("item "+p+" at position " +position + " is not a recording", null);
             return;
         }
 
-        final Recording recording = ((Recording) p);
+        mRecording = ((Recording) p);
 
-        mTitle.setText(recording.sharingNote(getResources()));
+        setTitle();
 
-        if (!recording.is_private) {
+        if (!mRecording.is_private) {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
-            if (!TextUtils.isEmpty(recording.getRecipientUsername())){
+            if (!TextUtils.isEmpty(mRecording.getRecipientUsername())){
                 mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
-                mPrivateIndicator.setText(recording.getRecipientUsername());
+                mPrivateIndicator.setText(mRecording.getRecipientUsername());
             } else {
-                final int sharedToCount = TextUtils.isEmpty(recording.shared_emails) ? 0
-                        : recording.shared_emails.split(",").length;
+                final int sharedToCount = TextUtils.isEmpty(mRecording.shared_emails) ? 0
+                        : mRecording.shared_emails.split(",").length;
                 if (sharedToCount < 8){
                     mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
                 } else {
@@ -97,10 +105,11 @@ public class MyTracklistRow extends TrackInfoBar {
         }
 
         mCreatedAt.setTextColor(getContext().getResources().getColor(R.color.listTxtRecSecondary));
-        mCreatedAt.setText(recording.getStatus(getContext().getResources()));
-        setArtwork(recording);
+        mCreatedAt.setText(mRecording.getStatus(getContext().getResources()));
 
-        if (recording.isUploading()) {
+        loadIcon(mRecording);
+
+        if (mRecording.isUploading()) {
             if (findViewById(R.id.processing_progress) != null) {
                 findViewById(R.id.processing_progress).setVisibility(View.VISIBLE);
             } else {
@@ -108,6 +117,24 @@ public class MyTracklistRow extends TrackInfoBar {
             }
         } else if (findViewById(R.id.processing_progress) != null) {
             findViewById(R.id.processing_progress).setVisibility(View.GONE);
+        }
+    }
+
+    protected void loadIcon(Recording recording) {
+        if (recording.artwork_path == null) {
+            mImageLoader.unbind(mIcon);
+        } else {
+            ImageLoader.Options options = new ImageLoader.Options();
+            try {
+                options.decodeInSampleSize = ImageUtils.determineResizeOptions(
+                        recording.artwork_path,
+                        (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE),
+                        (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE), false
+                ).inSampleSize;
+            } catch (IOException e) {
+                Log.w(SoundCloudApplication.TAG, "error", e);
+            }
+            mImageLoader.bind(mIcon, recording.artwork_path.getAbsolutePath(), null, options);
         }
     }
 

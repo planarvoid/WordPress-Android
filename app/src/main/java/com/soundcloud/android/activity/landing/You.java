@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
+import android.util.Log;
 
 public class You extends UserBrowser implements ScLandingPage {
 
@@ -20,9 +21,11 @@ public class You extends UserBrowser implements ScLandingPage {
 
             @Override
             public void onPageSelected(int i) {
-                mRootView.setSelectedMenuId(
-                        Tab.values()[i] == Tab.likes ? R.id.nav_likes :
-                                R.id.nav_you);
+                switch (Tab.values()[i]){
+                    case likes : mRootView.setSelectedMenuId(R.id.nav_likes);   break;
+                    case sets  : mRootView.setSelectedMenuId(R.id.nav_sets);    break;
+                    default    : mRootView.setSelectedMenuId(R.id.nav_you);     break;
+                }
             }
 
             @Override
@@ -51,6 +54,8 @@ public class You extends UserBrowser implements ScLandingPage {
             final Tab tab = Tab.values()[Tab.indexOf(intent.getStringExtra(Tab.EXTRA))];
             if (tab == Tab.likes) {
                 return R.id.nav_likes;
+            } else if (tab == Tab.sets) {
+                return R.id.nav_sets;
             }
         }
         return R.id.nav_you;

@@ -8,11 +8,10 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.adapter.IScAdapter;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.DrawableSpan;
 
@@ -21,14 +20,14 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
+import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
 
 import java.util.Date;
 
-public abstract class ActivityRow extends LazyRow {
+public abstract class ActivityRow extends IconLayout implements ListRow {
     protected Activity mActivity;
 
     protected final TextView mUser;
@@ -38,16 +37,12 @@ public abstract class ActivityRow extends LazyRow {
     private Drawable mDrawable, mPressedDrawable;
     protected SpannableStringBuilder mSpanBuilder;
 
-    public ActivityRow(Context context, IScAdapter adapter) {
-        super(context, adapter);
+    public ActivityRow(Context context) {
+        super(context);
 
         mTitle = (TextView) findViewById(R.id.title);
         mUser = (TextView) findViewById(R.id.user);
         mCreatedAt = (TextView) findViewById(R.id.created_at);
-        init();
-    }
-
-    protected void init() {
         mIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,8 +58,8 @@ public abstract class ActivityRow extends LazyRow {
     }
 
     // override these for non-dashboard activities to account for different parcelable structures
-    protected Track getTrack() {
-        return mActivity.getTrack();
+    protected Playable getPlayable() {
+        return mActivity.getPlayable();
     }
 
     protected User getOriginUser() {
@@ -77,7 +72,7 @@ public abstract class ActivityRow extends LazyRow {
 
     protected SpannableStringBuilder createSpan() {
         mSpanBuilder = new SpannableStringBuilder();
-        mSpanBuilder.append("  ").append(getTrack().title);
+        mSpanBuilder.append("  ").append(getPlayable().title);
         addSpan(mSpanBuilder);
         return mSpanBuilder;
     }
@@ -93,13 +88,13 @@ public abstract class ActivityRow extends LazyRow {
     }
 
     @Override
-    protected View addContent() {
+    protected View addContent(AttributeSet attributeSet) {
         return View.inflate(getContext(), R.layout.activity_list_row, this);
     }
 
     @Override
     public void display(Cursor cursor) {
-        display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getTrackFromCursor(cursor));
+        display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor));
     }
 
     protected abstract  boolean fillParcelable(Parcelable p);
@@ -107,9 +102,9 @@ public abstract class ActivityRow extends LazyRow {
     @Override
     public void display(int position, Parcelable p) {
         mActivity = (Activity) p;
-        boolean isNull = !fillParcelable(p);
-        super.display(position);
-        if (isNull) return;
+        if (!fillParcelable(p)) return;
+
+        loadIcon();
 
         mActivity = (Activity) p;
         mSpanBuilder = createSpan();

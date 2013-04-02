@@ -1,23 +1,18 @@
 package com.soundcloud.android.model;
 
-import static com.soundcloud.android.model.ScModelManager.validateResponse;
-
+import android.content.ContentResolver;
+import android.content.Context;
+import android.text.TextUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.jetbrains.annotations.Nullable;
-
-import android.content.ContentResolver;
-import android.content.Context;
-import android.text.TextUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.URI;
@@ -25,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import static com.soundcloud.android.model.ScModelManager.validateResponse;
 
 
 /**
@@ -117,28 +114,24 @@ public class CollectionHolder<T> implements Iterable<T> {
         }
     }
 
-    public @Nullable static <T, C extends CollectionHolder<T>> C fetchAllResourcesHolder(AndroidCloudAPI api,
+    public @NotNull static <T, C extends CollectionHolder<T>> C fetchAllResourcesHolder(AndroidCloudAPI api,
                                                 Request request,
                                                 Class<C> ch) throws IOException {
         List<T> objects = new ArrayList<T>();
         C holder = null;
         do {
-            Request r =  holder == null ? request : Request.to(holder.next_href);
+            Request r = holder == null ? request : Request.to(holder.next_href);
             HttpResponse resp = validateResponse(api.get(r.with(LINKED_PARTITIONING, "1")));
-            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                holder = api.getMapper().readValue(resp.getEntity().getContent(), ch);
-                if (holder.collection != null) {
-                    objects.addAll(holder.collection);
-                }
-            }
-        } while (holder != null && holder.next_href != null);
+            holder = api.getMapper().readValue(resp.getEntity().getContent(), ch);
+            if (holder == null) throw new IOException("invalid data");
 
-        if (holder != null) {
-            holder.collection = objects;
-            return holder;
-        } else {
-            return null;
-        }
+            if (holder.collection != null) {
+                objects.addAll(holder.collection);
+            }
+        } while (holder.next_href != null);
+
+        holder.collection = objects;
+        return holder;
     }
 
     public static <T, C extends CollectionHolder<T>> List<T> fetchAllResources(AndroidCloudAPI api,
@@ -146,11 +139,7 @@ public class CollectionHolder<T> implements Iterable<T> {
                                                 Class<C> ch) throws IOException {
 
         C holder = fetchAllResourcesHolder(api, request, ch);
-        if (holder != null) {
-            return holder.collection;
-        } else {
-            return new ArrayList<T>();
-        }
+        return holder.collection;
     }
 }
 

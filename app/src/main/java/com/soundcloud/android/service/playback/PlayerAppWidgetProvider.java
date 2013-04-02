@@ -10,7 +10,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.soundcloud.android.model.Sound;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.view.play.WidgetPlaybackRemoteViews;
 
 public class PlayerAppWidgetProvider extends AppWidgetProvider {
@@ -76,7 +76,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
                     action.equals(CloudPlaybackService.BUFFERING) ||
                     action.equals(CloudPlaybackService.BUFFERING_COMPLETE) ||
                     action.equals(CloudPlaybackService.PLAYBACK_ERROR) ||
-                    action.equals(Sound.ACTION_TRACK_ASSOCIATION_CHANGED)
+                    action.equals(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED)
                             && intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1) == mCurrentTrackId) {
 
                 performUpdate(context, new int[0], intent);

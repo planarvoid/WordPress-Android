@@ -102,6 +102,11 @@ public class LruCache<K, V> {
         return mLruMap.containsKey(key);
     }
 
+    public void remove(K key) {
+        mLruMap.remove(key);
+        mSoftmap.remove(key);
+    }
+
     public String toString() {
         return "LruCache{lru: " +mLruMap.size() + " soft: "+mSoftmap.size() +
                " lru ratio: " +String.format("%.2f", lruHits / (double) (requests)) +

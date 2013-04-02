@@ -4,6 +4,7 @@ import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.fromString;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -14,6 +15,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -77,19 +79,27 @@ public class ActivitiesTest {
     @Test
     public void testGetUniqueTracks() throws Exception {
         Activities activities = new Activities();
-        expect(activities.getUniqueTracks().size()).toEqual(0);
-        Activity e1 = new TrackActivity() { public Track getTrack() { return new Track() { { id = 1; } }; } };
-        Activity e2 = new TrackActivity() { public Track getTrack() { return new Track() { { id = 1; } }; } };
-        Activity e3 = new TrackActivity() { public Track getTrack() { return new Track() { { id = 3; } }; } };
+        expect(activities.getUniquePlayables().size()).toEqual(0);
+        Activity e1 = new TrackActivity() { public Track getPlayable() { return new Track() { { id = 1; } }; } };
+        Activity e2 = new TrackActivity() { public Track getPlayable() { return new Track() { { id = 1; } }; } };
+        Activity e3 = new TrackActivity() { public Track getPlayable() { return new Track() { { id = 3; } }; } };
         activities = new Activities(e1, e2, e3);
-        expect(activities.getUniqueTracks().size()).toEqual(2);
+        expect(activities.getUniquePlayables().size()).toEqual(2);
+    }
+
+    @Test
+    public void testAllActivityTypesHaveUsers() throws Exception {
+        Activities activities = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_one_of_each_activity.json"), false);
+        for (Activity a : activities){
+            expect(a.getUser()).not.toBeNull();
+        }
     }
 
     @Test
     public void testFromJSON() throws Exception {
         Activities a = getActivities();
         expect(a.size()).toEqual(17);
-        expect(a.getUniqueTracks().size()).toEqual(4);
+        expect(a.getUniquePlayables().size()).toEqual(4);
         expect(a.getUniqueUsers().size()).toEqual(12);
     }
 
@@ -102,7 +112,7 @@ public class ActivitiesTest {
     @Test
     public void testTracks() throws Exception {
         Activities tracks = getActivities().tracks();
-        expect(tracks.size()).toEqual(0);
+        expect(tracks.size()).toEqual(4); // includes the 4 track likes
     }
 
     @Test
@@ -125,9 +135,9 @@ public class ActivitiesTest {
 
     @Test
     public void testGroupedByTrack() throws Exception {
-        Map<Track,Activities> grouped = getActivities().groupedByTrack();
+        Map<Playable,Activities> grouped = getActivities().groupedByPlayable();
         expect(grouped.size()).toEqual(5);
-        for (Map.Entry<Track,Activities> entry : grouped.entrySet()) {
+        for (Map.Entry<Playable,Activities> entry : grouped.entrySet()) {
             expect(entry.getValue().isEmpty()).toEqual(false);
         }
     }
@@ -242,7 +252,7 @@ public class ActivitiesTest {
         cv.put(DBHelper.Users.USERNAME, "Foo Bar");
         expect(resolver.insert(Content.USERS.uri, cv)).not.toBeNull();
 
-        Activities a = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_one_of_each_activity.json"));
+        Activities a = manager.getActivitiesFromJson(ApiSyncServiceTest.class.getResourceAsStream("e1_one_of_each_activity.json"), false);
         expect(a.insert(Content.ME_ACTIVITIES, resolver)).toBe(7);
 
         expect(Content.ME_ALL_ACTIVITIES).toHaveCount(7);
@@ -257,10 +267,9 @@ public class ActivitiesTest {
         expect(trackActivity.getType()).toEqual(Activity.Type.TRACK);
         expect(trackActivity.getUser().id).toEqual(1948213l);
         expect(trackActivity.getUser().username).toEqual("Playback Media");
-        expect(trackActivity.getTrack().id).toEqual(61145768l);
-        expect(trackActivity.getTrack().title).toEqual("Total Waxer");
-        expect(trackActivity.getTrack().genre).toEqual("Podcast");
-        expect(trackActivity.getTrack().waveform_url).toEqual("https://w1.sndcdn.com/DsoyShDam62m_m.png");
+        expect(trackActivity.getPlayable().id).toEqual(61145768l);
+        expect(trackActivity.getPlayable().title).toEqual("Total Waxer");
+        expect(trackActivity.getPlayable().genre).toEqual("Podcast");
         expect(trackActivity.sharing_note.text).toEqual("this is a sharing note");
         expect(trackActivity.sharing_note.getDateString()).toEqual("2012/09/25 19:09:40 +0000");
 
@@ -271,10 +280,9 @@ public class ActivitiesTest {
         expect(trackSharingActivity.getType()).toEqual(Activity.Type.TRACK_SHARING);
         expect(trackSharingActivity.getUser().id).toEqual(5833426l);
         expect(trackSharingActivity.getUser().username).toEqual("Stop Out Records");
-        expect(trackSharingActivity.getTrack().id).toEqual(61132541l);
-        expect(trackSharingActivity.getTrack().title).toEqual("Wendyhouse - Hold Me Down (Feat. FRANKi)");
-        expect(trackSharingActivity.getTrack().original_format).toEqual("mp3");
-        expect(trackSharingActivity.getTrack().artwork_url).toEqual("https://i1.sndcdn.com/artworks-000030981203-eerjjh-large.jpg?04ad178");
+        expect(trackSharingActivity.getPlayable().id).toEqual(61132541l);
+        expect(trackSharingActivity.getPlayable().title).toEqual("Wendyhouse - Hold Me Down (Feat. FRANKi)");
+        expect(trackSharingActivity.getPlayable().artwork_url).toEqual("https://i1.sndcdn.com/artworks-000030981203-eerjjh-large.jpg?04ad178");
         expect(trackSharingActivity.sharing_note.text).toEqual("this is a sharing note");
 
         AffiliationActivity affiliationActivity = (AffiliationActivity) activities.get(2);
@@ -284,7 +292,6 @@ public class ActivitiesTest {
         expect(affiliationActivity.getType()).toEqual(Activity.Type.AFFILIATION);
         expect(affiliationActivity.getUser().id).toEqual(2746040l);
         expect(affiliationActivity.getUser().username).toEqual("Vicious Lobo");
-        expect(affiliationActivity.getUser().country).toEqual("United States");
 
         TrackLikeActivity trackLikeActivity = (TrackLikeActivity) activities.get(3);
         expect(trackLikeActivity.getDateString()).toEqual("2012/07/10 17:34:07 +0000");
@@ -293,12 +300,12 @@ public class ActivitiesTest {
         expect(trackLikeActivity.getType()).toEqual(Activity.Type.TRACK_LIKE);
         expect(trackLikeActivity.getUser().permalink).toEqual("designatedave");
         expect(trackLikeActivity.getUser().username).toEqual("D∃SIGNATED∀VΞ");
-        expect(trackLikeActivity.getTrack().tag_list).toEqual("foursquare:venue=4d8990f6eb6d60fc6c8818ca geo:lat=52.50126117 geo:lon=13.34753747 soundcloud:source=android-record");
-        expect(trackLikeActivity.getTrack().label_name).toBeNull();
-        expect(trackLikeActivity.getTrack().license).toEqual("all-rights-reserved");
-        expect(trackLikeActivity.getTrack().permalink).toEqual("android-to-the-big-screen");
-        expect(trackLikeActivity.getTrack().getUser().id).toEqual(5687414l);
-        expect(trackLikeActivity.getTrack().getUser().permalink).toEqual("soundcloud-android");
+        expect(trackLikeActivity.getPlayable().tag_list).toEqual("foursquare:venue=4d8990f6eb6d60fc6c8818ca geo:lat=52.50126117 geo:lon=13.34753747 soundcloud:source=android-record");
+        expect(trackLikeActivity.getPlayable().label_name).toBeNull();
+        expect(trackLikeActivity.getPlayable().license).toEqual("all-rights-reserved");
+        expect(trackLikeActivity.getPlayable().permalink).toEqual("android-to-the-big-screen");
+        expect(trackLikeActivity.getPlayable().getUser().id).toEqual(5687414l);
+        expect(trackLikeActivity.getPlayable().getUser().permalink).toEqual("soundcloud-android");
 
         CommentActivity commentActivity = (CommentActivity) activities.get(4);
         expect(commentActivity.getDateString()).toEqual("2012/07/04 11:34:41 +0000");
@@ -314,7 +321,6 @@ public class ActivitiesTest {
     }
 
     @Test
-
     public void shouldRemoveTrackActivitiesOnTrackRemove() throws Exception {
 
         ContentValues cv = new ContentValues();
@@ -344,7 +350,7 @@ public class ActivitiesTest {
                 ApiSyncServiceTest.class.getResourceAsStream("e1_one_of_each_activity.json"));
 
         Set<String> urls = a.artworkUrls();
-        expect(urls.size()).toEqual(4);
+        expect(urls.size()).toEqual(6);
         expect(urls).toContain(
             "https://i1.sndcdn.com/artworks-000031001595-r74u1y-large.jpg?04ad178",
             "https://i1.sndcdn.com/artworks-000019924877-kskpwr-large.jpg?04ad178",
@@ -414,20 +420,8 @@ public class ActivitiesTest {
 
         last = Activities.getLastActivity(Content.ME_SOUND_STREAM, resolver);
         expect(last).not.toBeNull();
-        expect(last.uuid).toEqual("b035de80-6dc9-11e1-84dc-e1bbf59e9e64");
+        expect(last.uuid).toEqual("75e9d700-0819-11e2-81bb-70dbfa89bdb9");
         expect(first.created_at.after(last.created_at)).toBeTrue();
-    }
-
-    @Test
-    public void shouldGetFirstNonPlaylistActivity() throws Exception {
-        Activities one_of_each = manager.getActivitiesFromJson(
-                getClass().getResourceAsStream("e1_stream_playlist_repost_first.json"));
-
-        expect(one_of_each.insert(Content.ME_SOUND_STREAM, resolver)).toBe(2);
-        Activity first = Activities.getFirstActivity(Content.ME_SOUND_STREAM, resolver);
-        expect(first).not.toBeNull();
-        expect(first.uuid).toEqual("734ad180-cab5-11e1-9570-52fa262dac01");
-        expect(first instanceof TrackLikeActivity).toBeTrue();
     }
 
     private Activity makeActivity(Track t){

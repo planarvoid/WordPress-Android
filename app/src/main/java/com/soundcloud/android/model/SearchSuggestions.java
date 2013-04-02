@@ -9,10 +9,14 @@ import android.app.SearchManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  Suggestions from the /search/suggest endpoint.
@@ -62,13 +66,15 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         fromLocalCursor(cursor);
     }
 
-    public void putRemoteIds(List<Long> missingTracks, List<Long> missingUsers) {
+    public void putRemoteIds(List<Long> missingTracks, List<Long> missingUsers, List<Long> missingPlaylists) {
         for (Query q : this) {
             if (!q.isLocal()) {
-                if (q.isUser()) {
+                if (Query.KIND_USER.equals(q.kind)) {
                     missingUsers.add(q.id);
-                } else {
+                } else if (Query.KIND_TRACK.equals(q.kind)) {
                     missingTracks.add(q.id);
+                } else if (Query.KIND_PLAYLIST.equals(q.kind)) {
+                    missingPlaylists.add(q.id);
                 }
             }
         }
@@ -77,16 +83,37 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
     public Cursor asCursor() {
         final MatrixCursor cursor = new MatrixCursor(SuggestionsAdapter.COLUMN_NAMES);
         for (SearchSuggestions.Query q : this) {
+            if (!Query.SUPPORTED_KINDS.contains(q.kind)) continue;
+
             cursor.addRow(new Object[] {
                     -1,                // suggestion id
                     q.id,              // id
                     q.query,           // SUGGEST_COLUMN_TEXT_1
                     q.getIntentData(), // SUGGEST_COLUMN_INTENT_DATA
                     q.getIconUri(),    //
-                    q.isLocal() ? 1 : 0
+                    q.isLocal() ? 1 : 0,
+                    buildHighlightData(q)
             });
         }
         return cursor;
+    }
+
+    //FIXME: this is a wild hack, but we need to pipe the highlight data through the cursor somehow.
+    //I don't think SuggestionsAdapter has to be a CursorAdapter to begin with, but should operate directly
+    //on SearchSuggestions
+    private String buildHighlightData(Query q) {
+        if (q.highlights == null || q.highlights.isEmpty()) {
+            return null;
+        }
+
+        StringBuilder highlightData = new StringBuilder();
+        Iterator<Map<String, Integer>> iterator = q.highlights.iterator();
+        while (iterator.hasNext()) {
+            Map<String, Integer> highlight = iterator.next();
+            highlightData.append(highlight.get("pre") + "," + highlight.get("post"));
+            if (iterator.hasNext()) highlightData.append(";");
+        }
+        return highlightData.toString();
     }
 
     public void add(Query q) {
@@ -134,32 +161,48 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
             q.query = query;
             q.iconUri = iconUrl;
             q.intentData = intentData;
-            switch (Content.match(Uri.parse(intentData))) {
-                case TRACK: case TRACKS: q.kind = "track"; break;
-                case USER:  case USERS:  q.kind = "user"; break;
-            }
+            q.kind = Query.kindFromContentUri(Uri.parse(intentData));
             suggestions.add(q);
         }
     }
 
     public static class Query {
+
+        public static final String KIND_USER = "user";
+        public static final String KIND_TRACK = "track";
+        public static final String KIND_PLAYLIST = "playlist"; //TODO: check if it will be called that way
+        public static final Set<String> SUPPORTED_KINDS = new HashSet<String>();
+
+        static {
+            SUPPORTED_KINDS.add(KIND_USER);
+            SUPPORTED_KINDS.add(KIND_TRACK);
+            //TODO: SUPPORTED_KINDS.add(KIND_PLAYLIST);
+        }
+
         // Search suggest API fields
         public String query;
         public String kind;
         public long   id;
         public long   score;
+        public List<Map<String, Integer>> highlights;
 
         // internal fields
         private String iconUri;
         private String intentData;
 
+        public static String kindFromContentUri(Uri uri) {
+            switch (Content.match(uri)) {
+                case TRACK: case TRACKS: return KIND_TRACK;
+                case USER:  case USERS: return KIND_USER;
+                case PLAYLIST: case PLAYLISTS: return KIND_PLAYLIST;
+                default:
+                    throw new IllegalStateException("Unsupported content URI: " + uri);
+            }
+        }
+
         public String getIconUri() {
             if (iconUri != null) return iconUri;
             return getClientUri().imageUri().toString();
-        }
-
-        public boolean isUser(){
-            return "user".equals(kind);
         }
 
         public String getIntentData() {
@@ -168,7 +211,7 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         }
 
         public ClientUri getClientUri() {
-            return new ClientUri("soundcloud:" + ("user".equals(kind) ? "users" : "tracks") + ":" + id);
+            return new ClientUri("soundcloud:" + kind + "s:" + id);
         }
 
         @Override

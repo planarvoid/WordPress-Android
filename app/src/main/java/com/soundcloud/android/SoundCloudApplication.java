@@ -3,6 +3,7 @@ package com.soundcloud.android;
 import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
+import android.app.ActivityManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
@@ -64,7 +65,7 @@ import java.io.IOException;
 import java.net.URI;
 
 @ReportsCrashes(
-        formUri = "https://bugsense.appspot.com/api/acra?api_key=231805c4",
+        formUri = "https://bugsense.appspot.com/api/acra?api_key=3e22e330",
         formKey= "",
         checkReportVersion = true,
         checkReportSender = true)
@@ -92,6 +93,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         DEV_MODE = isDevMode();
         BETA_MODE = isBetaMode();
+
+        if (DEV_MODE && !ActivityManager.isUserAMonkey()) {
+            setupStrictMode();
+        }
 
         if (DALVIK && !EMULATOR) {
             ACRA.init(this); // don't use ACRA when running unit tests / emulator
@@ -130,16 +135,29 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 }
             });
 
-            C2DMReceiver.register(this, getLoggedInUser());
+            try {
+                C2DMReceiver.register(this, getLoggedInUser());
+            } catch (Exception e){
+                SoundCloudApplication.handleSilentException("Could not register c2dm ",e);
+            }
+
+            // sync current sets
+            AndroidUtils.doOnce(this, "request.sets.sync", new Runnable() {
+                @Override
+                public void run() {
+                    requestSetsSync();
+                }
+            });
+
             ContentStats.init(this);
         }
-//        setupStrictMode();
+
         FacebookSSO.extendAccessTokenIfNeeded(this);
     }
 
     public synchronized User getLoggedInUser() {
         if (mLoggedInUser == null) {
-            final long id = getCurrentUserId();
+            final long id = getAccountDataLong(User.DataKeys.USER_ID);
             if (id != -1) {
                 mLoggedInUser = MODEL_MANAGER.getUser(id);
             }
@@ -240,10 +258,20 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
             startService(intent);
 
+            requestSetsSync();
+
             return true;
         } else {
             return false;
         }
+    }
+
+    private void requestSetsSync(){
+        Intent intent = new Intent(this, ApiSyncService.class)
+                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                .setData(Content.ME_PLAYLISTS.uri);
+
+        startService(intent);
     }
 
     /**
@@ -298,7 +326,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     private long getCurrentUserId()  {
-        return getAccountDataLong(User.DataKeys.USER_ID);
+        return mLoggedInUser == null ? getAccountDataLong(User.DataKeys.USER_ID) : mLoggedInUser.id;
     }
 
     public static long getUserId() {
@@ -522,7 +550,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
            Log.w(TAG, "silentException: "+msg, e);
            ACRA.getErrorReporter().putCustomData("message", msg);
         }
-        return ACRA.getErrorReporter().handleSilentException(e);
+        return ACRA.getErrorReporter().handleSilentException(new SilentException(e));
     }
 
     public static SoundCloudApplication fromContext(@NotNull Context c){
@@ -548,17 +576,28 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     private static void setupStrictMode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                    .detectDiskReads()
-                    .detectDiskWrites()
-                    .detectNetwork()
+                    //.detectDiskReads()
+                    //.detectDiskWrites()
+                    //.detectNetwork()
+                    //.penaltyLog()
+                    .detectAll()
                     .penaltyLog()
                     .build());
 
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                    .detectLeakedSqlLiteObjects()
+                    //.detectLeakedSqlLiteObjects()
+                    //.penaltyLog()
+                    //.penaltyDeath()
+                    .detectAll()
                     .penaltyLog()
-                    .penaltyDeath()
                     .build());
         }
     }
+
+    private static class SilentException extends Exception {
+        private SilentException(Throwable throwable) {
+            super(throwable);
+        }
+    }
+
 }

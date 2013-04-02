@@ -4,11 +4,7 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +12,7 @@ import java.util.List;
 enum SyncCleanups {
     SoundStreamCleanup    (Content.SOUND_STREAM_CLEANUP,     SyncConfig.DEFAULT_STREAM_ITEMS_TO_KEEP),
     ActivitiesCleanup (Content.ACTIVITIES_CLEANUP,  SyncConfig.DEFAULT_ACTIVITY_ITEMS_TO_KEEP),
-    TracksCleanup (Content.TRACK_CLEANUP,  -1),
+    TracksCleanup (Content.PLAYABLE_CLEANUP,  -1),
     UsersCleanup (Content.USERS_CLEANUP,  -1);
 
     SyncCleanups(Content content, int toKeep) {

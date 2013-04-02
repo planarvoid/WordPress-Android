@@ -6,12 +6,12 @@ import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Friend;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Shortcut;
-import com.soundcloud.android.model.Sound;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -29,7 +29,6 @@ import android.util.SparseArray;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public enum Content  {
     ME("me", Endpoints.MY_DETAILS, 100, User.class, -1, Table.USERS),
@@ -39,20 +38,27 @@ public enum Content  {
     ME_FOLLOWING("me/followings/#", null, 104, User.class, -1, null),
     ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, User.class, FOLLOWER, Table.COLLECTION_ITEMS),
     ME_FOLLOWER("me/followers/#", null, 106, User.class, -1, null),
-    ME_LIKES("me/likes", TempEndpoints.e1.MY_LIKES, 107, SoundAssociation.class, LIKE, Table.COLLECTION_ITEMS),
+    ME_LIKES("me/likes", TempEndpoints.e1.USER_LIKES, 107, SoundAssociation.class, LIKE, Table.COLLECTION_ITEMS),
     ME_LIKE("me/likes/#", null, 108, Track.class, LIKE, null),
-    ME_PLAYLISTS("me/playlists", null, 110, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
+    ME_REPOSTS("me/reposts", null, 109, null, REPOST, Table.COLLECTION_ITEMS),
+    ME_PLAYLISTS("me/playlists", TempEndpoints.MY_PLAYLISTS, 110, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
     ME_USERID("me/userid", null, 111, null, -1, null),
-    ME_REPOSTS("me/reposts", TempEndpoints.e1.MY_REPOSTS, 112, SoundAssociation.class, REPOST, Table.COLLECTION_ITEMS),
-    ME_REPOST("me/reposts/#",null, 113, Track.class, -1, null),
 
-    ME_SHORTCUT("me/shortcuts/#", TempEndpoints.i1.MY_SHORTCUTS, 114, Shortcut.class, -1, Table.SUGGESTIONS),
-    ME_SHORTCUTS("me/shortcuts", TempEndpoints.i1.MY_SHORTCUTS, 115, Shortcut.class, -1, Table.SUGGESTIONS),
-    ME_SHORTCUTS_ICON("me/shortcut_icon/#", null, 116, null, -1, Table.SUGGESTIONS),
+    ME_PLAYLIST("me/playlists/*", null, 112, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
+
+    ME_SHORTCUT("me/shortcuts/#", TempEndpoints.i1.MY_SHORTCUTS, 115, Shortcut.class, -1, Table.SUGGESTIONS),
+    ME_SHORTCUTS("me/shortcuts", TempEndpoints.i1.MY_SHORTCUTS, 116, Shortcut.class, -1, Table.SUGGESTIONS),
+    ME_SHORTCUTS_ICON("me/shortcut_icon/#", null, 117, null, -1, Table.SUGGESTIONS),
+
+    /* For pushing to the api*/
+    ME_TRACK_REPOST("me/reposts/tracks/#", TempEndpoints.e1.MY_TRACK_REPOST, 120, Track.class, -1, null),
+    ME_TRACK_LIKE("me/likes/tracks/#", TempEndpoints.e1.MY_TRACK_LIKE, 121, Track.class, -1, null),
+    ME_PLAYLIST_REPOST("me/reposts/playlists/#", TempEndpoints.e1.MY_PLAYLIST_REPOST, 122, Playlist.class, -1, null),
+    ME_PLAYLIST_LIKE("me/likes/playlists/#", TempEndpoints.e1.MY_PLAYLIST_LIKE, 123, Playlist.class, -1, null),
 
     ME_CONNECTION("me/connections/#",Endpoints.MY_CONNECTIONS, 130, Connection.class, -1, Table.CONNECTIONS),
     ME_CONNECTIONS("me/connections",Endpoints.MY_CONNECTIONS, 131, Connection.class, -1, Table.CONNECTIONS),
-    ME_SOUNDS("me/sounds", TempEndpoints.e1.MY_SOUNDS_MINI, 120, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
+    ME_SOUNDS("me/sounds", TempEndpoints.e1.MY_SOUNDS_MINI, 132, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
 
     // the ids of the following entries should not be changed, they are referenced in th db
     ME_SOUND_STREAM("me/stream", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),
@@ -64,7 +70,7 @@ public enum Content  {
     SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 190, User.class, SUGGESTED_USER, null),
 
 
-    SOUNDS("sounds", null, 200, Sound.class, -1, Table.SOUNDS),
+    SOUNDS("sounds", null, 200, Playable.class, -1, Table.SOUNDS),
 
     TRACKS("tracks", Endpoints.TRACKS, 201, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.SOUNDS),
     TRACK("tracks/#", Endpoints.TRACK_DETAILS, 202, Track.class, -1, Table.SOUNDS),
@@ -74,10 +80,10 @@ public enum Content  {
     TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 206, null, -1, null),
     TRACK_LIKERS("tracks/#/favoriters", Endpoints.TRACK_FAVORITERS, 207, User.class, -1, Table.USERS),
     TRACK_REPOSTERS("tracks/#/reposters", TempEndpoints.e1.TRACK_REPOSTERS, 208, User.class, -1, Table.USERS),
-    TRACK_LOOKUP("tracks/*", Endpoints.TRACKS, 2250, Track.class, -1, Table.SOUNDS),
+    TRACK_LOOKUP("tracks/q/*", Endpoints.TRACKS, 2250, Track.class, -1, Table.SOUNDS),
 
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
-    USER("users/#", null, 302, User.class, -1, Table.USERS),
+    USER("users/#", Endpoints.USER_DETAILS, 302, User.class, -1, Table.USERS),
     @Deprecated USER_TRACKS("users/#/tracks", Endpoints.USER_TRACKS, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.SOUNDS),
     USER_SOUNDS("users/#/sounds", TempEndpoints.e1.USER_SOUNDS, 311, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
     USER_LIKES("users/#/likes", TempEndpoints.e1.USER_LIKES, 304, Track.class, LIKE, null),
@@ -85,15 +91,21 @@ public enum Content  {
     USER_FOLLOWINGS("users/#/followings", Endpoints.USER_FOLLOWINGS, 306, User.class, FOLLOWING, null),
     USER_COMMENTS("users/#/comments", null, 307, Comment.class, -1, null),
     USER_GROUPS("users/#/groups", null, 308, null, -1, null),
-    USER_PLAYLISTS("users/#/playlists", null, 309, null, -1, null),
-    USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Sound.class, REPOST, null),
-    USER_LOOKUP("users/*", Endpoints.USERS, 350, User.class, -1, Table.USERS),
+    USER_PLAYLISTS("users/#/playlists", TempEndpoints.USER_PLAYLISTS, 309, null, -1, null),
+    USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Playable.class, REPOST, null),
+    USER_LOOKUP("users/q/*", Endpoints.USERS, 350, User.class, -1, Table.USERS),
 
     COMMENTS("comments", null, 400, Comment.class, -1, Table.COMMENTS),
     COMMENT("comments/#", null, 401, Comment.class, -1, Table.COMMENTS),
 
-    PLAYLISTS("playlists", null, 501, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
-    PLAYLIST("playlists/#", null, 502, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
+    /* Use string wildcards here since we use negative numbers for local playlists, which breaks with number wildcards */
+    PLAYLISTS("playlists", TempEndpoints.PLAYLISTS, 501, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
+    PLAYLIST_ALL_TRACKS("playlists/tracks", null, 502, Track.class, -1, Table.PLAYLIST_TRACKS), // used for sync service
+    PLAYLIST("playlists/*", TempEndpoints.PLAYLIST_DETAILS, 503, Playlist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
+    PLAYLIST_TRACKS("playlists/*/tracks", TempEndpoints.PLAYLIST_TRACKS, 532, Track.class, -1, Table.PLAYLIST_TRACKS),
+    PLAYLIST_LIKERS("playlists/*/likers", TempEndpoints.e1.PLAYLIST_LIKERS, 533, User.class, -1, Table.USERS),
+    PLAYLIST_REPOSTERS("playlists/*/reposters", TempEndpoints.e1.PLAYLIST_REPOSTERS, 534, User.class, -1, Table.USERS),
+    PLAYLIST_LOOKUP("playlists/q/*", Endpoints.PLAYLISTS, 535, Playlist.class, -1, Table.SOUNDS),
 
     // LOCAL URIS
     COLLECTIONS("collections", null, 1000, null, -1, Table.COLLECTIONS),
@@ -126,7 +138,7 @@ public enum Content  {
 
     SOUND_STREAM_CLEANUP("cleanup/soundstream", null, 9996, null, -1, null),
     ACTIVITIES_CLEANUP("cleanup/activities", null, 9997, null, -1, null),
-    TRACK_CLEANUP("cleanup/tracks", null, 9998, null, -1, null),
+    PLAYABLE_CLEANUP("cleanup/tracks", null, 9998, null, -1, null),
     USERS_CLEANUP("cleanup/users", null, 9999, null, -1, null),
 
     //Android global search
@@ -190,6 +202,10 @@ public enum Content  {
         return table == Table.COLLECTION_ITEMS;
     }
 
+    public boolean isActivitiesItem() {
+        return table == Table.ACTIVITIES || table == Table.ACTIVITY_VIEW;
+    }
+
     public boolean isMine() {
         return id < MINE_CEILING;
     }
@@ -209,8 +225,11 @@ public enum Content  {
     }
 
     public Uri forId(long id) {
-        if (uri.toString().contains("#")) {
-            return Uri.parse(uri.toString().replace("#", String.valueOf(id)));
+        final String uriString = uri.toString();
+        if (uriString.contains("#")) {
+            return Uri.parse(uriString.replace("#", String.valueOf(id)));
+        } else if (uriString.contains("*")) {
+            return Uri.parse(uriString.replace("*", String.valueOf(id)));
         } else {
             return buildUpon().appendEncodedPath(String.valueOf(id)).build();
         }
@@ -273,6 +292,10 @@ public enum Content  {
         return match != -1 ? sMap.get(match) : UNKNOWN;
     }
 
+    public static Content match(String path) {
+        return match(Uri.parse("content://" + ScContentProvider.AUTHORITY + "/" + path));
+    }
+
     public static Content get(String s) {
         try {
             return Content.valueOf(s);
@@ -281,7 +304,7 @@ public enum Content  {
         }
     }
 
-    public static Content byUri(Uri uri) {
+    public static @Nullable Content byUri(Uri uri) {
         return sUris.get(uri);
     }
 

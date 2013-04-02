@@ -81,7 +81,7 @@
                 android:layout_weight="1"
                 android:layout_gravity="center_vertical"
                 android:orientation="horizontal"
-                android:background="@color/transparent">
+                android:background="@android:color/transparent">
 
             <view class="com.actionbarsherlock.widget.SearchView$SearchAutoComplete"
                   android:id="@+id/abs__search_src_text"

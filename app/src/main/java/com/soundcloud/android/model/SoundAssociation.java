@@ -2,29 +2,31 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
+import android.util.Log;
 
 import java.util.Date;
 
 /**
  * Maps to stream item on backend
  */
-public class SoundAssociation extends ScResource implements Playable, Refreshable {
+public class SoundAssociation extends ScResource implements PlayableHolder, Refreshable {
 
     private CharSequence _elapsedTime;
-
-
-    enum Type {
+    public enum Type {
         TRACK("track", ScContentProvider.CollectionItemTypes.TRACK),
         TRACK_REPOST("track_repost", ScContentProvider.CollectionItemTypes.REPOST),
         TRACK_LIKE("track_like", ScContentProvider.CollectionItemTypes.LIKE),
@@ -45,54 +47,63 @@ public class SoundAssociation extends ScResource implements Playable, Refreshabl
     public String type;
     public Date created_at;
 
-    public @Nullable Track track;
-    public @Nullable Playlist playlist;
+    public @NotNull Playable playable;
     public @Nullable User user;
 
     @SuppressWarnings("UnusedDeclaration") //for deserialization
-    public SoundAssociation() {
-    }
+    public SoundAssociation() { }
 
     public SoundAssociation(Cursor cursor) {
         associationType = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE));
         created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP)));
+        user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID);
 
-        switch (associationType) {
-            case ScContentProvider.CollectionItemTypes.REPOST:
-            case ScContentProvider.CollectionItemTypes.TRACK:
-            case ScContentProvider.CollectionItemTypes.LIKE:
-                track = new Track(cursor);
+        if (Playable.isTrackCursor(cursor)){
+            playable = SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor, DBHelper.SoundAssociationView._ID);
+        } else {
+            playable = SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(cursor, DBHelper.SoundAssociationView._ID);
         }
+
+    }
+
+    public SoundAssociation(Playable playable, Date created_at, Type typeEnum) {
+        this.playable = playable;
+        this.created_at = created_at;
+        this.associationType = typeEnum.collectionType;
     }
 
     @Override
     public long getListItemId() {
-        return getSound().id << 32 + associationType;
+        return getPlayable().id << 32 + associationType;
     }
 
     @Override
     public ScResource getRefreshableResource() {
-        return track; // TODO, playlist
+        return playable;
     }
+
 
     @Override
     public boolean isStale() {
-        return track != null && track.isStale(); // TODO, playlist
+        return playable.isStale();
     }
 
+    @Override
+    public boolean isIncomplete() {
+        return playable != null && playable.isIncomplete();
+    }
 
     public SoundAssociation(Parcel in) {
         associationType = in.readInt();
         created_at = new Date(in.readLong());
-        track = in.readParcelable(ClassLoader.getSystemClassLoader());
-        playlist = in.readParcelable(ClassLoader.getSystemClassLoader());
+        playable = in.readParcelable(ClassLoader.getSystemClassLoader());
         user = in.readParcelable(ClassLoader.getSystemClassLoader());
     }
 
     @Override
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.CollectionItems.ITEM_ID, getSound().id);
+        cv.put(DBHelper.CollectionItems.ITEM_ID, getPlayable().id);
         cv.put(DBHelper.CollectionItems.USER_ID, SoundCloudApplication.getUserId());
         cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, associationType);
         cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, getResourceType());
@@ -100,12 +111,23 @@ public class SoundAssociation extends ScResource implements Playable, Refreshabl
         return cv;
     }
 
+    @JsonProperty("playlist")
+    public void setPlaylist(Playlist playlist) {
+        // check for null as it will try to set a null value on deserialization
+        if (playlist != null) playable = playlist;
+    }
+
+    @JsonProperty("track")
+    public void setTrack(Track track) {
+        // check for null as it will try to set a null value on deserialization
+        if (track != null) playable = track;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(associationType);
         dest.writeLong(created_at.getTime());
-        dest.writeParcelable(track, 0);
-        dest.writeParcelable(playlist, 0);
+        dest.writeParcelable(playable, 0);
         dest.writeParcelable(user, 0);
     }
 
@@ -116,16 +138,33 @@ public class SoundAssociation extends ScResource implements Playable, Refreshabl
 
     @Override
     public User getUser() {
-        return track != null ? track.user : (playlist != null ? playlist.user : null);
+        return playable.user;
     }
 
     @Override
-    public Sound getSound() {
-        return track != null ? track : playlist;
+    public Playable getPlayable() {
+        return playable;
     }
 
     public int getResourceType() {
-        return playlist != null ? playlist.getTypeId() : track.getTypeId();
+        return playable.getTypeId();
+    }
+
+    @Override
+    public void putDependencyValues(BulkInsertMap destination) {
+        playable.putFullContentValues(destination);
+        if (user != null)       user.putFullContentValues(destination);
+    }
+
+    /**
+     * SoundAssociations do not have ids and can not be inserted outside of
+     * {@link com.soundcloud.android.model.SoundAssociationHolder#insert}
+     * @return null
+     */
+    @Override
+    public Uri toUri() {
+        Log.e(SoundCloudApplication.TAG,"Unexpected call to toUri on a SoundAssociation");
+        return null;
     }
 
     @JsonProperty("type")
@@ -136,16 +175,6 @@ public class SoundAssociation extends ScResource implements Playable, Refreshabl
             }
         }
         this.type = type;
-    }
-
-    @Override @Nullable
-    public Track getTrack() {
-        return track;
-    }
-
-    @Nullable
-    public Playlist getPlaylist() {
-        return playlist;
     }
 
     @Override
@@ -161,14 +190,18 @@ public class SoundAssociation extends ScResource implements Playable, Refreshabl
         _elapsedTime = null;
     }
 
+    public Uri insert(ContentResolver contentResolver, Uri destination){
+        insertDependencies(contentResolver);
+        return contentResolver.insert(destination, buildContentValues());
+    }
+
     @Override
     public String toString() {
         return "SoundAssociation{" +
                 "associationType=" + associationType +
                 ", type='" + type + '\'' +
                 ", created_at=" + created_at +
-                ", track=" + track +
-                ", playlist=" + playlist +
+                ", playable=" + playable +
                 ", user=" + user +
                 '}';
     }

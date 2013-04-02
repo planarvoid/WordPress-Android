@@ -33,6 +33,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.EnumSet;
+import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -77,7 +78,7 @@ public class User extends ScResource implements Refreshable {
     }
 
     public User(long id) {
-        this.id = id;
+        super(id);
     }
 
     public static User fromUri(Uri uri, ContentResolver resolver, boolean createDummy) {
@@ -187,10 +188,6 @@ public class User extends ScResource implements Refreshable {
     };
 
     public ContentValues buildContentValues(){
-        return buildContentValues(false);
-    }
-
-    public ContentValues buildContentValues(boolean isCurrentUser){
         ContentValues cv = super.buildContentValues();
         // account for partial objects, don't overwrite local full objects
         if (username != null) cv.put(Users.USERNAME, username);
@@ -213,7 +210,7 @@ public class User extends ScResource implements Refreshable {
         if (private_tracks_count != NOT_SET) cv.put(Users.PRIVATE_TRACKS_COUNT, private_tracks_count);
         if (primary_email_confirmed != null) cv.put(Users.PRIMARY_EMAIL_CONFIRMED, primary_email_confirmed  ? 1 : 0);
 
-        if (isCurrentUser) {
+        if (id != -1 && id == SoundCloudApplication.getUserId()) {
             if (description != null) cv.put(Users.DESCRIPTION, description);
         }
         cv.put(Users.LAST_UPDATED, System.currentTimeMillis());
@@ -247,8 +244,9 @@ public class User extends ScResource implements Refreshable {
                 ']';
     }
 
+    @Override
     public Uri toUri() {
-        return Content.USERS.buildUpon().appendPath(String.valueOf(id)).build();
+        return Content.USERS.forId(id);
     }
 
 
@@ -326,6 +324,11 @@ public class User extends ScResource implements Refreshable {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.user;
     }
 
+    @Override
+    public boolean isIncomplete() {
+        return id <= 0;
+    }
+
     public User updateFrom(User user, CacheUpdateMode cacheUpdateMode) {
         this.id = user.id;
         this.username = user.username;
@@ -344,6 +347,10 @@ public class User extends ScResource implements Refreshable {
         if (user.myspace_name != null) this.myspace_name = user.myspace_name;
         if (user.description != null) this.description = user.description;
         if (user.primary_email_confirmed != null) this.primary_email_confirmed = user.primary_email_confirmed;
+
+        if (cacheUpdateMode == CacheUpdateMode.FULL){
+            last_updated = user.last_updated;
+        }
         return this;
     }
 
@@ -392,7 +399,7 @@ public class User extends ScResource implements Refreshable {
     }
 
     @Override @JsonIgnore
-    public Track getSound() {
+    public Track getPlayable() {
         return null;
     }
 

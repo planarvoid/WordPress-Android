@@ -127,8 +127,7 @@ public class LocalCollectionTest {
         LocalCollection lc = new LocalCollection(1,
                 Content.ME_LIKES.uri,
                 System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY,
-                0,
-                100, 0, null);
+                0, 0, 100, null);
         expect(lc.shouldAutoRefresh()).toBeTrue();
     }
 
@@ -137,8 +136,7 @@ public class LocalCollectionTest {
         LocalCollection lc = new LocalCollection(1,
                 Content.ME_LIKES.uri,
                 System.currentTimeMillis(),
-                0,
-                100, 0, null);
+                0, 0, 100, null);
         expect(lc.shouldAutoRefresh()).toBeFalse();
     }
 
@@ -148,30 +146,29 @@ public class LocalCollectionTest {
                 Content.ME_LIKES.uri,
                 System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY,
                 System.currentTimeMillis() - SyncConfig.TRACK_STALE_TIME + 10000,
-                100, 0, null);
+                0, 100, null);
         expect(lc.shouldAutoRefresh()).toBeFalse();
     }
 
 
     @Test
     public void shouldAutoRefreshFollowings() throws Exception {
-        LocalCollection lc = new LocalCollection(1, Content.ME_FOLLOWINGS.uri, 1, 0, 100, 0, null);
+        LocalCollection lc = new LocalCollection(1, Content.ME_FOLLOWINGS.uri, 1, 0, 0, 100, null);
         expect(lc.shouldAutoRefresh()).toBeTrue();
     }
 
     @Test
     public void shouldNotAutoRefreshFollowings() throws Exception {
-        LocalCollection lc = new LocalCollection(1, Content.ME_FOLLOWINGS.uri, 0, 1, 100, 0, null);
+        LocalCollection lc = new LocalCollection(1, Content.ME_FOLLOWINGS.uri, 0, 1, 0, 100, null);
         expect(lc.shouldAutoRefresh()).toBeFalse();
     }
 
     @Test
     public void shouldChangeAutoRefresh() throws Exception {
         Uri uri = Content.ME_LIKES.uri;
-        LocalCollection lc = LocalCollection.insertLocalCollection(uri, 1, 1, 100, 0, null, resolver);
+        LocalCollection lc = LocalCollection.insertLocalCollection(uri, 0, 1, 0, 100, null, resolver);
         expect(lc.shouldAutoRefresh()).toBeTrue();
         lc.updateSyncState(LocalCollection.SyncState.SYNCING,resolver);
-        lc.updateSyncState(LocalCollection.SyncState.IDLE,resolver);
         expect(LocalCollection.fromContentUri(uri,resolver,false).shouldAutoRefresh()).toBeFalse();
     }
 

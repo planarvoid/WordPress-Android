@@ -1,17 +1,16 @@
 package com.soundcloud.android.model.act;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.PlayableHolder;
+import com.soundcloud.android.model.RepostActivity;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import org.jetbrains.annotations.NotNull;
 
 import android.database.Cursor;
 
-public class TrackRepostActivity extends Activity implements Playable {
-    @JsonProperty public Track track;
+public class TrackRepostActivity extends TrackActivity implements PlayableHolder, RepostActivity {
     @JsonProperty public User user;
 
     // for deserialization
@@ -21,6 +20,7 @@ public class TrackRepostActivity extends Activity implements Playable {
 
     public TrackRepostActivity(Cursor cursor) {
         super(cursor);
+        user = SoundCloudApplication.MODEL_MANAGER.getUserFromActivityCursor(cursor);
     }
 
     @Override
@@ -29,32 +29,19 @@ public class TrackRepostActivity extends Activity implements Playable {
     }
 
     @Override
-    public Track getTrack() {
-        return track;
-    }
-
-    @Override
     public User getUser() {
         return user;
     }
 
     @Override
-    public Playlist getPlaylist() {
-        return null;
+    public void cacheDependencies() {
+        super.cacheDependencies();
+        this.user = SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.MINI);
     }
 
-    @Override @JsonIgnore
-    public void setCachedTrack(Track track) {
-        this.track = track;
-    }
-
-    @Override @JsonIgnore
-    public void setCachedUser(User user) {
-        this.user = user;
-    }
-
+    @NotNull
     @Override
-    public ScResource getRefreshableResource() {
-        return track;
+    public User getReposter() {
+        return user;
     }
 }

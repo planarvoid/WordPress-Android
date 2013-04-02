@@ -273,7 +273,7 @@ public class UploadServiceTest {
     public void shouldCheckForStuckRecordingsOnStartup() throws Exception {
         Recording stuck = TestApplication.getValidRecording();
         stuck.upload_status = Recording.Status.UPLOADING;
-        SoundCloudDB.upsertRecording(svc.getContentResolver(), stuck, null);
+        stuck.insert(svc.getContentResolver());
 
         UploadService service = startService();
         Recording r = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), stuck.toUri());

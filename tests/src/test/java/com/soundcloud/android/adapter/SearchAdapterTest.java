@@ -2,7 +2,7 @@ package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.view.adapter.LazyRow;
+import com.soundcloud.android.view.adapter.IconLayout;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -13,7 +13,7 @@ public class SearchAdapterTest {
     public void shouldCreateAdapter() throws Exception {
         SearchAdapter adapter = new SearchAdapter(DefaultTestRunner.application, Content.SEARCH.uri) {
             @Override
-            protected LazyRow createRow(int position) {
+            protected IconLayout createRow(int position) {
                 return null;
             }
 

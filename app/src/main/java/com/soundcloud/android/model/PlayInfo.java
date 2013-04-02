@@ -6,17 +6,21 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PlayInfo {
-    public List<Playable> playables;
+    public List<Track> playables;
     public int position;
     public Uri uri;
+    public Track initialTrack;
 
-    public Track getTrack() {
-        return playables.get(Math.max(0,Math.min(playables.size() -1 ,position))).getTrack();
+    public PlayInfo() { }
+
+    public PlayInfo(Uri uri, int position, Track initialTrack) {
+        this.position = position;
+        this.uri = uri;
+        this.initialTrack = initialTrack;
     }
 
-    public static PlayInfo forTracks(Track... t) {
-        PlayInfo info = new PlayInfo();
-        info.playables = Arrays.<Playable>asList(t);
-        return info;
+    public PlayInfo(Track track) {
+        this.playables = Arrays.asList(new Track[]{track});
+        this.initialTrack = track;
     }
 }

@@ -79,7 +79,8 @@
     <string-array name="search_types">
         <item>Everything</item>
         <item>Sounds</item>
-        <item>Users</item>
+        <item>Sets</item>
+        <item>People</item>
     </string-array>
 
 </resources>

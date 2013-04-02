@@ -102,6 +102,11 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                 .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.likes.tag));
                         return true;
+                    case R.id.nav_sets:
+                        startActivity(getNavIntent(ScActivity.this, You.class, menuBundle)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.sets.tag));
+                        return true;
                     case R.id.nav_friend_finder:
                         startNavActivity(ScActivity.this, FriendFinder.class, menuBundle);
                         return true;
@@ -124,6 +129,12 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         if (savedInstanceState == null) {
             handleIntent(getIntent());
         }
+
+        IntentFilter f = new IntentFilter();
+        f.addAction(Consts.GeneralIntents.ACTIVITIES_UNSEEN_CHANGED);
+        f.addAction(Consts.GeneralIntents.UNAUTHORIZED);
+        f.addAction(Actions.LOGGING_OUT);
+        registerReceiver(mGeneralIntentListener, new IntentFilter(f));
     }
 
     protected abstract int getSelectedMenuId();
@@ -191,6 +202,14 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        try {
+            unregisterReceiver(mGeneralIntentListener);
+        } catch (IllegalArgumentException e){
+            // this seems to happen in EmailConfirm. Seems like it doesn't respect the full lifecycle.
+            Log.e(SoundCloudApplication.TAG,"Exception unregistering general intent listener: ", e);
+        }
+
         connectivityListener.unregisterHandler(connHandler);
         connectivityListener = null;
         if (mActionBarController != null) {
@@ -203,41 +222,25 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     protected void onStart() {
         super.onStart();
         connectivityListener.startListening(this);
-        IntentFilter f = new IntentFilter();
-        f.addAction(Consts.GeneralIntents.ACTIVITIES_UNSEEN_CHANGED);
-        f.addAction(Consts.GeneralIntents.UNAUTHORIZED);
-        registerReceiver(mGeneralIntentListener, new IntentFilter(f));
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         connectivityListener.stopListening();
-
-        try {
-            unregisterReceiver(mGeneralIntentListener);
-        } catch (IllegalArgumentException e){
-            // this seems to happen in EmailConfirm. Seems like it doesn't respect the full lifecycle.
-            Log.e(SoundCloudApplication.TAG,"Exception unregistering general intent listener: ", e);
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        if (getApp().getAccount() == null && !(this instanceof Home)) {
-            startActivity(new Intent(this, Launch.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        if (getApp().getAccount() == null) {
+            pausePlayback();
             finish();
             return;
         }
 
         mIsForeground = true;
-        if (getApp().getAccount() == null) {
-            pausePlayback();
-            finish();
-        }
-
         mRootView.onResume();
         if (mActionBarController != null) {
             mActionBarController.onResume();
@@ -455,10 +458,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     @Override
-    public void onMenuOpenRight() {
-    }
-
-    @Override
     public void onMenuClosed() {
         if (mActionBarController != null) {
             mActionBarController.onMenuClosed();
@@ -494,8 +493,10 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             String action = intent.getAction();
             if (action.equals(Consts.GeneralIntents.ACTIVITIES_UNSEEN_CHANGED)) {
                 mRootView.getMenu().refresh();
-            } else if (action.equals(Consts.GeneralIntents.UNAUTHORIZED)) {
+            } else if (action.equals(Consts.GeneralIntents.UNAUTHORIZED) && mIsForeground) {
                 safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
+            } else if (action.equals(Actions.LOGGING_OUT)){
+                finish();
             }
         }
     };

@@ -33,4 +33,6 @@ public enum Sharing {
     }
 
     public boolean isPublic() { return PUBLIC == this; }
+
+    public boolean isPrivate() { return PRIVATE == this; }
 }

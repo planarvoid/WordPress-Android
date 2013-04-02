@@ -5,14 +5,15 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.create.ScUpload;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.MyTracklistRow;
-import com.soundcloud.android.view.adapter.LazyRow;
-import com.soundcloud.android.view.adapter.TrackInfoBar;
+import com.soundcloud.android.view.adapter.IconLayout;
+import com.soundcloud.android.view.adapter.PlayableRow;
 
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -57,9 +58,9 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
     }
 
     @Override
-    protected LazyRow createRow(int position) {
+    protected IconLayout createRow(int position) {
         return getItemViewType(position) == TYPE_PENDING_RECORDING ?
-                new MyTracklistRow(mContext, this) : new TrackInfoBar(mContext,this);
+                new MyTracklistRow(mContext) : new PlayableRow(mContext);
     }
 
     @Override
@@ -173,6 +174,19 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
     @Override
     public Uri getPlayableUri() {
         return mContentUri;
+    }
+
+    @Override
+    public Playable getPlayable(int position) {
+        if (mRecordingData != null) {
+            if (position < mRecordingData.size()) {
+                return null;
+            } else {
+                return (Playable) super.getItem(position - mRecordingData.size());
+            }
+        } else {
+            return (Playable) super.getItem(position);
+        }
     }
 
     public void onDestroy(){

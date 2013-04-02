@@ -5,22 +5,40 @@
   "limit": 3,
   "suggestions": [
     {
-      "query": "<b>Foo</b> Fighters",
+      "query": "Foo Fighters",
       "kind": "user",
       "id": 2097360,
-      "score": 1135145
+      "score": 1135145,
+      "highlights": [
+          {
+            "pre": 0,
+            "post": 3
+          }
+      ]
     },
     {
-      "query": "<b>Foo</b>l's Gold",
+      "query": "Fool's Gold",
       "kind": "user",
       "id": 5636679,
-      "score": 90413
+      "score": 90413,
+      "highlights": [
+          {
+            "pre": 0,
+            "post": 3
+          }
+      ]
     },
     {
-      "query": "<b>Foo</b> Fighters, Your Favorite Part of Walk",
+      "query": "Foo Fighters, Your Favorite Part of Walk",
       "kind": "track",
       "id": 16536884,
-      "score": 77465
+      "score": 77465,
+      "highlights": [
+          {
+            "pre": 0,
+            "post": 3
+          }
+      ]
     }
   ]
 }

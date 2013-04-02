@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
+     
     <issue id="MissingTranslation">
         <ignore path="res/values/dev.xml" />
         <ignore path="res/values/keys.xml" />
@@ -15,12 +16,84 @@
 
     <!-- change before release -->
     <issue id="MissingTranslation" severity="ignore"/>
+    <issue id="DuplicateDefinition" severity="warning"/>
+    <issue id="Suspicious0dp" severity="warning"/>
+    <issue id="WrongCall" severity="warning"/>
 
     <!-- should probably re-enable later once more important things are fixed -->
     <issue id="ContentDescription" severity="ignore"/>
 
+    <!-- Px looks better in some cases -->
+    <issue id="PxUsage" severity="ignore"/>
+
+    <!-- Sometimes NestedWeights are necessities -->
+    <issue id="NestedWeights">
+        <ignore path="res/layout/abs__search_view.xml"/>
+        <ignore path="res/layout/appwidget_player.xml"/>
+        <ignore path="res/layout-land/sc_create.xml"/>
+    </issue>
+
+    <!-- Allow exported content providers and receivers -->
+    <issue id="ExportedContentProvider" severity="ignore"/>
+    <issue id="ExportedReceiver" severity="ignore"/>
+
+    <issue id="UseCompoundDrawables">
+        <ignore path="res/layout/location_picker_row.xml"/> <!-- Use imageview here for resizing purposes -->
+    </issue>
+
     <!-- flag NewApi as error -->
     <issue id="NewApi" severity="error"/>
+    <issue id="InlinedApi" severity="error"/>
+
+    <issue id="UnusedResources">
+        <ignore path="res/values/keys.xml"/>
+        <ignore path="res/values/sigs.xml"/>
+        <ignore path="res/layout/abs__search_view.xml"/> <!-- overrides default abs searchview -->
+        <ignore path="res/values/strings_record_tips.xml"/>
+    </issue>
+
+    <issue id="SetJavaScriptEnabled">
+        <ignore path="src/main/java/com/soundcloud/android/activity/auth/Connect.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/activity/auth/FacebookWebFlow.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/activity/WebViewActivity.java"/>
+    </issue>
+
+    <issue id="MergeRootFrame">
+        <!-- Tour layouts can't be merged -->
+        <ignore path="res/layout/tour_buttons.xml"/>
+        <ignore path="res/layout-normal-port/tour_buttons.xml"/>
+        <ignore path="res/layout-large-port/tour_buttons.xml"/>
+        <ignore path="res/layout/tour_radio_group.xml"/>
+    </issue>
+
+    <issue id="IconXmlAndPng">
+        <!-- These are basically symlinks to re-use resources -->
+        <ignore path="res/drawable-xhdpi/btn_rec_edit_default.xml"/>
+        <ignore path="res/drawable-xhdpi/btn_rec_edit_pressed.xml"/>
+        <ignore path="res/drawable-xhdpi/btn_rec_edit_selected.xml"/>
+        <ignore path="res/drawable-xhdpi/btn_rec_play_default.xml"/>
+        <ignore path="res/drawable-xhdpi/btn_rec_play_pressed.xml"/>
+        <ignore path="res/drawable-xhdpi/btn_rec_play_selected.xml"/>
+        <ignore path="res/drawable-xhdpi/btn_rec_play_pause_default.xml"/>
+        <ignore path="res/drawable-xhdpi/btn_rec_play_pause_pressed.xml"/>
+        <ignore path="res/drawable-xhdpi/btn_rec_play_pause_selected.xml"/>
+        <ignore path="res/drawable-xhdpi/btn_recording_pause.xml"/>
+        <ignore path="res/drawable-xhdpi/btn_recording_pause_pressed.xml"/>
+        <ignore path="res/drawable-xhdpi/btn_recording_rec.xml"/>
+        <ignore path="res/drawable-xhdpi/btn_recording_rec_deactivated.xml"/>
+        <ignore path="res/drawable-xhdpi/btn_recording_rec_pressed.xml"/>
+        <ignore path="res/drawable-xhdpi/btn_recording_resume.xml"/>
+        <ignore path="res/drawable-xhdpi/btn_recording_resume_deactivated.xml"/>
+        <ignore path="res/drawable-xhdpi/btn_recording_resume_pressed.xml"/>
+        <ignore path="res/drawable-xhdpi/left_handle.xml"/>
+        <ignore path="res/drawable-large-xhdpi/left_handle.xml"/>
+        <ignore path="res/drawable-xhdpi/left_handle_down.xml"/>
+        <ignore path="res/drawable-large-xhdpi/left_handle_down.xml"/>
+        <ignore path="res/drawable-xhdpi/right_handle.xml"/>
+        <ignore path="res/drawable-large-xhdpi/right_handle.xml"/>
+        <ignore path="res/drawable-xhdpi/right_handle_down.xml"/>
+        <ignore path="res/drawable-large-xhdpi/right_handle_down.xml"/>
+    </issue>
 
     <!-- ABS + ViewPagerIndicator -->
     <issue id="NewApi">
@@ -59,6 +132,8 @@
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsAdapterView.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsProgressBar.class"/>
       <ignore path="target/classes/com/actionbarsherlock/internal/widget/ActionBarView$HomeView.class"/>
+      <ignore path="res/values/styles_next.xml"/>
+      <ignore path="res/values/themes.xml"/>
     </issue>
 
     <issue id="FloatMath">

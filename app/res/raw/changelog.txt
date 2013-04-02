@@ -1,10 +1,55 @@
-$ 55
+$ 60
   % v current
-  _ 2013-01-29
+  _ 2013-04-01
+    ! Maintenance
+    * Fixed overly aggressive uri matching
+
+$ 59
+  % v 2.5.2
+  _ 2013-03-29
+    ! Maintenance
+    * Fixed loading bugs in Search
+    * Added additional deeplink handling
+    - Fixed some performance issues related to background syncing and database IO
+
+$ 58
+  % v 2.5.1
+  _ 2013-03-22
+    ! Maintenance
+    * Fixed a playlist sync related crash
+    * Fixed player reload bug
+
+$ 57
+  % v 2.5.0
+  _ 2013-03-21
+  ! Sets
+  * Sets are here!  Sets (collections of tracks) appear in your stream when posted by others. Listen to sets posted by others, or create and share your own.
+  * Add tracks to sets: build collections of your favourite music & audio.
+  * Search for sets: new filter in the search tab lets you search specifically for sets.
+  * Miscellaneous bug-fixes and stability improvements
+  - Deeplinks in manifest for marketing emails (stream, people, search, upload)
+  - Fixed stuck buffering UI when resuming player
+  - Tracking stop event on complete and DB locking fixes
+  - Cleanup fixes for reposts
+
+$ 56
+  % v 2.4.7
+  _ 2013-03-01
+  ! Maintenance
+  - tracking bug fixes
+  - support library bump to r12
+  - crop library bump to 1.1.6
+  - various BugSense bug fixes
+
+$ 55
+  % v 2.4.6
+  _ 2013-02-26
   ! Maintenance
   * Fixed language/local based IO problems
   * No longer deleting external uploads
-
+  * Locale and data fixes for Arabic
+  * Fixed visibility with unplayable likes
+  - Add play duration tracking
 
 $ 54
   % v 2.4.5
@@ -15,8 +60,6 @@ $ 54
   * Fixed track positioning when Stream updates
   * Various other bug fixes
   - Fixed some Image Cropping issues
-
-
 
 $ 53
   % v 2.4.4

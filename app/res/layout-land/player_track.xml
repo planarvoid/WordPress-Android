@@ -1,67 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-       android:layout_width="fill_parent"
-       android:layout_height="fill_parent">
-    <LinearLayout android:layout_width="fill_parent"
-                  android:background="@color/playerControlBackground"
-                  android:orientation="horizontal"
-                  android:gravity="center_vertical"
-                  android:layout_height="wrap_content">
-        <RelativeLayout android:layout_width="0dp"
-                     android:layout_height="wrap_content"
-                     android:layout_weight="1">
-            <com.soundcloud.android.view.adapter.TrackInfoBar android:layout_width="fill_parent"
-                                                              android:layout_height="wrap_content"
-                                                              android:id="@+id/track_info_bar"/>
-            <View android:id="@+id/track_info_clicker"
-                          android:background="#00000000"
-                          android:layout_width="fill_parent"
-                          android:layout_height="0dp"
-                          android:layout_alignTop="@id/track_info_bar"
-                          android:layout_alignBottom="@id/track_info_bar"/>
-        </RelativeLayout>
-        <View android:layout_height="fill_parent"
-              android:layout_marginTop="10dp"
-              android:layout_marginBottom="10dp"
-              android:layout_marginRight="10dp"
-              android:layout_width="2dip"
-              android:background="@drawable/player_track_vert_separator_bg"/>
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
 
-        <com.soundcloud.android.view.CustomToggleButton  android:id="@+id/toggle_like"
-                                                         android:layout_marginLeft="5dp"
-                                                         style="@style/PlayerAction.ToggleButton"
-                                                         android:drawableLeft="@drawable/ic_toggle_player_like_states"/>
-        <com.soundcloud.android.view.CustomToggleButton  android:id="@+id/toggle_repost"
-                                                         style="@style/PlayerAction.ToggleButton"
-                                                         android:layout_marginLeft="10dp"
-                                                         android:drawableLeft="@drawable/ic_toggle_player_repost_states"/>
-        <com.soundcloud.android.view.CustomToggleButton  android:id="@+id/toggle_comment"
-                                                         android:layout_marginLeft="10dp"
-                                                         android:layout_marginRight="10dp"
-                                                         style="@style/PlayerAction.ToggleButton"
-                                                         android:drawableLeft="@drawable/ic_toggle_player_comment_states"/>
-        <ImageButton android:id="@+id/btn_share"
-                     android:layout_marginRight="15dp"
-                     style="@style/PlayerAction.ShareButton"
-                     android:src="@drawable/stats_share"/>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:background="@color/playerControlBackground"
+                  android:gravity="center_vertical">
+
+        <com.soundcloud.android.view.adapter.PlayableBar
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+        <include layout="@layout/player_action_bar"/>
+
     </LinearLayout>
+
     <FrameLayout
             android:layout_weight="8"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@color/white">
+            android:background="@android:color/white">
+
         <com.soundcloud.android.view.play.WaveformControllerLand
                 android:id="@+id/waveform_controller"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
+
         <ViewStub
                 android:id="@+id/stub_unplayable_layout"
                 android:inflatedId="@+id/unplayable_layout"
                 android:layout="@layout/unplayable_layout"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"/>
-        <View android:layout_width="fill_parent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        <View android:layout_width="match_parent"
               android:layout_height="5dip"
               android:background="@drawable/drop_shadow_down"/>
+
     </FrameLayout>
 </merge>

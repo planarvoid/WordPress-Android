@@ -5,6 +5,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncer;
 import com.soundcloud.android.service.sync.SyncConfig;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
@@ -20,7 +21,7 @@ import android.text.TextUtils;
  * See {@link DBHelper.Collections}.
  */
 public class LocalCollection {
-    public final int id;
+    public int id; /* not final, id may get updated if this is instantiated asynchronously */
     public final Uri uri;
 
     /** timestamp of last successful sync */
@@ -38,6 +39,10 @@ public class LocalCollection {
     private ContentObserver mChangeObserver;
 
     private OnChangeListener mChangeListener;
+
+    public LocalCollection(Uri contentUri) {
+        this.uri = contentUri;
+    }
 
 
     public boolean hasSyncedBefore() {
@@ -69,6 +74,7 @@ public class LocalCollection {
     }
 
     public void setFromCursor(Cursor c) {
+        if (id <= 0) id = c.getInt(c.getColumnIndex(DBHelper.Collections._ID));
         last_sync_attempt = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC_ATTEMPT));
         last_sync_success = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC));
         sync_state = c.getInt(c.getColumnIndex(DBHelper.Collections.SYNC_STATE));
@@ -96,12 +102,16 @@ public class LocalCollection {
         return resolver.update(Content.COLLECTIONS.forId(id), buildContentValues(), null,null) == 1;
     }
 
+    public boolean isIdle(){
+        return sync_state == SyncState.IDLE;
+    }
 
-    public static LocalCollection fromContent(Content content, ContentResolver resolver, boolean createIfNecessary) {
+
+    public static @Nullable LocalCollection fromContent(Content content, ContentResolver resolver, boolean createIfNecessary) {
         return fromContentUri(content.uri, resolver, createIfNecessary);
     }
 
-    public static LocalCollection fromContentUri(Uri contentUri, ContentResolver resolver, boolean createIfNecessary) {
+    public static @Nullable LocalCollection fromContentUri(Uri contentUri, ContentResolver resolver, boolean createIfNecessary) {
         LocalCollection lc = null;
         Cursor c = resolver.query(Content.COLLECTIONS.uri, null, "uri = ?", new String[]{contentUri.toString()}, null);
         if (c != null && c.moveToFirst()) {
@@ -116,11 +126,17 @@ public class LocalCollection {
         return lc;
     }
 
-    public static LocalCollection insertLocalCollection(Uri contentUri, ContentResolver resolver) {
+    public static @Nullable LocalCollection fromContentUriAsync(Uri contentUri, ContentResolver resolver) {
+        LocalCollection lc = new LocalCollection(contentUri);
+        lc.configureFromUri(resolver);
+        return lc;
+    }
+
+    public static @Nullable LocalCollection insertLocalCollection(Uri contentUri, ContentResolver resolver) {
         return insertLocalCollection(contentUri, 0, -1, -1, -1, null, resolver);
     }
 
-    public static LocalCollection insertLocalCollection(Uri contentUri, int syncState, long lastSyncAttempt, long lastSyncSuccess, int size, String extra, ContentResolver resolver) {
+    public static @Nullable LocalCollection insertLocalCollection(Uri contentUri, int syncState, long lastSyncAttempt, long lastSyncSuccess, int size, String extra, ContentResolver resolver) {
         // insert if not there
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.URI, contentUri.toString());
@@ -135,6 +151,7 @@ public class LocalCollection {
             return new LocalCollection(Integer.parseInt(inserted.getLastPathSegment()),
                     contentUri, lastSyncAttempt,lastSyncSuccess, syncState, size, extra);
         } else {
+            // TODO: should throw an exception here
             return null;
         }
     }
@@ -240,14 +257,17 @@ public class LocalCollection {
     }
 
     public boolean shouldAutoRefresh() {
-        Content c = Content.byUri(uri);
+        if (!isIdle() || id <= 0) return false;
+        Content c = Content.match(uri);
 
         // only auto refresh once every 30 mins at most, that we won't hammer their phone or the api if there are errors
-        if (last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) return false;
+        if (c == null || last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) return false;
 
         // do not auto refresh users when the list opens, because users are always changing
         if (User.class.equals(c.modelType)) return last_sync_success <= 0;
+
         final long staleTime = (Track.class.equals(c.modelType))    ? SyncConfig.TRACK_STALE_TIME :
+                               (Playlist.class.equals(c.modelType)) ? SyncConfig.PLAYLIST_STALE_TIME :
                                (Activity.class.equals(c.modelType)) ? SyncConfig.ACTIVITY_STALE_TIME :
                                SyncConfig.DEFAULT_STALE_TIME;
 
@@ -257,8 +277,12 @@ public class LocalCollection {
     public void startObservingSelf(ContentResolver contentResolver, OnChangeListener listener) {
         mContentResolver = contentResolver;
         mChangeObserver = new ChangeObserver();
-        contentResolver.registerContentObserver(Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(id)).build(), true, mChangeObserver);
         mChangeListener = listener;
+
+        if (id > 0){
+            final Uri contentUri = Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(id)).build();
+            contentResolver.registerContentObserver(contentUri, true, mChangeObserver);
+        }
     }
     public void stopObservingSelf() {
         if (mChangeObserver != null) mContentResolver.unregisterContentObserver(mChangeObserver);
@@ -282,6 +306,12 @@ public class LocalCollection {
         }
     }
 
+    public void configureFromUri(ContentResolver resolver){
+            LocalCollectionQueryHandler handler = new LocalCollectionQueryHandler(resolver);
+            handler.startQuery(0, null, Content.COLLECTIONS.uri, null, "uri = ?", new String[]{uri.toString()}, null);
+        }
+
+
     private class LocalCollectionQueryHandler extends AsyncQueryHandler {
         public LocalCollectionQueryHandler(ContentResolver resolver) {
             super(resolver);
@@ -291,6 +321,19 @@ public class LocalCollection {
         protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
             if (cursor != null && cursor.moveToFirst()) {
                 setFromCursor(cursor);
+            } else {
+
+                /**
+                 *  this must have come from
+                 *  {@link fromContentUriAsync(Uri, ContentResolver)}
+                 */
+                id = insertLocalCollection(uri,mContentResolver).id;
+                sync_state = SyncState.IDLE;
+                if (mChangeListener != null) {
+                    mContentResolver.registerContentObserver(
+                            Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(id)).build(),
+                            true, mChangeObserver);
+                }
             }
             if (cursor != null) cursor.close();
             if (mChangeListener != null) mChangeListener.onLocalCollectionChanged();

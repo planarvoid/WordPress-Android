@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="2.4.6-BETA1"
+      android:versionName="2.5.3"
       android:installLocation="auto"
-      android:versionCode="55">
+      android:versionCode="60">
 
     <supports-screens android:anyDensity="true" />
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16"/>
@@ -38,6 +38,7 @@
                  android:theme="@style/Theme.Next"
                  android:configChanges="orientation|keyboardHidden|keyboard"
                  android:hardwareAccelerated="true"
+                 android:allowBackup="true"
                  android:name="SoundCloudApplication">
 
         <activity android:name=".activity.Launch"
@@ -54,6 +55,13 @@
                 <action android:name="com.soundcloud.android.action.STREAM"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <intent-filter  android:priority="10">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/stream"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/stream"/>
+            </intent-filter>
         </activity>
 
         <!-- activities -->
@@ -62,52 +70,29 @@
                   android:theme="@style/Theme.Next.NoActionBar"
                   android:windowSoftInputMode="adjustPan">
 
-            <intent-filter>
+            <intent-filter android:priority="1">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="http" android:host="soundcloud.com"/>
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="http" android:host="m.soundcloud.com"/>
-            </intent-filter>
-
-
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="https" android:host="soundcloud.com"/>
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http" android:host="soundcloud.com" />
+                <data android:scheme="https" android:host="soundcloud.com" />
                 <data android:scheme="http" android:host="snd.sc"/>
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="https" android:host="snd.sc"/>
+                <data android:scheme="http" android:host="m.soundcloud.com"/>
+                <data android:scheme="https" android:host="m.soundcloud.com"/>
             </intent-filter>
 
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="soundcloud"/>
+            <!-- kee this separate, if combined with above, Android accepts ALL urls -->
+            <intent-filter android:priority="1">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="soundcloud" android:host="*" />
             </intent-filter>
 
         </activity>
 
-        <activity android:name=".activity.landing.ScSearch">
+        <activity android:name=".activity.landing.ScSearch" android:label="@string/title_search">
             <meta-data android:name="android.app.searchable" android:resource="@xml/searchable"/>
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>
@@ -126,6 +111,14 @@
             <intent-filter>
                 <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH"/>
                 <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+
+            <intent-filter  android:priority="10">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/search"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/search"/>
             </intent-filter>
         </activity>
 
@@ -168,6 +161,14 @@
                 <action android:name="com.soundcloud.android.action.WHO_TO_FOLLOW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <intent-filter android:priority="10">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/people"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/people"/>
+            </intent-filter>
+
         </activity>
         <activity android:name=".activity.landing.FriendFinder" android:label="@string/side_menu_friend_finder"
                   android:configChanges="orientation">
@@ -194,11 +195,21 @@
                   android:windowSoftInputMode="adjustPan"
                   android:launchMode="singleTask"
                   android:label=""
-                  android:theme="@style/Theme.Next.NoBg">
+                  android:theme="@style/Theme.Next.Dark.NoBg">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.PLAYER"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+
+            <!-- play with content uri, e.g. ME_STREAM -->
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.PLAY"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="content"
+                      android:host="com.soundcloud.android.provider.ScContentProvider"
+                        />
+            </intent-filter>
+
 
             <!-- play with playlist uri -->
             <intent-filter>
@@ -207,6 +218,7 @@
                 <data android:scheme="content"
                       android:host="com.soundcloud.android.provider.ScContentProvider"
                         />
+                <data android:mimeType="vnd.soundcloud.playable/playlist"/>
             </intent-filter>
 
             <!-- play with track extra -->
@@ -221,7 +233,7 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:mimeType="vnd.soundcloud/track"/>
+                <data android:mimeType="vnd.soundcloud.playable/track"/>
             </intent-filter>
         </activity>
 
@@ -239,9 +251,10 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.create.ScCreate"
-                  android:theme="@style/Theme.ScCreate"
-                  android:launchMode="singleTask">
+        <activity  android:label="@string/side_menu_record"
+                   android:launchMode="singleTask"
+                   android:name=".activity.create.ScCreate"
+                   android:theme="@style/Theme.ScCreate">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.RECORD"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -253,6 +266,13 @@
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.RECORD_STOP"/>
                 <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter android:priority="10">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/upload"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/upload"/>
             </intent-filter>
         </activity>
         <activity android:name=".activity.create.UploadMonitor"
@@ -280,10 +300,24 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.track.TrackLikers" />
-        <activity android:name=".activity.track.TrackReposters" />
-        <activity android:name=".activity.track.TrackComments" />
+        <activity android:name=".activity.track.TrackInteractionActivity" />
         <activity android:name=".activity.track.TracksByTag" />
+
+        <activity android:name=".activity.track.PlaylistActivity"
+                  android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.PLAYLIST"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="vnd.soundcloud.playable/playlist"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:mimeType="vnd.soundcloud.playable/playlist"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activity.track.PlaylistInteractionActivity" />
 
         <!-- settings -->
         <activity android:name=".activity.settings.Settings"
@@ -306,7 +340,8 @@
         <activity android:name=".activity.create.EmailPicker" android:theme="@style/Theme.Next.NoActionBar"/>
         <activity android:name=".activity.create.LocationPicker" android:theme="@style/Theme.Next.NoActionBar"/>
         <activity android:name=".activity.auth.EmailConfirm"/>
-        <activity android:name=".cropimage.CropImage" android:hardwareAccelerated="false"/>
+        <activity android:name=".cropimage.CropImageActivity" android:hardwareAccelerated="false"/>
+
         <!-- for testing purposes -->
         <activity android:name="com.soundcloud.android.activity.test.ShareSound">
             <intent-filter>
@@ -347,10 +382,19 @@
                 <action android:name="com.soundcloud.android.playback.stop"/>
                 <action android:name="com.soundcloud.android.reloadqueue"/>
                 <action android:name="com.soundcloud.android.loadTrackInfo"/>
-
-                <action android:name="com.soundcloud.android.favorite.add"/>
-                <action android:name="com.soundcloud.android.favorite.remove"/>
             </intent-filter>
+
+          <intent-filter>
+              <action android:name="com.soundcloud.android.playback.start"/>
+              <action android:name="com.soundcloud.android.like.add"/>
+              <action android:name="com.soundcloud.android.like.remove"/>
+              <action android:name="com.soundcloud.android.repost.add"/>
+              <action android:name="com.soundcloud.android.repost.remove"/>
+              <data android:scheme="content"
+                    android:mimeType="vnd.soundcloud.playable/*"
+                    android:pathPrefix=""
+                    android:host="com.soundcloud.android.provider.ScContentProvider"/>
+          </intent-filter>
         </service>
 
         <service android:name=".service.upload.UploadService" android:exported="false">
