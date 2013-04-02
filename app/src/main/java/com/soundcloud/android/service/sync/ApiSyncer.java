@@ -139,7 +139,8 @@ public class ApiSyncer {
                     break;
                 case TRACK:
                 case USER:
-                    result = doResourceFetchAndInsert(uri);
+                    // sucks, but we'll kick out CP anyway
+                    result = doResourceFetchAndInsert(uri, c == Content.TRACK ? new TrackStorage(mContext) : new UserStorage(mContext));
                     break;
 
                 case PLAYLIST:
@@ -583,9 +584,13 @@ public class ApiSyncer {
      * @return the result of the operation
      * @throws IOException
      */
-    private Result doResourceFetchAndInsert(Uri contentUri) throws IOException {
+    private <T extends ScResource> Result doResourceFetchAndInsert(Uri contentUri, Storage<T> storage) throws IOException {
         Result result = new Result(contentUri);
-        final Uri insertedUri = mApi.read(Content.match(contentUri).request(contentUri)).insert(mResolver);
+        T resource = mApi.read(Content.match(contentUri).request(contentUri));
+
+        storage.create(resource);
+
+        final Uri insertedUri = resource.toUri();
 
         if (insertedUri != null){
             log("inserted " + insertedUri.toString());

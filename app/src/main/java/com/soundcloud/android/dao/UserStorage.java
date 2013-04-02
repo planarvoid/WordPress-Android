@@ -14,13 +14,18 @@ import com.soundcloud.android.provider.DBHelper;
 
 import java.util.EnumSet;
 
-public class UserStorage {
+public class UserStorage implements Storage<User> {
     private UserDAO mUserDAO;
     private final ContentResolver mResolver;
 
     public UserStorage(Context context) {
         mResolver = context.getContentResolver();
         mUserDAO = new UserDAO(mResolver);
+    }
+
+    @Override
+    public void create(User resource) {
+        mUserDAO.create(resource.buildContentValues());
     }
 
     public void createOrUpdate(User u) {

@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class TrackStorage {
+public class TrackStorage implements Storage<Track> {
     private TrackDAO mTrackDAO;
     private final ContentResolver mResolver;
 
@@ -34,8 +34,9 @@ public class TrackStorage {
         return mResolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
     }
 
-    public Uri create(Track track) {
-        return Content.TRACKS.forId(mTrackDAO.create(track));
+    @Override
+    public void create(Track track) {
+        mTrackDAO.create(track);
     }
 
     public long createOrUpdate(Track track) {

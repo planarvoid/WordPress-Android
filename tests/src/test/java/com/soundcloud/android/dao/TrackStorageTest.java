@@ -1,15 +1,18 @@
 package com.soundcloud.android.dao;
 
-import android.net.Uri;
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.soundcloud.android.Expect.expect;
+import java.util.List;
 
 
 @RunWith(DefaultTestRunner.class)
@@ -28,15 +31,15 @@ public class TrackStorageTest {
         track.title = "testing";
         track.user = new User();
         track.user.id = 200L;
-        Uri uri = storage.create(track);
-        expect(uri).not.toBeNull();
+
+        TestHelper.insertWithDependencies(track);
 
         final int PLAYS = 3;
         for (int i = 0; i < PLAYS; i++)
             expect(storage.markTrackAsPlayed(track)).toBeTrue();
 
-        //List<Track> allTracks = storage.allTracks();
-        //expect(allTracks).toNumber(1);
+        List<Track> allTracks = TestHelper.loadLocalContent(Content.TRACKS.uri, Track.class);
+        expect(allTracks).toNumber(1);
 
         Track played = storage.getTrack(100L);
         expect(played.local_user_playback_count).toEqual(PLAYS);
