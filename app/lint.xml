@@ -52,6 +52,11 @@
         <ignore path="res/values/strings_record_tips.xml"/>
     </issue>
 
+    <issue id="InefficientWeight">
+        <ignore path="res/layout/abs__search_view.xml"/> <!-- abs expects a certain hierarchy here -->
+        <ignore path="res/layout/tour_buttons_joined.xml"/>
+    </issue>
+
     <issue id="SetJavaScriptEnabled">
         <ignore path="src/main/java/com/soundcloud/android/activity/auth/Connect.java"/>
         <ignore path="src/main/java/com/soundcloud/android/activity/auth/FacebookWebFlow.java"/>
