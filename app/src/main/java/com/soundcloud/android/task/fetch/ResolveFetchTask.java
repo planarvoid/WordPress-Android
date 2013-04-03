@@ -53,7 +53,12 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
             final Request request = Request.to(resolvedUri.getPath() +
                 (resolvedUri.getQuery() != null ? ("?"+resolvedUri.getQuery()) : ""));
 
-            return new FetchModelTask(mApi).resolve(request);
+            return new FetchModelTask(mApi){
+                @Override
+                protected void persist(ScResource scResource) {
+                    // TODO: since we don't know which type of resource we're fetching, not sure how to persist it
+                }
+            }.resolve(request);
         } else {
             mUnresolvedUrl = uri;
             return null;

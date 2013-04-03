@@ -40,8 +40,8 @@ public abstract class ScResource
         super(id);
     }
 
-    public void setLastUpdated(long time) {
-        last_updated = time;
+    public void setUpdated() {
+        last_updated = System.currentTimeMillis();
     }
 
     public enum CacheUpdateMode {
