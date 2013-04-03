@@ -27,6 +27,17 @@ public class SyncStateManagerTest {
     }
 
     @Test
+    public void shouldCreateSyncStateRecordLazily() {
+        expect(Content.COLLECTIONS).toHaveCount(0);
+
+        Uri contentUri = Content.PLAYLISTS.forId(123);
+        LocalCollection syncState = syncStateManager.fromContent(contentUri);
+        expect(Content.COLLECTIONS).toHaveCount(1);
+        expect(syncState).not.toBeNull();
+        expect(syncState.uri).toEqual(contentUri);
+    }
+
+    @Test
     public void shouldGetLastSyncAttempt() throws Exception {
         final Uri uri = Uri.parse("foo");
 
