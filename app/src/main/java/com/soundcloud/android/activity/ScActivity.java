@@ -184,9 +184,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     static void startNavActivity(Context c, Class activity, Bundle rootViewState) {
         Intent i = getNavIntent(c, activity, rootViewState);
-        if (ScLandingPage.class.isAssignableFrom(activity)) {
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        }
         c.startActivity(getNavIntent(c, activity, rootViewState));
     }
 
@@ -469,6 +466,23 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             mActionBarController.closeSearch(false);
         }
     }
+
+    @Override
+    public void onHomePressed() {
+        if (this instanceof ScLandingPage){
+            mRootView.animateToggleMenu();
+        } else {
+            if (isTaskRoot()){
+                // empty backstack and not a landing page, might be from a notification or deeplink
+                // just go to the home activity
+                startActivity(new Intent(this, Home.class));
+                finish();
+            } else {
+                super.onBackPressed();
+            }
+        }
+    }
+
 
     @NotNull
     @Override
