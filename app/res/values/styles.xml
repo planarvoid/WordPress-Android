@@ -63,7 +63,7 @@
     </style>
 
     <style name="PlayerAction.Button.Share">
-        <item name="android:src">@drawable/stats_share</item>
+        <item name="android:src">@drawable/ic_social_share</item>
         <item name="android:background">@drawable/btn_default_darker_states</item>
     </style>
 
