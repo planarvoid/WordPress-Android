@@ -10,6 +10,7 @@ import static org.mockito.Mockito.*;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
@@ -297,10 +298,12 @@ public class ApiSyncerTest {
         expect(playlistStorage.insertAsMyPlaylist(p)).not.toBeNull();
 
         expect(Content.ME_SOUNDS).toHaveCount(51);
+        expect(Content.COLLECTIONS).toHaveCount(0);
         expect(new ApiSyncer(Robolectric.application, resolver).pushLocalPlaylists()).toBe(1);
         expect(Content.ME_SOUNDS).toHaveCount(51);
+        expect(Content.COLLECTIONS).toHaveCount(1);
 
-        expect(syncStateManager.fromContent(p.toUri()).shouldAutoRefresh()).toBeFalse();
+        expect(syncStateManager.fromContent(playlist.toUri()).shouldAutoRefresh()).toBeFalse();
     }
 
     private Result syncMeSounds() throws IOException {
