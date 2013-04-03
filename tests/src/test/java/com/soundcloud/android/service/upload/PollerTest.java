@@ -104,6 +104,7 @@ public class PollerTest {
         t.id = id;
         t.state = Track.State.PROCESSING;
         t.setUpdated();
+        TestHelper.insertWithDependencies(t);
 
         HandlerThread ht = new HandlerThread("poll");
         ht.start();
@@ -130,6 +131,10 @@ public class PollerTest {
     }
 
     private Track getTrack(long id) {
-        return new TrackStorage(DefaultTestRunner.application).getTrack(id);
+        try {
+            return TestHelper.loadLocalContent(Content.TRACKS.forId(id), Track.class).get(0);
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
     }
 }
