@@ -303,8 +303,9 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldRespondToUriChanges() throws Exception {
         Playlist p = TestHelper.readResource("/com/soundcloud/android/service/sync/playlist.json");
+        TestHelper.insertWithDependencies(p);
 
-        Uri playlistUri = p.insert(resolver);
+        Uri playlistUri = p.toUri();
         expect(playlistUri).toEqual(Content.PLAYLIST.forQuery(String.valueOf(2524386)));
 
         pm.loadUri(playlistUri, 5, 7L);
@@ -367,7 +368,7 @@ public class PlayQueueManagerTest {
             t.title = "track #"+(startPos+i);
             t.user = user;
             t.stream_url = streamable ? "http://www.soundcloud.com/sometrackurl" : null;
-            t.insert(resolver);
+            TestHelper.insertWithDependencies(t);
             list.add(t);
         }
         return list;

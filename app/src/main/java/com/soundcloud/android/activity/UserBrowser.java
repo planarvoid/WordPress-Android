@@ -403,12 +403,11 @@ public class UserBrowser extends ScActivity implements
 
         // update user locally and ensure 1 instance
         mUser = SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.FULL);
-        //FIXME: I added this as-is here for now since this change came in as a hotfix from development, but was
-        //added to ScModelManager which is what we wanted to move away from.
+        //FIXME: This will be handled/scheduled by an Observable when we're done refactoring storage
         new Thread(new Runnable() {
             @Override
             public void run() {
-                mUser.insert(getContentResolver());
+                new UserStorage(UserBrowser.this).create(mUser);
             }
         }).start();
         mUserDetailsFragment.onSuccess(mUser);
