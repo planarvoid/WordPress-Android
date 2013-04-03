@@ -2,10 +2,10 @@
 
 <resources>
 
-    <style name="Widget.Light.AutoCompleteTextView" parent="@android:style/Widget.DeviceDefault.Light.AutoCompleteTextView">
+    <style name="Widget.Light.AutoCompleteTextView" parent="@android:style/Widget.Holo.Light.AutoCompleteTextView">
         <item name="android:textColor">@android:color/primary_text_light</item>
     </style>
-    <style name="Widget.Light.DropDownItem" parent="@android:style/Widget.DeviceDefault.Light.DropDownItem">
+    <style name="Widget.Light.DropDownItem" parent="@android:style/Widget.Holo.Light.DropDownItem">
         <item name="android:textColor">@android:color/primary_text_light</item>
     </style>
 
