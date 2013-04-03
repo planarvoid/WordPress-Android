@@ -1,8 +1,9 @@
 package com.soundcloud.android.dao;
 
-import android.net.Uri;
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Sharing;
+import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -13,12 +14,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.net.Uri;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import static com.soundcloud.android.Expect.expect;
 
 @RunWith(DefaultTestRunner.class)
 public class PlaylistStorageTest {
@@ -33,24 +34,65 @@ public class PlaylistStorageTest {
     }
 
     @Test
-    public void shouldCreatePlaylistLocally() throws Exception {
-        final List<Track> tracks = createTracks(2);
-        final boolean isPrivate = false;
+    public void shouldCreatePlaylistWithTracks() throws Exception {
+        expect(playlist.user.username).toEqual("Natalie");
+        expect(playlist.tracks.size()).toEqual(41);
 
-        Playlist p = storage.createNewPlaylist(tracks.get(0).user, isPrivate, tracks);
-        final Uri uri = p.toUri();
+        storage.create(playlist);
+        expect(playlist.id).toEqual(2524386L);
+        expect(Content.TRACKS).toHaveCount(41);
+        expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(41);
+    }
+
+    @Test
+    public void shouldGetPlaylistWithTracks() {
+        TestHelper.insertWithDependencies(playlist);
+
+        Playlist p = storage.getPlaylistWithTracks(playlist.id);
+
+        expect(p).not.toBeNull();
+        expect(p).toEqual(playlist);
+        expect(p.user.username).toEqual("Natalie");
+        expect(playlist.tracks).toEqual(p.tracks);
+    }
+
+// TODO: Do we actually need update functionality for playlists?
+//    @Test
+//    public void shouldUpdatePlaylistAndTracks() throws Exception {
+//        TestHelper.insertWithDependencies(playlist);
+//        expect(Content.TRACKS).toHaveCount(41);
+//        expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(41);
+//        expect(playlist.title).not.toEqual("new title");
+//
+//        playlist.title = "new title";
+//        playlist.tracks.remove(0);
+//
+//        expect(storage.update(playlist)).toBeTrue();
+//
+//        expect(Content.TRACKS).toHaveCount(41); // should not remove from Sounds table
+//        expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(40); // should remove from join table
+//
+//        Playlist p3 = TestHelper.loadLocalContent(playlist.toUri(), Playlist.class).get(0);
+//
+//        expect(p3).not.toBeNull();
+//        expect(p3.title).toEqual("new title");
+//    }
+
+    @Test
+    public void shouldInsertAsOwnPlaylist() throws Exception {
+        final List<Track> tracks = createTracks(2);
+        Playlist p = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
         Uri myPlaylistUri = storage.insertAsMyPlaylist(p);
-
         expect(myPlaylistUri).not.toBeNull();
-        expect(Content.match(myPlaylistUri)).toBe(Content.ME_PLAYLIST);
-
         expect(Content.ME_PLAYLISTS).toHaveCount(1);
-        Playlist p2 = storage.getPlaylistWithTracks(uri);
-        expect(p2.tracks).toEqual(tracks);
+        expect(Content.match(myPlaylistUri)).toBe(Content.ME_PLAYLIST);
+    }
 
-
-        expect(p2.sharing).toBe(isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC);
+    @Test
+    public void shouldGetPlaylistsCreatedByUser() {
+        final List<Track> tracks = createTracks(2);
+        TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
         List<Playlist> playlists = storage.getLocalPlaylists();
         expect(playlists.size()).toBe(1);
@@ -77,49 +119,6 @@ public class PlaylistStorageTest {
     }
 
     @Test
-    public void shouldCreatePlaylist() throws Exception {
-        expect(playlist.user.username).toEqual("Natalie");
-        expect(playlist.tracks.size()).toEqual(41);
-
-        long id = storage.create(playlist);
-        expect(id).toEqual(2524386L);
-
-        Playlist p2 = storage.getPlaylistWithTracks(id);
-
-        expect(p2).not.toBeNull();
-        expect(p2.user.username).toEqual("Natalie");
-        expect(p2.tracks.size()).toEqual(41);
-
-        expect(playlist.tracks.get(0).id).toEqual(p2.tracks.get(0).id);
-
-        p2.tracks.remove(0);
-
-        expect(storage.update(p2)).toBeTrue();
-
-        Playlist p3 = storage.getPlaylistWithTracks(id);
-        expect(p3).not.toBeNull();
-        expect(p3.tracks.size()).toEqual(40);
-        expect(p3.tracks.get(0).id).not.toEqual(playlist.tracks.get(0).id);
-    }
-
-
-    private static List<Track> createTracks(int n) {
-        List<Track> items = new ArrayList<Track>(n);
-
-        for (int i=0; i<n; i++) {
-            User user = new User();
-            user.permalink = "u"+i;
-            user.id = i;
-
-            Track track = new Track();
-            track.id = i;
-            track.user = user;
-            items.add(track);
-        }
-        return items;
-    }
-
-    @Test
     public void shouldSyncChangesToExistingPlaylists() throws Exception {
         final Playlist playlist = new Playlist(12345);
         expect(storage.addTrackToPlaylist(playlist, 10696200, System.currentTimeMillis())).not.toBeNull();
@@ -143,5 +142,46 @@ public class PlaylistStorageTest {
         expect(urisToSync.size()).toEqual(2);
         expect(urisToSync.contains(Content.PLAYLIST.forId(playlist1.id))).toBeTrue();
         expect(urisToSync.contains(Content.PLAYLIST.forId(playlist2.id))).toBeTrue();
+    }
+
+    //TODO: this does not yet test purging of playlist activity records
+    @Test
+    public void shouldRemovePlaylistAndAllDependentResources() {
+        TestHelper.insertWithDependencies(playlist);
+        TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_LIKE);
+        TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_REPOST);
+        TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST);
+
+        expect(Content.TRACKS).toHaveCount(41);
+        expect(Content.PLAYLISTS).toHaveCount(1);
+        expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(41);
+        expect(Content.ME_LIKES).toHaveCount(1);
+        expect(Content.ME_REPOSTS).toHaveCount(1);
+        expect(Content.ME_PLAYLISTS).toHaveCount(1);
+
+        storage.removePlaylist(playlist.toUri());
+
+        expect(Content.TRACKS).toHaveCount(41); // referenced tracks should NOT be removed
+        expect(Content.PLAYLISTS).toHaveCount(0);
+        expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(0);
+        expect(Content.ME_LIKES).toHaveCount(0);
+        expect(Content.ME_REPOSTS).toHaveCount(0);
+        expect(Content.ME_PLAYLISTS).toHaveCount(0);
+    }
+
+    private static List<Track> createTracks(int n) {
+        List<Track> items = new ArrayList<Track>(n);
+
+        for (int i=0; i<n; i++) {
+            User user = new User();
+            user.permalink = "u"+i;
+            user.id = i;
+
+            Track track = new Track();
+            track.id = i;
+            track.user = user;
+            items.add(track);
+        }
+        return items;
     }
 }

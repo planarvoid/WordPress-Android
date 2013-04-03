@@ -6,10 +6,13 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
@@ -294,5 +297,13 @@ public class TestHelper {
         c.set(2001, 1, 15, 14, 31, 1);  // 14:31:01, 15/02/2011
         tmp.setLastModified(c.getTimeInMillis());
         return tmp;
+    }
+
+    public static Playlist createNewUserPlaylist(User user, boolean isPrivate, List<Track> tracks) {
+        final String title = "new playlist " + System.currentTimeMillis();
+        bulkInsert(tracks);
+        Playlist playlist = Playlist.newUserPlaylist(user, title, isPrivate, tracks);
+        insertWithDependencies(playlist);
+        return playlist;
     }
 }

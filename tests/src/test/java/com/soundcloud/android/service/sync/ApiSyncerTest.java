@@ -292,7 +292,7 @@ public class ApiSyncerTest {
         Playlist playlist = TestHelper.readResource("/com/soundcloud/android/service/sync/playlist.json");
         TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
 
-        Playlist p = playlistStorage.createNewPlaylist(playlist.user, false, playlist.tracks);
+        Playlist p = TestHelper.createNewUserPlaylist(playlist.user, false, playlist.tracks);
 
         expect(playlistStorage.insertAsMyPlaylist(p)).not.toBeNull();
 

@@ -90,7 +90,7 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
             public void run() {
                 // create and create playlist
                 getPlaylistStorage().insertAsMyPlaylist(
-                    getPlaylistStorage().createPlaylist(
+                    getPlaylistStorage().createNewUserPlaylist(
                             loggedInUser,
                             String.valueOf(text),
                             isPrivate,

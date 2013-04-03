@@ -5,12 +5,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.v4.app.FragmentActivity;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Sharing;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -26,30 +24,48 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class PlaylistStorage {
+public class PlaylistStorage implements Storage<Playlist> {
     private final ContentResolver mResolver;
     private final PlaylistDAO mPlaylistDAO;
-    private final TrackDAO mTrackDAO;
 
     public PlaylistStorage(Context context) {
         mResolver = context.getContentResolver();
         mPlaylistDAO = new PlaylistDAO(mResolver);
-        mTrackDAO = new TrackDAO(mResolver);
     }
 
-    public long create(Playlist playlist) {
-        long id = mPlaylistDAO.create(playlist);
-        if (playlist.tracks != null) {
-            for (Track t : playlist.tracks) {
-                mTrackDAO.create(t);
-            }
+    /**
+     * Takes a playlist and stores it in the database. This will not only create a playlist record in the Sounds table
+     * but also create records in Sounds for every track in the playlist as well as a record for every track in the
+     * PlaylistTracks join table.
+     *
+     * @param playlist the playlist to store
+     */
+    @Override
+    public void create(Playlist playlist) {
+        mPlaylistDAO.create(playlist);
+    }
+
+    /**
+     * Convenience method to store a new playlist a user has just created on their device.
+     *
+     * @see #create(com.soundcloud.android.model.Playlist)
+     */
+    public Playlist createNewUserPlaylist(User user, String title, boolean isPrivate, long... trackIds) {
+        ArrayList<Track> tracks = new ArrayList<Track>(trackIds.length);
+        for (long trackId : trackIds){
+            Track track = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(trackId);
+            tracks.add(track == null ? new Track(trackId) : track);
         }
-        return id;
+
+        Playlist playlist = Playlist.newUserPlaylist(user, title, isPrivate, tracks);
+        create(playlist);
+        return playlist;
     }
 
-    public boolean update(Playlist playlist) {
-        return mPlaylistDAO.update(playlist);
-    }
+// TODO: Do we actually need update functionality for playlists?
+//    public boolean update(Playlist playlist) {
+//        return mPlaylistDAO.update(playlist);
+//    }
 
     public @Nullable Playlist getPlaylistWithTracks(long playlistId) {
         Playlist playlist = mPlaylistDAO.queryForId(playlistId);
@@ -57,10 +73,6 @@ public class PlaylistStorage {
             playlist.tracks = loadPlaylistTracks(playlistId);
         }
         return playlist;
-    }
-
-    public @Nullable Playlist getPlaylistWithTracks(Uri uri) {
-        return getPlaylistWithTracks(Long.parseLong(uri.getLastPathSegment()));
     }
 
     public List<Track> loadPlaylistTracks(long playlistId){
@@ -91,9 +103,7 @@ public class PlaylistStorage {
 
 
     /**
-     * delete any caching, and mark any local instances as removed
-     * {@link com.soundcloud.android.activity.track.PlaylistActivity#onPlaylistChanged()}
-     * @param playlistUri the playlistUri
+     * Remove a playlist and all associations such as likes, reposts or sharings from the database.
      */
     public void removePlaylist(Uri playlistUri) {
         Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(playlistUri);
@@ -101,10 +111,25 @@ public class PlaylistStorage {
             p.removed = true;
             SoundCloudApplication.MODEL_MANAGER.removeFromCache(p.toUri());
         }
-        removePlaylistFromDb(mResolver, UriUtils.getLastSegmentAsLong(playlistUri));
+        long playlistId = UriUtils.getLastSegmentAsLong(playlistUri);
+
+        final String playlistIdString = String.valueOf(playlistId);
+        mResolver.delete(Content.PLAYLIST.forQuery(playlistIdString), null, null);
+        mResolver.delete(Content.PLAYLIST_TRACKS.forQuery(playlistIdString), null, null);
+
+        // delete from collections
+        String where = DBHelper.CollectionItems.ITEM_ID + " = " + playlistId + " AND "
+                + DBHelper.CollectionItems.RESOURCE_TYPE + " = " + Playable.DB_TYPE_PLAYLIST;
+
+        mResolver.delete(Content.ME_PLAYLISTS.uri, where, null);
+        mResolver.delete(Content.ME_SOUNDS.uri, where, null);
+        mResolver.delete(Content.ME_LIKES.uri, where, null);
+
+        // delete from activities
+        where = DBHelper.Activities.SOUND_ID + " = " + playlistId + " AND " +
+                DBHelper.ActivityView.TYPE + " IN ( " + Activity.getDbPlaylistTypesForQuery() + " ) ";
+        mResolver.delete(Content.ME_ALL_ACTIVITIES.uri, where, null);
     }
-
-
 
     public Uri insertAsMyPlaylist(Playlist playlist) {
         playlist.insert(mResolver);
@@ -144,56 +169,6 @@ public class PlaylistStorage {
         }
         if (itemsCursor != null) itemsCursor.close();
         return playlists;
-    }
-
-
-    public int removePlaylistFromDb(ContentResolver resolver, long playlistId){
-
-        final String playlistIdString = String.valueOf(playlistId);
-        int deleted = resolver.delete(Content.PLAYLIST.forQuery(playlistIdString), null, null);
-        deleted += resolver.delete(Content.PLAYLIST_TRACKS.forQuery(playlistIdString), null, null);
-
-        // delete from collections
-        String where = DBHelper.CollectionItems.ITEM_ID + " = " + playlistId + " AND "
-                + DBHelper.CollectionItems.RESOURCE_TYPE + " = " + Playable.DB_TYPE_PLAYLIST;
-
-        deleted += resolver.delete(Content.ME_PLAYLISTS.uri, where, null);
-        deleted += resolver.delete(Content.ME_SOUNDS.uri, where, null);
-        deleted += resolver.delete(Content.ME_LIKES.uri, where, null);
-
-        // delete from activities
-        where = DBHelper.Activities.SOUND_ID + " = " + playlistId + " AND " +
-                DBHelper.ActivityView.TYPE + " IN ( " + Activity.getDbPlaylistTypesForQuery() + " ) ";
-        deleted += resolver.delete(Content.ME_ALL_ACTIVITIES.uri, where, null);
-
-        return deleted;
-    }
-
-    public Playlist createNewPlaylist(User user, boolean isPrivate, List<Track> tracks) {
-        final String title = "new playlist " + System.currentTimeMillis();
-        final long[] trackIds = new long[tracks.size()];
-        for (int i = 0; i < tracks.size(); i++) {
-            trackIds[i] = mTrackDAO.create(tracks.get(i));
-        }
-        return createPlaylist(user, title, isPrivate, trackIds);
-    }
-
-
-    public Playlist createPlaylist(User user, String title, boolean isPrivate, long... trackIds) {
-        Playlist p = new Playlist(-System.currentTimeMillis());
-        p.user = user;
-        p.title = title;
-        p.sharing = isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC;
-        p.created_at = new Date(System.currentTimeMillis());
-        p.setTrackCount(trackIds.length);
-        p.tracks = new ArrayList<Track>();
-
-        for (long trackId : trackIds){
-            Track track = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(trackId);
-            p.tracks.add(track == null ? new Track(trackId) : track);
-        }
-        p.insert(mResolver);
-        return p;
     }
 
 

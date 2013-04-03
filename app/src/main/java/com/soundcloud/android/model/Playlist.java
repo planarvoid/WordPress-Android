@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -73,6 +74,21 @@ public class Playlist extends Playable {
 
     public static @Nullable Playlist fromIntent(Intent intent) {
         return fromBundle(intent.getExtras());
+    }
+
+    /**
+     * Helper to instantiate a playlist the given user created locally. This playlist will have a negative timestamp
+     * to indicate that it hasn't been synced to the API yet.
+     */
+    public static Playlist newUserPlaylist(User user, String title, boolean isPrivate, List<Track> tracks) {
+        Playlist playlist = new Playlist(-System.currentTimeMillis());
+        playlist.user = user;
+        playlist.title = title;
+        playlist.sharing = isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC;
+        playlist.created_at = new Date();
+        playlist.tracks = tracks;
+        playlist.track_count = tracks.size();
+        return playlist;
     }
 
     public Playlist() {
