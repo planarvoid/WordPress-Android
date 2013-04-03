@@ -1,25 +1,18 @@
 package com.soundcloud.android.activity.auth;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.view.ViewTreeObserver;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
-
-import android.content.Intent;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import org.jetbrains.annotations.Nullable;
 
 public class Login extends RelativeLayout {
@@ -52,12 +45,12 @@ public class Login extends RelativeLayout {
         final Context context = getContext();
         final SoundCloudApplication app = SoundCloudApplication.fromContext(context);
 
-        final EditText emailField     = (EditText) findViewById(R.id.txt_email_address);
-        final EditText passwordField  = (EditText) findViewById(R.id.txt_password);
-        final Button   loginButton    = (Button)   findViewById(R.id.btn_login);
-        final Button   cancelButton   = (Button)   findViewById(R.id.btn_cancel);
+        final AutoCompleteTextView emailField     = (AutoCompleteTextView)  findViewById(R.id.auto_txt_email_address);
+        final EditText             passwordField  = (EditText)              findViewById(R.id.txt_password);
+        final Button               loginButton    = (Button)                findViewById(R.id.btn_login);
+        final Button               cancelButton   = (Button)                findViewById(R.id.btn_cancel);
 
-        emailField.setText(AndroidUtils.suggestEmail(context));
+        //emailField.setText(AndroidUtils.suggestEmail(context));
 
         passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @SuppressWarnings({"SimplifiableIfStatement"})
@@ -73,6 +66,11 @@ public class Login extends RelativeLayout {
                 }
             }
         });
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                getContext(), android.R.layout.simple_dropdown_item_1line, AndroidUtils.listEmails(getContext()));
+        emailField.setAdapter(adapter);
+        emailField.setThreshold(0);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,7 +124,7 @@ public class Login extends RelativeLayout {
     }
 
     public Bundle getStateBundle() {
-        EditText emailField    = (EditText) findViewById(R.id.txt_email_address);
+        EditText emailField    = (EditText) findViewById(R.id.auto_txt_email_address);
         EditText passwordField = (EditText) findViewById(R.id.txt_password);
 
         Bundle bundle = new Bundle();
@@ -138,7 +136,7 @@ public class Login extends RelativeLayout {
     public void setState(@Nullable Bundle bundle) {
         if (bundle == null) return;
 
-        EditText emailField    = (EditText) findViewById(R.id.txt_email_address);
+        EditText emailField    = (EditText) findViewById(R.id.auto_txt_email_address);
         EditText passwordField = (EditText) findViewById(R.id.txt_password);
 
         emailField.setText(bundle.getCharSequence(BUNDLE_EMAIL));

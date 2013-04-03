@@ -1,41 +1,6 @@
 package com.soundcloud.android.activity.auth;
 
-import static com.soundcloud.android.R.anim;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
-
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.landing.Home;
-import com.soundcloud.android.activity.landing.SuggestedUsers;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.task.auth.AddUserInfoTask;
-import com.soundcloud.android.task.auth.GetTokensTask;
-import com.soundcloud.android.task.auth.SignupTask;
-import com.soundcloud.android.task.fetch.FetchUserTask;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.view.tour.TourLayout;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
-import com.soundcloud.api.Token;
-import net.hockeyapp.android.UpdateManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import android.accounts.AccountManager;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -54,13 +19,28 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.task.auth.AddUserInfoTask;
+import com.soundcloud.android.task.auth.GetTokensTask;
+import com.soundcloud.android.task.auth.SignupTask;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.view.tour.TourLayout;
+import com.soundcloud.api.Token;
+import net.hockeyapp.android.UpdateManager;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
+
+import static com.soundcloud.android.R.anim;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
     protected enum StartState {
@@ -506,7 +486,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 showView(getLogin(), animated);
                 hideView(getSignUp(),      animated);
                 hideView(getUserDetails(), animated);
-                findViewById(R.id.txt_email_address).requestFocus();
+                findViewById(R.id.auto_txt_email_address).requestFocus();
                 return;
 
             case SIGN_UP:
@@ -516,7 +496,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 hideView(getLogin(),       animated);
                 showView(getSignUp(),      animated);
                 hideView(getUserDetails(), animated);
-                findViewById(R.id.txt_email_address).requestFocus();
+                findViewById(R.id.auto_txt_email_address).requestFocus();
                 return;
 
             case SIGN_UP_DETAILS:
