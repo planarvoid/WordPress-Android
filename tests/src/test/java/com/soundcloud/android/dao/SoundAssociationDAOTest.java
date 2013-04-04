@@ -174,6 +174,58 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     }
 
     @Test
+    public void shouldRemoveLikeForTrack() {
+        SoundAssociation trackLike = TestHelper.insertAsSoundAssociation(new Track(TRACK_ID), SoundAssociation.Type.TRACK_LIKE);
+        TestHelper.insertAsSoundAssociation(new Playlist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_LIKE);
+        expect(Content.ME_LIKES).toHaveCount(2);
+
+        expect(getDAO().delete(trackLike)).toBeTrue();
+
+        expect(Content.TRACKS).toHaveCount(1);
+        expect(Content.ME_LIKES).toHaveCount(1);
+        expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView._TYPE, Playable.DB_TYPE_PLAYLIST);
+    }
+
+    @Test
+    public void shouldRemoveRepostForTrack() {
+        SoundAssociation trackRepost = TestHelper.insertAsSoundAssociation(new Track(TRACK_ID), SoundAssociation.Type.TRACK_REPOST);
+        TestHelper.insertAsSoundAssociation(new Playlist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_REPOST);
+        expect(Content.ME_REPOSTS).toHaveCount(2);
+
+        expect(getDAO().delete(trackRepost)).toBeTrue();
+
+        expect(Content.TRACKS).toHaveCount(1);
+        expect(Content.ME_REPOSTS).toHaveCount(1);
+        expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView._TYPE, Playable.DB_TYPE_PLAYLIST);
+    }
+
+    @Test
+    public void shouldRemoveLikeForPlaylist() {
+        SoundAssociation playlistLike = TestHelper.insertAsSoundAssociation(new Playlist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_LIKE);
+        TestHelper.insertAsSoundAssociation(new Track(TRACK_ID), SoundAssociation.Type.TRACK_LIKE);
+        expect(Content.ME_LIKES).toHaveCount(2);
+
+        expect(getDAO().delete(playlistLike)).toBeTrue();
+
+        expect(Content.PLAYLISTS).toHaveCount(1);
+        expect(Content.ME_LIKES).toHaveCount(1);
+        expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView._TYPE, Playable.DB_TYPE_TRACK);
+    }
+
+    @Test
+    public void shouldRemoveRepostForPlaylist() {
+        SoundAssociation playlistRepost = TestHelper.insertAsSoundAssociation(new Playlist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_REPOST);
+        TestHelper.insertAsSoundAssociation(new Track(TRACK_ID), SoundAssociation.Type.TRACK_REPOST);
+        expect(Content.ME_REPOSTS).toHaveCount(2);
+
+        expect(getDAO().delete(playlistRepost)).toBeTrue();
+
+        expect(Content.PLAYLISTS).toHaveCount(1);
+        expect(Content.ME_REPOSTS).toHaveCount(1);
+        expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView._TYPE, Playable.DB_TYPE_TRACK);
+    }
+
+    @Test
     public void shouldInsertAndQueryLikes() throws Exception {
         SoundAssociationHolder holder = readJson(SoundAssociationHolder.class,
                 "/com/soundcloud/android/service/sync/e1_likes.json");

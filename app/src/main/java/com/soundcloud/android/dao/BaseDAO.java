@@ -115,7 +115,11 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     }
 
     public boolean delete(T resource) {
-        return mResolver.delete(resource.toUri(), null, null) == 1;
+        return delete(resource, null);
+    }
+
+    public boolean delete(T resource, @Nullable String where, String... whereArgs) {
+        return mResolver.delete(resource.toUri(), where, whereArgs) == 1;
     }
 
     public QueryBuilder buildQuery() {

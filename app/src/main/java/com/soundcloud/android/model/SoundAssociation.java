@@ -159,6 +159,10 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
         return playable;
     }
 
+    public long getItemId() {
+        return playable.getId();
+    }
+
     public int getResourceType() {
         return playable.getTypeId();
     }
