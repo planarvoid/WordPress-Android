@@ -136,7 +136,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             });
 
             try {
-                C2DMReceiver.register(this, getLoggedInUser());
+                C2DMReceiver.register(this, getCurrentUserId());
             } catch (Exception e){
                 SoundCloudApplication.handleSilentException("Could not register c2dm ",e);
             }

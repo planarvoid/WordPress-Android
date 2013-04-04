@@ -13,7 +13,7 @@ import android.os.Parcelable;
 import android.provider.BaseColumns;
 
 public class ScModel implements Parcelable {
-
+    public static final String EXTRA_ID = "id";
     public static final int NOT_SET = -1;
     @JsonView(Views.Mini.class) public long id = NOT_SET;
 

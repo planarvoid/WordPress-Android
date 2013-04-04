@@ -40,6 +40,7 @@ import java.io.*;
 
 import static com.soundcloud.android.R.anim;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.SoundCloudApplication.addAccount;
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
@@ -419,15 +420,14 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
             @Override protected void onPostExecute(User user) {
                 if (!isFinishing()) {
-                    try {
-                        if (dialog != null) dialog.dismiss();
-                    } catch (IllegalArgumentException ignored) {
-                    }
-
                     if (user != null) {
-                        onAuthenticated(SignupVia.API, user);
+                        addAccount(user, SignupVia.API, dialog);
                     } else {
                         showError(getFirstError());
+                        try {
+                            if (dialog != null) dialog.dismiss();
+                        } catch (IllegalArgumentException ignored) {
+                        }
                     }
                 }
             }
@@ -436,7 +436,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Override
     public void onSkipDetails() {
-        onAuthenticated(SignupVia.API, mUser);
+        addAccount(mUser, SignupVia.API, null);
     }
 
 
