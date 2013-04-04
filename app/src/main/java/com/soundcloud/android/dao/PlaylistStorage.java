@@ -134,7 +134,8 @@ public class PlaylistStorage implements Storage<Playlist> {
     public Uri insertAsMyPlaylist(Playlist playlist) {
         playlist.insert(mResolver);
         // association so it appears in ME_SOUNDS, ME_PLAYLISTS, etc.
-        return new SoundAssociation(playlist, new Date(System.currentTimeMillis()), SoundAssociation.Type.PLAYLIST)
+        playlist.created_at = new Date();
+        return new SoundAssociation(playlist)
                 .insert(mResolver, Content.ME_PLAYLISTS.uri);
     }
 

@@ -60,10 +60,29 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
         playable = Playable.fromCursor(cursor);
     }
 
-    public SoundAssociation(@NotNull Playable playable, Date created_at, Type typeEnum) {
+    /**
+     * Use this ctor to create sound associations for likes and reposts of playlists and tracks.
+     * @param playable the track or playlist that was reposted or liked
+     * @param typeEnum the kind of association
+     */
+    public SoundAssociation(@NotNull Playable playable, Date associatedAt, Type typeEnum) {
         this.playable = playable;
-        this.created_at = created_at;
+        this.created_at = associatedAt;
         this.associationType = typeEnum.collectionType;
+    }
+
+    /**
+     * Creates a sound association for a track the user has created.
+     */
+    public SoundAssociation(Track track) {
+        this(track, track.created_at, Type.TRACK);
+    }
+
+    /**
+     * Creates a sound association for a playlist the user has created.
+     */
+    public SoundAssociation(Playlist playlist) {
+        this(playlist, playlist.created_at, Type.PLAYLIST);
     }
 
     @Override

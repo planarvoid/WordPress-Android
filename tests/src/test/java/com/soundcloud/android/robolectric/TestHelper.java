@@ -220,9 +220,10 @@ public class TestHelper {
         return insertWithDependencies(resource.toUri(), resource);
     }
 
-    public static Uri insertAsSoundAssociation(Playable playable, SoundAssociation.Type assocType) {
-        SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
-        return TestHelper.insertWithDependencies(like);
+    public static SoundAssociation insertAsSoundAssociation(Playable playable, SoundAssociation.Type assocType) {
+        SoundAssociation sa = new SoundAssociation(playable, new Date(), assocType);
+        TestHelper.insertWithDependencies(sa);
+        return sa;
     }
 
     public static int bulkInsert(Collection<? extends ScResource> items) {

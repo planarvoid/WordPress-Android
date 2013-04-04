@@ -201,7 +201,7 @@ public class ApiSyncer {
 
         for (ScResource resource : resources) {
             Playlist playlist = (Playlist) resource;
-            associations.add(new SoundAssociation(playlist, playlist.created_at, Type.PLAYLIST));
+            associations.add(new SoundAssociation(playlist));
             boolean onWifi = IOUtils.isWifiConnected(mContext);
                 // if we have never synced the playlist or are on wifi and past the stale time, fetch the tracks
                 final LocalCollection localCollection = mSyncStateManager.fromContent(playlist.toUri());
@@ -216,7 +216,7 @@ public class ApiSyncer {
                         Log.e(TAG,"Failed to fetch playlist tracks for playlist " + playlist, e);
                     }
                 }
-                associations.add(new SoundAssociation(playlist, playlist.created_at, Type.PLAYLIST));
+                associations.add(new SoundAssociation(playlist));
             }
         return syncLocalSoundAssocations(Content.ME_PLAYLISTS.uri, associations);
     }
