@@ -24,7 +24,6 @@ public class Launch extends Activity {
             public void run() {
                 if (getApp().getAccount() == null) {
                     getApp().addAccount(Launch.this);
-                    overridePendingTransition(0, 0);
                 } else {
                     startActivity(new Intent(Launch.this, Home.class));
                 }

@@ -271,9 +271,9 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
                                         new Runnable() {
                                             @Override
                                             public void run() {
+                                                app.addAccount(a);
                                                 progress.dismiss();
                                                 a.finish();
-                                                a.startActivity(new Intent(a, Launch.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
                                             }
                                         },
                                         new Runnable() {
