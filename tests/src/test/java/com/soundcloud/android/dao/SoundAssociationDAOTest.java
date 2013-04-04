@@ -14,6 +14,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,12 +66,13 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     public void shouldQueryForAll() {
         expect(getDAO().queryAll()).toNumber(0);
 
-        insertTrackCreation();
-        insertPlaylistCreation();
-        insertTrackLike();
-        insertPlaylistLike();
-        insertTrackRepost();
-        insertPlaylistRepost();
+        TestHelper.insertAsSoundAssociation(new Track(TRACK_ID), SoundAssociation.Type.TRACK);
+        TestHelper.insertAsSoundAssociation(new Track(TRACK_ID), SoundAssociation.Type.TRACK_LIKE);
+        TestHelper.insertAsSoundAssociation(new Track(TRACK_ID), SoundAssociation.Type.TRACK_REPOST);
+
+        TestHelper.insertAsSoundAssociation(new Playlist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST);
+        TestHelper.insertAsSoundAssociation(new Playlist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_LIKE);
+        TestHelper.insertAsSoundAssociation(new Playlist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_REPOST);
 
         expect(getDAO().queryAll()).toNumber(6);
     }
@@ -285,45 +287,14 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     private void insertTrack() {
         Track track = new Track(TRACK_ID);
         track.user_id = USER_ID;
-        Content.SOUNDS.table.insertOrReplace(database, track.buildContentValues());
+        TestHelper.insertWithDependencies(track);
+        expect(Content.TRACKS).toHaveCount(1);
     }
 
     private void insertPlaylist() {
         Playlist playlist = new Playlist(PLAYLIST_ID);
         playlist.user_id = USER_ID;
-        Content.SOUNDS.table.insertOrReplace(database, playlist.buildContentValues());
-    }
-
-    private void insertSoundAssociation(int associationType, long itemId, int resType) {
-        ContentValues cv = new ContentValues();
-        cv.put(DBHelper.CollectionItems.USER_ID, USER_ID);
-        cv.put(DBHelper.CollectionItems.ITEM_ID, itemId);
-        cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, associationType);
-        cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, resType);
-        Content.COLLECTION_ITEMS.table.insertOrReplace(database, cv);
-    }
-
-    private void insertPlaylistRepost() {
-        insertSoundAssociation(CollectionItemTypes.REPOST, PLAYLIST_ID, Playable.DB_TYPE_PLAYLIST);
-    }
-
-    private void insertTrackRepost() {
-        insertSoundAssociation(CollectionItemTypes.REPOST, TRACK_ID, Playable.DB_TYPE_TRACK);
-    }
-
-    private void insertPlaylistLike() {
-        insertSoundAssociation(CollectionItemTypes.LIKE, PLAYLIST_ID, Playable.DB_TYPE_PLAYLIST);
-    }
-
-    private void insertTrackLike() {
-        insertSoundAssociation(CollectionItemTypes.LIKE, TRACK_ID, Playable.DB_TYPE_TRACK);
-    }
-
-    private void insertPlaylistCreation() {
-        insertSoundAssociation(CollectionItemTypes.PLAYLIST, PLAYLIST_ID, Playable.DB_TYPE_PLAYLIST);
-    }
-
-    private void insertTrackCreation() {
-        insertSoundAssociation(CollectionItemTypes.TRACK, TRACK_ID, Playable.DB_TYPE_TRACK);
+        TestHelper.insertWithDependencies(playlist);
+        expect(Content.PLAYLISTS).toHaveCount(1);
     }
 }
