@@ -19,7 +19,7 @@ public class Launch extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        new Handler().postDelayed(new Runnable() {
+        new Handler().post(new Runnable() {
             @Override
             public void run() {
                 if (getApp().getAccount() == null) {
@@ -29,12 +29,10 @@ public class Launch extends Activity {
                     startActivity(new Intent(Launch.this, Home.class));
                 }
             }
-        }, 900);
+        });
     }
 
     private SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
     }
 }
-
-
