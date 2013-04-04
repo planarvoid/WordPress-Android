@@ -6,7 +6,7 @@ import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -79,27 +79,26 @@ public class AssociationManagerTest {
 
     @Test
     public void shouldRemoveLikeStateOfSound() throws Exception {
-        Track t = createTrack();
-        int likesCount = t.likes_count;
+        TestHelper.insertAsSoundAssociation(createTrack(), SoundAssociation.Type.TRACK_LIKE);
 
-        DefaultTestRunner.application.getContentResolver().insert(Content.ME_LIKES.uri, t.buildContentValues());
+        Track t = TestHelper.loadLocalContent(Content.TRACKS.forId(200), Track.class).get(0);
+        expect(t.likes_count).toBe(6);
 
         addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
         associationManager.setLike(t, false);
 
         expect(trackStorage.getTrack(t.id).user_like).toBeFalse();
-        expect(trackStorage.getTrack(t.id).likes_count).toEqual(likesCount - 1);
+        expect(trackStorage.getTrack(t.id).likes_count).toEqual(5);
     }
 
     @Test
     public void removingLikeForTrackShouldNotRemoteLikeForPlaylistWithSameId() {
         Track t = createTrack();
-
-        DefaultTestRunner.application.getContentResolver().insert(Content.ME_LIKES.uri, t.buildContentValues());
+        TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE);
 
         Playlist p = new Playlist(t.id);
         p.likes_count = 1;
-        DefaultTestRunner.application.getContentResolver().insert(Content.ME_LIKES.uri, p.buildContentValues());
+        TestHelper.insertAsSoundAssociation(p, SoundAssociation.Type.PLAYLIST_LIKE);
 
         addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
         associationManager.setLike(t, false);
@@ -125,6 +124,7 @@ public class AssociationManagerTest {
     @Test
     public void shouldAddPlaylistRepost() throws Exception {
         Playlist p = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
+        TestHelper.insertWithDependencies(p);
         expect(p.user_repost).toBeFalse();
         int repostsCount = p.reposts_count;
 
@@ -145,7 +145,7 @@ public class AssociationManagerTest {
         Playlist playlist = (Playlist) a.get(0).getPlayable();
 
         expect(new ActivitiesStorage(Robolectric.application).insert(Content.ME_SOUND_STREAM, a)).toBe(1);
-        DefaultTestRunner.application.getContentResolver().insert(Content.ME_REPOSTS.uri, playlist.buildContentValues());
+        TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_REPOST);
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
 
         addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.id).toUrl(), new TestHttpResponse(200, "OK"));
@@ -163,7 +163,7 @@ public class AssociationManagerTest {
         t.user = u1;
         t.likes_count = t.reposts_count = 5;
 
-        trackStorage.createOrUpdate(t);
+        TestHelper.insertWithDependencies(t);
 
         return t;
     }
