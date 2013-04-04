@@ -119,7 +119,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             }
         });
 
-        mViewPager.setCurrentItem(0);
+        final int startPage = (int) (Math.random()*mTourPages.length);
+        mViewPager.setCurrentItem(startPage);
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
@@ -176,7 +177,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
         setState(StartState.TOUR);
 
-        TourLayout.load(this, mTourPages);
+        TourLayout.load(this, startPage, mTourPages);
 
         final View splash = findViewById(R.id.splash);
         showView(splash, false);
