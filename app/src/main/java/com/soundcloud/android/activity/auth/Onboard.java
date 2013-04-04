@@ -40,7 +40,6 @@ import java.io.*;
 
 import static com.soundcloud.android.R.anim;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.SoundCloudApplication.addAccount;
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
