@@ -236,6 +236,7 @@
         <item name="android:layout_marginBottom">10dp</item>
 
         <item name="android:textColor">@android:color/white</item>
+        <item name="android:textColorLink">@drawable/txt_light_states</item>
         <item name="android:gravity">center</item>
     </style>
 

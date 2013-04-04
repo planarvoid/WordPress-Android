@@ -80,7 +80,7 @@ public class Login extends RelativeLayout {
                 } else {
                     app.track(Click.Login_Login_done);
 
-                    final String email    = emailField.getText().toString();
+                    final String email = emailField.getText().toString();
                     final String password = passwordField.getText().toString();
 
                     if (getLoginHandler() != null) {
@@ -97,7 +97,7 @@ public class Login extends RelativeLayout {
                     getLoginHandler().onCancelLogin();
                 }
 
-                InputMethodManager imm = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(passwordField.getWindowToken(), 0);
                 imm.hideSoftInputFromWindow(emailField.getWindowToken(), 0);
             }
@@ -112,7 +112,7 @@ public class Login extends RelativeLayout {
                             getLoginHandler().onRecover(emailField.getText().toString());
                         }
                     }
-                }, true);
+                }, true, false);
     }
 
     public LoginHandler getLoginHandler() {

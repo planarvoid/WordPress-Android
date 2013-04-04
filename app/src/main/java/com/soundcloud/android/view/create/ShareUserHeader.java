@@ -25,7 +25,7 @@ public class ShareUserHeader extends RelativeLayout {
                     public void onClick() {
                         activity.safeShowDialog(Consts.Dialogs.DIALOG_LOGOUT);
                     }
-                }, true);
+                }, true, false);
 
         ((TextView) findViewById(R.id.share_header_username)).setText(user.username);
 

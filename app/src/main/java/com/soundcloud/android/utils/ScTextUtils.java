@@ -1,5 +1,6 @@
 package com.soundcloud.android.utils;
 
+import android.graphics.Color;
 import com.soundcloud.android.R;
 
 import android.content.res.Resources;
@@ -58,13 +59,15 @@ public class ScTextUtils {
     /**
      * Adapted from the {@link android.text.util.Linkify} class. Changes the
      * first instance of {@code link} into a clickable link attached to the given listener
+     *
      * @param view the textview
      * @param link the link to set, or null to use the whole text
      * @param listener the listener
      * @param underline underline the text
+     * @param highlight highlight the clickable text on state change
      * @return true if the link was added
      */
-    public static boolean clickify(TextView view, final String link, final ClickSpan.OnClickListener listener, boolean underline) {
+    public static boolean clickify(TextView view, final String link, final ClickSpan.OnClickListener listener, boolean underline, boolean highlight) {
         CharSequence text = view.getText();
         String string = text.toString();
         ClickSpan span = new ClickSpan(listener, underline);
@@ -89,6 +92,8 @@ public class ScTextUtils {
         if (!(m instanceof LinkMovementMethod)) {
             view.setMovementMethod(LinkMovementMethod.getInstance());
         }
+
+        if (!highlight) view.setHighlightColor(Color.TRANSPARENT); // it will highlight by default
         return true;
     }
 

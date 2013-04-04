@@ -124,7 +124,7 @@ public class SignUp extends RelativeLayout {
                         }
                         ;
                     }
-                }, true);
+                }, true, false);
     }
 
     static boolean checkPassword(CharSequence password) {
