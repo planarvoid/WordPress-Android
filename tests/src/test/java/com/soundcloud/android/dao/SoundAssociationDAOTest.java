@@ -48,7 +48,7 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
         DefaultTestRunner.application.setCurrentUserId(100L);
 
         // add a collection item that is not a SoundAssociation, so that we can test for
-        // proper separation of other data stored in the Collections table
+        // proper separation of other data stored in the CollectionItems table
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.CollectionItems.ITEM_ID, 1L);
         cv.put(DBHelper.CollectionItems.USER_ID, USER_ID);
