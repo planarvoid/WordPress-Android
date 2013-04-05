@@ -21,12 +21,10 @@ public class TrackStorage implements Storage<Track> {
     private TrackDAO mTrackDAO;
     private final ContentResolver mResolver;
 
-
     public TrackStorage(Context context) {
         mResolver = context.getContentResolver();
         mTrackDAO = new TrackDAO(mResolver);
     }
-
 
     public boolean markTrackAsPlayed(Track track) {
         ContentValues contentValues = new ContentValues();
@@ -49,10 +47,6 @@ public class TrackStorage implements Storage<Track> {
 
     public Track getTrack(Uri uri) {
         return mTrackDAO.queryForUri(uri);
-    }
-
-    public int insert(Collection<Track> tracks, Content content) {
-        return 0;
     }
 
     public List<Track> getTracksForUri(Uri uri) {
