@@ -1,6 +1,9 @@
 package com.soundcloud.android.dao;
 
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.DBHelper;
 
 import android.content.ContentResolver;
@@ -9,10 +12,17 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Use this storage facade to persist information about user-to-sound relations to the database. These relations
+ * currently are: likes, reposts, track creations and playlist creations.
+ *
+ * @see SoundAssociation.Type
+ */
 public class SoundAssociationStorage {
 
     private final ContentResolver mResolver;
@@ -21,6 +31,63 @@ public class SoundAssociationStorage {
     public SoundAssociationStorage(Context context) {
         mResolver = context.getContentResolver();
         mSoundAssociationDAO = new SoundAssociationDAO(mResolver);
+    }
+
+    /**
+     * Persists user-likes-this information to the database. This method expects that the given instance already has
+     * the up-to-date likes count set, and will in return ensure that both a {@link SoundAssociation} record will be
+     * created, as well as the new likes count being updated on the {@link com.soundcloud.android.provider.DBHelper.Sounds}
+     * table.
+     */
+    public SoundAssociation addLike(Playable playable) {
+        SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.PLAYLIST_LIKE;
+        SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
+        mSoundAssociationDAO.create(like);
+        return like;
+    }
+
+    /**
+     * Persists user-unlikes-this information to the database. This method expects that the given instance already has
+     * the up-to-date likes count set, and will in return ensure that both the {@link SoundAssociation} record will be
+     * removed, as well as the new likes count being updated on the {@link com.soundcloud.android.provider.DBHelper.Sounds}
+     * table.
+     */
+    public SoundAssociation removeLike(Playable playable) {
+        SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.PLAYLIST_LIKE;
+        SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
+        mSoundAssociationDAO.delete(like);
+        if (playable instanceof Track) {
+            new TrackDAO(mResolver).update((Track) playable);
+        } else {
+            new PlaylistDAO(mResolver).update((Playlist) playable);
+        }
+        return like;
+    }
+
+    /**
+     * Persists user-reposted-this information to the database. This method expects that the given instance already has
+     * the up-to-date reposts count set, and will in return ensure that both a {@link SoundAssociation} record will be
+     * created, as well as the new reposts count being updated on the {@link com.soundcloud.android.provider.DBHelper.Sounds}
+     * table.
+     */
+    public SoundAssociation addRepost(Playable playable) {
+        SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_REPOST : SoundAssociation.Type.PLAYLIST_REPOST;
+        SoundAssociation repost = new SoundAssociation(playable, new Date(), assocType);
+        mSoundAssociationDAO.create(repost);
+        return repost;
+    }
+
+    /**
+     * Persists user-unreposted-this information to the database. This method expects that the given instance already has
+     * the up-to-date reposts count set, and will in return ensure that both the {@link SoundAssociation} record will be
+     * removed, as well as the new reposts count being updated on the {@link com.soundcloud.android.provider.DBHelper.Sounds}
+     * table.
+     */
+    public SoundAssociation removeRepost(Playable playable) {
+        SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_REPOST : SoundAssociation.Type.PLAYLIST_REPOST;
+        SoundAssociation repost = new SoundAssociation(playable, new Date(), assocType);
+        mSoundAssociationDAO.delete(repost);
+        return repost;
     }
 
     /**

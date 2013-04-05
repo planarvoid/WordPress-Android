@@ -28,6 +28,33 @@ public class SoundAssociationStorageTest {
     }
     
     @Test
+    public void shouldStoreLikeAndUpdateLikesCount() {
+        Track track = new Track(1);
+        expect(track.likes_count).not.toBe(1);
+
+        track.likes_count = 1;
+        storage.addLike(track);
+
+        expect(Content.ME_LIKES).toHaveCount(1);
+        expect(TestHelper.reload(track).likes_count).toBe(1);
+    }
+
+    @Test
+    public void shouldRemoveLikeAndUpdateLikesCount() {
+        Track track = new Track(1);
+        track.likes_count = 1;
+        TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_LIKE);
+        expect(Content.ME_LIKES).toHaveCount(1);
+        expect(TestHelper.reload(track).likes_count).toBe(1);
+
+        track.likes_count = 0;
+        storage.removeLike(track);
+
+        expect(Content.ME_LIKES).toHaveCount(0);
+        expect(TestHelper.reload(track).likes_count).toBe(0);
+    }
+
+    @Test
     public void shouldSyncSoundAssociationsMeSounds() throws Exception {
         SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
                 SoundAssociationTest.class.getResourceAsStream("sounds.json"),
