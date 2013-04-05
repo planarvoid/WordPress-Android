@@ -262,6 +262,16 @@ public class TestHelper {
 
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T extends ScModel> T reload(final T model) {
+        try {
+            Class<T> clazz = (Class<T>) model.getClass();
+            return loadLocalContent(model.toUri(), clazz).get(0);
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    }
+
     public static Recording createRecording(long userId) throws IOException {
         File tmp = createRecordingFile("wav");
 
