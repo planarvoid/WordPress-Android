@@ -416,43 +416,37 @@ public class ScContentProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         final Content content = Content.match(uri);
         switch (content) {
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            // inserts based on collection URIs
+            //////////////////////////////////////////////////////////////////////////////////////////////////
             case COLLECTION:
             case COLLECTIONS:
-                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
-                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                getContext().getContentResolver().notifyChange(result, null, false);
-                return result;
-
             case COLLECTION_PAGES:
+            case USERS:
+            case RECORDINGS:
             case ME_SOUNDS:
             case ME_PLAYLISTS:
-                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
+            case ME_SHORTCUTS:
+                id = content.table.insertOrReplace(db, values);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
-            case TRACK:
-            case USER:
-            case PLAYLIST:
-                if (content.table.upsert(db, new ContentValues[]{values}) != -1){
-                    getContext().getContentResolver().notifyChange(uri, null, false);
-                } else {
-                    log("Error inserting to uri " + uri.toString());
-                }
-                return uri;
-
             case TRACKS:
+            case PLAYLISTS:
+            case ME_SOUND_STREAM:
+            case ME_ACTIVITIES:
+            case ME_LIKES:
+            case ME_REPOSTS:
                 id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
-            case TRACK_METADATA:
-                if (!values.containsKey(DBHelper.TrackMetadata.USER_ID)) {
-                    values.put(DBHelper.TrackMetadata.USER_ID, userId);
-                }
-                content.table.upsert(db, new ContentValues[] {values} );
-                return uri.buildUpon().appendPath(
-                        values.getAsString(DBHelper.TrackMetadata._ID)).build();
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            // special cases
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+
             case TRACK_PLAYS:
                 // TODO should be in update()
                 if (!values.containsKey(DBHelper.TrackMetadata.USER_ID)) {
@@ -491,46 +485,29 @@ public class ScContentProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
-            case USERS:
-                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
-                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                getContext().getContentResolver().notifyChange(result, null, false);
-                return result;
 
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            // upserts for single-resource URIs
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+
+            case TRACK:
+            case USER:
+            case PLAYLIST:
             case RECORDING:
-                if (content.table.upsert(db, new ContentValues[] {values}) != -1) {
+                if (content.table.upsert(db, new ContentValues[]{values}) != -1){
                     getContext().getContentResolver().notifyChange(uri, null, false);
                 } else {
                     log("Error inserting to uri " + uri.toString());
                 }
                 return uri;
-            case RECORDINGS:
-                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_REPLACE);
-                if (id >= 0) {
-                    result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                    getContext().getContentResolver().notifyChange(result, null, false);
-                    return result;
-                } else {
-                    return null;
+
+            case TRACK_METADATA:
+                if (!values.containsKey(DBHelper.TrackMetadata.USER_ID)) {
+                    values.put(DBHelper.TrackMetadata.USER_ID, userId);
                 }
-
-            case ME_LIKES:
-            case ME_REPOSTS:
-                id = Table.COLLECTION_ITEMS.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
-                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                getContext().getContentResolver().notifyChange(result, null, false);
-                return result;
-
-            case ME_SOUND_STREAM:
-            case ME_ACTIVITIES:
-                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
-                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                return result;
-
-            case ME_SHORTCUTS:
-                id = content.table.insertOrReplace(db, values);
-                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                return result;
+                content.table.upsert(db, new ContentValues[] {values} );
+                return uri.buildUpon().appendPath(
+                        values.getAsString(DBHelper.TrackMetadata._ID)).build();
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
