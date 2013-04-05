@@ -25,7 +25,7 @@ public class AssociationManager {
     private SoundAssociationStorage mSoundAssocStorage;
 
     public AssociationManager(Context context) {
-        this(context,SoundCloudApplication.MODEL_MANAGER);
+        this(context, SoundCloudApplication.MODEL_MANAGER);
     }
 
     public AssociationManager(Context context, ScModelManager modelManager) {
@@ -104,18 +104,22 @@ public class AssociationManager {
         }
     };
 
-    private final AssociatedSoundTask.AssociatedListener repostListener = new AssociatedSoundTask.AssociatedListener() {
+    /* package */ final AssociatedSoundTask.AssociatedListener repostListener = new AssociatedSoundTask.AssociatedListener() {
         @Override
         public void onNewStatus(Playable playable, boolean isAssociated, boolean changed) {
             playable = (Playable) mModelManager.cache(playable, ScResource.CacheUpdateMode.NONE);
-            if (changed && playable.reposts_count > ScModel.NOT_SET) {
-                if (isAssociated) {
-                    playable.reposts_count += 1;
-                    mSoundAssocStorage.addRepost(playable);
-                } else {
-                    playable.reposts_count -= 1;
-                    mSoundAssocStorage.removeRepost(playable);
+            if (changed) {
+                if (playable.isRepostCountSet()) {
+                    if (isAssociated) {
+                        playable.reposts_count += 1;
+                        mSoundAssocStorage.addRepost(playable);
+                    } else {
+                        playable.reposts_count -= 1;
+                        mSoundAssocStorage.removeRepost(playable);
+                    }
+                }
 
+                if (!isAssociated){
                     // quick and dirty way to remove reposts from
                     Activity.Type activityType = (playable instanceof Track) ? Activity.Type.TRACK_REPOST :
                             Activity.Type.PLAYLIST_REPOST;
