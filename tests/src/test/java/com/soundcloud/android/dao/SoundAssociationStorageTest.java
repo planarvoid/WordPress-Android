@@ -2,10 +2,12 @@ package com.soundcloud.android.dao;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.model.SoundAssociationTest;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -16,6 +18,7 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class SoundAssociationStorageTest {
@@ -52,6 +55,16 @@ public class SoundAssociationStorageTest {
 
         expect(Content.ME_LIKES).toHaveCount(0);
         expect(TestHelper.reload(track).likes_count).toBe(0);
+    }
+
+    @Test
+    public void shouldPersistPlaylistCreation() throws Exception {
+        final List<Track> tracks = createTracks(2);
+        Playlist p = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
+
+        storage.addPlaylistCreation(p);
+        expect(p.toUri()).not.toBeNull();
+        expect(Content.ME_PLAYLISTS).toHaveCount(1);
     }
 
     @Test
@@ -111,6 +124,20 @@ public class SoundAssociationStorageTest {
         return soundAssociation1;
     }
 
+    private List<Track> createTracks(int n) {
+        List<Track> items = new ArrayList<Track>(n);
 
+        for (int i=0; i<n; i++) {
+            User user = new User();
+            user.permalink = "u"+i;
+            user.id = i;
+
+            Track track = new Track();
+            track.id = i;
+            track.user = user;
+            items.add(track);
+        }
+        return items;
+    }
 
 }

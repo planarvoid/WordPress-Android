@@ -79,17 +79,6 @@ public class PlaylistStorageTest {
 //    }
 
     @Test
-    public void shouldInsertAsOwnPlaylist() throws Exception {
-        final List<Track> tracks = createTracks(2);
-        Playlist p = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
-
-        Uri myPlaylistUri = storage.insertAsMyPlaylist(p);
-        expect(myPlaylistUri).not.toBeNull();
-        expect(Content.ME_PLAYLISTS).toHaveCount(1);
-        expect(Content.match(myPlaylistUri)).toBe(Content.ME_PLAYLIST);
-    }
-
-    @Test
     public void shouldGetPlaylistsCreatedByUser() {
         final List<Track> tracks = createTracks(2);
         TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);

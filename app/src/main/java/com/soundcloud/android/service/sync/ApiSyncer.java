@@ -255,7 +255,8 @@ public class ApiSyncer {
 
                 // update local state
                 p.localToGlobal(mContext, added);
-                mPlaylistStorage.insertAsMyPlaylist(added);
+                mPlaylistStorage.create(added);
+                mSoundAssociationStorage.addPlaylistCreation(added);
 
                 mSyncStateManager.updateLastSyncSuccessTime(p.toUri(), System.currentTimeMillis());
 
@@ -559,7 +560,8 @@ public class ApiSyncer {
             }
             if (c != null) c.close();
 
-            final Uri insertedUri = p.insert(mResolver);
+            mPlaylistStorage.create(p);
+            final Uri insertedUri = p.toUri();
             if (insertedUri != null) {
                 log("inserted " + insertedUri.toString());
                 result.setSyncData(true, System.currentTimeMillis(), 1, Result.CHANGED);
