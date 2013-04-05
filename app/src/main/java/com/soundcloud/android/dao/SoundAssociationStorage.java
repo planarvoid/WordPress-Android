@@ -90,6 +90,13 @@ public class SoundAssociationStorage {
         return repost;
     }
 
+    public SoundAssociation addPlaylistCreation(Playlist playlist) {
+        playlist.created_at = new Date();
+        SoundAssociation playlistCreation = new SoundAssociation(playlist);
+        mSoundAssociationDAO.create(playlistCreation);
+        return playlistCreation;
+    }
+
     /**
      * Sync this collection to the local database by removing any stale items and
      * inserting the sound associations (which will replace the existing items)

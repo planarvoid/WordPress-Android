@@ -13,6 +13,7 @@ import com.soundcloud.android.dao.PlaylistStorage;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -294,8 +295,7 @@ public class ApiSyncerTest {
         TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
 
         Playlist p = TestHelper.createNewUserPlaylist(playlist.user, false, playlist.tracks);
-
-        expect(playlistStorage.insertAsMyPlaylist(p)).not.toBeNull();
+        TestHelper.insertAsSoundAssociation(p, SoundAssociation.Type.PLAYLIST);
 
         expect(Content.ME_SOUNDS).toHaveCount(51);
         expect(Content.COLLECTIONS).toHaveCount(0);

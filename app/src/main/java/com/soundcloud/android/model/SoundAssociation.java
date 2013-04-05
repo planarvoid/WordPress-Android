@@ -215,11 +215,6 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
         _elapsedTime = null;
     }
 
-    public Uri insert(ContentResolver contentResolver, Uri destination){
-        insertDependencies(contentResolver);
-        return contentResolver.insert(destination, buildContentValues());
-    }
-
     @Override
     public String toString() {
         return "SoundAssociation{" +

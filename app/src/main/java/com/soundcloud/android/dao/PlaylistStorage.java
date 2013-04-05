@@ -1,15 +1,8 @@
 package com.soundcloud.android.dao;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activity;
@@ -18,8 +11,13 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -130,16 +128,6 @@ public class PlaylistStorage implements Storage<Playlist> {
                 DBHelper.ActivityView.TYPE + " IN ( " + Activity.getDbPlaylistTypesForQuery() + " ) ";
         mResolver.delete(Content.ME_ALL_ACTIVITIES.uri, where, null);
     }
-
-    public Uri insertAsMyPlaylist(Playlist playlist) {
-        playlist.insert(mResolver);
-        // association so it appears in ME_SOUNDS, ME_PLAYLISTS, etc.
-        playlist.created_at = new Date();
-        return new SoundAssociation(playlist)
-                .insert(mResolver, Content.ME_PLAYLISTS.uri);
-    }
-
-
 
     // Local i.e. unpushed playlists are currently identified by having a negative timestamp
     public boolean hasLocalPlaylists() {

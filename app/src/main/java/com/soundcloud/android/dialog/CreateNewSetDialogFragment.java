@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.widget.*;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dao.SoundAssociationStorage;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -80,25 +82,26 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
     }
 
     private void createPlaylist(final Editable text, final boolean isPrivate) {
-        final ContentResolver contentResolver = getActivity().getContentResolver();
         final User loggedInUser = ((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser();
         final Account account = ((SoundCloudApplication) getActivity().getApplication()).getAccount();
 
         // Commit the playlist locally in the background
+        final SoundAssociationStorage soundAssociationStorage = new SoundAssociationStorage(getActivity());
+        final SyncStateManager syncStateManager = new SyncStateManager(getActivity());
         new Thread(){
             @Override
             public void run() {
                 // create and create playlist
-                getPlaylistStorage().insertAsMyPlaylist(
-                    getPlaylistStorage().createNewUserPlaylist(
-                            loggedInUser,
-                            String.valueOf(text),
-                            isPrivate,
-                            getArguments().getLong(KEY_TRACK_ID)
-                    ));
+                soundAssociationStorage.addPlaylistCreation(
+                        getPlaylistStorage().createNewUserPlaylist(
+                                loggedInUser,
+                                String.valueOf(text),
+                                isPrivate,
+                                getArguments().getLong(KEY_TRACK_ID)
+                        ));
 
                 // force to stale so we know to update the playlists next time it is viewed
-                new SyncStateManager(getActivity()).forceToStale(Content.ME_PLAYLISTS);
+                syncStateManager.forceToStale(Content.ME_PLAYLISTS);
 
                 // request sync to push playlist at next possible opportunity
                 ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, new Bundle());
