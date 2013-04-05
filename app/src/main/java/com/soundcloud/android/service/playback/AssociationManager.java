@@ -104,7 +104,7 @@ public class AssociationManager {
         }
     };
 
-    /* package */ final AssociatedSoundTask.AssociatedListener repostListener = new AssociatedSoundTask.AssociatedListener() {
+    private final AssociatedSoundTask.AssociatedListener repostListener = new AssociatedSoundTask.AssociatedListener() {
         @Override
         public void onNewStatus(Playable playable, boolean isAssociated, boolean changed) {
             playable = (Playable) mModelManager.cache(playable, ScResource.CacheUpdateMode.NONE);

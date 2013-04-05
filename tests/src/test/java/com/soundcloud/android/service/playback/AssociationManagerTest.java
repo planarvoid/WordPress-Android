@@ -137,24 +137,28 @@ public class AssociationManagerTest {
         Playlist playlist = (Playlist) a.get(0).getPlayable();
 
         expect(new ActivitiesStorage(Robolectric.application).insert(Content.ME_SOUND_STREAM, a)).toBe(1);
+        TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_REPOST);
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
 
-        associationManager.repostListener.onNewStatus(playlist,false,true);
+        addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.id).toUrl(), new TestHttpResponse(200, "OK"));
+        associationManager.setRepost(playlist, false);
         expect(Content.ME_SOUND_STREAM).toHaveCount(0);
     }
 
     @Test
     public void shouldRemovePostActivityIfNoRepostCountAvailable() throws Exception {
-        Activities activities = TestHelper.readJson(Activities.class, "/com/soundcloud/android/service/sync/e1_playlist_repost.json");
-        activities.get(0).getUser().id = USER_ID; // needs to be the logged in user
+        Activities a = TestHelper.readJson(Activities.class, "/com/soundcloud/android/service/sync/e1_playlist_repost.json");
+        a.get(0).getUser().id = USER_ID; // needs to be the logged in user
 
-        Playlist playlist = (Playlist) activities.get(0).getPlayable();
+        Playlist playlist = (Playlist) a.get(0).getPlayable();
         playlist.reposts_count = Playlist.NOT_SET;
 
-        expect(new ActivitiesStorage(Robolectric.application).insert(Content.ME_SOUND_STREAM, activities)).toBe(1);
+        expect(new ActivitiesStorage(Robolectric.application).insert(Content.ME_SOUND_STREAM, a)).toBe(1);
+        TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_REPOST);
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
 
-        associationManager.repostListener.onNewStatus(playlist,false,true);
+        addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.id).toUrl(), new TestHttpResponse(200, "OK"));
+        associationManager.setRepost(playlist, false);
         expect(Content.ME_SOUND_STREAM).toHaveCount(0);
     }
 
