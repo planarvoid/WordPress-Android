@@ -6,7 +6,7 @@ import static com.soundcloud.android.record.RemainingTimeCalculator.KEEP_BLOCKS;
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.audio.reader.WavReader;
-import com.soundcloud.android.dao.RecordingDAO;
+import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -88,7 +88,7 @@ public class SoundRecorderTest {
         expect(saved).not.toBeNull();
         expect(saved.isSaved()).toBeTrue();
 
-        Recording r2 = new RecordingDAO(DefaultTestRunner.application.getContentResolver()).getRecordingByUri(saved.toUri());
+        Recording r2 = new RecordingStorage(DefaultTestRunner.application).getRecordingByUri(saved.toUri());
 
         assert r2 != null;
         expect(r2).not.toBeNull();

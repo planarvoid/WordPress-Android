@@ -3,6 +3,7 @@ package com.soundcloud.android.task.fetch;
 import android.os.Parcelable;
 import android.util.Log;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.api.Request;
@@ -10,13 +11,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import static com.soundcloud.android.AndroidCloudAPI.NotFoundException;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-public class FetchModelTask<Model extends ScResource> extends ParallelAsyncTask<Request, Void, Model> {
+public abstract class FetchModelTask<Model extends ScResource> extends ParallelAsyncTask<Request, Void, Model> {
     protected AndroidCloudAPI mApi;
     private Set<WeakReference<Listener<Model>>> mListenerWeakReferences;
 
@@ -70,7 +72,9 @@ public class FetchModelTask<Model extends ScResource> extends ParallelAsyncTask<
         try {
             if (isCancelled()) return null;
             Model model = mApi.read(request);
+            model.setUpdated();
             persist(model);
+            SoundCloudApplication.MODEL_MANAGER.cache(model, ScResource.CacheUpdateMode.FULL);
             return model;
         } catch (NotFoundException e) {
             return null;
@@ -81,9 +85,7 @@ public class FetchModelTask<Model extends ScResource> extends ParallelAsyncTask<
         }
     }
 
-    protected void persist(Model model) {
-        // TODO: this should update the local storage and set the last_updated flag
-    }
+    protected abstract void persist(Model model);
 
     public boolean wasError() {
         return mException != null;

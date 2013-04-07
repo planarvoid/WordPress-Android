@@ -53,7 +53,12 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
             final Request request = Request.to(resolvedUri.getPath() +
                 (resolvedUri.getQuery() != null ? ("?"+resolvedUri.getQuery()) : ""));
 
-            return new FetchModelTask(mApi).resolve(request);
+            return new FetchModelTask(mApi){
+                @Override
+                protected void persist(ScResource scResource) {
+                    // TODO: since we don't know which type of resource we're fetching, not sure how to persist it
+                }
+            }.resolve(request);
         } else {
             mUnresolvedUrl = uri;
             return null;
@@ -119,12 +124,12 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
             final String[] components = specific.split(":", 2);
             if (components != null && components.length == 2) {
                 final String type = components[0];
-                final String id = components[1];
+                final String id = components[1].replace("//","");;
 
                 if (type != null && id != null) {
                     try {
                         long _id = Long.parseLong(id);
-                        if (ClientUri.TRACKS_TYPE.equalsIgnoreCase(type)) {
+                        if (ClientUri.TRACKS_TYPE.equalsIgnoreCase(type) || ClientUri.SOUNDS_TYPE.equalsIgnoreCase(type)) {
                             return SoundCloudApplication.MODEL_MANAGER.getTrack(_id);
                         } else if (ClientUri.PLAYLISTS_TYPE.equalsIgnoreCase(type)) {
                             return SoundCloudApplication.MODEL_MANAGER.getPlaylist(_id);

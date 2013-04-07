@@ -1,6 +1,7 @@
 package com.soundcloud.android.dao;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -21,10 +22,10 @@ public class ActivitiesStorage {
     private ActivityDAO mActivitiesDAO;
     private final ContentResolver mResolver;
 
-    public ActivitiesStorage(ContentResolver resolver) {
-        mResolver = resolver;
-        mSyncStateManager = new SyncStateManager(resolver);
-        mActivitiesDAO = new ActivityDAO(resolver);
+    public ActivitiesStorage(Context context) {
+        mResolver = context.getContentResolver();
+        mSyncStateManager = new SyncStateManager(context);
+        mActivitiesDAO = new ActivityDAO(mResolver);
     }
 
     public Activities getSince(Uri contentUri, long since)  {
@@ -35,17 +36,14 @@ public class ActivitiesStorage {
         LocalCollection lc = mSyncStateManager.fromContent(contentUri);
         activities.future_href = lc.extra;
 
-        Cursor c;
+        BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
         if (since > 0) {
-            c = mResolver.query(contentUri,
-                    null,
-                    DBHelper.ActivityView.CREATED_AT+"> ?",
-                    new String[] { String.valueOf(since) },
-                    null);
-        } else {
-            c = mResolver.query(contentUri, null, null, null, null);
+            query.where(DBHelper.ActivityView.CREATED_AT + "> ?", String.valueOf(since));
         }
-        return mActivitiesDAO.getActivitiesFromCursor(c);
+
+        activities.collection = query.queryAll();
+
+        return activities;
     }
 
     public Activities getSince(Content content, long before)  {
@@ -58,57 +56,37 @@ public class ActivitiesStorage {
 
 
     public @Nullable Activity getLastActivity(Content content) {
-        Activity a = null;
-        Cursor c = mResolver.query(content.uri,
-                null,
-                DBHelper.ActivityView.CONTENT_ID+" = ?",
-                new String[] { String.valueOf(content.id) },
-                DBHelper.ActivityView.CREATED_AT + " ASC LIMIT 1");
-        if (c != null && c.moveToFirst()){
-            a = mActivitiesDAO.objFromCursor(c);
-        }
-        if (c != null) c.close();
-        return a;
+        return mActivitiesDAO.buildQuery(content.uri)
+                .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
+                .order(DBHelper.ActivityView.CREATED_AT + " ASC")
+                .first();
     }
 
     public @Nullable Activity getFirstActivity(Content content) {
-        Activity a = null;
-        Cursor c = mResolver.query(content.uri,
-                null,
-                DBHelper.ActivityView.CONTENT_ID+" = ?",
-                new String[] { String.valueOf(content.id) },
-                DBHelper.ActivityView.CREATED_AT + " DESC LIMIT 1");
-        if (c != null && c.moveToFirst()) {
-            a = mActivitiesDAO.objFromCursor(c);
-        }
-        if (c != null) c.close();
-        return a;
+        return mActivitiesDAO.buildQuery(content.uri)
+                .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
+                .order(DBHelper.ActivityView.CREATED_AT + " DESC")
+                .first();
     }
 
     public Activities getBefore(Uri contentUri, long before)  {
         if (Log.isLoggable(TAG, Log.DEBUG))
             Log.d(TAG, "Activities.getBefore("+contentUri+", before="+before+")");
-        Cursor c;
+
+        BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
         if (before > 0) {
-            c = mResolver.query(contentUri,
-                    null,
-                    DBHelper.ActivityView.CREATED_AT+"< ?",
-                    new String[] { String.valueOf(before) },
-                    null);
-        } else {
-            c = mResolver.query(contentUri, null, null, null, null);
+            query.where(DBHelper.ActivityView.CREATED_AT + "< ?", String.valueOf(before));
         }
 
-        return mActivitiesDAO.getActivitiesFromCursor(c);
+        Activities activities = new Activities();
+        activities.collection = query.queryAll();
+
+        return activities;
     }
 
-    public int getCountSince(long since, Content content){
-        Cursor c = mResolver.query(content.uri,
-                new String[]{"Count("+ BaseColumns._ID+") as unseen"},
-                DBHelper.ActivityView.CONTENT_ID + " = ? AND " + DBHelper.ActivityView.CREATED_AT + "> ?",
-                new String[]{String.valueOf(content.id), String.valueOf(since)},
-                null);
-        return c != null && c.moveToFirst() ? c.getInt(c.getColumnIndex("unseen")) : 0;
+    public int getCountSince(long since, Content content) {
+        String selection = DBHelper.ActivityView.CONTENT_ID + " = ? AND " + DBHelper.ActivityView.CREATED_AT + "> ?";
+        return mActivitiesDAO.count(selection, String.valueOf(content.id), String.valueOf(since));
     }
 
     public int clear(@Nullable Content content) {
@@ -135,9 +113,4 @@ public class ActivitiesStorage {
         return mActivitiesDAO.insert(content, activities);
     }
 
-
-    public User getUserFromActivityCursor(Cursor itemsCursor) {
-        final long id = itemsCursor.getLong(itemsCursor.getColumnIndex(DBHelper.ActivityView.USER_ID));
-        return User.fromActivityView(itemsCursor);
-    }
 }

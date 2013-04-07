@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import static com.soundcloud.android.Expect.expect;
 
-public class TrackDAOTest extends BaseDAOTest<TrackDAO> {
+public class TrackDAOTest extends AbstractDAOTest<TrackDAO> {
 
     public TrackDAOTest() {
         super(new TrackDAO(Robolectric.application.getContentResolver()));

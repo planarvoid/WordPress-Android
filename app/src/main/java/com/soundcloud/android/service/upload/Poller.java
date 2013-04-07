@@ -103,9 +103,8 @@ public class Poller extends Handler {
 
 
     private void persistTrack(Track track) {
-        ContentResolver resolver = mApi.getContext().getContentResolver();
         track.setUpdated();
-        new TrackStorage(resolver).createOrUpdate(track);
+        new TrackStorage(mApi.getContext()).createOrUpdate(track);
     }
 
 }

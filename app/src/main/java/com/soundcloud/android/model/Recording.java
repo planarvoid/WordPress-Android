@@ -11,7 +11,7 @@ import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.audio.reader.WavReader;
-import com.soundcloud.android.dao.RecordingDAO;
+import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -28,7 +28,6 @@ import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -571,7 +570,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
     // TODO , not sure where this belongs
     // Yeah, because it's absolutely fucking terrible.
-    public static @Nullable Recording fromIntent(@Nullable Intent intent, ContentResolver resolver, long userId) {
+    public static @Nullable Recording fromIntent(@Nullable Intent intent, Context context, long userId) {
         if (intent == null) return null;
         final String action = intent.getAction();
 
@@ -584,7 +583,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
                         Actions.EDIT.equals(action))) {
 
             Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            File file = IOUtils.getFromMediaUri(resolver, stream);
+            File file = IOUtils.getFromMediaUri(context.getContentResolver(), stream);
             if (file != null && file.exists()) {
                 Recording r = new Recording(file);
                 r.external_upload = true;
@@ -611,8 +610,8 @@ public class Recording extends ScResource implements Comparable<Recording> {
                 return r;
             } else return null;
         } else if (intent.getData() != null) {
-            RecordingDAO dao = new RecordingDAO(resolver);
-            return dao.getRecordingByUri(intent.getData());
+            RecordingStorage recordings = new RecordingStorage(context);
+            return recordings.getRecordingByUri(intent.getData());
         } else {
             return null;
         }

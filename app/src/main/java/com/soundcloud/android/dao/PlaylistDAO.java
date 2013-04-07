@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class PlaylistDAO extends BaseDAO<Playlist> {
+class PlaylistDAO extends BaseDAO<Playlist> {
     public PlaylistDAO(ContentResolver contentResolver) {
         super(contentResolver);
     }

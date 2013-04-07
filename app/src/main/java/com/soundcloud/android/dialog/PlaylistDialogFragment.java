@@ -12,7 +12,7 @@ public abstract class PlaylistDialogFragment extends SherlockDialogFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mPlaylistStorage = new PlaylistStorage(getActivity().getContentResolver());
+        mPlaylistStorage = new PlaylistStorage(getActivity());
     }
 
     protected PlaylistStorage getPlaylistStorage() {

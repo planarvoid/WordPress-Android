@@ -6,7 +6,7 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
-import com.soundcloud.android.dao.RecordingDAO;
+import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -187,7 +187,7 @@ public class UploadServiceTest {
 
         svc.upload(recording);
 
-        RecordingDAO recordings = new RecordingDAO(svc.getContentResolver());
+        RecordingStorage recordings = new RecordingStorage(svc);
 
         Recording updated = recordings.getRecordingByUri(recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADING);
@@ -206,7 +206,7 @@ public class UploadServiceTest {
 
         svc.upload(recording);
 
-        Recording updated = new RecordingDAO(svc.getContentResolver()).getRecordingByUri(recording.toUri());
+        Recording updated = new RecordingStorage(svc).getRecordingByUri(recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.ERROR);
     }
 
@@ -223,7 +223,7 @@ public class UploadServiceTest {
         expect(upload.isUploaded()).toBeTrue();
         expect(upload.resized_artwork_path).toEqual(upload.artwork_path);
 
-        Recording updated = new RecordingDAO(svc.getContentResolver()).getRecordingByUri(upload.toUri());
+        Recording updated = new RecordingStorage(svc).getRecordingByUri(upload.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADED);
     }
 
@@ -276,8 +276,8 @@ public class UploadServiceTest {
         Recording stuck = TestApplication.getValidRecording();
         stuck.upload_status = Recording.Status.UPLOADING;
 
-        RecordingDAO recordings = new RecordingDAO(svc.getContentResolver());
-        recordings.insert(stuck);
+        RecordingStorage recordings = new RecordingStorage(svc);
+        recordings.create(stuck);
 
         UploadService service = startService();
         Recording r = recordings.getRecordingByUri(stuck.toUri());

@@ -7,7 +7,6 @@ import com.soundcloud.android.dao.ContentValuesProvider;
 import com.soundcloud.android.provider.BulkInsertMap;
 import org.jetbrains.annotations.NotNull;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import org.jetbrains.annotations.Nullable;
@@ -38,6 +37,10 @@ public abstract class ScResource
 
     public ScResource(long id) {
         super(id);
+    }
+
+    public void setUpdated() {
+        last_updated = System.currentTimeMillis();
     }
 
     public enum CacheUpdateMode {
@@ -86,33 +89,6 @@ public abstract class ScResource
     public void putFullContentValues(@NotNull BulkInsertMap destination){
         putDependencyValues(destination);
         destination.add(getBulkInsertUri(), buildContentValues());
-    }
-
-    /**
-     * Insert to this objects uri field
-     * @param contentResolver
-     * @return
-     */
-    @Deprecated
-    public Uri insert(ContentResolver contentResolver) {
-        return insert(contentResolver,toUri());
-    }
-
-    /**
-     * insert to a specific URI, e.g. ME_LIKES.uri
-     * @param contentResolver
-     * @param uri
-     * @return
-     */
-    public Uri insert(ContentResolver contentResolver, Uri uri) {
-        insertDependencies(contentResolver);
-        return contentResolver.insert(uri, buildContentValues());
-    }
-
-    public void insertDependencies(ContentResolver contentResolver) {
-        final BulkInsertMap dependencies = new BulkInsertMap();
-        putDependencyValues(dependencies);
-        dependencies.insert(contentResolver);
     }
 
     public abstract Uri toUri();

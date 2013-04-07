@@ -36,7 +36,7 @@ import java.io.IOException;
         this.action = action;
         this.result = new ApiSyncer.Result(contentUri);
         this.isUI = isUI;
-        mSyncStateManager = new SyncStateManager(context.getContentResolver());
+        mSyncStateManager = new SyncStateManager(context);
     }
 
     public void onQueued() {
@@ -53,7 +53,7 @@ import java.io.IOException;
         // make sure all requests going out on this thread have the background parameter set
         Wrapper.setBackgroundMode(!isUI);
 
-        ApiSyncer syncer = new ApiSyncer(context);
+        ApiSyncer syncer = new ApiSyncer(context, context.getContentResolver());
 
         if (!mSyncStateManager.updateSyncState(localCollection.id, LocalCollection.SyncState.SYNCING)) {
             return this;

@@ -1,14 +1,5 @@
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.PlayQueueManager;
-import com.soundcloud.android.view.play.PlayerTrackView;
-import org.jetbrains.annotations.Nullable;
-
 import android.content.Context;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
@@ -18,6 +9,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewManager;
 import android.widget.FrameLayout;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.android.view.play.PlayerTrackView;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -94,8 +94,13 @@ public class PlayerTrackPager extends ViewPager {
                                 }
                                 mViews.getFirst().addView(lastView);
 
-                                final int pos = currentView.getPlayPosition() - 1;
-                                lastView.setTrack(playQueueManager == null ? null : playQueueManager.getTrackAt(pos), pos, true, false);
+                                if (playQueueManager != null){
+                                    final int pos = currentView.getPlayPosition() - 1;
+                                    final Track track = playQueueManager.getTrackAt(pos);
+                                    if (track != null) lastView.setTrack(track, pos, true, false);
+
+                                }
+
                                 lastView.setOnScreen(false);
                                 mPlayerTrackViews.add(0, mPlayerTrackViews.remove(mPlayerTrackViews.size() - 1));
                                 setCurrentItem(1, false);
@@ -115,8 +120,13 @@ public class PlayerTrackPager extends ViewPager {
                                 }
                                 mViews.getLast().addView(firstView);
 
-                                final int pos = currentView.getPlayPosition() + 1;
-                                firstView.setTrack(playQueueManager == null ? null : playQueueManager.getTrackAt(pos), pos, true, false);
+                                if (playQueueManager != null){
+                                    final int pos = currentView.getPlayPosition() + 1;
+                                    final Track track = playQueueManager.getTrackAt(pos);
+                                    if (track != null) firstView.setTrack(track, pos, true, false);
+                                }
+
+
                                 firstView.setOnScreen(false);
                                 mPlayerTrackViews.add(mPlayerTrackViews.remove(0));
                                 setCurrentItem(1, false);
@@ -132,7 +142,7 @@ public class PlayerTrackPager extends ViewPager {
         mTrackPagerScrollListener = listener;
     }
 
-    public void configureFromTrack(ScPlayer player, Track track, int playPosition) {
+    public void configureFromTrack(ScPlayer player, @NotNull Track track, int playPosition) {
         mPlayerTrackViews.clear();
 
         final PlayerTrackView ptv;

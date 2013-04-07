@@ -57,6 +57,7 @@ public class ApiSyncer {
     public static final String TAG = ApiSyncService.LOG_TAG;
     private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
     private static final int MAX_MY_PLAYLIST_TRACK_COUNT_SYNC = 100;
+    private static final int BULK_INSERT_BATCH_SIZE = 500;
 
     private final AndroidCloudAPI mApi;
     private final ContentResolver mResolver;
@@ -64,21 +65,28 @@ public class ApiSyncer {
     private final SyncStateManager mSyncStateManager;
     private final ActivitiesStorage mActivitiesStorage;
     private final PlaylistStorage mPlaylistStorage;
-    private final SoundAssociationDAO mSoundAssociationDAO;
+    private final SoundAssociationStorage mSoundAssociationStorage;
     private final CollectionStorage mCollectionStorage;
     private final UserStorage mUserStorage;
 
 
-    public ApiSyncer(Context context) {
+    private int mBulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
+
+    public ApiSyncer(Context context, ContentResolver resolver) {
         mApi = (AndroidCloudAPI) context.getApplicationContext();
-        mResolver = context.getContentResolver();
+        mResolver = resolver;
         mContext = context;
-        mSyncStateManager = new SyncStateManager(mResolver);
-        mActivitiesStorage = new ActivitiesStorage(mResolver);
-        mPlaylistStorage = new PlaylistStorage(mResolver);
-        mSoundAssociationDAO = new SoundAssociationDAO(mResolver);
-        mCollectionStorage = new CollectionStorage(mResolver);
-        mUserStorage = new UserStorage(mResolver);
+        mSyncStateManager = new SyncStateManager(context);
+        mActivitiesStorage = new ActivitiesStorage(context);
+        mPlaylistStorage = new PlaylistStorage(context);
+        mSoundAssociationStorage = new SoundAssociationStorage(context);
+        mCollectionStorage = new CollectionStorage(context);
+        mUserStorage = new UserStorage(context);
+    }
+
+    // Tests want to override this value
+    /* package */ void setBulkInsertBatchSize(int batchSize) {
+        mBulkInsertBatchSize = batchSize;
     }
 
     public @NotNull Result syncContent(Uri uri, String action) throws IOException {
@@ -131,7 +139,8 @@ public class ApiSyncer {
                     break;
                 case TRACK:
                 case USER:
-                    result = doResourceFetchAndInsert(uri);
+                    // sucks, but we'll kick out CP anyway
+                    result = doResourceFetchAndInsert(uri, c == Content.TRACK ? new TrackStorage(mContext) : new UserStorage(mContext));
                     break;
 
                 case PLAYLIST:
@@ -192,7 +201,7 @@ public class ApiSyncer {
 
         for (ScResource resource : resources) {
             Playlist playlist = (Playlist) resource;
-            associations.add(new SoundAssociation(playlist, playlist.created_at, Type.PLAYLIST));
+            associations.add(new SoundAssociation(playlist));
             boolean onWifi = IOUtils.isWifiConnected(mContext);
                 // if we have never synced the playlist or are on wifi and past the stale time, fetch the tracks
                 final LocalCollection localCollection = mSyncStateManager.fromContent(playlist.toUri());
@@ -207,7 +216,7 @@ public class ApiSyncer {
                         Log.e(TAG,"Failed to fetch playlist tracks for playlist " + playlist, e);
                     }
                 }
-                associations.add(new SoundAssociation(playlist, playlist.created_at, Type.PLAYLIST));
+                associations.add(new SoundAssociation(playlist));
             }
         return syncLocalSoundAssocations(Content.ME_PLAYLISTS.uri, associations);
     }
@@ -246,7 +255,8 @@ public class ApiSyncer {
 
                 // update local state
                 p.localToGlobal(mContext, added);
-                mPlaylistStorage.insertAsMyPlaylist(added);
+                mPlaylistStorage.create(added);
+                mSoundAssociationStorage.addPlaylistCreation(added);
 
                 mSyncStateManager.updateLastSyncSuccessTime(p.toUri(), System.currentTimeMillis());
 
@@ -269,7 +279,7 @@ public class ApiSyncer {
     }
 
     private Result syncLocalSoundAssocations(Uri uri, List<SoundAssociation> associations) {
-        boolean changed = mSoundAssociationDAO.syncToLocal(associations, uri);
+        boolean changed = mSoundAssociationStorage.syncToLocal(associations, uri);
 
         Result result = new Result(uri);
         result.change =  changed ? Result.CHANGED : Result.UNCHANGED;
@@ -365,19 +375,44 @@ public class ApiSyncer {
         }
 
         log("Added " + added + " new items for this endpoint");
-        ContentValues[] cv = new ContentValues[remote.size()];
-        int i = 0;
-        for (Long id : remote) {
-            cv[i] = new ContentValues();
-            cv[i].put(DBHelper.CollectionItems.POSITION, startPosition + i);
-            cv[i].put(DBHelper.CollectionItems.ITEM_ID, id);
-            cv[i].put(DBHelper.CollectionItems.USER_ID, userId);
-            i++;
-        }
-        mResolver.bulkInsert(content.uri, cv);
+
+        insertInBatches(content, userId, remote, startPosition);
+
         return result;
     }
 
+    private void insertInBatches(final Content content, final long userId, final List<Long> ids, final int startPosition) {
+        int numBatches = 1;
+        int batchSize = ids.size();
+        if (ids.size() > mBulkInsertBatchSize) {
+            // split up the transaction into batches, so as to not block readers too long
+            numBatches = (int) Math.ceil((float) ids.size() / mBulkInsertBatchSize);
+            batchSize = mBulkInsertBatchSize;
+        }
+        log("numBatches: " + numBatches);
+        log("batchSize: " + batchSize);
+
+        // insert in batches so as to not hold a write lock in a single transaction for too long
+        int positionOffset = startPosition;
+        for (int i = 0; i < numBatches; i++) {
+            int batchStart = i * batchSize;
+            int batchEnd = Math.min(batchStart + batchSize, ids.size());
+            log("batch " + i + ": start / end = " + batchStart + " / " + batchEnd);
+
+            List<Long> idBatch = ids.subList(batchStart, batchEnd);
+            ContentValues[] cv = new ContentValues[idBatch.size()];
+
+            for (int j = 0; j < idBatch.size(); j++) {
+                long id = idBatch.get(j);
+                cv[j] = new ContentValues();
+                cv[j].put(DBHelper.CollectionItems.POSITION, positionOffset + j);
+                cv[j].put(DBHelper.CollectionItems.ITEM_ID, id);
+                cv[j].put(DBHelper.CollectionItems.USER_ID, userId);
+            }
+            positionOffset += idBatch.size();
+            mResolver.bulkInsert(content.uri, cv);
+        }
+    }
 
     private boolean checkUnchanged(Content content, Result result, List<Long> local, List<Long> remote) {
         switch (content) {
@@ -523,8 +558,10 @@ public class ApiSyncer {
                 Request r = Content.PLAYLIST.request(contentUri).withContent(content, "application/json");
                 p = mApi.update(r);
             }
+            if (c != null) c.close();
 
-            final Uri insertedUri = p.insert(mResolver);
+            mPlaylistStorage.create(p);
+            final Uri insertedUri = p.toUri();
             if (insertedUri != null) {
                 log("inserted " + insertedUri.toString());
                 result.setSyncData(true, System.currentTimeMillis(), 1, Result.CHANGED);
@@ -549,9 +586,13 @@ public class ApiSyncer {
      * @return the result of the operation
      * @throws IOException
      */
-    private Result doResourceFetchAndInsert(Uri contentUri) throws IOException {
+    private <T extends ScResource> Result doResourceFetchAndInsert(Uri contentUri, Storage<T> storage) throws IOException {
         Result result = new Result(contentUri);
-        final Uri insertedUri = mApi.read(Content.match(contentUri).request(contentUri)).insert(mResolver);
+        T resource = mApi.read(Content.match(contentUri).request(contentUri));
+
+        storage.create(resource);
+
+        final Uri insertedUri = resource.toUri();
 
         if (insertedUri != null){
             log("inserted " + insertedUri.toString());

@@ -32,11 +32,17 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     }
 
     public long create(T resource) {
-        final BulkInsertMap dependencies = new BulkInsertMap();
-        resource.putFullContentValues(dependencies);
-        dependencies.insert(mResolver);
+        return create(resource, true);
+    }
+
+    public long create(T resource, boolean storeDependencies) {
+        if (storeDependencies) {
+            createDependencies(resource);
+        }
         // TODO this will insert twice
-        return create(resource.toUri(), resource.buildContentValues());
+        long recordId = create(resource.toUri(), resource.buildContentValues());
+        resource.setId(recordId);
+        return recordId;
     }
 
     public int createCollection(Collection<T> resources) {
@@ -47,12 +53,13 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         return map.insert(mResolver);
     }
 
+    @Deprecated
     public long create(ContentValues values) {
         return create(getContent().uri, values);
     }
 
     @Deprecated
-    public long create(Uri uri, ContentValues values) {
+    protected long create(Uri uri, ContentValues values) {
         Uri objUri = mResolver.insert(uri,  values);
         if (objUri != null) {
             try {
@@ -63,6 +70,12 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         } else {
             throw new DAOException();
         }
+    }
+
+    protected void createDependencies(T resource) {
+        final BulkInsertMap dependencies = new BulkInsertMap();
+        resource.putDependencyValues(dependencies);
+        dependencies.insert(mResolver);
     }
 
     public long createOrUpdate(T resource) {
@@ -102,11 +115,31 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     }
 
     public boolean delete(T resource) {
-        return mResolver.delete(resource.toUri(), null, null) == 1;
+        return delete(resource, null);
+    }
+
+    public boolean delete(T resource, @Nullable String where, String... whereArgs) {
+        return mResolver.delete(resource.toUri(), where, whereArgs) == 1;
+    }
+
+    public QueryBuilder buildQuery() {
+        return buildQuery(getContent().uri);
+    }
+
+    public QueryBuilder buildQuery(Uri contentUri) {
+        return new QueryBuilder(contentUri);
     }
 
     public List<T> queryAll() {
-        Cursor c = mResolver.query(getContent().uri, null, null, null, null);
+        return queryAllByUri(getContent().uri);
+    }
+
+    protected List<T> queryAllByUri(Uri contentUri) {
+        return new QueryBuilder(contentUri).queryAll();
+    }
+
+    private List<T> queryAllByUri(Uri contentUri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String order) {
+        Cursor c = mResolver.query(contentUri, projection, selection, selectionArgs, order);
         if (c != null) {
             List<T> objects = new ArrayList<T>(c.getCount());
             while (c.moveToNext()) {
@@ -121,17 +154,33 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
 
     public @Nullable T queryForId(long id) {
         Cursor cursor = mResolver.query(getContent().forId(id), null, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            T obj = objFromCursor(cursor);
-            cursor.close();
-            return obj;
-        } else {
-            return null;
+        try {
+            if (cursor != null && cursor.moveToFirst()) {
+                return objFromCursor(cursor);
+            } else {
+                return null;
+            }
+        } finally {
+            if (cursor != null) cursor.close();
         }
     }
 
     public @Nullable T queryForUri(Uri uri) {
         return queryForId(UriUtils.getLastSegmentAsLong(uri));
+    }
+
+    public int count() {
+        return count(null);
+    }
+
+    public int count(@Nullable String where, String... whereArgs) {
+        Cursor cursor = mResolver.query(getContent().uri, null, where, whereArgs, null);
+        int count = 0;
+        if (cursor != null) {
+            count = cursor.getCount();
+            cursor.close();
+        }
+        return count;
     }
 
     protected T objFromCursor(Cursor cursor) {
@@ -143,6 +192,13 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     }
 
     public abstract Content getContent();
+
+    // I'd like to keep this for now in order to verify DB interaction in tests;
+    // Once we've removed ContentProvider, those interaction tests should be replaced
+    // with mocked calls to the actual DB
+    /* package */ ContentResolver getContentResolver() {
+        return mResolver;
+    }
 
     public @NotNull Class<T> getModelClass() {
         @SuppressWarnings("unchecked")
@@ -165,5 +221,58 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
                     null
                 )
         );
+    }
+
+    public final class QueryBuilder {
+        private final Uri mContentUri;
+        private String[] mProjection, mSelectionArgs;
+        private String mSelection, mOrder;
+        private int mLimit;
+
+        public QueryBuilder(Uri contentUri) {
+            mContentUri = contentUri;
+        }
+
+        public QueryBuilder where(@Nullable final String selection, @Nullable final String... selectionArgs) {
+            mSelection = selection;
+            mSelectionArgs = selectionArgs;
+            return this;
+        }
+
+        public QueryBuilder select(@Nullable final String... projection) {
+            mProjection = projection;
+            return this;
+        }
+
+        public QueryBuilder order(@Nullable final String order) {
+            mOrder = order;
+            return this;
+        }
+
+        public QueryBuilder limit(final int limit) {
+            mLimit = limit;
+            return this;
+        }
+
+        public List<T> queryAll() {
+            String orderAndLimitClause = null;
+            if (mOrder != null || mLimit > 0) {
+                StringBuilder sb = new StringBuilder();
+                if (mOrder != null) sb.append(mOrder);
+                if (mLimit > 0) sb.append(" LIMIT " + mLimit);
+                orderAndLimitClause = sb.toString().trim();
+            }
+
+            return queryAllByUri(mContentUri, mProjection, mSelection, mSelectionArgs, orderAndLimitClause);
+        }
+
+        public @Nullable T first() {
+            List<T> all = limit(1).queryAll();
+            if (all.isEmpty()) {
+                return null;
+            } else {
+                return all.get(0);
+            }
+        }
     }
 }

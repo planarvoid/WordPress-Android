@@ -1,60 +1,62 @@
 package com.soundcloud.android.service.sync;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.preference.PreferenceManager;
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import android.content.AsyncQueryHandler;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.ContentObserver;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SyncStateManager {
     private final LocalCollectionDAO mLocalCollectionDao;
+    private final ContentResolver mResolver;
 
-    public SyncStateManager(ContentResolver resolver) {
-        mLocalCollectionDao = new LocalCollectionDAO(resolver);
+    private final Map<Long, ContentObserver> mContentObservers;
+
+    public SyncStateManager(Context context) {
+        mResolver = context.getContentResolver();
+        mLocalCollectionDao = new LocalCollectionDAO(mResolver);
+        mContentObservers = new HashMap<Long, ContentObserver>();
     }
 
-    public LocalCollection insertLocalCollection(Uri contentUri) {
-        return insertLocalCollection(contentUri, 0, -1, -1, -1, null);
-    }
-
-    public  LocalCollection insertLocalCollection(
-            Uri contentUri,
-            int syncState,
-            long lastSyncAttempt,
-            long lastSyncSuccess,
-            int size,
-            String extra) {
-
-        // create if not there
-        ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Collections.URI, contentUri.toString());
-        if (lastSyncAttempt != -1) cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT, lastSyncAttempt);
-        if (lastSyncSuccess != -1) cv.put(DBHelper.Collections.LAST_SYNC, lastSyncSuccess);
-        if (size != -1)        cv.put(DBHelper.Collections.SIZE, size);
-        cv.put(DBHelper.Collections.SYNC_STATE, syncState);
-        cv.put(DBHelper.Collections.EXTRA, extra);
-
-        long id = mLocalCollectionDao.create(cv);
-        return new LocalCollection((int) id, contentUri, lastSyncAttempt,lastSyncSuccess, syncState, size, extra);
-    }
-
-
-    public @NotNull LocalCollection fromContent(Content content) {
+    @NotNull
+    public LocalCollection fromContent(Content content) {
         return fromContent(content.uri);
     }
 
-    public @NotNull LocalCollection fromContent(Uri contentUri) {
+    @NotNull
+    public LocalCollection fromContent(Uri contentUri) {
         return mLocalCollectionDao.fromContentUri(contentUri, true);
+    }
+
+    /**
+     * Returns a blank sync state record which will be either loaded or created asynchronously and redelivered through
+     * the given listener.
+     * @param contentUri content URI for the sync state to observe
+     * @param listener callback that's called when load or insert finished
+     * @return the sync state instance
+     */
+    @NotNull
+    public LocalCollection fromContentAsync(@NotNull Uri contentUri, @NotNull LocalCollection.OnChangeListener listener) {
+        LocalCollection syncState = new LocalCollection(contentUri);
+        SyncStateQueryHandler handler = new SyncStateQueryHandler(syncState, listener);
+        handler.startQuery(0, null, Content.COLLECTIONS.uri, null, "uri = ?", new String[]{contentUri.toString()}, null);
+        return syncState;
     }
 
     public boolean updateLastSyncSuccessTime(Content content, long time) {
@@ -64,7 +66,7 @@ public class SyncStateManager {
     public boolean updateLastSyncSuccessTime(Uri uri, long time) {
         LocalCollection lc = fromContent(uri);
 
-        ContentValues   cv = new ContentValues();
+        ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.LAST_SYNC, time);
 
         return mLocalCollectionDao.update(lc.id, cv);
@@ -152,4 +154,77 @@ public class SyncStateManager {
         }
         return urisToSync;
     }
+
+    public void addChangeListener(@NotNull LocalCollection lc, @NotNull LocalCollection.OnChangeListener listener) {
+        ChangeObserver observer = new ChangeObserver(lc, listener);
+        mContentObservers.put(lc.getId(), observer);
+
+        // if the record is created asynchronously, we may not have a valid ID at this point yet (and by extension
+        // cannot construct a content URI) so only actually register the observer if an ID is set.
+        if (lc.id > 0) {
+            final Uri contentUri = Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(lc.id)).build();
+            mResolver.registerContentObserver(contentUri, true, observer);
+        }
+    }
+
+    public void removeChangeListener(@NotNull LocalCollection lc) {
+        ContentObserver observer = mContentObservers.remove(lc.getId());
+        if (observer != null) mResolver.unregisterContentObserver(observer);
+    }
+
+    private class ChangeObserver extends ContentObserver {
+        private final LocalCollection mSyncState;
+        private final LocalCollection.OnChangeListener mListener;
+
+        public ChangeObserver(LocalCollection syncState, LocalCollection.OnChangeListener listener) {
+            super(new Handler());
+            mSyncState = syncState;
+            mListener = listener;
+        }
+
+        @Override
+        public boolean deliverSelfNotifications() {
+            return true;
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            SyncStateQueryHandler handler = new SyncStateQueryHandler(mSyncState, mListener);
+            handler.startQuery(0, null, Content.COLLECTIONS.uri, null, "_id = ?", new String[]{String.valueOf(mSyncState.getId())}, null);
+        }
+    }
+
+    private class SyncStateQueryHandler extends AsyncQueryHandler {
+        private LocalCollection mLocalCollection;
+        private final LocalCollection.OnChangeListener mListener;
+
+        public SyncStateQueryHandler(@NotNull LocalCollection lc, LocalCollection.OnChangeListener listener) {
+            super(mResolver);
+            mLocalCollection = lc;
+            mListener = listener;
+        }
+
+        @Override
+        protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
+            if (cursor != null && cursor.moveToFirst()) {
+                // the sync state record already existed, just inform the listener that it has changed
+                mLocalCollection.setFromCursor(cursor);
+                cursor.close();
+            } else {
+                // the record didn't exist yet; go ahead and create it before reporting any changes
+                mLocalCollectionDao.create(mLocalCollection);
+                mLocalCollection.sync_state = LocalCollection.SyncState.IDLE;
+                if (mListener != null) {
+                    mResolver.registerContentObserver(
+                            Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(mLocalCollection.getId())).build(),
+                            true, new ChangeObserver(mLocalCollection, mListener));
+                }
+            }
+            if (cursor != null) cursor.close();
+            if (mListener != null) mListener.onLocalCollectionChanged(mLocalCollection);
+        }
+    }
+
+
+
 }

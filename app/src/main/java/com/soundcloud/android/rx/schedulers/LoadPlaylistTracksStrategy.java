@@ -18,7 +18,7 @@ public class LoadPlaylistTracksStrategy implements SyncManager.LocalStorageStrat
     private PlaylistStorage mStorage;
 
     public LoadPlaylistTracksStrategy(Context context) {
-        mStorage = new PlaylistStorage(context.getContentResolver());
+        mStorage = new PlaylistStorage(context);
     }
 
     @Override

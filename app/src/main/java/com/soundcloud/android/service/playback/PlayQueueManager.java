@@ -38,7 +38,7 @@ public class PlayQueueManager {
     public PlayQueueManager(Context context, long userId) {
         mContext = context;
         mUserId = userId;
-        mPlayQueueDAO = new PlayQueueManagerStore(mContext.getContentResolver());
+        mPlayQueueDAO = new PlayQueueManagerStore(mContext);
 
     }
     public int length() {
@@ -200,7 +200,7 @@ public class PlayQueueManager {
     private AsyncTask loadCursor(final Uri uri, final int position) {
         return new ParallelAsyncTask<Uri,Void,List<Track>>() {
             @Override protected List<Track> doInBackground(Uri... params) {
-                return new TrackStorage(mContext.getContentResolver()).getTracksForUri(params[0]);
+                return new TrackStorage(mContext).getTracksForUri(params[0]);
             }
 
             @Override protected void onPostExecute(List<Track> newQueue) {
@@ -349,7 +349,7 @@ public class PlayQueueManager {
     }
 
     public static void clearState(Context context) {
-        new PlayQueueManagerStore(context.getContentResolver()).clearState();
+        new PlayQueueManagerStore(context).clearState();
         clearLastPlayed(context);
     }
 

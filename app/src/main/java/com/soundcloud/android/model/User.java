@@ -317,6 +317,10 @@ public class User extends ScResource implements Refreshable {
         if (user.myspace_name != null) this.myspace_name = user.myspace_name;
         if (user.description != null) this.description = user.description;
         if (user.primary_email_confirmed != null) this.primary_email_confirmed = user.primary_email_confirmed;
+
+        if (cacheUpdateMode == CacheUpdateMode.FULL){
+            last_updated = user.last_updated;
+        }
         return this;
     }
 
@@ -331,16 +335,6 @@ public class User extends ScResource implements Refreshable {
 
     public Plan getPlan() {
         return Plan.fromApi(plan);
-    }
-
-    public static void clearLoggedInUserFromStorage(Context context) {
-        final ContentResolver resolver = context.getContentResolver();
-
-        UserDAO.clearLoggedInUserFromStorage(resolver);
-        new ActivitiesStorage(resolver).clear(null);
-        PlayQueueManager.clearState(context);
-        FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
-        SearchDAO.clearState(resolver, SoundCloudApplication.getUserId());
     }
 
     @Override

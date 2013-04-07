@@ -108,7 +108,8 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, Uri> {
             return new Uri.Builder()
                     .scheme(env.sslResourceHost.getSchemeName())
                     .authority(env.sslResourceHost.getHostName())
-                    .appendPath(curi.type)
+                    // handle api vs uri difference in tracks/sounds
+                    .appendPath(curi.type.equalsIgnoreCase(ClientUri.SOUNDS_TYPE) ? ClientUri.TRACKS_TYPE : curi.type)
                     .appendPath(curi.id).build();
         } else {
             return null;

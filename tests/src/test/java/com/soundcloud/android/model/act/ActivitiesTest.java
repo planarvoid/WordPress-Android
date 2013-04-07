@@ -85,6 +85,14 @@ public class ActivitiesTest {
     }
 
     @Test
+    public void testAllActivityTypesHaveUsers() throws Exception {
+        Activities activities = TestHelper.readJson(Activities.class, ApiSyncServiceTest.class, "e1_one_of_each_activity.json");
+        for (Activity a : activities){
+            expect(a.getUser()).not.toBeNull();
+        }
+    }
+
+    @Test
     public void testFromJSON() throws Exception {
         Activities a = getDefaultActivities();
         expect(a.size()).toEqual(17);

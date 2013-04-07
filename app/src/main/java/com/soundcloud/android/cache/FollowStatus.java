@@ -52,13 +52,14 @@ public class FollowStatus {
 
     protected FollowStatus(final Context c) {
         mContext = c;
-        mSyncStateManager = new SyncStateManager(c.getContentResolver());
+        mSyncStateManager = new SyncStateManager(c);
 
 
         mFollowingCollectionState = mSyncStateManager.fromContent(Content.ME_FOLLOWINGS);
-        mFollowingCollectionState.startObservingSelf(mContext.getContentResolver(), new LocalCollection.OnChangeListener() {
+        mSyncStateManager.addChangeListener(mFollowingCollectionState, new LocalCollection.OnChangeListener() {
             @Override
-            public void onLocalCollectionChanged() {
+            public void onLocalCollectionChanged(LocalCollection localCollection) {
+                mFollowingCollectionState = localCollection;
                 // if last sync has changed, do a new query
                 if (mFollowingCollectionState.last_sync_success != last_sync_success) {
                     last_sync_success = mFollowingCollectionState.last_sync_success;
@@ -92,14 +93,6 @@ public class FollowStatus {
     }
 
     public synchronized void requestUserFollowings(final Listener listener) {
-
-        if (mFollowingCollectionState.shouldAutoRefresh()) {
-            // sync users for proper following display
-            Intent intent = new Intent(mContext, ApiSyncService.class)
-                    .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                    .setData(Content.ME_FOLLOWINGS.uri);
-        }
-
         // add this listener with a weak reference
         listeners.put(listener, null);
         if (asyncQueryHandler == null) {

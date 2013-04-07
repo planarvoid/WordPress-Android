@@ -2,10 +2,8 @@ package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.dao.PlaylistDAO;
+import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -16,21 +14,18 @@ import android.content.ContentResolver;
 import android.net.Uri;
 
 import java.util.List;
-import java.util.Set;
 
 @RunWith(DefaultTestRunner.class)
 public class SyncContentTest {
     ContentResolver resolver;
     SyncStateManager syncStateManager;
-    PlaylistDAO playlistDAO;
 
     private static final int ACTIVE_SYNC_ENDPOINTS = SyncContent.values().length - 1; /* follower disabled */
 
     @Before
     public void before() {
         resolver = Robolectric.application.getContentResolver();
-        syncStateManager = new SyncStateManager(resolver);
-        playlistDAO = new PlaylistDAO(resolver);
+        syncStateManager = new SyncStateManager(DefaultTestRunner.application);
 
         SyncContent.setAllSyncEnabledPrefs(Robolectric.application,true);
     }
@@ -43,14 +38,15 @@ public class SyncContentTest {
 
     @Test
     public void shouldSyncAllExceptMySounds() throws Exception {
-        LocalCollection c = syncStateManager.insertLocalCollection(
+        LocalCollection c = new LocalCollection(
                 SyncContent.MySounds.content.uri, // uri
-                1, // sync state
                 -1l, // last sync attempt, ignored in the sync adapter
                 System.currentTimeMillis(), // last sync
+                LocalCollection.SyncState.PENDING,
                 2, // size
                 "some-extra" // extra
                 );
+        new LocalCollectionDAO(resolver).create(c);
 
         List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(Robolectric.application, false);
         expect(urisToSync.size()).toEqual(ACTIVE_SYNC_ENDPOINTS - 1);
@@ -58,14 +54,15 @@ public class SyncContentTest {
 
     @Test
     public void shouldSyncAllExceptMySounds1Miss() throws Exception {
-        LocalCollection c = syncStateManager.insertLocalCollection(
+        LocalCollection c = new LocalCollection(
                 SyncContent.MySounds.content.uri, // uri
-                1, // sync state
                 -1l, // last sync attempt, ignored in the sync adapter
                 System.currentTimeMillis() - SyncConfig.TRACK_BACKOFF_MULTIPLIERS[1] * SyncConfig.TRACK_STALE_TIME + 5000, // last sync
+                LocalCollection.SyncState.PENDING,
                 2, // size
                 "1" // extra
                 );
+        new LocalCollectionDAO(resolver).create(c);
 
         List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(Robolectric.application, false);
         expect(urisToSync.size()).toEqual(ACTIVE_SYNC_ENDPOINTS -1);
@@ -73,14 +70,15 @@ public class SyncContentTest {
 
     @Test
     public void shouldSyncAllMySounds1Miss() throws Exception {
-        LocalCollection c = syncStateManager.insertLocalCollection(
+        LocalCollection c = new LocalCollection(
                 SyncContent.MySounds.content.uri, // uri
-                1, // sync state
                 -1l, // last sync attempt, ignored in the sync adapter
                 System.currentTimeMillis() - SyncConfig.TRACK_BACKOFF_MULTIPLIERS[1] * SyncConfig.TRACK_STALE_TIME, // last sync
+                LocalCollection.SyncState.PENDING,
                 2, // size
                 "1" // extra
                 );
+        new LocalCollectionDAO(resolver).create(c);
 
         List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(Robolectric.application, false);
         expect(urisToSync.size()).toEqual(ACTIVE_SYNC_ENDPOINTS );
@@ -88,14 +86,15 @@ public class SyncContentTest {
 
     @Test
     public void shouldSyncAllExceptMySoundsMaxMisses() throws Exception {
-        LocalCollection c = syncStateManager.insertLocalCollection(
+        LocalCollection c = new LocalCollection(
                 SyncContent.MySounds.content.uri, // uri
-                1, // sync state
                 -1l, // last sync attempt, ignored in the sync adapter
                 1, // last sync
+                LocalCollection.SyncState.PENDING,
                 2, // size
                 String.valueOf(SyncConfig.TRACK_BACKOFF_MULTIPLIERS.length) // extra
                 );
+        new LocalCollectionDAO(resolver).create(c);
 
         List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(Robolectric.application, false);
         expect(urisToSync.size()).toEqual(ACTIVE_SYNC_ENDPOINTS -1);
@@ -104,14 +103,15 @@ public class SyncContentTest {
 
     @Test
     public void shouldNotSyncAfterMiss() throws Exception {
-        LocalCollection c = syncStateManager.insertLocalCollection(
+        LocalCollection c = new LocalCollection(
                 SyncContent.MySounds.content.uri,// uri
-                1, // sync state
                 -1l, // last sync attempt, ignored in the sync adapter
                 System.currentTimeMillis() - SyncConfig.TRACK_STALE_TIME, // last sync
+                LocalCollection.SyncState.PENDING,
                 2, // size
                 "" // extra
                 );
+        new LocalCollectionDAO(resolver).create(c);
 
         List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(Robolectric.application, false);
         expect(urisToSync.size()).toEqual(ACTIVE_SYNC_ENDPOINTS);

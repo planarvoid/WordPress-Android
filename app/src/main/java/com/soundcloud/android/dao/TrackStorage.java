@@ -2,6 +2,7 @@ package com.soundcloud.android.dao;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -16,16 +17,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class TrackStorage {
+public class TrackStorage implements Storage<Track> {
     private TrackDAO mTrackDAO;
     private final ContentResolver mResolver;
 
-
-    public TrackStorage(ContentResolver resolver) {
-        mTrackDAO = new TrackDAO(resolver);
-        mResolver = resolver;
+    public TrackStorage(Context context) {
+        mResolver = context.getContentResolver();
+        mTrackDAO = new TrackDAO(mResolver);
     }
-
 
     public boolean markTrackAsPlayed(Track track) {
         ContentValues contentValues = new ContentValues();
@@ -33,8 +32,9 @@ public class TrackStorage {
         return mResolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
     }
 
-    public Uri create(Track track) {
-        return Content.TRACKS.forId(mTrackDAO.create(track));
+    @Override
+    public void create(Track track) {
+        mTrackDAO.create(track);
     }
 
     public long createOrUpdate(Track track) {
@@ -45,8 +45,8 @@ public class TrackStorage {
         return mTrackDAO.queryForId(id);
     }
 
-    public int insert(Collection<Track> tracks, Content content) {
-        return 0;
+    public Track getTrack(Uri uri) {
+        return mTrackDAO.queryForUri(uri);
     }
 
     public List<Track> getTracksForUri(Uri uri) {

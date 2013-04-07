@@ -310,11 +310,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         if (mResumeTime > -1) {
             if (state.isSupposedToBePlaying()) pause();
             currentTrack = mPlayQueueManager.getCurrentTrack();
-            mResumeTrackId = currentTrack.id;
-            return true;
-        } else {
-            return false;
+            if (currentTrack != null) {
+                mResumeTrackId = currentTrack.id;
+                return true;
+            }
         }
+        return false;
     }
 
     @Override
@@ -516,7 +517,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         new Thread() {
             @Override
             public void run() {
-                new TrackStorage(getContentResolver()).markTrackAsPlayed(currentTrack);
+                new TrackStorage(CloudPlaybackService.this).markTrackAsPlayed(currentTrack);
             }
         }.start();
         startTrack(track);
@@ -592,13 +593,15 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private void releaseMediaPlayer(boolean refresh) {
         Log.w(TAG, "stuck in preparing state!");
         final MediaPlayer old = mMediaPlayer;
-        new Thread() {
-            @Override
-            public void run() {
-                old.reset();
-                old.release();
-            }
-        }.start();
+        if (old != null){
+            new Thread() {
+                @Override
+                public void run() {
+                    old.reset();
+                    old.release();
+                }
+            }.start();
+        }
         mMediaPlayer = refresh ? new MediaPlayer() : null;
     }
 
@@ -1117,8 +1120,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                         if (mCurrentVolume > 0f) {
                             sendEmptyMessageDelayed(FADE_OUT, 10);
                         } else {
+                            if (mMediaPlayer != null) mMediaPlayer.pause();
                             mCurrentVolume = 0f;
-                            mMediaPlayer.pause();
                             state = PAUSED_FOCUS_LOST;
                         }
                         setVolume(mCurrentVolume);

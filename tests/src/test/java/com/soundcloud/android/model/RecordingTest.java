@@ -5,7 +5,6 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.audio.reader.WavReader;
-import com.soundcloud.android.dao.RecordingDAO;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -183,7 +182,7 @@ public class RecordingTest {
                 .putExtra(Actions.EXTRA_TAGS, new String[]{"tags"})
                 ;
 
-        Recording r = Recording.fromIntent(i, Robolectric.application.getContentResolver(), -1);
+        Recording r = Recording.fromIntent(i, Robolectric.application, -1);
         expect(r).not.toBeNull();
         expect(r.description).toEqual("description");
         expect(r.genre).toEqual("genre");
@@ -197,7 +196,7 @@ public class RecordingTest {
     public void shouldGetRecordingFromIntentViaParcelable() throws Exception {
         Recording r = createRecording();
         Intent i = new Intent().putExtra(SoundRecorder.EXTRA_RECORDING, r);
-        Recording r2 = Recording.fromIntent(i, Robolectric.application.getContentResolver(), -1);
+        Recording r2 = Recording.fromIntent(i, Robolectric.application, -1);
         expect(r2).not.toBeNull();
         expect(r2.description).toEqual(r.description);
         expect(r2.is_private).toEqual(r.is_private);

@@ -18,7 +18,7 @@ public class Search implements ModelLike, ContentValuesProvider {
     public static final int USERS  = 2;
     public static final int PLAYLISTS = 3;
 
-    public int id;
+    public long id;
     public int search_type;
     public String query;
     public long created_at;
@@ -81,6 +81,11 @@ public class Search implements ModelLike, ContentValuesProvider {
     }
 
     @Override
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    @Override
     public Uri toUri() {
         return Content.SEARCH.forId(id);
     }
@@ -95,6 +100,10 @@ public class Search implements ModelLike, ContentValuesProvider {
 
     @Override
     public void putFullContentValues(@NotNull BulkInsertMap destination) {
+    }
+
+    @Override
+    public void putDependencyValues(@NotNull BulkInsertMap destination) {
     }
 
     @SuppressWarnings("RedundantIfStatement")

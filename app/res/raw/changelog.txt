@@ -1,5 +1,20 @@
-$ 57
+$ 59
   % v current
+  _ 2013-03-29
+    ! Maintenance
+    * Fixed loading bugs in Search
+    * Added additional deeplink handling
+    - Fixed some performance issues related to background syncing and database IO
+
+$ 58
+  % v 2.5.1
+  _ 2013-03-22
+    ! Maintenance
+    * Fixed a playlist sync related crash
+    * Fixed player reload bug
+
+$ 57
+  % v 2.5.0
   _ 2013-03-21
   ! Sets
   * Sets are here!  Sets (collections of tracks) appear in your stream when posted by others. Listen to sets posted by others, or create and share your own.

@@ -92,7 +92,7 @@ public class UploadMonitor extends Activity {
 
         final Intent intent = getIntent();
         Recording recording;
-        if ((recording = Recording.fromIntent(intent, getContentResolver(), SoundCloudApplication.getUserId())) != null) {
+        if ((recording = Recording.fromIntent(intent, this, SoundCloudApplication.getUserId())) != null) {
             setRecording(recording);
 
             // check for initial progress to display

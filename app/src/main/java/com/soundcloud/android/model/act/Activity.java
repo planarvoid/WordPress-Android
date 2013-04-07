@@ -167,6 +167,10 @@ public abstract class Activity extends ScModel implements Parcelable,
     }
 
     @Override
+    public void putDependencyValues(@NotNull BulkInsertMap destination) {
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Activity)) return false;

@@ -20,8 +20,7 @@ public class LoadActivitiesStrategy implements SyncManager.LocalStorageStrategy<
     private final ActivitiesStorage mStorage;
 
     public LoadActivitiesStrategy(Context context) {
-        ContentResolver resolver = context.getContentResolver();
-        mStorage = new ActivitiesStorage(resolver);
+        mStorage = new ActivitiesStorage(context);
     }
 
     public Observable<List<Activity>> loadActivitiesSince(final Uri contentUri, final long timestamp) {

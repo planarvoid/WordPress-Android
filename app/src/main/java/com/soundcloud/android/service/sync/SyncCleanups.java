@@ -32,7 +32,7 @@ enum SyncCleanups {
      * @param manual manual sync {@link android.content.ContentResolver#SYNC_EXTRAS_MANUAL}
      */
     public static List<Uri> getCleanupsDueForSync(Context c, boolean manual) {
-        SyncStateManager syncStateManager = new SyncStateManager(c.getContentResolver());
+        SyncStateManager syncStateManager = new SyncStateManager(c);
 
         List<Uri> urisToSync = new ArrayList<Uri>();
         for (SyncCleanups sc : SyncCleanups.values()) {

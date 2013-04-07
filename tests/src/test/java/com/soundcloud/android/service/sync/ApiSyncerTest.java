@@ -1,15 +1,19 @@
 package com.soundcloud.android.service.sync;
 
-import android.content.ContentResolver;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.*;
+import static com.soundcloud.android.service.sync.ApiSyncer.Result;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
+
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
-    import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -22,16 +26,18 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 
 import java.io.IOException;
 import java.util.List;
-
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.*;
-import static com.soundcloud.android.service.sync.ApiSyncer.Result;
 
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncerTest {
@@ -47,9 +53,9 @@ public class ApiSyncerTest {
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        syncStateManager = new SyncStateManager(resolver);
-        activitiesStorage = new ActivitiesStorage(resolver);
-        playlistStorage = new PlaylistStorage(resolver);
+        syncStateManager = new SyncStateManager(DefaultTestRunner.application);
+        activitiesStorage = new ActivitiesStorage(DefaultTestRunner.application);
+        playlistStorage = new PlaylistStorage(DefaultTestRunner.application);
     }
 
     @Test
@@ -136,11 +142,44 @@ public class ApiSyncerTest {
         Result result = sync(Content.ME_FOLLOWERS.uri);
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
-
-        // make sure tracks+users got written
         expect(Content.USERS).toHaveCount(3);
-        expect(Content.ME_FOLLOWERS).toHaveCount(3);
-        assertFirstIdToBe(Content.ME_FOLLOWERS, 308291);
+
+
+        List<User> followers = TestHelper.loadLocalContent(Content.ME_FOLLOWERS.uri, User.class);
+        expect(followers.get(0).id).toEqual(308291l);
+        for (User u : followers){
+            expect(u.isStale()).toBeFalse();
+        }
+    }
+
+    @Test
+    public void shouldSyncFollowersInSingleBatchIfCollectionIsSmallEnough() throws Exception {
+        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
+        addCannedResponse(getClass(), "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "empty_collection.json");
+
+        ContentResolver resolver = Mockito.mock(ContentResolver.class);
+
+        ApiSyncer syncer = new ApiSyncer(Robolectric.application, resolver);
+
+        syncer.setBulkInsertBatchSize(Integer.MAX_VALUE);
+        syncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
+        verify(resolver).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
+        verifyNoMoreInteractions(resolver);
+    }
+
+    @Test
+    public void shouldSyncFollowersInBatchesIfCollectionTooLarge() throws Exception {
+        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
+        addCannedResponse(getClass(), "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "empty_collection.json");
+
+        ContentResolver resolver = Mockito.mock(ContentResolver.class);
+
+        ApiSyncer syncer = new ApiSyncer(Robolectric.application, resolver);
+
+        syncer.setBulkInsertBatchSize(2); // for 3 users, this should result in 2 batches being inserted
+        syncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
+        verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
+        verifyNoMoreInteractions(resolver);
     }
 
     @Test
@@ -255,15 +294,16 @@ public class ApiSyncerTest {
         Playlist playlist = TestHelper.readResource("/com/soundcloud/android/service/sync/playlist.json");
         TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
 
-        Playlist p = playlistStorage.createNewPlaylist(playlist.user, false, playlist.tracks);
-
-        expect(playlistStorage.insertAsMyPlaylist(p)).not.toBeNull();
+        Playlist p = TestHelper.createNewUserPlaylist(playlist.user, false, playlist.tracks);
+        TestHelper.insertAsSoundAssociation(p, SoundAssociation.Type.PLAYLIST);
 
         expect(Content.ME_SOUNDS).toHaveCount(51);
-        expect(new ApiSyncer(Robolectric.application).pushLocalPlaylists()).toEqual(1);
+        expect(Content.COLLECTIONS).toHaveCount(0);
+        expect(new ApiSyncer(Robolectric.application, resolver).pushLocalPlaylists()).toBe(1);
         expect(Content.ME_SOUNDS).toHaveCount(51);
+        expect(Content.COLLECTIONS).toHaveCount(1);
 
-        expect(syncStateManager.fromContent(p.toUri()).shouldAutoRefresh()).toBeFalse();
+        expect(syncStateManager.fromContent(playlist.toUri()).shouldAutoRefresh()).toBeFalse();
     }
 
     private Result syncMeSounds() throws IOException {
@@ -452,7 +492,7 @@ public class ApiSyncerTest {
 
     private Result sync(Uri uri,  String... fixtures) throws IOException {
         addPendingHttpResponse(getClass(), fixtures);
-        ApiSyncer syncer = new ApiSyncer(Robolectric.application);
+        ApiSyncer syncer = new ApiSyncer(Robolectric.application, Robolectric.application.getContentResolver());
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
     }
 

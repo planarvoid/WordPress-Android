@@ -11,6 +11,10 @@ import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.dao.ActivitiesStorage;
+import com.soundcloud.android.dao.SearchDAO;
+import com.soundcloud.android.dao.UserDAO;
+import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.imageloader.DownloadBitmapHandler;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.imageloader.PrefetchHandler;
@@ -21,6 +25,7 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncConfig;
 import com.soundcloud.android.tracking.ATTracker;
@@ -68,7 +73,7 @@ import java.net.URI;
 import java.util.List;
 
 @ReportsCrashes(
-        formUri = "https://bugsense.appspot.com/api/acra?api_key=231805c4",
+        formUri = "https://bugsense.appspot.com/api/acra?api_key=3e22e330",
         formKey= "",
         checkReportVersion = true,
         checkReportSender = true)
@@ -138,7 +143,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 }
             });
 
-            C2DMReceiver.register(this, getLoggedInUser());
+            try {
+                C2DMReceiver.register(this, getLoggedInUser());
+            } catch (Exception e){
+                SoundCloudApplication.handleSilentException("Could not register c2dm ",e);
+            }
 
             // sync current sets
             AndroidUtils.doOnce(this, "request.sets.sync", new Runnable() {
@@ -197,10 +206,25 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
+    //TODO: This should be on a different class, e.g. a LoginManager
     public void onAccountRemoved(Account account) {
+        new Thread() {
+            @Override
+            public void run() {
+                final ContentResolver resolver = getContentResolver();
+
+                new UserStorage(SoundCloudApplication.this).clearLoggedInUser();
+                new ActivitiesStorage(SoundCloudApplication.this).clear(null);
+
+                PlayQueueManager.clearState(SoundCloudApplication.this);
+                FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
+                SearchDAO.clearState(resolver, SoundCloudApplication.getUserId());
+            }
+        }.run();
+
         sendBroadcast(new Intent(Actions.LOGGING_OUT));
         sendBroadcast(new Intent(CloudPlaybackService.RESET_ALL));
-        User.clearLoggedInUserFromStorage(this);
+
         C2DMReceiver.unregister(this);
         FollowStatus.set(null);
         ConnectionsCache.set(null);

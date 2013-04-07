@@ -8,11 +8,12 @@ import org.jetbrains.annotations.Nullable;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.BaseColumns;
 
-public class ScModel implements Parcelable {
+public class ScModel implements Parcelable, ModelLike {
     public static final int NOT_SET = -1;
     @JsonView(Views.Mini.class) public long id = NOT_SET;
 
@@ -47,7 +48,18 @@ public class ScModel implements Parcelable {
         return id;
     }
 
+    @Override
     public long getId() {
         return id;
+    }
+
+    @Override
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    @Override
+    public Uri toUri() {
+        return null;
     }
 }

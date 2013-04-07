@@ -35,7 +35,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
 
     public ActivityAdapter(Context context, Uri uri) {
         super(context, uri);
-        mActivitiesStorage = new ActivitiesStorage(context.getContentResolver());
+        mActivitiesStorage = new ActivitiesStorage(context);
     }
 
     @Override

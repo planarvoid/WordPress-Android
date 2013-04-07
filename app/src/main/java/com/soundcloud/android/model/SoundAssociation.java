@@ -60,10 +60,29 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
         playable = Playable.fromCursor(cursor);
     }
 
-    public SoundAssociation(@NotNull Playable playable, Date created_at, Type typeEnum) {
+    /**
+     * Use this ctor to create sound associations for likes and reposts of playlists and tracks.
+     * @param playable the track or playlist that was reposted or liked
+     * @param typeEnum the kind of association
+     */
+    public SoundAssociation(@NotNull Playable playable, Date associatedAt, Type typeEnum) {
         this.playable = playable;
-        this.created_at = created_at;
+        this.created_at = associatedAt;
         this.associationType = typeEnum.collectionType;
+    }
+
+    /**
+     * Creates a sound association for a track the user has created.
+     */
+    public SoundAssociation(Track track) {
+        this(track, track.created_at, Type.TRACK);
+    }
+
+    /**
+     * Creates a sound association for a playlist the user has created.
+     */
+    public SoundAssociation(Playlist playlist) {
+        this(playlist, playlist.created_at, Type.PLAYLIST);
     }
 
     @Override
@@ -140,6 +159,10 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
         return playable;
     }
 
+    public long getItemId() {
+        return playable.getId();
+    }
+
     public int getResourceType() {
         return playable.getTypeId();
     }
@@ -150,15 +173,23 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
         if (user != null)       user.putFullContentValues(destination);
     }
 
-    /**
-     * SoundAssociations do not have ids and can not be inserted outside of
-     * {@link com.soundcloud.android.model.SoundAssociationHolder#insert}
-     * @return null
-     */
+    // SoundAssociation is different from the other models in that they don't have IDs
+    // when inserted, but are defined over the resource they refer to.
+    // Hence, toUri returns not an ID-based resource, but a collection URIs for insertion.
     @Override
     public Uri toUri() {
-        Log.e(SoundCloudApplication.TAG,"Unexpected call to toUri on a SoundAssociation");
-        return null;
+        switch (associationType) {
+            case ScContentProvider.CollectionItemTypes.LIKE:
+                return Content.ME_LIKES.uri;
+            case ScContentProvider.CollectionItemTypes.REPOST:
+                return Content.ME_REPOSTS.uri;
+            case ScContentProvider.CollectionItemTypes.TRACK:
+                return Content.ME_SOUNDS.uri;
+            case ScContentProvider.CollectionItemTypes.PLAYLIST:
+                return Content.ME_PLAYLISTS.uri;
+            default:
+                throw new IllegalStateException("Can't build content URI for given association type");
+        }
     }
 
     @JsonProperty("type")
@@ -182,11 +213,6 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     @Override
     public void refreshTimeSinceCreated(Context context) {
         _elapsedTime = null;
-    }
-
-    public Uri insert(ContentResolver contentResolver, Uri destination){
-        insertDependencies(contentResolver);
-        return contentResolver.insert(destination, buildContentValues());
     }
 
     @Override

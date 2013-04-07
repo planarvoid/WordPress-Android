@@ -398,7 +398,18 @@ public class UserBrowser extends ScActivity implements
 
     @Override
     public void onSuccess(User user) {
+        user.last_updated = System.currentTimeMillis();
         setUser(user);
+
+        // update user locally and ensure 1 instance
+        mUser = SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.FULL);
+        //FIXME: This will be handled/scheduled by an Observable when we're done refactoring storage
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                new UserStorage(UserBrowser.this).create(mUser);
+            }
+        }).start();
         mUserDetailsFragment.onSuccess(mUser);
     }
 

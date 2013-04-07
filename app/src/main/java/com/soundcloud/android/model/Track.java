@@ -492,10 +492,6 @@ public class Track extends Playable implements PlayableHolder {
         return new Intent(Actions.PLAY).putExtra(EXTRA, this);
     }
 
-    public void setUpdated() {
-        last_updated = System.currentTimeMillis();
-    }
-
     public Track updateFrom(Track updatedItem, CacheUpdateMode cacheUpdateMode) {
         super.updateFrom(updatedItem,cacheUpdateMode);
         stream_url = updatedItem.stream_url;
