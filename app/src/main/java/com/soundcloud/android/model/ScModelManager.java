@@ -5,10 +5,16 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import com.soundcloud.android.cache.ModelCache;
+import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.UriUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 @Deprecated
 public class ScModelManager {
@@ -25,11 +31,15 @@ public class ScModelManager {
         mResolver = c.getContentResolver();
     }
 
+    public Activity getActivityFromCursor(Cursor cursor) {
+        return Activity.Type.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE))).fromCursor(cursor);
+    }
+
     public Track getCachedTrackFromCursor(Cursor cursor) {
         return getCachedTrackFromCursor(cursor, DBHelper.Sounds._ID);
     }
 
-    private Track getCachedTrackFromCursor(Cursor cursor, String idCol) {
+    public Track getCachedTrackFromCursor(Cursor cursor, String idCol) {
         final long id = cursor.getLong(cursor.getColumnIndex(idCol));
         Track track = mTrackCache.get(id);
 
@@ -45,7 +55,7 @@ public class ScModelManager {
         return getCachedPlaylistFromCursor(cursor, DBHelper.Sounds._ID);
     }
 
-    private Playlist getCachedPlaylistFromCursor(Cursor cursor, String idCol) {
+    public Playlist getCachedPlaylistFromCursor(Cursor cursor, String idCol) {
         final long id = cursor.getLong(cursor.getColumnIndex(idCol));
         Playlist playlist = mPlaylistCache.get(id);
 
@@ -57,8 +67,12 @@ public class ScModelManager {
         return playlist;
     }
 
-    public User getCachedUserFromCursor(Cursor cursor) {
+    public User getCachedUserFromPlayableCursor(Cursor cursor) {
         return getCachedUserFromCursor(cursor, DBHelper.SoundView.USER_ID);
+    }
+
+    public User getCachedUserFromCursor(Cursor cursor) {
+        return getCachedUserFromCursor(cursor,DBHelper.Users._ID);
     }
 
     public User getCachedUserFromCursor(Cursor cursor, String col) {
@@ -67,6 +81,16 @@ public class ScModelManager {
 
         if (user == null) {
             user = User.fromTrackView(cursor);
+            mUserCache.put(user);
+        }
+        return user;
+    }
+
+    public User getCachedUserFromActivityCursor(Cursor itemsCursor) {
+        final long id = itemsCursor.getLong(itemsCursor.getColumnIndex(DBHelper.ActivityView.USER_ID));
+        User user = mUserCache.get(id);
+        if (user == null) {
+            user = User.fromActivityView(itemsCursor);
             mUserCache.put(user);
         }
         return user;

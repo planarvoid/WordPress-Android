@@ -4,6 +4,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.BaseAdapter;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.dao.BaseDAO;
 import com.soundcloud.android.model.ScResource;
@@ -14,6 +15,7 @@ import com.soundcloud.api.Request;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -53,7 +55,12 @@ public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Bool
                 .add(Wrapper.LINKED_PARTITIONING, "1")
                 .add("ids", TextUtils.join(",", mResourceIds));
 
-            List<ScResource> resources = mApi.readList(HttpUtils.addQueryParams(request, params));
+            /* in memory objects will only receive these lookups if you go through the cache,
+            of course this can change eventually */
+            List<ScResource> resources = new ArrayList<ScResource>();
+            for (ScResource r :  mApi.readList(HttpUtils.addQueryParams(request, params))){
+                resources.add(SoundCloudApplication.MODEL_MANAGER.cache(r, ScResource.CacheUpdateMode.FULL));
+            }
 
             new BaseDAO<ScResource>(mApi.getContext().getContentResolver()) {
                 @Override public Content getContent() {
