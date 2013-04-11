@@ -209,8 +209,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         new Thread() {
             @Override
             public void run() {
-                final ContentResolver resolver = getContentResolver();
-
                 new UserStorage(SoundCloudApplication.this).clearLoggedInUser();
                 new ActivitiesStorage(SoundCloudApplication.this).clear(null);
 
@@ -286,6 +284,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
+    /**
+     * Make sure that sets are synced first, to avoid running into data consistency issues around adding tracks
+     * to playlists, see https://github.com/soundcloud/SoundCloud-Android/issues/609
+     *
+     * Alternatively, sync sets lazily where needed.
+     */
     private void requestSetsSync(){
         Intent intent = new Intent(this, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
