@@ -50,8 +50,6 @@ public class Login extends RelativeLayout {
         final Button               loginButton    = (Button)                findViewById(R.id.btn_login);
         final Button               cancelButton   = (Button)                findViewById(R.id.btn_cancel);
 
-        //emailField.setText(AndroidUtils.suggestEmail(context));
-
         passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @SuppressWarnings({"SimplifiableIfStatement"})
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
