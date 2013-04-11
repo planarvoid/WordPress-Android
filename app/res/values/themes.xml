@@ -102,9 +102,15 @@
         <item name="android:buttonStyle">@style/btn_default</item>
         <item name="android:windowBackground">@color/darkBg</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:autoCompleteTextViewStyle">@style/Widget.Light.AutoCompleteTextView</item>
+        <item name="android:dropDownItemStyle">@style/Widget.Light.DropDownItem</item>
     </style>
 
     <style name="Theme.ScCreate" parent="Theme.Next.Dark">
+        <item name="android:windowBackground">@drawable/bg_rec</item>
+    </style>
+
+    <style name="Theme.Recover" parent="Theme.Next.NoActionBar">
         <item name="android:windowBackground">@drawable/bg_rec</item>
     </style>
 

@@ -7,10 +7,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.widget.*;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.tracking.Click;
@@ -51,13 +48,16 @@ public class SignUp extends RelativeLayout {
         final Context context = getContext();
         final SoundCloudApplication app = SoundCloudApplication.fromContext(context);
 
-        final EditText emailField          = (EditText) findViewById(R.id.txt_email_address);
+        final AutoCompleteTextView emailField     = (AutoCompleteTextView)  findViewById(R.id.auto_txt_email_address);
         final EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
         final EditText repeatPasswordField = (EditText) findViewById(R.id.txt_repeat_your_password);
         final Button   signUpButton       = (Button)   findViewById(R.id.btn_signup);
         final Button   cancelButton       = (Button)   findViewById(R.id.btn_cancel);
 
-        emailField.setText(AndroidUtils.suggestEmail(context));
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                getContext(), android.R.layout.simple_dropdown_item_1line, AndroidUtils.listEmails(getContext()));
+        emailField.setAdapter(adapter);
+        emailField.setThreshold(0);
 
         repeatPasswordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @SuppressWarnings({"SimplifiableIfStatement"})
@@ -124,7 +124,7 @@ public class SignUp extends RelativeLayout {
                         }
                         ;
                     }
-                }, true);
+                }, true, false);
     }
 
     static boolean checkPassword(CharSequence password) {
@@ -141,7 +141,7 @@ public class SignUp extends RelativeLayout {
     }
 
     public Bundle getStateBundle() {
-        EditText emailField          = (EditText) findViewById(R.id.txt_email_address);
+        EditText emailField          = (EditText) findViewById(R.id.auto_txt_email_address);
         EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
         EditText repeatPasswordField = (EditText) findViewById(R.id.txt_repeat_your_password);
 
@@ -155,7 +155,7 @@ public class SignUp extends RelativeLayout {
     public void setState(@Nullable Bundle bundle) {
         if (bundle == null) return;
 
-        EditText emailField          = (EditText) findViewById(R.id.txt_email_address);
+        EditText emailField          = (EditText) findViewById(R.id.auto_txt_email_address);
         EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
         EditText repeatPasswordField = (EditText) findViewById(R.id.txt_repeat_your_password);
 

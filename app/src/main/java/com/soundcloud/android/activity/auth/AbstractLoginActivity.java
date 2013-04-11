@@ -4,14 +4,14 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.util.Log;
 
@@ -91,24 +91,15 @@ public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity
         new FetchUserTask(app) {
             @Override
             protected void onPostExecute(User user) {
-                dismissDialog(progress);
-
                 if (user != null) {
                     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
 
                     // for normal logins, we don't track via; for FB logins or signups, it'll be stored in the token.
                     SignupVia via = token.getSignup() != null ? SignupVia.fromString(token.getSignup()) : SignupVia.NONE;
 
-                    // need to create user account as soon as possible, so the executeRefreshTask logic in
-                    // SoundCloudApplication works properly
-                    boolean accountCreated = app.addUserAccountAndEnableSync(user, app.getToken(), via);
-                    if (accountCreated) {
-                        // success path
-                        onAuthenticated(via, user);
-                    } else {
-                        AndroidUtils.showToast(AbstractLoginActivity.this, R.string.error_creating_account);
-                    }
+                    addAccount(user,via,progress);
                 } else {
+                    dismissDialog(progress);
                     // TODO: means we got a 404 on the user, needs to be more expressive...
                     showError();
                 }
@@ -116,29 +107,54 @@ public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity
         }.execute(Request.to(Endpoints.MY_DETAILS));
     }
 
-    protected void onAuthenticated(@NotNull SignupVia via, @NotNull User user) {
+    protected void addAccount(final User user, final SignupVia via, @Nullable final ProgressDialog progress) {
+
+        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+        new AsyncTask<Void, Void, Boolean>(){
+            @Override
+            protected Boolean doInBackground(Void... params) {
+                // need to create user account as soon as possible, so the executeRefreshTask logic in
+                // SoundCloudApplication works properly
+                boolean accountCreated = app.addUserAccountAndEnableSync(user, app.getToken(), via);
+                if (accountCreated) {
+                    new UserStorage(app).createOrUpdate(user);
+                    if (via != SignupVia.NONE) {
+                        // user has signed up, schedule sync of user data to possibly refresh image data
+                        // which gets processed asynchronously by the backend and is only available after signup has happened
+                        final Context context = getApplicationContext();
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                context.startService(new Intent(context, ApiSyncService.class).setData(Content.ME.uri));
+                            }
+                        }, 30 * 1000);
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            @Override
+            protected void onPostExecute(Boolean success) {
+                if (success){
+                    onAccountAdded(via, user);
+                } else {
+                    AndroidUtils.showToast(AbstractLoginActivity.this, R.string.error_creating_account);
+                }
+                if (progress != null) dismissDialog(progress);
+            }
+        }.execute();
+    }
+
+    protected void onAccountAdded(@NotNull SignupVia via, @NotNull User user) {
         final Bundle result = new Bundle();
         result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
         result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
         result.putBoolean(Consts.Keys.WAS_SIGNUP, via != SignupVia.NONE);
         super.setAccountAuthenticatorResult(result);
 
-        new UserStorage(this).createOrUpdate(user);
-
-        if (via != SignupVia.NONE) {
-            // user has signed up, schedule sync of user data to possibly refresh image data
-            // which gets processed asynchronously by the backend and is only available after signup has happened
-            final Context context = getApplicationContext();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    context.startService(new Intent(context, ApiSyncService.class).setData(Content.ME.uri));
-                }
-            }, 30 * 1000);
-        }
-
         sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
-                .putExtra(User.EXTRA, user)
+                .putExtra(User.EXTRA_ID, user.id)
                 .putExtra(SignupVia.EXTRA, via.name));
 
         if (result.getBoolean(Consts.Keys.WAS_SIGNUP)) {

@@ -260,7 +260,7 @@ public class EmptyListView extends RelativeLayout {
                             mButtonActionListener.onSecondaryAction();
                         }
                     }
-                }, true);
+                }, true, false);
             } else {
                 mTxtLink.setVisibility(View.GONE);
             }

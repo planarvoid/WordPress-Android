@@ -29,7 +29,7 @@ public class C2DMReceiverTest {
 
     @Test
     public void registerShouldTriggerServiceStart() throws Exception {
-        C2DMReceiver.register(DefaultTestRunner.application, new User());
+        C2DMReceiver.register(DefaultTestRunner.application, 123L);
 
         ShadowApplication ctxt = Robolectric.shadowOf(DefaultTestRunner.application);
 
@@ -44,7 +44,7 @@ public class C2DMReceiverTest {
     public void registerWhenAlreadyRegisteredShouldNotTriggerServiceStart() throws Exception {
         C2DMReceiver.setRegistrationData(DefaultTestRunner.application, C2DMReceiver.PREF_REG_ID, "someid");
         C2DMReceiver.setRegistrationData(DefaultTestRunner.application, Consts.PrefKeys.C2DM_DEVICE_URL, "http://foo.com");
-        C2DMReceiver.register(DefaultTestRunner.application, new User());
+        C2DMReceiver.register(DefaultTestRunner.application, 123L);
 
         ShadowApplication ctxt = Robolectric.shadowOf(DefaultTestRunner.application);
         Intent svc = ctxt.getNextStartedService();
@@ -56,7 +56,7 @@ public class C2DMReceiverTest {
         C2DMReceiver.setRegistrationData(DefaultTestRunner.application, C2DMReceiver.PREF_REG_ID, "someid");
         Robolectric.addPendingHttpResponse(201, "", new BasicHeader("Location", "http://foo.com"));
 
-        C2DMReceiver.register(DefaultTestRunner.application, new User());
+        C2DMReceiver.register(DefaultTestRunner.application, 123L);
 
         expect(C2DMReceiver.getRegistrationData(DefaultTestRunner.application, Consts.PrefKeys.C2DM_DEVICE_URL))
                 .toEqual("http://foo.com");
@@ -89,7 +89,7 @@ public class C2DMReceiverTest {
     @Test
     public void itShouldntDoAnyThingOnPreGingerbread() throws Exception {
         TestHelper.setSdkVersion(5);
-        C2DMReceiver.register(DefaultTestRunner.application, new User());
+        C2DMReceiver.register(DefaultTestRunner.application, 123L);
         C2DMReceiver.unregister(DefaultTestRunner.application);
     }
 
