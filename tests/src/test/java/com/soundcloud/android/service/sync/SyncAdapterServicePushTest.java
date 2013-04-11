@@ -93,13 +93,9 @@ public class SyncAdapterServicePushTest extends SyncAdapterServiceTestBase {
         TestHelper.addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
         TestHelper.addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
 
-
         Bundle extras = new Bundle();
         extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, pushType);
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
-
-        LocalCollection lc = LocalCollection.fromContent(Content.ME_TRACKS, Robolectric.application.getContentResolver(), false);
-        expect(lc).toBeNull();
         expect(result.notifications.size()).toEqual(1);
     }
 }

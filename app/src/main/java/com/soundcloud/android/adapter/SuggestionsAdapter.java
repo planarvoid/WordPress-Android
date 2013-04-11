@@ -181,8 +181,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
                         "limit", MAX_REMOTE));
 
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(),
-                            SearchSuggestions.class);
+                    final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(), SearchSuggestions.class);
                     onRemoteSuggestions(constraint, searchSuggestions);
                     return;
                 } else {

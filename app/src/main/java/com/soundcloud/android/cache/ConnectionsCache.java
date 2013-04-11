@@ -4,6 +4,7 @@ import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,7 +71,7 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
 
     private void doQuery(@Nullable final Listener listener){
         if (listener != null) addListener(listener);
-        mLocalCollection = LocalCollection.fromContentUri(Content.ME_CONNECTIONS.uri, mContext.getContentResolver(), true);
+        mLocalCollection = new SyncStateManager(mContext).fromContent(Content.ME_CONNECTIONS);
         asyncQueryHandler = new ConnectionsQueryHandler(mContext, this);
         asyncQueryHandler.startQuery(0, null, Content.ME_CONNECTIONS.uri, null, null, null, null);
     }

@@ -1,29 +1,6 @@
 
 package com.soundcloud.android.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.json.Views;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.task.LoadCommentsTask;
-import com.soundcloud.android.task.fetch.FetchModelTask;
-import com.soundcloud.android.task.fetch.FetchTrackTask;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
-import org.jetbrains.annotations.Nullable;
-
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -34,7 +11,26 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.FloatMath;
-import android.util.Log;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.json.Views;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.task.LoadCommentsTask;
+import com.soundcloud.android.task.fetch.FetchModelTask;
+import com.soundcloud.android.task.fetch.FetchTrackTask;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -197,32 +193,6 @@ public class Track extends Playable implements PlayableHolder {
         dest.writeBundle(b);
     }
 
-    public static Track fromUri(Uri uri, ContentResolver resolver, boolean createDummy) {
-        long id = -1l;
-        try { // check the cache first
-            id = Long.parseLong(uri.getLastPathSegment());
-            final Track t = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(id);
-            if (t != null) return t;
-
-        } catch (NumberFormatException e) {
-            Log.e(UserBrowser.class.getSimpleName(), "Unexpected Track uri: " + uri.toString());
-        }
-
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        try {
-
-            if (cursor != null && cursor.moveToFirst()) {
-                return SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor);
-            } else if (createDummy && id >= 0) {
-                return SoundCloudApplication.MODEL_MANAGER.cache(new Track(id));
-            } else {
-                return null;
-            }
-        } finally {
-            if (cursor != null) cursor.close();
-        }
-    }
-
     @JsonIgnoreProperties(ignoreUnknown=true)
     public static class CreatedWith implements Parcelable {
 
@@ -365,13 +335,6 @@ public class Track extends Playable implements PlayableHolder {
     @Override
     public Uri getBulkInsertUri() {
         return Content.TRACKS.uri;
-    }
-
-    @Override
-    public void resolve(Context context) {
-
-        refreshTimeSinceCreated(context);
-        refreshListArtworkUri(context);
     }
 
     public void setAppFields(Track t) {
@@ -527,10 +490,6 @@ public class Track extends Playable implements PlayableHolder {
 
     public Intent getPlayIntent() {
         return new Intent(Actions.PLAY).putExtra(EXTRA, this);
-    }
-
-    public void setUpdated() {
-        last_updated = System.currentTimeMillis();
     }
 
     public Track updateFrom(Track updatedItem, CacheUpdateMode cacheUpdateMode) {

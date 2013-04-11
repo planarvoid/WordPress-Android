@@ -28,4 +28,20 @@ public class ContentMatcher<T extends Content, M extends ContentMatcher<T, M>> e
     public boolean toBe(T expected) {
         return actual == expected;
     }
+
+    public boolean toHaveColumnAt(int position, String columnName, int columnValue) {
+        Cursor c = Robolectric.application.getContentResolver().query(actual.uri, null, null, null, null);
+        expect(c).not.toBeNull();
+        expect(c.moveToPosition(position)).toBeTrue();
+        expect(c).toHaveColumn(columnName, columnValue);
+        return true;
+    }
+
+    public boolean toHaveColumnAt(int position, String columnName, long columnValue) {
+        Cursor c = Robolectric.application.getContentResolver().query(actual.uri, null, null, null, null);
+        expect(c).not.toBeNull();
+        expect(c.moveToPosition(position)).toBeTrue();
+        expect(c).toHaveColumn(columnName, columnValue);
+        return true;
+    }
 }
