@@ -429,7 +429,7 @@ public class ScContentProviderTest {
         expect(Content.USERS).toHaveCount(318);
         expect(Content.TRACKS).toHaveCount(143);
 
-        User u = new UserDAO(resolver).queryForId(9);
+        User u = new UserDAO(resolver).queryById(9);
 
         expect(u).not.toBeNull();
         expect(u.username).toEqual("Katharina");

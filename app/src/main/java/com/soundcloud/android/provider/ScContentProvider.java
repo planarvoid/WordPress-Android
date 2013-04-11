@@ -188,7 +188,6 @@ public class ScContentProvider extends ContentProvider {
                 c.addRow(new Object[]{SoundCloudApplication.getUserId()});
                 return c;
 
-            case USER_TRACKS:
             case USER_LIKES:
             case USER_REPOSTS:
                 qb.setTables(makeCollectionJoin(Table.SOUND_VIEW));
@@ -254,25 +253,6 @@ public class ScContentProvider extends ContentProvider {
                 qb.setTables(content.table.name);
                 qb.appendWhere(Table.USERS.id + " = " + uri.getLastPathSegment());
                 if (_columns == null) _columns = formatWithUser(getUserViewColumns(),userId);
-                break;
-
-            case SEARCHES:
-                qb.setTables(content.table.name);
-                qb.appendWhere(DBHelper.Searches.USER_ID + " = " + userId);
-                break;
-
-            case SEARCHES_USER:
-                if (_columns == null) _columns = formatWithUser(getUserViewColumns(),userId);
-                qb.setTables(makeCollectionJoin(Table.USERS));
-                makeCollectionSelection(qb, String.valueOf(userId), SEARCH);
-                _sortOrder = makeCollectionSort(uri, sortOrder);
-                break;
-
-            case SEARCHES_TRACK:
-                if (_columns == null) _columns = formatWithUser(getSoundViewColumns(Table.SOUND_VIEW),userId);
-                qb.setTables(makeCollectionJoin(Table.SOUND_VIEW));
-                makeCollectionSelection(qb, String.valueOf(userId), SEARCH);
-                _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case TRACK_PLAYS:
@@ -422,23 +402,22 @@ public class ScContentProvider extends ContentProvider {
             case COLLECTION:
             case COLLECTIONS:
             case COLLECTION_PAGES:
+            case COLLECTION_ITEMS:
             case USERS:
             case RECORDINGS:
             case ME_SOUNDS:
             case ME_PLAYLISTS:
             case ME_SHORTCUTS:
-                id = content.table.insertOrReplace(db, values);
-                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                getContext().getContentResolver().notifyChange(result, null, false);
-                return result;
-
             case TRACKS:
             case PLAYLISTS:
             case ME_SOUND_STREAM:
             case ME_ACTIVITIES:
             case ME_LIKES:
             case ME_REPOSTS:
-                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = content.table.insertOrReplace(db, values);
+                if (id >= 0 && values.containsKey(BaseColumns._ID)) {
+                    id = values.getAsLong(BaseColumns._ID);
+                }
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
@@ -475,16 +454,6 @@ public class ScContentProvider extends ContentProvider {
                         DBHelper.Sounds._ID + "=? AND " + DBHelper.Sounds._TYPE + "=?",
                         new String[]{playlistId, String.valueOf(Playable.DB_TYPE_PLAYLIST)}) ;
                 return result;
-
-            case SEARCHES:
-                if (!values.containsKey(DBHelper.Searches.USER_ID)) {
-                    values.put(DBHelper.Searches.USER_ID, userId);
-                }
-                id = db.insert(content.table.name, null, values);
-                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                getContext().getContentResolver().notifyChange(result, null, false);
-                return result;
-
 
             //////////////////////////////////////////////////////////////////////////////////////////////////
             // upserts for single-resource URIs
@@ -533,7 +502,6 @@ public class ScContentProvider extends ContentProvider {
         switch (content) {
             case COLLECTIONS:
             case COLLECTION_PAGES:
-            case SEARCHES:
             case RECORDINGS:
             case PLAY_QUEUE:
             case ME_CONNECTIONS:
@@ -562,7 +530,7 @@ public class ScContentProvider extends ContentProvider {
             whereArgs = new String[] {String.valueOf(content.id) };
             break;
 
-            case ME_SOUNDS:
+            case ME_SOUNDS: // still used in com.soundcloud.android.dao.SoundAssociationStorage#syncToLocal
                 // add userId
                 String whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + userIdFromContext;
                 // append possible types
@@ -581,17 +549,23 @@ public class ScContentProvider extends ContentProvider {
             case ME_REPOSTS:
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
-            case USER_TRACKS:
             case USER_LIKES:
             case USER_REPOSTS:
             case USER_FOLLOWINGS:
             case USER_FOLLOWERS:
             case ME_FRIENDS:
+
                 whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + userIdFromContext
                         + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + content.collectionType;
                 where = TextUtils.isEmpty(where) ? whereAppend
                         : where + " AND " + whereAppend;
 
+                break;
+
+            case COLLECTION_ITEMS:
+                whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + userIdFromContext;
+                where = TextUtils.isEmpty(where) ? whereAppend
+                        : where + " AND " + whereAppend;
                 break;
 
             case ME_PLAYLIST:
@@ -632,7 +606,6 @@ public class ScContentProvider extends ContentProvider {
             case TRACK:
             case USER:
             case PLAYLIST:
-            case SEARCHES_ITEM:
             case RECORDING:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 count = db.update(content.table.name, values, where, whereArgs);
@@ -773,7 +746,6 @@ public class ScContentProvider extends ContentProvider {
                 table = Table.COLLECTION_ITEMS;
                 break;
 
-            case USER_TRACKS:
             case ME_LIKES:
             case USER_LIKES:
             case ME_REPOSTS:
@@ -784,8 +756,6 @@ public class ScContentProvider extends ContentProvider {
             case USER_FOLLOWINGS:
             case ME_FRIENDS:
             case SUGGESTED_USERS:
-            case SEARCHES_USER:
-            case SEARCHES_TRACK:
                 table = Table.COLLECTION_ITEMS;
                 extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(content.collectionType)};
                 break;

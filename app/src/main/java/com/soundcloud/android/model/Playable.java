@@ -373,6 +373,10 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         return user == null ? null : user.avatar_url;
     }
 
+    public boolean isRepostCountSet(){
+        return reposts_count > NOT_SET;
+    }
+
     public @Nullable Intent getShareIntent() {
         if (!sharing.isPublic()) return null;
 

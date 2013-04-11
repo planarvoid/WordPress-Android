@@ -28,7 +28,8 @@ class SoundAssociationDAO extends BaseDAO<SoundAssociation> {
         String where = DBHelper.CollectionItems.ITEM_ID + "=? AND " +
                 DBHelper.CollectionItems.RESOURCE_TYPE + "=? AND " +
                 DBHelper.CollectionItems.COLLECTION_TYPE + "=?";
-        return delete(resource, where,
+        return delete(getContent().uri,
+                where,
                 String.valueOf(resource.getItemId()),
                 String.valueOf(resource.getResourceType()),
                 String.valueOf(resource.associationType));

@@ -83,7 +83,6 @@ public enum Content  {
 
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
     USER("users/#", Endpoints.USER_DETAILS, 302, User.class, -1, Table.USERS),
-    @Deprecated USER_TRACKS("users/#/tracks", Endpoints.USER_TRACKS, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.SOUNDS),
     USER_SOUNDS("users/#/sounds", TempEndpoints.e1.USER_SOUNDS, 311, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
     USER_LIKES("users/#/likes", TempEndpoints.e1.USER_LIKES, 304, Track.class, LIKE, null),
     USER_FOLLOWERS("users/#/followers", Endpoints.USER_FOLLOWERS, 305, User.class, FOLLOWER, null),
@@ -121,13 +120,6 @@ public enum Content  {
     TRACK_PLAYS("track_plays", null, 1300, null, -1, Table.TRACK_METADATA),
     TRACK_PLAYS_ITEM("track_plays/#", null, 1301, null, -1, Table.TRACK_METADATA),
     TRACK_METADATA("track_metadata", null, 1302, null, -1, Table.TRACK_METADATA),
-
-    SEARCHES("searches", null, 1400, null, -1, Table.SEARCHES),
-    SEARCHES_ITEM("searches/#", null, 1401, null, -1, Table.SEARCHES),
-    SEARCHES_TRACKS("searches/tracks", null, 1402, Track.class, -1, null),
-    SEARCHES_USERS("searches/users", null, 1403, User.class, -1, null),
-    SEARCHES_TRACK("searches/tracks/*", null, 1404, Track.class, ScContentProvider.CollectionItemTypes.SEARCH, null),
-    SEARCHES_USER("searches/users/*", null, 1405, User.class, ScContentProvider.CollectionItemTypes.SEARCH, null),
 
     SEARCH("search", null, 1500, ScResource.class, -1, null),
     SEARCH_ITEM("search/*", null, 1501, ScResource.class, -1, null),
