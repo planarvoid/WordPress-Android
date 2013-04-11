@@ -21,7 +21,7 @@ import android.util.Log;
 import java.util.Date;
 
 /**
- * Maps to stream item on backend
+ * Maps to <code>stream_item</code> item on backend.
  */
 public class SoundAssociation extends ScResource implements PlayableHolder, Refreshable {
 
@@ -57,19 +57,32 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
         associationType = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE));
         created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP)));
         user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID);
-
-        if (Playable.isTrackCursor(cursor)){
-            playable = SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor, DBHelper.SoundAssociationView._ID);
-        } else {
-            playable = SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(cursor, DBHelper.SoundAssociationView._ID);
-        }
-
+        playable = Playable.fromCursor(cursor);
     }
 
-    public SoundAssociation(Playable playable, Date created_at, Type typeEnum) {
+    /**
+     * Use this ctor to create sound associations for likes and reposts of playlists and tracks.
+     * @param playable the track or playlist that was reposted or liked
+     * @param typeEnum the kind of association
+     */
+    public SoundAssociation(@NotNull Playable playable, Date associatedAt, Type typeEnum) {
         this.playable = playable;
-        this.created_at = created_at;
+        this.created_at = associatedAt;
         this.associationType = typeEnum.collectionType;
+    }
+
+    /**
+     * Creates a sound association for a track the user has created.
+     */
+    public SoundAssociation(Track track) {
+        this(track, track.created_at, Type.TRACK);
+    }
+
+    /**
+     * Creates a sound association for a playlist the user has created.
+     */
+    public SoundAssociation(Playlist playlist) {
+        this(playlist, playlist.created_at, Type.PLAYLIST);
     }
 
     @Override
@@ -90,7 +103,7 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
 
     @Override
     public boolean isIncomplete() {
-        return playable != null && playable.isIncomplete();
+        return playable.isIncomplete();
     }
 
     public SoundAssociation(Parcel in) {
@@ -142,8 +155,12 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     }
 
     @Override
-    public Playable getPlayable() {
+    @NotNull public Playable getPlayable() {
         return playable;
+    }
+
+    public long getItemId() {
+        return playable.getId();
     }
 
     public int getResourceType() {
@@ -156,15 +173,11 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
         if (user != null)       user.putFullContentValues(destination);
     }
 
-    /**
-     * SoundAssociations do not have ids and can not be inserted outside of
-     * {@link com.soundcloud.android.model.SoundAssociationHolder#insert}
-     * @return null
-     */
+    // SoundAssociation is different from the other models in that they don't have IDs
+    // when inserted, but are defined over the resource they refer to.
     @Override
     public Uri toUri() {
-        Log.e(SoundCloudApplication.TAG,"Unexpected call to toUri on a SoundAssociation");
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @JsonProperty("type")
@@ -188,11 +201,6 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     @Override
     public void refreshTimeSinceCreated(Context context) {
         _elapsedTime = null;
-    }
-
-    public Uri insert(ContentResolver contentResolver, Uri destination){
-        insertDependencies(contentResolver);
-        return contentResolver.insert(destination, buildContentValues());
     }
 
     @Override

@@ -9,6 +9,8 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.dao.UserDAO;
+import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.fragment.UserDetailsFragment;
 import com.soundcloud.android.imageloader.ImageLoader;
@@ -73,8 +75,8 @@ public class UserBrowser extends ScActivity implements
     private ImageLoader.BindResult avatarResult;
     private FollowStatus mFollowStatus;
     private UserFragmentAdapter mAdapter;
-
     private FetchUserTask mLoadUserTask;
+    private UserStorage mUserStorage;
     protected ViewPager mPager;
     protected TitlePageIndicator mIndicator;
 
@@ -83,11 +85,7 @@ public class UserBrowser extends ScActivity implements
     private UserDetailsFragment mUserDetailsFragment;
 
     public static boolean startFromPlayable(Context context, Playable playable) {
-        if (playable != null && playable.getUserId() >= 0) {
-            if (playable.user != null) {
-                SoundCloudApplication.MODEL_MANAGER.cache(playable.user, ScResource.CacheUpdateMode.NONE);
-            }
-
+        if (playable != null) {
             context.startActivity(
                     new Intent(context, UserBrowser.class)
                             .putExtra("userId", playable.getUserId()));
@@ -339,8 +337,10 @@ public class UserBrowser extends ScActivity implements
     }
 
     private boolean loadUserByUri(Uri uri) {
-        if (uri != null) mUser = User.fromUri(uri, getContentResolver(), true);
-        return (mUser != null);
+        if (uri != null) {
+            mUser = mUserStorage.getUserByUri(uri);
+        }
+        return mUser != null;
     }
 
     private void loadUserByObject(User user) {
@@ -398,12 +398,18 @@ public class UserBrowser extends ScActivity implements
 
     @Override
     public void onSuccess(User user) {
-
         user.last_updated = System.currentTimeMillis();
-        // update user locally and ensure 1 instance
-        mUser = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
-
         setUser(user);
+
+        // update user locally and ensure 1 instance
+        mUser = SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.FULL);
+        //FIXME: This will be handled/scheduled by an Observable when we're done refactoring storage
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                new UserStorage(UserBrowser.this).create(mUser);
+            }
+        }).start();
         mUserDetailsFragment.onSuccess(mUser);
     }
 

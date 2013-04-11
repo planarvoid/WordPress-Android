@@ -7,6 +7,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.adapter.CommentAdapter;
@@ -27,6 +28,7 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.task.collection.CollectionTask;
 import com.soundcloud.android.task.collection.ReturnData;
@@ -89,6 +91,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     private @Nullable BroadcastReceiver mPlaylistChangedReceiver;
 
+    private SyncStateManager mSyncStateManager;
+
     public static ScListFragment newInstance(Content content) {
         return newInstance(content.uri);
     }
@@ -115,9 +119,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
         if (mContent.isSyncable()) {
             final ContentResolver contentResolver = getActivity().getContentResolver();
-            // TODO :  Move off the UI thread.
-            mLocalCollection = LocalCollection.fromContentUri(mContentUri, contentResolver, true);
-            mLocalCollection.startObservingSelf(contentResolver, this);
+            mSyncStateManager = new SyncStateManager(getActivity());
+            mLocalCollection = mSyncStateManager.fromContentAsync(mContentUri, this);
             mChangeObserver = new ChangeObserver();
             contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);
             refreshSyncData();
@@ -377,10 +380,15 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     @Override
-    public void onLocalCollectionChanged() {
+    public void onLocalCollectionChanged(LocalCollection localCollection) {
+        mLocalCollection = localCollection;
         log("Local collection changed " + mLocalCollection);
         // do not autorefresh me_followings based on observing because this would refresh everytime you use the in list toggles
-        if (mContent != Content.ME_FOLLOWINGS) refreshSyncData();
+        if (mContent != Content.ME_FOLLOWINGS || getListAdapter().isEmpty()) {
+            refreshSyncData();
+        } else {
+            checkAllowInitalAppend();
+        }
     }
 
     @Override
@@ -452,10 +460,14 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         refresh(true);
     }
 
-
     protected Request getRequest(boolean isRefresh) {
-        if (mContent == null || !mContent.hasRequest()) return null;
-        return !(isRefresh) && !TextUtils.isEmpty(mNextHref) ? new Request(mNextHref) : mContent.request(mContentUri);
+        if (!isRefresh && !TextUtils.isEmpty(mNextHref)) {
+            return new Request(mNextHref);
+        } else if (mContent != null && mContent.hasRequest()) {
+            return mContent.request(mContentUri);
+        } else {
+            return null;
+        }
     }
 
     protected boolean canAppend() {
@@ -490,6 +502,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mNextHref = "";
         mKeepGoing = true;
         clearRefreshTask();
+        clearAppendTask();
         configureEmptyView();
 
         final ScBaseAdapter adp = getListAdapter();
@@ -605,9 +618,9 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (mChangeObserver != null) {
             getActivity().getContentResolver().unregisterContentObserver(mChangeObserver);
             mChangeObserver = null;
-            if (mLocalCollection != null) {
-                mLocalCollection.stopObservingSelf();
-            }
+        }
+        if (mSyncStateManager != null && mLocalCollection != null) {
+            mSyncStateManager.removeChangeListener(mLocalCollection);
         }
     }
 
@@ -636,7 +649,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private Request buildRequest(boolean isRefresh) {
         Request request = getRequest(isRefresh);
         if (request != null) {
-            request.add("linked_partitioning", "1");
+            request.add(Wrapper.LINKED_PARTITIONING, "1");
             request.add("limit", Consts.COLLECTION_PAGE_SIZE);
         }
         return request;
@@ -650,10 +663,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 log("Auto refreshing content");
                 if (!isRefreshing()) {
                     refresh(false);
-                    // this is to show the user something at the initial load
-                    if (!mLocalCollection.hasSyncedBefore() && mListView != null) {
-                        mListView.setRefreshing();
-                    }
+                    if (mListView != null) mListView.setRefreshing(false);
                 }
             } else {
                 log("Skipping auto refresh");
@@ -665,6 +675,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private void clearRefreshTask() {
         if (mRefreshTask != null && !AndroidUtils.isTaskFinished(mRefreshTask)) mRefreshTask.cancel(true);
         mRefreshTask = null;
+    }
+
+    private void clearAppendTask() {
+        if (mAppendTask != null && !AndroidUtils.isTaskFinished(mAppendTask)) mAppendTask.cancel(true);
+        mAppendTask = null;
     }
 
     private final Handler connHandler = new Handler() {

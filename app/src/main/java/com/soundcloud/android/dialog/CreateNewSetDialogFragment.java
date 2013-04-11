@@ -1,32 +1,25 @@
 package com.soundcloud.android.dialog;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.ScContentProvider;
-
 import android.accounts.Account;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dao.SoundAssociationStorage;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.service.sync.SyncStateManager;
 
-public class CreateNewSetDialogFragment extends SherlockDialogFragment {
-
-    public static final String KEY_TRACK_ID = "TRACK_ID";
+public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
 
     public static CreateNewSetDialogFragment from(long trackId) {
 
@@ -89,29 +82,31 @@ public class CreateNewSetDialogFragment extends SherlockDialogFragment {
     }
 
     private void createPlaylist(final Editable text, final boolean isPrivate) {
-        final ContentResolver contentResolver = getActivity().getContentResolver();
         final User loggedInUser = ((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser();
         final Account account = ((SoundCloudApplication) getActivity().getApplication()).getAccount();
 
         // Commit the playlist locally in the background
+        final SoundAssociationStorage soundAssociationStorage = new SoundAssociationStorage(getActivity());
+        final SyncStateManager syncStateManager = new SyncStateManager(getActivity());
         new Thread(){
             @Override
             public void run() {
-                // create and insert playlist
-                SoundCloudApplication.MODEL_MANAGER.createPlaylist(
-                        loggedInUser,
-                        String.valueOf(text),
-                        isPrivate,
-                        getArguments().getLong(KEY_TRACK_ID)
-                ).insertAsMyPlaylist(contentResolver);
+                // create and create playlist
+                soundAssociationStorage.addPlaylistCreation(
+                        getPlaylistStorage().createNewUserPlaylist(
+                                loggedInUser,
+                                String.valueOf(text),
+                                isPrivate,
+                                getArguments().getLong(KEY_TRACK_ID)
+                        ));
 
                 // force to stale so we know to update the playlists next time it is viewed
-                LocalCollection.forceToStale(Content.ME_PLAYLISTS.uri, contentResolver);
+                syncStateManager.forceToStale(Content.ME_PLAYLISTS);
+
                 // request sync to push playlist at next possible opportunity
                 ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, new Bundle());
 
             }
         }.start();
     }
-
 }

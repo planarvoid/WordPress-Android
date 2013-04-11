@@ -33,7 +33,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
 
     @Test
     public void shouldFlagSoftErrorWhenIOError() throws Exception {
-        addCannedActivities("empty_events.json");
+        addCannedActivities("empty_collection.json");
         addPendingHttpResponse(500, "errors");
 
         SyncResult result = doPerformSync(DefaultTestRunner.application, false, null).result;
@@ -44,7 +44,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
     @Test
     public void shouldNotNotifyOnFirstSync() throws Exception {
         addCannedActivities(
-                "empty_events.json",
+                "empty_collection.json",
                 "e1_activities.json"
         );
         expect(doPerformSync(DefaultTestRunner.application, true, null).notifications).toBeEmpty();
@@ -57,28 +57,28 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
 
         // dashboard
         addCannedActivities(
-                "empty_events.json",
-                "empty_events.json");
+                "empty_collection.json",
+                "empty_collection.json");
 
         doPerformSync(DefaultTestRunner.application, false, null);
 
-        LocalCollection lc = LocalCollection.fromContent(Content.ME_SOUNDS, Robolectric.application.getContentResolver(), false);
-        expect(lc).not.toBeNull();
+        final SyncStateManager syncStateManager = new SyncStateManager(Robolectric.application);
+        LocalCollection lc = syncStateManager.fromContent(Content.ME_SOUNDS);
         expect(lc.extra).toBeNull();
         expect(lc.size).toEqual(50);
         expect(lc.last_sync_success).toBeGreaterThan(0L);
 
         // reset sync time & rerun sync
         addCannedActivities(
-                "empty_events.json",
-                "empty_events.json");
+                "empty_collection.json",
+                "empty_collection.json");
 
-        lc.updateLastSyncSuccessTime(0, DefaultTestRunner.application.getContentResolver());
+
+        syncStateManager.updateLastSyncSuccessTime(Content.ME_SOUNDS, 0);
 
         doPerformSync(DefaultTestRunner.application, false, null);
 
-        lc = LocalCollection.fromContent(Content.ME_SOUNDS, Robolectric.application.getContentResolver(), false);
-        expect(lc).not.toBeNull();
+        lc = syncStateManager.fromContent(Content.ME_SOUNDS);
         expect(lc.extra).toEqual(String.valueOf(1)); // incremented sync miss for backoff
         expect(lc.size).toEqual(50);
         expect(lc.last_sync_success).toBeGreaterThan(0L);

@@ -2,7 +2,6 @@ package com.soundcloud.android.tracking.eventlogger;
 
 import android.content.Intent;
 import android.database.Cursor;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackTest;
 import com.soundcloud.android.provider.Content;
@@ -43,9 +42,13 @@ public class PlayEventTrackerIntegrationTest {
     @Before
     public void setup() {
         DefaultTestRunner.application.setCurrentUserId(1);
+        List<Track> tracks = Arrays.asList(new Track[] { currentTrack, nextTrack });
 
-        List<Track> tracks = Arrays.asList(new Object[]{currentTrack, nextTrack});
-        expect(DefaultTestRunner.application.MODEL_MANAGER.writeCollection(tracks, Content.ME_LIKES.uri, 1, ScResource.CacheUpdateMode.FULL)).toBeGreaterThan(0);
+//        SoundCloudDB.insertCollection(DefaultTestRunner.application.getContentResolver(),
+//                tracks,
+//                Content.ME_LIKES.uri,
+//                1);
+//
         expect(Content.ME_LIKES).toHaveCount(2);
 
         service = new CloudPlaybackService();

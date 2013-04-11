@@ -181,8 +181,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
                         "limit", MAX_REMOTE));
 
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(),
-                            SearchSuggestions.class);
+                    final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(), SearchSuggestions.class);
                     onRemoteSuggestions(constraint, searchSuggestions);
                     return;
                 } else {
@@ -381,10 +380,12 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     protected Spanned highlightRemote(final String query, final String highlightData) {
         SpannableString spanned = new SpannableString(query);
-        String[] regions = highlightData.split(";");
-        for (String regionData : regions) {
-            String[] bounds = regionData.split(",");
-            setHighlightSpans(spanned, Integer.parseInt(bounds[0]), Integer.parseInt(bounds[1]));
+        if (!TextUtils.isEmpty(highlightData)){
+            String[] regions = highlightData.split(";");
+            for (String regionData : regions) {
+                String[] bounds = regionData.split(",");
+                setHighlightSpans(spanned, Integer.parseInt(bounds[0]), Integer.parseInt(bounds[1]));
+            }
         }
         return spanned;
     }

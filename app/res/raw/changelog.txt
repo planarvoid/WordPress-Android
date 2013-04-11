@@ -1,5 +1,19 @@
-$ 58
+$ 60
   % v current
+  _ 2013-04-01
+    ! Maintenance
+    * Fixed overly aggressive uri matching
+
+$ 59
+  % v 2.5.2
+  _ 2013-03-29
+    ! Maintenance
+    * Fixed loading bugs in Search
+    * Added additional deeplink handling
+    - Fixed some performance issues related to background syncing and database IO
+
+$ 58
+  % v 2.5.1
   _ 2013-03-22
     ! Maintenance
     * Fixed a playlist sync related crash

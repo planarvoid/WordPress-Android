@@ -1,7 +1,7 @@
 package com.soundcloud.android.service.sync;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.api.CloudAPI;
 
@@ -25,6 +25,7 @@ import java.io.IOException;
     public final Uri contentUri;
     private final String action;
     private final boolean isUI;
+    private final SyncStateManager mSyncStateManager;
 
     private LocalCollection localCollection;
     public ApiSyncer.Result result;
@@ -35,52 +36,51 @@ import java.io.IOException;
         this.action = action;
         this.result = new ApiSyncer.Result(contentUri);
         this.isUI = isUI;
+        mSyncStateManager = new SyncStateManager(context);
     }
 
     public void onQueued() {
-        localCollection = LocalCollection.fromContentUri(contentUri, context.getContentResolver(), true);
-        localCollection.updateSyncState(LocalCollection.SyncState.PENDING, context.getContentResolver());
+        localCollection = mSyncStateManager.fromContent(contentUri);
+        mSyncStateManager.updateSyncState(localCollection.id, LocalCollection.SyncState.PENDING);
     }
 
     /**
      * Execute the sync request. This should happen on a separate worker thread.
-     * @return
      */
     public CollectionSyncRequest execute() {
         if (localCollection == null) throw new IllegalStateException("request has not been queued");
 
         // make sure all requests going out on this thread have the background parameter set
-        AndroidCloudAPI.Wrapper.setBackgroundMode(!isUI);
+        Wrapper.setBackgroundMode(!isUI);
 
-        ApiSyncer syncer = new ApiSyncer(context);
+        ApiSyncer syncer = new ApiSyncer(context, context.getContentResolver());
 
-        if (!localCollection.updateSyncState(LocalCollection.SyncState.SYNCING, context.getContentResolver())){
+        if (!mSyncStateManager.updateSyncState(localCollection.id, LocalCollection.SyncState.SYNCING)) {
             return this;
         }
 
         try {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "syncing " + contentUri);
-
             result = syncer.syncContent(contentUri, action);
-            localCollection.onSyncComplete(result, context.getContentResolver());
+            mSyncStateManager.onSyncComplete(result, localCollection);
+
         } catch (CloudAPI.InvalidTokenException e) {
             Log.e(ApiSyncService.LOG_TAG, "Problem while syncing", e);
-            localCollection.updateSyncState(LocalCollection.SyncState.IDLE, context.getContentResolver());
+            mSyncStateManager.updateSyncState(localCollection.id, LocalCollection.SyncState.IDLE);
             result = ApiSyncer.Result.fromAuthException(contentUri);
             context.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
         } catch (IOException e) {
             Log.e(ApiSyncService.LOG_TAG, "Problem while syncing", e);
-            localCollection.updateSyncState(LocalCollection.SyncState.IDLE, context.getContentResolver());
+            mSyncStateManager.updateSyncState(localCollection.id, LocalCollection.SyncState.IDLE);
             result = ApiSyncer.Result.fromIOException(contentUri);
         } finally {
             // should be taken care of when thread dies, but needed for tests
-            AndroidCloudAPI.Wrapper.setBackgroundMode(false);
+            Wrapper.setBackgroundMode(false);
         }
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "executed sync on " + this);
         }
-
         return this;
     }
 

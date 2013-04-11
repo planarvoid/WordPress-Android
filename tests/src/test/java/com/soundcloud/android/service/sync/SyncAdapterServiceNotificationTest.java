@@ -1,10 +1,11 @@
 package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.getActivities;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
@@ -19,7 +20,7 @@ import java.util.List;
 public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBase {
     @Test
     public void testIncomingNotificationMessage() throws Exception {
-        Activities activities = SoundCloudApplication.MODEL_MANAGER.getActivitiesFromJson(getClass().getResourceAsStream("e1_stream.json"));
+        Activities activities = getActivities("/com/soundcloud/android/service/sync/e1_stream.json");
         String message = NotificationMessage.getIncomingNotificationMessage(
                 DefaultTestRunner.application, activities);
 
@@ -28,7 +29,7 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
 
     @Test
     public void shouldNotifyIfSyncedBefore() throws Exception {
-        addCannedActivities("e1_stream_1_oldest.json", "empty_events.json");
+        addCannedActivities("e1_stream_1_oldest.json", "empty_collection.json");
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, null);
 
         expect(result.getInfo().getContentText().toString()).toEqual(
@@ -45,14 +46,14 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
 
         expect(result.notifications.size()).toEqual(2);
 
-        addCannedActivities("empty_events.json", "empty_events.json");
+        addCannedActivities("empty_collection.json", "empty_collection.json");
         result = doPerformSync(DefaultTestRunner.application, false, null);
         expect(result.notifications).toBeEmpty();
     }
 
     @Test
     public void shouldNotifyAboutIncoming() throws Exception {
-        addCannedActivities("e1_stream_1_oldest.json", "empty_events.json");
+        addCannedActivities("e1_stream_1_oldest.json", "empty_collection.json");
 
         SoundCloudApplication app = DefaultTestRunner.application;
         List<NotificationInfo> notifications = doPerformSync(app, false, null).notifications;
@@ -215,7 +216,7 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
                 "e1_stream.json",
                 "e1_stream_2.json",
                 "e1_stream_oldest.json",
-                "empty_events.json");
+                "empty_collection.json");
 
         List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false, null).notifications;
         expect(notifications.size()).toEqual(1);
@@ -226,7 +227,7 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
 
     @Test
     public void shouldUseCachedActivitiesToUpdateNotificationsWhenUserHasSeen() throws Exception {
-        addCannedActivities("empty_events.json", "e1_activities_1_oldest.json");
+        addCannedActivities("empty_collection.json", "e1_activities_1_oldest.json");
         SyncOutcome first = doPerformSync(DefaultTestRunner.application, false, null);
 
         expect(first.getTicker()).toEqual("7 new activities");
@@ -235,9 +236,9 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
 
         // user has already seen some stuff
         ContentStats.setLastSeen(DefaultTestRunner.application, Content.ME_ACTIVITIES,
-                AndroidCloudAPI.CloudDateFormat.fromString("2011/07/23 11:51:29 +0000").getTime());
+                Wrapper.CloudDateFormat.fromString("2011/07/23 11:51:29 +0000").getTime());
 
-        addCannedActivities("empty_events.json", "e1_activities_2.json");
+        addCannedActivities("empty_collection.json", "e1_activities_2.json");
         SyncOutcome second = doPerformSync(DefaultTestRunner.application, false, null);
 
         expect(second.getTicker()).toEqual("9 new activities");
@@ -247,14 +248,14 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
 
     @Test
     public void shouldUseCachedActivitiesToUpdateNotifications() throws Exception {
-        addCannedActivities("empty_events.json",  "e1_activities_1_oldest.json");
+        addCannedActivities("empty_collection.json",  "e1_activities_1_oldest.json");
         SyncOutcome first = doPerformSync(DefaultTestRunner.application, false, null);
 
         expect(first.getTicker()).toEqual("7 new activities");
         expect(first.getInfo().getContentTitle().toString()).toEqual("7 new activities");
         expect(first.getInfo().getContentText().toString()).toEqual("Comments and likes from Liraz Axelrad, UnoFuego and others");
 
-        addCannedActivities("empty_events.json", "e1_activities_2.json");
+        addCannedActivities("empty_collection.json", "e1_activities_2.json");
         SyncOutcome second = doPerformSync(DefaultTestRunner.application, false, null);
 
         expect(second.getTicker()).toEqual("9 new activities");
@@ -264,7 +265,7 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
 
     private void assertNotification(String resource, String ticker, String title, String content) throws Exception {
         addCannedActivities(
-                "empty_events.json",
+                "empty_collection.json",
                 resource
         );
         SoundCloudApplication app = DefaultTestRunner.application;

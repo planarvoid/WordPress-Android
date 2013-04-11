@@ -183,8 +183,8 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         return !mIsLoadingData && lastItemReached;
     }
 
-    public void addItems(CollectionHolder<T> newItems) {
-        mData.addAll(newItems.collection);
+    public void addItems(List<T> newItems) {
+        mData.addAll(newItems);
     }
 
     public CollectionParams getParams(boolean refresh) {

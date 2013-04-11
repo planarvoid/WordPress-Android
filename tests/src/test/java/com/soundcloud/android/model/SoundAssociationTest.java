@@ -1,28 +1,18 @@
 package com.soundcloud.android.model;
 
-import static com.soundcloud.android.Expect.expect;
-
-import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
+import android.os.Parcel;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.net.Uri;
-import android.os.Parcel;
-
-import java.util.Date;
+import static com.soundcloud.android.Expect.expect;
 
 @RunWith(DefaultTestRunner.class)
 public class SoundAssociationTest {
 
     @Test
     public void shouldParcelAndUnparcelCorrectly() throws Exception {
-
         SoundAssociation soundItem = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("sound_item.json"),
                 SoundAssociation.class);
@@ -39,34 +29,6 @@ public class SoundAssociationTest {
     }
 
     @Test
-    public void shouldPersistStreamItems() throws Exception {
-        DefaultTestRunner.application.setCurrentUserId(100L);
-        final ScModelManager manager = DefaultTestRunner.application.MODEL_MANAGER;
-
-        SoundAssociationHolder sounds  = TestHelper.getObjectMapper().readValue(
-                        getClass().getResourceAsStream("sounds_with_sets.json"),
-                        SoundAssociationHolder.class);
-
-        expect(sounds).not.toBeNull();
-
-        expect(sounds.size()).toEqual(41);
-
-        expect(manager.writeCollection(sounds,
-                ScResource.CacheUpdateMode.NONE)).toEqual(41); // 38 tracks, 3 sets
-
-        expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
-                Content.ME_SOUNDS.uri,0,50).size()).toEqual(41);
-
-        CollectionHolder<SoundAssociation> newItems = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(
-                DefaultTestRunner.application.getContentResolver(), SoundAssociation.class, Content.ME_SOUNDS.uri);
-
-        expect(newItems.size()).toEqual(41);
-
-        expect(Content.ME_PLAYLISTS).toHaveCount(2); // does not include the repost
-
-    }
-
-    @Test
     public void shouldProvideUniqueListItemId() throws Exception {
 
         SoundAssociation soundAssociation1 = new SoundAssociation();
@@ -80,33 +42,10 @@ public class SoundAssociationTest {
         expect(soundAssociation1.getListItemId()).not.toEqual(soundAssociation2.getListItemId());
     }
 
-    @Test
-    public void shouldInsertNewSoundAssociation() throws Exception {
-        DefaultTestRunner.application.setCurrentUserId(100L);
-        ScModelManager manager = DefaultTestRunner.application.MODEL_MANAGER;
-
-        //initial population
-        SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
-                getClass().getResourceAsStream("sounds.json"),
-                SoundAssociationHolder.class);
-
-        expect(manager.writeCollection(old, ScResource.CacheUpdateMode.NONE)).toEqual(38); // 38 tracks and 3 diff users
-
-        Playlist p = manager.getModelFromStream(SyncAdapterServiceTest.class.getResourceAsStream("playlist.json"));
-        SoundAssociation soundAssociation1 = new SoundAssociation(p, new Date(System.currentTimeMillis()),SoundAssociation.Type.PLAYLIST);
-
-        final Uri uri = soundAssociation1.insert(DefaultTestRunner.application.getContentResolver(),Content.ME_SOUNDS.uri);
-        expect(uri).toEqual(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/me/sounds/39"));
-    }
-
-
     private void compareSoundItems(SoundAssociation soundItem, SoundAssociation soundItem2) {
         expect(soundItem2.id).toEqual(soundItem.id);
         expect(soundItem2.created_at).toEqual(soundItem.created_at);
         expect(soundItem2.associationType).toEqual(soundItem.associationType);
         expect(soundItem2.playable).toEqual(soundItem.playable);
     }
-
-
-
 }
