@@ -66,7 +66,7 @@ public class PlaylistStorage implements Storage<Playlist> {
 //    }
 
     public @Nullable Playlist getPlaylistWithTracks(long playlistId) {
-        Playlist playlist = mPlaylistDAO.queryForId(playlistId);
+        Playlist playlist = mPlaylistDAO.queryById(playlistId);
         if (playlist != null) {
             playlist.tracks = loadPlaylistTracks(playlistId);
         }
@@ -177,7 +177,7 @@ public class PlaylistStorage implements Storage<Playlist> {
     }
 
     public Playlist getPlaylist(long id) {
-        return mPlaylistDAO.queryForId(id);
+        return mPlaylistDAO.queryById(id);
 
     }
 }

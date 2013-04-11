@@ -55,7 +55,7 @@ public class RecordingStorage implements Storage<Recording> {
     }
 
     public @Nullable Recording getRecordingByUri(Uri uri) {
-        return mRecordingDAO.queryForUri(uri);
+        return mRecordingDAO.queryByUri(uri);
     }
 
     public @Nullable Recording getRecordingByPath(File file) {
