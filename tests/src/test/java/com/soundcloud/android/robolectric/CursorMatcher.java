@@ -41,6 +41,17 @@ public class CursorMatcher<T extends Cursor, M extends CursorMatcher<T, M>> exte
         } else return true;
     }
 
+    public boolean toHaveColumn(String name, long value) {
+        int idx = checkColumn(name);
+        if (idx < 0) return false;
+
+        long i = actual.getLong(idx);
+        if (i != value) {
+            failureMessage = "column "+name +": "+value +"!="+i;
+            return false;
+        } else return true;
+    }
+
     public boolean toHaveNext() {
         return actual.moveToNext();
     }

@@ -1,37 +1,38 @@
 package com.soundcloud.android.service.upload;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
+import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.dao.RecordingStorage;
+import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.service.sync.SyncStateManager;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.entity.mime.content.FileBody;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Uploader extends BroadcastReceiver implements Runnable {
     private AndroidCloudAPI api;
     private Recording mUpload;
     private volatile boolean mCanceled;
     private LocalBroadcastManager mBroadcastManager;
+    private TrackStorage mStorage;
 
     private static final int MAX_TRIES = 1;
 
@@ -40,6 +41,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         mUpload = recording;
         mBroadcastManager = LocalBroadcastManager.getInstance(api.getContext());
         mBroadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
+        mStorage = new TrackStorage(api.getContext());
     }
 
     public boolean isCancelled() {
@@ -140,14 +142,27 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
     private void onUploadSuccess(HttpResponse response) {
         try {
-            Track track = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(response.getEntity().getContent(), Track.class);
-            SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(track, ScResource.CacheUpdateMode.FULL);
+            Track track = api.getMapper().readValue(response.getEntity().getContent(), Track.class);
+            mStorage.createOrUpdate(track);
 
             //request to update my collection
-            LocalCollection.forceToStale(Content.ME_TRACKS.uri, api.getContext().getContentResolver());
+            ContentResolver resolver = api.getContext().getContentResolver();
+            new SyncStateManager(api.getContext()).forceToStale(Content.ME_SOUNDS.uri);
+
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + track);
 
-            mUpload.onUploaded(api.getContext().getContentResolver());
+            mUpload.markUploaded();
+            if (!mUpload.external_upload) {
+                IOUtils.deleteFile(mUpload.getFile());
+                IOUtils.deleteFile(mUpload.getEncodedFile());
+            }
+            File artworkPath = mUpload.resized_artwork_path;
+            if (artworkPath != null) {
+                IOUtils.deleteFile(artworkPath);
+            }
+
+            new RecordingStorage(api.getContext()).updateStatus(mUpload);
+
             broadcast(UploadService.TRANSFER_SUCCESS, track);
         } catch (IOException e) {
             onUploadFailed(e);

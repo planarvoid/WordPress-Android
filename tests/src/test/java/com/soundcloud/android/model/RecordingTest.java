@@ -6,7 +6,6 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.IOUtils;
@@ -25,7 +24,6 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
-import android.text.TextUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,8 +31,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -112,22 +108,6 @@ public class RecordingTest {
     }
 
     @Test
-    public void shouldDeleteRecording() throws Exception {
-        Recording r = createRecording();
-        expect(r.exists()).toBeTrue();
-        expect(r.delete(null)).toBeTrue();
-        expect(r.exists()).toBeFalse();
-    }
-
-    @Test
-    public void shouldNotDeleteRecordingIfExternal() throws Exception {
-        Recording r = createRecording();
-        r.external_upload = true;
-        expect(r.delete(null)).toBeFalse();
-        expect(r.exists()).toBeTrue();
-    }
-
-    @Test
     public void existsShouldCheckForRawAndEncodedFile() throws Exception {
         Recording r = createRecording();
         expect(r.getEncodedFile().createNewFile()).toBeTrue();
@@ -152,73 +132,6 @@ public class RecordingTest {
                 toEqual("/images/foo.bmp");
     }
 
-    @Test
-    public void shouldPersistAndLoadCorrectly() throws Exception {
-        Recording r = createRecording();
-        ContentResolver resolver = Robolectric.application.getContentResolver();
-
-        Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
-        expect(uri).not.toBeNull();
-
-        // all recordings, with username joined in
-        Cursor cursor = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
-        expect(cursor).not.toBeNull();
-        expect(cursor.getCount()).toEqual(1);
-        expect(cursor.moveToFirst()).toBeTrue();
-
-        Recording r2 = new Recording(cursor);
-
-        expect(r2.id).not.toEqual(r.id);
-        expect(r2.id).toEqual(1L);
-        expect(r2.latitude).toEqual(r.latitude);
-        expect(r2.longitude).toEqual(r.longitude);
-        expect(r2.what_text).toEqual(r.what_text);
-        expect(r2.where_text).toEqual(r.where_text);
-        expect(r2.duration).toEqual(r.duration);
-        expect(r2.external_upload).toEqual(r.external_upload);
-        expect(r2.user_id).toEqual(r.user_id);
-        expect(r2.recipient_user_id).toEqual(r.recipient_user_id);
-        expect(r2.upload_status).toEqual(r.upload_status);
-        expect(r2.tip_key).toEqual(r.tip_key);
-
-        // just this recording
-        cursor = resolver.query(uri, null, null, null, null);
-
-        expect(cursor).not.toBeNull();
-        expect(cursor.getCount()).toEqual(1);
-        expect(cursor.moveToFirst()).toBeTrue();
-
-        Recording r3 = new Recording(cursor);
-        expect(r3.id).not.toEqual(r.id);
-        expect(r3.latitude).toEqual(r.latitude);
-        expect(r3.longitude).toEqual(r.longitude);
-        expect(r3.what_text).toEqual(r.what_text);
-        expect(r3.where_text).toEqual(r.where_text);
-        expect(r3.duration).toEqual(r.duration);
-        expect(r3.external_upload).toEqual(r.external_upload);
-        expect(r3.user_id).toEqual(r.user_id);
-        expect(r3.recipient_user_id).toEqual(r.recipient_user_id);
-    }
-
-    @Test
-    public void shouldUpdateARecording() throws Exception {
-        Recording r = createRecording();
-        ContentResolver resolver = Robolectric.application.getContentResolver();
-        Uri u = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
-
-        expect(u).not.toBeNull();
-
-        final Cursor c = resolver.query(u, null, null, null, null);
-        expect(c.moveToNext()).toBeTrue();
-        Recording r2 = new Recording(c);
-        r2.where_text = "changed";
-        expect(resolver.update(u, r2.buildContentValues(), null, null)).toEqual(1);
-
-        final Cursor c2 = resolver.query(u, null, null, null, null);
-        expect(c2.moveToNext()).toBeTrue();
-        Recording r3 = new Recording(c2);
-        expect(r3.where_text).toEqual("changed");
-    }
 
     private Recording createRecording() throws IOException {
         File tmp = createRecordingFile("wav");
@@ -269,7 +182,7 @@ public class RecordingTest {
                 .putExtra(Actions.EXTRA_TAGS, new String[]{"tags"})
                 ;
 
-        Recording r = Recording.fromIntent(i, Robolectric.application.getContentResolver(), -1);
+        Recording r = Recording.fromIntent(i, Robolectric.application, -1);
         expect(r).not.toBeNull();
         expect(r.description).toEqual("description");
         expect(r.genre).toEqual("genre");
@@ -280,26 +193,10 @@ public class RecordingTest {
     }
 
     @Test
-    public void shouldGetRecordingFromIntentViaDatabase() throws Exception {
-        final ContentResolver contentResolver = Robolectric.application.getContentResolver();
-        Recording r = Recording.fromUri(createRecording().insert(contentResolver), contentResolver);
-
-        assert r != null;
-        Intent i = new Intent().setData(r.toUri());
-
-        Recording r2 = Recording.fromIntent(i, contentResolver, -1);
-        expect(r2).not.toBeNull();
-        expect(r2.description).toEqual(r.description);
-        expect(r2.is_private).toEqual(r.is_private);
-        expect(r2.where_text).toEqual(r.where_text);
-        expect(r2.what_text).toEqual(r.what_text);
-    }
-
-    @Test
     public void shouldGetRecordingFromIntentViaParcelable() throws Exception {
         Recording r = createRecording();
         Intent i = new Intent().putExtra(SoundRecorder.EXTRA_RECORDING, r);
-        Recording r2 = Recording.fromIntent(i, Robolectric.application.getContentResolver(), -1);
+        Recording r2 = Recording.fromIntent(i, Robolectric.application, -1);
         expect(r2).not.toBeNull();
         expect(r2.description).toEqual(r.description);
         expect(r2.is_private).toEqual(r.is_private);

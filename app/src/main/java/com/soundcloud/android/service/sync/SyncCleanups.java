@@ -1,10 +1,9 @@
 package com.soundcloud.android.service.sync;
 
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.provider.Content;
-
 import android.content.Context;
 import android.net.Uri;
+import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.provider.Content;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +32,13 @@ enum SyncCleanups {
      * @param manual manual sync {@link android.content.ContentResolver#SYNC_EXTRAS_MANUAL}
      */
     public static List<Uri> getCleanupsDueForSync(Context c, boolean manual) {
+        SyncStateManager syncStateManager = new SyncStateManager(c);
+
         List<Uri> urisToSync = new ArrayList<Uri>();
         for (SyncCleanups sc : SyncCleanups.values()) {
-            final LocalCollection lc = LocalCollection.fromContent(sc.content, c.getContentResolver(), false);
-            if (manual || lc == null || sc.shouldSync(lc.syncMisses(), lc.last_sync_success)) {
+            final LocalCollection lc = syncStateManager.fromContent(sc.content);
+
+            if (manual || sc.shouldSync(lc.syncMisses(), lc.last_sync_success)) {
                 final Uri uri = sc.toKeep > -1 ? Uri.parse(sc.content.uri.toString() + "?limit="+sc.toKeep) : sc.content.uri;
                 urisToSync.add(uri);
             }

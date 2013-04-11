@@ -21,6 +21,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.SuggestedUsers;
+import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -116,7 +117,7 @@ public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity
                 // SoundCloudApplication works properly
                 boolean accountCreated = app.addUserAccountAndEnableSync(user, app.getToken(), via);
                 if (accountCreated) {
-                    SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
+                    new UserStorage(app).createOrUpdate(user);
                     if (via != SignupVia.NONE) {
                         // user has signed up, schedule sync of user data to possibly refresh image data
                         // which gets processed asynchronously by the backend and is only available after signup has happened
