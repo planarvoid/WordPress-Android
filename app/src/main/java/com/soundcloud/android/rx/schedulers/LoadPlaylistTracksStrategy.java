@@ -9,11 +9,10 @@ import rx.Observable;
 import android.content.Context;
 import android.net.Uri;
 
-import java.util.Collections;
 import java.util.List;
 
 
-public class LoadPlaylistTracksStrategy implements SyncManager.LocalStorageStrategy<List<Track>> {
+public class LoadPlaylistTracksStrategy implements SyncOperations.LocalStorageStrategy<List<Track>> {
 
     private PlaylistStorage mStorage;
 

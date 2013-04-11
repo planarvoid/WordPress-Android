@@ -11,7 +11,7 @@ import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.event.Event;
 import com.soundcloud.android.rx.schedulers.LoadActivitiesStrategy;
-import com.soundcloud.android.rx.schedulers.SyncManager;
+import com.soundcloud.android.rx.schedulers.SyncOperations;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
@@ -29,7 +29,7 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
 
     private Uri mContentUri;
 
-    private SyncManager<List<Activity>> mSyncManager;
+    private SyncOperations<List<Activity>> mSyncOperations;
     private Subscription mAssocChangedSubscription;
     private Observable<List<Activity>> mLoadActivities;
 
@@ -49,15 +49,15 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
 
         mContentUri = (Uri) getArguments().get(EXTRA_STREAM_URI);
 
-        SyncManager.LocalStorageStrategy<List<Activity>> storageStrategy = new LoadActivitiesStrategy(getActivity());
-        mSyncManager = new SyncManager<List<Activity>>(getActivity(), storageStrategy);
+        SyncOperations.LocalStorageStrategy<List<Activity>> storageStrategy = new LoadActivitiesStrategy(getActivity());
+        mSyncOperations = new SyncOperations<List<Activity>>(getActivity(), storageStrategy);
         mLoadActivities = storageStrategy.loadFromContentUri(mContentUri);
 
         mAssocChangedSubscription = Event.anyOf(Event.LIKE_CHANGED, Event.REPOST_CHANGED).subscribe(mLoadActivities, mLoadItemsObserver);
 
         if (savedInstanceState == null) {
             Log.d(this, "first start, scheduling possible sync");
-            mScheduler.addPendingObservable(mSyncManager.syncIfNecessary(mContentUri));
+            mScheduler.addPendingObservable(mSyncOperations.syncIfNecessary(mContentUri));
         }
     }
 
@@ -144,7 +144,7 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
     @Override
     public void onRefresh(PullToRefreshBase refreshView) {
         super.onRefresh(refreshView);
-        mSyncManager.syncNow(mContentUri).subscribe(mLoadItemsObserver);
+        mSyncOperations.syncNow(mContentUri).subscribe(mLoadItemsObserver);
     }
 
     @Override

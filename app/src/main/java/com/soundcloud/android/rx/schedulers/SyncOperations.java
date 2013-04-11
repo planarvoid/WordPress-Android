@@ -3,29 +3,29 @@ package com.soundcloud.android.rx.schedulers;
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.rx.ScObservables;
-import com.soundcloud.android.rx.observers.DetachableObserver;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.subscriptions.BooleanSubscription;
+import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.ResultReceiver;
 
-public class SyncManager<T> {
+public class SyncOperations<T> {
 
     private final Context mContext;
     private final LocalStorageStrategy<T> mLocalStorage;
     private final LocalCollectionDAO mLocalCollectionsDao; //TODO: replace with storage facade
 
-    public SyncManager(Context context, LocalStorageStrategy<T> localStorageStrategy) {
+    public SyncOperations(Context context, LocalStorageStrategy<T> localStorageStrategy) {
         mContext = context.getApplicationContext();
         mLocalStorage = localStorageStrategy;
         mLocalCollectionsDao = new LocalCollectionDAO(context.getContentResolver());
@@ -36,9 +36,9 @@ public class SyncManager<T> {
     }
 
     public Observable<Observable<T>> syncIfNecessary(final Uri contentUri, final Observable<T> syncAction) {
-        return Observable.create(ReactiveScheduler.newBackgroundJob(new ObservedRunnable<Observable<T>>() {
+        return Observable.create(new Func1<Observer<Observable<T>>, Subscription>() {
             @Override
-            public void run(DetachableObserver<Observable<T>> observer) {
+            public Subscription call(Observer<Observable<T>> observer) {
                 LocalCollection mLocalCollection = mLocalCollectionsDao.fromContentUri(contentUri, true);
                 boolean syncRequired;
                 if (mLocalCollection == null) {
@@ -56,8 +56,10 @@ public class SyncManager<T> {
                 }
 
                 observer.onCompleted();
+
+                return Subscriptions.empty();
             }
-        }));
+        });
     }
 
     public Observable<T> syncNow(final Uri contentUri) {
@@ -68,7 +70,7 @@ public class SyncManager<T> {
 
                 final BooleanSubscription subscription = new BooleanSubscription();
 
-                final ResultReceiver receiver = new ResultReceiver(null) {
+                final ResultReceiver receiver = new ResultReceiver(new Handler()) {
                     @Override
                     protected void onReceiveResult(int resultCode, Bundle resultData) {
                         if (!subscription.isUnsubscribed()) {
@@ -95,7 +97,7 @@ public class SyncManager<T> {
 
                         T result = mLocalStorage.loadFromContentUri(contentUri).last();
                         observer.onNext(result);
-
+                        observer.onCompleted();
                         break;
                     }
                     case ApiSyncService.STATUS_SYNC_ERROR:
@@ -103,7 +105,6 @@ public class SyncManager<T> {
                         observer.onError(new Exception("Sync failed"));
                         break;
                 }
-                observer.onCompleted();
             }
         });
     }

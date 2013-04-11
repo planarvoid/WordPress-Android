@@ -9,7 +9,7 @@ import rx.Observable;
 import android.content.Context;
 import android.net.Uri;
 
-public class LoadPlaylistStrategy implements SyncManager.LocalStorageStrategy<Playlist> {
+public class LoadPlaylistStrategy implements SyncOperations.LocalStorageStrategy<Playlist> {
 
     private PlaylistStorage mStorage;
 

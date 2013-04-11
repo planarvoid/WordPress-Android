@@ -12,7 +12,7 @@ import com.soundcloud.android.rx.ScFunctions;
 import com.soundcloud.android.rx.event.Event;
 import com.soundcloud.android.rx.schedulers.LoadPlaylistStrategy;
 import com.soundcloud.android.rx.schedulers.LoadPlaylistTracksStrategy;
-import com.soundcloud.android.rx.schedulers.SyncManager;
+import com.soundcloud.android.rx.schedulers.SyncOperations;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyListView;
@@ -37,7 +37,7 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
 
     private LoadPlaylistTracksStrategy mTracksStorage;
     private PlaylistObserver mPlaylistObserver;
-    private SyncManager<Playlist> mSyncManager;
+    private SyncOperations<Playlist> mSyncOperations;
 
     private Observable<List<Track>> mLoadTracks;
     private Subscription mTrackAssocChangedSubscription;
@@ -62,7 +62,7 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
         mPlaylist = Playlist.fromBundle(getArguments());
 
         mTracksStorage = new LoadPlaylistTracksStrategy(getActivity());
-        mSyncManager = new SyncManager<Playlist>(getActivity(), new LoadPlaylistStrategy(getActivity()));
+        mSyncOperations = new SyncOperations<Playlist>(getActivity(), new LoadPlaylistStrategy(getActivity()));
         mPlaylistObserver = new PlaylistObserver();
 
         mLoadTracks = mTracksStorage.loadFromContentUri(mPlaylist.toUri());
@@ -73,7 +73,7 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
         // so we need to map the sync operation to return the playlist's tracks first
         if (savedInstanceState == null) {
             mScheduler.addPendingObservable(
-                    mSyncManager.syncIfNecessary(mPlaylist.toUri()).map(ScFunctions.PLAYLIST_OBS_TO_TRACKS_OBS));
+                    mSyncOperations.syncIfNecessary(mPlaylist.toUri()).map(ScFunctions.PLAYLIST_OBS_TO_TRACKS_OBS));
         }
     }
 
@@ -124,7 +124,7 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
     public void onRefresh(PullToRefreshBase refreshView) {
         super.onRefresh(refreshView);
         // sync the playlist, then reload its tracks and update the synced playlist instance
-        Observable.zip(mSyncManager.syncNow(mPlaylist.toUri()),
+        Observable.zip(mSyncOperations.syncNow(mPlaylist.toUri()),
                        mTracksStorage.loadFromContentUri(mPlaylist.toUri()),
                        ScFunctions.FOLD_TRACKS_INTO_PLAYLIST)
                 .subscribe(mPlaylistObserver);
