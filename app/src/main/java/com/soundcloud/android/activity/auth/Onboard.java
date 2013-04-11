@@ -37,6 +37,7 @@ import net.hockeyapp.android.UpdateManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.util.Random;
 
 import static com.soundcloud.android.R.anim;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
@@ -119,7 +120,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             }
         });
 
-        final int startPage = (int) (Math.random()*mTourPages.length);
+        final int startPage = new Random().nextInt(mTourPages.length);
+
         mViewPager.setCurrentItem(startPage);
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
