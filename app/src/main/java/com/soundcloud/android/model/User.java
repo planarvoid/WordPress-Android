@@ -22,7 +22,6 @@ import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.dao.ActivitiesStorage;
-import com.soundcloud.android.dao.SearchDAO;
 import com.soundcloud.android.dao.UserDAO;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;

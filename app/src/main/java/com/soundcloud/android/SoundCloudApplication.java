@@ -12,8 +12,6 @@ import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.dao.ActivitiesStorage;
-import com.soundcloud.android.dao.SearchDAO;
-import com.soundcloud.android.dao.UserDAO;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.imageloader.DownloadBitmapHandler;
 import com.soundcloud.android.imageloader.ImageLoader;
@@ -218,7 +216,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
                 PlayQueueManager.clearState(SoundCloudApplication.this);
                 FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
-                SearchDAO.clearState(resolver, SoundCloudApplication.getUserId());
             }
         }.run();
 
