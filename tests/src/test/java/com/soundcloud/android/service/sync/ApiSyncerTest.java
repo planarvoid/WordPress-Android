@@ -8,12 +8,12 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.dao.ActivitiesStorage;
+import com.soundcloud.android.dao.PlaylistStorage;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScModelManagerTest;
+import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -37,18 +37,25 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import java.io.IOException;
+import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncerTest {
     private static final long USER_ID = 133201L;
     private static final int TOTAL_STREAM_SIZE = 119; // 120 - 1 dup
 
-    private ContentResolver resolver;
+    ContentResolver resolver;
+    SyncStateManager syncStateManager;
+    ActivitiesStorage activitiesStorage;
+    PlaylistStorage playlistStorage;
 
     @Before
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
+        syncStateManager = new SyncStateManager(DefaultTestRunner.application);
+        activitiesStorage = new ActivitiesStorage(DefaultTestRunner.application);
+        playlistStorage = new PlaylistStorage(DefaultTestRunner.application);
     }
 
     @Test
@@ -78,7 +85,7 @@ public class ApiSyncerTest {
         expect(Content.USERS).toHaveCount(28);
         expect(Content.PLAYLISTS).toHaveCount(8);
 
-        Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
+        Activities incoming = activitiesStorage.getSince(Content.ME_SOUND_STREAM, -1);
 
         expect(incoming.size()).toEqual(TOTAL_STREAM_SIZE);
         expect(incoming.getUniquePlayables().size()).toEqual(TOTAL_STREAM_SIZE);
@@ -118,7 +125,7 @@ public class ApiSyncerTest {
         expect(Content.ME_ACTIVITIES).toHaveCount(17);
         expect(Content.COMMENTS).toHaveCount(5);
 
-        Activities own = Activities.getSince(Content.ME_ACTIVITIES, Robolectric.application.getContentResolver(), -1);
+        Activities own = activitiesStorage.getSince(Content.ME_ACTIVITIES, -1);
         expect(own.size()).toEqual(17);
 
         assertResolverNotified(Content.TRACKS.uri,
@@ -137,8 +144,8 @@ public class ApiSyncerTest {
         expect(result.synced_at).toBeGreaterThan(0l);
         expect(Content.USERS).toHaveCount(3);
 
-        CollectionHolder<User> followers = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver,
-                User.class, Content.ME_FOLLOWERS.uri);
+
+        List<User> followers = TestHelper.loadLocalContent(Content.ME_FOLLOWERS.uri, User.class);
         expect(followers.get(0).id).toEqual(308291l);
         for (User u : followers){
             expect(u.isStale()).toBeFalse();
@@ -177,7 +184,7 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncSounds() throws Exception {
-        Result result = populateMeSounds();
+        Result result = syncMeSounds();
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
@@ -220,7 +227,7 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncSoundsAndLikes() throws Exception {
-        Result result = populateMeSounds();
+        Result result = syncMeSounds();
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
@@ -282,27 +289,24 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldPushNewPlaylist() throws Exception {
-        populateMeSounds();
+        syncMeSounds();
 
+        Playlist playlist = TestHelper.readResource("/com/soundcloud/android/service/sync/playlist.json");
         TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
 
-        final ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
-        Playlist p = ScModelManagerTest.createNewPlaylist(contentResolver,
-                SoundCloudApplication.MODEL_MANAGER);
+        Playlist p = TestHelper.createNewUserPlaylist(playlist.user, false, playlist.tracks);
+        TestHelper.insertAsSoundAssociation(p, SoundAssociation.Type.PLAYLIST);
 
-        expect(p).not.toBeNull();
-
-        expect(p.insertAsMyPlaylist(contentResolver)).not.toBeNull();
-        expect(Content.TRACKS).toHaveCount(50);
         expect(Content.ME_SOUNDS).toHaveCount(51);
-
-        expect(new ApiSyncer(Robolectric.application, contentResolver).pushLocalPlaylists()).toBe(1);
+        expect(Content.COLLECTIONS).toHaveCount(0);
+        expect(new ApiSyncer(Robolectric.application, resolver).pushLocalPlaylists()).toBe(1);
         expect(Content.ME_SOUNDS).toHaveCount(51);
+        expect(Content.COLLECTIONS).toHaveCount(1);
 
-        expect(LocalCollection.fromContentUri(p.toUri(), contentResolver, true).shouldAutoRefresh()).toBeFalse();
+        expect(syncStateManager.fromContent(playlist.toUri()).shouldAutoRefresh()).toBeFalse();
     }
 
-    private Result populateMeSounds() throws IOException {
+    private Result syncMeSounds() throws IOException {
         addResourceResponse("/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
         return sync(Content.ME_SOUNDS.uri);
     }
@@ -316,7 +320,9 @@ public class ApiSyncerTest {
         expect(result.change).toEqual(Result.CHANGED);
         expect(Content.PLAYLISTS).toHaveCount(1);
 
-        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylistWithTracks(2524386l);
+        Playlist p = playlistStorage.getPlaylistWithTracks(2524386l);
+
+
         expect(p.title).toEqual("fall into fall");
         expect(p.getTrackCount()).toEqual(41);
         expect(p.tracks).not.toBeNull();
@@ -328,21 +334,6 @@ public class ApiSyncerTest {
     }
 
     @Test
-    public void shouldSyncPlaylistTracks() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "playlist_tracks.json");
-        final Uri localUri = Content.PLAYLIST_TRACKS.forId(2524386l);
-        Result result = sync(localUri);
-        expect(result.success).toBe(true);
-        expect(result.synced_at).toBeGreaterThan(0l);
-        expect(result.change).toEqual(Result.CHANGED);
-        expect(Content.TRACKS).toHaveCount(41);
-
-        CollectionHolder<Track> trackHolder = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(resolver,Track.class, localUri);
-        expect(trackHolder.collection.size()).toBe(41);
-        expect(trackHolder.collection.get(1).title).toEqual("Keaton Henson - All Things Must Pass");
-    }
-
-    @Test
     public void shouldSyncPlaylistWithAdditions() throws Exception {
 
         TestHelper.addPendingHttpResponse(getClass(), "tracks.json");
@@ -351,8 +342,8 @@ public class ApiSyncerTest {
 
         final Playlist playlist = new Playlist(2524386);
 
-        expect(Playlist.addTrackToPlaylist(resolver,playlist,10696200, System.currentTimeMillis())).not.toBeNull();
-        expect(Playlist.addTrackToPlaylist(resolver,playlist,10853436, System.currentTimeMillis() + 100)).not.toBeNull();
+        expect(playlistStorage.addTrackToPlaylist(playlist, 10696200, System.currentTimeMillis())).not.toBeNull();
+        expect(playlistStorage.addTrackToPlaylist(playlist, 10853436, System.currentTimeMillis() + 100)).not.toBeNull();
 
         TestHelper.addPendingHttpResponse(getClass(), "playlist.json", "playlist_added.json");
 
@@ -362,7 +353,7 @@ public class ApiSyncerTest {
         expect(result.change).toEqual(Result.CHANGED);
         expect(Content.TRACKS).toHaveCount(44);
 
-        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylistWithTracks(playlist.id);
+        Playlist p = playlistStorage.getPlaylistWithTracks(playlist.id);
         expect(p.tracks.size()).toBe(43);
         expect(p.tracks.get(1).title).toEqual("recording on thursday afternoon");
     }
@@ -408,63 +399,27 @@ public class ApiSyncerTest {
     }
 
     @Test
-    public void shouldReturnUnchangedIfLocalStateEqualsRemote() throws Exception {
-        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+    public void shouldReturnReorderedForUsersIfLocalStateEqualsRemote() throws Exception {
+        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
+        addCannedResponse(getClass(), "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
 
-        Result result = sync(Content.ME_TRACKS.uri);
-        expect(result.success).toBe(true);
-        expect(result.change).toEqual(Result.CHANGED);
+        Result result = sync(Content.ME_FOLLOWERS.uri);
+        expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
-        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+        // make sure tracks+users got written
+        expect(Content.USERS).toHaveCount(3);
+        expect(Content.ME_FOLLOWERS).toHaveCount(3);
+        assertFirstIdToBe(Content.ME_FOLLOWERS, 308291);
 
-        result = sync(Content.ME_TRACKS.uri);
+
+        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
+        addCannedResponse(getClass(), "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
+        result = sync(Content.ME_FOLLOWERS.uri);
         expect(result.success).toBe(true);
-        expect(result.change).toEqual(Result.UNCHANGED);
+        expect(result.change).toEqual(Result.REORDERED);
         expect(result.synced_at).toBeGreaterThan(0l);
         expect(result.extra).toBeNull();
-    }
-
-    @Test
-    public void shouldNotOverwriteDataFromPreviousSyncRuns() throws Exception {
-        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
-
-        sync(Content.ME_TRACKS.uri);
-        expect(Content.TRACKS).toHaveCount(3);
-
-        // sync activities concerning these tracks
-        sync(Content.ME_ACTIVITIES.uri, "tracks_activities.json");
-
-        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(10853436L);
-        expect(t).not.toBeNull();
-        expect(t.duration).toEqual(782);
-        // title should get changed from the activity json
-        expect(t.title).toEqual("recording on sunday night (edit)");
-
-        User u = SoundCloudApplication.MODEL_MANAGER.getUser(3135930L);
-        expect(u).not.toBeNull();
-        expect(u.username).toEqual("I'm your father");
-        // permalink was set in first sync run, not present in second
-        expect(u.permalink).toEqual("soundcloud-android-mwc");
-    }
-
-    @Test
-    public void shouldNotOverwriteDataFromPreviousSyncRuns2() throws Exception {
-        sync(Content.ME_ACTIVITIES.uri, "tracks_activities.json");
-
-        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
-
-        sync(Content.ME_TRACKS.uri);
-
-        expect(Content.TRACKS).toHaveCount(3);
-
-        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(10853436L);
-        expect(t).not.toBeNull();
-        expect(t.duration).toEqual(782);
     }
 
     @Test
@@ -495,7 +450,7 @@ public class ApiSyncerTest {
         sync(Content.ME_SOUND_STREAM.uri, "track_and_track_sharing.json");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(2);
-        Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
+        Activities incoming = activitiesStorage.getSince(Content.ME_SOUND_STREAM, -1);
 
         expect(incoming.size()).toEqual(2);
         Activity a1 = incoming.get(0);
@@ -520,7 +475,7 @@ public class ApiSyncerTest {
         sync(Content.ME_SOUND_STREAM.uri, "playlist_and_playlist_sharing.json");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
-        Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
+        Activities incoming = activitiesStorage.getSince(Content.ME_SOUND_STREAM, -1);
 
         expect(incoming.size()).toEqual(1);
         Activity a1 = incoming.get(0);

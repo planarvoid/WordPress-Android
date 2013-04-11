@@ -1,16 +1,9 @@
 package com.soundcloud.android.model.act;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.PlayableHolder;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-
 import android.database.Cursor;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.model.PlayableHolder;
+import com.soundcloud.android.model.User;
 
 public class TrackLikeActivity extends TrackActivity implements PlayableHolder {
     @JsonProperty public User user;
@@ -22,7 +15,7 @@ public class TrackLikeActivity extends TrackActivity implements PlayableHolder {
 
     public TrackLikeActivity(Cursor cursor) {
         super(cursor);
-        user = SoundCloudApplication.MODEL_MANAGER.getUserFromActivityCursor(cursor);
+        user = User.fromActivityView(cursor);
     }
 
     @Override
@@ -33,11 +26,5 @@ public class TrackLikeActivity extends TrackActivity implements PlayableHolder {
     @Override
     public User getUser() {
         return user;
-    }
-
-    @Override
-    public void cacheDependencies() {
-        super.cacheDependencies();
-        this.user = SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.MINI);
     }
 }

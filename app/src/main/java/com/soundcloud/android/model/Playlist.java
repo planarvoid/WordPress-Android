@@ -1,24 +1,5 @@
 package com.soundcloud.android.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRootName;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.track.PlaylistActivity;
-import com.soundcloud.android.json.Views;
-import com.soundcloud.android.model.act.Activity;
-import com.soundcloud.android.provider.BulkInsertMap;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.service.playback.PlayQueueManager;
-import com.soundcloud.android.utils.UriUtils;
-import com.soundcloud.api.Params;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -30,6 +11,22 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.track.PlaylistActivity;
+import com.soundcloud.android.json.Views;
+import com.soundcloud.android.provider.BulkInsertMap;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.api.Params;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -77,6 +74,21 @@ public class Playlist extends Playable {
 
     public static @Nullable Playlist fromIntent(Intent intent) {
         return fromBundle(intent.getExtras());
+    }
+
+    /**
+     * Helper to instantiate a playlist the given user created locally. This playlist will have a negative timestamp
+     * to indicate that it hasn't been synced to the API yet.
+     */
+    public static Playlist newUserPlaylist(User user, String title, boolean isPrivate, List<Track> tracks) {
+        Playlist playlist = new Playlist(-System.currentTimeMillis());
+        playlist.user = user;
+        playlist.title = title;
+        playlist.sharing = isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC;
+        playlist.created_at = new Date();
+        playlist.tracks = tracks;
+        playlist.track_count = tracks.size();
+        return playlist;
     }
 
     public Playlist() {
@@ -188,14 +200,6 @@ public class Playlist extends Playable {
         return DB_TYPE_PLAYLIST;
     }
 
-    public Uri insertAsMyPlaylist(ContentResolver resolver){
-        insert(resolver);
-
-        // association so it appears in ME_SOUNDS, ME_PLAYLISTS, etc.
-        return new SoundAssociation(this, new Date(System.currentTimeMillis()), SoundAssociation.Type.PLAYLIST)
-                .insert(resolver, Content.ME_PLAYLISTS.uri);
-    }
-
     @Override
     public Intent getViewIntent() {
         return PlaylistActivity.getIntent(this);
@@ -212,37 +216,6 @@ public class Playlist extends Playable {
             return new Playlist[size];
         }
     };
-
-    // Local i.e. unpushed playlists are currently identified by having a negative timestamp
-    public static boolean hasLocalPlaylists(ContentResolver resolver) {
-        Cursor itemsCursor = resolver.query(Content.PLAYLISTS.uri,
-                new String[]{DBHelper.SoundView._ID}, DBHelper.SoundView._ID + " < 0",
-                null, null);
-
-        boolean hasPlaylists = false;
-        if (itemsCursor != null) {
-            hasPlaylists = itemsCursor.getCount() > 0;
-            itemsCursor.close();
-        }
-        return hasPlaylists;
-    }
-
-    // Local i.e. unpushed playlists are currently identified by having a negative timestamp
-    public static List<Playlist> getLocalPlaylists(ContentResolver resolver) {
-        Cursor itemsCursor = resolver.query(Content.PLAYLISTS.uri,
-                null, DBHelper.SoundView._ID + " < 0",
-                null, DBHelper.SoundView._ID + " DESC");
-
-        List<Playlist> playlists = new ArrayList<Playlist>();
-        if (itemsCursor != null) {
-            while (itemsCursor.moveToNext()) {
-                playlists.add(SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(itemsCursor));
-            }
-
-        }
-        if (itemsCursor != null) itemsCursor.close();
-        return playlists;
-    }
 
     public boolean isLocal() {
         return id < 0;
@@ -289,58 +262,6 @@ public class Playlist extends Playable {
         }
     }
 
-    public static Uri addTrackToPlaylist(ContentResolver resolver, Playlist playlist, long trackId){
-        return addTrackToPlaylist(resolver, playlist, trackId,System.currentTimeMillis());
-    }
-
-    public static Uri addTrackToPlaylist(ContentResolver resolver, Playlist playlist, long trackId, long time){
-        playlist.setTrackCount(playlist.getTrackCount() + 1);
-
-        ContentValues cv = new ContentValues();
-        cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID, playlist.id);
-        cv.put(DBHelper.PlaylistTracks.TRACK_ID, trackId);
-        cv.put(DBHelper.PlaylistTracks.ADDED_AT, time);
-        cv.put(DBHelper.PlaylistTracks.POSITION, playlist.getTrackCount());
-        return resolver.insert(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.id)), cv);
-    }
-
-    /**
-     * delete any caching, and mark any local instances as removed
-     * {@link com.soundcloud.android.activity.track.PlaylistActivity#onPlaylistChanged()}
-     * @param resolver
-     * @param playlistUri
-     */
-    public static void removePlaylist(ContentResolver resolver, Uri playlistUri) {
-        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(playlistUri);
-        if (p != null) {
-            p.removed = true;
-            SoundCloudApplication.MODEL_MANAGER.removeFromCache(p.toUri());
-        }
-        Playlist.removePlaylistFromDb(resolver, UriUtils.getLastSegmentAsLong(playlistUri));
-    }
-
-    public static int removePlaylistFromDb(ContentResolver resolver, long playlistId){
-
-        final String playlistIdString = String.valueOf(playlistId);
-        int deleted = resolver.delete(Content.PLAYLIST.forQuery(playlistIdString), null, null);
-        deleted += resolver.delete(Content.PLAYLIST_TRACKS.forQuery(playlistIdString), null, null);
-
-        // delete from collections
-        String where = DBHelper.CollectionItems.ITEM_ID + " = " + playlistId + " AND "
-                + DBHelper.CollectionItems.RESOURCE_TYPE + " = " + Playable.DB_TYPE_PLAYLIST;
-
-        deleted += resolver.delete(Content.ME_PLAYLISTS.uri, where, null);
-        deleted += resolver.delete(Content.ME_SOUNDS.uri, where, null);
-        deleted += resolver.delete(Content.ME_LIKES.uri, where, null);
-
-        // delete from activities
-        where = DBHelper.Activities.SOUND_ID + " = " + playlistId + " AND " +
-                DBHelper.ActivityView.TYPE + " IN ( " + Activity.getDbPlaylistTypesForQuery() + " ) ";
-        deleted += resolver.delete(Content.ME_ALL_ACTIVITIES.uri, where, null);
-
-        return deleted;
-    }
-
     @Override
     public boolean isStale() {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.playlist;
@@ -359,7 +280,6 @@ public class Playlist extends Playable {
     public void setTrackCount(int count) {
         track_count = count;
     }
-
 
     /**
      * Change listening. Playlist IDs are mutable, so we listen on the actual instance instead of content uri's

@@ -399,13 +399,13 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             mAdapterRef = new WeakReference<SuggestionsAdapter>(adapter);
             mApi = api;
         }
+
         @Override
         public void handleMessage(Message msg) {
             final SuggestionsAdapter adapter = mAdapterRef.get();
             if (adapter == null) {
                 return;
             }
-
             final CharSequence constraint = (CharSequence) msg.obj;
             try {
                 HttpResponse resp = mApi.get(Request.to("/search/suggest").with(
@@ -414,8 +414,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
                         "limit", MAX_REMOTE));
 
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(),
-                            SearchSuggestions.class);
+                    final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(), SearchSuggestions.class);
                     adapter.onRemoteSuggestions(constraint, searchSuggestions);
                     return;
                 } else {

@@ -12,6 +12,7 @@ import com.soundcloud.android.audio.TrimPreview;
 import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
+import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.service.record.RecordAppWidgetProvider;
 import com.soundcloud.android.service.record.SoundRecorderService;
@@ -205,7 +206,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
 
         if (mRecording != null) {
-            if (deleteRecording) mRecording.delete(mContext.getContentResolver());
+            if (deleteRecording) new RecordingStorage(mContext).delete(mRecording);
             mRecording = null;
         }
     }
@@ -486,7 +487,10 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             }
 
             mRecording.setPlaybackStream(mPlaybackStream);
-            final Uri uri = mRecording.insert(mContext.getContentResolver(),false);
+
+            new RecordingStorage(mContext).createFromBaseValues(mRecording);
+
+            final Uri uri = mRecording.toUri();
             if (uri != null) {
                 mRecording.id = Long.parseLong(uri.getLastPathSegment());
                 return mRecording;

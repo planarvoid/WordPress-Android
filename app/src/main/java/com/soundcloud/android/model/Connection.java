@@ -28,7 +28,6 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     private boolean active = true;
     private Service _service;
 
-    public long id;
     public String type;
     public Date created_at;
     public String display_name;

@@ -6,13 +6,11 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.record.SoundRecorderService;
@@ -281,7 +279,7 @@ public class UploadService extends Service {
                 new Poller(createLooper("poller_" + upload.track.id, Process.THREAD_PRIORITY_BACKGROUND),
                             (AndroidCloudAPI) getApplication(),
                             upload.track.id,
-                            Content.ME_TRACKS.uri).start();
+                            Content.ME_SOUNDS.uri).start();
 
                 mBroadcastManager.sendBroadcast(new Intent(UPLOAD_SUCCESS)
                         .putExtra(UploadService.EXTRA_RECORDING, recording));
@@ -302,8 +300,8 @@ public class UploadService extends Service {
                     || TRANSFER_CANCELLED.equals(action)
                     || TRANSFER_ERROR.equals(action);
             if (wasError) {
-                recording.setUploadFailed(PROCESSING_CANCELED.equals(action) || TRANSFER_CANCELLED.equals(action))
-                        .updateStatus(getContentResolver()); // for list state
+                new RecordingStorage(context)
+                        .updateStatus(recording.setUploadFailed(PROCESSING_CANCELED.equals(action) || TRANSFER_CANCELLED.equals(action))); // for list state
 
                 releaseLocks();
                 mUploads.remove(recording.id);
@@ -412,8 +410,10 @@ public class UploadService extends Service {
             soundRecorder.gotoIdleState();
         }
 
+        RecordingStorage recordings = new RecordingStorage(this);
         if (!recording.isSaved()){
-            Uri uri = recording.insert(getContentResolver());
+            recordings.create(recording);
+            Uri uri = recording.toUri();
             if (uri != null) {
                 recording.id = Long.parseLong(uri.getLastPathSegment());
             }
@@ -421,9 +421,9 @@ public class UploadService extends Service {
 
         if (recording.isSaved()){
             recording.upload_status = Recording.Status.UPLOADING;
-            recording.updateStatus(getContentResolver());
+            recordings.updateStatus(recording);
         } else {
-            Log.w(TAG, "could not insert " + recording);
+            Log.w(TAG, "could not create " + recording);
         }
         queueUpload(recording);
     }

@@ -2,10 +2,8 @@ package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -13,7 +11,6 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
-import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
-public class PlaylistManagerTest {
+public class PlayQueueManagerTest {
     ContentResolver resolver;
     PlayQueueManager pm;
     static final long USER_ID = 1L;
@@ -192,18 +189,21 @@ public class PlaylistManagerTest {
     }
 
     @Test
-    public void shouldLoadFavoritesAsPlaylist() throws Exception {
+    public void shouldLoadLikesAsPlaylist() throws Exception {
         insertLikes();
         pm.loadUri(Content.ME_LIKES.uri, 1, 56142962);
+
+        expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().id).toEqual(56142962l);
         expect(pm.next()).toBeTrue();
         expect(pm.getCurrentTrack().id).toEqual(56143158l);
     }
 
     @Test
-    public void shouldSaveAndRestoreFavoritesAsPlaylist() throws Exception {
+    public void shouldSaveAndRestoreLikesAsPlaylist() throws Exception {
         insertLikes();
         pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
+        expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().id).toEqual(56142962l);
         expect(pm.getPosition()).toEqual(0);
         pm.saveQueue(1000l);
@@ -213,9 +213,10 @@ public class PlaylistManagerTest {
     }
 
     @Test
-    public void shouldSaveAndRestoreFavoritesAsPlaylistTwice() throws Exception {
+    public void shouldSaveAndRestoreLikesAsPlaylistTwice() throws Exception {
         insertLikes();
         pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
+        expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().id).toEqual(56142962l);
         pm.saveQueue(1000l);
         expect(pm.reloadQueue()).toEqual(1000l);
@@ -232,7 +233,7 @@ public class PlaylistManagerTest {
     }
 
     @Test
-    public void shouldSaveAndRestoreFavoritesAsPlaylistWithMovedTrack() throws Exception {
+    public void shouldSaveAndRestoreLikesAsPlaylistWithMovedTrack() throws Exception {
         insertLikes();
         pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
         expect(pm.getCurrentTrack().id).toEqual(56142962l);
@@ -301,8 +302,10 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldRespondToUriChanges() throws Exception {
-        Playlist p = SoundCloudApplication.MODEL_MANAGER.getModelFromStream(SyncAdapterServiceTest.class.getResourceAsStream("playlist.json"));
-        Uri playlistUri = p.insert(resolver);
+        Playlist p = TestHelper.readResource("/com/soundcloud/android/service/sync/playlist.json");
+        TestHelper.insertWithDependencies(p);
+
+        Uri playlistUri = p.toUri();
         expect(playlistUri).toEqual(Content.PLAYLIST.forQuery(String.valueOf(2524386)));
 
         pm.loadUri(playlistUri, 5, 7L);
@@ -344,9 +347,11 @@ public class PlaylistManagerTest {
                 ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
                 SoundAssociationHolder.class);
 
-        expect(SoundCloudApplication.MODEL_MANAGER.writeCollection(old.collection,Content.ME_LIKES.uri,USER_ID,
-                ScResource.CacheUpdateMode.NONE)).toEqual(18); // 2 tracks, 1 playlist
+        TestHelper.bulkInsert(Content.ME_LIKES.uri, old.collection);
 
+//        expect(SoundCloudApplication.MODEL_MANAGER.writeCollection(old.collection, Content.ME_LIKES.uri, USER_ID,
+//                ScResource.CacheUpdateMode.NONE)).toEqual(18); // 2 tracks, 1 playlist
+//
         Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(3); // 2 tracks, 1 playlist
     }
@@ -363,7 +368,7 @@ public class PlaylistManagerTest {
             t.title = "track #"+(startPos+i);
             t.user = user;
             t.stream_url = streamable ? "http://www.soundcloud.com/sometrackurl" : null;
-            SoundCloudApplication.MODEL_MANAGER.write(t);
+            TestHelper.insertWithDependencies(t);
             list.add(t);
         }
         return list;

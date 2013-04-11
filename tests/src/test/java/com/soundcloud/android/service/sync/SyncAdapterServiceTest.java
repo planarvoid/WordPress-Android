@@ -62,8 +62,8 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
 
         doPerformSync(DefaultTestRunner.application, false, null);
 
-        LocalCollection lc = LocalCollection.fromContent(Content.ME_SOUNDS, Robolectric.application.getContentResolver(), false);
-        expect(lc).not.toBeNull();
+        final SyncStateManager syncStateManager = new SyncStateManager(Robolectric.application);
+        LocalCollection lc = syncStateManager.fromContent(Content.ME_SOUNDS);
         expect(lc.extra).toBeNull();
         expect(lc.size).toEqual(50);
         expect(lc.last_sync_success).toBeGreaterThan(0L);
@@ -73,12 +73,12 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
                 "empty_collection.json",
                 "empty_collection.json");
 
-        lc.updateLastSyncSuccessTime(0, DefaultTestRunner.application.getContentResolver());
+
+        syncStateManager.updateLastSyncSuccessTime(Content.ME_SOUNDS, 0);
 
         doPerformSync(DefaultTestRunner.application, false, null);
 
-        lc = LocalCollection.fromContent(Content.ME_SOUNDS, Robolectric.application.getContentResolver(), false);
-        expect(lc).not.toBeNull();
+        lc = syncStateManager.fromContent(Content.ME_SOUNDS);
         expect(lc.extra).toEqual(String.valueOf(1)); // incremented sync miss for backoff
         expect(lc.size).toEqual(50);
         expect(lc.last_sync_success).toBeGreaterThan(0L);
